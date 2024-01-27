@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+  db:
+    container_name: db
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: P@ssw0rd
+    ports:
+      - "1433:1433"
+  api:
+    container_name: api
+    depends_on:
+      - db
+    build: ./src/api
+    image: luarvic/file-manager-api:latest
+    restart: always
+    ports:
+      - "8080:8080"
+  ui:
+    container_name: ui
+    depends_on:
+      - api
+    build: ./src/ui
+    image: luarvic/file-manager-ui:latest
+    ports:
+      - "80:80"
