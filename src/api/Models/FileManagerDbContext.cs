@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api.Models;
 
+// A class that represents an EF database contexts.
 public class FileManagerDbContext : DbContext
 {
     private readonly IConfiguration _configuration;

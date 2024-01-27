@@ -1,17 +1,13 @@
+using api.Helpers;
 using api.Models;
 
 namespace api.Services;
 
-public class FileService : IFileService
+// A service that manages user files (uploads, gets, deletes, etc.).
+public class FileService(IConfiguration configuration, FileManagerDbContext db) : IFileService
 {
-    private readonly IConfiguration _configuration;
-    private readonly FileManagerDbContext _db;
-
-    public FileService(IConfiguration configuration, FileManagerDbContext db)
-    {
-        _configuration = configuration;
-        _db = db;
-    }
+    private readonly IConfiguration _configuration = configuration;
+    private readonly FileManagerDbContext _db = db;
 
     public async Task<IList<IUserFile>> UploadFilesAsync(IFormFileCollection files)
     {
@@ -25,27 +21,14 @@ public class FileService : IFileService
                 Created = DateTime.UtcNow,
             };
             var userFileEntry = await _db.UserFiles.AddAsync(userFile);
+            // Save the user file entity to the database to generate its Id.
             await _db.SaveChangesAsync();
             userFiles.Add(userFileEntry.Entity);
-            await SaveFileAsync(file, userFileEntry.Entity.Id.ToString());
+            // Save the user file to the file system under {basePath}/{Id} directory.
+            // This ensures that files with the same name are not overwritten.
+            // Also the directory is used to store file thumbnails (previews).
+            await FileHelpers.SaveFileAsync(file, _configuration["FileStorage:BasePath"], userFileEntry.Entity.Id.ToString());
         }
         return userFiles;
-    }
-
-    private async Task SaveFileAsync(IFormFile file, string subdirectory)
-    {
-        var basePath = _configuration["FileStorage:BasePath"];
-        if (string.IsNullOrWhiteSpace(basePath))
-        {
-            throw new Exception("FileStorage:BasePath is not defined in appsettings.json.");
-        }
-        var subdirectoryPath = $"{basePath}/{subdirectory}";
-        if (!Path.Exists(subdirectoryPath))
-        {
-            Directory.CreateDirectory(subdirectoryPath);
-        }
-        var filePath = $"{subdirectoryPath}/{file.FileName}";
-        using var stream = File.Create(filePath);
-        await file.CopyToAsync(stream);
     }
 }
