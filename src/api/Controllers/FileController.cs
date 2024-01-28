@@ -12,16 +12,19 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
     private readonly IFileService _fileService = fileService;
 
     [HttpPost]
-    public async Task<IActionResult> Post(IFormFileCollection files, CancellationToken cancellationToken)
+    public async Task<IActionResult> PostAsync(IFormFileCollection files, CancellationToken cancellationToken)
     {
         await _fileService.UploadFilesAsync(files, cancellationToken);
         return Ok();
     }
 
-    [HttpGet]
-    public async Task<IActionResult> Get(string id, CancellationToken cancellationToken)
+    [HttpGet()]
+    public async Task<FileContentResult> GetFileAsync(string id, bool preview, CancellationToken cancellationToken)
     {
-        var file = await _fileService.DownloadFileAsync(long.Parse(id), cancellationToken);
-        return Ok(file);
+        var (Filename, Bytes) = await _fileService.GetFileAsync(id, preview, cancellationToken);
+        return new FileContentResult(Bytes, MimeTypes.GetMimeType(Filename))
+        {
+            FileDownloadName = Filename
+        };
     }
 }

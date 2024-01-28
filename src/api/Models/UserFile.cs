@@ -4,7 +4,8 @@ namespace api.Models;
 public class UserFile : IUserFile
 {
     public long Id { get; set; }
-    public string? Name { get; set; }
-    public string? Type { get; set; }
-    public DateTime? Created { get; set; }
+    public required string Name { get; set; }
+    public string Thumbnail { get => $"{Id}-thumbnail.png"; }
+    public required string Type { get; set; }
+    public DateTime Created { get; set; }
 }

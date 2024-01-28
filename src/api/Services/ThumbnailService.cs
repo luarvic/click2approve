@@ -1,7 +1,3 @@
-
-using System.Net.Http.Headers;
-using Newtonsoft.Json;
-
 namespace api.Services;
 
 // A service that generates thumbnails of files.

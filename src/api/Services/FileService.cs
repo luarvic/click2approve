@@ -24,28 +24,30 @@ public class FileService(IConfiguration configuration, FileManagerDbContext db, 
                 Created = DateTime.UtcNow,
             };
             var userFileEntry = await _db.UserFiles.AddAsync(userFile, cancellationToken);
-            
+
             // Save the user file entity to the database to generate its Id.
             await _db.SaveChangesAsync(cancellationToken);
             var id = userFileEntry.Entity.Id.ToString();
+            var thumbnailId = userFileEntry.Entity.Thumbnail;
 
             // Save the file.
             var bytes = await file.ToBytesAsync(cancellationToken);
             await _storeService.AddFileAsync(id, file.FileName, bytes, cancellationToken);
-            
+
             // Generate a thumbnail.
             var thumbnailResponse = await _thumbnailService.CreateThumbnailAsync(file.FileName, bytes, cancellationToken);
-            
+
             // Save the thumbnail.
             using var thumbnailStream = await thumbnailResponse.Content.ReadAsStreamAsync(cancellationToken);
-            await _storeService.AddFileAsync($"{id}-thumbnail", $"{id}-thumbnail.png", await thumbnailStream.ToBytesAsync(cancellationToken), cancellationToken);
+            await _storeService.AddFileAsync(thumbnailId, thumbnailId, await thumbnailStream.ToBytesAsync(cancellationToken), cancellationToken);
         }
     }
 
-    public async Task<HttpResponseMessage> DownloadFileAsync(long id, CancellationToken cancellationToken)
+    public async Task<(string Filename, byte[] Bytes)> GetFileAsync(string id, bool preview, CancellationToken cancellationToken)
     {
-        var userFile = await _db.UserFiles.SingleAsync(f => f.Id == id, cancellationToken: cancellationToken);
-        var response = await _storeService.GetFileAsync(userFile.Id.ToString(), cancellationToken);
-        return response;
+        var userFile = await _db.UserFiles.FirstAsync(f => f.Id == long.Parse(id), cancellationToken: cancellationToken);
+        return preview ?
+            (userFile.Thumbnail, await _storeService.GetFileAsync(userFile.Thumbnail, cancellationToken)) :
+            (userFile.Name, await _storeService.GetFileAsync(userFile.Id.ToString(), cancellationToken));
     }
 }

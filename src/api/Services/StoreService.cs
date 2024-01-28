@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using api.Extentions;
 
 namespace api.Services;
 
@@ -10,21 +11,22 @@ public class StoreService(IConfiguration configuration, HttpClient httpClient, I
     private readonly HttpClient _httpClient = httpClient;
     private readonly ILogger<StoreService> _logger = logger;
 
-    public async Task AddFileAsync(string id, string filename, byte[] data, CancellationToken cancellationToken)
+    public async Task AddFileAsync(string id, string filename, byte[] bytes, CancellationToken cancellationToken)
     {
         var fileUri = new Uri(GetStorageUri(), $"files/{id}");
-        var content = new ByteArrayContent(data);
+        var content = new ByteArrayContent(bytes);
         content.Headers.ContentType = new MediaTypeHeaderValue(MimeTypes.GetMimeType(filename));
-        content.Headers.ContentLength = data.Length;
+        content.Headers.ContentLength = bytes.Length;
         content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = filename };
         await _httpClient.PostAsync(fileUri, content, cancellationToken);
     }
 
-    public async Task<HttpResponseMessage> GetFileAsync(string id, CancellationToken cancellationToken)
+    public async Task<byte[]> GetFileAsync(string id, CancellationToken cancellationToken)
     {
-        var fileUri = new Uri(GetStorageUri(), $"files/{id}?download");
+        var fileUri = new Uri(GetStorageUri(), $"files/{id}");
         var response = await _httpClient.GetAsync(fileUri, cancellationToken);
-        return response;
+        using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+        return await stream.ToBytesAsync(cancellationToken);
     }
 
     private Uri GetStorageUri()
@@ -34,7 +36,6 @@ public class StoreService(IConfiguration configuration, HttpClient httpClient, I
         {
             throw new Exception("Base URI of file storage service is not defined.");
         }
-
         return new Uri(baseUri);
     }
 }
