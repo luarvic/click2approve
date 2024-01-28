@@ -9,14 +9,26 @@ services:
       MSSQL_SA_PASSWORD: P@ssw0rd
     ports:
       - "1433:1433"
+  filestorage:
+    container_name: filestorage
+    image: rumkin/file-store:latest
+    ports:
+      - "3000:8080"
+  thumbnail:
+    container_name: thumbnail
+    image: ghcr.io/jodconverter/jodconverter-examples:rest
+    ports:
+      - "4000:8080"
   api:
     container_name: api
     depends_on:
       - db
+      - filestorage
+      - thumbnail
     build: ./src/api
     image: luarvic/file-manager-api:latest
     ports:
-      - "8080:8080"
+      - "5000:8080"
     command: /app/wait-for-it.sh -t 60 db:1433 -- dotnet /app/api.dll
   ui:
     container_name: ui

@@ -9,8 +9,11 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddTransient<IFileService, FileService>();
+builder.Services.AddHttpClient();
 builder.Services.AddDbContext<FileManagerDbContext>();
+builder.Services.AddTransient<IFileService, FileService>();
+builder.Services.AddTransient<IStoreService, StoreService>();
+builder.Services.AddTransient<IThumbnailService, ThumbnailService>();
 
 var app = builder.Build();
 
