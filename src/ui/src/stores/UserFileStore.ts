@@ -21,6 +21,7 @@ export class UserFileStore {
         const userFiles = await getUserFiles();
         runInAction(() => {
             userFiles.forEach(userFile => {
+                userFile.createdDate = new Date(userFile.created);
                 this.registry.set(userFile.id, userFile);
             });
         });

@@ -43,15 +43,13 @@ export const UserFiles = () => {
                 <TableCell collapsing><Checkbox /></TableCell>
                 <TableCell>
                   <div className='icon'>
-                    {
-                      getDefaultExtensionType(userFile.type) ?
+                    {getDefaultExtensionType(userFile.type) ?
                         <FileIcon extension={userFile.type} {...defaultStyles[getDefaultExtensionType(userFile.type)!]} /> :
-                        userFile.type
-                    }
+                        userFile.type}
                   </div>
                 </TableCell>
                 <TableCell><a href={`${API_URI}/download?id=${userFile.id}`} download>{userFile.name}</a></TableCell>
-                <TableCell>{userFile.created.toLocaleString()}</TableCell>
+                <TableCell>{userFile.createdDate.toLocaleString()}</TableCell>
                 <TableCell>
                   <Popup trigger={
                     <Image src={`${API_URI}/download?id=${userFile.id}&preview=true`} rounded size='mini' />
