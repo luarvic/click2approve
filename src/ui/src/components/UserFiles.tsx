@@ -1,5 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import React, { useContext, useEffect } from 'react';
+import { DefaultExtensionType, FileIcon, defaultStyles } from 'react-file-icon';
 import { Checkbox, Grid, Image, Popup, PopupContent, PopupHeader, Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'semantic-ui-react';
 import { IUserFile } from '../models/UserFile';
 import { userFileStoreContext } from '../stores/UserFileStore';
@@ -9,6 +10,11 @@ const API_URI = process.env.REACT_APP_API_URI;
 export const UserFiles = () => {
   const userFileStore = useContext(userFileStoreContext);
   const { userFiles, loadUserFiles } = userFileStore;
+
+  const getDefaultExtensionType = (extention: string) => {
+    const styledIcons = Object.keys(defaultStyles) as Array<DefaultExtensionType>;
+    return styledIcons.find(key => key.toString() === extention.replace('.', '').toLowerCase());
+  }
 
   const loadData = () => {
     loadUserFiles();
@@ -35,7 +41,15 @@ export const UserFiles = () => {
             {userFiles.map((userFile: IUserFile) => (
               <TableRow key={userFile.id}>
                 <TableCell collapsing><Checkbox /></TableCell>
-                <TableCell>{userFile.type}</TableCell>
+                <TableCell>
+                  <div className='icon'>
+                    {
+                      getDefaultExtensionType(userFile.type) ?
+                        <FileIcon extension={userFile.type} {...defaultStyles[getDefaultExtensionType(userFile.type)!]} /> :
+                        userFile.type
+                    }
+                  </div>
+                </TableCell>
                 <TableCell><a href={`${API_URI}/download?id=${userFile.id}`} download>{userFile.name}</a></TableCell>
                 <TableCell>{userFile.created.toLocaleString()}</TableCell>
                 <TableCell>
