@@ -31,7 +31,7 @@ public class StoreService(IConfiguration configuration, HttpClient httpClient, I
 
     private Uri GetStorageUri()
     {
-        var baseUri = _configuration["FileStorage:BaseUri"];
+        var baseUri = _configuration["FileStore:BaseUri"];
         if (string.IsNullOrWhiteSpace(baseUri))
         {
             throw new Exception("Base URI of file storage service is not defined.");

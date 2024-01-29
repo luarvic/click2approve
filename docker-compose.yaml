@@ -9,22 +9,22 @@ services:
       MSSQL_SA_PASSWORD: P@ssw0rd
     ports:
       - "1433:1433"
-  filestorage:
+  filestore:
     container_name: filestorage
     image: rumkin/file-store:latest
     ports:
-      - "3000:8080"
-  thumbnail:
-    container_name: thumbnail
+      - "5555:8080"
+  jodconverter:
+    container_name: jodconverter
     image: ghcr.io/jodconverter/jodconverter-examples:rest
     ports:
-      - "4000:8080"
+      - "5556:8080"
   api:
     container_name: api
     depends_on:
       - db
-      - filestorage
-      - thumbnail
+      - filestore
+      - jodconverter
     build: ./src/api
     image: luarvic/file-manager-api:latest
     ports:

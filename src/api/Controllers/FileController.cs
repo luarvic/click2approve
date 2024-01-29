@@ -1,3 +1,4 @@
+using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -5,7 +6,7 @@ namespace api.Controllers;
 
 // A controller that implements API endpoints for managing user files (uploading, getting, deleting, etc.).
 [ApiController]
-[Route("[controller]")]
+[Route("file")]
 public class FileController(ILogger<FileController> logger, IFileService fileService) : ControllerBase
 {
     private readonly ILogger<FileController> _logger = logger;
@@ -19,6 +20,13 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
     }
 
     [HttpGet()]
+    public async Task<ActionResult<List<UserFile>>> GetUserFilesAsync(CancellationToken cancellationToken)
+    {
+        var userFiles = await _fileService.GetUserFiles(cancellationToken);
+        return Ok(userFiles);
+    }
+
+    [HttpGet("/download")]
     public async Task<FileContentResult> GetFileAsync(string id, bool preview, CancellationToken cancellationToken)
     {
         var (Filename, Bytes) = await _fileService.GetFileAsync(id, preview, cancellationToken);

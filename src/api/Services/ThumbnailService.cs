@@ -22,7 +22,7 @@ public class ThumbnailService(IConfiguration configuration, HttpClient httpClien
 
     private Uri GetThumbnailUri()
     {
-        var baseUri = _configuration["Thumbnail:BaseUri"];
+        var baseUri = _configuration["JodConverter:BaseUri"];
         if (string.IsNullOrWhiteSpace(baseUri))
         {
             throw new Exception("Base URI of thumbnail service is not defined.");

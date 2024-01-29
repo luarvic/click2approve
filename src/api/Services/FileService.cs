@@ -50,4 +50,10 @@ public class FileService(IConfiguration configuration, FileManagerDbContext db, 
             (userFile.Thumbnail, await _storeService.GetFileAsync(userFile.Thumbnail, cancellationToken)) :
             (userFile.Name, await _storeService.GetFileAsync(userFile.Id.ToString(), cancellationToken));
     }
+
+    public async Task<IList<UserFile>> GetUserFiles(CancellationToken cancellationToken)
+    {
+        var userFiles = await _db.UserFiles.ToListAsync(cancellationToken);
+        return userFiles;
+    }
 }
