@@ -36,7 +36,7 @@ export const UserFiles = () => {
               <TableRow key={userFile.id}>
                 <TableCell collapsing><Checkbox /></TableCell>
                 <TableCell>{userFile.type}</TableCell>
-                <TableCell>{userFile.name}</TableCell>
+                <TableCell><a href={`${API_URI}/download?id=${userFile.id}`} download>{userFile.name}</a></TableCell>
                 <TableCell>{userFile.created.toLocaleString()}</TableCell>
                 <TableCell>
                   <Popup trigger={
