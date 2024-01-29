@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
+import { BrowserRouter, Route, Router, Routes } from 'react-router-dom';
 import { Container } from 'semantic-ui-react';
-import { BrowserRouter, Routes, Route, Router } from 'react-router-dom';
+import NavBar from './NavBar';
 import UserFiles from './UserFiles';
 
 const App = () => {
@@ -8,6 +9,7 @@ const App = () => {
     <Fragment>
       <Container>
         <BrowserRouter>
+          <NavBar />
           <Routes>
             <Route path="/" element={<UserFiles />} />
           </Routes>
