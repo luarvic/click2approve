@@ -1,8 +1,10 @@
+using api.Extentions;
 using api.Models;
 using api.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddItentityServices(builder.Configuration);
 builder.Services.AddCors();
 // Add services to the container.
 builder.Services.AddControllers();
@@ -14,6 +16,8 @@ builder.Services.AddDbContext<FileManagerDbContext>();
 builder.Services.AddTransient<IFileService, FileService>();
 builder.Services.AddTransient<IStoreService, StoreService>();
 builder.Services.AddTransient<IThumbnailService, ThumbnailService>();
+builder.Services.AddTransient<IAccountService, AccountService>();
+builder.Services.AddTransient<ITokenService, TokenService>();
 var app = builder.Build();
 
 // Create the database and schema.

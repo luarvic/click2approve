@@ -12,7 +12,7 @@ public class FileService(IConfiguration configuration, FileManagerDbContext db, 
     private readonly IStoreService _storeService = storeService;
     private readonly IThumbnailService _thumbnailService = thumbnailService;
 
-    public async Task<IList<UserFile>> UploadFilesAsync(IFormFileCollection files, CancellationToken cancellationToken)
+    public async Task<IList<UserFile>> UploadFilesAsync(AppUser user, IFormFileCollection files, CancellationToken cancellationToken)
     {
         // A collection of uploaded files to return.
         var userFiles = new List<UserFile>();
@@ -24,6 +24,7 @@ public class FileService(IConfiguration configuration, FileManagerDbContext db, 
                 Name = file.FileName,
                 Type = Path.GetExtension(file.FileName),
                 Created = DateTime.UtcNow,
+                Owner = user.Id
             };
             var userFileEntry = await _db.UserFiles.AddAsync(userFile, cancellationToken);
             userFiles.Add(userFileEntry.Entity);
@@ -48,17 +49,17 @@ public class FileService(IConfiguration configuration, FileManagerDbContext db, 
         return userFiles;
     }
 
-    public async Task<(string Filename, byte[] Bytes)> GetFileAsync(string id, bool preview, CancellationToken cancellationToken)
+    public async Task<(string Filename, byte[] Bytes)> GetFileAsync(AppUser user, string id, bool preview, CancellationToken cancellationToken)
     {
-        var userFile = await _db.UserFiles.FirstAsync(f => f.Id == long.Parse(id), cancellationToken: cancellationToken);
+        var userFile = await _db.UserFiles.FirstAsync(f => f.Owner == user.Id && f.Id == long.Parse(id), cancellationToken: cancellationToken);
         return preview ?
             (userFile.Thumbnail, await _storeService.GetFileAsync(userFile.Thumbnail, cancellationToken)) :
             (userFile.Name, await _storeService.GetFileAsync(userFile.Id.ToString(), cancellationToken));
     }
 
-    public async Task<IList<UserFile>> GetUserFiles(CancellationToken cancellationToken)
+    public async Task<IList<UserFile>> GetUserFiles(AppUser user, CancellationToken cancellationToken)
     {
-        var userFiles = await _db.UserFiles.ToListAsync(cancellationToken);
+        var userFiles = await _db.UserFiles.Where(f => f.Owner == user.Id).ToListAsync(cancellationToken);
         return userFiles;
     }
 }

@@ -1,6 +1,10 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { IUserFile } from "../models/UserFile";
-import { getUserFiles } from "../utils/ApiClient";
+import {
+  getUserFiles,
+  downloadFile,
+  downloadFileBase64,
+} from "../utils/ApiClient";
 import { createContext } from "react";
 
 export class UserFileStore {
@@ -19,18 +23,22 @@ export class UserFileStore {
 
   loadUserFiles = async () => {
     const userFiles = await getUserFiles();
-    runInAction(() => {
-      userFiles.forEach((userFile) => {
-        userFile.createdDate = new Date(userFile.created + "Z");
+    userFiles.forEach(async (userFile) => {
+      userFile.createdDate = new Date(userFile.created + "Z");
+      const base64String = await downloadFileBase64(userFile.id, true);
+      userFile.thumbnail = base64String;
+      runInAction(() => {
         this.registry.set(userFile.id, userFile);
       });
     });
   };
 
   addUserFiles = async (userFiles: IUserFile[]) => {
-    runInAction(() => {
-      userFiles.forEach((userFile) => {
-        userFile.createdDate = new Date(userFile.created);
+    userFiles.forEach(async (userFile) => {
+      userFile.createdDate = new Date(userFile.created);
+      const base64String = await downloadFileBase64(userFile.id, true);
+      userFile.thumbnail = base64String;
+      runInAction(() => {
         this.registry.set(userFile.id, userFile);
       });
     });

@@ -8,4 +8,5 @@ public class UserFile
     public string Thumbnail { get => $"{Id}-thumbnail.png"; }
     public required string Type { get; set; }
     public DateTime Created { get; set; }
+    public required string Owner { get; set;}
 }

@@ -18,8 +18,7 @@ import {
 import { IUserFile } from "../models/UserFile";
 import { userFileStoreContext } from "../stores/UserFileStore";
 import Buttons from "./Buttons";
-
-const API_URI = process.env.REACT_APP_API_URI;
+import { downloadFileBase64 } from "../utils/ApiClient";
 
 export const UserFiles = () => {
   const userFileStore = useContext(userFileStoreContext);
@@ -36,6 +35,17 @@ export const UserFiles = () => {
 
   const loadData = () => {
     loadUserFiles();
+  };
+
+  const handleDownloadClick = async (userFile: IUserFile) => {
+    const base64String = await downloadFileBase64(userFile.id);
+    const a = document.createElement("a");
+    a.hidden = true;
+    a.href = base64String;
+    a.setAttribute("download", userFile.name);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   useEffect(() => {
@@ -81,26 +91,23 @@ export const UserFiles = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <a href={`${API_URI}/download?id=${userFile.id}`} download>
+                    <span
+                      onClick={() => handleDownloadClick(userFile)}
+                      style={{ cursor: "pointer", textDecoration: "underline" }}
+                    >
                       {userFile.name}
-                    </a>
+                    </span>
                   </TableCell>
                   <TableCell>{userFile.createdDate.toLocaleString()}</TableCell>
                   <TableCell>
                     <Popup
                       trigger={
-                        <Image
-                          src={`${API_URI}/download?id=${userFile.id}&preview=true`}
-                          rounded
-                          size="mini"
-                        />
+                        <Image src={userFile.thumbnail} rounded size="mini" />
                       }
                       wide
                     >
                       <PopupContent>
-                        <Image
-                          src={`${API_URI}/download?id=${userFile.id}&preview=true`}
-                        />
+                        <Image src={userFile.thumbnail} />
                       </PopupContent>
                     </Popup>
                   </TableCell>

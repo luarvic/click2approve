@@ -10,6 +10,11 @@ export const NavBar = () => {
       </MenuItem>
       <MenuItem position="right">
         <Button color="green">
+          Sign up
+        </Button>
+      </MenuItem>
+      <MenuItem>
+        <Button basic color="green">
           <Icon name="sign-in" />
           Sign in
         </Button>
