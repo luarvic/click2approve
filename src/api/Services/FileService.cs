@@ -12,8 +12,10 @@ public class FileService(IConfiguration configuration, FileManagerDbContext db, 
     private readonly IStoreService _storeService = storeService;
     private readonly IThumbnailService _thumbnailService = thumbnailService;
 
-    public async Task UploadFilesAsync(IFormFileCollection files, CancellationToken cancellationToken)
+    public async Task<IList<UserFile>> UploadFilesAsync(IFormFileCollection files, CancellationToken cancellationToken)
     {
+        // A collection of uploaded files to return.
+        var userFiles = new List<UserFile>();
         foreach (var file in files)
         {
             // Record new user file to the database.
@@ -24,6 +26,7 @@ public class FileService(IConfiguration configuration, FileManagerDbContext db, 
                 Created = DateTime.UtcNow,
             };
             var userFileEntry = await _db.UserFiles.AddAsync(userFile, cancellationToken);
+            userFiles.Add(userFileEntry.Entity);
 
             // Save the user file entity to the database to generate its Id.
             await _db.SaveChangesAsync(cancellationToken);
@@ -41,6 +44,8 @@ public class FileService(IConfiguration configuration, FileManagerDbContext db, 
             using var thumbnailStream = await thumbnailResponse.Content.ReadAsStreamAsync(cancellationToken);
             await _storeService.AddFileAsync(thumbnailId, thumbnailId, await thumbnailStream.ToBytesAsync(cancellationToken), cancellationToken);
         }
+
+        return userFiles;
     }
 
     public async Task<(string Filename, byte[] Bytes)> GetFileAsync(string id, bool preview, CancellationToken cancellationToken)

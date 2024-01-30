@@ -13,10 +13,10 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
     private readonly IFileService _fileService = fileService;
 
     [HttpPost]
-    public async Task<IActionResult> PostAsync([FromForm] IFormFileCollection files, CancellationToken cancellationToken)
+    public async Task<ActionResult<List<UserFile>>> PostAsync([FromForm] IFormFileCollection files, CancellationToken cancellationToken)
     {
-        await _fileService.UploadFilesAsync(files, cancellationToken);
-        return Ok();
+        var userFiles = await _fileService.UploadFilesAsync(files, cancellationToken);
+        return Ok(userFiles);
     }
 
     [HttpGet()]

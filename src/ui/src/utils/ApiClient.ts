@@ -8,15 +8,13 @@ export async function getUserFiles(): Promise<IUserFile[]> {
   return data;
 }
 
-export async function uploadFiles(files: FileList) {
+export async function uploadFiles(files: FileList): Promise<IUserFile[]> {
   const formData = new FormData();
-  Array.from(files).forEach(file => {
-    formData.append('files', file);
+  Array.from(files).forEach((file) => {
+    formData.append("files", file);
   });
-
-  const response = await axios.post(`${API_URI}/file`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
+  const { data } = await axios.post(`${API_URI}/file`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
   });
-  console.log(response);
-  return;
+  return data;
 }

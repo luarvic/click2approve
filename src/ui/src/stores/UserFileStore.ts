@@ -4,28 +4,39 @@ import { getUserFiles } from "../utils/ApiClient";
 import { createContext } from "react";
 
 export class UserFileStore {
-    registry: Map<string, IUserFile>;
+  registry: Map<string, IUserFile>;
 
-    get userFiles(): IUserFile[] {
-        return Array.from(this.registry.values());
-    }
+  get userFiles(): IUserFile[] {
+    return Array.from(this.registry.values()).sort(
+      (a, b) => b.createdDate.getTime() - a.createdDate.getTime()
+    );
+  }
 
-    constructor(
-        registry: Map<string, IUserFile>
-    ) {
-        this.registry = registry;
-        makeAutoObservable(this);
-    }
+  constructor(registry: Map<string, IUserFile>) {
+    this.registry = registry;
+    makeAutoObservable(this);
+  }
 
-    loadUserFiles = async () => {
-        const userFiles = await getUserFiles();
-        runInAction(() => {
-            userFiles.forEach(userFile => {
-                userFile.createdDate = new Date(userFile.created);
-                this.registry.set(userFile.id, userFile);
-            });
-        });
-    }
+  loadUserFiles = async () => {
+    const userFiles = await getUserFiles();
+    runInAction(() => {
+      userFiles.forEach((userFile) => {
+        userFile.createdDate = new Date(userFile.created + "Z");
+        this.registry.set(userFile.id, userFile);
+      });
+    });
+  };
+
+  addUserFiles = async (userFiles: IUserFile[]) => {
+    runInAction(() => {
+      userFiles.forEach((userFile) => {
+        userFile.createdDate = new Date(userFile.created);
+        this.registry.set(userFile.id, userFile);
+      });
+    });
+  };
 }
 
-export const userFileStoreContext = createContext(new UserFileStore(new Map<string, IUserFile>()));
+export const userFileStoreContext = createContext(
+  new UserFileStore(new Map<string, IUserFile>())
+);
