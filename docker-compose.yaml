@@ -28,7 +28,7 @@ services:
     build: ./src/api
     image: luarvic/file-manager-api:latest
     ports:
-      - "5000:8080"
+      - "5557:8080"
     command: /app/wait-for-it.sh -t 60 db:1433 -- dotnet /app/api.dll
   ui:
     container_name: ui

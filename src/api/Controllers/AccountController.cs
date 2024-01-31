@@ -1,5 +1,6 @@
 using api.Models.DTOs;
 using api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers;
@@ -12,6 +13,7 @@ public class AccountController(IAccountService accountService, ITokenService tok
     private readonly IAccountService _accountService = accountService;
     private readonly ITokenService _tokenService = tokenService;
 
+    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<ActionResult<string>> RegisterAsync([FromBody] CredentialsDto credentials, CancellationToken cancellationToken)
     {

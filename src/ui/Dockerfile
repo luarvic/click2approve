@@ -6,6 +6,7 @@ COPY src ./src
 COPY package.json ./
 COPY package-lock.json ./
 COPY tsconfig.json ./
+COPY .env.production ./
 RUN npm install --silent
 RUN npm install react-scripts@5.0.1 -g --silent
 RUN npm run build
