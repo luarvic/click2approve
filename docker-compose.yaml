@@ -11,12 +11,12 @@ services:
       - "1433:1433"
   filestore:
     container_name: filestorage
-    image: rumkin/file-store:latest
+    image: rumkin/file-store:0.5.0
     ports:
       - "5555:8080"
   jodconverter:
     container_name: jodconverter
-    image: ghcr.io/jodconverter/jodconverter-examples:rest
+    image: ghcr.io/jodconverter/jodconverter-examples:rest-4.4.7-1
     ports:
       - "5556:8080"
   api:

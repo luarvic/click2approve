@@ -2,13 +2,13 @@ import { observer } from "mobx-react-lite";
 import { useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button, Container, Icon, Menu, MenuItem } from "semantic-ui-react";
-import { userUserAccountContext } from "../stores/UserAccountStore";
+import { userAccountStoreContext } from "../stores/UserAccountStore";
 import { userFileStoreContext } from "../stores/UserFileStore";
 
 export const NavBar = () => {
   const location = useLocation();
   const { pathname } = location;
-  const userAccountStore = useContext(userUserAccountContext);
+  const userAccountStore = useContext(userAccountStoreContext);
   const userFileStore = useContext(userFileStoreContext);
   const { currentUser, signOut } = userAccountStore;
   const { clearUserFiles } = userFileStore;

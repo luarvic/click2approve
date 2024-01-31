@@ -26,7 +26,7 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
         return Ok(userFiles);
     }
 
-    [HttpGet()]
+    [HttpGet]
     public async Task<ActionResult<List<UserFile>>> GetUserFilesAsync(CancellationToken cancellationToken)
     {
         var user = await _userManager.GetUserByPrincipal(User, cancellationToken);

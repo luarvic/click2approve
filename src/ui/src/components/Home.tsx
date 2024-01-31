@@ -1,11 +1,11 @@
 import { observer } from "mobx-react-lite";
 import React, { useContext } from "react";
 import { Container, Message } from "semantic-ui-react";
-import { userUserAccountContext } from "../stores/UserAccountStore";
+import { userAccountStoreContext } from "../stores/UserAccountStore";
 import UserFiles from "./UserFiles";
 
 export const Home = () => {
-  const userAccountStore = useContext(userUserAccountContext);
+  const userAccountStore = useContext(userAccountStoreContext);
   const { currentUser } = userAccountStore;
 
   return currentUser !== undefined ? (

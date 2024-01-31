@@ -10,14 +10,14 @@ import {
   Segment,
 } from "semantic-ui-react";
 import { IUserAccount, UserAccount } from "../models/UserAccount";
-import { userUserAccountContext } from "../stores/UserAccountStore";
+import { userAccountStoreContext } from "../stores/UserAccountStore";
 
 export const SignIn = () => {
   const [userAccount, setUserAccount] = useState<IUserAccount>(
     new UserAccount()
   );
 
-  const userAccountStore = useContext(userUserAccountContext);
+  const userAccountStore = useContext(userAccountStoreContext);
   const { signIn } = userAccountStore;
 
   const navigate = useNavigate();
@@ -27,8 +27,9 @@ export const SignIn = () => {
   };
 
   const handleFormSubmit = async () => {
-    await signIn(userAccount);
-    navigate("/");
+    if (await signIn(userAccount)) {
+      navigate("/");
+    }
   };
 
   return (

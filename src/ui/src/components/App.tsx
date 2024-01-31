@@ -3,18 +3,18 @@ import React, { Fragment, useContext, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { Container } from "semantic-ui-react";
-import { userUserAccountContext } from "../stores/UserAccountStore";
+import { userAccountStoreContext } from "../stores/UserAccountStore";
 import Main from "./Home";
 import NavBar from "./NavBar";
 import SignIn from "./SignIn";
 import SignUp from "./SignUp";
 
 const App = () => {
-  const userAccountStore = useContext(userUserAccountContext);
-  const { getCachedUserAccount, currentUser } = userAccountStore;
+  const userAccountStore = useContext(userAccountStoreContext);
+  const { trySigningInWithCachedUserAccount } = userAccountStore;
 
   useEffect(() => {
-    getCachedUserAccount();
+    trySigningInWithCachedUserAccount();
   }, []);
 
   return (

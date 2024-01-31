@@ -13,7 +13,6 @@ public class AccountController(IAccountService accountService, ITokenService tok
     private readonly IAccountService _accountService = accountService;
     private readonly ITokenService _tokenService = tokenService;
 
-    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<ActionResult<string>> RegisterAsync([FromBody] CredentialsDto credentials, CancellationToken cancellationToken)
     {
@@ -42,5 +41,12 @@ public class AccountController(IAccountService accountService, ITokenService tok
         {
             return Unauthorized(e.Message);
         }
+    }
+
+    [HttpHead]
+    [Authorize]
+    public async Task<ActionResult> ValidateTokenAsync(CancellationToken cancellationToken)
+    {
+        return await Task.FromResult<ActionResult>(Ok());
     }
 }

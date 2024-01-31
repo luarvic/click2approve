@@ -1,5 +1,6 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { IUserFile } from "../models/UserFile";
+import { toast } from "react-toastify";
 
 axios.defaults.baseURL = process.env.REACT_APP_API_URI;
 axios.interceptors.request.use((config) => {
@@ -9,6 +10,34 @@ axios.interceptors.request.use((config) => {
   }
   return config;
 });
+axios.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error: AxiosError) => {
+    switch (error.response?.status) {
+      case 400:
+        toast.warn("Bad request.");
+        break;
+      case 401:
+        toast.warn("Unauthorized.");
+        break;
+      case 403:
+        toast.warn("Forbidden.");
+        break;
+      case 404:
+        toast.warn("Not found.");
+        break;
+      case 500:
+        toast.warn("Server error.");
+        break;
+      default:
+        toast.warn("Unknown error.");
+        break;
+    }
+    return Promise.reject(error);
+  }
+);
 
 export const signInUser = async (
   username: string,
@@ -30,6 +59,10 @@ export const signUpUser = async (
     password: password,
   });
   return data;
+};
+
+export const validateToken = async (): Promise<void> => {
+  await axios.head("account");
 };
 
 export const getUserFiles = async (): Promise<IUserFile[]> => {
