@@ -3,20 +3,41 @@ import { IUserFile } from "../models/UserFile";
 
 axios.defaults.baseURL = process.env.REACT_APP_API_URI;
 axios.interceptors.request.use((config) => {
-  // TODO get it from API
-  const token = "cm9zdGk6MTIz";
+  const token = localStorage.getItem("token");
   if (token) {
     config.headers.Authorization = `Basic ${token}`;
   }
   return config;
 });
 
-export async function getUserFiles(): Promise<IUserFile[]> {
+export const signInUser = async (
+  username: string,
+  password: string
+): Promise<string> => {
+  const { data } = await axios.post<string>("account/authenticate", {
+    username: username,
+    password: password,
+  });
+  return data;
+};
+
+export const signUpUser = async (
+  username: string,
+  password: string
+): Promise<string> => {
+  const { data } = await axios.post<string>("account/register", {
+    username: username,
+    password: password,
+  });
+  return data;
+};
+
+export const getUserFiles = async (): Promise<IUserFile[]> => {
   const { data } = await axios.get<IUserFile[]>("file");
   return data;
-}
+};
 
-export async function uploadFiles(files: FileList): Promise<IUserFile[]> {
+export const uploadFiles = async (files: FileList): Promise<IUserFile[]> => {
   const formData = new FormData();
   Array.from(files).forEach((file) => {
     formData.append("files", file);
@@ -25,7 +46,7 @@ export async function uploadFiles(files: FileList): Promise<IUserFile[]> {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return data;
-}
+};
 
 export const downloadFile = async (
   id: string,

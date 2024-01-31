@@ -1,7 +1,6 @@
+import { observer } from "mobx-react-lite";
 import React, { useContext, useRef } from "react";
 import { Button, Icon, Menu, MenuItem } from "semantic-ui-react";
-import { uploadFiles } from "../utils/ApiClient";
-import { toast } from "react-toastify";
 import { userFileStoreContext } from "../stores/UserFileStore";
 
 export const Buttons = () => {
@@ -19,18 +18,13 @@ export const Buttons = () => {
     if (event.currentTarget) {
       const filesToUpload = event.currentTarget.files;
       if (filesToUpload) {
-        const fileNames = Array.from(filesToUpload, (file) => file.name);
-        toast.info(`Uploading file(s): ${fileNames.toString()}`, {});
-        uploadFiles(filesToUpload).then((result) => {
-          addUserFiles(result);
-          toast.success(`File(s) uploaded: ${fileNames.toString()}`);
-        });
+        addUserFiles(filesToUpload);
       }
     }
   };
 
   return (
-    <Menu secondary>
+    <Menu text>
       <MenuItem>
         <Button primary onClick={handleClick}>
           <Icon name="upload" />
@@ -60,4 +54,4 @@ export const Buttons = () => {
   );
 };
 
-export default Buttons;
+export default observer(Buttons);

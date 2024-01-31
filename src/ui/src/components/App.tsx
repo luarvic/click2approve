@@ -1,18 +1,31 @@
-import React, { Fragment } from "react";
+import { observer } from "mobx-react-lite";
+import React, { Fragment, useContext, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Container } from "semantic-ui-react";
-import NavBar from "./NavBar";
-import UserFiles from "./UserFiles";
 import { ToastContainer } from "react-toastify";
+import { Container } from "semantic-ui-react";
+import { userUserAccountContext } from "../stores/UserAccountStore";
+import Main from "./Home";
+import NavBar from "./NavBar";
+import SignIn from "./SignIn";
+import SignUp from "./SignUp";
 
 const App = () => {
+  const userAccountStore = useContext(userUserAccountContext);
+  const { getCachedUserAccount, currentUser } = userAccountStore;
+
+  useEffect(() => {
+    getCachedUserAccount();
+  }, []);
+
   return (
     <Fragment>
       <Container>
         <BrowserRouter>
           <NavBar />
           <Routes>
-            <Route path="/" element={<UserFiles />} />
+            <Route path="/" element={<Main />} />
+            <Route path="/signin" element={<SignIn />} />
+            <Route path="/signup" element={<SignUp />} />
           </Routes>
         </BrowserRouter>
         <ToastContainer
@@ -28,4 +41,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default observer(App);

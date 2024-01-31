@@ -1,3 +1,4 @@
+using api.Models.DTOs;
 using api.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,12 +13,12 @@ public class AccountController(IAccountService accountService, ITokenService tok
     private readonly ITokenService _tokenService = tokenService;
 
     [HttpPost("register")]
-    public async Task<ActionResult<string>> RegisterAsync(string username, string password, CancellationToken cancellationToken)
+    public async Task<ActionResult<string>> RegisterAsync([FromBody] CredentialsDto credentials, CancellationToken cancellationToken)
     {
         try
         {
-            await _accountService.RegisterUserAsync(username, password, cancellationToken);
-            var token = _tokenService.GetTokenFromCredentials(username, password);
+            await _accountService.RegisterUserAsync(credentials.Username, credentials.Password, cancellationToken);
+            var token = _tokenService.GetTokenFromCredentials(credentials.Username, credentials.Password);
             return Ok(token);
         }
         catch (Exception e)
@@ -27,12 +28,12 @@ public class AccountController(IAccountService accountService, ITokenService tok
     }
 
     [HttpPost("authenticate")]
-    public async Task<ActionResult<string>> AuthenticateAsync(string username, string password, CancellationToken cancellationToken)
+    public async Task<ActionResult<string>> AuthenticateAsync([FromBody] CredentialsDto credentials, CancellationToken cancellationToken)
     {
         try
         {
-            await _accountService.AuthenticateUserAsync(username, password, cancellationToken);
-            var token = _tokenService.GetTokenFromCredentials(username, password);
+            await _accountService.AuthenticateUserAsync(credentials.Username, credentials.Password, cancellationToken);
+            var token = _tokenService.GetTokenFromCredentials(credentials.Username, credentials.Password);
             return Ok(token);
         }
         catch (Exception e)

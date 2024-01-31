@@ -1,11 +1,13 @@
 import { makeAutoObservable, runInAction } from "mobx";
+import { createContext } from "react";
+import { toast } from "react-toastify";
 import { IUserFile } from "../models/UserFile";
 import {
-  getUserFiles,
   downloadFile,
   downloadFileBase64,
+  getUserFiles,
+  uploadFiles,
 } from "../utils/ApiClient";
-import { createContext } from "react";
 
 export class UserFileStore {
   registry: Map<string, IUserFile>;
@@ -33,7 +35,10 @@ export class UserFileStore {
     });
   };
 
-  addUserFiles = async (userFiles: IUserFile[]) => {
+  addUserFiles = async (files: FileList) => {
+    const fileNames = Array.from(files, (file) => file.name);
+    toast.info(`Uploading file(s): ${fileNames.toString()}`, {});
+    const userFiles = await uploadFiles(files);
     userFiles.forEach(async (userFile) => {
       userFile.createdDate = new Date(userFile.created);
       const base64String = await downloadFileBase64(userFile.id, true);
@@ -41,6 +46,13 @@ export class UserFileStore {
       runInAction(() => {
         this.registry.set(userFile.id, userFile);
       });
+    });
+    toast.success(`File(s) uploaded: ${fileNames.toString()}`);
+  };
+
+  clearUserFiles = () => {
+    runInAction(() => {
+      this.registry.clear();
     });
   };
 }

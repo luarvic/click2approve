@@ -17,8 +17,8 @@ import {
 } from "semantic-ui-react";
 import { IUserFile } from "../models/UserFile";
 import { userFileStoreContext } from "../stores/UserFileStore";
-import Buttons from "./Buttons";
 import { downloadFileBase64 } from "../utils/ApiClient";
+import Buttons from "./Buttons";
 
 export const UserFiles = () => {
   const userFileStore = useContext(userFileStoreContext);
