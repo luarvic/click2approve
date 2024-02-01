@@ -57,11 +57,19 @@ export const Buttons = () => {
   };
 
   const handleShare = async () => {
-    const link = await shareUserFiles(
-      getSelectedUserFiles(),
-      new Date(availableUntil)
-    );
-    setShareLink(`${window.location.origin}/file/${link}`);
+    try {
+      const link = await shareUserFiles(
+        getSelectedUserFiles(),
+        new Date(availableUntil)
+      );
+      setShareLink(`${window.location.origin}/file/${link}`);
+    } catch (e) {
+      if (e instanceof Error) {
+        toast.warn(e.message);
+      } else {
+        toast.warn("Unable to share files.");
+      }
+    }
   };
 
   const handleDatetimePicker = (event: any, data: any) => {
@@ -119,7 +127,7 @@ export const Buttons = () => {
               .join(", ")}
           </p>
           <p>
-            <Form>
+            <Form autocomplete="off">
               <FormField>
                 <label>Available until </label>
                 <DateTimeInput

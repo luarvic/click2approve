@@ -14,12 +14,11 @@ axios.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error: AxiosError) => {
-    const userFriendlyError =
-      error.response && error.response.data
-        ? new Error(error.response.data as string)
-        : new Error(error.message);
-    return Promise.reject(userFriendlyError);
+  (error) => {
+    // TODO
+    // Come up with better solution.
+    console.log(error);
+    return Promise.reject(error);
   }
 );
 

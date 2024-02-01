@@ -48,7 +48,7 @@ public class AccountController(IAccountService accountService, ITokenService tok
 
     [HttpHead]
     [Authorize]
-    public async Task<ActionResult> ValidateTokenAsync(CancellationToken cancellationToken)
+    public async Task<IActionResult> ValidateTokenAsync(CancellationToken cancellationToken)
     {
         return await Task.FromResult<ActionResult>(Ok());
     }

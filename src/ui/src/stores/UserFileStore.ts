@@ -23,30 +23,46 @@ export class UserFileStore {
   }
 
   loadUserFiles = async () => {
-    const userFiles = await getUserFiles();
-    userFiles.forEach(async (userFile) => {
-      userFile.createdDate = new Date(userFile.created + "Z");
-      const base64String = await downloadFileBase64(userFile.id, true);
-      userFile.thumbnail = base64String;
-      runInAction(() => {
-        this.registry.set(userFile.id, userFile);
+    try {
+      const userFiles = await getUserFiles();
+      userFiles.forEach(async (userFile) => {
+        userFile.createdDate = new Date(userFile.created + "Z");
+        const base64String = await downloadFileBase64(userFile.id, true);
+        userFile.thumbnail = base64String;
+        runInAction(() => {
+          this.registry.set(userFile.id, userFile);
+        });
       });
-    });
+    } catch (e) {
+      if (e instanceof Error) {
+        toast.warn(e.message);
+      } else {
+        toast.warn("Unable to load file(s).");
+      }
+    }
   };
 
   addUserFiles = async (files: FileList) => {
-    const fileNames = Array.from(files, (file) => file.name);
-    toast.info(`Uploading file(s): ${fileNames.toString()}`, {});
-    const userFiles = await uploadFiles(files);
-    userFiles.forEach(async (userFile) => {
-      userFile.createdDate = new Date(userFile.created);
-      const base64String = await downloadFileBase64(userFile.id, true);
-      userFile.thumbnail = base64String;
-      runInAction(() => {
-        this.registry.set(userFile.id, userFile);
+    try {
+      const fileNames = Array.from(files, (file) => file.name);
+      toast.info(`Uploading file(s): ${fileNames.toString()}`, {});
+      const userFiles = await uploadFiles(files);
+      userFiles.forEach(async (userFile) => {
+        userFile.createdDate = new Date(userFile.created);
+        const base64String = await downloadFileBase64(userFile.id, true);
+        userFile.thumbnail = base64String;
+        runInAction(() => {
+          this.registry.set(userFile.id, userFile);
+        });
       });
-    });
-    toast.success(`File(s) uploaded: ${fileNames.toString()}`);
+      toast.success(`File(s) uploaded: ${fileNames.toString()}`);
+    } catch (e) {
+      if (e instanceof Error) {
+        toast.warn(e.message);
+      } else {
+        toast.warn("Unable to load file(s).");
+      }
+    }
   };
 
   clearUserFiles = () => {

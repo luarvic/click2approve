@@ -94,7 +94,13 @@ public class FileService(
         {
             tasks.Add(Task.Run(() =>
             _storeService.GetFileAsync(userFile.Id.ToString(), cancellationToken))
-                .ContinueWith(bytes => files.TryAdd(userFile.Name, bytes.Result), cancellationToken));
+                .ContinueWith(bytes =>
+                {
+                    // Files can have same names.
+                    var formattedDate = userFile.Created.ToString("yyyy-MM-dd-HH-mm-ss");
+                    var derivedFilename = $"{Path.GetFileNameWithoutExtension(userFile.Name)}-{formattedDate}{userFile.Type}";
+                    files.TryAdd(derivedFilename, bytes.Result);
+                }, cancellationToken));
         }
         Task.WaitAll([.. tasks], cancellationToken);
         await IncrementDownloadCountAsync(longIds, cancellationToken);
