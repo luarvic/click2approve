@@ -62,9 +62,10 @@ export const UserFiles = () => {
               <TableRow>
                 <TableHeaderCell></TableHeaderCell>
                 <TableHeaderCell>Type</TableHeaderCell>
+                <TableHeaderCell>Previre</TableHeaderCell>
                 <TableHeaderCell>Name</TableHeaderCell>
                 <TableHeaderCell>Created</TableHeaderCell>
-                <TableHeaderCell>Preview</TableHeaderCell>
+                <TableHeaderCell>Downloads</TableHeaderCell>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -84,7 +85,7 @@ export const UserFiles = () => {
                     />
                   </TableCell>
                   <TableCell>
-                    <div className="icon">
+                    <div className="fileicon">
                       {getDefaultExtensionType(userFile.type) ? (
                         <FileIcon
                           extension={userFile.type}
@@ -98,15 +99,6 @@ export const UserFiles = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span
-                      onClick={() => handleDownloadClick(userFile)}
-                      style={{ cursor: "pointer", textDecoration: "underline" }}
-                    >
-                      {userFile.name}
-                    </span>
-                  </TableCell>
-                  <TableCell>{userFile.createdDate.toLocaleString()}</TableCell>
-                  <TableCell>
                     <Popup
                       trigger={
                         <Image src={userFile.thumbnail} rounded size="mini" />
@@ -118,6 +110,9 @@ export const UserFiles = () => {
                       </PopupContent>
                     </Popup>
                   </TableCell>
+                  <TableCell>{userFile.name}</TableCell>
+                  <TableCell>{userFile.createdDate.toLocaleString()}</TableCell>
+                  <TableCell>{userFile.downloadCount}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

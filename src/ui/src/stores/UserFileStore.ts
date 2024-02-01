@@ -3,7 +3,6 @@ import { createContext } from "react";
 import { toast } from "react-toastify";
 import { IUserFile } from "../models/UserFile";
 import {
-  downloadFile,
   downloadFileBase64,
   getUserFiles,
   uploadFiles,
@@ -65,14 +64,10 @@ export class UserFileStore {
     }
   };
 
-  getSelectedUserFileIds = (): string[] => {
-    const selectedIds: string[] = [];
-    this.registry.forEach((f) => {
-      if (f.checked) {
-        selectedIds.push(f.id);
-      }
-    });
-    return selectedIds;
+  getSelectedUserFiles = (): IUserFile[] => {
+    return Array.from(this.registry.values()).filter(
+      (userFile) => userFile.checked
+    );
   };
 }
 

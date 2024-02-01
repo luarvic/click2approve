@@ -1,7 +1,8 @@
 import axios, { AxiosError } from "axios";
 import { IUserFile } from "../models/UserFile";
+import { API_URI } from "../stores/Constants";
 
-axios.defaults.baseURL = process.env.REACT_APP_API_URI;
+axios.defaults.baseURL = API_URI;
 axios.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -83,8 +84,32 @@ export const downloadFileBase64 = async (
 };
 
 export const downloadArchiveBase64 = async (
-  files: string[]
+  files: IUserFile[]
 ): Promise<string> => {
-  const { data } = await axios.post("downloadArchiveBase64", files.map(String));
+  const { data } = await axios.post(
+    "downloadArchiveBase64",
+    files.map((userFile) => userFile.id.toString())
+  );
+  return data;
+};
+
+export const shareUserFiles = async (
+  files: IUserFile[],
+  availableUntil: Date
+): Promise<string> => {
+  const { data } = await axios.post("share", {
+    ids: files.map((userFile) => userFile.id.toString()),
+    availableUntil: availableUntil,
+  });
+  return data;
+};
+
+export const testSharedArchive = async (key: string): Promise<boolean> => {
+  const response = await axios.get(`testShared?key=${key}`);
+  return response.status === 200 ? true : false;
+};
+
+export const downloadSharedArchive = async (key: string): Promise<string> => {
+  const { data } = await axios.get(`downloadShared?key=${key}`);
   return data;
 };

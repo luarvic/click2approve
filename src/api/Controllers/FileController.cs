@@ -1,10 +1,10 @@
 using api.Extentions;
 using api.Models;
+using api.Models.DTOs;
 using api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace api.Controllers;
 
@@ -30,7 +30,7 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
     public async Task<ActionResult<List<UserFile>>> GetUserFilesAsync(CancellationToken cancellationToken)
     {
         var user = await _userManager.GetUserByPrincipal(User, cancellationToken);
-        var userFiles = await _fileService.GetUserFiles(user, cancellationToken);
+        var userFiles = await _fileService.GetUserFilesAsync(user, cancellationToken);
         return Ok(userFiles);
     }
 
@@ -59,5 +59,28 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
         var user = await _userManager.GetUserByPrincipal(User, cancellationToken);
         var (filename, bytes) = await _fileService.GetArchiveAsync(user, ids, cancellationToken);
         return $"data:{MimeTypes.GetMimeType(filename)};base64,{Convert.ToBase64String(bytes)}";
+    }
+
+    [HttpPost("/share")]
+    public async Task<string> ShareAsync([FromBody] FilesToShare filesToShare, CancellationToken cancellationToken)
+    {
+        var user = await _userManager.GetUserByPrincipal(User, cancellationToken);
+        var sharedId = await _fileService.ShareUserFilesAsync(user, filesToShare.Ids, filesToShare.AvailableUntil, cancellationToken);
+        return sharedId;
+    }
+
+    [HttpGet("/testShared")]
+    [AllowAnonymous]
+    public async Task<ActionResult> TestSharedArchiveAsync(string key, CancellationToken cancellationToken)
+    {
+        return await _fileService.TestSharedArchiveAsync(key, cancellationToken) ? Ok() : NotFound();
+    }
+
+    [HttpGet("/downloadShared")]
+    [AllowAnonymous]
+    public async Task<FileContentResult> GetSharedArchiveAsync(string key, CancellationToken cancellationToken)
+    {
+        var (filename, bytes) = await _fileService.GetSharedArchiveAsync(key, cancellationToken);
+        return new FileContentResult(bytes, MimeTypes.GetMimeType(filename));
     }
 }

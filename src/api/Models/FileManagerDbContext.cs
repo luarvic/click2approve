@@ -20,4 +20,5 @@ public class FileManagerDbContext : IdentityDbContext<AppUser>
     }
 
     public DbSet<UserFile> UserFiles { get; set; }
+    public DbSet<SharedUserFile> SharedUserFiles { get; set; }
 }

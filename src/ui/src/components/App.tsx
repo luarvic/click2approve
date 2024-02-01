@@ -4,10 +4,11 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { Container } from "semantic-ui-react";
 import { userAccountStoreContext } from "../stores/UserAccountStore";
-import Main from "./Home";
+import Home from "./Home";
 import NavBar from "./NavBar";
 import SignIn from "./SignIn";
 import SignUp from "./SignUp";
+import SharedFile from "./SharedFile";
 
 const App = () => {
   const userAccountStore = useContext(userAccountStoreContext);
@@ -23,9 +24,10 @@ const App = () => {
         <BrowserRouter>
           <NavBar />
           <Routes>
-            <Route path="/" element={<Main />} />
+            <Route path="/" element={<Home />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
+            <Route path="/file/:key" element={<SharedFile />} />
           </Routes>
         </BrowserRouter>
         <ToastContainer

@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.IO.Compression;
 using api.Extentions;
 using api.Models;
+using CSharpVitamins;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Services;
@@ -32,7 +33,8 @@ public class FileService(
                 Name = file.FileName,
                 Type = Path.GetExtension(file.FileName),
                 Created = DateTime.UtcNow,
-                Owner = user.Id
+                Owner = user.Id,
+                DownloadCount = 0
             };
             var userFileEntry = await _db.UserFiles.AddAsync(userFile, cancellationToken);
             userFiles.Add(userFileEntry.Entity);
@@ -65,10 +67,25 @@ public class FileService(
             (userFile.Name, await _storeService.GetFileAsync(userFile.Id.ToString(), cancellationToken));
     }
 
-    public async Task<(string Filename, byte[] Bytes)> GetArchiveAsync(AppUser user, string[] ids, CancellationToken cancellationToken)
+    private async Task IncrementDownloadCountAsync(long[] ids, CancellationToken cancellationToken)
     {
-        var longIds = ids.Select(x => long.Parse(x));
-        var userFiles = await _db.UserFiles.Where(f => f.Owner == user.Id && longIds.Contains(f.Id)).ToListAsync(cancellationToken);
+        var userFiles = await _db.UserFiles
+            .Where(f => ids.Contains(f.Id))
+            .ToListAsync(cancellationToken);
+
+        foreach (var userFile in userFiles)
+        {
+            userFile.DownloadCount++;
+        }
+        await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<(string Filename, byte[] Bytes)> GetArchiveAsync(AppUser? user, string[] ids, CancellationToken cancellationToken)
+    {
+        var longIds = ids.Select(long.Parse).ToArray();
+        var userFiles = await _db.UserFiles
+            .Where(f => longIds.Contains(f.Id) && (user == null || (user != null && f.Owner == user.Id)))
+            .ToListAsync(cancellationToken);
 
         // Let's handle multiple files in parallel.
         var files = new ConcurrentDictionary<string, byte[]>();
@@ -80,7 +97,30 @@ public class FileService(
                 .ContinueWith(bytes => files.TryAdd(userFile.Name, bytes.Result), cancellationToken));
         }
         Task.WaitAll([.. tasks], cancellationToken);
+        await IncrementDownloadCountAsync(longIds, cancellationToken);
 
+        return await CompressAsync(files.ToDictionary(), cancellationToken);
+    }
+
+    public async Task<(string Filename, byte[] Bytes)> GetSharedArchiveAsync(string key, CancellationToken cancellationToken)
+    {
+        var sharedUserFileIds = await _db.SharedUserFiles
+            .Include(s => s.UserFile)
+            .Where(s => s.Key == key && s.AvailableUntil > DateTime.UtcNow)
+            .Select(f => f.UserFile.Id.ToString())
+            .ToArrayAsync(cancellationToken);
+        return await GetArchiveAsync(null, sharedUserFileIds, cancellationToken);
+    }
+
+    public async Task<bool> TestSharedArchiveAsync(string key, CancellationToken cancellationToken)
+    {
+        return await _db.SharedUserFiles
+            .Where(s => s.Key == key && s.AvailableUntil > DateTime.UtcNow)
+            .AnyAsync(cancellationToken);
+    }
+
+    private async Task<(string Filename, byte[] Bytes)> CompressAsync(IDictionary<string, byte[]> files, CancellationToken cancellationToken)
+    {
         using (var compressedFileStream = new MemoryStream())
         {
             using (var zipArchive = new ZipArchive(compressedFileStream, ZipArchiveMode.Create, false))
@@ -91,7 +131,7 @@ public class FileService(
                     using (var originalFileStream = new MemoryStream(file.Value))
                     using (var zipEntryStream = zipEntry.Open())
                     {
-                        originalFileStream.CopyTo(zipEntryStream);
+                        await originalFileStream.CopyToAsync(zipEntryStream);
                     }
                 }
             }
@@ -99,9 +139,29 @@ public class FileService(
         }
     }
 
-    public async Task<IList<UserFile>> GetUserFiles(AppUser user, CancellationToken cancellationToken)
+    public async Task<IList<UserFile>> GetUserFilesAsync(AppUser user, CancellationToken cancellationToken)
     {
         var userFiles = await _db.UserFiles.Where(f => f.Owner == user.Id).ToListAsync(cancellationToken);
         return userFiles;
+    }
+
+    public async Task<string> ShareUserFilesAsync(AppUser user, string[] ids, DateTime availableUntil, CancellationToken cancellationToken)
+    {
+        var longIds = ids.Select(long.Parse);
+        var userFiles = await _db.UserFiles
+            .Where(f => longIds.Contains(f.Id) && f.Owner == user.Id)
+            .ToListAsync(cancellationToken);
+        ShortGuid id = Guid.NewGuid();
+        foreach (var userFile in userFiles)
+        {
+            _db.SharedUserFiles.Add(new SharedUserFile
+            {
+                Key = id.ToString(),
+                UserFile = userFile,
+                AvailableUntil = availableUntil
+            });
+            await _db.SaveChangesAsync(cancellationToken);
+        }
+        return id;
     }
 }
