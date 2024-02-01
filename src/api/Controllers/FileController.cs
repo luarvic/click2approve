@@ -52,4 +52,12 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
         var (filename, bytes) = await _fileService.GetFileAsync(user, id, preview, cancellationToken);
         return $"data:{MimeTypes.GetMimeType(filename)};base64,{Convert.ToBase64String(bytes)}";
     }
+
+    [HttpPost("/downloadArchiveBase64")]
+    public async Task<string> GetArchiveBase64Async([FromBody] string[] ids, CancellationToken cancellationToken)
+    {
+        var user = await _userManager.GetUserByPrincipal(User, cancellationToken);
+        var (filename, bytes) = await _fileService.GetArchiveAsync(user, ids, cancellationToken);
+        return $"data:{MimeTypes.GetMimeType(filename)};base64,{Convert.ToBase64String(bytes)}";
+    }
 }

@@ -1,6 +1,5 @@
 import axios, { AxiosError } from "axios";
 import { IUserFile } from "../models/UserFile";
-import { toast } from "react-toastify";
 
 axios.defaults.baseURL = process.env.REACT_APP_API_URI;
 axios.interceptors.request.use((config) => {
@@ -80,5 +79,12 @@ export const downloadFileBase64 = async (
   const { data } = await axios.get(
     `downloadBase64?id=${id}&preview=${preview}`
   );
+  return data;
+};
+
+export const downloadArchiveBase64 = async (
+  files: string[]
+): Promise<string> => {
+  const { data } = await axios.post("downloadArchiveBase64", files.map(String));
   return data;
 };

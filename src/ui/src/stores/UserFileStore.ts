@@ -55,6 +55,25 @@ export class UserFileStore {
       this.registry.clear();
     });
   };
+
+  handleUserFileCheckbox = (id: string, checked: boolean) => {
+    const userFile = this.registry.get(id);
+    if (userFile !== undefined) {
+      runInAction(() => {
+        userFile.checked = checked;
+      });
+    }
+  };
+
+  getSelectedUserFileIds = (): string[] => {
+    const selectedIds: string[] = [];
+    this.registry.forEach((f) => {
+      if (f.checked) {
+        selectedIds.push(f.id);
+      }
+    });
+    return selectedIds;
+  };
 }
 
 export const userFileStoreContext = createContext(

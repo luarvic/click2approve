@@ -22,7 +22,7 @@ import Buttons from "./Buttons";
 
 export const UserFiles = () => {
   const userFileStore = useContext(userFileStoreContext);
-  const { userFiles, loadUserFiles } = userFileStore;
+  const { userFiles, loadUserFiles, handleUserFileCheckbox } = userFileStore;
 
   const getDefaultExtensionType = (extention: string) => {
     const styledIcons = Object.keys(
@@ -75,7 +75,14 @@ export const UserFiles = () => {
                     (Date.now() - userFile.createdDate.getTime()) / 1000 < 60
                   }
                 >
-                  <TableCell collapsing><Checkbox /></TableCell>
+                  <TableCell collapsing>
+                    <Checkbox
+                      id={userFile.id}
+                      onChange={(event, data) =>
+                        handleUserFileCheckbox(userFile.id, data.checked!)
+                      }
+                    />
+                  </TableCell>
                   <TableCell>
                     <div className="icon">
                       {getDefaultExtensionType(userFile.type) ? (
