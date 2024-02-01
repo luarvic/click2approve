@@ -19,7 +19,20 @@ export const NavBar = () => {
         <Icon name="home" />
         Home
       </MenuItem>
-      {currentUser !== undefined ? (
+      {currentUser === undefined ? (
+        <></>
+      ) : currentUser === null ? (
+        !pathname.startsWith("/sign") && (
+          <Container>
+            <MenuItem position="right">
+              <Button color="green" as={Link} to="/signin">
+                <Icon name="sign-in" />
+                Sign in
+              </Button>
+            </MenuItem>
+          </Container>
+        )
+      ) : (
         <Container>
           <MenuItem position="right">
             <strong>{currentUser.username}</strong>
@@ -38,17 +51,6 @@ export const NavBar = () => {
             </Button>
           </MenuItem>
         </Container>
-      ) : (
-        !pathname.startsWith("/sign") && (
-          <Container>
-            <MenuItem position="right">
-              <Button color="green" as={Link} to="/signin">
-                <Icon name="sign-in" />
-                Sign in
-              </Button>
-            </MenuItem>
-          </Container>
-        )
       )}
     </Menu>
   );

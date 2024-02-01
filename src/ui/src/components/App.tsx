@@ -9,6 +9,7 @@ import NavBar from "./NavBar";
 import SignIn from "./SignIn";
 import SignUp from "./SignUp";
 import SharedFile from "./SharedFile";
+import NotFound from "./NotFound";
 
 const App = () => {
   const userAccountStore = useContext(userAccountStoreContext);
@@ -28,6 +29,8 @@ const App = () => {
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/file/:key" element={<SharedFile />} />
+            <Route path="/notfound" element={<NotFound />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
         <ToastContainer

@@ -5,9 +5,11 @@ import { IUserAccount, UserAccount } from "../models/UserAccount";
 import { signInUser, signUpUser, validateToken } from "../utils/ApiClient";
 
 export class UserAccountStore {
-  currentUser: IUserAccount | undefined;
+  // Null means anonimous user.
+  // Undefined means we don't yet know whether the user is anonymous or authenticated.
+  currentUser: IUserAccount | undefined | null;
 
-  constructor(currentUser: IUserAccount | undefined = undefined) {
+  constructor(currentUser: IUserAccount | undefined | null = undefined) {
     this.currentUser = currentUser;
     makeAutoObservable(this);
   }
@@ -31,6 +33,10 @@ export class UserAccountStore {
       } catch {
         this.signOut();
       }
+    } else {
+      runInAction(() => {
+        this.currentUser = null;
+      });
     }
   };
 
@@ -84,7 +90,7 @@ export class UserAccountStore {
     localStorage.removeItem("username");
     localStorage.removeItem("password");
     runInAction(() => {
-      this.currentUser = undefined;
+      this.currentUser = null;
     });
   };
 }

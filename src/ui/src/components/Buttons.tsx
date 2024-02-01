@@ -16,9 +16,9 @@ import {
   ModalContent,
   ModalHeader,
 } from "semantic-ui-react";
-import { API_URI } from "../stores/Constants";
 import { userFileStoreContext } from "../stores/UserFileStore";
 import { downloadArchiveBase64, shareUserFiles } from "../utils/ApiClient";
+import { ACCEPT_FILE_TYPES } from "../stores/Constants";
 
 export const Buttons = () => {
   const [shareOpen, setShareOpen] = useState<boolean>(false);
@@ -26,7 +26,8 @@ export const Buttons = () => {
   const [shareLink, setShareLink] = useState<string>("");
   const hiddenFileInput = useRef<HTMLInputElement>(null);
   const userFileStore = useContext(userFileStoreContext);
-  const { addUserFiles, getSelectedUserFiles } = userFileStore;
+  const { addUserFiles, getSelectedUserFiles, incrementDownloadCount } =
+    userFileStore;
 
   const handleUploadClick = () => {
     if (hiddenFileInput.current) {
@@ -45,6 +46,7 @@ export const Buttons = () => {
 
   const handleDownload = async () => {
     const base64String = await downloadArchiveBase64(getSelectedUserFiles());
+    incrementDownloadCount();
     const a = document.createElement("a");
     a.hidden = true;
     a.href = base64String;
@@ -81,6 +83,7 @@ export const Buttons = () => {
           </Button>
           <input
             type="file"
+            accept={ACCEPT_FILE_TYPES.join(", ")}
             multiple
             onChange={handleUpload}
             ref={hiddenFileInput}
