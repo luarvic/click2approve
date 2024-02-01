@@ -60,7 +60,7 @@ export const UserFiles = () => {
           <Table celled compact definition>
             <TableHeader fullWidth>
               <TableRow>
-                {/* <TableHeaderCell></TableHeaderCell> */}
+                <TableHeaderCell></TableHeaderCell>
                 <TableHeaderCell>Type</TableHeaderCell>
                 <TableHeaderCell>Name</TableHeaderCell>
                 <TableHeaderCell>Created</TableHeaderCell>
@@ -75,7 +75,7 @@ export const UserFiles = () => {
                     (Date.now() - userFile.createdDate.getTime()) / 1000 < 60
                   }
                 >
-                  {/* <TableCell collapsing><Checkbox /></TableCell> */}
+                  <TableCell collapsing><Checkbox /></TableCell>
                   <TableCell>
                     <div className="icon">
                       {getDefaultExtensionType(userFile.type) ? (

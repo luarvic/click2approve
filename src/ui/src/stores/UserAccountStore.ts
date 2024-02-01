@@ -36,7 +36,7 @@ export class UserAccountStore {
 
   signUp = async (userAccount: IUserAccount): Promise<boolean> => {
     if (userAccount.password !== userAccount.passwordConfirmation) {
-      toast.error("Password and confirmation do not match.");
+      toast.warn("Password and confirmation do not match.");
       return false;
     }
     try {
@@ -48,8 +48,12 @@ export class UserAccountStore {
         this.currentUser = new UserAccount(userAccount.username, "", "", token);
       });
       this.cacheUserAccount();
-    } catch (error) {
-      toast.warn("Unable to sign up.");
+    } catch (e) {
+      if (e instanceof Error) {
+        toast.warn(e.message);
+      } else {
+        toast.warn("Unable to sign up.");
+      }
       return false;
     }
     return true;
@@ -65,8 +69,12 @@ export class UserAccountStore {
         this.currentUser = new UserAccount(userAccount.username, "", "", token);
       });
       this.cacheUserAccount();
-    } catch (error) {
-      toast.warn("Unable to sign in.");
+    } catch (e) {
+      if (e instanceof Error) {
+        toast.warn(e.message);
+      } else {
+        toast.warn("Unable to sign in.");
+      }
       return false;
     }
     return true;

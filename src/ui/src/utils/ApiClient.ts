@@ -15,27 +15,11 @@ axios.interceptors.response.use(
     return response;
   },
   (error: AxiosError) => {
-    switch (error.response?.status) {
-      case 400:
-        toast.warn("Bad request.");
-        break;
-      case 401:
-        toast.warn("Unauthorized.");
-        break;
-      case 403:
-        toast.warn("Forbidden.");
-        break;
-      case 404:
-        toast.warn("Not found.");
-        break;
-      case 500:
-        toast.warn("Server error.");
-        break;
-      default:
-        toast.warn("Unknown error.");
-        break;
-    }
-    return Promise.reject(error);
+    const userFriendlyError =
+      error.response && error.response.data
+        ? new Error(error.response.data as string)
+        : new Error(error.message);
+    return Promise.reject(userFriendlyError);
   }
 );
 

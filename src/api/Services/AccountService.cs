@@ -18,7 +18,7 @@ public class AccountService(UserManager<AppUser> userManager) : IAccountService
         var result = await _userManager.CreateAsync(new AppUser() { UserName = username }, password);
         if (!result.Succeeded)
         {
-            throw new Exception(string.Join(",", result.Errors));
+            throw new Exception(string.Join(" ", result.Errors.Select(e => e.Description)));
         }
     }
 

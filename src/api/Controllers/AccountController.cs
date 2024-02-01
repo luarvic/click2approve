@@ -8,10 +8,11 @@ namespace api.Controllers;
 // A controller that implements API endpoints for managing user access (sing up, sign in, etc.).
 [ApiController]
 [Route("account")]
-public class AccountController(IAccountService accountService, ITokenService tokenService) : ControllerBase
+public class AccountController(IAccountService accountService, ITokenService tokenService, ILogger<AccountController> logger) : ControllerBase
 {
     private readonly IAccountService _accountService = accountService;
     private readonly ITokenService _tokenService = tokenService;
+    private readonly ILogger<AccountController> _logger = logger;
 
     [HttpPost("register")]
     public async Task<ActionResult<string>> RegisterAsync([FromBody] CredentialsDto credentials, CancellationToken cancellationToken)
@@ -24,6 +25,7 @@ public class AccountController(IAccountService accountService, ITokenService tok
         }
         catch (Exception e)
         {
+            _logger.LogError(e, $"Unable to register user {credentials.Username}.");
             return BadRequest(e.Message);
         }
     }
@@ -39,6 +41,7 @@ public class AccountController(IAccountService accountService, ITokenService tok
         }
         catch (Exception e)
         {
+            _logger.LogError(e, $"Unable to authenticate user {credentials.Username}.");
             return Unauthorized(e.Message);
         }
     }
