@@ -62,7 +62,7 @@ export const UserFiles = () => {
               <TableRow>
                 <TableHeaderCell></TableHeaderCell>
                 <TableHeaderCell>Type</TableHeaderCell>
-                <TableHeaderCell>Previre</TableHeaderCell>
+                <TableHeaderCell>Preview</TableHeaderCell>
                 <TableHeaderCell>Name</TableHeaderCell>
                 <TableHeaderCell>Created</TableHeaderCell>
                 <TableHeaderCell>Downloads</TableHeaderCell>
