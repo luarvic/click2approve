@@ -128,8 +128,7 @@ You will be notified that the uploading is started.
 
 ![Uploading started](/doc/images/uploading-started.png)
 
-> **Warning**
->
+> [!WARNING] 
 > File uploading might be slow because of generating file previews. Find more details in [Architecture and Design Decisions](#architecture-and-design-decisions).
 
 # Folder Structure
