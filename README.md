@@ -151,7 +151,7 @@ The link will appear in the dialog window. Click `Copy` button to copy it.
 
 ![Create link](/doc/images/create-link.png)
 
-Sing out by clicking `Sign out` button in the main menu. Paste the link into the browser and click `Enter`. As you can see, the link is available publicly and you can download the archive with the shared files.
+Sign out by clicking `Sign out` button in the main menu. Paste the link into the browser and click `Enter`. As you can see, the link is available publicly and you can download the archive with the shared files.
 
 ![Download shared files](/doc/images/download-shared-files.png)
 
