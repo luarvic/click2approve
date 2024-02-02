@@ -29,8 +29,8 @@ The application consists of two main components:
 - Server-side API (backend based on `ASP.NET Core v8.0.1`).
 
 The application uses the following third-party microservices:
-- [Azure SQL Edge](https://azure.microsoft.com/en-us/products/azure-sql/edge) as a SQL database engine
-- [JOD Converter](https://github.com/jodconverter) to create thumbnails (preview images).
+- [Azure SQL Edge](https://azure.microsoft.com/en-us/products/azure-sql/edge) as a SQL database engine.
+- [JOD Converter](https://github.com/jodconverter) to create thumbnails (file previews).
 - [rumkin/file-storage](https://github.com/rumkin/file-storage) as a file storage with REST interface.
 
 All microservises and components are containerizes with [Docker](https://docs.docker.com/get-started/02_our_app/).
@@ -196,7 +196,7 @@ Those microservices are:
 
 Containerization solves these main goals:
 - *Platform-agnostic philosophy.* The microservices can be deployed to and run on any operating system, any cloud provider or any on-premise infrastructure.
-- *Scalability.* Once deployed, the services can be scaled out horizontally by adding new instances (e.g. new pod in Kubernetes) to address performance issues. 
+- *Scalability.* Once deployed, the services can be scaled out horizontally by adding new instances (e.g. new pods in Kubernetes) to address performance issues. 
 
 Microservices architecture solves these main goals:
 - *Programming language agnostic philosophy*. Each microservice is written in the language that suits best for the particular purposes.
@@ -214,7 +214,7 @@ It is written in [TypeScript](https://www.typescriptlang.org/) and uses:
 
 - [React](https://react.dev/) library;
 - [Semantic UI](https://semantic-ui.com/) CSS framework;
-- [MobX](https://mobx.js.org/react-integration.html)
+- [MobX](https://mobx.js.org/react-integration.html) state management framework.
 
 The build transforms the TypeScript code to a JavaScripts single-page application (SPA). The `ui` container hosts [Nginx](https://www.nginx.com/) web server that handles the user HTTP requests and returns the SPA that works in the user browser and interacts with the `API` microservice.
 
@@ -242,7 +242,7 @@ Its a third-party microservice [rumkin/file-storage](https://github.com/rumkin/f
 The main advantages of having this service instead of storing the BLOB data in the `API` service file system are:
 
 - You can have multiple instances of `API` that access the single storage. So, every instance works with the same data.
-- Since it is support HTTP protocol, it can be easily replaced by any cloud provider (Azure, AWS, Google Cloud, etc.) storage service that also work via HTTP.
+- Since it supports HTTP protocol, it can be easily replaced by any cloud provider (Azure, AWS, Google Cloud, etc.) storage service that also work via HTTP.
 
 ## JOD Converter
 
@@ -273,9 +273,9 @@ A list of things that might be enhanced from **technical** perspective:
 - A [worker service](https://learn.microsoft.com/en-us/dotnet/core/extensions/workers) or a [hangfire](https://www.hangfire.io/) service should be added to remove outdated links.
 - Better error handling and user input validation.
 - File list pagination.
-- Responsive `UI` that adapts to any possible screen size.
+- Responsive UI that adapts to any possible screen size.
 - Storage limits pre user.
-- Admin page for managing the applications.
+- Admin page for managing the application.
 
 A list of things that might be enhanced from **user** perspective:
 
