@@ -7,7 +7,7 @@
 
 # File Manager Specification
 
-The File Manager is a web application that allows to:
+The File Manager is a web application that is designed to:
 
 - Upload files of the following types:
     - PDF;
