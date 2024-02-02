@@ -1,4 +1,4 @@
-namespace api.Extentions;
+namespace api.Extensions;
 
 // A set of extension methods for IFormFile interface.
 public static class FormFileExtensions

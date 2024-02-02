@@ -1,4 +1,4 @@
-namespace api.Extentions;
+namespace api.Extensions;
 
 // A set of extension methods for Stream class.
 public static class StreamExtensions

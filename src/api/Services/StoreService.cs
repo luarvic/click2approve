@@ -1,5 +1,5 @@
 using System.Net.Http.Headers;
-using api.Extentions;
+using api.Extensions;
 
 namespace api.Services;
 

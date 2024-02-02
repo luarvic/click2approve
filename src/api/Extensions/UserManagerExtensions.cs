@@ -2,9 +2,9 @@ using api.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
-namespace api.Extentions;
+namespace api.Extensions;
 
-public static class UserManagerExtentions
+public static class UserManagerExtensions
 {
     public static async Task<AppUser> GetUserByPrincipal(this UserManager<AppUser> userManager, ClaimsPrincipal principal, CancellationToken cancellationToken)
     {

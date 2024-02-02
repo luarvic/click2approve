@@ -1,4 +1,4 @@
-using api.Extentions;
+using api.Extensions;
 using api.Models;
 using api.Models.DTOs;
 using api.Services;

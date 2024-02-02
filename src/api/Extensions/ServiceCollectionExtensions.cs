@@ -2,7 +2,7 @@ using api.Authentication;
 using api.Models;
 using Microsoft.AspNetCore.Authentication;
 
-namespace api.Extentions;
+namespace api.Extensions;
 
 public static class ServiceCollectionExtensions
 {

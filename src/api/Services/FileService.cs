@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 using System.IO.Compression;
-using api.Extentions;
+using api.Extensions;
 using api.Models;
 using CSharpVitamins;
 using Microsoft.EntityFrameworkCore;
