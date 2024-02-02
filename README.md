@@ -155,7 +155,7 @@ Sing out by clicking `Sign out` button in the main menu. Paste the link into the
 
 ![Download shared files](/doc/images/download-shared-files.png)
 
-Sign in again, check that the number of downloads has been incremented for the files that we just have downloaded. Sing out.
+Sign in again, check that the number of downloads has been incremented for the files that we just have downloaded. Sign out.
 
 ![Sign out](/doc/images/sign-out.png)
 
@@ -180,7 +180,7 @@ file-manager
 │  |  |  ├── components         # React components that implement UI pieces.
 │  |  |  ├── models             # Entity classes.
 │  |  |  ├── stores             # Classes that manage application state plus constants. 
-│  |  |  ├── utils              # Set of helpful methods.
+│  |  |  ├── utils              # Set of helpful methods mostly for communication with API .
 ```
 
 # Architecture and Design Decisions
@@ -202,7 +202,7 @@ Microservices architecture solves these main goals:
 - *Programming language agnostic philosophy*. Each microservice is written in the language that suits best for the particular purposes.
 - *Independent development and deployment*. Each microservice can be managed by a separate team.
 - *Replaceability*. Each microservice can be easily replaced by a new one.
-- *Resilience*. If one of the microservice is down, some of the application functionality might still be working.
+- *Resilience*. If one of the microservices is down, some of the application functionality might still be working.
 
 Let's take a closer look at each of the microservices.
 
@@ -274,7 +274,7 @@ A list of things that might be enhanced from **technical** perspective:
 - Better error handling and user input validation.
 - File list pagination.
 - Responsive UI that adapts to any possible screen size.
-- Storage limits pre user.
+- Storage limits per user.
 - Admin page for managing the application.
 
 A list of things that might be enhanced from **user** perspective:
