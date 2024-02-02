@@ -180,7 +180,7 @@ file-manager
 │  |  |  ├── components         # React components that implement UI pieces.
 │  |  |  ├── models             # Entity classes.
 │  |  |  ├── stores             # Classes that manage application state plus constants. 
-│  |  |  ├── utils              # Set of helpful methods mostly for communication with API .
+│  |  |  ├── utils              # Set of helpful methods mostly for communication with API.
 ```
 
 # Architecture and Design Decisions
