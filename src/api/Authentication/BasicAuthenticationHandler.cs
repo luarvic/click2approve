@@ -28,7 +28,7 @@ public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSc
         _accountService = accountService;
     }
 
-    // Verifies Authorization handler and decides whether to authenticate the user or not. 
+    // Verifies Authorization token and decides whether to authenticate the user or not. 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         if (!Request.Headers.TryGetValue("Authorization", out StringValues authorizationHeader))
