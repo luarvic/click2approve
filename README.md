@@ -175,12 +175,11 @@ file-manager
 │  │  ├── Extensions            # Classes that extend other classes functionality.
 │  │  ├── Models                # Entity classes.
 │  │  ├── Services              # Classes that implement business logic.
-│  ├── ui                       # UI code base.
-│  |  ├── src
-│  |  |  ├── components         # React components that implement UI pieces.
-│  |  |  ├── models             # Entity classes.
-│  |  |  ├── stores             # Classes that manage application state plus constants. 
-│  |  |  ├── utils              # Set of helpful methods mostly for communication with API.
+│  ├── ui/src                   # UI code base.
+│  │  ├── components            # React components that implement UI pieces.
+│  │  ├── models                # Entity classes.
+│  │  ├── stores                # Classes that manage application state plus constants. 
+│  │  ├── utils                 # Set of helpful methods mostly for communication with API.
 ```
 
 # Architecture and Design Decisions
