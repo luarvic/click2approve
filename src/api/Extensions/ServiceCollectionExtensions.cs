@@ -4,9 +4,10 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace api.Extensions;
 
+// Extends IServiceCollection interface.
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddItentityServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddIdentityCore<AppUser>(options =>
         {

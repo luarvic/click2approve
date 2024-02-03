@@ -8,6 +8,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace api.Authentication;
 
+// Handles basic authentication.
 public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
     private readonly ILogger<BasicAuthenticationHandler> _logger;
@@ -27,6 +28,7 @@ public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSc
         _accountService = accountService;
     }
 
+    // Verifies Authorization handler and decides whether to authenticate the user or not. 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         if (!Request.Headers.TryGetValue("Authorization", out StringValues authorizationHeader))

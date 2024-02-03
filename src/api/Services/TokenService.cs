@@ -2,6 +2,7 @@ using System.Text;
 
 namespace api.Services;
 
+// Implements managing authorization token logic.
 public class TokenService : ITokenService
 {
     public (string Username, string Password) GetCredentialsFromToken(string token)

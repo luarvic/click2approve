@@ -1,6 +1,6 @@
 namespace api.Models;
 
-// An EF model that represents a shared user's file.
+// Represents a shared user's file.
 public class SharedUserFile
 {
     public long Id { get; set; }

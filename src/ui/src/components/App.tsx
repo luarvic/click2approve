@@ -11,6 +11,7 @@ import SignUp from "./SignUp";
 import SharedFile from "./SharedFile";
 import NotFound from "./NotFound";
 
+// Top level component.
 const App = () => {
   const userAccountStore = useContext(userAccountStoreContext);
   const { trySigningInWithCachedUserAccount } = userAccountStore;
@@ -20,29 +21,27 @@ const App = () => {
   }, []);
 
   return (
-    <Fragment>
-      <Container>
-        <BrowserRouter>
-          <NavBar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/file/:key" element={<SharedFile />} />
-            <Route path="/notfound" element={<NotFound />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-        <ToastContainer
-          position="bottom-right"
-          autoClose={10000}
-          pauseOnHover
-          limit={3}
-          closeButton={true}
-          draggable={false}
-        />
-      </Container>
-    </Fragment>
+    <Container>
+      <BrowserRouter>
+        <NavBar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/file/:key" element={<SharedFile />} />
+          <Route path="/notfound" element={<NotFound />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={10000}
+        pauseOnHover
+        limit={3}
+        closeButton={true}
+        draggable={false}
+      />
+    </Container>
   );
 };
 

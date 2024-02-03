@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers;
 
-// A controller that implements API endpoints for managing user access (sing up, sign in, etc.).
+// Implements API endpoints for managing user access (sing up, sign in, etc.).
 [ApiController]
 [Route("account")]
 public class AccountController(IAccountService accountService, ITokenService tokenService, ILogger<AccountController> logger) : ControllerBase

@@ -1,6 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { Container, Message } from "semantic-ui-react";
 
+// Not found page.
 export const NotFound = () => {
   return (
     <Container>

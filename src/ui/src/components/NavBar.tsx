@@ -5,6 +5,7 @@ import { Button, Container, Icon, Menu, MenuItem } from "semantic-ui-react";
 import { userAccountStoreContext } from "../stores/UserAccountStore";
 import { userFileStoreContext } from "../stores/UserFileStore";
 
+// Main menu.
 export const NavBar = () => {
   const location = useLocation();
   const { pathname } = location;

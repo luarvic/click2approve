@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace api.Services;
 
+// Implements sign un and sign in logic.
 public class AccountService(UserManager<AppUser> userManager) : IAccountService
 {
     private readonly UserManager<AppUser> _userManager = userManager;

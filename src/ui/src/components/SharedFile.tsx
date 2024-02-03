@@ -4,6 +4,7 @@ import { Container, Message } from "semantic-ui-react";
 import { API_URI } from "../stores/Constants";
 import { testSharedArchive } from "../utils/ApiClient";
 
+// Shared file download page.
 export const SharedFile = () => {
   const { key } = useParams();
 

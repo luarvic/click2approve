@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers;
 
-// A controller that implements API endpoints for managing user files (uploading, getting, deleting, etc.).
+// Implements API endpoints for managing user files (uploading, getting, deleting, etc.).
 [ApiController]
 [Route("file")]
 [Authorize]
@@ -23,7 +23,7 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
     {
         try
         {
-            var user = await _userManager.GetUserByPrincipal(User, cancellationToken);
+            var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
             var userFiles = await _fileService.UploadFilesAsync(user, files, cancellationToken);
             return Ok(userFiles);
         }
@@ -40,7 +40,7 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
     {
         try
         {
-            var user = await _userManager.GetUserByPrincipal(User, cancellationToken);
+            var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
             var userFiles = await _fileService.GetUserFilesAsync(user, cancellationToken);
             return Ok(userFiles);
         }
@@ -57,7 +57,7 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
     {
         try
         {
-            var user = await _userManager.GetUserByPrincipal(User, cancellationToken);
+            var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
             var (filename, bytes) = await _fileService.GetFileAsync(user, id, preview, cancellationToken);
             return new FileContentResult(bytes, MimeTypes.GetMimeType(filename))
             {
@@ -77,7 +77,7 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
     {
         try
         {
-            var user = await _userManager.GetUserByPrincipal(User, cancellationToken);
+            var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
             var (filename, bytes) = await _fileService.GetFileAsync(user, id, preview, cancellationToken);
             return $"data:{MimeTypes.GetMimeType(filename)};base64,{Convert.ToBase64String(bytes)}";
         }
@@ -94,7 +94,7 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
     {
         try
         {
-            var user = await _userManager.GetUserByPrincipal(User, cancellationToken);
+            var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
             var (filename, bytes) = await _fileService.GetArchiveAsync(user, ids, cancellationToken);
             return $"data:{MimeTypes.GetMimeType(filename)};base64,{Convert.ToBase64String(bytes)}";
         }
@@ -111,7 +111,7 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
     {
         try
         {
-            var user = await _userManager.GetUserByPrincipal(User, cancellationToken);
+            var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
             var sharedId = await _fileService.ShareUserFilesAsync(user, filesToShare.Ids, filesToShare.AvailableUntil, cancellationToken);
             return sharedId;
         }

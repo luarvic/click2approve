@@ -1,7 +1,7 @@
 namespace api.Services;
 
-// A service that generates thumbnails of files.
-// The implementation uses https://github.com/jodconverter/docker-image-jodconverter-examples file converter with REST interface.
+// Implements generating thumbnails logic.
+// Uses https://github.com/jodconverter/docker-image-jodconverter-examples file converter with REST interface.
 public class ThumbnailService(IConfiguration configuration, HttpClient httpClient, ILogger<ThumbnailService> logger) : IThumbnailService
 {
     private readonly IConfiguration _configuration = configuration;

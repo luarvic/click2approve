@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api.Services;
 
-// A service that manages user files (uploads, gets, deletes, etc.).
+// Implements user files management logic (uploads, gets, deletes, etc.).
 public class FileService(
     IConfiguration configuration,
     FileManagerDbContext db,

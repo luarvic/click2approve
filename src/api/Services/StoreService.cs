@@ -3,8 +3,8 @@ using api.Extensions;
 
 namespace api.Services;
 
-// A service that stores a binary data.
-// The implementation uses on https://github.com/rumkin/file-storage file storage with REST interface.
+// Implements storing binary data logic.
+// Uses on https://github.com/rumkin/file-storage file storage with REST interface.
 public class StoreService(IConfiguration configuration, HttpClient httpClient, ILogger<StoreService> logger) : IStoreService
 {
     private readonly IConfiguration _configuration = configuration;

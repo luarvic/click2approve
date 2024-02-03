@@ -12,6 +12,7 @@ import {
 import { IUserAccount, UserAccount } from "../models/UserAccount";
 import { userAccountStoreContext } from "../stores/UserAccountStore";
 
+// Sign up form.
 export const SignUp = () => {
   const [userAccount, setUserAccount] = useState<IUserAccount>(
     new UserAccount()

@@ -20,6 +20,7 @@ import { userFileStoreContext } from "../stores/UserFileStore";
 import { downloadFileBase64 } from "../utils/ApiClient";
 import Buttons from "./Buttons";
 
+// Table with user files.
 export const UserFiles = () => {
   const userFileStore = useContext(userFileStoreContext);
   const { userFiles, loadUserFiles, handleUserFileCheckbox } = userFileStore;

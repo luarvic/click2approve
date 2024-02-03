@@ -5,7 +5,7 @@ import { IUserAccount, UserAccount } from "../models/UserAccount";
 import { signInUser, signUpUser, validateToken } from "../utils/ApiClient";
 
 export class UserAccountStore {
-  // Null means anonimous user.
+  // Null means anonymous user.
   // Undefined means we don't yet know whether the user is anonymous or authenticated.
   currentUser: IUserAccount | undefined | null;
 

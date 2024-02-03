@@ -20,6 +20,7 @@ import { userFileStoreContext } from "../stores/UserFileStore";
 import { downloadArchiveBase64, shareUserFiles } from "../utils/ApiClient";
 import { ACCEPT_FILE_TYPES } from "../stores/Constants";
 
+// Submenu with Upload, Download, Share buttons.
 export const Buttons = () => {
   const [shareOpen, setShareOpen] = useState<boolean>(false);
   const [availableUntil, setAvailableUntil] = useState<string>("");

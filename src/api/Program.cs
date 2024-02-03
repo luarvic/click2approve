@@ -4,7 +4,7 @@ using api.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddItentityServices(builder.Configuration);
+builder.Services.AddIdentityServices(builder.Configuration);
 builder.Services.AddCors();
 // Add services to the container.
 builder.Services.AddControllers();

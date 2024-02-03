@@ -1,6 +1,6 @@
 namespace api.Models;
 
-// An EF model that represents a user's file.
+// Represents a user's file.
 public class UserFile
 {
     public long Id { get; set; }
