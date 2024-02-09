@@ -12,13 +12,11 @@ public class FileService(
     IConfiguration configuration,
     FileManagerDbContext db,
     IStoreService storeService,
-    IThumbnailService thumbnailService,
     ILogger<FileService> logger) : IFileService
 {
     private readonly IConfiguration _configuration = configuration;
     private readonly FileManagerDbContext _db = db;
     private readonly IStoreService _storeService = storeService;
-    private readonly IThumbnailService _thumbnailService = thumbnailService;
     private readonly ILogger<FileService> _logger = logger;
 
     public async Task<IList<UserFile>> UploadFilesAsync(AppUser user, IFormFileCollection files, CancellationToken cancellationToken)
@@ -42,29 +40,27 @@ public class FileService(
             // Save the user file entity to the database to generate its Id.
             await _db.SaveChangesAsync(cancellationToken);
             var id = userFileEntry.Entity.Id.ToString();
-            var thumbnailId = userFileEntry.Entity.Thumbnail;
 
             // Save the file.
             var bytes = await file.ToBytesAsync(cancellationToken);
-            await _storeService.AddFileAsync(id, file.FileName, bytes, cancellationToken);
-
-            // Generate a thumbnail.
-            var thumbnailResponse = await _thumbnailService.CreateThumbnailAsync(file.FileName, bytes, cancellationToken);
-
-            // Save the thumbnail.
-            using var thumbnailStream = await thumbnailResponse.Content.ReadAsStreamAsync(cancellationToken);
-            await _storeService.AddFileAsync(thumbnailId, thumbnailId, await thumbnailStream.ToBytesAsync(cancellationToken), cancellationToken);
+            await _storeService.AddFileAsync(GetFilePath(user.Id, id, file.FileName), bytes, cancellationToken);
         }
 
         return userFiles;
     }
 
-    public async Task<(string Filename, byte[] Bytes)> GetFileAsync(AppUser user, string id, bool preview, CancellationToken cancellationToken)
+    private string GetFilePath(string userId, string fileId, string fileName)
+    {
+        return Path.Combine(userId, fileId, fileName);
+    }
+
+    public async Task<(string Filename, byte[] Bytes)> GetFileAsync(AppUser user, string id, CancellationToken cancellationToken)
     {
         var userFile = await _db.UserFiles.FirstAsync(f => f.Owner == user.Id && f.Id == long.Parse(id), cancellationToken: cancellationToken);
-        return preview ?
-            (userFile.Thumbnail, await _storeService.GetFileAsync(userFile.Thumbnail, cancellationToken)) :
-            (userFile.Name, await _storeService.GetFileAsync(userFile.Id.ToString(), cancellationToken));
+        return (
+            userFile.Name,
+            await _storeService.GetFileAsync(GetFilePath(userFile.Owner, userFile.Id.ToString(), userFile.Name), cancellationToken)
+        );
     }
 
     private async Task IncrementDownloadCountAsync(long[] ids, CancellationToken cancellationToken)
@@ -93,7 +89,7 @@ public class FileService(
         foreach (var userFile in userFiles)
         {
             tasks.Add(Task.Run(() =>
-            _storeService.GetFileAsync(userFile.Id.ToString(), cancellationToken))
+            _storeService.GetFileAsync(GetFilePath(userFile.Owner, userFile.Id.ToString(), userFile.Name), cancellationToken))
                 .ContinueWith(bytes =>
                 {
                     // Files can have same names.

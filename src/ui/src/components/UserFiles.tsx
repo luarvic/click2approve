@@ -63,7 +63,6 @@ export const UserFiles = () => {
               <TableRow>
                 <TableHeaderCell></TableHeaderCell>
                 <TableHeaderCell>Type</TableHeaderCell>
-                <TableHeaderCell>Preview</TableHeaderCell>
                 <TableHeaderCell>Name</TableHeaderCell>
                 <TableHeaderCell>Created</TableHeaderCell>
                 <TableHeaderCell>Downloads</TableHeaderCell>
@@ -98,18 +97,6 @@ export const UserFiles = () => {
                         userFile.type
                       )}
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <Popup
-                      trigger={
-                        <Image src={userFile.thumbnail} rounded size="mini" />
-                      }
-                      wide
-                    >
-                      <PopupContent>
-                        <Image src={userFile.thumbnail} />
-                      </PopupContent>
-                    </Popup>
                   </TableCell>
                   <TableCell>{userFile.name}</TableCell>
                   <TableCell>{userFile.createdDate.toLocaleString()}</TableCell>

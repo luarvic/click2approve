@@ -58,7 +58,7 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
         try
         {
             var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
-            var (filename, bytes) = await _fileService.GetFileAsync(user, id, preview, cancellationToken);
+            var (filename, bytes) = await _fileService.GetFileAsync(user, id, cancellationToken);
             return new FileContentResult(bytes, MimeTypes.GetMimeType(filename))
             {
                 FileDownloadName = filename
@@ -78,7 +78,7 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
         try
         {
             var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
-            var (filename, bytes) = await _fileService.GetFileAsync(user, id, preview, cancellationToken);
+            var (filename, bytes) = await _fileService.GetFileAsync(user, id, cancellationToken);
             return $"data:{MimeTypes.GetMimeType(filename)};base64,{Convert.ToBase64String(bytes)}";
         }
         catch (Exception e)

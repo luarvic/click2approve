@@ -30,8 +30,6 @@ The application consists of two main components:
 
 The application uses the following third-party microservices:
 - [Azure SQL Edge](https://azure.microsoft.com/en-us/products/azure-sql/edge) as a SQL database engine.
-- [JOD Converter](https://github.com/jodconverter) to create thumbnails (file previews).
-- [rumkin/file-storage](https://github.com/rumkin/file-storage) as a file storage with REST interface.
 
 All microservises and components are containerizes with [Docker](https://docs.docker.com/get-started/02_our_app/).
 
@@ -189,8 +187,6 @@ The File Manager application is a set of containerized microservices that intera
 Those microservices are:
 - `UI` is a frontend component hosted on `Nginx` web server.
 - `API` is a backend component.
-- `File Storage` is a file storage.
-- `JOD Converter` a thumbnail generator.
 - `DB` is a SQL engine.
 
 Containerization solves these main goals:
@@ -222,34 +218,12 @@ The build transforms the TypeScript code to a JavaScripts single-page applicatio
 Its goals are:
 
 - To provide the HTTP endpoints that implement the File Manager business logic.
-- To interact with other microservices:
-    - File Storage;
-    - JOD Converter.
 
 It is written in [C#](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp/) and uses:
 
 - [ASP.NET Core](https://dotnet.microsoft.com/en-us/apps/aspnet) framework.
 - [Entity Framework](https://learn.microsoft.com/en-us/ef/).
 - [ASP.NET Identity](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity) framework.
-
-## File Storage
-
-Its purpose is to provide a storage for the BLOB data.
-
-Its a third-party microservice [rumkin/file-storage](https://github.com/rumkin/file-storage).
-
-The main advantages of having this service instead of storing the BLOB data in the `API` service file system are:
-
-- You can have multiple instances of `API` that access the single storage. So, every instance works with the same data.
-- Since it supports HTTP protocol, it can be easily replaced by any cloud provider (Azure, AWS, Google Cloud, etc.) storage service that also work via HTTP.
-
-## JOD Converter
-
-Its purpose is to separate the functionality that creates file previews from the `API` service.
-
-Its a third-party microservice [JOD Converter](https://github.com/jodconverter).
-
-The service is used to generate the lightweight PNG thumbnails while uploading user files. That increases the uploading time, but makes the page that shows the user file thumbnails work quickly.
 
 ## DB
 
