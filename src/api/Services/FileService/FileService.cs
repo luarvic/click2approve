@@ -32,7 +32,7 @@ public class FileService(
                 Type = Path.GetExtension(file.FileName),
                 Created = DateTime.UtcNow,
                 Owner = user.Id,
-                DownloadCount = 0
+                Size = file.Length
             };
             var userFileEntry = await _db.UserFiles.AddAsync(userFile, cancellationToken);
             userFiles.Add(userFileEntry.Entity);
@@ -63,19 +63,6 @@ public class FileService(
         );
     }
 
-    private async Task IncrementDownloadCountAsync(long[] ids, CancellationToken cancellationToken)
-    {
-        var userFiles = await _db.UserFiles
-            .Where(f => ids.Contains(f.Id))
-            .ToListAsync(cancellationToken);
-
-        foreach (var userFile in userFiles)
-        {
-            userFile.DownloadCount++;
-        }
-        await _db.SaveChangesAsync(cancellationToken);
-    }
-
     public async Task<(string Filename, byte[] Bytes)> GetArchiveAsync(AppUser? user, string[] ids, CancellationToken cancellationToken)
     {
         var longIds = ids.Select(long.Parse).ToArray();
@@ -99,7 +86,6 @@ public class FileService(
                 }, cancellationToken));
         }
         Task.WaitAll([.. tasks], cancellationToken);
-        await IncrementDownloadCountAsync(longIds, cancellationToken);
 
         return await CompressAsync(files.ToDictionary(), cancellationToken);
     }

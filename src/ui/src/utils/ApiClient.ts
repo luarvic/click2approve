@@ -64,11 +64,8 @@ export const uploadFiles = async (files: FileList): Promise<IUserFile[]> => {
   return data;
 };
 
-export const downloadFile = async (
-  id: string,
-  preview: boolean
-): Promise<ArrayBuffer> => {
-  const { data } = await axios.get(`download?id=${id}&preview=${preview}`);
+export const downloadFile = async (id: string): Promise<ArrayBuffer> => {
+  const { data } = await axios.get(`download?id=${id}`);
   return data;
 };
 

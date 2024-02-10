@@ -27,8 +27,7 @@ export const Buttons = () => {
   const [shareLink, setShareLink] = useState<string>("");
   const hiddenFileInput = useRef<HTMLInputElement>(null);
   const userFileStore = useContext(userFileStoreContext);
-  const { addUserFiles, getSelectedUserFiles, incrementDownloadCount } =
-    userFileStore;
+  const { addUserFiles, getSelectedUserFiles } = userFileStore;
 
   const handleUploadClick = () => {
     if (hiddenFileInput.current) {
@@ -47,7 +46,6 @@ export const Buttons = () => {
 
   const handleDownload = async () => {
     const base64String = await downloadArchiveBase64(getSelectedUserFiles());
-    incrementDownloadCount();
     const a = document.createElement("a");
     a.hidden = true;
     a.href = base64String;

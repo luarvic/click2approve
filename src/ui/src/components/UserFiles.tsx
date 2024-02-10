@@ -5,9 +5,6 @@ import {
   Checkbox,
   Container,
   Grid,
-  Image,
-  Popup,
-  PopupContent,
   Table,
   TableBody,
   TableCell,
@@ -19,24 +16,29 @@ import { IUserFile } from "../models/UserFile";
 import { userFileStoreContext } from "../stores/UserFileStore";
 import { downloadFileBase64 } from "../utils/ApiClient";
 import Buttons from "./Buttons";
+import prettyBytes from "pretty-bytes";
 
 // Table with user files.
 export const UserFiles = () => {
   const userFileStore = useContext(userFileStoreContext);
   const { userFiles, loadUserFiles, handleUserFileCheckbox } = userFileStore;
 
-  const getDefaultExtensionType = (extention: string) => {
+  const getDefaultExtensionType = (extension: string) => {
     const styledIcons = Object.keys(
       defaultStyles
     ) as Array<DefaultExtensionType>;
     return styledIcons.find(
-      (key) => key.toString() === extention.replace(".", "").toLowerCase()
+      (key) => key.toString() === extension.replace(".", "").toLowerCase()
     );
   };
 
   const loadData = () => {
     loadUserFiles();
   };
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const handleDownloadClick = async (userFile: IUserFile) => {
     const base64String = await downloadFileBase64(userFile.id);
@@ -49,9 +51,10 @@ export const UserFiles = () => {
     document.body.removeChild(a);
   };
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  const getHumanReadableRelativeDate = (absoluteDate: Date): string => {
+    const ago = require("s-ago");
+    return ago(absoluteDate);
+  };
 
   return (
     <Container>
@@ -65,21 +68,16 @@ export const UserFiles = () => {
                 <TableHeaderCell>Type</TableHeaderCell>
                 <TableHeaderCell>Name</TableHeaderCell>
                 <TableHeaderCell>Created</TableHeaderCell>
-                <TableHeaderCell>Downloads</TableHeaderCell>
+                <TableHeaderCell>Size</TableHeaderCell>
               </TableRow>
             </TableHeader>
             <TableBody>
               {userFiles.map((userFile: IUserFile) => (
-                <TableRow
-                  key={userFile.id}
-                  positive={
-                    (Date.now() - userFile.createdDate.getTime()) / 1000 < 60
-                  }
-                >
+                <TableRow key={userFile.id}>
                   <TableCell collapsing>
                     <Checkbox
                       id={userFile.id}
-                      onChange={(event, data) =>
+                      onChange={(_event, data) =>
                         handleUserFileCheckbox(userFile.id, data.checked!)
                       }
                     />
@@ -98,9 +96,15 @@ export const UserFiles = () => {
                       )}
                     </div>
                   </TableCell>
-                  <TableCell>{userFile.name}</TableCell>
-                  <TableCell>{userFile.createdDate.toLocaleString()}</TableCell>
-                  <TableCell>{userFile.downloadCount}</TableCell>
+                  <TableCell>
+                    <a href="#" onClick={() => handleDownloadClick(userFile)}>
+                      {userFile.name}
+                    </a>
+                  </TableCell>
+                  <TableCell>
+                    {getHumanReadableRelativeDate(userFile.createdDate)}
+                  </TableCell>
+                  <TableCell>{prettyBytes(userFile.size)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

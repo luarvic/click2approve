@@ -83,10 +83,6 @@ export class UserFileStore {
       (userFile) => userFile.checked
     );
   };
-
-  incrementDownloadCount = () => {
-    this.getSelectedUserFiles().forEach((f) => f.downloadCount++);
-  };
 }
 
 export const userFileStoreContext = createContext(

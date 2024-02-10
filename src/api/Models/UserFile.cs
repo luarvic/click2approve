@@ -8,5 +8,5 @@ public class UserFile
     public required string Type { get; set; }
     public required DateTime Created { get; set; }
     public required string Owner { get; set; }
-    public required long DownloadCount { get; set; }
+    public required long Size { get; set; }
 }

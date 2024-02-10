@@ -53,7 +53,7 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
     }
 
     [HttpGet("/download")]
-    public async Task<IActionResult> GetFileAsync(string id, bool preview, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetFileAsync(string id, CancellationToken cancellationToken)
     {
         try
         {

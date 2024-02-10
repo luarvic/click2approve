@@ -5,7 +5,7 @@ export interface IUserFile {
   created: string;
   createdDate: Date;
   checked: boolean;
-  downloadCount: number;
+  size: number;
 }
 
 export class UserFile implements IUserFile {
@@ -15,7 +15,7 @@ export class UserFile implements IUserFile {
   created: string;
   createdDate: Date;
   checked: boolean;
-  downloadCount: number;
+  size: number;
 
   constructor(
     id: string,
@@ -23,7 +23,7 @@ export class UserFile implements IUserFile {
     type: string,
     created: string,
     checked: boolean,
-    downloadCount: number
+    size: number
   ) {
     this.id = id;
     this.name = name;
@@ -31,6 +31,6 @@ export class UserFile implements IUserFile {
     this.created = created;
     this.createdDate = new Date(created);
     this.checked = checked;
-    this.downloadCount = downloadCount;
+    this.size = size;
   }
 }
