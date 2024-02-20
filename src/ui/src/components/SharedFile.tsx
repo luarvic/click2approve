@@ -1,6 +1,6 @@
+import { Box, Container } from "@mui/material";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Container, Message } from "semantic-ui-react";
 import { API_URI } from "../stores/Constants";
 import { testSharedArchive } from "../utils/ApiClient";
 
@@ -20,10 +20,10 @@ export const SharedFile = () => {
 
   return (
     <Container>
-      <Message>
+      <Box sx={{ pt: 3 }}>
         Click <a href={`${API_URI}/downloadShared?key=${key}`}>here</a> to
         download the file.
-      </Message>
+      </Box>
     </Container>
   );
 };

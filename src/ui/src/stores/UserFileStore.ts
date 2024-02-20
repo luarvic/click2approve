@@ -69,13 +69,15 @@ export class UserFileStore {
     });
   };
 
-  handleUserFileCheckbox = (id: string, checked: boolean) => {
-    const userFile = this.registry.get(id);
-    if (userFile !== undefined) {
-      runInAction(() => {
-        userFile.checked = checked;
-      });
-    }
+  handleUserFileCheckbox = (ids: string[]) => {
+    this.registry.forEach((userFile) => {
+      const checkedInUi = ids.includes(userFile.id);
+      if (checkedInUi !== userFile.checked) {
+        runInAction(() => {
+          userFile.checked = checkedInUi;
+        });
+      }
+    });
   };
 
   getSelectedUserFiles = (): IUserFile[] => {

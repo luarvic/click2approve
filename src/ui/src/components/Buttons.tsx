@@ -1,29 +1,30 @@
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  Grid,
+  IconButton,
+  InputBase,
+  Modal,
+  Paper,
+  Typography,
+} from "@mui/material";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { Dayjs } from "dayjs";
 import { observer } from "mobx-react-lite";
 import React, { useContext, useRef, useState } from "react";
 import { toast } from "react-toastify";
-import { DateTimeInput } from "semantic-ui-calendar-react-yz";
-import {
-  Button,
-  Container,
-  Form,
-  FormField,
-  Icon,
-  Input,
-  Menu,
-  MenuItem,
-  Modal,
-  ModalActions,
-  ModalContent,
-  ModalHeader,
-} from "semantic-ui-react";
+import { ACCEPT_FILE_TYPES } from "../stores/Constants";
 import { userFileStoreContext } from "../stores/UserFileStore";
 import { downloadArchiveBase64, shareUserFiles } from "../utils/ApiClient";
-import { ACCEPT_FILE_TYPES } from "../stores/Constants";
 
 // Submenu with Upload, Download, Share buttons.
 export const Buttons = () => {
   const [shareOpen, setShareOpen] = useState<boolean>(false);
-  const [availableUntil, setAvailableUntil] = useState<string>("");
+  const [availableUntil, setAvailableUntil] = useState<Dayjs | null>(null);
   const [shareLink, setShareLink] = useState<string>("");
   const hiddenFileInput = useRef<HTMLInputElement>(null);
   const userFileStore = useContext(userFileStoreContext);
@@ -57,11 +58,15 @@ export const Buttons = () => {
 
   const handleShare = async () => {
     try {
-      const link = await shareUserFiles(
-        getSelectedUserFiles(),
-        new Date(availableUntil)
-      );
-      setShareLink(`${window.location.origin}/file/${link}`);
+      if (availableUntil) {
+        const link = await shareUserFiles(
+          getSelectedUserFiles(),
+          availableUntil.toDate()
+        );
+        setShareLink(`${window.location.origin}/file/${link}`);
+      } else {
+        throw new Error("Date is not defined.");
+      }
     } catch (e) {
       if (e instanceof Error) {
         toast.warn(e.message);
@@ -71,105 +76,125 @@ export const Buttons = () => {
     }
   };
 
-  const handleDatetimePicker = (event: any, data: any) => {
-    setAvailableUntil(data.value);
-  };
-
   const handleCloseShareModal = () => {
     setShareLink("");
+    setAvailableUntil(null);
     setShareOpen(false);
   };
 
+  const modalStyle = {
+    position: "absolute" as "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 400,
+    bgcolor: "background.paper",
+    border: "2px solid #000",
+    boxShadow: 24,
+    p: 4,
+  };
+
   return (
-    <Container>
-      <Menu text>
-        <MenuItem>
-          <Button primary onClick={handleUploadClick}>
-            <Icon name="upload" />
-            Upload
-          </Button>
-          <input
-            type="file"
-            accept={ACCEPT_FILE_TYPES.join(", ")}
-            multiple
-            onChange={handleUpload}
-            ref={hiddenFileInput}
-            style={{ display: "none" }}
-          />
-        </MenuItem>
-        <MenuItem>
-          <Button
-            disabled={getSelectedUserFiles().length > 0 ? false : true}
-            onClick={handleDownload}
-          >
-            <Icon name="download" />
-            Download
-          </Button>
-        </MenuItem>
-        <MenuItem>
-          <Button
-            disabled={getSelectedUserFiles().length > 0 ? false : true}
-            onClick={() => setShareOpen(true)}
-          >
-            <Icon name="share" />
-            Share
-          </Button>
-        </MenuItem>
-      </Menu>
-      <Modal dimmer="inverted" open={shareOpen} size="tiny">
-        <ModalHeader>Sharing the file(s) publicly</ModalHeader>
-        <ModalContent>
-          <p>
-            {userFileStore
-              .getSelectedUserFiles()
-              .map((userFile) => userFile.name)
-              .join(", ")}
-          </p>
-          <p>
-            <Form autocomplete="off">
-              <FormField>
-                <label>Available until </label>
-                <DateTimeInput
-                  closable
-                  name="date"
-                  placeholder="Date Time"
-                  dateFormat="YYYY-MM-DD"
+    <Box sx={{ mt: 2, mb: 2 }}>
+      <ButtonGroup variant="contained">
+        <Button onClick={handleUploadClick}>Upload</Button>
+        <input
+          type="file"
+          accept={ACCEPT_FILE_TYPES.join(", ")}
+          multiple
+          onChange={handleUpload}
+          ref={hiddenFileInput}
+          style={{ display: "none" }}
+        />
+        <Button
+          onClick={handleDownload}
+          disabled={getSelectedUserFiles().length > 0 ? false : true}
+        >
+          Download
+        </Button>
+        <Button
+          onClick={() => setShareOpen(true)}
+          disabled={getSelectedUserFiles().length > 0 ? false : true}
+        >
+          Share
+        </Button>
+      </ButtonGroup>
+      <Modal open={shareOpen} onClose={handleCloseShareModal}>
+        <Box sx={modalStyle}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Typography variant="h6" component="h2">
+                Sharing the file(s) publicly
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography id="modal-modal-description">
+                {userFileStore
+                  .getSelectedUserFiles()
+                  .map((userFile) => userFile.name)
+                  .join(", ")}
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DateTimePicker
+                  slotProps={{ textField: { fullWidth: true } }}
                   value={availableUntil}
-                  iconPosition="right"
-                  onChange={handleDatetimePicker}
+                  onChange={(newValue) => setAvailableUntil(newValue)}
                 />
-              </FormField>
-            </Form>
-          </p>
-          {shareLink && (
-            <p>
-              <Input
-                visible={false}
-                disabled
-                fluid
-                label={
-                  <Button
-                    content="Copy"
+              </LocalizationProvider>
+            </Grid>
+            {shareLink && (
+              <Grid item xs={12}>
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    bgcolor: "#f5f5f5",
+                  }}
+                >
+                  <InputBase
+                    sx={{ ml: 1, flex: 1 }}
+                    value={shareLink}
+                    disabled
+                  />
+                  <IconButton
+                    color="primary"
+                    sx={{ p: "10px" }}
                     onClick={() => {
                       navigator.clipboard.writeText(shareLink);
                       toast.info("Link copied");
                     }}
-                  />
-                }
-                labelPosition="right"
-                value={shareLink}
-              />
-            </p>
-          )}
-        </ModalContent>
-        <ModalActions>
-          <Button positive onClick={handleShare}>
-            Create link
-          </Button>
-          <Button onClick={handleCloseShareModal}>Close</Button>
-        </ModalActions>
+                  >
+                    <ContentCopyIcon />
+                  </IconButton>
+                </Paper>
+              </Grid>
+            )}
+            <Grid item xs={6}>
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                onClick={handleShare}
+              >
+                Share
+              </Button>
+            </Grid>
+            <Grid item xs={6}>
+              <Button
+                variant="outlined"
+                fullWidth
+                onClick={handleCloseShareModal}
+              >
+                Close
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
       </Modal>
-    </Container>
+    </Box>
   );
 };
 

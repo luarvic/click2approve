@@ -1,75 +1,95 @@
-import { observer } from "mobx-react-lite";
-import React, { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
+  Box,
   Button,
-  Form,
+  Container,
   Grid,
-  Header,
-  Message,
-  Segment,
-} from "semantic-ui-react";
-import { IUserAccount, UserAccount } from "../models/UserAccount";
+  Link,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { observer } from "mobx-react-lite";
+import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { UserAccount } from "../models/UserAccount";
 import { userAccountStoreContext } from "../stores/UserAccountStore";
 
 // Sign in form.
 export const SignIn = () => {
-  const [userAccount, setUserAccount] = useState<IUserAccount>(
-    new UserAccount()
-  );
-
   const userAccountStore = useContext(userAccountStoreContext);
   const { signIn } = userAccountStore;
 
   const navigate = useNavigate();
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUserAccount({ ...userAccount, [event.target.name]: event.target.value });
-  };
-
-  const handleFormSubmit = async () => {
-    if (await signIn(userAccount)) {
-      navigate("/");
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const name = data.get("email");
+    const password = data.get("password");
+    if (name && password) {
+      const credentials = new UserAccount(name.toString(), password.toString());
+      if (await signIn(credentials)) {
+        navigate("/");
+      }
     }
   };
 
   return (
-    <Grid textAlign="center" style={{ height: "100vh" }}>
-      <Grid.Column style={{ maxWidth: 450 }}>
-        <Header as="h2" textAlign="center">
-          Sign in to your account
-        </Header>
-        <Form size="large" onSubmit={handleFormSubmit}>
-          <Segment>
-            <Form.Input
-              fluid
-              icon="user"
-              iconPosition="left"
-              placeholder="Username"
-              value={userAccount.username}
-              name="username"
-              onChange={handleChange}
-            />
-            <Form.Input
-              fluid
-              icon="lock"
-              iconPosition="left"
-              placeholder="Password"
-              type="password"
-              value={userAccount.password}
-              name="password"
-              onChange={handleChange}
-            />
-            <Button color="green" fluid>
-              Sign in
-            </Button>
-          </Segment>
-        </Form>
-        <Message>
-          New to us? <a href="/signup">Sign up</a>
-        </Message>
-      </Grid.Column>
-    </Grid>
+    <Container component="main" maxWidth="xs">
+      <Box
+        sx={{
+          marginTop: 8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <Typography component="h1" variant="h5">
+          Sign in
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="email"
+            label="Email Address"
+            name="email"
+            autoComplete="email"
+            autoFocus
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="Password"
+            type="password"
+            id="password"
+            autoComplete="current-password"
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 2, mb: 2 }}
+          >
+            Sign in
+          </Button>
+          <Grid container>
+            <Grid item xs>
+              <Link href="#" variant="body2">
+                Forgot password?
+              </Link>
+            </Grid>
+            <Grid item>
+              <Link href="/signup" variant="body2">
+                {"New to us? Sign up"}
+              </Link>
+            </Grid>
+          </Grid>
+        </Box>
+      </Box>
+    </Container>
   );
 };
 

@@ -1,59 +1,57 @@
+import { AttachFile } from "@mui/icons-material";
+import { AppBar, Button, Container, Toolbar, Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useContext } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Button, Container, Icon, Menu, MenuItem } from "semantic-ui-react";
+import { useNavigate } from "react-router-dom";
 import { userAccountStoreContext } from "../stores/UserAccountStore";
 import { userFileStoreContext } from "../stores/UserFileStore";
 
 // Main menu.
 export const NavBar = () => {
-  const location = useLocation();
-  const { pathname } = location;
   const userAccountStore = useContext(userAccountStoreContext);
   const userFileStore = useContext(userFileStoreContext);
   const { currentUser, signOut } = userAccountStore;
   const { clearUserFiles } = userFileStore;
+  const navigate = useNavigate();
 
   return (
-    <Menu text>
-      <MenuItem as={Link} to="/">
-        <Icon name="home" />
-        Home
-      </MenuItem>
-      {currentUser === undefined ? (
-        <></>
-      ) : currentUser === null ? (
-        !pathname.startsWith("/sign") && (
-          <Container>
-            <MenuItem position="right">
-              <Button color="green" as={Link} to="/signin">
-                <Icon name="sign-in" />
-                Sign in
-              </Button>
-            </MenuItem>
-          </Container>
-        )
-      ) : (
-        <Container>
-          <MenuItem position="right">
-            <strong>{currentUser.username}</strong>
-          </MenuItem>
-          <MenuItem>
-            <Button
-              as={Link}
-              to="/"
-              onClick={() => {
-                clearUserFiles();
-                signOut();
-              }}
-            >
-              <Icon name="sign-out" />
-              Sign out
+    <AppBar position="static">
+      <Container maxWidth="xl">
+        <Toolbar disableGutters>
+          <AttachFile sx={{ display: "block", mr: 1 }} />
+          <Typography
+            variant="h6"
+            component="a"
+            href="/"
+            sx={{ flexGrow: 1, color: "inherit", textDecoration: "none" }}
+          >
+            File Manager
+          </Typography>
+          {currentUser === undefined ? (
+            <></>
+          ) : currentUser === null ? (
+            <Button variant="outlined" color="inherit" href="/signin">
+              Sign in
             </Button>
-          </MenuItem>
-        </Container>
-      )}
-    </Menu>
+          ) : (
+            <>
+              <Typography sx={{ mr: 1 }}>{currentUser.username}</Typography>
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={() => {
+                  clearUserFiles();
+                  signOut();
+                  navigate("/");
+                }}
+              >
+                Sign out
+              </Button>
+            </>
+          )}
+        </Toolbar>
+      </Container>
+    </AppBar>
   );
 };
 

@@ -1,15 +1,15 @@
+import { Container } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import React, { Fragment, useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import { Container } from "semantic-ui-react";
 import { userAccountStoreContext } from "../stores/UserAccountStore";
 import Home from "./Home";
 import NavBar from "./NavBar";
+import NotFound from "./NotFound";
+import SharedFile from "./SharedFile";
 import SignIn from "./SignIn";
 import SignUp from "./SignUp";
-import SharedFile from "./SharedFile";
-import NotFound from "./NotFound";
 
 // Top level component.
 const App = () => {

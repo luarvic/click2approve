@@ -1,80 +1,102 @@
-import { observer } from "mobx-react-lite";
-import React, { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
+  Box,
   Button,
-  Form,
+  Container,
   Grid,
-  Header,
-  Message,
-  Segment,
-} from "semantic-ui-react";
-import { IUserAccount, UserAccount } from "../models/UserAccount";
+  Link,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { observer } from "mobx-react-lite";
+import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { UserAccount } from "../models/UserAccount";
 import { userAccountStoreContext } from "../stores/UserAccountStore";
 
 // Sign up form.
 export const SignUp = () => {
-  const [userAccount, setUserAccount] = useState<IUserAccount>(
-    new UserAccount()
-  );
   const navigate = useNavigate();
   const userAccountStore = useContext(userAccountStoreContext);
   const { signUp } = userAccountStore;
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUserAccount({ ...userAccount, [event.target.name]: event.target.value });
-  };
-
-  const handleFormSubmit = async () => {
-    if (await signUp(userAccount)) {
-      navigate("/");
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const name = data.get("email");
+    const password = data.get("password");
+    const passwordConfirmation = data.get("passwordConfirmation");
+    if (name && password && passwordConfirmation) {
+      const credentials = new UserAccount(
+        name.toString(),
+        password.toString(),
+        passwordConfirmation.toString()
+      );
+      if (await signUp(credentials)) {
+        navigate("/");
+      }
     }
   };
 
   return (
-    <Grid textAlign="center" style={{ height: "100vh" }}>
-      <Grid.Column style={{ maxWidth: 450 }}>
-        <Header as="h2" textAlign="center">
-          Create new account
-        </Header>
-        <Form size="large" onSubmit={handleFormSubmit} autoComplete="off">
-          <Segment>
-            <Form.Input
-              fluid
-              icon="user"
-              iconPosition="left"
-              placeholder="Username"
-              name="username"
-              onChange={handleChange}
-            />
-            <Form.Input
-              fluid
-              icon="lock"
-              iconPosition="left"
-              placeholder="Password"
-              type="password"
-              name="password"
-              onChange={handleChange}
-            />
-            <Form.Input
-              fluid
-              icon="lock"
-              iconPosition="left"
-              placeholder="Confirm"
-              type="password"
-              name="passwordConfirmation"
-              onChange={handleChange}
-            />
-            <Button color="green" fluid>
-              Sign up
-            </Button>
-          </Segment>
-        </Form>
-        <Message>
-          Already have an account? <a href="/signin">Sign in</a>
-        </Message>
-      </Grid.Column>
-    </Grid>
+    <Container component="main" maxWidth="xs">
+      <Box
+        sx={{
+          marginTop: 8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <Typography component="h1" variant="h5">
+          Sign up
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="email"
+            label="Email Address"
+            name="email"
+            autoFocus
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="Password"
+            type="password"
+            id="password"
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="passwordConfirmation"
+            label="Password Confirmation"
+            type="password"
+            id="passwordConfirmation"
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 2, mb: 2 }}
+          >
+            Sign up
+          </Button>
+          <Grid container>
+            <Grid item xs></Grid>
+            <Grid item>
+              <Link href="/signin" variant="body2">
+                {"Already have an account? Sign in"}
+              </Link>
+            </Grid>
+          </Grid>
+        </Box>
+      </Box>
+    </Container>
   );
 };
 
