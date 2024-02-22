@@ -26,7 +26,7 @@ export const signInUser = async (
   username: string,
   password: string
 ): Promise<string> => {
-  const { data } = await axios.post<string>("account/authenticate", {
+  const { data } = await axios.post<string>("api/account/authenticate", {
     username: username,
     password: password,
   });
@@ -37,7 +37,7 @@ export const signUpUser = async (
   username: string,
   password: string
 ): Promise<string> => {
-  const { data } = await axios.post<string>("account/register", {
+  const { data } = await axios.post<string>("api/account/register", {
     username: username,
     password: password,
   });
@@ -45,11 +45,11 @@ export const signUpUser = async (
 };
 
 export const validateToken = async (): Promise<void> => {
-  await axios.head("account");
+  await axios.head("api/account/validate");
 };
 
 export const getUserFiles = async (): Promise<IUserFile[]> => {
-  const { data } = await axios.get<IUserFile[]>("file");
+  const { data } = await axios.get<IUserFile[]>("api/file/list");
   return data;
 };
 
@@ -58,24 +58,19 @@ export const uploadFiles = async (files: FileList): Promise<IUserFile[]> => {
   Array.from(files).forEach((file) => {
     formData.append("files", file);
   });
-  const { data } = await axios.post<IUserFile[]>("file", formData, {
+  const { data } = await axios.post<IUserFile[]>("api/file/upload", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return data;
 };
 
 export const downloadFile = async (id: string): Promise<ArrayBuffer> => {
-  const { data } = await axios.get(`download?id=${id}`);
+  const { data } = await axios.get(`api/file/download?id=${id}`);
   return data;
 };
 
-export const downloadFileBase64 = async (
-  id: string,
-  preview: boolean = false
-): Promise<string> => {
-  const { data } = await axios.get(
-    `downloadBase64?id=${id}&preview=${preview}`
-  );
+export const downloadFileBase64 = async (id: string): Promise<string> => {
+  const { data } = await axios.get(`api/file/downloadBase64?id=${id}`);
   return data;
 };
 
@@ -83,7 +78,7 @@ export const downloadArchiveBase64 = async (
   files: IUserFile[]
 ): Promise<string> => {
   const { data } = await axios.post(
-    "downloadArchiveBase64",
+    "api/file/downloadArchiveBase64",
     files.map((userFile) => userFile.id.toString())
   );
   return data;
@@ -93,7 +88,7 @@ export const shareUserFiles = async (
   files: IUserFile[],
   availableUntil: Date
 ): Promise<string> => {
-  const { data } = await axios.post("share", {
+  const { data } = await axios.post("api/file/share", {
     ids: files.map((userFile) => userFile.id.toString()),
     availableUntil: availableUntil,
   });
@@ -101,11 +96,11 @@ export const shareUserFiles = async (
 };
 
 export const testSharedArchive = async (key: string): Promise<boolean> => {
-  const response = await axios.get(`testShared?key=${key}`);
+  const response = await axios.get(`api/file/testShared?key=${key}`);
   return response.status === 200 ? true : false;
 };
 
 export const downloadSharedArchive = async (key: string): Promise<string> => {
-  const { data } = await axios.get(`downloadShared?key=${key}`);
+  const { data } = await axios.get(`api/file/downloadShared?key=${key}`);
   return data;
 };

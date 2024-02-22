@@ -11,5 +11,5 @@ public interface IFileService
     Task<(string Filename, byte[] Bytes)> GetArchiveAsync(AppUser user, string[] ids, CancellationToken cancellationToken);
     Task<string> ShareUserFilesAsync(AppUser user, string[] ids, DateTime availableUntil, CancellationToken cancellationToken);
     Task<(string Filename, byte[] Bytes)> GetSharedArchiveAsync(string key, CancellationToken cancellationToken);
-    Task<bool> TestSharedArchiveAsync(string key, CancellationToken cancellationToken);
+    Task<bool> TestSharedAsync(string key, CancellationToken cancellationToken);
 }

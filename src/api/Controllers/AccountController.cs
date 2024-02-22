@@ -5,15 +5,28 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers;
 
-// Implements API endpoints for managing user access (sing up, sign in, etc.).
+/// <summary>
+/// API endpoints that manage user accounts (register, authenticate, etc.).
+/// </summary>
+/// <param name="accountService">A service that manages user accounts.</param>
+/// <param name="tokenService">A service that manages authorization tokens.</param>
+/// <param name="logger">A logger service.</param>
 [ApiController]
-[Route("account")]
+[Route("api/account")]
 public class AccountController(IAccountService accountService, ITokenService tokenService, ILogger<AccountController> logger) : ControllerBase
 {
     private readonly IAccountService _accountService = accountService;
     private readonly ITokenService _tokenService = tokenService;
     private readonly ILogger<AccountController> _logger = logger;
 
+    /// <summary>
+    /// Registers a new user.
+    /// </summary>
+    /// <param name="credentials">The username and password.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>The authorization token.</returns>
+    /// <response code="200">If registration succeeds.</response>
+    /// <response code="400">If registration fails.</response>
     [HttpPost("register")]
     public async Task<ActionResult<string>> RegisterAsync([FromBody] CredentialsDto credentials, CancellationToken cancellationToken)
     {
@@ -25,11 +38,19 @@ public class AccountController(IAccountService accountService, ITokenService tok
         }
         catch (Exception e)
         {
-            _logger.LogError(e, $"Unable to register user {credentials.Username}.");
+            _logger.LogError(e, "Unable to register user {Username}.", credentials.Username);
             return BadRequest(e.Message);
         }
     }
 
+    /// <summary>
+    /// Authenticates a user.
+    /// </summary>
+    /// <param name="credentials">The username and password.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>The authorization token.</returns>
+    /// <response code="200">If authentication succeeds.</response>
+    /// <response code="401">If authentication fails.</response>
     [HttpPost("authenticate")]
     public async Task<ActionResult<string>> AuthenticateAsync([FromBody] CredentialsDto credentials, CancellationToken cancellationToken)
     {
@@ -41,12 +62,19 @@ public class AccountController(IAccountService accountService, ITokenService tok
         }
         catch (Exception e)
         {
-            _logger.LogError(e, $"Unable to authenticate user {credentials.Username}.");
+            _logger.LogError(e, "Unable to authenticate user {Username}.", credentials.Username);
             return Unauthorized(e.Message);
         }
     }
 
-    [HttpHead]
+    /// <summary>
+    /// Validates a user token passed via HTTP headers. 
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns></returns>
+    /// <response code="200">If validation succeeds.</response>
+    /// <response code="401">If validation fails.</response>
+    [HttpHead("validate")]
     [Authorize]
     public async Task<IActionResult> ValidateTokenAsync(CancellationToken cancellationToken)
     {

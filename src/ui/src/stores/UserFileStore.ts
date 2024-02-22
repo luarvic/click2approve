@@ -27,7 +27,6 @@ export class UserFileStore {
       const userFiles = await getUserFiles();
       userFiles.forEach(async (userFile) => {
         userFile.createdDate = new Date(userFile.created + "Z");
-        const base64String = await downloadFileBase64(userFile.id, true);
         runInAction(() => {
           this.registry.set(userFile.id, userFile);
         });
@@ -48,7 +47,6 @@ export class UserFileStore {
       const userFiles = await uploadFiles(files);
       userFiles.forEach(async (userFile) => {
         userFile.createdDate = new Date(userFile.created);
-        const base64String = await downloadFileBase64(userFile.id, true);
         runInAction(() => {
           this.registry.set(userFile.id, userFile);
         });

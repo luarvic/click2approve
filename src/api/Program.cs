@@ -10,7 +10,16 @@ builder.Services.AddCors();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Version = "v1",
+        Title = "File Manager API Specification",
+        Description = "An API that manages user accounts and files.",
+    });
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "ApiSpecification.XML"));
+});
 builder.Services.AddHttpClient();
 builder.Services.AddDbContext<FileManagerDbContext>();
 builder.Services.AddTransient<IFileService, FileService>();

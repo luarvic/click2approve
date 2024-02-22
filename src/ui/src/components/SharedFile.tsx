@@ -21,7 +21,7 @@ export const SharedFile = () => {
   return (
     <Container>
       <Box sx={{ pt: 3 }}>
-        Click <a href={`${API_URI}/downloadShared?key=${key}`}>here</a> to
+        Click <a href={`${API_URI}/api/file/downloadShared?key=${key}`}>here</a> to
         download the file.
       </Box>
     </Container>

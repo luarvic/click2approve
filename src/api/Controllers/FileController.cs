@@ -8,9 +8,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers;
 
-// Implements API endpoints for managing user files (uploading, getting, deleting, etc.).
+/// <summary>
+/// API endpoints that manage user files (upload, download, list, etc.).
+/// </summary>
+/// <param name="logger">A logger service.</param>
+/// <param name="fileService">A service that manages user files.</param>
+/// <param name="userManager">A service that manages users.</param>
 [ApiController]
-[Route("file")]
+[Route("api/file")]
 [Authorize]
 public class FileController(ILogger<FileController> logger, IFileService fileService, UserManager<AppUser> userManager) : ControllerBase
 {
@@ -18,8 +23,17 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
     private readonly IFileService _fileService = fileService;
     private readonly UserManager<AppUser> _userManager = userManager;
 
-    [HttpPost]
-    public async Task<ActionResult<List<UserFile>>> PostAsync([FromForm] IFormFileCollection files, CancellationToken cancellationToken)
+    /// <summary>
+    /// Uploads user files.
+    /// </summary>
+    /// <param name="files">The files to upload.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A list of uploaded files.</returns>
+    /// <response code="200">If upload succeeds.</response>
+    /// <response code="401">If authorization fails.</response>
+    /// <response code="500">If upload fails.</response>
+    [HttpPost("upload")]
+    public async Task<ActionResult<List<UserFile>>> UploadAsync([FromForm] IFormFileCollection files, CancellationToken cancellationToken)
     {
         try
         {
@@ -29,14 +43,21 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
         }
         catch (Exception e)
         {
-            const string message = "Unable to upload file(s).";
-            _logger.LogError(e, message);
-            return StatusCode(StatusCodes.Status500InternalServerError, message);
+            _logger.LogError(e, "Unable to upload files.");
+            return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }
 
-    [HttpGet]
-    public async Task<ActionResult<List<UserFile>>> GetUserFilesAsync(CancellationToken cancellationToken)
+    /// <summary>
+    /// Lists user files.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A list of user files.</returns>
+    /// <response code="200">If list succeeds.</response>
+    /// <response code="401">If authorization fails.</response>
+    /// <response code="500">If list fails.</response>
+    [HttpGet("list")]
+    public async Task<ActionResult<List<UserFile>>> ListAsync(CancellationToken cancellationToken)
     {
         try
         {
@@ -46,14 +67,22 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
         }
         catch (Exception e)
         {
-            const string message = "Unable to get file(s).";
-            _logger.LogError(e, message);
-            return StatusCode(StatusCodes.Status500InternalServerError, message);
+            _logger.LogError(e, "Unable to list files.");
+            return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }
 
-    [HttpGet("/download")]
-    public async Task<IActionResult> GetFileAsync(string id, CancellationToken cancellationToken)
+    /// <summary>
+    /// Downloads the file.
+    /// </summary>
+    /// <param name="id">An ID of the file to download.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>The FileContentResult object.</returns>
+    /// <response code="200">If download succeeds.</response>
+    /// <response code="401">If authorization fails.</response>
+    /// <response code="500">If download fails.</response>
+    [HttpGet("download")]
+    public async Task<IActionResult> DownloadAsync(string id, CancellationToken cancellationToken)
     {
         try
         {
@@ -66,14 +95,22 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
         }
         catch (Exception e)
         {
-            const string message = "Unable to get file(s).";
-            _logger.LogError(e, message);
-            return StatusCode(StatusCodes.Status500InternalServerError, message);
+            _logger.LogError(e, "Unable to download a file with id {id}.", id);
+            return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }
 
-    [HttpGet("/downloadBase64")]
-    public async Task<ActionResult<string>> GetFileBase64Async(string id, bool preview, CancellationToken cancellationToken)
+    /// <summary>
+    /// Downloads a base64 representation of the file.
+    /// </summary>
+    /// <param name="id">An ID of the file to download.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>The base64 string.</returns>
+    /// <response code="200">If download succeeds.</response>
+    /// <response code="401">If authorization fails.</response>
+    /// <response code="500">If download fails.</response>
+    [HttpGet("downloadBase64")]
+    public async Task<ActionResult<string>> DownloadBase64Async(string id, CancellationToken cancellationToken)
     {
         try
         {
@@ -83,14 +120,22 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
         }
         catch (Exception e)
         {
-            const string message = "Unable to download file(s).";
-            _logger.LogError(e, message);
-            return StatusCode(StatusCodes.Status500InternalServerError, message);
+            _logger.LogError(e, "Unable to download a file with id {id}.", id);
+            return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }
 
-    [HttpPost("/downloadArchiveBase64")]
-    public async Task<ActionResult<string>> GetArchiveBase64Async([FromBody] string[] ids, CancellationToken cancellationToken)
+    /// <summary>
+    /// Downloads a base64 representation of the archive that contains the files.
+    /// </summary>
+    /// <param name="ids">IDs of the files to download.</param>
+    /// <param name="cancellationToken">A cancellation token</param>
+    /// <returns>The base64 string.</returns>
+    /// <response code="200">If download succeeds.</response>
+    /// <response code="401">If authorization fails.</response>
+    /// <response code="500">If download fails.</response>
+    [HttpPost("downloadArchiveBase64")]
+    public async Task<ActionResult<string>> DownloadArchiveBase64Async([FromBody] string[] ids, CancellationToken cancellationToken)
     {
         try
         {
@@ -100,48 +145,71 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
         }
         catch (Exception e)
         {
-            const string message = "Unable to download file(s).";
-            _logger.LogError(e, message);
-            return StatusCode(StatusCodes.Status500InternalServerError, message);
+            _logger.LogError(e, "Unable to download files.");
+            return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }
 
-    [HttpPost("/share")]
+    /// <summary>
+    /// Shares the files.
+    /// </summary>
+    /// <param name="filesToShare">A list of the files to share.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A key that identifies the shared files.</returns>
+    /// <response code="200">If share succeeds.</response>
+    /// <response code="401">If authorization fails.</response>
+    /// <response code="500">If share fails.</response>
+    [HttpPost("share")]
     public async Task<ActionResult<string>> ShareAsync([FromBody] FilesToShare filesToShare, CancellationToken cancellationToken)
     {
         try
         {
             var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
-            var sharedId = await _fileService.ShareUserFilesAsync(user, filesToShare.Ids, filesToShare.AvailableUntil, cancellationToken);
-            return sharedId;
+            var key = await _fileService.ShareUserFilesAsync(user, filesToShare.Ids, filesToShare.AvailableUntil, cancellationToken);
+            return key;
         }
         catch (Exception e)
         {
-            const string message = "Unable to share file(s).";
-            _logger.LogError(e, message);
-            return StatusCode(StatusCodes.Status500InternalServerError, message);
+            _logger.LogError(e, "Unable to share files.");
+            return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }
 
-    [HttpGet("/testShared")]
+    /// <summary>
+    /// Tests if the shared key exists.
+    /// </summary>
+    /// <param name="key">A key to test.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>True if the key exists, false otherwise.</returns>
+    /// <response code="200">If test succeeds.</response>
+    /// <response code="500">If test fails.</response>
+    [HttpGet("testShared")]
     [AllowAnonymous]
-    public async Task<IActionResult> TestSharedArchiveAsync(string key, CancellationToken cancellationToken)
+    public async Task<IActionResult> TestSharedAsync(string key, CancellationToken cancellationToken)
     {
         try
         {
-            return await _fileService.TestSharedArchiveAsync(key, cancellationToken) ? Ok() : NotFound();
+            return await _fileService.TestSharedAsync(key, cancellationToken) ? Ok() : NotFound();
         }
         catch (Exception e)
         {
-            const string message = "Unable to test shared file(s).";
-            _logger.LogError(e, message);
-            return StatusCode(StatusCodes.Status500InternalServerError, message);
+            _logger.LogError(e, "Unable to test shared key {key}.", key);
+            return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }
 
-    [HttpGet("/downloadShared")]
+    /// <summary>
+    /// Downloads the shared files.
+    /// </summary>
+    /// <param name="key">A key of the shared files to download.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>The FileContentResult object.</returns>
+    /// <response code="200">If download succeeds.</response>
+    /// <response code="401">If authorization fails.</response>
+    /// <response code="500">If download fails.</response>
+    [HttpGet("downloadShared")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetSharedArchiveAsync(string key, CancellationToken cancellationToken)
+    public async Task<IActionResult> DownloadSharedArchiveAsync(string key, CancellationToken cancellationToken)
     {
         try
         {
@@ -150,9 +218,8 @@ public class FileController(ILogger<FileController> logger, IFileService fileSer
         }
         catch (Exception e)
         {
-            const string message = "Unable to download shared file(s).";
-            _logger.LogError(e, message);
-            return StatusCode(StatusCodes.Status500InternalServerError, message);
+            _logger.LogError(e, "Unable to download shared files by key {key}.", key);
+            return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }
 }

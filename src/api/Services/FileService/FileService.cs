@@ -100,7 +100,7 @@ public class FileService(
         return await GetArchiveAsync(null, sharedUserFileIds, cancellationToken);
     }
 
-    public async Task<bool> TestSharedArchiveAsync(string key, CancellationToken cancellationToken)
+    public async Task<bool> TestSharedAsync(string key, CancellationToken cancellationToken)
     {
         return await _db.SharedUserFiles
             .Where(s => s.Key == key && s.AvailableUntil > DateTime.UtcNow)
