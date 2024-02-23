@@ -24,8 +24,6 @@ builder.Services.AddHttpClient();
 builder.Services.AddDbContext<FileManagerDbContext>();
 builder.Services.AddTransient<IFileService, FileService>();
 builder.Services.AddSingleton<IStoreService, StoreService>();
-builder.Services.AddTransient<IAccountService, AccountService>();
-builder.Services.AddTransient<ITokenService, TokenService>();
 var app = builder.Build();
 
 // Create the database and schema.
@@ -54,4 +52,5 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+app.MapGroup("/api/account").MapIdentityApi<AppUser>();
 app.Run();

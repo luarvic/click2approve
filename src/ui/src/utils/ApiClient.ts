@@ -1,4 +1,5 @@
 import axios, { AxiosError } from "axios";
+import { IAuthResponse } from "../models/AuthResponse";
 import { IUserFile } from "../models/UserFile";
 import { API_URI } from "../stores/Constants";
 
@@ -6,7 +7,7 @@ axios.defaults.baseURL = API_URI;
 axios.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
-    config.headers.Authorization = `Basic ${token}`;
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
@@ -23,22 +24,22 @@ axios.interceptors.response.use(
 );
 
 export const signInUser = async (
-  username: string,
+  email: string,
   password: string
 ): Promise<string> => {
-  const { data } = await axios.post<string>("api/account/authenticate", {
-    username: username,
+  const { data } = await axios.post<IAuthResponse>("api/account/login", {
+    email: email,
     password: password,
   });
-  return data;
+  return data.accessToken;
 };
 
 export const signUpUser = async (
-  username: string,
+  email: string,
   password: string
 ): Promise<string> => {
   const { data } = await axios.post<string>("api/account/register", {
-    username: username,
+    email: email,
     password: password,
   });
   return data;

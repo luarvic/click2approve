@@ -35,7 +35,7 @@ export const NavBar = () => {
             </Button>
           ) : (
             <>
-              <Typography sx={{ mr: 1 }}>{currentUser.username}</Typography>
+              <Typography sx={{ mr: 1 }}>{currentUser.email}</Typography>
               <Button
                 variant="outlined"
                 color="inherit"

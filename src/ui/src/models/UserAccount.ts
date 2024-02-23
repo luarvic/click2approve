@@ -1,23 +1,23 @@
 export interface IUserAccount {
-  username: string;
+  email: string;
   password: string;
   passwordConfirmation: string;
   token: string;
 }
 
 export class UserAccount implements IUserAccount {
-  username: string;
+  email: string;
   password: string;
   passwordConfirmation: string;
   token: string;
 
   constructor(
-    username: string = "",
+    email: string = "",
     password: string = "",
     passwordConfirmation: string = "",
     token: string = ""
   ) {
-    this.username = username;
+    this.email = email;
     this.password = password;
     this.passwordConfirmation = passwordConfirmation;
     this.token = token;

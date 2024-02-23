@@ -16,19 +16,19 @@ export class UserAccountStore {
 
   cacheUserAccount = () => {
     if (this.currentUser) {
-      localStorage.setItem("username", this.currentUser.username);
+      localStorage.setItem("email", this.currentUser.email);
       localStorage.setItem("token", this.currentUser.token);
     }
   };
 
   trySigningInWithCachedUserAccount = async () => {
-    const username = localStorage.getItem("username");
+    const email = localStorage.getItem("email");
     const token = localStorage.getItem("token");
-    if (username && token) {
+    if (email && token) {
       try {
         await validateToken();
         runInAction(() => {
-          this.currentUser = new UserAccount(username, "", "", token);
+          this.currentUser = new UserAccount(email, "", "", token);
         });
       } catch {
         this.signOut();
@@ -46,12 +46,10 @@ export class UserAccountStore {
       return false;
     }
     try {
-      const token = await signUpUser(
-        userAccount.username,
-        userAccount.password
-      );
+      await signUpUser(userAccount.email, userAccount.password);
+      const token = await signInUser(userAccount.email, userAccount.password);
       runInAction(() => {
-        this.currentUser = new UserAccount(userAccount.username, "", "", token);
+        this.currentUser = new UserAccount(userAccount.email, "", "", token);
       });
       this.cacheUserAccount();
     } catch (e) {
@@ -67,12 +65,9 @@ export class UserAccountStore {
 
   signIn = async (userAccount: IUserAccount): Promise<boolean> => {
     try {
-      const token = await signInUser(
-        userAccount.username,
-        userAccount.password
-      );
+      const token = await signInUser(userAccount.email, userAccount.password);
       runInAction(() => {
-        this.currentUser = new UserAccount(userAccount.username, "", "", token);
+        this.currentUser = new UserAccount(userAccount.email, "", "", token);
       });
       this.cacheUserAccount();
     } catch (e) {
@@ -87,7 +82,7 @@ export class UserAccountStore {
   };
 
   signOut = () => {
-    localStorage.removeItem("username");
+    localStorage.removeItem("email");
     localStorage.removeItem("password");
     runInAction(() => {
       this.currentUser = null;
