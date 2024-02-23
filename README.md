@@ -105,7 +105,6 @@ file-manager
 ├── doc                         # Files required for README.md documentation.
 ├── src                         # API and UI code base.
 │  ├── api                      # API code base.
-│  │  ├── Authentication        # Authentication handler.
 │  │  ├── Controllers           # Classes that implement API endpoints.
 │  │  ├── Extensions            # Classes that extend other classes functionality.
 │  │  ├── Models                # Entity classes.
