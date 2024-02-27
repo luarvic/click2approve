@@ -8,15 +8,14 @@ import {
   Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import React, { useContext } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { UserAccount } from "../models/UserAccount";
-import { userAccountStoreContext } from "../stores/UserAccountStore";
+import { userAccountStore } from "../stores/UserAccountStore";
 
 // Sign up form.
 export const SignUp = () => {
   const navigate = useNavigate();
-  const userAccountStore = useContext(userAccountStoreContext);
   const { signUp } = userAccountStore;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {

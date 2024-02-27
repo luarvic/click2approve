@@ -1,18 +1,17 @@
 import { observer } from "mobx-react-lite";
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import { DefaultExtensionType, FileIcon, defaultStyles } from "react-file-icon";
 
 import { Box } from "@mui/material";
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import prettyBytes from "pretty-bytes";
 import { IUserFile } from "../models/UserFile";
-import { userFileStoreContext } from "../stores/UserFileStore";
+import { userFileStore } from "../stores/UserFileStore";
 import { downloadFileBase64 } from "../utils/ApiClient";
 import Buttons from "./Buttons";
 
 // Table with user files.
 export const UserFiles = () => {
-  const userFileStore = useContext(userFileStoreContext);
   const { userFiles, loadUserFiles, handleUserFileCheckbox } = userFileStore;
 
   const getDefaultExtensionType = (extension?: string) => {

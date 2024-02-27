@@ -1,15 +1,12 @@
 import { AttachFile } from "@mui/icons-material";
 import { AppBar, Button, Container, Toolbar, Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { userAccountStoreContext } from "../stores/UserAccountStore";
-import { userFileStoreContext } from "../stores/UserFileStore";
+import { userAccountStore } from "../stores/UserAccountStore";
+import { userFileStore } from "../stores/UserFileStore";
 
 // Main menu.
 export const NavBar = () => {
-  const userAccountStore = useContext(userAccountStoreContext);
-  const userFileStore = useContext(userFileStoreContext);
   const { currentUser, signOut } = userAccountStore;
   const { clearUserFiles } = userFileStore;
   const navigate = useNavigate();

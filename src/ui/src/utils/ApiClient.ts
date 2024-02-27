@@ -46,7 +46,7 @@ export const signUpUser = async (
 };
 
 export const validateToken = async (): Promise<void> => {
-  await axios.head("api/account/validate");
+  await axios.get("api/account/manage/info");
 };
 
 export const getUserFiles = async (): Promise<IUserFile[]> => {

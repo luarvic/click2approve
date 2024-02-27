@@ -8,14 +8,13 @@ import {
   Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import React, { useContext } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { UserAccount } from "../models/UserAccount";
-import { userAccountStoreContext } from "../stores/UserAccountStore";
+import { userAccountStore } from "../stores/UserAccountStore";
 
 // Sign in form.
 export const SignIn = () => {
-  const userAccountStore = useContext(userAccountStoreContext);
   const { signIn } = userAccountStore;
 
   const navigate = useNavigate();

@@ -1,12 +1,7 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { createContext } from "react";
 import { toast } from "react-toastify";
 import { IUserFile } from "../models/UserFile";
-import {
-  downloadFileBase64,
-  getUserFiles,
-  uploadFiles,
-} from "../utils/ApiClient";
+import { getUserFiles, uploadFiles } from "../utils/ApiClient";
 
 export class UserFileStore {
   registry: Map<string, IUserFile>;
@@ -85,6 +80,4 @@ export class UserFileStore {
   };
 }
 
-export const userFileStoreContext = createContext(
-  new UserFileStore(new Map<string, IUserFile>())
-);
+export const userFileStore = new UserFileStore(new Map<string, IUserFile>());

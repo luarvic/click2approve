@@ -1,10 +1,9 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { createContext } from "react";
 import { toast } from "react-toastify";
 import { IUserAccount, UserAccount } from "../models/UserAccount";
 import { signInUser, signUpUser, validateToken } from "../utils/ApiClient";
 
-export class UserAccountStore {
+class UserAccountStore {
   // Null means anonymous user.
   // Undefined means we don't yet know whether the user is anonymous or authenticated.
   currentUser: IUserAccount | undefined | null;
@@ -90,4 +89,4 @@ export class UserAccountStore {
   };
 }
 
-export const userAccountStoreContext = createContext(new UserAccountStore());
+export const userAccountStore = new UserAccountStore();

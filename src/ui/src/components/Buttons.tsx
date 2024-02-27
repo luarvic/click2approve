@@ -15,10 +15,10 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { Dayjs } from "dayjs";
 import { observer } from "mobx-react-lite";
-import React, { useContext, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { ACCEPT_FILE_TYPES } from "../stores/Constants";
-import { userFileStoreContext } from "../stores/UserFileStore";
+import { userFileStore } from "../stores/UserFileStore";
 import { downloadArchiveBase64, shareUserFiles } from "../utils/ApiClient";
 
 // Submenu with Upload, Download, Share buttons.
@@ -27,7 +27,6 @@ export const Buttons = () => {
   const [availableUntil, setAvailableUntil] = useState<Dayjs | null>(null);
   const [shareLink, setShareLink] = useState<string>("");
   const hiddenFileInput = useRef<HTMLInputElement>(null);
-  const userFileStore = useContext(userFileStoreContext);
   const { addUserFiles, getSelectedUserFiles } = userFileStore;
 
   const handleUploadClick = () => {

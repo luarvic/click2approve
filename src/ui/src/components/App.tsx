@@ -1,9 +1,9 @@
 import { Container } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import { userAccountStoreContext } from "../stores/UserAccountStore";
+import { userAccountStore } from "../stores/UserAccountStore";
 import Home from "./Home";
 import NavBar from "./NavBar";
 import NotFound from "./NotFound";
@@ -13,7 +13,6 @@ import SignUp from "./SignUp";
 
 // Top level component.
 const App = () => {
-  const userAccountStore = useContext(userAccountStoreContext);
   const { trySigningInWithCachedUserAccount } = userAccountStore;
 
   useEffect(() => {
