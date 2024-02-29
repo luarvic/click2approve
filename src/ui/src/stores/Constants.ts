@@ -1,3 +1,5 @@
+import { createTheme } from "@mui/material";
+
 export const API_URI = process.env.REACT_APP_API_URI;
 export const ACCEPT_FILE_TYPES = [
   "application/pdf",
@@ -14,3 +16,14 @@ export const ACCEPT_FILE_TYPES = [
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ];
+export const THEME = createTheme({
+  components: {
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: "0 20px 20px 0",
+        },
+      },
+    },
+  },
+});
