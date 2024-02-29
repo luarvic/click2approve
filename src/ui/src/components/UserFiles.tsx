@@ -74,7 +74,6 @@ export const UserFiles = () => {
       field: "createdDate",
       headerName: "Created",
       flex: 2,
-      // minWidth: 200,
       valueFormatter: (params) => getHumanReadableRelativeDate(params.value),
     },
     {
@@ -86,25 +85,29 @@ export const UserFiles = () => {
   ];
 
   return (
-    <Box sx={{ height: 400, width: "100%" }}>
-      <Buttons />
-      <DataGrid
-        rows={userFiles}
-        columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5,
+    <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
+      <Box>
+        <Buttons />
+      </Box>
+      <Box>
+        <DataGrid
+          rows={userFiles}
+          columns={columns}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5,
+              },
             },
-          },
-        }}
-        pageSizeOptions={[5]}
-        checkboxSelection
-        disableRowSelectionOnClick
-        onRowSelectionModelChange={(items) =>
-          handleUserFileCheckbox(items as string[])
-        }
-      />
+          }}
+          pageSizeOptions={[5]}
+          checkboxSelection
+          disableRowSelectionOnClick
+          onRowSelectionModelChange={(items) =>
+            handleUserFileCheckbox(items as string[])
+          }
+        />
+      </Box>
     </Box>
   );
 };

@@ -1,6 +1,7 @@
-import { Box, Container } from "@mui/material";
+import { Box } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { userAccountStore } from "../stores/UserAccountStore";
+import { Tabs } from "./Tabs";
 import UserFiles from "./UserFiles";
 
 // Shows either message or user files depending on whether it's anonymous or specific user.
@@ -10,11 +11,12 @@ export const Home = () => {
   return currentUser === undefined ? (
     <></>
   ) : currentUser === null ? (
-    <Container>
-      <Box sx={{ pt: 3 }}>Please, sign in to manage your files.</Box>
-    </Container>
+    <Box sx={{ p: 2 }}>Please, sign in to manage your files.</Box>
   ) : (
-    <UserFiles />
+    <Box sx={{ display: "flex", pt: 2 }}>
+      <Tabs />
+      <UserFiles />
+    </Box>
   );
 };
 

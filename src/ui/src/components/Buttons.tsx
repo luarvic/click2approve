@@ -94,7 +94,7 @@ export const Buttons = () => {
   };
 
   return (
-    <Box sx={{ mt: 2, mb: 2 }}>
+    <Box sx={{ pb: 2 }}>
       <ButtonGroup variant="contained">
         <Button onClick={handleUploadClick}>Upload</Button>
         <input

@@ -1,4 +1,4 @@
-import { Container } from "@mui/material";
+import { Box } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -20,7 +20,7 @@ const App = () => {
   }, []);
 
   return (
-    <Container>
+    <Box>
       <BrowserRouter>
         <NavBar />
         <Routes>
@@ -40,7 +40,7 @@ const App = () => {
         closeButton={true}
         draggable={false}
       />
-    </Container>
+    </Box>
   );
 };
 
