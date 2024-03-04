@@ -4,14 +4,9 @@ using Microsoft.EntityFrameworkCore;
 namespace api.Models;
 
 // Represents an EF database contexts.
-public class FileManagerDbContext : IdentityDbContext<AppUser>
+public class FileManagerDbContext(DbContextOptions options, IConfiguration configuration) : IdentityDbContext<AppUser>(options)
 {
-    private readonly IConfiguration _configuration;
-
-    public FileManagerDbContext(DbContextOptions options, IConfiguration configuration) : base(options)
-    {
-        _configuration = configuration;
-    }
+    private readonly IConfiguration _configuration = configuration;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -20,5 +15,5 @@ public class FileManagerDbContext : IdentityDbContext<AppUser>
     }
 
     public DbSet<UserFile> UserFiles { get; set; }
-    public DbSet<SharedUserFile> SharedUserFiles { get; set; }
+    public DbSet<UserFileForApproval> UserFilesForApproval { get; set; }
 }

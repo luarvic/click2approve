@@ -8,18 +8,18 @@ using Microsoft.EntityFrameworkCore;
 namespace api.Services;
 
 // Implements user files management logic (uploads, gets, deletes, etc.).
-public class FileService(
+public class UserFileService(
     IConfiguration configuration,
     FileManagerDbContext db,
     IStoreService storeService,
-    ILogger<FileService> logger) : IFileService
+    ILogger<UserFileService> logger) : IUserFileService
 {
     private readonly IConfiguration _configuration = configuration;
     private readonly FileManagerDbContext _db = db;
     private readonly IStoreService _storeService = storeService;
-    private readonly ILogger<FileService> _logger = logger;
+    private readonly ILogger<UserFileService> _logger = logger;
 
-    public async Task<IList<UserFile>> UploadFilesAsync(AppUser user, IFormFileCollection files, CancellationToken cancellationToken)
+    public async Task<IList<UserFile>> UploadAsync(AppUser user, IFormFileCollection files, CancellationToken cancellationToken)
     {
         // A collection of uploaded files to return.
         var userFiles = new List<UserFile>();
@@ -49,25 +49,25 @@ public class FileService(
         return userFiles;
     }
 
-    private string GetFilePath(string userId, string fileId, string fileName)
+    private static string GetFilePath(string userId, string fileId, string fileName)
     {
         return Path.Combine(userId, fileId, fileName);
     }
 
-    public async Task<(string Filename, byte[] Bytes)> GetFileAsync(AppUser user, string id, CancellationToken cancellationToken)
+    public async Task<(string Filename, byte[] Bytes)> DownloadAsync(AppUser user, string id, CancellationToken cancellationToken)
     {
-        var userFile = await _db.UserFiles.FirstAsync(f => f.Owner == user.Id && f.Id == long.Parse(id), cancellationToken: cancellationToken);
+        var userFile = await _db.UserFiles.FirstAsync(f => f.Id == long.Parse(id) && f.Owner == user.Id, cancellationToken: cancellationToken);
         return (
             userFile.Name,
             await _storeService.GetFileAsync(GetFilePath(userFile.Owner, userFile.Id.ToString(), userFile.Name), cancellationToken)
         );
     }
 
-    public async Task<(string Filename, byte[] Bytes)> GetArchiveAsync(AppUser? user, string[] ids, CancellationToken cancellationToken)
+    public async Task<(string Filename, byte[] Bytes)> DownloadArchiveAsync(AppUser user, string[] ids, CancellationToken cancellationToken)
     {
         var longIds = ids.Select(long.Parse).ToArray();
         var userFiles = await _db.UserFiles
-            .Where(f => longIds.Contains(f.Id) && (user == null || (user != null && f.Owner == user.Id)))
+            .Where(f => longIds.Contains(f.Id) && f.Owner == user.Id)
             .ToListAsync(cancellationToken);
 
         // Let's handle multiple files in parallel.
@@ -80,8 +80,7 @@ public class FileService(
                 .ContinueWith(bytes =>
                 {
                     // Files can have same names.
-                    var formattedDate = userFile.Created.ToString("yyyy-MM-dd-HH-mm-ss");
-                    var derivedFilename = $"{Path.GetFileNameWithoutExtension(userFile.Name)}-{formattedDate}{userFile.Type}";
+                    var derivedFilename = $"{Path.GetFileNameWithoutExtension(userFile.Name)}-{userFile.Id}{userFile.Type}";
                     files.TryAdd(derivedFilename, bytes.Result);
                 }, cancellationToken));
         }
@@ -90,24 +89,7 @@ public class FileService(
         return await CompressAsync(files.ToDictionary(), cancellationToken);
     }
 
-    public async Task<(string Filename, byte[] Bytes)> GetSharedArchiveAsync(string key, CancellationToken cancellationToken)
-    {
-        var sharedUserFileIds = await _db.SharedUserFiles
-            .Include(s => s.UserFile)
-            .Where(s => s.Key == key && s.AvailableUntil > DateTime.UtcNow)
-            .Select(f => f.UserFile.Id.ToString())
-            .ToArrayAsync(cancellationToken);
-        return await GetArchiveAsync(null, sharedUserFileIds, cancellationToken);
-    }
-
-    public async Task<bool> TestSharedAsync(string key, CancellationToken cancellationToken)
-    {
-        return await _db.SharedUserFiles
-            .Where(s => s.Key == key && s.AvailableUntil > DateTime.UtcNow)
-            .AnyAsync(cancellationToken);
-    }
-
-    private async Task<(string Filename, byte[] Bytes)> CompressAsync(IDictionary<string, byte[]> files, CancellationToken cancellationToken)
+    private static async Task<(string Filename, byte[] Bytes)> CompressAsync(IDictionary<string, byte[]> files, CancellationToken cancellationToken)
     {
         using (var compressedFileStream = new MemoryStream())
         {
@@ -127,13 +109,13 @@ public class FileService(
         }
     }
 
-    public async Task<IList<UserFile>> GetUserFilesAsync(AppUser user, CancellationToken cancellationToken)
+    public async Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
         var userFiles = await _db.UserFiles.Where(f => f.Owner == user.Id).ToListAsync(cancellationToken);
         return userFiles;
     }
 
-    public async Task<string> ShareUserFilesAsync(AppUser user, string[] ids, DateTime availableUntil, CancellationToken cancellationToken)
+    public async Task<string> SendAsync(AppUser user, string[] ids, string[] recipientEmails, DateTime approveUntilDate, CancellationToken cancellationToken)
     {
         var longIds = ids.Select(long.Parse);
         var userFiles = await _db.UserFiles
@@ -142,13 +124,17 @@ public class FileService(
         ShortGuid id = Guid.NewGuid();
         foreach (var userFile in userFiles)
         {
-            _db.SharedUserFiles.Add(new SharedUserFile
+            foreach (var recipientEmail in recipientEmails)
             {
-                Key = id.ToString(),
-                UserFile = userFile,
-                AvailableUntil = availableUntil
-            });
-            await _db.SaveChangesAsync(cancellationToken);
+                _db.UserFilesForApproval.Add(new UserFileForApproval
+                {
+                    UserFile = userFile,
+                    RecipientEmail = recipientEmail,
+                    SendDate = DateTime.UtcNow,
+                    ApproveUntilDate = approveUntilDate
+                });
+                await _db.SaveChangesAsync(cancellationToken);
+            }
         }
         return id;
     }

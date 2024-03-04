@@ -91,6 +91,7 @@ export const UserFiles = () => {
       </Box>
       <Box>
         <DataGrid
+          className="DataGridDefault"
           rows={userFiles}
           columns={columns}
           initialState={{

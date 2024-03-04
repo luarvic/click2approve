@@ -22,7 +22,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddHttpClient();
 builder.Services.AddDbContext<FileManagerDbContext>();
-builder.Services.AddTransient<IFileService, FileService>();
+builder.Services.AddTransient<IUserFileService, UserFileService>();
 builder.Services.AddSingleton<IStoreService, StoreService>();
 var app = builder.Build();
 
