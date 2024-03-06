@@ -114,29 +114,4 @@ public class UserFileService(
         var userFiles = await _db.UserFiles.Where(f => f.Owner == user.Id).ToListAsync(cancellationToken);
         return userFiles;
     }
-
-    public async Task<string> SendAsync(AppUser user, string[] ids, string[] approvers, DateTime approveBy, string? comment, CancellationToken cancellationToken)
-    {
-        var longIds = ids.Select(long.Parse);
-        var userFiles = await _db.UserFiles
-            .Where(f => longIds.Contains(f.Id) && f.Owner == user.Id)
-            .ToListAsync(cancellationToken);
-        ShortGuid id = Guid.NewGuid();
-        foreach (var userFile in userFiles)
-        {
-            foreach (var approver in approvers)
-            {
-                _db.UserFilesForApproval.Add(new UserFileForApproval
-                {
-                    UserFile = userFile,
-                    Approver = approver,
-                    ApproveBy = approveBy,
-                    SendDate = DateTime.UtcNow,
-                    Comment = comment
-                });
-                await _db.SaveChangesAsync(cancellationToken);
-            }
-        }
-        return id;
-    }
 }

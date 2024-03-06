@@ -91,9 +91,9 @@ export const sendUserFiles = async (
   approveBy: Date,
   comment: string | null
 ): Promise<string> => {
-  const { data } = await axios.post("api/file/send", {
+  const { data } = await axios.post("api/request", {
     ids: files.map((userFile) => userFile.id.toString()),
-    approvers: approvers,
+    emails: approvers,
     approveBy: approveBy,
     comment: comment,
   });

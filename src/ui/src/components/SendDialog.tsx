@@ -25,7 +25,7 @@ const SendDialog = () => {
   const { getSelectedUserFiles } = userFileStore;
   const [approvers, setApprovers] = useState<string>("");
   const [approveBy, setApproveBy] = useState<Dayjs | null>(null);
-  const [comment, setComment] = useState<string | null>(null);
+  const [comment, setComment] = useState<string>("");
 
   const handleSend = async () => {
     try {
@@ -54,7 +54,7 @@ const SendDialog = () => {
   const handleClose = () => {
     setApprovers("");
     setApproveBy(null);
-    setComment(null);
+    setComment("");
     setSendDialogOpen(false);
   };
 

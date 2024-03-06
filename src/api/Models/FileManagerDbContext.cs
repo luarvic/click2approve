@@ -15,5 +15,6 @@ public class FileManagerDbContext(DbContextOptions options, IConfiguration confi
     }
 
     public DbSet<UserFile> UserFiles { get; set; }
-    public DbSet<UserFileForApproval> UserFilesForApproval { get; set; }
+    public DbSet<ApprovalRequest> ApprovalRequests { get; set; }
+    public DbSet<Approver> Approvers { get; set; }
 }

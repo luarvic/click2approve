@@ -2,6 +2,7 @@ using api.Extensions;
 using api.Models;
 using api.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddIdentityServices(builder.Configuration);
@@ -19,10 +20,34 @@ builder.Services.AddSwaggerGen(options =>
         Description = "An API that manages user accounts and files.",
     });
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "ApiSpecification.XML"));
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "bearer"
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[]{}
+        }
+    });
 });
 builder.Services.AddHttpClient();
 builder.Services.AddDbContext<FileManagerDbContext>();
 builder.Services.AddTransient<IUserFileService, UserFileService>();
+builder.Services.AddTransient<IApprovalRequestService, ApprovalRequestService>();
 builder.Services.AddSingleton<IStoreService, StoreService>();
 var app = builder.Build();
 

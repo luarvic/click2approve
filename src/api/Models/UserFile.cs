@@ -9,4 +9,5 @@ public class UserFile
     public required DateTime Created { get; set; }
     public required string Owner { get; set; }
     public required long Size { get; set; }
+    public List<ApprovalRequest> ApprovalRequests { get; set; } = [];
 }

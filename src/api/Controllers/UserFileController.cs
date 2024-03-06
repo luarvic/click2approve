@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace api.Controllers;
 
 /// <summary>
-/// API endpoints that manage user files (upload, download, list, etc.).
+/// API endpoints that manage user files.
 /// </summary>
 /// <param name="logger">A logger service.</param>
 /// <param name="userFileService">A service that manages user files.</param>
@@ -52,7 +52,7 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     /// Lists the files.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A list of user files.</returns>
+    /// <returns>A list of the user files.</returns>
     /// <response code="200">If list succeeds.</response>
     /// <response code="401">If authorization fails.</response>
     /// <response code="500">If list fails.</response>
@@ -146,30 +146,6 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
         catch (Exception e)
         {
             _logger.LogError(e, "Unable to download files.");
-            return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
-        }
-    }
-
-    /// <summary>
-    /// Sends the files for approval.
-    /// </summary>
-    /// <param name="filesToSend">A list of the user files to send.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <response code="200">If send succeeds.</response>
-    /// <response code="401">If authorization fails.</response>
-    /// <response code="500">If send fails.</response>
-    [HttpPost("send")]
-    public async Task<IActionResult> SendAsync([FromBody] FilesToSend filesToSend, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
-            var key = await _userFileService.SendAsync(user, filesToSend.Ids, filesToSend.Approvers, filesToSend.ApproveBy, filesToSend.Comment, cancellationToken);
-            return Ok();
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "Unable to sent files.");
             return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }
