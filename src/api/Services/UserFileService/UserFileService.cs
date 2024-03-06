@@ -115,7 +115,7 @@ public class UserFileService(
         return userFiles;
     }
 
-    public async Task<string> SendAsync(AppUser user, string[] ids, string[] recipientEmails, DateTime approveUntilDate, CancellationToken cancellationToken)
+    public async Task<string> SendAsync(AppUser user, string[] ids, string[] approvers, DateTime approveBy, CancellationToken cancellationToken)
     {
         var longIds = ids.Select(long.Parse);
         var userFiles = await _db.UserFiles
@@ -124,14 +124,14 @@ public class UserFileService(
         ShortGuid id = Guid.NewGuid();
         foreach (var userFile in userFiles)
         {
-            foreach (var recipientEmail in recipientEmails)
+            foreach (var approver in approvers)
             {
                 _db.UserFilesForApproval.Add(new UserFileForApproval
                 {
                     UserFile = userFile,
-                    RecipientEmail = recipientEmail,
+                    Approver = approver,
+                    ApproveBy = approveBy,
                     SendDate = DateTime.UtcNow,
-                    ApproveUntilDate = approveUntilDate
                 });
                 await _db.SaveChangesAsync(cancellationToken);
             }

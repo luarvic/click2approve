@@ -5,9 +5,8 @@ import { DefaultExtensionType, FileIcon, defaultStyles } from "react-file-icon";
 import { Box } from "@mui/material";
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import prettyBytes from "pretty-bytes";
-import { IUserFile } from "../models/UserFile";
 import { userFileStore } from "../stores/UserFileStore";
-import { downloadFileBase64 } from "../utils/ApiClient";
+import { getHumanReadableRelativeDate } from "../utils/Converters";
 import Buttons from "./Buttons";
 
 // Table with user files.
@@ -26,29 +25,9 @@ export const UserFiles = () => {
     );
   };
 
-  const loadData = () => {
-    loadUserFiles();
-  };
-
   useEffect(() => {
-    loadData();
+    loadUserFiles();
   }, []);
-
-  const handleDownloadClick = async (userFile: IUserFile) => {
-    const base64String = await downloadFileBase64(userFile.id);
-    const a = document.createElement("a");
-    a.hidden = true;
-    a.href = base64String;
-    a.setAttribute("download", userFile.name);
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-
-  const getHumanReadableRelativeDate = (absoluteDate: Date): string => {
-    const ago = require("s-ago");
-    return ago(absoluteDate);
-  };
 
   const columns: GridColDef[] = [
     {

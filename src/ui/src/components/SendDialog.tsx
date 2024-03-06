@@ -7,6 +7,7 @@ import {
   InputBase,
   Modal,
   Paper,
+  TextField,
   Typography,
 } from "@mui/material";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -17,7 +18,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { commonStore } from "../stores/CommonStore";
 import { userFileStore } from "../stores/UserFileStore";
-import { shareUserFiles } from "../utils/ApiClient";
+import { sendUserFiles } from "../utils/ApiClient";
 
 const SendDialog = () => {
   const modalStyle = {
@@ -33,20 +34,23 @@ const SendDialog = () => {
   };
   const { getSendDialogOpen, setSendDialogOpen } = commonStore;
   const { getSelectedUserFiles } = userFileStore;
-  const [availableUntil, setAvailableUntil] = useState<Dayjs | null>(null);
-  const [shareLink, setShareLink] = useState<string>("");
+  const [approveBy, setApproveBy] = useState<Dayjs | null>(null);
+  const [approvers, setApprovers] = useState<string>("");
 
-  const handleShare = async () => {
+  const handleSend = async () => {
     try {
-      if (availableUntil) {
-        const link = await shareUserFiles(
-          getSelectedUserFiles(),
-          availableUntil.toDate()
-        );
-        setShareLink(`${window.location.origin}/file/${link}`);
-      } else {
-        throw new Error("Date is not defined.");
+      if (!approvers) {
+        throw new Error("Approver email is not defined.");
       }
+      if (!approveBy) {
+        throw new Error("Approve by is not defined.");
+      }
+      const link = await sendUserFiles(
+        getSelectedUserFiles(),
+        approvers.split(",").map((a) => a.toLocaleLowerCase().trim()),
+        approveBy.toDate()
+      );
+      handleClose();
     } catch (e) {
       if (e instanceof Error) {
         toast.warn(e.message);
@@ -57,8 +61,8 @@ const SendDialog = () => {
   };
 
   const handleClose = () => {
-    setShareLink("");
-    setAvailableUntil(null);
+    setApprovers("");
+    setApproveBy(null);
     setSendDialogOpen(false);
   };
 
@@ -68,7 +72,9 @@ const SendDialog = () => {
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <Typography variant="h6" component="h2">
-              Sending the file(s)
+              Sending the file
+              {userFileStore.getSelectedUserFiles().length > 1 ? "s" : ""} for
+              approval
             </Typography>
           </Grid>
           <Grid item xs={12}>
@@ -80,44 +86,32 @@ const SendDialog = () => {
             </Typography>
           </Grid>
           <Grid item xs={12}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              label="Approver Email"
+              autoFocus
+              value={approvers}
+              onChange={(event) => setApprovers(event.currentTarget.value)}
+            />
+          </Grid>
+          <Grid item xs={12}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DateTimePicker
                 slotProps={{ textField: { fullWidth: true } }}
-                value={availableUntil}
-                onChange={(newValue) => setAvailableUntil(newValue)}
+                value={approveBy}
+                onChange={(newValue) => setApproveBy(newValue)}
+                label="Approve by"
               />
             </LocalizationProvider>
           </Grid>
-          {shareLink && (
-            <Grid item xs={12}>
-              <Paper
-                variant="outlined"
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  bgcolor: "#f5f5f5",
-                }}
-              >
-                <InputBase sx={{ ml: 1, flex: 1 }} value={shareLink} disabled />
-                <IconButton
-                  color="primary"
-                  sx={{ p: "10px" }}
-                  onClick={() => {
-                    navigator.clipboard.writeText(shareLink);
-                    toast.info("Link copied");
-                  }}
-                >
-                  <ContentCopyIcon />
-                </IconButton>
-              </Paper>
-            </Grid>
-          )}
           <Grid item xs={6}>
             <Button
               type="submit"
               variant="contained"
               fullWidth
-              onClick={handleShare}
+              onClick={handleSend}
             >
               Send
             </Button>

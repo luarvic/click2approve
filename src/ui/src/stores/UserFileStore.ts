@@ -4,16 +4,16 @@ import { IUserFile } from "../models/UserFile";
 import { getUserFiles, uploadFiles } from "../utils/ApiClient";
 
 export class UserFileStore {
-  registry: Map<string, IUserFile>;
+  userFilesRegistry: Map<string, IUserFile>;
 
   get userFiles(): IUserFile[] {
-    return Array.from(this.registry.values()).sort(
+    return Array.from(this.userFilesRegistry.values()).sort(
       (a, b) => b.createdDate.getTime() - a.createdDate.getTime()
     );
   }
 
-  constructor(registry: Map<string, IUserFile>) {
-    this.registry = registry;
+  constructor(userFilesRegistry: Map<string, IUserFile>) {
+    this.userFilesRegistry = userFilesRegistry;
     makeAutoObservable(this);
   }
 
@@ -23,7 +23,7 @@ export class UserFileStore {
       userFiles.forEach(async (userFile) => {
         userFile.createdDate = new Date(userFile.created + "Z");
         runInAction(() => {
-          this.registry.set(userFile.id, userFile);
+          this.userFilesRegistry.set(userFile.id, userFile);
         });
       });
     } catch (e) {
@@ -43,7 +43,7 @@ export class UserFileStore {
       userFiles.forEach(async (userFile) => {
         userFile.createdDate = new Date(userFile.created);
         runInAction(() => {
-          this.registry.set(userFile.id, userFile);
+          this.userFilesRegistry.set(userFile.id, userFile);
         });
       });
       toast.success(`File(s) uploaded: ${fileNames.toString()}`);
@@ -58,12 +58,12 @@ export class UserFileStore {
 
   clearUserFiles = () => {
     runInAction(() => {
-      this.registry.clear();
+      this.userFilesRegistry.clear();
     });
   };
 
   handleUserFileCheckbox = (ids: string[]) => {
-    this.registry.forEach((userFile) => {
+    this.userFilesRegistry.forEach((userFile) => {
       const checkedInUi = ids.includes(userFile.id);
       if (checkedInUi !== userFile.checked) {
         runInAction(() => {
@@ -74,7 +74,7 @@ export class UserFileStore {
   };
 
   getSelectedUserFiles = (): IUserFile[] => {
-    return Array.from(this.registry.values()).filter(
+    return Array.from(this.userFilesRegistry.values()).filter(
       (userFile) => userFile.checked
     );
   };

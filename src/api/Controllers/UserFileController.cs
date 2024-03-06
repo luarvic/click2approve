@@ -17,9 +17,9 @@ namespace api.Controllers;
 [ApiController]
 [Route("api/file")]
 [Authorize]
-public class FileController(ILogger<FileController> logger, IUserFileService userFileService, UserManager<AppUser> userManager) : ControllerBase
+public class UserFileController(ILogger<UserFileController> logger, IUserFileService userFileService, UserManager<AppUser> userManager) : ControllerBase
 {
-    private readonly ILogger<FileController> _logger = logger;
+    private readonly ILogger<UserFileController> _logger = logger;
     private readonly IUserFileService _userFileService = userFileService;
     private readonly UserManager<AppUser> _userManager = userManager;
 
@@ -164,7 +164,7 @@ public class FileController(ILogger<FileController> logger, IUserFileService use
         try
         {
             var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
-            var key = await _userFileService.SendAsync(user, filesToSend.Ids, filesToSend.RecipientEmails, filesToSend.ApproveUntilDate, cancellationToken);
+            var key = await _userFileService.SendAsync(user, filesToSend.Ids, filesToSend.Approvers, filesToSend.ApproveBy, cancellationToken);
             return Ok();
         }
         catch (Exception e)

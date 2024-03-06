@@ -85,13 +85,15 @@ export const downloadArchiveBase64 = async (
   return data;
 };
 
-export const shareUserFiles = async (
+export const sendUserFiles = async (
   files: IUserFile[],
-  availableUntil: Date
+  approvers: string[],
+  approveBy: Date
 ): Promise<string> => {
-  const { data } = await axios.post("api/file/share", {
+  const { data } = await axios.post("api/file/send", {
     ids: files.map((userFile) => userFile.id.toString()),
-    availableUntil: availableUntil,
+    approvers: approvers,
+    approveBy: approveBy,
   });
   return data;
 };

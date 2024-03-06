@@ -4,6 +4,6 @@ namespace api.Models.DTOs;
 public class FilesToSend
 {
     public required string[] Ids { get; set; }
-    public required string[] RecipientEmails { get; set; }
-    public required DateTime ApproveUntilDate { get; set; }
+    public required string[] Approvers { get; set; }
+    public required DateTime ApproveBy { get; set; }
 }
