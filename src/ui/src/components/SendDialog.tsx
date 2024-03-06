@@ -1,15 +1,4 @@
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import {
-  Box,
-  Button,
-  Grid,
-  IconButton,
-  InputBase,
-  Modal,
-  Paper,
-  TextField,
-  Typography,
-} from "@mui/material";
+import * as material from "@mui/material";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
@@ -34,8 +23,9 @@ const SendDialog = () => {
   };
   const { getSendDialogOpen, setSendDialogOpen } = commonStore;
   const { getSelectedUserFiles } = userFileStore;
-  const [approveBy, setApproveBy] = useState<Dayjs | null>(null);
   const [approvers, setApprovers] = useState<string>("");
+  const [approveBy, setApproveBy] = useState<Dayjs | null>(null);
+  const [comment, setComment] = useState<string | null>(null);
 
   const handleSend = async () => {
     try {
@@ -45,10 +35,11 @@ const SendDialog = () => {
       if (!approveBy) {
         throw new Error("Approve by is not defined.");
       }
-      const link = await sendUserFiles(
+      await sendUserFiles(
         getSelectedUserFiles(),
         approvers.split(",").map((a) => a.toLocaleLowerCase().trim()),
-        approveBy.toDate()
+        approveBy.toDate(),
+        comment
       );
       handleClose();
     } catch (e) {
@@ -63,30 +54,31 @@ const SendDialog = () => {
   const handleClose = () => {
     setApprovers("");
     setApproveBy(null);
+    setComment(null);
     setSendDialogOpen(false);
   };
 
   return (
-    <Modal open={getSendDialogOpen()} onClose={handleClose}>
-      <Box sx={modalStyle}>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <Typography variant="h6" component="h2">
+    <material.Modal open={getSendDialogOpen()} onClose={handleClose}>
+      <material.Box sx={modalStyle}>
+        <material.Grid container spacing={2}>
+          <material.Grid item xs={12}>
+            <material.Typography variant="h6" component="h2">
               Sending the file
               {userFileStore.getSelectedUserFiles().length > 1 ? "s" : ""} for
               approval
-            </Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Typography id="modal-modal-description">
+            </material.Typography>
+          </material.Grid>
+          <material.Grid item xs={12}>
+            <material.Typography id="modal-modal-description">
               {userFileStore
                 .getSelectedUserFiles()
                 .map((userFile) => userFile.name)
                 .join(", ")}
-            </Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
+            </material.Typography>
+          </material.Grid>
+          <material.Grid item xs={12}>
+            <material.TextField
               margin="normal"
               required
               fullWidth
@@ -95,8 +87,8 @@ const SendDialog = () => {
               value={approvers}
               onChange={(event) => setApprovers(event.currentTarget.value)}
             />
-          </Grid>
-          <Grid item xs={12}>
+          </material.Grid>
+          <material.Grid item xs={12}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DateTimePicker
                 slotProps={{ textField: { fullWidth: true } }}
@@ -105,25 +97,36 @@ const SendDialog = () => {
                 label="Approve by"
               />
             </LocalizationProvider>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
+          </material.Grid>
+          <material.Grid item xs={12}>
+            <material.TextField
+              margin="normal"
+              fullWidth
+              label="Comment"
+              value={comment}
+              onChange={(event) => setComment(event.currentTarget.value)}
+              multiline
+              rows={4}
+            />
+          </material.Grid>
+          <material.Grid item xs={6}>
+            <material.Button
               type="submit"
               variant="contained"
               fullWidth
               onClick={handleSend}
             >
               Send
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button variant="outlined" fullWidth onClick={handleClose}>
+            </material.Button>
+          </material.Grid>
+          <material.Grid item xs={6}>
+            <material.Button variant="outlined" fullWidth onClick={handleClose}>
               Close
-            </Button>
-          </Grid>
-        </Grid>
-      </Box>
-    </Modal>
+            </material.Button>
+          </material.Grid>
+        </material.Grid>
+      </material.Box>
+    </material.Modal>
   );
 };
 

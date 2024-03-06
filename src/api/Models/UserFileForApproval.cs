@@ -7,5 +7,6 @@ public class UserFileForApproval
     public required UserFile UserFile { get; set; }
     public required string Approver { get; set; }
     public required DateTime ApproveBy { get; set; }
+    public required string? Comment { get; set; }
     public required DateTime SendDate { get; set; }
 }

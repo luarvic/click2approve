@@ -1,4 +1,4 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { IAuthResponse } from "../models/AuthResponse";
 import { IUserFile } from "../models/UserFile";
 import { API_URI } from "../stores/Constants";
@@ -88,12 +88,14 @@ export const downloadArchiveBase64 = async (
 export const sendUserFiles = async (
   files: IUserFile[],
   approvers: string[],
-  approveBy: Date
+  approveBy: Date,
+  comment: string | null
 ): Promise<string> => {
   const { data } = await axios.post("api/file/send", {
     ids: files.map((userFile) => userFile.id.toString()),
     approvers: approvers,
     approveBy: approveBy,
+    comment: comment,
   });
   return data;
 };

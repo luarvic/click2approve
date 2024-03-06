@@ -164,7 +164,7 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
         try
         {
             var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
-            var key = await _userFileService.SendAsync(user, filesToSend.Ids, filesToSend.Approvers, filesToSend.ApproveBy, cancellationToken);
+            var key = await _userFileService.SendAsync(user, filesToSend.Ids, filesToSend.Approvers, filesToSend.ApproveBy, filesToSend.Comment, cancellationToken);
             return Ok();
         }
         catch (Exception e)

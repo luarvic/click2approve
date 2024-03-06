@@ -115,7 +115,7 @@ public class UserFileService(
         return userFiles;
     }
 
-    public async Task<string> SendAsync(AppUser user, string[] ids, string[] approvers, DateTime approveBy, CancellationToken cancellationToken)
+    public async Task<string> SendAsync(AppUser user, string[] ids, string[] approvers, DateTime approveBy, string? comment, CancellationToken cancellationToken)
     {
         var longIds = ids.Select(long.Parse);
         var userFiles = await _db.UserFiles
@@ -132,6 +132,7 @@ public class UserFileService(
                     Approver = approver,
                     ApproveBy = approveBy,
                     SendDate = DateTime.UtcNow,
+                    Comment = comment
                 });
                 await _db.SaveChangesAsync(cancellationToken);
             }
