@@ -8,7 +8,6 @@ import { userAccountStore } from "../stores/UserAccountStore";
 import Home from "./Home";
 import NavBar from "./NavBar";
 import NotFound from "./NotFound";
-import SharedFile from "./SharedFile";
 import SignIn from "./SignIn";
 import SignUp from "./SignUp";
 
@@ -29,7 +28,6 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
-            <Route path="/file/:key" element={<SharedFile />} />
             <Route path="/notfound" element={<NotFound />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

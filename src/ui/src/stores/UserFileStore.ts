@@ -1,7 +1,7 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { toast } from "react-toastify";
 import { IUserFile } from "../models/UserFile";
-import { getUserFiles, uploadFiles } from "../utils/ApiClient";
+import { listUserFiles, uploadFiles } from "../utils/ApiClient";
 
 export class UserFileStore {
   userFilesRegistry: Map<string, IUserFile>;
@@ -19,7 +19,7 @@ export class UserFileStore {
 
   loadUserFiles = async () => {
     try {
-      const userFiles = await getUserFiles();
+      const userFiles = await listUserFiles();
       userFiles.forEach(async (userFile) => {
         userFile.createdDate = new Date(userFile.created + "Z");
         runInAction(() => {
@@ -30,7 +30,7 @@ export class UserFileStore {
       if (e instanceof Error) {
         toast.warn(e.message);
       } else {
-        toast.warn("Unable to load file(s).");
+        toast.warn("Unable to load user files.");
       }
     }
   };
@@ -51,7 +51,7 @@ export class UserFileStore {
       if (e instanceof Error) {
         toast.warn(e.message);
       } else {
-        toast.warn("Unable to load file(s).");
+        toast.warn("Unable to add file(s).");
       }
     }
   };

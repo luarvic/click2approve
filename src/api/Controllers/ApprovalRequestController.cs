@@ -51,27 +51,51 @@ public class ApprovalRequestController(
     }
 
     /// <summary>
-    /// Lists the inbox approval requests.
+    /// Lists the approval requests.
     /// </summary>
+    /// <param name="statuses">The statuses to filter the requests.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A list of the approval requests.</returns>
     /// <response code="200">If list succeeds.</response>
     /// <response code="401">If authorization fails.</response>
     /// <response code="500">If list fails.</response>
     [HttpGet("list")]
-    public async Task<ActionResult<List<UserFile>>> ListAsync(CancellationToken cancellationToken)
+    public async Task<ActionResult<List<UserFile>>> ListAsync(ApprovalRequestStatuses[] statuses, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
-        // try
-        // {
-        //     var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
-        //     var userFiles = await _userFileService.ListAsync(user, cancellationToken);
-        //     return Ok(userFiles);
-        // }
-        // catch (Exception e)
-        // {
-        //     _logger.LogError(e, "Unable to list files.");
-        //     return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
-        // }
+        try
+        {
+            var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
+            var approvalRequests = await _approvalRequestService.ListAsync(user, statuses, cancellationToken);
+            return Ok(approvalRequests);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Unable to list approval requests.");
+            return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+        }
+    }
+
+    /// <summary>
+    /// Lists the sent approval requests.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A list of the approval requests.</returns>
+    /// <response code="200">If list succeeds.</response>
+    /// <response code="401">If authorization fails.</response>
+    /// <response code="500">If list fails.</response>
+    [HttpGet("listSent")]
+    public async Task<ActionResult<List<UserFile>>> ListSentAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
+            var approvalRequests = await _approvalRequestService.ListSentAsync(user, cancellationToken);
+            return Ok(approvalRequests);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Unable to list sent approval requests.");
+            return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+        }
     }
 }

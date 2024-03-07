@@ -1,4 +1,6 @@
 import axios from "axios";
+import { IApprovalRequest } from "../models/ApprovalRequest";
+import { ApprovalRequestStatuses } from "../models/ApprovalRequestStatuses";
 import { IAuthResponse } from "../models/AuthResponse";
 import { IUserFile } from "../models/UserFile";
 import { API_URI } from "../stores/Constants";
@@ -49,7 +51,7 @@ export const validateToken = async (): Promise<void> => {
   await axios.get("api/account/manage/info");
 };
 
-export const getUserFiles = async (): Promise<IUserFile[]> => {
+export const listUserFiles = async (): Promise<IUserFile[]> => {
   const { data } = await axios.get<IUserFile[]>("api/file/list");
   return data;
 };
@@ -100,12 +102,19 @@ export const sendUserFiles = async (
   return data;
 };
 
-export const testSharedArchive = async (key: string): Promise<boolean> => {
-  const response = await axios.get(`api/file/testShared?key=${key}`);
-  return response.status === 200 ? true : false;
+export const listApprovalRequests = async (
+  statuses: ApprovalRequestStatuses[]
+): Promise<IApprovalRequest[]> => {
+  const { data } = await axios.get<IApprovalRequest[]>("api/request/list", {
+    params: statuses,
+  });
+  return data;
 };
 
-export const downloadSharedArchive = async (key: string): Promise<string> => {
-  const { data } = await axios.get(`api/file/downloadShared?key=${key}`);
+export const listSentApprovalRequests = async (): Promise<
+  IApprovalRequest[]
+> => {
+  const { data } = await axios.get<IApprovalRequest[]>("api/request/listSent");
+  console.table(data)
   return data;
 };

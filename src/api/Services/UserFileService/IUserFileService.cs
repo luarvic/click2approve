@@ -2,7 +2,7 @@ using api.Models;
 
 namespace api.Services;
 
-// Defines a contract for user files management logic (uploads, gets, deletes, etc.).
+// Defines a contract for a service that manages user files.
 public interface IUserFileService
 {
     Task<IList<UserFile>> UploadAsync(AppUser user, IFormFileCollection files, CancellationToken cancellationToken);

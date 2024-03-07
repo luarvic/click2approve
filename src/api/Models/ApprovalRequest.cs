@@ -8,5 +8,7 @@ public class ApprovalRequest
     public required List<Approver> Approvers { get; set; }
     public required DateTime ApproveBy { get; set; }
     public required string? Comment { get; set; }
-    public required DateTime SendDate { get; set; }
+    public required DateTime Sent { get; set; }
+    public required ApprovalRequestStatuses Status { get; set; }
+    public required string Author { get; set; }
 }

@@ -9,7 +9,7 @@ import { userFileStore } from "../stores/UserFileStore";
 import { getHumanReadableRelativeDate } from "../utils/Converters";
 import Buttons from "./Buttons";
 
-// Table with user files.
+// Data grid with user files.
 export const UserFiles = () => {
   const { userFiles, loadUserFiles, handleUserFileCheckbox } = userFileStore;
 

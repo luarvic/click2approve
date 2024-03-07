@@ -2,12 +2,11 @@ using System.Collections.Concurrent;
 using System.IO.Compression;
 using api.Extensions;
 using api.Models;
-using CSharpVitamins;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Services;
 
-// Implements user files management logic (uploads, gets, deletes, etc.).
+// Implements a service that manages user files.
 public class UserFileService(
     IConfiguration configuration,
     FileManagerDbContext db,

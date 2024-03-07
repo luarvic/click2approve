@@ -1,8 +1,6 @@
-using Microsoft.IdentityModel.Tokens;
-
 namespace api.Services;
 
-// Implements storing binary data logic.
+// Implements a service that manages binary files.
 public class StoreService(IConfiguration configuration, ILogger<StoreService> logger) : IStoreService
 {
     private readonly ILogger<StoreService> _logger = logger;
