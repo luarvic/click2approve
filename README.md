@@ -1,12 +1,12 @@
 # Table of Contents
 
-1. [File manager specification.](#file-manager-specification)
+1. [Click2approve service specification.](#file-manager-specification)
 2. [How to run locally.](#how-to-run-locally)
 3. [How to test.](#how-to-test)
 4. [Architecture and design decisions.](#architecture-and-design-decisions)
 5. [To-do list.](#to-do-list)
 
-# File Manager Specification
+# Click2approve Service Specification
 
 The File Manager is a web application that is designed to:
 
