@@ -82,7 +82,7 @@ class UserAccountStore {
 
   signOut = () => {
     localStorage.removeItem("email");
-    localStorage.removeItem("password");
+    localStorage.removeItem("token");
     runInAction(() => {
       this.currentUser = null;
     });

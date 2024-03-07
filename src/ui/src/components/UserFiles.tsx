@@ -1,16 +1,18 @@
-import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
-import { DefaultExtensionType, FileIcon, defaultStyles } from "react-file-icon";
-
 import { Box } from "@mui/material";
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { observer } from "mobx-react-lite";
 import prettyBytes from "pretty-bytes";
+import { useEffect } from "react";
+import { DefaultExtensionType, FileIcon, defaultStyles } from "react-file-icon";
 import { userFileStore } from "../stores/UserFileStore";
 import { getHumanReadableRelativeDate } from "../utils/Converters";
 import Buttons from "./Buttons";
+import Tabs from "./Tabs";
+import { userAccountStore } from "../stores/UserAccountStore";
 
 // Data grid with user files.
-export const UserFiles = () => {
+const UserFiles = () => {
+  const { currentUser } = userAccountStore;
   const { userFiles, loadUserFiles, handleUserFileCheckbox } = userFileStore;
 
   const getDefaultExtensionType = (extension?: string) => {
@@ -64,29 +66,32 @@ export const UserFiles = () => {
   ];
 
   return (
-    <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
-      <Box>
-        <Buttons />
-      </Box>
-      <Box>
-        <DataGrid
-          className="DataGridDefault"
-          rows={userFiles}
-          columns={columns}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 5,
+    <Box sx={{ display: "flex", pt: 2 }}>
+      <Tabs />
+      <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
+        <Box>
+          <Buttons />
+        </Box>
+        <Box>
+          <DataGrid
+            className="DataGridDefault"
+            rows={userFiles}
+            columns={columns}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 5,
+                },
               },
-            },
-          }}
-          pageSizeOptions={[5]}
-          checkboxSelection
-          disableRowSelectionOnClick
-          onRowSelectionModelChange={(items) =>
-            handleUserFileCheckbox(items as string[])
-          }
-        />
+            }}
+            pageSizeOptions={[5]}
+            checkboxSelection
+            disableRowSelectionOnClick
+            onRowSelectionModelChange={(items) =>
+              handleUserFileCheckbox(items as string[])
+            }
+          />
+        </Box>
       </Box>
     </Box>
   );

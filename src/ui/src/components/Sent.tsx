@@ -8,9 +8,10 @@ import { IApprover } from "../models/Approver";
 import { IUserFile } from "../models/UserFile";
 import { approvalRequestStore } from "../stores/ApprovalRequestStore";
 import { getHumanReadableRelativeDate } from "../utils/Converters";
+import Tabs from "./Tabs";
 
 // Data grid with sent approval requests.
-export const Sent = () => {
+const Sent = () => {
   const { approvalRequests, loadApprovalRequests } = approvalRequestStore;
 
   useEffect(() => {
@@ -57,21 +58,24 @@ export const Sent = () => {
   ];
 
   return (
-    <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
-      <DataGrid
-        className="DataGridDefault"
-        rows={approvalRequests}
-        columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5,
+    <Box sx={{ display: "flex", pt: 2 }}>
+      <Tabs />
+      <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
+        <DataGrid
+          className="DataGridDefault"
+          rows={approvalRequests}
+          columns={columns}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5,
+              },
             },
-          },
-        }}
-        pageSizeOptions={[5]}
-        disableRowSelectionOnClick
-      />
+          }}
+          pageSizeOptions={[5]}
+          disableRowSelectionOnClick
+        />
+      </Box>
     </Box>
   );
 };

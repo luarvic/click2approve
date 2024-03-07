@@ -2,7 +2,7 @@ import { Box, Container } from "@mui/material";
 import { observer } from "mobx-react-lite";
 
 // Not found page.
-export const NotFound = () => {
+const NotFound = () => {
   return (
     <Container>
       <Box sx={{ pt: 3 }}>

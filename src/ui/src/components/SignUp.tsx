@@ -13,8 +13,8 @@ import { useNavigate } from "react-router-dom";
 import { UserAccount } from "../models/UserAccount";
 import { userAccountStore } from "../stores/UserAccountStore";
 
-// Sign up form.
-export const SignUp = () => {
+// Sign up dialog.
+const SignUp = () => {
   const navigate = useNavigate();
   const { signUp } = userAccountStore;
 

@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { IUserFile } from "../models/UserFile";
 import { listUserFiles, uploadFiles } from "../utils/ApiClient";
 
-export class UserFileStore {
+class UserFileStore {
   userFilesRegistry: Map<string, IUserFile>;
 
   get userFiles(): IUserFile[] {

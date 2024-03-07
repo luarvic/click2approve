@@ -8,7 +8,7 @@ import { downloadArchiveBase64 } from "../utils/ApiClient";
 import SendDialog from "./SendDialog";
 
 // Submenu with Upload, Download, Share buttons.
-export const Buttons = () => {
+const Buttons = () => {
   const hiddenFileInput = useRef<HTMLInputElement>(null);
   const { addUserFiles, getSelectedUserFiles } = userFileStore;
   const { setSendDialogOpen } = commonStore;

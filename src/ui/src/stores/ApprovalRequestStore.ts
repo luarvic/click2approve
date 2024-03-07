@@ -2,13 +2,13 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { toast } from "react-toastify";
 import { IApprovalRequest } from "../models/ApprovalRequest";
 import { ApprovalRequestStatuses } from "../models/ApprovalRequestStatuses";
+import { ApprovalRequestTypes } from "../models/ApprovalRequestTypes";
 import {
   listApprovalRequests,
   listSentApprovalRequests,
 } from "../utils/ApiClient";
-import { ApprovalRequestTypes } from "../models/ApprovalRequestTypes";
 
-export class ApprovalRequestStore {
+class ApprovalRequestStore {
   approvalRequestsRegistry: Map<string, IApprovalRequest>;
 
   get approvalRequests(): IApprovalRequest[] {

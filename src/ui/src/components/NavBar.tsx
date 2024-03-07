@@ -6,7 +6,7 @@ import { userAccountStore } from "../stores/UserAccountStore";
 import { userFileStore } from "../stores/UserFileStore";
 
 // Main menu.
-export const NavBar = () => {
+const NavBar = () => {
   const { currentUser, signOut } = userAccountStore;
   const { clearUserFiles } = userFileStore;
   const navigate = useNavigate();

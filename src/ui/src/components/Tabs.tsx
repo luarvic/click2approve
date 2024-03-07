@@ -6,17 +6,24 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
+import { observer } from "mobx-react-lite";
+import { useNavigate } from "react-router-dom";
 import { Tab, commonStore } from "../stores/CommonStore";
 
-export const Tabs = () => {
+// Tabs (Files, Inbox, Archive, Sent).
+const Tabs = () => {
   const { getCurrentTab, setCurrentTab } = commonStore;
+  const navigate = useNavigate();
 
   return (
     <Box sx={{ pr: 2 }}>
       <List disablePadding>
         <ListItemButton
           selected={getCurrentTab() === Tab.Files}
-          onClick={() => setCurrentTab(Tab.Files)}
+          onClick={() => {
+            setCurrentTab(Tab.Files);
+            navigate("/files");
+          }}
         >
           <ListItemIcon>
             <AttachFile />
@@ -25,7 +32,10 @@ export const Tabs = () => {
         </ListItemButton>
         <ListItemButton
           selected={getCurrentTab() === Tab.Inbox}
-          onClick={() => setCurrentTab(Tab.Inbox)}
+          onClick={() => {
+            setCurrentTab(Tab.Inbox);
+            navigate("/inbox");
+          }}
         >
           <ListItemIcon>
             <Inbox />
@@ -34,7 +44,10 @@ export const Tabs = () => {
         </ListItemButton>
         <ListItemButton
           selected={getCurrentTab() === Tab.Archive}
-          onClick={() => setCurrentTab(Tab.Archive)}
+          onClick={() => {
+            setCurrentTab(Tab.Archive);
+            navigate("/archive");
+          }}
         >
           <ListItemIcon>
             <Archive />
@@ -43,7 +56,10 @@ export const Tabs = () => {
         </ListItemButton>
         <ListItemButton
           selected={getCurrentTab() === Tab.Sent}
-          onClick={() => setCurrentTab(Tab.Sent)}
+          onClick={() => {
+            setCurrentTab(Tab.Sent);
+            navigate("/sent");
+          }}
         >
           <ListItemIcon>
             <Send />
@@ -54,3 +70,5 @@ export const Tabs = () => {
     </Box>
   );
 };
+
+export default observer(Tabs);

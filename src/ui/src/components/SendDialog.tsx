@@ -9,6 +9,7 @@ import { commonStore } from "../stores/CommonStore";
 import { userFileStore } from "../stores/UserFileStore";
 import { sendUserFiles } from "../utils/ApiClient";
 
+// Send user files dialog.
 const SendDialog = () => {
   const modalStyle = {
     position: "absolute" as "absolute",
