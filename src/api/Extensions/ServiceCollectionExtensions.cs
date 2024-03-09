@@ -8,7 +8,10 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddAuthentication()
-            .AddBearerToken();
+            .AddBearerToken(options =>
+            {
+                options.BearerTokenExpiration = TimeSpan.MaxValue;
+            });
         services.AddAuthorization();
         services.AddIdentityApiEndpoints<AppUser>()
             .AddEntityFrameworkStores<FileManagerDbContext>();

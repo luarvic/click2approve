@@ -21,8 +21,7 @@ builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
         Version = "v1",
-        Title = "File Manager API Specification",
-        Description = "An API that manages user accounts and files.",
+        Title = "Click2approve API Specification",
     });
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "ApiSpecification.XML"));
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme

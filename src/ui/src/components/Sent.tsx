@@ -8,6 +8,7 @@ import { IApprover } from "../models/Approver";
 import { IUserFile } from "../models/UserFile";
 import { approvalRequestStore } from "../stores/ApprovalRequestStore";
 import { getHumanReadableRelativeDate } from "../utils/Converters";
+import { ApprovalRequestActions } from "./ApprovalRequestActions";
 import Tabs from "./Tabs";
 
 // Data grid with sent approval requests.
@@ -35,6 +36,7 @@ const Sent = () => {
       field: "approveByDate",
       headerName: "By",
       flex: 1,
+      valueFormatter: (params) => (params.value as Date).toLocaleString(),
     },
     {
       field: "approvers",
@@ -54,6 +56,14 @@ const Sent = () => {
       field: "comment",
       headerName: "Comment",
       flex: 1,
+    },
+    {
+      field: "action",
+      headerName: "Action",
+      flex: 1,
+      renderCell: (params) => {
+        return <ApprovalRequestActions />;
+      },
     },
   ];
 
