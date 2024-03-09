@@ -1,28 +1,19 @@
 # Table of Contents
 
-1. [Click2approve service specification.](#file-manager-specification)
+1. [Click2approve web application specification.](#file-manager-specification)
 2. [How to run locally.](#how-to-run-locally)
 3. [How to test.](#how-to-test)
 4. [Architecture and design decisions.](#architecture-and-design-decisions)
 5. [To-do list.](#to-do-list)
 
-# Click2approve Service Specification
+# Click2approve Web Application Specification
 
-The File Manager is a web application that is designed to:
+Click2approve is a web application that allows to:
 
-- Upload files of the following types:
-  - PDF;
-  - Excel;
-  - Word;
-  - Txt;
-  - Images.
-- Display a list of user files with the following attributes:
-  - Icon;
-  - Name;
-  - Date of upload;
-  - Size.
-- Download file(s).
-- Share user file(s) publicly for the specific time period.
+- Upload files.
+- Send the files for approval specifying a list of approvers' email addresses.
+- Notify the requesting and approving parties via email.
+- Keep track the approval requests.
 
 The application consists of two main components:
 
@@ -86,13 +77,13 @@ Wait until all of the following containers are in `Up` status:
 
 (Find more details about those containers below in [Architecture and design decisions](#architecture-and-design-decisions).)
 
-### 5. Open File Manager
+### 5. Open Click2approve Web Page
 
 In the web browser open [http://localhost/](http://localhost/).
 
-You should see a page with `File Manager` title.
+You should see a page with `Click2approve` title.
 
-Welcome to the File Manager! 🎉🎉🎉
+Welcome to the Click2approve service! 🎉🎉🎉
 
 # How to Test
 
@@ -118,7 +109,7 @@ file-manager
 
 # Architecture and Design Decisions
 
-The File Manager application is a set of containerized microservices that interact with each other over the network.
+Click2approve application is a set of containerized microservices that interact with each other over the network.
 
 Those microservices are:
 
@@ -126,7 +117,7 @@ Those microservices are:
 - `API` is a backend component.
 - `DB` is a SQL engine.
 
-Containerization solves these main goals:
+Containerization solves the following main goals:
 
 - _Platform-agnostic philosophy._ The microservices can be deployed to and run on any operating system, any cloud provider or any on-premise infrastructure.
 - _Scalability._ Once deployed, the services can be scaled out horizontally by adding new instances (e.g. new pods in Kubernetes) to address performance issues.
@@ -156,7 +147,7 @@ The build transforms the TypeScript code to a JavaScripts single-page applicatio
 
 Its goals are:
 
-- To provide the HTTP endpoints that implement the File Manager business logic.
+- To provide the HTTP endpoints that implement the business logic.
 
 It is written in [C#](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp/) and uses:
 
@@ -181,18 +172,11 @@ A list of things that might be enhanced from **technical** perspective:
 - [CI/CD](https://en.wikipedia.org/wiki/CI/CD) should be added.
 - A [worker service](https://learn.microsoft.com/en-us/dotnet/core/extensions/workers) or a [hangfire](https://www.hangfire.io/) service should be added to remove outdated links.
 - Better error handling and user input validation.
-- File list pagination.
 - Responsive UI that adapts to any possible screen size.
 
 A list of things that might be enhanced from **user** perspective:
 
 - More actions for the user files, e.g.:
   - Delete.
-  - Sort.
-  - Filter.
-  - Directories.
-- A page that lists shared files that:
-  - Allows to unshare the files.
-  - See the number of downloads.
 - Admin page for managing the application.
 - Storage limits per user.

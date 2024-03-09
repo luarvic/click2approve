@@ -21,7 +21,7 @@ const NavBar = () => {
           href="/"
           sx={{ flexGrow: 1, color: "inherit", textDecoration: "none" }}
         >
-          File Manager
+          Click2approve
         </Typography>
         {currentUser === undefined ? (
           <></>
