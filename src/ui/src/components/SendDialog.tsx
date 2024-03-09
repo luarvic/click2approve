@@ -1,4 +1,12 @@
-import * as material from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  TextField,
+} from "@mui/material";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
@@ -60,74 +68,55 @@ const SendDialog = () => {
   };
 
   return (
-    <material.Modal open={getSendDialogOpen()} onClose={handleClose}>
-      <material.Box sx={modalStyle}>
-        <material.Grid container spacing={2}>
-          <material.Grid item xs={12}>
-            <material.Typography variant="h6" component="h2">
-              Sending the file
-              {userFileStore.getSelectedUserFiles().length > 1 ? "s" : ""} for
-              approval
-            </material.Typography>
-          </material.Grid>
-          <material.Grid item xs={12}>
-            <material.Typography id="modal-modal-description">
-              {userFileStore
-                .getSelectedUserFiles()
-                .map((userFile) => userFile.name)
-                .join(", ")}
-            </material.Typography>
-          </material.Grid>
-          <material.Grid item xs={12}>
-            <material.TextField
-              margin="normal"
-              required
-              fullWidth
-              label="Approver Email"
-              autoFocus
-              value={approvers}
-              onChange={(event) => setApprovers(event.currentTarget.value)}
-            />
-          </material.Grid>
-          <material.Grid item xs={12}>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DateTimePicker
-                slotProps={{ textField: { fullWidth: true } }}
-                value={approveBy}
-                onChange={(newValue) => setApproveBy(newValue)}
-                label="Approve by"
-              />
-            </LocalizationProvider>
-          </material.Grid>
-          <material.Grid item xs={12}>
-            <material.TextField
-              margin="normal"
-              fullWidth
-              label="Comment"
-              value={comment}
-              onChange={(event) => setComment(event.currentTarget.value)}
-              multiline
-              rows={4}
-            />
-          </material.Grid>
-          <material.Grid item xs={6}>
-            <material.Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              onClick={handleSend}
-            >
-              Send
-            </material.Button>
-          </material.Grid>
-          <material.Grid item xs={6}>
-            <material.Button variant="outlined" fullWidth onClick={handleClose}>
-              Close
-            </material.Button>
-          </material.Grid>
-        </material.Grid>
-      </material.Box>
-    </material.Modal>
+    <Dialog open={getSendDialogOpen()} onClose={handleClose}>
+      <DialogTitle>
+        Sending the file
+        {userFileStore.getSelectedUserFiles().length > 1 ? "s" : ""} for
+        approval
+      </DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          {userFileStore
+            .getSelectedUserFiles()
+            .map((userFile) => userFile.name)
+            .join(", ")}
+        </DialogContentText>
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          label="Approver Email"
+          autoFocus
+          variant="standard"
+          value={approvers}
+          onChange={(event) => setApprovers(event.currentTarget.value)}
+        />
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DateTimePicker
+            slotProps={{ textField: { fullWidth: true, variant: "standard" } }}
+            value={approveBy}
+            onChange={(newValue) => setApproveBy(newValue)}
+            label="Approve by"
+          />
+        </LocalizationProvider>
+        <TextField
+          margin="normal"
+          fullWidth
+          label="Comment"
+          variant="standard"
+          value={comment}
+          onChange={(event) => setComment(event.currentTarget.value)}
+          multiline
+          rows={4}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose}>Cancel</Button>
+        <Button type="submit" onClick={handleSend}>
+          Send
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };
 
