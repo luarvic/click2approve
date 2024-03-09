@@ -18,6 +18,9 @@ axios.interceptors.response.use(
     return response;
   },
   (error) => {
+    if (error.response.status === 401) {
+      window.location.href = "/signin";
+    }
     // TODO
     // Come up with better solution.
     console.log(error);
@@ -115,6 +118,6 @@ export const listSentApprovalRequests = async (): Promise<
   IApprovalRequest[]
 > => {
   const { data } = await axios.get<IApprovalRequest[]>("api/request/listSent");
-  console.table(data)
+  console.table(data);
   return data;
 };
