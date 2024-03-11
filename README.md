@@ -93,14 +93,14 @@ TBD
 
 ```
 click2approve
-├── doc                         # Files required for README.md documentation.
-├── src                         # API and UI code base.
-│  ├── api                      # API code base.
+├── api                         # API code base.
+│  ├── src                      # API component source files.
 │  │  ├── Controllers           # Classes that implement API endpoints.
 │  │  ├── Extensions            # Classes that extend other classes functionality.
 │  │  ├── Models                # Entity classes.
 │  │  ├── Services              # Classes that implement business logic.
-│  ├── ui/src                   # UI code base.
+├── ui                          # UI code base.
+│  ├── src                      # UI component source files.
 │  │  ├── components            # React components that implement UI pieces.
 │  │  ├── models                # Entity classes.
 │  │  ├── stores                # Classes that manage application state plus constants.
