@@ -100,6 +100,8 @@ click2approve
 │  │  ├── Models                # Entity classes.
 │  │  ├── Services              # Classes that implement business logic.
 ├── ui                          # UI code base.
+│  ├── nginx                    # Nginx configuration.
+│  ├── public                   # Public HTML directory.
 │  ├── src                      # UI component source files.
 │  │  ├── components            # React components that implement UI pieces.
 │  │  ├── models                # Entity classes.
