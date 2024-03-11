@@ -93,20 +93,20 @@ TBD
 
 ```
 click2approve
-├── api                         # API code base.
-│  ├── src                      # API component source files.
-│  │  ├── Controllers           # Classes that implement API endpoints.
-│  │  ├── Extensions            # Classes that extend other classes functionality.
-│  │  ├── Models                # Entity classes.
-│  │  ├── Services              # Classes that implement business logic.
-├── ui                          # UI code base.
-│  ├── nginx                    # Nginx configuration.
-│  ├── public                   # Public HTML directory.
-│  ├── src                      # UI component source files.
-│  │  ├── components            # React components that implement UI pieces.
-│  │  ├── models                # Entity classes.
-│  │  ├── stores                # Classes that manage application state plus constants.
-│  │  ├── utils                 # Set of helpful methods mostly for communication with API.
+├──api                         # API code base.
+│  ├──src                      # API component source files.
+│  │  ├──Controllers           # Classes that implement API endpoints.
+│  │  ├──Extensions            # Classes that extend other classes functionality.
+│  │  ├──Models                # Entity classes.
+│  │  ├──Services              # Classes that implement business logic.
+├──ui                          # UI code base.
+│  ├──nginx                    # Nginx configuration.
+│  ├──public                   # Public HTML directory.
+│  ├──src                      # UI component source files.
+│  │  ├──components            # React components that implement UI pieces.
+│  │  ├──models                # Entity classes.
+│  │  ├──stores                # Classes that manage application state plus constants.
+│  │  ├──utils                 # Set of helpful methods mostly for communication with API.
 ```
 
 # Architecture and Design Decisions
