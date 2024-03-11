@@ -1,8 +1,9 @@
-import { Check, Close, Loop } from "@mui/icons-material";
-import { Box, Link, Stack } from "@mui/material";
+import { Check, Close, Loop, QuestionMark } from "@mui/icons-material";
+import { Box, Link, Stack, Tooltip } from "@mui/material";
 import { DataGrid, GridColDef, GridToolbar } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
+import { ApprovalRequestStatuses } from "../models/ApprovalRequestStatuses";
 import { ApprovalRequestTypes } from "../models/ApprovalRequestTypes";
 import { IApprover } from "../models/Approver";
 import { IUserFile } from "../models/UserFile";
@@ -24,6 +25,19 @@ const Sent = () => {
     loadApprovalRequests(ApprovalRequestTypes.Sent);
   }, []);
 
+  const renderStatus = (status: ApprovalRequestStatuses) => {
+    switch (status) {
+      case 0:
+        return <Loop />;
+      case 1:
+        return <Check />;
+      case 2:
+        return <Close />;
+      default:
+        return <QuestionMark />;
+    }
+  };
+
   const columns: GridColDef[] = [
     {
       field: "sentDate",
@@ -36,15 +50,13 @@ const Sent = () => {
       headerName: "Status",
       flex: 1,
       renderCell: (params) => {
-        switch (params.value) {
-          case 0:
-            return <Loop />;
-          case 1:
-            return <Check />;
-          case 2:
-            return <Close />;
-        }
+        return (
+          <Tooltip title={ApprovalRequestStatuses[params.row.status]}>
+            {renderStatus(params.row.status)}
+          </Tooltip>
+        );
       },
+      valueGetter: (params) => ApprovalRequestStatuses[params.row.status],
     },
     {
       field: "approveByDate",
