@@ -1,6 +1,6 @@
 # Table of Contents
 
-1. [Click2approve web application specification.](#click2approve-specification)
+1. [Click2approve specification.](#click2approve-specification)
 2. [How to run locally.](#how-to-run-locally)
 3. [How to test.](#how-to-test)
 4. [Architecture and design decisions.](#architecture-and-design-decisions)
