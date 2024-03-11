@@ -14,7 +14,7 @@ services:
     depends_on:
       - db
     build: ./src/api
-    image: luarvic/file-manager-api:latest
+    image: luarvic/click2approve-api:latest
     ports:
       - "5557:8080"
     command: /app/wait-for-it.sh -t 60 db:1433 -- dotnet /app/api.dll
@@ -23,6 +23,6 @@ services:
     depends_on:
       - api
     build: ./src/ui
-    image: luarvic/file-manager-ui:latest
+    image: luarvic/click2approve-ui:latest
     ports:
       - "80:80"

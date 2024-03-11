@@ -1,61 +1,54 @@
-import { Box } from "@mui/material";
-import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { Box, Link } from "@mui/material";
+import { DataGrid, GridColDef, GridToolbar } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import prettyBytes from "pretty-bytes";
 import { useEffect } from "react";
-import { DefaultExtensionType, FileIcon, defaultStyles } from "react-file-icon";
+import { IUserFile } from "../models/UserFile";
+import { Tab, commonStore } from "../stores/CommonStore";
+import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../stores/Constants";
 import { userFileStore } from "../stores/UserFileStore";
 import { getHumanReadableRelativeDate } from "../utils/Converters";
+import { downloadUserFile } from "../utils/Downloaders";
 import Buttons from "./Buttons";
 import Tabs from "./Tabs";
-import { userAccountStore } from "../stores/UserAccountStore";
 
 // Data grid with user files.
 const UserFiles = () => {
-  const { currentUser } = userAccountStore;
+  const { setCurrentTab } = commonStore;
   const { userFiles, loadUserFiles, handleUserFileCheckbox } = userFileStore;
 
-  const getDefaultExtensionType = (extension?: string) => {
-    if (!extension) {
-      return undefined;
-    }
-    const styledIcons = Object.keys(
-      defaultStyles
-    ) as Array<DefaultExtensionType>;
-    return styledIcons.find(
-      (key) => key.toString() === extension.replace(".", "").toLowerCase()
-    );
-  };
-
   useEffect(() => {
+    setCurrentTab(Tab.Files);
     loadUserFiles();
   }, []);
 
   const columns: GridColDef[] = [
     {
+      field: "createdDate",
+      headerName: "Uploaded",
+      flex: 2,
+      valueFormatter: (params) => getHumanReadableRelativeDate(params.value),
+    },
+    {
+      field: "name",
+      headerName: "Name",
+      flex: 3,
+      renderCell: (params) => {
+        return (
+          <Link
+            component="button"
+            onClick={() => downloadUserFile(params.row as IUserFile)}
+          >
+            {params.value}
+          </Link>
+        );
+      },
+    },
+    {
       field: "type",
       headerName: "Type",
       flex: 1,
       minWidth: 70,
-      renderCell: (params: GridRenderCellParams<any, string>) => (
-        <div className="fileicon">
-          {getDefaultExtensionType(params.value) ? (
-            <FileIcon
-              extension={params.value}
-              {...defaultStyles[getDefaultExtensionType(params.value)!]}
-            />
-          ) : (
-            params.value
-          )}
-        </div>
-      ),
-    },
-    { field: "name", headerName: "Name", flex: 3 },
-    {
-      field: "createdDate",
-      headerName: "Created",
-      flex: 2,
-      valueFormatter: (params) => getHumanReadableRelativeDate(params.value),
     },
     {
       field: "size",
@@ -80,16 +73,26 @@ const UserFiles = () => {
             initialState={{
               pagination: {
                 paginationModel: {
-                  pageSize: 5,
+                  pageSize: DATA_GRID_DEFAULT_PAGE_SIZE,
                 },
               },
             }}
-            pageSizeOptions={[5]}
+            pageSizeOptions={[DATA_GRID_DEFAULT_PAGE_SIZE]}
             checkboxSelection
             disableRowSelectionOnClick
             onRowSelectionModelChange={(items) =>
               handleUserFileCheckbox(items as string[])
             }
+            slots={{
+              toolbar: GridToolbar,
+            }}
+            slotProps={{
+              columnsPanel: {
+                disableHideAllButton: true,
+                disableShowAllButton: true,
+              },
+            }}
+            autoHeight
           />
         </Box>
       </Box>

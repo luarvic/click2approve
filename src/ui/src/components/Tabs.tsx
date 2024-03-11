@@ -12,7 +12,7 @@ import { Tab, commonStore } from "../stores/CommonStore";
 
 // Tabs (Files, Inbox, Archive, Sent).
 const Tabs = () => {
-  const { getCurrentTab, setCurrentTab } = commonStore;
+  const { getCurrentTab } = commonStore;
   const navigate = useNavigate();
 
   return (
@@ -21,7 +21,6 @@ const Tabs = () => {
         <ListItemButton
           selected={getCurrentTab() === Tab.Files}
           onClick={() => {
-            setCurrentTab(Tab.Files);
             navigate("/files");
           }}
         >
@@ -33,7 +32,6 @@ const Tabs = () => {
         <ListItemButton
           selected={getCurrentTab() === Tab.Inbox}
           onClick={() => {
-            setCurrentTab(Tab.Inbox);
             navigate("/inbox");
           }}
         >
@@ -45,7 +43,6 @@ const Tabs = () => {
         <ListItemButton
           selected={getCurrentTab() === Tab.Archive}
           onClick={() => {
-            setCurrentTab(Tab.Archive);
             navigate("/archive");
           }}
         >
@@ -57,7 +54,6 @@ const Tabs = () => {
         <ListItemButton
           selected={getCurrentTab() === Tab.Sent}
           onClick={() => {
-            setCurrentTab(Tab.Sent);
             navigate("/sent");
           }}
         >

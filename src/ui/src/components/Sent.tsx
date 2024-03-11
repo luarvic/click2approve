@@ -1,21 +1,26 @@
-import { Box } from "@mui/material";
-import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { Check, Close, Loop } from "@mui/icons-material";
+import { Box, Link, Stack } from "@mui/material";
+import { DataGrid, GridColDef, GridToolbar } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
-import { ApprovalRequestStatuses } from "../models/ApprovalRequestStatuses";
 import { ApprovalRequestTypes } from "../models/ApprovalRequestTypes";
 import { IApprover } from "../models/Approver";
 import { IUserFile } from "../models/UserFile";
 import { approvalRequestStore } from "../stores/ApprovalRequestStore";
+import { Tab, commonStore } from "../stores/CommonStore";
+import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../stores/Constants";
 import { getHumanReadableRelativeDate } from "../utils/Converters";
+import { downloadUserFile } from "../utils/Downloaders";
 import { ApprovalRequestActions } from "./ApprovalRequestActions";
 import Tabs from "./Tabs";
 
 // Data grid with sent approval requests.
 const Sent = () => {
+  const { setCurrentTab } = commonStore;
   const { approvalRequests, loadApprovalRequests } = approvalRequestStore;
 
   useEffect(() => {
+    setCurrentTab(Tab.Sent);
     loadApprovalRequests(ApprovalRequestTypes.Sent);
   }, []);
 
@@ -23,39 +28,64 @@ const Sent = () => {
     {
       field: "sentDate",
       headerName: "Sent",
-      flex: 1,
+      flex: 2,
       valueFormatter: (params) => getHumanReadableRelativeDate(params.value),
     },
     {
       field: "status",
       headerName: "Status",
       flex: 1,
-      valueFormatter: (params) => ApprovalRequestStatuses[params.value],
+      renderCell: (params) => {
+        switch (params.value) {
+          case 0:
+            return <Loop />;
+          case 1:
+            return <Check />;
+          case 2:
+            return <Close />;
+        }
+      },
     },
     {
       field: "approveByDate",
       headerName: "By",
-      flex: 1,
+      flex: 3,
       valueFormatter: (params) => (params.value as Date).toLocaleString(),
     },
     {
       field: "approvers",
       headerName: "Who",
-      flex: 1,
-      valueFormatter: (params) =>
+      flex: 5,
+      valueGetter: (params) =>
         params.value.map((approver: IApprover) => approver.email).join(", "),
     },
     {
       field: "userFiles",
       headerName: "Files",
-      flex: 1,
-      valueFormatter: (params) =>
-        params.value.map((approver: IUserFile) => approver.name).join(", "),
+      flex: 5,
+      valueGetter: (params) =>
+        params.value.map((userFile: IUserFile) => userFile.name).join(", "),
+      renderCell: (params) => {
+        return (
+          <Stack>
+            {params.row.userFiles.map((userFile: IUserFile) => {
+              return (
+                <Link
+                  component="button"
+                  onClick={() => downloadUserFile(userFile)}
+                >
+                  {userFile.name}
+                </Link>
+              );
+            })}
+          </Stack>
+        );
+      },
     },
     {
       field: "comment",
       headerName: "Comment",
-      flex: 1,
+      flex: 10,
     },
     {
       field: "action",
@@ -78,12 +108,30 @@ const Sent = () => {
           initialState={{
             pagination: {
               paginationModel: {
-                pageSize: 5,
+                pageSize: DATA_GRID_DEFAULT_PAGE_SIZE,
               },
             },
           }}
-          pageSizeOptions={[5]}
+          pageSizeOptions={[DATA_GRID_DEFAULT_PAGE_SIZE]}
           disableRowSelectionOnClick
+          slots={{
+            toolbar: GridToolbar,
+          }}
+          slotProps={{
+            columnsPanel: {
+              disableHideAllButton: true,
+              disableShowAllButton: true,
+            },
+          }}
+          getRowHeight={() => "auto"}
+          sx={{
+            "&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell": { py: 0.5 },
+            "&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell": { py: 1 },
+            "&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell": {
+              py: 1.5,
+            },
+          }}
+          autoHeight
         />
       </Box>
     </Box>

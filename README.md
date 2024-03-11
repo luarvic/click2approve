@@ -1,12 +1,12 @@
 # Table of Contents
 
-1. [Click2approve web application specification.](#file-manager-specification)
+1. [Click2approve web application specification.](#click2approve-specification)
 2. [How to run locally.](#how-to-run-locally)
 3. [How to test.](#how-to-test)
 4. [Architecture and design decisions.](#architecture-and-design-decisions)
 5. [To-do list.](#to-do-list)
 
-# Click2approve Web Application Specification
+# Click2approve Specification
 
 Click2approve is a web application that allows to:
 
@@ -40,15 +40,15 @@ All microservises and components are containerizes with [Docker](https://docs.do
 Run in terminal:
 
 ```bash
-git clone git@github.com:luarvic/file-manager.git
+git clone git@github.com:luarvic/click2approve.git
 ```
 
-### 2. Open `file-manager` Directory
+### 2. Open `click2approve` Directory
 
 Run in terminal:
 
 ```bash
-cd file-manager
+cd click2approve
 ```
 
 ### 3. Build and Run Docker Images
@@ -92,7 +92,7 @@ TBD
 # Folder Structure
 
 ```
-file-manager
+click2approve
 ├── doc                         # Files required for README.md documentation.
 ├── src                         # API and UI code base.
 │  ├── api                      # API code base.

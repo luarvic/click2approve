@@ -32,7 +32,7 @@ export const ApprovalRequestActions = () => {
           "aria-labelledby": "basic-button",
         }}
       >
-        <MenuItem onClick={handleClose}>View history</MenuItem>
+        <MenuItem onClick={handleClose}>View</MenuItem>
         <MenuItem onClick={handleClose}>Delete</MenuItem>
       </Menu>
     </div>
