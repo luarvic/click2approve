@@ -1,6 +1,14 @@
 import { Check, Close, Loop, QuestionMark } from "@mui/icons-material";
 import { Box, Link, Stack, Tooltip } from "@mui/material";
-import { DataGrid, GridColDef, GridToolbar } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridColDef,
+  GridToolbarColumnsButton,
+  GridToolbarContainer,
+  GridToolbarDensitySelector,
+  GridToolbarExport,
+  GridToolbarFilterButton,
+} from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { ApprovalRequestStatuses } from "../models/ApprovalRequestStatuses";
@@ -24,6 +32,17 @@ const Sent = () => {
     setCurrentTab(Tab.Sent);
     loadApprovalRequests(ApprovalRequestTypes.Sent);
   }, []);
+
+  const customToolbar = () => {
+    return (
+      <GridToolbarContainer>
+        <GridToolbarColumnsButton />
+        <GridToolbarFilterButton />
+        <GridToolbarDensitySelector />
+        <GridToolbarExport />
+      </GridToolbarContainer>
+    );
+  };
 
   const renderStatus = (status: ApprovalRequestStatuses) => {
     switch (status) {
@@ -127,7 +146,7 @@ const Sent = () => {
           pageSizeOptions={[DATA_GRID_DEFAULT_PAGE_SIZE]}
           disableRowSelectionOnClick
           slots={{
-            toolbar: GridToolbar,
+            toolbar: customToolbar,
           }}
           slotProps={{
             columnsPanel: {

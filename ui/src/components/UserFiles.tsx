@@ -1,5 +1,13 @@
 import { Box, Link } from "@mui/material";
-import { DataGrid, GridColDef, GridToolbar } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridColDef,
+  GridToolbarColumnsButton,
+  GridToolbarContainer,
+  GridToolbarDensitySelector,
+  GridToolbarExport,
+  GridToolbarFilterButton,
+} from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import prettyBytes from "pretty-bytes";
 import { useEffect } from "react";
@@ -9,7 +17,8 @@ import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../stores/Constants";
 import { userFileStore } from "../stores/UserFileStore";
 import { getHumanReadableRelativeDate } from "../utils/Converters";
 import { downloadUserFile } from "../utils/Downloaders";
-import Buttons from "./Buttons";
+import GridToolbarSendButton from "./GridToolbarSendButton";
+import GridToolbarUploadButton from "./GridToolbarUploadButton";
 import Tabs from "./Tabs";
 
 // Data grid with user files.
@@ -21,6 +30,19 @@ const UserFiles = () => {
     setCurrentTab(Tab.Files);
     loadUserFiles();
   }, []);
+
+  const customToolbar = () => {
+    return (
+      <GridToolbarContainer>
+        <GridToolbarUploadButton />
+        <GridToolbarSendButton />
+        <GridToolbarColumnsButton />
+        <GridToolbarFilterButton />
+        <GridToolbarDensitySelector />
+        <GridToolbarExport />
+      </GridToolbarContainer>
+    );
+  };
 
   const columns: GridColDef[] = [
     {
@@ -63,9 +85,6 @@ const UserFiles = () => {
       <Tabs />
       <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
         <Box>
-          <Buttons />
-        </Box>
-        <Box>
           <DataGrid
             className="DataGridDefault"
             rows={userFiles}
@@ -84,7 +103,7 @@ const UserFiles = () => {
               handleUserFileCheckbox(items as string[])
             }
             slots={{
-              toolbar: GridToolbar,
+              toolbar: customToolbar,
             }}
             slotProps={{
               columnsPanel: {
