@@ -1,5 +1,6 @@
 import { Archive, AttachFile, Inbox, Send } from "@mui/icons-material";
 import {
+  Badge,
   Box,
   List,
   ListItemButton,
@@ -9,11 +10,19 @@ import {
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import { Tab, commonStore } from "../stores/CommonStore";
+import { approvalRequestStore } from "../stores/ApprovalRequestStore";
+import { useEffect } from "react";
 
 // Tabs (Files, Inbox, Archive, Sent).
 const Tabs = () => {
   const { getCurrentTab } = commonStore;
+  const { numberOfInboxApprovalRequests, loadNumberOfInboxApprovalRequests } =
+    approvalRequestStore;
   const navigate = useNavigate();
+
+  useEffect(() => {
+    loadNumberOfInboxApprovalRequests();
+  }, []);
 
   return (
     <Box sx={{ pr: 2 }}>
@@ -36,7 +45,9 @@ const Tabs = () => {
           }}
         >
           <ListItemIcon>
-            <Inbox />
+            <Badge badgeContent={numberOfInboxApprovalRequests} color="error">
+              <Inbox />
+            </Badge>
           </ListItemIcon>
           <ListItemText primary="Inbox" />
         </ListItemButton>

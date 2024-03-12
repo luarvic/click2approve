@@ -90,7 +90,7 @@ export const downloadArchiveBase64 = async (
   return data;
 };
 
-export const sendUserFiles = async (
+export const submitApprovalRequest = async (
   files: IUserFile[],
   approvers: string[],
   approveBy: Date,
@@ -105,19 +105,29 @@ export const sendUserFiles = async (
   return data;
 };
 
-export const listApprovalRequests = async (
+export const listIncomingApprovalRequests = async (
   statuses: ApprovalRequestStatuses[]
 ): Promise<IApprovalRequest[]> => {
-  const { data } = await axios.get<IApprovalRequest[]>("api/request/list", {
-    params: statuses,
-  });
+  const { data } = await axios.post<IApprovalRequest[]>(
+    "api/request/listIncoming",
+    statuses
+  );
   return data;
 };
 
-export const listSentApprovalRequests = async (): Promise<
+export const listOutgoingApprovalRequests = async (): Promise<
   IApprovalRequest[]
 > => {
-  const { data } = await axios.get<IApprovalRequest[]>("api/request/listSent");
+  const { data } = await axios.get<IApprovalRequest[]>(
+    "api/request/listOutgoing"
+  );
   console.table(data);
+  return data;
+};
+
+export const getNumberOfIncomingApprovalRequests = async (
+  statuses: ApprovalRequestStatuses[]
+): Promise<number> => {
+  const { data } = await axios.post<number>("api/request/countIncoming", statuses);
   return data;
 };

@@ -26,10 +26,12 @@ import Tabs from "./Tabs";
 // Data grid with sent approval requests.
 const Sent = () => {
   const { setCurrentTab } = commonStore;
-  const { approvalRequests, loadApprovalRequests } = approvalRequestStore;
+  const { approvalRequests, clearApprovalRequests, loadApprovalRequests } =
+    approvalRequestStore;
 
   useEffect(() => {
     setCurrentTab(Tab.Sent);
+    clearApprovalRequests();
     loadApprovalRequests(ApprovalRequestTypes.Sent);
   }, []);
 
@@ -79,16 +81,16 @@ const Sent = () => {
     },
     {
       field: "approveByDate",
-      headerName: "By",
+      headerName: "Approve by",
       flex: 3,
       valueFormatter: (params) => (params.value as Date).toLocaleString(),
     },
     {
       field: "approvers",
-      headerName: "Who",
+      headerName: "Approvers",
       flex: 5,
       valueGetter: (params) =>
-        params.value.map((approver: IApprover) => approver.email).join(", "),
+        params.value.map((approver: IApprover) => approver.email.toLowerCase()).join(", "),
     },
     {
       field: "userFiles",

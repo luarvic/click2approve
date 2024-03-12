@@ -55,8 +55,14 @@ public class UserFileService(
 
     public async Task<(string Filename, byte[] Bytes)> DownloadAsync(AppUser user, string id, CancellationToken cancellationToken)
     {
-        var userFile = await _db.UserFiles.FirstAsync(f => f.Id == long.Parse(id) && f.Owner == user.Id, cancellationToken: cancellationToken);
-        return (
+        var userFile = await _db.UserFiles
+            .FirstAsync(f => f.Id == long.Parse(id) &&
+            (
+                f.Owner == user.Id || // the user is either an owner
+                f.ApprovalRequests.Any(r => r.Approvers.Any(a => a.Email == user.NormalizedEmail)) // or an approver
+            ), cancellationToken: cancellationToken);
+        return
+        (
             userFile.Name,
             await _storeService.GetFileAsync(GetFilePath(userFile.Owner, userFile.Id.ToString(), userFile.Name), cancellationToken)
         );
@@ -66,7 +72,11 @@ public class UserFileService(
     {
         var longIds = ids.Select(long.Parse).ToArray();
         var userFiles = await _db.UserFiles
-            .Where(f => longIds.Contains(f.Id) && f.Owner == user.Id)
+            .Where(f => longIds.Contains(f.Id) &&
+            (
+                f.Owner == user.Id || // the user is either an owner
+                f.ApprovalRequests.Any(r => r.Approvers.Any(a => a.Email == user.NormalizedEmail)) // or an approver
+            ))
             .ToListAsync(cancellationToken);
 
         // Let's handle multiple files in parallel.

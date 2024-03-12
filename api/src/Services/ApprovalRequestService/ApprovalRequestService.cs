@@ -9,22 +9,22 @@ public class ApprovalRequestService(FileManagerDbContext db) : IApprovalRequestS
 {
     private readonly FileManagerDbContext _db = db;
 
-    public async Task<List<ApprovalRequest>> ListAsync(AppUser user, ApprovalRequestStatuses[] statuses, CancellationToken cancellationToken)
+    public async Task<List<ApprovalRequest>> ListIncomingAsync(AppUser user, ApprovalRequestStatuses[] statuses, CancellationToken cancellationToken)
     {
-        var approver = await _db.Approvers.FirstAsync(a => a.Email == user.Email!.ToLower(), cancellationToken: cancellationToken);
-        return await _db.ApprovalRequests
+        var approver = await _db.Approvers.FirstOrDefaultAsync(a => a.Email == user.NormalizedEmail, cancellationToken: cancellationToken);
+        return approver == null ? [] : await _db.ApprovalRequests
             .Include(r => r.UserFiles)
             .Include(r => r.Approvers)
             .Where(r => statuses.Contains(r.Status) && r.Approvers.Contains(approver))
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<ApprovalRequest>> ListSentAsync(AppUser user, CancellationToken cancellationToken)
+    public async Task<List<ApprovalRequest>> ListOutgoingAsync(AppUser user, CancellationToken cancellationToken)
     {
         return await _db.ApprovalRequests
             .Include(r => r.UserFiles)
             .Include(r => r.Approvers)
-            .Where(r => r.Author == user.Email)
+            .Where(r => r.Author == user.NormalizedEmail)
             .ToListAsync(cancellationToken);
     }
 
@@ -38,8 +38,8 @@ public class ApprovalRequestService(FileManagerDbContext db) : IApprovalRequestS
         var sent = DateTime.UtcNow;
         foreach (var email in payload.Emails)
         {
-            var approver = await _db.Approvers.FirstOrDefaultAsync(a => a.Email == email.ToLower(), cancellationToken)
-                ?? _db.Add(new Approver { Email = email.ToLower() }).Entity;
+            var approver = await _db.Approvers.FirstOrDefaultAsync(a => a.Email == email.ToUpper(), cancellationToken)
+                ?? _db.Add(new Approver { Email = email.ToUpper() }).Entity;
             approvers.Add(approver);
         }
         _db.ApprovalRequests.Add(new ApprovalRequest
@@ -50,8 +50,16 @@ public class ApprovalRequestService(FileManagerDbContext db) : IApprovalRequestS
             Sent = sent,
             Comment = payload.Comment,
             Status = ApprovalRequestStatuses.Submitted,
-            Author = user.Email!
+            Author = user.NormalizedEmail!
         });
         await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<long> CountIncomingAsync(AppUser user, ApprovalRequestStatuses[] statuses, CancellationToken cancellationToken)
+    {
+        var approver = await _db.Approvers.FirstOrDefaultAsync(a => a.Email == user.NormalizedEmail, cancellationToken: cancellationToken);
+        return approver == null ? 0 : await _db.ApprovalRequests
+            .Where(r => statuses.Contains(r.Status) && r.Approvers.Contains(approver))
+            .CountAsync(cancellationToken);
     }
 }

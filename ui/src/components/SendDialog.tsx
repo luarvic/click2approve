@@ -15,7 +15,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { commonStore } from "../stores/CommonStore";
 import { userFileStore } from "../stores/UserFileStore";
-import { sendUserFiles } from "../utils/ApiClient";
+import { submitApprovalRequest } from "../utils/ApiClient";
 
 // Send user files dialog.
 const SendDialog = () => {
@@ -44,7 +44,7 @@ const SendDialog = () => {
       if (!approveBy) {
         throw new Error("Approve by is not defined.");
       }
-      await sendUserFiles(
+      await submitApprovalRequest(
         getSelectedUserFiles(),
         approvers.split(",").map((a) => a.toLocaleLowerCase().trim()),
         approveBy.toDate(),

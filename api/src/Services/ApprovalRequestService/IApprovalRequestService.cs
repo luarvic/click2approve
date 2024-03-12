@@ -7,6 +7,7 @@ namespace api.Services;
 public interface IApprovalRequestService
 {
     Task SubmitAsync(AppUser user, ApprovalRequestDto payload, CancellationToken cancellationToken);
-    Task<List<ApprovalRequest>> ListAsync(AppUser user, ApprovalRequestStatuses[] statuses, CancellationToken cancellationToken);
-    Task<List<ApprovalRequest>> ListSentAsync(AppUser user, CancellationToken cancellationToken);
+    Task<List<ApprovalRequest>> ListIncomingAsync(AppUser user, ApprovalRequestStatuses[] statuses, CancellationToken cancellationToken);
+    Task<List<ApprovalRequest>> ListOutgoingAsync(AppUser user, CancellationToken cancellationToken);
+    Task<long> CountIncomingAsync(AppUser user, ApprovalRequestStatuses[] statuses, CancellationToken cancellationToken);
 }
