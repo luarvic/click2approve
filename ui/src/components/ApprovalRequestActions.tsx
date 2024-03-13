@@ -1,8 +1,18 @@
 import { ArrowDropDownCircle } from "@mui/icons-material";
 import { IconButton, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
+import { IApprovalRequest } from "../models/ApprovalRequest";
+import { approvalRequestStore } from "../stores/ApprovalRequestStore";
 
-export const ApprovalRequestActions = () => {
+interface IApprovalRequestActionsProps {
+  approvalRequest: IApprovalRequest;
+}
+
+export const ApprovalRequestActions: React.FC<IApprovalRequestActionsProps> = ({
+  approvalRequest,
+}) => {
+  const { setApprovalRequestReviewDialogIsOpen, setCurrentApprovalRequest } =
+    approvalRequestStore;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -10,6 +20,11 @@ export const ApprovalRequestActions = () => {
   };
   const handleClose = () => {
     setAnchorEl(null);
+  };
+  const handleReview = () => {
+    setCurrentApprovalRequest(approvalRequest);
+    setApprovalRequestReviewDialogIsOpen(true);
+    handleClose();
   };
 
   return (
@@ -32,7 +47,7 @@ export const ApprovalRequestActions = () => {
           "aria-labelledby": "basic-button",
         }}
       >
-        <MenuItem onClick={handleClose}>View</MenuItem>
+        <MenuItem onClick={handleReview}>Review</MenuItem>
         <MenuItem onClick={handleClose}>Delete</MenuItem>
       </Menu>
     </div>

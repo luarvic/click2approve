@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { userAccountStore } from "../stores/UserAccountStore";
-import UserFiles from "./UserFiles";
 import About from "./About";
+import TabFiles from "./TabFiles";
 
 // Shows either message or user files depending on whether it's anonymous or specific user.
 const Home = () => {
@@ -12,7 +12,7 @@ const Home = () => {
   ) : currentUser === null ? (
     <About />
   ) : (
-    <UserFiles />
+    <TabFiles />
   );
 };
 

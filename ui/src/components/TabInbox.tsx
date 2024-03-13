@@ -1,5 +1,5 @@
 import { Check, Close, Loop, QuestionMark } from "@mui/icons-material";
-import { Box, Link, Stack, Tooltip } from "@mui/material";
+import { Box, Link, Stack } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -20,10 +20,11 @@ import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../stores/Constants";
 import { getHumanReadableRelativeDate } from "../utils/Converters";
 import { downloadUserFile } from "../utils/Downloaders";
 import { ApprovalRequestActions } from "./ApprovalRequestActions";
+import ApprovalRequestReviewDialog from "./ApprovalRequestReviewDialog";
 import Tabs from "./Tabs";
 
 // Data grid with incoming approval requests.
-const Inbox = () => {
+const TabInbox = () => {
   const { setCurrentTab } = commonStore;
   const { approvalRequests, clearApprovalRequests, loadApprovalRequests } =
     approvalRequestStore;
@@ -104,13 +105,22 @@ const Inbox = () => {
       field: "comment",
       headerName: "Comment",
       flex: 10,
+      renderCell: (params) => {
+        return (
+          <Stack>
+            {(params.value.split(/\r?\n/) as string[]).map((line) => (
+              <Box>{line}</Box>
+            ))}
+          </Stack>
+        );
+      },
     },
     {
       field: "action",
       headerName: "Action",
       flex: 1,
       renderCell: (params) => {
-        return <ApprovalRequestActions />;
+        return <ApprovalRequestActions approvalRequest={params.row} />;
       },
     },
   ];
@@ -152,8 +162,9 @@ const Inbox = () => {
           autoHeight
         />
       </Box>
+      <ApprovalRequestReviewDialog />
     </Box>
   );
 };
 
-export default observer(Inbox);
+export default observer(TabInbox);

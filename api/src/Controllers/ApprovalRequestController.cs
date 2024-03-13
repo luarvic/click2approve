@@ -33,9 +33,9 @@ public class ApprovalRequestController(
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <response code="200">If send succeeds.</response>
     /// <response code="401">If authorization fails.</response>
-    /// <response code="500">If send fails.</response>
-    [HttpPost]
-    public async Task<IActionResult> SubmitAsync([FromBody] ApprovalRequestDto payload, CancellationToken cancellationToken)
+    /// <response code="500">If submit fails.</response>
+    [HttpPost("submit")]
+    public async Task<IActionResult> SubmitAsync([FromBody] ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
     {
         try
         {
@@ -45,7 +45,30 @@ public class ApprovalRequestController(
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Unable to submit approval requests.");
+            _logger.LogError(e, "Unable to submit approval request.");
+            return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+        }
+    }
+    /// <summary>
+    /// Handles an approval request.
+    /// </summary>
+    /// <param name="payload">A payload that contains the approval request properties.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <response code="200">If send succeeds.</response>
+    /// <response code="401">If authorization fails.</response>
+    /// <response code="500">If handle fails.</response>
+    [HttpPost("handle")]
+    public async Task<IActionResult> HandleAsync([FromBody] ApprovalRequestHandleDto payload, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
+            await _approvalRequestService.HandleAsync(user, payload, cancellationToken);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Unable to handle approval request.");
             return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }

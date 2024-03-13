@@ -8,14 +8,14 @@ import {
   ListItemText,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { useNavigate } from "react-router-dom";
-import { Tab, commonStore } from "../stores/CommonStore";
-import { approvalRequestStore } from "../stores/ApprovalRequestStore";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { approvalRequestStore } from "../stores/ApprovalRequestStore";
+import { Tab, commonStore } from "../stores/CommonStore";
 
 // Tabs (Files, Inbox, Archive, Sent).
 const Tabs = () => {
-  const { getCurrentTab } = commonStore;
+  const { currentTab } = commonStore;
   const { numberOfInboxApprovalRequests, loadNumberOfInboxApprovalRequests } =
     approvalRequestStore;
   const navigate = useNavigate();
@@ -28,7 +28,7 @@ const Tabs = () => {
     <Box sx={{ pr: 2 }}>
       <List disablePadding>
         <ListItemButton
-          selected={getCurrentTab() === Tab.Files}
+          selected={currentTab === Tab.Files}
           onClick={() => {
             navigate("/files");
           }}
@@ -39,7 +39,7 @@ const Tabs = () => {
           <ListItemText primary="Files" />
         </ListItemButton>
         <ListItemButton
-          selected={getCurrentTab() === Tab.Inbox}
+          selected={currentTab === Tab.Inbox}
           onClick={() => {
             navigate("/inbox");
           }}
@@ -52,7 +52,7 @@ const Tabs = () => {
           <ListItemText primary="Inbox" />
         </ListItemButton>
         <ListItemButton
-          selected={getCurrentTab() === Tab.Archive}
+          selected={currentTab === Tab.Archive}
           onClick={() => {
             navigate("/archive");
           }}
@@ -63,7 +63,7 @@ const Tabs = () => {
           <ListItemText primary="Archive" />
         </ListItemButton>
         <ListItemButton
-          selected={getCurrentTab() === Tab.Sent}
+          selected={currentTab === Tab.Sent}
           onClick={() => {
             navigate("/sent");
           }}

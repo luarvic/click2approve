@@ -96,10 +96,23 @@ export const submitApprovalRequest = async (
   approveBy: Date,
   comment: string | null
 ): Promise<string> => {
-  const { data } = await axios.post("api/request", {
-    ids: files.map((userFile) => userFile.id.toString()),
+  const { data } = await axios.post("api/request/submit", {
+    userFileIds: files.map((userFile) => userFile.id.toString()),
     emails: approvers,
     approveBy: approveBy,
+    comment: comment,
+  });
+  return data;
+};
+
+export const handleApprovalRequest = async (
+  id: number,
+  status: ApprovalRequestStatuses,
+  comment: string | null
+): Promise<string> => {
+  const { data } = await axios.post("api/request/handle", {
+    id: id,
+    status: status,
     comment: comment,
   });
   return data;
@@ -128,6 +141,9 @@ export const listOutgoingApprovalRequests = async (): Promise<
 export const getNumberOfIncomingApprovalRequests = async (
   statuses: ApprovalRequestStatuses[]
 ): Promise<number> => {
-  const { data } = await axios.post<number>("api/request/countIncoming", statuses);
+  const { data } = await axios.post<number>(
+    "api/request/countIncoming",
+    statuses
+  );
   return data;
 };

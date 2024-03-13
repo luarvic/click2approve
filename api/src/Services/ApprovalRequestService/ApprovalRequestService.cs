@@ -28,11 +28,10 @@ public class ApprovalRequestService(FileManagerDbContext db) : IApprovalRequestS
             .ToListAsync(cancellationToken);
     }
 
-    public async Task SubmitAsync(AppUser user, ApprovalRequestDto payload, CancellationToken cancellationToken)
+    public async Task SubmitAsync(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
     {
-        var longIds = payload.Ids.Select(long.Parse);
         var userFiles = await _db.UserFiles
-            .Where(f => longIds.Contains(f.Id) && f.Owner == user.Id)
+            .Where(f => payload.UserFileIds.Contains(f.Id) && f.Owner == user.Id)
             .ToListAsync(cancellationToken);
         var approvers = new List<Approver>();
         var sent = DateTime.UtcNow;
@@ -53,6 +52,27 @@ public class ApprovalRequestService(FileManagerDbContext db) : IApprovalRequestS
             Author = user.NormalizedEmail!
         });
         await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task HandleAsync(AppUser user, ApprovalRequestHandleDto payload, CancellationToken cancellationToken)
+    {
+        var approver = await _db.Approvers.FirstOrDefaultAsync(a => a.Email == user.NormalizedEmail, cancellationToken: cancellationToken);
+        if (approver != null)
+        {
+            var approvalRequest = await _db.ApprovalRequests
+                .FirstAsync(r => r.Id == payload.Id && r.Approvers.Contains(approver), cancellationToken);
+            approvalRequest.Status = payload.Status;
+            approvalRequest.Comment +=
+                string.IsNullOrWhiteSpace(approvalRequest.Comment) ? "" : Environment.NewLine +
+                ">>>" + Environment.NewLine +
+                approver.Email.ToLower() + ":" + Environment.NewLine +
+                payload.Comment;
+            await _db.SaveChangesAsync(cancellationToken);
+        }
+        else
+        {
+            throw new Exception($"Unable to find approver {user.NormalizedEmail}.");
+        }
     }
 
     public async Task<long> CountIncomingAsync(AppUser user, ApprovalRequestStatuses[] statuses, CancellationToken cancellationToken)

@@ -13,24 +13,16 @@ import { Dayjs } from "dayjs";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { commonStore } from "../stores/CommonStore";
+import { approvalRequestStore } from "../stores/ApprovalRequestStore";
 import { userFileStore } from "../stores/UserFileStore";
 import { submitApprovalRequest } from "../utils/ApiClient";
 
 // Send user files dialog.
-const SendDialog = () => {
-  const modalStyle = {
-    position: "absolute" as "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 400,
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
-  };
-  const { getSendDialogOpen, setSendDialogOpen } = commonStore;
+const ApprovalRequestSubmitDialog = () => {
+  const {
+    approvalRequestSubmitDialogIsOpen,
+    setApprovalRequestSubmitDialogIsOpen,
+  } = approvalRequestStore;
   const { getSelectedUserFiles } = userFileStore;
   const [approvers, setApprovers] = useState<string>("");
   const [approveBy, setApproveBy] = useState<Dayjs | null>(null);
@@ -64,17 +56,17 @@ const SendDialog = () => {
     setApprovers("");
     setApproveBy(null);
     setComment("");
-    setSendDialogOpen(false);
+    setApprovalRequestSubmitDialogIsOpen(false);
   };
 
   return (
-    <Dialog open={getSendDialogOpen()} onClose={handleClose}>
+    <Dialog open={approvalRequestSubmitDialogIsOpen} onClose={handleClose}>
       <DialogTitle>
-        Sending the file
+        Send the file
         {userFileStore.getSelectedUserFiles().length > 1 ? "s" : ""} for
         approval
       </DialogTitle>
-      <DialogContent>
+      <DialogContent dividers>
         <DialogContentText>
           {userFileStore
             .getSelectedUserFiles()
@@ -120,4 +112,4 @@ const SendDialog = () => {
   );
 };
 
-export default observer(SendDialog);
+export default observer(ApprovalRequestSubmitDialog);

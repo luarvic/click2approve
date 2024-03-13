@@ -53,10 +53,10 @@ public class UserFileService(
         return Path.Combine(userId, fileId, fileName);
     }
 
-    public async Task<(string Filename, byte[] Bytes)> DownloadAsync(AppUser user, string id, CancellationToken cancellationToken)
+    public async Task<(string Filename, byte[] Bytes)> DownloadAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
         var userFile = await _db.UserFiles
-            .FirstAsync(f => f.Id == long.Parse(id) &&
+            .FirstAsync(f => f.Id == id &&
             (
                 f.Owner == user.Id || // the user is either an owner
                 f.ApprovalRequests.Any(r => r.Approvers.Any(a => a.Email == user.NormalizedEmail)) // or an approver
@@ -68,11 +68,10 @@ public class UserFileService(
         );
     }
 
-    public async Task<(string Filename, byte[] Bytes)> DownloadArchiveAsync(AppUser user, string[] ids, CancellationToken cancellationToken)
+    public async Task<(string Filename, byte[] Bytes)> DownloadArchiveAsync(AppUser user, long[] ids, CancellationToken cancellationToken)
     {
-        var longIds = ids.Select(long.Parse).ToArray();
         var userFiles = await _db.UserFiles
-            .Where(f => longIds.Contains(f.Id) &&
+            .Where(f => ids.Contains(f.Id) &&
             (
                 f.Owner == user.Id || // the user is either an owner
                 f.ApprovalRequests.Any(r => r.Approvers.Any(a => a.Email == user.NormalizedEmail)) // or an approver

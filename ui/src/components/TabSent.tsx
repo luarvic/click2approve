@@ -24,7 +24,7 @@ import { ApprovalRequestActions } from "./ApprovalRequestActions";
 import Tabs from "./Tabs";
 
 // Data grid with sent approval requests.
-const Sent = () => {
+const TabSent = () => {
   const { setCurrentTab } = commonStore;
   const { approvalRequests, clearApprovalRequests, loadApprovalRequests } =
     approvalRequestStore;
@@ -90,7 +90,9 @@ const Sent = () => {
       headerName: "Approvers",
       flex: 5,
       valueGetter: (params) =>
-        params.value.map((approver: IApprover) => approver.email.toLowerCase()).join(", "),
+        params.value
+          .map((approver: IApprover) => approver.email.toLowerCase())
+          .join(", "),
     },
     {
       field: "userFiles",
@@ -119,13 +121,22 @@ const Sent = () => {
       field: "comment",
       headerName: "Comment",
       flex: 10,
+      renderCell: (params) => {
+        return (
+          <Stack>
+            {(params.value.split(/\r?\n/) as string[]).map((line) => (
+              <Box>{line}</Box>
+            ))}
+          </Stack>
+        );
+      },
     },
     {
       field: "action",
       headerName: "Action",
       flex: 1,
       renderCell: (params) => {
-        return <ApprovalRequestActions />;
+        return <ApprovalRequestActions approvalRequest={params.row} />;
       },
     },
   ];
@@ -171,4 +182,4 @@ const Sent = () => {
   );
 };
 
-export default observer(Sent);
+export default observer(TabSent);

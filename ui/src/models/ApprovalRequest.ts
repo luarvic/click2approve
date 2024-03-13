@@ -1,8 +1,9 @@
+import { ApprovalRequestStatuses } from "./ApprovalRequestStatuses";
 import { IApprover } from "./Approver";
 import { IUserFile } from "./UserFile";
 
 export interface IApprovalRequest {
-  id: string;
+  id: number;
   userFiles: IUserFile[];
   approvers: IApprover[];
   approveBy: string;
@@ -11,4 +12,5 @@ export interface IApprovalRequest {
   sent: string;
   sentDate: Date;
   author: string;
+  status: ApprovalRequestStatuses;
 }

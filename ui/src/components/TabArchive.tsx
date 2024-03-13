@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 
-const Archive = () => {
+const TabArchive = () => {
   return <div>Archive</div>;
 };
 
-export default observer(Archive);
+export default observer(TabArchive);

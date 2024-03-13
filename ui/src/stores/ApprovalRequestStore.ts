@@ -5,27 +5,40 @@ import { ApprovalRequestStatuses } from "../models/ApprovalRequestStatuses";
 import { ApprovalRequestTypes } from "../models/ApprovalRequestTypes";
 import {
   getNumberOfIncomingApprovalRequests,
+  handleApprovalRequest,
   listIncomingApprovalRequests,
   listOutgoingApprovalRequests,
 } from "../utils/ApiClient";
 
 class ApprovalRequestStore {
-  approvalRequestsRegistry: Map<string, IApprovalRequest>;
+  approvalRequestsRegistry: Map<number, IApprovalRequest>;
   numberOfInboxApprovalRequests: number;
+  currentApprovalRequest: IApprovalRequest | null;
+  approvalRequestSubmitDialogIsOpen: boolean;
+  approvalRequestReviewDialogIsOpen: boolean;
+
+  constructor(
+    approvalRequestsRegistry: Map<number, IApprovalRequest> = new Map<
+      number,
+      IApprovalRequest
+    >(),
+    numberOfInboxApprovalRequests: number = 0,
+    currentApprovalRequest: IApprovalRequest | null = null,
+    approvalRequestSubmitDialogIsOpen: boolean = false,
+    approvalRequestReviewDialogIsOpen: boolean = false
+  ) {
+    this.approvalRequestsRegistry = approvalRequestsRegistry;
+    this.numberOfInboxApprovalRequests = numberOfInboxApprovalRequests;
+    this.currentApprovalRequest = currentApprovalRequest;
+    this.approvalRequestSubmitDialogIsOpen = approvalRequestSubmitDialogIsOpen;
+    this.approvalRequestReviewDialogIsOpen = approvalRequestReviewDialogIsOpen;
+    makeAutoObservable(this);
+  }
 
   get approvalRequests(): IApprovalRequest[] {
     return Array.from(this.approvalRequestsRegistry.values()).sort(
       (a, b) => b.sentDate.getTime() - a.sentDate.getTime()
     );
-  }
-
-  constructor(
-    approvalRequestsRegistry: Map<string, IApprovalRequest>,
-    numberOfInboxApprovalRequests: number
-  ) {
-    this.approvalRequestsRegistry = approvalRequestsRegistry;
-    this.numberOfInboxApprovalRequests = numberOfInboxApprovalRequests;
-    makeAutoObservable(this);
   }
 
   loadNumberOfInboxApprovalRequests = async () => {
@@ -87,9 +100,40 @@ class ApprovalRequestStore {
       this.approvalRequestsRegistry.clear();
     });
   };
+
+  setCurrentApprovalRequest = (approvalRequest: IApprovalRequest | null) => {
+    runInAction(() => {
+      this.currentApprovalRequest = approvalRequest;
+    });
+  };
+
+  setApprovalRequestSubmitDialogIsOpen = (open: boolean) => {
+    runInAction(() => {
+      this.approvalRequestSubmitDialogIsOpen = open;
+    });
+  };
+
+  setApprovalRequestReviewDialogIsOpen = (open: boolean) => {
+    runInAction(() => {
+      this.approvalRequestReviewDialogIsOpen = open;
+    });
+  };
+
+  handleApprovalRequest = async (
+    approvalRequest: IApprovalRequest,
+    status: ApprovalRequestStatuses,
+    comment: string
+  ) => {
+    try {
+      await handleApprovalRequest(approvalRequest.id, status, comment);
+    } catch (e) {
+      if (e instanceof Error) {
+        toast.warn(e.message);
+      } else {
+        toast.warn("Unable to handle approval requests.");
+      }
+    }
+  };
 }
 
-export const approvalRequestStore = new ApprovalRequestStore(
-  new Map<string, IApprovalRequest>(),
-  0
-);
+export const approvalRequestStore = new ApprovalRequestStore();

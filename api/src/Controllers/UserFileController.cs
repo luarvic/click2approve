@@ -82,7 +82,7 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     /// <response code="401">If authorization fails.</response>
     /// <response code="500">If download fails.</response>
     [HttpGet("download")]
-    public async Task<IActionResult> DownloadAsync(string id, CancellationToken cancellationToken)
+    public async Task<IActionResult> DownloadAsync(long id, CancellationToken cancellationToken)
     {
         try
         {
@@ -110,7 +110,7 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     /// <response code="401">If authorization fails.</response>
     /// <response code="500">If download fails.</response>
     [HttpGet("downloadBase64")]
-    public async Task<ActionResult<string>> DownloadBase64Async(string id, CancellationToken cancellationToken)
+    public async Task<ActionResult<string>> DownloadBase64Async(long id, CancellationToken cancellationToken)
     {
         try
         {
@@ -135,7 +135,7 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     /// <response code="401">If authorization fails.</response>
     /// <response code="500">If download fails.</response>
     [HttpPost("downloadArchiveBase64")]
-    public async Task<ActionResult<string>> DownloadArchiveBase64Async([FromBody] string[] ids, CancellationToken cancellationToken)
+    public async Task<ActionResult<string>> DownloadArchiveBase64Async([FromBody] long[] ids, CancellationToken cancellationToken)
     {
         try
         {

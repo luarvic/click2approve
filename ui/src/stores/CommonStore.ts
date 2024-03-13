@@ -8,12 +8,10 @@ export enum Tab {
 }
 
 class CommonStore {
-  private currentTab: Tab;
-  private sendDialogOpen: boolean;
+  currentTab: Tab;
 
-  constructor(currentTab: Tab = Tab.Files, sendDialogOpen: boolean = false) {
+  constructor(currentTab: Tab = Tab.Files) {
     this.currentTab = currentTab;
-    this.sendDialogOpen = sendDialogOpen;
     makeAutoObservable(this);
   }
 
@@ -22,16 +20,6 @@ class CommonStore {
       this.currentTab = tab;
     });
   };
-
-  getCurrentTab = (): Tab => this.currentTab;
-
-  setSendDialogOpen = (open: boolean) => {
-    runInAction(() => {
-      this.sendDialogOpen = open;
-    });
-  };
-
-  getSendDialogOpen = (): boolean => this.sendDialogOpen;
 }
 
 export const commonStore = new CommonStore();

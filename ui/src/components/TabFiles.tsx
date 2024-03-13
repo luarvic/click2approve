@@ -17,12 +17,13 @@ import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../stores/Constants";
 import { userFileStore } from "../stores/UserFileStore";
 import { getHumanReadableRelativeDate } from "../utils/Converters";
 import { downloadUserFile } from "../utils/Downloaders";
+
 import GridToolbarSendButton from "./GridToolbarSendButton";
 import GridToolbarUploadButton from "./GridToolbarUploadButton";
 import Tabs from "./Tabs";
 
 // Data grid with user files.
-const UserFiles = () => {
+const TabFiles = () => {
   const { setCurrentTab } = commonStore;
   const { userFiles, loadUserFiles, handleUserFileCheckbox } = userFileStore;
 
@@ -119,4 +120,4 @@ const UserFiles = () => {
   );
 };
 
-export default observer(UserFiles);
+export default observer(TabFiles);
