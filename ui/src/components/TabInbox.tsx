@@ -1,4 +1,3 @@
-import { Check, Close, Loop, QuestionMark } from "@mui/icons-material";
 import { Box, Link, Stack } from "@mui/material";
 import {
   DataGrid,
@@ -11,7 +10,6 @@ import {
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
-import { ApprovalRequestStatuses } from "../models/ApprovalRequestStatuses";
 import { ApprovalRequestTypes } from "../models/ApprovalRequestTypes";
 import { IUserFile } from "../models/UserFile";
 import { approvalRequestStore } from "../stores/ApprovalRequestStore";
@@ -44,19 +42,6 @@ const TabInbox = () => {
         <GridToolbarExport />
       </GridToolbarContainer>
     );
-  };
-
-  const renderStatus = (status: ApprovalRequestStatuses) => {
-    switch (status) {
-      case 0:
-        return <Loop />;
-      case 1:
-        return <Check />;
-      case 2:
-        return <Close />;
-      default:
-        return <QuestionMark />;
-    }
   };
 
   const columns: GridColDef[] = [

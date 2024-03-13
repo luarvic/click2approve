@@ -1,4 +1,4 @@
-import { AttachFile } from "@mui/icons-material";
+import { InsertDriveFile } from "@mui/icons-material";
 import {
   Button,
   Dialog,
@@ -77,7 +77,7 @@ const ApprovalRequestReviewDialog = () => {
               return (
                 <ListItem disableGutters>
                   <ListItemIcon>
-                    <AttachFile />
+                    <InsertDriveFile />
                   </ListItemIcon>
                   <Link
                     component="button"
@@ -93,6 +93,7 @@ const ApprovalRequestReviewDialog = () => {
           margin="normal"
           fullWidth
           label="Comment"
+          autoFocus
           variant="standard"
           value={comment}
           onChange={(event) => setComment(event.currentTarget.value)}

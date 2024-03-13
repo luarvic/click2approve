@@ -1,4 +1,4 @@
-import { Archive, AttachFile, Inbox, Send } from "@mui/icons-material";
+import { Archive, Inbox, InsertDriveFile, Send } from "@mui/icons-material";
 import {
   Badge,
   Box,
@@ -34,7 +34,7 @@ const Tabs = () => {
           }}
         >
           <ListItemIcon>
-            <AttachFile />
+            <InsertDriveFile />
           </ListItemIcon>
           <ListItemText primary="Files" />
         </ListItemButton>

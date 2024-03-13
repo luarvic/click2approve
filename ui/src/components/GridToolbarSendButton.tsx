@@ -15,7 +15,6 @@ const GridToolbarSendButton = () => {
       <Button
         size="small"
         variant="text"
-        color="secondary"
         startIcon={<Send />}
         onClick={() => setApprovalRequestSubmitDialogIsOpen(true)}
         disabled={getSelectedUserFiles().length > 0 ? false : true}
