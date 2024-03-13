@@ -13,7 +13,7 @@ services:
     container_name: api
     depends_on:
       - db
-    build: ./src/api
+    build: ./api
     image: luarvic/click2approve-api:latest
     ports:
       - "5557:8080"
@@ -22,7 +22,7 @@ services:
     container_name: ui
     depends_on:
       - api
-    build: ./src/ui
+    build: ./ui
     image: luarvic/click2approve-ui:latest
     ports:
       - "80:80"
