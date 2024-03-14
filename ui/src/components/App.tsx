@@ -16,10 +16,8 @@ import NavBar from "./NavBar";
 import NotFound from "./NotFound";
 import SignIn from "./SignIn";
 import SignUp from "./SignUp";
-import TabArchive from "./TabArchive";
+import TabApprovalRequests from "./TabApprovalRequests";
 import TabFiles from "./TabFiles";
-import TabInbox from "./TabInbox";
-import TabSent from "./TabSent";
 
 // Top level component.
 const App = () => {
@@ -39,9 +37,9 @@ const App = () => {
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/files" element={<TabFiles />} />
-            <Route path="/inbox" element={<TabInbox />} />
-            <Route path="/archive" element={<TabArchive />} />
-            <Route path="/sent" element={<TabSent />} />
+            {["/inbox", "/archive", "/sent"].map((path) => (
+              <Route path={path} element={<TabApprovalRequests />} />
+            ))}
             <Route path="/notfound" element={<NotFound />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

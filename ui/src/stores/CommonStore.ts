@@ -1,11 +1,5 @@
 import { makeAutoObservable, runInAction } from "mobx";
-
-export enum Tab {
-  Files,
-  Inbox,
-  Archive,
-  Sent,
-}
+import { Tab } from "../models/Tab";
 
 class CommonStore {
   currentTab: Tab;

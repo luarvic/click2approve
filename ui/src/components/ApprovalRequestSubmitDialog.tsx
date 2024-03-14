@@ -67,11 +67,7 @@ const ApprovalRequestSubmitDialog = () => {
 
   return (
     <Dialog open={approvalRequestSubmitDialogIsOpen} onClose={handleClose}>
-      <DialogTitle>
-        Send the file
-        {userFileStore.getSelectedUserFiles().length > 1 ? "s" : ""} for
-        approval
-      </DialogTitle>
+      <DialogTitle>Submit for approval</DialogTitle>
       <DialogContent dividers>
         <List>
           {userFileStore.getSelectedUserFiles().map((userFile: IUserFile) => (
@@ -120,7 +116,7 @@ const ApprovalRequestSubmitDialog = () => {
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
         <Button type="submit" onClick={handleSend}>
-          Send
+          Submit
         </Button>
       </DialogActions>
     </Dialog>

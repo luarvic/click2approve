@@ -83,7 +83,7 @@ public class ApprovalRequestController(
     /// <response code="401">If authorization fails.</response>
     /// <response code="500">If list fails.</response>
     [HttpPost("listIncoming")]
-    public async Task<ActionResult<List<UserFile>>> ListIncomingAsync(ApprovalRequestStatuses[] statuses, CancellationToken cancellationToken)
+    public async Task<ActionResult<List<UserFile>>> ListIncomingAsync(ApprovalRequestStatus[] statuses, CancellationToken cancellationToken)
     {
         try
         {
@@ -132,7 +132,7 @@ public class ApprovalRequestController(
     /// <response code="401">If authorization fails.</response>
     /// <response code="500">If count fails.</response>
     [HttpPost("countIncoming")]
-    public async Task<ActionResult<long>> CountIncomingAsync(ApprovalRequestStatuses[] statuses, CancellationToken cancellationToken)
+    public async Task<ActionResult<long>> CountIncomingAsync(ApprovalRequestStatus[] statuses, CancellationToken cancellationToken)
     {
         try
         {

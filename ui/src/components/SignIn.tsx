@@ -10,12 +10,15 @@ import {
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { Tab } from "../models/Tab";
 import { UserAccount } from "../models/UserAccount";
+import { commonStore } from "../stores/CommonStore";
 import { userAccountStore } from "../stores/UserAccountStore";
 
 // Sign in dialog.
 const SignIn = () => {
   const { signIn } = userAccountStore;
+  const { setCurrentTab } = commonStore;
 
   const navigate = useNavigate();
 
@@ -27,7 +30,8 @@ const SignIn = () => {
     if (name && password) {
       const credentials = new UserAccount(name.toString(), password.toString());
       if (await signIn(credentials)) {
-        navigate("/");
+        setCurrentTab(Tab.Files);
+        navigate("/files");
       }
     }
   };

@@ -9,12 +9,12 @@ namespace api.Services;
 // Implements a service that manages user files.
 public class UserFileService(
     IConfiguration configuration,
-    FileManagerDbContext db,
+    ApiDbContext db,
     IStoreService storeService,
     ILogger<UserFileService> logger) : IUserFileService
 {
     private readonly IConfiguration _configuration = configuration;
-    private readonly FileManagerDbContext _db = db;
+    private readonly ApiDbContext _db = db;
     private readonly IStoreService _storeService = storeService;
     private readonly ILogger<UserFileService> _logger = logger;
 

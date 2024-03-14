@@ -1,5 +1,5 @@
 import { Check, Close, Loop, QuestionMark } from "@mui/icons-material";
-import { Box, Link, Stack, Tooltip } from "@mui/material";
+import { Box, Link, Stack, Tooltip, Typography } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -10,12 +10,10 @@ import {
   GridToolbarFilterButton,
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
-import { ApprovalRequestStatuses } from "../models/ApprovalRequestStatuses";
-import { ApprovalRequestTypes } from "../models/ApprovalRequestTypes";
+import { ApprovalRequestStatus } from "../models/ApprovalRequestStatus";
+import { IApprover } from "../models/Approver";
 import { IUserFile } from "../models/UserFile";
 import { approvalRequestStore } from "../stores/ApprovalRequestStore";
-import { Tab, commonStore } from "../stores/CommonStore";
 import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../stores/Constants";
 import { getHumanReadableRelativeDate } from "../utils/Converters";
 import { downloadUserFile } from "../utils/Downloaders";
@@ -23,17 +21,9 @@ import { ApprovalRequestActions } from "./ApprovalRequestActions";
 import ApprovalRequestReviewDialog from "./ApprovalRequestReviewDialog";
 import Tabs from "./Tabs";
 
-// Data grid with incoming approval requests.
-const TabArchive = () => {
-  const { setCurrentTab } = commonStore;
-  const { approvalRequests, clearApprovalRequests, loadApprovalRequests } =
-    approvalRequestStore;
-
-  useEffect(() => {
-    setCurrentTab(Tab.Archive);
-    clearApprovalRequests();
-    loadApprovalRequests(ApprovalRequestTypes.Archive);
-  }, []);
+// Data grid with approval requests.
+const TabApprovalRequests = () => {
+  const { approvalRequests } = approvalRequestStore;
 
   const customToolbar = () => {
     return (
@@ -46,7 +36,7 @@ const TabArchive = () => {
     );
   };
 
-  const renderStatus = (status: ApprovalRequestStatuses) => {
+  const renderStatus = (status: ApprovalRequestStatus) => {
     switch (status) {
       case 0:
         return <Loop />;
@@ -61,8 +51,8 @@ const TabArchive = () => {
 
   const columns: GridColDef[] = [
     {
-      field: "sentDate",
-      headerName: "Received",
+      field: "createdDate",
+      headerName: "Created",
       flex: 2,
       valueFormatter: (params) => getHumanReadableRelativeDate(params.value),
     },
@@ -72,24 +62,45 @@ const TabArchive = () => {
       flex: 1,
       renderCell: (params) => {
         return (
-          <Tooltip title={ApprovalRequestStatuses[params.row.status]}>
+          <Tooltip title={ApprovalRequestStatus[params.row.status]}>
             {renderStatus(params.row.status)}
           </Tooltip>
         );
       },
-      valueGetter: (params) => ApprovalRequestStatuses[params.row.status],
+      valueGetter: (params) => ApprovalRequestStatus[params.row.status],
     },
     {
       field: "approveByDate",
       headerName: "Approve by",
       flex: 3,
-      valueFormatter: (params) => (params.value as Date).toLocaleString(),
+      valueFormatter: (params) =>
+        `${(params.value as Date).toLocaleDateString()} ${(
+          params.value as Date
+        ).toLocaleTimeString()}`,
     },
     {
       field: "author",
       headerName: "Requester",
       flex: 5,
       valueGetter: (params) => (params.value as string).toLowerCase(),
+    },
+    {
+      field: "approvers",
+      headerName: "Approvers",
+      flex: 5,
+      valueGetter: (params) =>
+        params.value
+          .map((approver: IApprover) => approver.email.toLowerCase())
+          .join(", "),
+      renderCell: (params) => {
+        return (
+          <Stack>
+            {params.row.approvers.map((approver: IApprover) => {
+              return <Typography variant="body2">{approver.email.toLowerCase()}</Typography>;
+            })}
+          </Stack>
+        );
+      },
     },
     {
       field: "userFiles",
@@ -180,4 +191,4 @@ const TabArchive = () => {
   );
 };
 
-export default observer(TabArchive);
+export default observer(TabApprovalRequests);

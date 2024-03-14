@@ -10,19 +10,40 @@ import {
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Tab } from "../models/Tab";
 import { approvalRequestStore } from "../stores/ApprovalRequestStore";
-import { Tab, commonStore } from "../stores/CommonStore";
+import { commonStore } from "../stores/CommonStore";
+import { userFileStore } from "../stores/UserFileStore";
 
 // Tabs (Files, Inbox, Archive, Sent).
 const Tabs = () => {
-  const { currentTab } = commonStore;
-  const { numberOfInboxApprovalRequests, loadNumberOfInboxApprovalRequests } =
-    approvalRequestStore;
+  const { currentTab, setCurrentTab } = commonStore;
+  const { clearUserFiles, loadUserFiles } = userFileStore;
+  const {
+    numberOfInboxApprovalRequests,
+    clearApprovalRequests,
+    loadApprovalRequests,
+    loadNumberOfInboxApprovalRequests,
+  } = approvalRequestStore;
   const navigate = useNavigate();
 
   useEffect(() => {
     loadNumberOfInboxApprovalRequests();
+    handleTabChange(currentTab);
   }, []);
+
+  const handleTabChange = (tab: Tab) => {
+    setCurrentTab(tab);
+    if (tab === Tab.Files) {
+      clearUserFiles();
+      loadUserFiles();
+      navigate("/files");
+    } else {
+      clearApprovalRequests();
+      loadApprovalRequests(tab);
+      navigate(`/${Tab[tab].toLowerCase()}`);
+    }
+  };
 
   return (
     <Box sx={{ pr: 2 }}>
@@ -30,7 +51,7 @@ const Tabs = () => {
         <ListItemButton
           selected={currentTab === Tab.Files}
           onClick={() => {
-            navigate("/files");
+            handleTabChange(Tab.Files);
           }}
         >
           <ListItemIcon>
@@ -41,7 +62,7 @@ const Tabs = () => {
         <ListItemButton
           selected={currentTab === Tab.Inbox}
           onClick={() => {
-            navigate("/inbox");
+            handleTabChange(Tab.Inbox);
           }}
         >
           <ListItemIcon>
@@ -54,7 +75,7 @@ const Tabs = () => {
         <ListItemButton
           selected={currentTab === Tab.Archive}
           onClick={() => {
-            navigate("/archive");
+            handleTabChange(Tab.Archive);
           }}
         >
           <ListItemIcon>
@@ -65,7 +86,7 @@ const Tabs = () => {
         <ListItemButton
           selected={currentTab === Tab.Sent}
           onClick={() => {
-            navigate("/sent");
+            handleTabChange(Tab.Sent);
           }}
         >
           <ListItemIcon>

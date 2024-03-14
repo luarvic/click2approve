@@ -10,7 +10,7 @@ public static class ServiceCollectionExtensions
         services.AddAuthentication();
         services.AddAuthorization();
         services.AddIdentityApiEndpoints<AppUser>()
-            .AddEntityFrameworkStores<FileManagerDbContext>();
+            .AddEntityFrameworkStores<ApiDbContext>();
         return services;
     }
 }

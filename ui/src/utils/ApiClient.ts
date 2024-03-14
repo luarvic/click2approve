@@ -1,6 +1,6 @@
 import axios from "axios";
 import { IApprovalRequest } from "../models/ApprovalRequest";
-import { ApprovalRequestStatuses } from "../models/ApprovalRequestStatuses";
+import { ApprovalRequestStatus } from "../models/ApprovalRequestStatus";
 import { IAuthResponse } from "../models/AuthResponse";
 import { IUserFile } from "../models/UserFile";
 import { API_URI } from "../stores/Constants";
@@ -107,7 +107,7 @@ export const submitApprovalRequest = async (
 
 export const handleApprovalRequest = async (
   id: number,
-  status: ApprovalRequestStatuses,
+  status: ApprovalRequestStatus,
   comment: string | null
 ): Promise<string> => {
   const { data } = await axios.post("api/request/handle", {
@@ -119,7 +119,7 @@ export const handleApprovalRequest = async (
 };
 
 export const listIncomingApprovalRequests = async (
-  statuses: ApprovalRequestStatuses[]
+  statuses: ApprovalRequestStatus[]
 ): Promise<IApprovalRequest[]> => {
   const { data } = await axios.post<IApprovalRequest[]>(
     "api/request/listIncoming",
@@ -139,7 +139,7 @@ export const listOutgoingApprovalRequests = async (): Promise<
 };
 
 export const getNumberOfIncomingApprovalRequests = async (
-  statuses: ApprovalRequestStatuses[]
+  statuses: ApprovalRequestStatus[]
 ): Promise<number> => {
   const { data } = await axios.post<number>(
     "api/request/countIncoming",

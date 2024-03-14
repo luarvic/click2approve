@@ -49,7 +49,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 builder.Services.AddHttpClient();
-builder.Services.AddDbContext<FileManagerDbContext>();
+builder.Services.AddDbContext<ApiDbContext>();
 builder.Services.AddTransient<IUserFileService, UserFileService>();
 builder.Services.AddTransient<IApprovalRequestService, ApprovalRequestService>();
 builder.Services.AddSingleton<IStoreService, StoreService>();
@@ -58,7 +58,7 @@ var app = builder.Build();
 // Create the database and schema.
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<FileManagerDbContext>();
+    var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
     db.Database.EnsureCreated();
     db.Database.Migrate();
 }

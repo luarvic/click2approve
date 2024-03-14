@@ -10,27 +10,18 @@ import {
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import prettyBytes from "pretty-bytes";
-import { useEffect } from "react";
 import { IUserFile } from "../models/UserFile";
-import { Tab, commonStore } from "../stores/CommonStore";
 import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../stores/Constants";
 import { userFileStore } from "../stores/UserFileStore";
 import { getHumanReadableRelativeDate } from "../utils/Converters";
 import { downloadUserFile } from "../utils/Downloaders";
-
 import GridToolbarSendButton from "./GridToolbarSendButton";
 import GridToolbarUploadButton from "./GridToolbarUploadButton";
 import Tabs from "./Tabs";
 
 // Data grid with user files.
 const TabFiles = () => {
-  const { setCurrentTab } = commonStore;
-  const { userFiles, loadUserFiles, handleUserFileCheckbox } = userFileStore;
-
-  useEffect(() => {
-    setCurrentTab(Tab.Files);
-    loadUserFiles();
-  }, []);
+  const { userFiles, handleUserFileCheckbox } = userFileStore;
 
   const customToolbar = () => {
     return (

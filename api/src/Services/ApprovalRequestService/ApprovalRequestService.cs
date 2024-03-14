@@ -5,16 +5,17 @@ using Microsoft.EntityFrameworkCore;
 namespace api.Services;
 
 // Implements a service that manages approval requests.
-public class ApprovalRequestService(FileManagerDbContext db) : IApprovalRequestService
+public class ApprovalRequestService(ApiDbContext db) : IApprovalRequestService
 {
-    private readonly FileManagerDbContext _db = db;
+    private readonly ApiDbContext _db = db;
 
-    public async Task<List<ApprovalRequest>> ListIncomingAsync(AppUser user, ApprovalRequestStatuses[] statuses, CancellationToken cancellationToken)
+    public async Task<List<ApprovalRequest>> ListIncomingAsync(AppUser user, ApprovalRequestStatus[] statuses, CancellationToken cancellationToken)
     {
         var approver = await _db.Approvers.FirstOrDefaultAsync(a => a.Email == user.NormalizedEmail, cancellationToken: cancellationToken);
         return approver == null ? [] : await _db.ApprovalRequests
             .Include(r => r.UserFiles)
             .Include(r => r.Approvers)
+            .Include(r => r.Logs)
             .Where(r => statuses.Contains(r.Status) && r.Approvers.Contains(approver))
             .ToListAsync(cancellationToken);
     }
@@ -24,6 +25,7 @@ public class ApprovalRequestService(FileManagerDbContext db) : IApprovalRequestS
         return await _db.ApprovalRequests
             .Include(r => r.UserFiles)
             .Include(r => r.Approvers)
+            .Include(r => r.Logs)
             .Where(r => r.Author == user.NormalizedEmail)
             .ToListAsync(cancellationToken);
     }
@@ -34,48 +36,59 @@ public class ApprovalRequestService(FileManagerDbContext db) : IApprovalRequestS
             .Where(f => payload.UserFileIds.Contains(f.Id) && f.Owner == user.Id)
             .ToListAsync(cancellationToken);
         var approvers = new List<Approver>();
-        var sent = DateTime.UtcNow;
+        var utcNow = DateTime.UtcNow;
+        // Add approvers.
         foreach (var email in payload.Emails)
         {
             var approver = await _db.Approvers.FirstOrDefaultAsync(a => a.Email == email.ToUpper(), cancellationToken)
                 ?? _db.Add(new Approver { Email = email.ToUpper() }).Entity;
             approvers.Add(approver);
         }
-        _db.ApprovalRequests.Add(new ApprovalRequest
+        // Add request.
+        var approvalRequest = _db.ApprovalRequests.Add(new ApprovalRequest
         {
             UserFiles = userFiles,
             Approvers = approvers,
             ApproveBy = payload.ApproveBy,
-            Sent = sent,
+            Created = utcNow,
             Comment = payload.Comment,
-            Status = ApprovalRequestStatuses.Submitted,
-            Author = user.NormalizedEmail!
+            Status = ApprovalRequestStatus.Submitted,
+            Author = user.NormalizedEmail!,
+            Logs = []
+        });
+        // Add log entry.
+        _db.ApprovalRequestLogs.Add(new ApprovalRequestLog
+        {
+            ApprovalRequest = approvalRequest.Entity,
+            When = utcNow,
+            Who = user.NormalizedEmail!,
+            Status = ApprovalRequestStatus.Submitted,
+            Comment = payload.Comment
         });
         await _db.SaveChangesAsync(cancellationToken);
     }
 
     public async Task HandleAsync(AppUser user, ApprovalRequestHandleDto payload, CancellationToken cancellationToken)
     {
-        var approver = await _db.Approvers.FirstOrDefaultAsync(a => a.Email == user.NormalizedEmail, cancellationToken: cancellationToken);
-        if (approver != null)
+        var approver = await _db.Approvers.FirstAsync(a => a.Email == user.NormalizedEmail, cancellationToken: cancellationToken);
+        var utcNow = DateTime.UtcNow;
+        // Update request status.
+        var approvalRequest = await _db.ApprovalRequests
+            .FirstAsync(r => r.Id == payload.Id && r.Approvers.Contains(approver), cancellationToken);
+        approvalRequest.Status = payload.Status;
+        // Add log entry.
+        _db.ApprovalRequestLogs.Add(new ApprovalRequestLog
         {
-            var approvalRequest = await _db.ApprovalRequests
-                .FirstAsync(r => r.Id == payload.Id && r.Approvers.Contains(approver), cancellationToken);
-            approvalRequest.Status = payload.Status;
-            approvalRequest.Comment +=
-                string.IsNullOrWhiteSpace(approvalRequest.Comment) ? "" : Environment.NewLine +
-                ">>>" + Environment.NewLine +
-                approver.Email.ToLower() + ":" + Environment.NewLine +
-                payload.Comment;
-            await _db.SaveChangesAsync(cancellationToken);
-        }
-        else
-        {
-            throw new Exception($"Unable to find approver {user.NormalizedEmail}.");
-        }
+            ApprovalRequest = approvalRequest,
+            When = utcNow,
+            Who = approver.Email,
+            Status = payload.Status,
+            Comment = payload.Comment
+        });
+        await _db.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<long> CountIncomingAsync(AppUser user, ApprovalRequestStatuses[] statuses, CancellationToken cancellationToken)
+    public async Task<long> CountIncomingAsync(AppUser user, ApprovalRequestStatus[] statuses, CancellationToken cancellationToken)
     {
         var approver = await _db.Approvers.FirstOrDefaultAsync(a => a.Email == user.NormalizedEmail, cancellationToken: cancellationToken);
         return approver == null ? 0 : await _db.ApprovalRequests

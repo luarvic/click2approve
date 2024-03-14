@@ -1,8 +1,8 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { toast } from "react-toastify";
 import { IApprovalRequest } from "../models/ApprovalRequest";
-import { ApprovalRequestStatuses } from "../models/ApprovalRequestStatuses";
-import { ApprovalRequestTypes } from "../models/ApprovalRequestTypes";
+import { ApprovalRequestStatus } from "../models/ApprovalRequestStatus";
+import { Tab } from "../models/Tab";
 import {
   getNumberOfIncomingApprovalRequests,
   handleApprovalRequest,
@@ -37,7 +37,7 @@ class ApprovalRequestStore {
 
   get approvalRequests(): IApprovalRequest[] {
     return Array.from(this.approvalRequestsRegistry.values()).sort(
-      (a, b) => b.sentDate.getTime() - a.sentDate.getTime()
+      (a, b) => b.createdDate.getTime() - a.createdDate.getTime()
     );
   }
 
@@ -45,7 +45,7 @@ class ApprovalRequestStore {
     try {
       const numberOfInboxApprovalRequests =
         await getNumberOfIncomingApprovalRequests([
-          ApprovalRequestStatuses.Submitted,
+          ApprovalRequestStatus.Submitted,
         ]);
       runInAction(() => {
         this.numberOfInboxApprovalRequests = numberOfInboxApprovalRequests;
@@ -59,26 +59,29 @@ class ApprovalRequestStore {
     }
   };
 
-  loadApprovalRequests = async (type: ApprovalRequestTypes) => {
+  loadApprovalRequests = async (tab: Tab) => {
     try {
       let approvalRequests: IApprovalRequest[];
-      if (type === ApprovalRequestTypes.Inbox) {
+      if (tab === Tab.Inbox) {
         approvalRequests = await listIncomingApprovalRequests([
-          ApprovalRequestStatuses.Submitted,
+          ApprovalRequestStatus.Submitted,
         ]);
-      } else if (type === ApprovalRequestTypes.Archive) {
+      } else if (tab === Tab.Archive) {
         approvalRequests = await listIncomingApprovalRequests([
-          ApprovalRequestStatuses.Approved,
-          ApprovalRequestStatuses.Rejected,
+          ApprovalRequestStatus.Approved,
+          ApprovalRequestStatus.Rejected,
         ]);
       } else {
         approvalRequests = await listOutgoingApprovalRequests();
       }
-      approvalRequests.forEach(async (approvalRequest) => {
-        approvalRequest.sentDate = new Date(approvalRequest.sent + "Z");
+      approvalRequests.forEach((approvalRequest) => {
+        approvalRequest.createdDate = new Date(approvalRequest.created + "Z");
         approvalRequest.approveByDate = new Date(
           approvalRequest.approveBy + "Z"
         );
+        approvalRequest.logs.forEach((log) => {
+          log.whenDate = new Date(log.when + "Z");
+        });
         runInAction(() => {
           this.approvalRequestsRegistry.set(
             approvalRequest.id,
@@ -121,7 +124,7 @@ class ApprovalRequestStore {
 
   handleApprovalRequest = async (
     approvalRequest: IApprovalRequest,
-    status: ApprovalRequestStatuses,
+    status: ApprovalRequestStatus,
     comment: string
   ) => {
     try {
