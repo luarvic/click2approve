@@ -1,4 +1,3 @@
-import { InsertDriveFile } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -9,7 +8,6 @@ import {
   Link,
   List,
   ListItem,
-  ListItemIcon,
   Paper,
   Step,
   StepContent,
@@ -20,6 +18,7 @@ import {
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
+import { IApprovalRequest } from "../models/ApprovalRequest";
 import { ApprovalRequestStatus } from "../models/ApprovalRequestStatus";
 import { Tab } from "../models/Tab";
 import { IUserFile } from "../models/UserFile";
@@ -27,7 +26,6 @@ import { approvalRequestStore } from "../stores/ApprovalRequestStore";
 import { commonStore } from "../stores/CommonStore";
 import { userAccountStore } from "../stores/UserAccountStore";
 import { downloadUserFile } from "../utils/Downloaders";
-import { IApprovalRequest } from "../models/ApprovalRequest";
 
 // Send user files dialog.
 const ApprovalRequestReviewDialog = () => {
@@ -140,9 +138,16 @@ const ApprovalRequestReviewDialog = () => {
     ) {
       steps.push(
         <Step key="Waiting">
-          <StepLabel>
-            Waiting for approval from {remainingApprovals.join(", ")}
-          </StepLabel>
+          <StepLabel>Waiting for approval from</StepLabel>
+          <StepContent>
+            <List disablePadding>
+              {remainingApprovals.map((approver) => (
+                <ListItem disablePadding>
+                  <Typography>{approver}</Typography>
+                </ListItem>
+              ))}
+            </List>
+          </StepContent>
         </Step>
       );
     }
@@ -168,10 +173,7 @@ const ApprovalRequestReviewDialog = () => {
           {currentApprovalRequest &&
             currentApprovalRequest.userFiles.map((userFile: IUserFile) => {
               return (
-                <ListItem disableGutters>
-                  <ListItemIcon>
-                    <InsertDriveFile />
-                  </ListItemIcon>
+                <ListItem disablePadding>
                   <Link
                     component="button"
                     onClick={() => downloadUserFile(userFile)}
