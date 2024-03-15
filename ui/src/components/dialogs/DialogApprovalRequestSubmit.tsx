@@ -17,19 +17,18 @@ import { Dayjs } from "dayjs";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { IUserFile } from "../models/UserFile";
-import { approvalRequestStore } from "../stores/ApprovalRequestStore";
-import { userFileStore } from "../stores/UserFileStore";
-import { submitApprovalRequest } from "../utils/ApiClient";
-import { downloadUserFile } from "../utils/Downloaders";
+import { IUserFile } from "../../models/UserFile";
+import { commonStore } from "../../stores/CommonStore";
+import { fileStore } from "../../stores/FileStore";
+import { submitApprovalRequest } from "../../utils/ApiClient";
+import { downloadUserFile } from "../../utils/Downloaders";
 
-// Send user files dialog.
-const ApprovalRequestSubmitDialog = () => {
+const DialogApprovalRequestSubmit = () => {
   const {
     approvalRequestSubmitDialogIsOpen,
     setApprovalRequestSubmitDialogIsOpen,
-  } = approvalRequestStore;
-  const { getSelectedUserFiles } = userFileStore;
+  } = commonStore;
+  const { getSelectedUserFiles } = fileStore;
   const [approvers, setApprovers] = useState<string>("");
   const [approveBy, setApproveBy] = useState<Dayjs | null>(null);
   const [comment, setComment] = useState<string>("");
@@ -70,7 +69,7 @@ const ApprovalRequestSubmitDialog = () => {
       <DialogTitle>Submit for approval</DialogTitle>
       <DialogContent dividers>
         <List>
-          {userFileStore.getSelectedUserFiles().map((userFile: IUserFile) => (
+          {fileStore.getSelectedUserFiles().map((userFile: IUserFile) => (
             <ListItem disableGutters>
               <ListItemIcon>
                 <InsertDriveFile />
@@ -123,4 +122,4 @@ const ApprovalRequestSubmitDialog = () => {
   );
 };
 
-export default observer(ApprovalRequestSubmitDialog);
+export default observer(DialogApprovalRequestSubmit);

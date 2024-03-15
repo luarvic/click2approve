@@ -59,7 +59,7 @@ public class UserFileService(
             .FirstAsync(f => f.Id == id &&
             (
                 f.Owner == user.Id || // the user is either an owner
-                f.ApprovalRequests.Any(r => r.Approvers.Any(a => a.Email == user.NormalizedEmail)) // or an approver
+                f.ApprovalRequests.Any(r => r.Approvers.Any(a => a == user.NormalizedEmail)) // or an approver
             ), cancellationToken: cancellationToken);
         return
         (
@@ -74,7 +74,7 @@ public class UserFileService(
             .Where(f => ids.Contains(f.Id) &&
             (
                 f.Owner == user.Id || // the user is either an owner
-                f.ApprovalRequests.Any(r => r.Approvers.Any(a => a.Email == user.NormalizedEmail)) // or an approver
+                f.ApprovalRequests.Any(r => r.Approvers.Any(a => a == user.NormalizedEmail)) // or an approver
             ))
             .ToListAsync(cancellationToken);
 

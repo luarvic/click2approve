@@ -2,13 +2,13 @@ import { AttachFile } from "@mui/icons-material";
 import { AppBar, Button, Toolbar, Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
+import { fileStore } from "../stores/FileStore";
 import { userAccountStore } from "../stores/UserAccountStore";
-import { userFileStore } from "../stores/UserFileStore";
 
 // Main menu.
 const NavBar = () => {
   const { currentUser, signOut } = userAccountStore;
-  const { clearUserFiles } = userFileStore;
+  const { clearUserFiles } = fileStore;
   const navigate = useNavigate();
 
   return (
@@ -31,7 +31,9 @@ const NavBar = () => {
           </Button>
         ) : (
           <>
-            <Typography sx={{ mr: 1 }}>{currentUser.email.toLowerCase()}</Typography>
+            <Typography sx={{ mr: 1 }}>
+              {currentUser.email.toLowerCase()}
+            </Typography>
             <Button
               variant="outlined"
               color="inherit"

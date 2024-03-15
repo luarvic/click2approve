@@ -1,21 +1,19 @@
 import { ArrowDropDownCircle } from "@mui/icons-material";
 import { IconButton, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
-import { IApprovalRequest } from "../models/ApprovalRequest";
-import { Tab } from "../models/Tab";
-import { approvalRequestStore } from "../stores/ApprovalRequestStore";
-import { commonStore } from "../stores/CommonStore";
+import { IApprovalRequest } from "../../models/ApprovalRequest";
+import { approvalRequestStore } from "../../stores/ApprovalRequestStore";
+import { commonStore } from "../../stores/CommonStore";
 
 interface IApprovalRequestActionsProps {
   approvalRequest: IApprovalRequest;
 }
 
-export const ApprovalRequestActions: React.FC<IApprovalRequestActionsProps> = ({
-  approvalRequest,
-}) => {
-  const { setApprovalRequestReviewDialogIsOpen, setCurrentApprovalRequest } =
-    approvalRequestStore;
-  const { currentTab } = commonStore;
+export const MenuApprovalRequestActions: React.FC<
+  IApprovalRequestActionsProps
+> = ({ approvalRequest }) => {
+  const { setApprovalRequestReviewDialogIsOpen } = commonStore;
+  const { setCurrentApprovalRequest } = approvalRequestStore;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -31,16 +29,6 @@ export const ApprovalRequestActions: React.FC<IApprovalRequestActionsProps> = ({
   };
   const handleDelete = () => {
     handleClose();
-  };
-
-  const actions = (tab: Tab) => {
-    const result: JSX.Element[] = [
-      <MenuItem onClick={handleReview}>Review</MenuItem>,
-    ];
-    if (tab === Tab.Sent) {
-      result.push(<MenuItem onClick={handleDelete}>Delete</MenuItem>);
-    }
-    return <>{result}</>;
   };
 
   return (
@@ -63,7 +51,8 @@ export const ApprovalRequestActions: React.FC<IApprovalRequestActionsProps> = ({
           "aria-labelledby": "basic-button",
         }}
       >
-        {actions(currentTab)}
+        <MenuItem onClick={handleReview}>Review</MenuItem>
+        <MenuItem onClick={handleDelete}>Delete</MenuItem>
       </Menu>
     </div>
   );

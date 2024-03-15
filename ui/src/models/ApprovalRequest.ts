@@ -1,18 +1,17 @@
 import { IApprovalRequestLog } from "./ApprovalRequestLog";
-import { ApprovalRequestStatus } from "./ApprovalRequestStatus";
-import { IApprover } from "./Approver";
+import { ApprovalStatus } from "./ApprovalStatus";
 import { IUserFile } from "./UserFile";
 
 export interface IApprovalRequest {
   id: number;
   userFiles: IUserFile[];
-  approvers: IApprover[];
+  approvers: string[];
   approveBy: string;
   approveByDate: Date;
   comment: string;
-  created: string;
-  createdDate: Date;
+  submitted: string;
+  submittedDate: Date;
   author: string;
-  status: ApprovalRequestStatus;
+  status: ApprovalStatus;
   logs: IApprovalRequestLog[];
 }

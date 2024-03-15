@@ -1,4 +1,4 @@
-export enum ApprovalRequestStatus {
+export enum ApprovalStatus {
   Submitted,
   Approved,
   Rejected,

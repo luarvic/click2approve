@@ -1,11 +1,10 @@
 import { IApprovalRequest } from "./ApprovalRequest";
 import { ApprovalStatus } from "./ApprovalStatus";
 
-export interface IApprovalRequestLog {
+export interface IApprovalRequestTask {
   id: number;
   approvalRequest: IApprovalRequest;
-  who: string;
-  when: string;
-  whenDate: Date;
-  what: string;
+  approver: string;
+  status: ApprovalStatus;
+  comment: string;
 }

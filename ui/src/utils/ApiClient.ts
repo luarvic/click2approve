@@ -1,6 +1,7 @@
 import axios from "axios";
 import { IApprovalRequest } from "../models/ApprovalRequest";
-import { ApprovalRequestStatus } from "../models/ApprovalRequestStatus";
+import { IApprovalRequestTask } from "../models/ApprovalRequestTask";
+import { ApprovalStatus } from "../models/ApprovalStatus";
 import { IAuthResponse } from "../models/AuthResponse";
 import { IUserFile } from "../models/UserFile";
 import { API_URI } from "../stores/Constants";
@@ -28,6 +29,16 @@ axios.interceptors.response.use(
   }
 );
 
+export const signUpUser = async (
+  email: string,
+  password: string
+): Promise<string> => {
+  const { data } = await axios.post<string>("api/account/register", {
+    email: email,
+    password: password,
+  });
+  return data;
+};
 export const signInUser = async (
   email: string,
   password: string
@@ -39,24 +50,8 @@ export const signInUser = async (
   return data.accessToken;
 };
 
-export const signUpUser = async (
-  email: string,
-  password: string
-): Promise<string> => {
-  const { data } = await axios.post<string>("api/account/register", {
-    email: email,
-    password: password,
-  });
-  return data;
-};
-
 export const validateToken = async (): Promise<void> => {
   await axios.get("api/account/manage/info");
-};
-
-export const listUserFiles = async (): Promise<IUserFile[]> => {
-  const { data } = await axios.get<IUserFile[]>("api/file/list");
-  return data;
 };
 
 export const uploadFiles = async (files: FileList): Promise<IUserFile[]> => {
@@ -70,6 +65,11 @@ export const uploadFiles = async (files: FileList): Promise<IUserFile[]> => {
   return data;
 };
 
+export const listFiles = async (): Promise<IUserFile[]> => {
+  const { data } = await axios.get<IUserFile[]>("api/file/list");
+  return data;
+};
+
 export const downloadFile = async (id: string): Promise<ArrayBuffer> => {
   const { data } = await axios.get(`api/file/download?id=${id}`);
   return data;
@@ -77,16 +77,6 @@ export const downloadFile = async (id: string): Promise<ArrayBuffer> => {
 
 export const downloadFileBase64 = async (id: string): Promise<string> => {
   const { data } = await axios.get(`api/file/downloadBase64?id=${id}`);
-  return data;
-};
-
-export const downloadArchiveBase64 = async (
-  files: IUserFile[]
-): Promise<string> => {
-  const { data } = await axios.post(
-    "api/file/downloadArchiveBase64",
-    files.map((userFile) => userFile.id.toString())
-  );
   return data;
 };
 
@@ -105,12 +95,18 @@ export const submitApprovalRequest = async (
   return data;
 };
 
-export const handleApprovalRequest = async (
+export const listApprovalRequests = async (): Promise<IApprovalRequest[]> => {
+  const { data } = await axios.get<IApprovalRequest[]>("api/request/list");
+  console.table(data);
+  return data;
+};
+
+export const completeTask = async (
   id: number,
-  status: ApprovalRequestStatus,
+  status: ApprovalStatus,
   comment: string | null
 ): Promise<string> => {
-  const { data } = await axios.post("api/request/handle", {
+  const { data } = await axios.post("api/task/complete", {
     id: id,
     status: status,
     comment: comment,
@@ -118,32 +114,23 @@ export const handleApprovalRequest = async (
   return data;
 };
 
-export const listIncomingApprovalRequests = async (
-  statuses: ApprovalRequestStatus[]
-): Promise<IApprovalRequest[]> => {
-  const { data } = await axios.post<IApprovalRequest[]>(
-    "api/request/listIncoming",
-    statuses
-  );
-  return data;
-};
-
-export const listOutgoingApprovalRequests = async (): Promise<
-  IApprovalRequest[]
+export const listUncompletedTasks = async (): Promise<
+  IApprovalRequestTask[]
 > => {
-  const { data } = await axios.get<IApprovalRequest[]>(
-    "api/request/listOutgoing"
+  const { data } = await axios.get<IApprovalRequestTask[]>(
+    "api/task/listUncompleted"
   );
-  console.table(data);
   return data;
 };
 
-export const getNumberOfIncomingApprovalRequests = async (
-  statuses: ApprovalRequestStatus[]
-): Promise<number> => {
-  const { data } = await axios.post<number>(
-    "api/request/countIncoming",
-    statuses
+export const listCompletedTasks = async (): Promise<IApprovalRequestTask[]> => {
+  const { data } = await axios.get<IApprovalRequestTask[]>(
+    "api/task/listCompleted"
   );
+  return data;
+};
+
+export const countUncompletedTasks = async (): Promise<number> => {
+  const { data } = await axios.get<number>("api/task/countUncompleted");
   return data;
 };

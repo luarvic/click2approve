@@ -1,29 +1,29 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { toast } from "react-toastify";
 import { IUserFile } from "../models/UserFile";
-import { listUserFiles, uploadFiles } from "../utils/ApiClient";
+import { listFiles, uploadFiles } from "../utils/ApiClient";
 
-class UserFileStore {
-  userFilesRegistry: Map<string, IUserFile>;
+class FileStore {
+  registry: Map<string, IUserFile>;
 
   get userFiles(): IUserFile[] {
-    return Array.from(this.userFilesRegistry.values()).sort(
+    return Array.from(this.registry.values()).sort(
       (a, b) => b.createdDate.getTime() - a.createdDate.getTime()
     );
   }
 
   constructor(userFilesRegistry: Map<string, IUserFile>) {
-    this.userFilesRegistry = userFilesRegistry;
+    this.registry = userFilesRegistry;
     makeAutoObservable(this);
   }
 
   loadUserFiles = async () => {
     try {
-      const userFiles = await listUserFiles();
+      const userFiles = await listFiles();
       userFiles.forEach(async (userFile) => {
         userFile.createdDate = new Date(userFile.created + "Z");
         runInAction(() => {
-          this.userFilesRegistry.set(userFile.id, userFile);
+          this.registry.set(userFile.id, userFile);
         });
       });
     } catch (e) {
@@ -43,7 +43,7 @@ class UserFileStore {
       userFiles.forEach(async (userFile) => {
         userFile.createdDate = new Date(userFile.created);
         runInAction(() => {
-          this.userFilesRegistry.set(userFile.id, userFile);
+          this.registry.set(userFile.id, userFile);
         });
       });
       toast.success(`File(s) uploaded: ${fileNames.toString()}`);
@@ -58,12 +58,12 @@ class UserFileStore {
 
   clearUserFiles = () => {
     runInAction(() => {
-      this.userFilesRegistry.clear();
+      this.registry.clear();
     });
   };
 
   handleUserFileCheckbox = (ids: string[]) => {
-    this.userFilesRegistry.forEach((userFile) => {
+    this.registry.forEach((userFile) => {
       const checkedInUi = ids.includes(userFile.id);
       if (checkedInUi !== userFile.checked) {
         runInAction(() => {
@@ -74,10 +74,10 @@ class UserFileStore {
   };
 
   getSelectedUserFiles = (): IUserFile[] => {
-    return Array.from(this.userFilesRegistry.values()).filter(
+    return Array.from(this.registry.values()).filter(
       (userFile) => userFile.checked
     );
   };
 }
 
-export const userFileStore = new UserFileStore(new Map<string, IUserFile>());
+export const fileStore = new FileStore(new Map<string, IUserFile>());

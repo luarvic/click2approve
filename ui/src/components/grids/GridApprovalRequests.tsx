@@ -10,19 +10,18 @@ import {
   GridToolbarFilterButton,
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
-import { ApprovalRequestStatus } from "../models/ApprovalRequestStatus";
-import { IApprover } from "../models/Approver";
-import { IUserFile } from "../models/UserFile";
-import { approvalRequestStore } from "../stores/ApprovalRequestStore";
-import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../stores/Constants";
-import { getHumanReadableRelativeDate } from "../utils/Converters";
-import { downloadUserFile } from "../utils/Downloaders";
-import { ApprovalRequestActions } from "./ApprovalRequestActions";
-import ApprovalRequestReviewDialog from "./ApprovalRequestReviewDialog";
-import Tabs from "./Tabs";
+import { ApprovalStatus } from "../../models/ApprovalStatus";
+import { IUserFile } from "../../models/UserFile";
+import { approvalRequestStore } from "../../stores/ApprovalRequestStore";
+import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../stores/Constants";
+import { getHumanReadableRelativeDate } from "../../utils/Converters";
+import { downloadUserFile } from "../../utils/Downloaders";
+import Tabs from "../Tabs";
+import DialogApprovalRequestReview from "../dialogs/DialogApprovalRequestReview";
+import { MenuApprovalRequestActions } from "../menus/MenuApprovalRequestActions";
 
 // Data grid with approval requests.
-const TabApprovalRequests = () => {
+const GridApprovalRequests = () => {
   const { approvalRequests } = approvalRequestStore;
 
   const customToolbar = () => {
@@ -36,7 +35,7 @@ const TabApprovalRequests = () => {
     );
   };
 
-  const renderStatus = (status: ApprovalRequestStatus) => {
+  const renderStatus = (status: ApprovalStatus) => {
     switch (status) {
       case 0:
         return <Loop />;
@@ -62,12 +61,12 @@ const TabApprovalRequests = () => {
       flex: 1,
       renderCell: (params) => {
         return (
-          <Tooltip title={ApprovalRequestStatus[params.row.status]}>
+          <Tooltip title={ApprovalStatus[params.row.status]}>
             {renderStatus(params.row.status)}
           </Tooltip>
         );
       },
-      valueGetter: (params) => ApprovalRequestStatus[params.row.status],
+      valueGetter: (params) => ApprovalStatus[params.row.status],
     },
     {
       field: "approveByDate",
@@ -90,13 +89,17 @@ const TabApprovalRequests = () => {
       flex: 5,
       valueGetter: (params) =>
         params.value
-          .map((approver: IApprover) => approver.email.toLowerCase())
+          .map((approver: string) => approver.toLowerCase())
           .join(", "),
       renderCell: (params) => {
         return (
           <Stack>
-            {params.row.approvers.map((approver: IApprover) => {
-              return <Typography variant="body2">{approver.email.toLowerCase()}</Typography>;
+            {params.row.approvers.map((approver: string) => {
+              return (
+                <Typography variant="body2">
+                  {approver.toLowerCase()}
+                </Typography>
+              );
             })}
           </Stack>
         );
@@ -144,7 +147,7 @@ const TabApprovalRequests = () => {
       headerName: "Action",
       flex: 1,
       renderCell: (params) => {
-        return <ApprovalRequestActions approvalRequest={params.row} />;
+        return <MenuApprovalRequestActions approvalRequest={params.row} />;
       },
     },
   ];
@@ -186,9 +189,9 @@ const TabApprovalRequests = () => {
           autoHeight
         />
       </Box>
-      <ApprovalRequestReviewDialog />
+      <DialogApprovalRequestReview />
     </Box>
   );
 };
 
-export default observer(TabApprovalRequests);
+export default observer(GridApprovalRequests);

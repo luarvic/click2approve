@@ -9,90 +9,107 @@ public class ApprovalRequestService(ApiDbContext db) : IApprovalRequestService
 {
     private readonly ApiDbContext _db = db;
 
-    public async Task<List<ApprovalRequest>> ListIncomingAsync(AppUser user, ApprovalRequestStatus[] statuses, CancellationToken cancellationToken)
+    public async Task SubmitApprovalRequestAsync(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
     {
-        var approver = await _db.Approvers.FirstOrDefaultAsync(a => a.Email == user.NormalizedEmail, cancellationToken: cancellationToken);
-        return approver == null ? [] : await _db.ApprovalRequests
-            .Include(r => r.UserFiles)
-            .Include(r => r.Approvers)
-            .Include(r => r.Logs)
-            .Where(r => statuses.Contains(r.Status) && r.Approvers.Contains(approver))
+        var userFiles = await _db.UserFiles
+            .Where(f => payload.UserFileIds.Contains(f.Id) && f.Owner == user.Id)
             .ToListAsync(cancellationToken);
+        var normalizedEmails = payload.Emails.Select(e => e.ToUpper()).ToList();
+        var utcNow = DateTime.UtcNow;
+        // Add request.
+        var newApprovalRequest = _db.ApprovalRequests.Add(new ApprovalRequest
+        {
+            UserFiles = userFiles,
+            Approvers = normalizedEmails,
+            ApproveBy = payload.ApproveBy,
+            Submitted = utcNow,
+            Comment = payload.Comment,
+            Status = ApprovalStatus.Submitted,
+            Author = user.NormalizedEmail!,
+            Logs = [],
+            Tasks = []
+        });
+        // Add tasks.
+        foreach (var approver in normalizedEmails)
+        {
+            _db.ApprovalRequestTasks.Add(new ApprovalRequestTask
+            {
+                ApprovalRequest = newApprovalRequest.Entity,
+                Approver = approver.ToUpper(),
+                Status = ApprovalStatus.Submitted
+            });
+        }
+        // Add log entry.
+        _db.ApprovalRequestLogs.Add(new ApprovalRequestLog
+        {
+            ApprovalRequest = newApprovalRequest.Entity,
+            Who = user.NormalizedEmail!,
+            When = utcNow,
+            What = "Submitted approval request."
+        });
+        await _db.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<List<ApprovalRequest>> ListOutgoingAsync(AppUser user, CancellationToken cancellationToken)
+    public async Task<List<ApprovalRequest>> ListApprovalRequestsAsync(AppUser user, CancellationToken cancellationToken)
     {
         return await _db.ApprovalRequests
             .Include(r => r.UserFiles)
-            .Include(r => r.Approvers)
+            .Include(r => r.Tasks)
             .Include(r => r.Logs)
             .Where(r => r.Author == user.NormalizedEmail)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task SubmitAsync(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
+    public async Task<List<ApprovalRequestTask>> ListTasksAsync(AppUser user, ApprovalStatus[] statuses, CancellationToken cancellationToken)
     {
-        var userFiles = await _db.UserFiles
-            .Where(f => payload.UserFileIds.Contains(f.Id) && f.Owner == user.Id)
+        return await _db.ApprovalRequestTasks
+            .Include(t => t.ApprovalRequest)
+            .Where(t => statuses.Contains(t.Status) && t.Approver == user.NormalizedEmail)
             .ToListAsync(cancellationToken);
-        var approvers = new List<Approver>();
-        var utcNow = DateTime.UtcNow;
-        // Add approvers.
-        foreach (var email in payload.Emails)
+    }
+
+    public async Task CompleteTaskAsync(AppUser user, ApprovalRequestTaskCompleteDto payload, CancellationToken cancellationToken)
+    {
+        var approvalRequestTask = await _db.ApprovalRequestTasks
+            .Include(t => t.ApprovalRequest)
+            .FirstAsync(t => t.Id == payload.Id && t.Approver == user.NormalizedEmail, cancellationToken);
+        if (approvalRequestTask.Status != ApprovalStatus.Submitted)
         {
-            var approver = await _db.Approvers.FirstOrDefaultAsync(a => a.Email == email.ToUpper(), cancellationToken)
-                ?? _db.Add(new Approver { Email = email.ToUpper() }).Entity;
-            approvers.Add(approver);
+            throw new Exception("Task is already completed.");
         }
-        // Add request.
-        var approvalRequest = _db.ApprovalRequests.Add(new ApprovalRequest
+
+        // Complete approval request task.
+        approvalRequestTask.Status = payload.Status;
+        approvalRequestTask.Comment = payload.Comment;
+
+        // Calculate and update approval request status.
+        if (approvalRequestTask.ApprovalRequest.Status == ApprovalStatus.Submitted)
         {
-            UserFiles = userFiles,
-            Approvers = approvers,
-            ApproveBy = payload.ApproveBy,
-            Created = utcNow,
-            Comment = payload.Comment,
-            Status = ApprovalRequestStatus.Submitted,
-            Author = user.NormalizedEmail!,
-            Logs = []
-        });
+            if (payload.Status == ApprovalStatus.Rejected)
+            {
+                approvalRequestTask.ApprovalRequest.Status = ApprovalStatus.Rejected;
+            }
+            else if (!approvalRequestTask.ApprovalRequest.Tasks.Any(t => t.Status != ApprovalStatus.Approved && t.Approver != user.NormalizedEmail))
+            {
+                approvalRequestTask.ApprovalRequest.Status = ApprovalStatus.Approved;
+            }
+        }
+
         // Add log entry.
         _db.ApprovalRequestLogs.Add(new ApprovalRequestLog
         {
-            ApprovalRequest = approvalRequest.Entity,
-            When = utcNow,
+            ApprovalRequest = approvalRequestTask.ApprovalRequest,
+            When = DateTime.UtcNow,
             Who = user.NormalizedEmail!,
-            Status = ApprovalRequestStatus.Submitted,
-            Comment = payload.Comment
+            What = $"{payload.Status} task."
         });
         await _db.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task HandleAsync(AppUser user, ApprovalRequestHandleDto payload, CancellationToken cancellationToken)
+    public async Task<long> CountUncompletedTasksAsync(AppUser user, CancellationToken cancellationToken)
     {
-        var approver = await _db.Approvers.FirstAsync(a => a.Email == user.NormalizedEmail, cancellationToken: cancellationToken);
-        var utcNow = DateTime.UtcNow;
-        // Update request status.
-        var approvalRequest = await _db.ApprovalRequests
-            .FirstAsync(r => r.Id == payload.Id && r.Approvers.Contains(approver), cancellationToken);
-        approvalRequest.Status = payload.Status;
-        // Add log entry.
-        _db.ApprovalRequestLogs.Add(new ApprovalRequestLog
-        {
-            ApprovalRequest = approvalRequest,
-            When = utcNow,
-            Who = approver.Email,
-            Status = payload.Status,
-            Comment = payload.Comment
-        });
-        await _db.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task<long> CountIncomingAsync(AppUser user, ApprovalRequestStatus[] statuses, CancellationToken cancellationToken)
-    {
-        var approver = await _db.Approvers.FirstOrDefaultAsync(a => a.Email == user.NormalizedEmail, cancellationToken: cancellationToken);
-        return approver == null ? 0 : await _db.ApprovalRequests
-            .Where(r => statuses.Contains(r.Status) && r.Approvers.Contains(approver))
+        return await _db.ApprovalRequestTasks
+            .Where(t => t.Approver == user.NormalizedEmail && t.Status == ApprovalStatus.Submitted)
             .CountAsync(cancellationToken);
     }
 }

@@ -16,8 +16,9 @@ import NavBar from "./NavBar";
 import NotFound from "./NotFound";
 import SignIn from "./SignIn";
 import SignUp from "./SignUp";
-import TabApprovalRequests from "./TabApprovalRequests";
-import TabFiles from "./TabFiles";
+import GridApprovalRequests from "./grids/GridApprovalRequests";
+import GridFiles from "./grids/GridFiles";
+import GridTasks from "./grids/GridTasks";
 
 // Top level component.
 const App = () => {
@@ -36,10 +37,11 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
-            <Route path="/files" element={<TabFiles />} />
-            {["/inbox", "/archive", "/sent"].map((path) => (
-              <Route path={path} element={<TabApprovalRequests />} />
+            <Route path="/files" element={<GridFiles />} />
+            {["/inbox", "/archive"].map((path) => (
+              <Route path={path} element={<GridTasks />} />
             ))}
+            <Route path="/sent" element={<GridApprovalRequests />} />
             <Route path="/notfound" element={<NotFound />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

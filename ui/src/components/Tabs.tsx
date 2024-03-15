@@ -13,35 +13,45 @@ import { useNavigate } from "react-router-dom";
 import { Tab } from "../models/Tab";
 import { approvalRequestStore } from "../stores/ApprovalRequestStore";
 import { commonStore } from "../stores/CommonStore";
-import { userFileStore } from "../stores/UserFileStore";
+import { fileStore } from "../stores/FileStore";
+import { taskStore } from "../stores/TaskStore";
 
 // Tabs (Files, Inbox, Archive, Sent).
 const Tabs = () => {
   const { currentTab, setCurrentTab } = commonStore;
-  const { clearUserFiles, loadUserFiles } = userFileStore;
+  const { clearUserFiles, loadUserFiles } = fileStore;
+  const { clearApprovalRequests, loadApprovalRequests } = approvalRequestStore;
   const {
-    numberOfInboxApprovalRequests,
-    clearApprovalRequests,
-    loadApprovalRequests,
-    loadNumberOfInboxApprovalRequests,
-  } = approvalRequestStore;
+    numberOfUncompletedTasks,
+    clearTasks,
+    loadTasks,
+    loadNumberOfUncompletedTasks,
+  } = taskStore;
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadNumberOfInboxApprovalRequests();
     handleTabChange(currentTab);
   }, []);
 
   const handleTabChange = (tab: Tab) => {
-    setCurrentTab(tab);
-    if (tab === Tab.Files) {
-      clearUserFiles();
-      loadUserFiles();
-      navigate("/files");
-    } else {
-      clearApprovalRequests();
-      loadApprovalRequests(tab);
-      navigate(`/${Tab[tab].toLowerCase()}`);
+    loadNumberOfUncompletedTasks();
+    currentTab !== tab && setCurrentTab(tab);
+    switch (tab) {
+      case Tab.Files:
+        clearUserFiles();
+        loadUserFiles();
+        navigate("/files");
+        break;
+      case Tab.Inbox || Tab.Archive:
+        clearTasks();
+        loadTasks(tab);
+        navigate(`/${Tab[tab].toLowerCase()}`);
+        break;
+      case Tab.Sent:
+        clearApprovalRequests();
+        loadApprovalRequests();
+        navigate("/sent");
+        break;
     }
   };
 
@@ -66,7 +76,7 @@ const Tabs = () => {
           }}
         >
           <ListItemIcon>
-            <Badge badgeContent={numberOfInboxApprovalRequests} color="error">
+            <Badge badgeContent={numberOfUncompletedTasks} color="error">
               <Inbox />
             </Badge>
           </ListItemIcon>

@@ -1,6 +1,6 @@
 namespace api.Models;
 
-public enum ApprovalRequestStatus
+public enum ApprovalStatus
 {
     Submitted,
     Approved,

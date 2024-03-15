@@ -2,11 +2,11 @@ import { CloudUpload } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, Fragment, useRef } from "react";
-import { userFileStore } from "../stores/UserFileStore";
+import { fileStore } from "../../stores/FileStore";
 
 const GridToolbarUploadButton = () => {
   const hiddenFileInput = useRef<HTMLInputElement>(null);
-  const { addUserFiles } = userFileStore;
+  const { addUserFiles } = fileStore;
   const handleUploadClick = () => {
     if (hiddenFileInput.current) {
       hiddenFileInput.current.click();
