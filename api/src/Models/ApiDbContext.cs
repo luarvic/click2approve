@@ -17,5 +17,5 @@ public class ApiDbContext(DbContextOptions options, IConfiguration configuration
     public DbSet<UserFile> UserFiles { get; set; }
     public DbSet<ApprovalRequest> ApprovalRequests { get; set; }
     public DbSet<ApprovalRequestTask> ApprovalRequestTasks { get; set; }
-    public DbSet<ApprovalRequestLog> ApprovalRequestLogs { get; set; }
+    public DbSet<AuditLogEntry> AuditLogEntries { get; set; }
 }

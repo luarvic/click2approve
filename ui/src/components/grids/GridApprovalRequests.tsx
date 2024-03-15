@@ -14,10 +14,13 @@ import { ApprovalStatus } from "../../models/ApprovalStatus";
 import { IUserFile } from "../../models/UserFile";
 import { approvalRequestStore } from "../../stores/ApprovalRequestStore";
 import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../stores/Constants";
-import { getHumanReadableRelativeDate } from "../../utils/Converters";
+import {
+  getHumanReadableRelativeDate,
+  getLocaleDateTimeString,
+} from "../../utils/Converters";
 import { downloadUserFile } from "../../utils/Downloaders";
 import Tabs from "../Tabs";
-import DialogApprovalRequestReview from "../dialogs/DialogApprovalRequestReview";
+import DialogApprovalRequestView from "../dialogs/DialogApprovalRequestView";
 import { MenuApprovalRequestActions } from "../menus/MenuApprovalRequestActions";
 
 // Data grid with approval requests.
@@ -50,8 +53,8 @@ const GridApprovalRequests = () => {
 
   const columns: GridColDef[] = [
     {
-      field: "createdDate",
-      headerName: "Created",
+      field: "submittedDate",
+      headerName: "Submitted",
       flex: 2,
       valueFormatter: (params) => getHumanReadableRelativeDate(params.value),
     },
@@ -73,15 +76,7 @@ const GridApprovalRequests = () => {
       headerName: "Approve by",
       flex: 3,
       valueFormatter: (params) =>
-        `${(params.value as Date).toLocaleDateString()} ${(
-          params.value as Date
-        ).toLocaleTimeString()}`,
-    },
-    {
-      field: "author",
-      headerName: "Requester",
-      flex: 5,
-      valueGetter: (params) => (params.value as string).toLowerCase(),
+        params.value && getLocaleDateTimeString(params.value as Date),
     },
     {
       field: "approvers",
@@ -135,9 +130,10 @@ const GridApprovalRequests = () => {
       renderCell: (params) => {
         return (
           <Stack>
-            {(params.value.split(/\r?\n/) as string[]).map((line) => (
-              <Box>{line}</Box>
-            ))}
+            {params.value &&
+              (params.value.split(/\r?\n/) as string[]).map((line) => (
+                <Box>{line}</Box>
+              ))}
           </Stack>
         );
       },
@@ -189,7 +185,7 @@ const GridApprovalRequests = () => {
           autoHeight
         />
       </Box>
-      <DialogApprovalRequestReview />
+      <DialogApprovalRequestView />
     </Box>
   );
 };

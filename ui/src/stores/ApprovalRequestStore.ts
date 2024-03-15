@@ -7,7 +7,7 @@ class ApprovalRequestStore {
   registry: Map<number, IApprovalRequest>;
   currentApprovalRequest: IApprovalRequest | null;
   approvalRequestSubmitDialogIsOpen: boolean;
-  approvalRequestReviewDialogIsOpen: boolean;
+  approvalRequestViewDialogIsOpen: boolean;
 
   constructor(
     registry: Map<number, IApprovalRequest> = new Map<
@@ -16,12 +16,12 @@ class ApprovalRequestStore {
     >(),
     currentApprovalRequest: IApprovalRequest | null = null,
     approvalRequestSubmitDialogIsOpen: boolean = false,
-    approvalRequestReviewDialogIsOpen: boolean = false
+    approvalRequestViewDialogIsOpen: boolean = false
   ) {
     this.registry = registry;
     this.currentApprovalRequest = currentApprovalRequest;
     this.approvalRequestSubmitDialogIsOpen = approvalRequestSubmitDialogIsOpen;
-    this.approvalRequestReviewDialogIsOpen = approvalRequestReviewDialogIsOpen;
+    this.approvalRequestViewDialogIsOpen = approvalRequestViewDialogIsOpen;
     makeAutoObservable(this);
   }
 
@@ -36,11 +36,15 @@ class ApprovalRequestStore {
         approvalRequest.submittedDate = new Date(
           approvalRequest.submitted + "Z"
         );
-        approvalRequest.approveByDate = new Date(
-          approvalRequest.approveBy + "Z"
-        );
-        approvalRequest.logs.forEach((log) => {
-          log.whenDate = new Date(log.when + "Z");
+        if (approvalRequest.approveBy) {
+          approvalRequest.approveByDate = new Date(
+            approvalRequest.approveBy + "Z"
+          );
+        }
+        approvalRequest.tasks.forEach((task) => {
+          if (task.completed) {
+            task.completedDate = new Date(task.completed + "Z");
+          }
         });
         runInAction(() => {
           this.registry.set(approvalRequest.id, approvalRequest);

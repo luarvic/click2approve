@@ -26,7 +26,6 @@ public class ApprovalRequestService(ApiDbContext db) : IApprovalRequestService
             Comment = payload.Comment,
             Status = ApprovalStatus.Submitted,
             Author = user.NormalizedEmail!,
-            Logs = [],
             Tasks = []
         });
         // Add tasks.
@@ -39,13 +38,13 @@ public class ApprovalRequestService(ApiDbContext db) : IApprovalRequestService
                 Status = ApprovalStatus.Submitted
             });
         }
-        // Add log entry.
-        _db.ApprovalRequestLogs.Add(new ApprovalRequestLog
+        // Add audit log entry.
+        _db.AuditLogEntries.Add(new AuditLogEntry
         {
-            ApprovalRequest = newApprovalRequest.Entity,
             Who = user.NormalizedEmail!,
             When = utcNow,
-            What = "Submitted approval request."
+            What = "Submitted approval request.",
+            Data = newApprovalRequest.Entity.ToString()
         });
         await _db.SaveChangesAsync(cancellationToken);
     }
@@ -55,7 +54,6 @@ public class ApprovalRequestService(ApiDbContext db) : IApprovalRequestService
         return await _db.ApprovalRequests
             .Include(r => r.UserFiles)
             .Include(r => r.Tasks)
-            .Include(r => r.Logs)
             .Where(r => r.Author == user.NormalizedEmail)
             .ToListAsync(cancellationToken);
     }
@@ -96,12 +94,12 @@ public class ApprovalRequestService(ApiDbContext db) : IApprovalRequestService
         }
 
         // Add log entry.
-        _db.ApprovalRequestLogs.Add(new ApprovalRequestLog
+        _db.AuditLogEntries.Add(new AuditLogEntry
         {
-            ApprovalRequest = approvalRequestTask.ApprovalRequest,
-            When = DateTime.UtcNow,
             Who = user.NormalizedEmail!,
-            What = $"{payload.Status} task."
+            When = DateTime.UtcNow,
+            What = $"{payload.Status} task.",
+            Data = approvalRequestTask.ToString()
         });
         await _db.SaveChangesAsync(cancellationToken);
     }

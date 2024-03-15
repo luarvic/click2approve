@@ -83,7 +83,7 @@ export const downloadFileBase64 = async (id: string): Promise<string> => {
 export const submitApprovalRequest = async (
   files: IUserFile[],
   approvers: string[],
-  approveBy: Date,
+  approveBy: Date | null,
   comment: string | null
 ): Promise<string> => {
   const { data } = await axios.post("api/request/submit", {

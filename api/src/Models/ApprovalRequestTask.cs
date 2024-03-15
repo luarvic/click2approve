@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace api.Models;
 
 public class ApprovalRequestTask
@@ -6,5 +8,10 @@ public class ApprovalRequestTask
     public required ApprovalRequest ApprovalRequest { get; set; }
     public required string Approver { get; set; }
     public ApprovalStatus Status { get; set; }
+    public DateTime? Completed { get; set; }
     public string? Comment { get; set; }
+    public override string ToString()
+    {
+        return JsonConvert.SerializeObject(this, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+    }
 }

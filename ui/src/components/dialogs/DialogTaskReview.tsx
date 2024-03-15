@@ -20,6 +20,7 @@ import { commonStore } from "../../stores/CommonStore";
 import { taskStore } from "../../stores/TaskStore";
 import { userAccountStore } from "../../stores/UserAccountStore";
 import { completeTask } from "../../utils/ApiClient";
+import { getLocaleDateTimeString } from "../../utils/Converters";
 import { downloadUserFile } from "../../utils/Downloaders";
 
 const DialogTaskReview = () => {
@@ -93,7 +94,9 @@ const DialogTaskReview = () => {
 
   const renderApproveBy = (approvalRequest: IApprovalRequest) => {
     return (
-      <Typography>{`Requested to approve by ${approvalRequest.approveByDate.toLocaleDateString()} ${approvalRequest.approveByDate.toLocaleTimeString()}`}</Typography>
+      <Typography>{`Requested to approve by ${getLocaleDateTimeString(
+        approvalRequest.approveByDate
+      )}`}</Typography>
     );
   };
 

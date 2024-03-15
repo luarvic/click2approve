@@ -14,15 +14,20 @@ import { ApprovalStatus } from "../../models/ApprovalStatus";
 import { IUserFile } from "../../models/UserFile";
 import { approvalRequestStore } from "../../stores/ApprovalRequestStore";
 import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../stores/Constants";
-import { getHumanReadableRelativeDate } from "../../utils/Converters";
+import { taskStore } from "../../stores/TaskStore";
+import {
+  getHumanReadableRelativeDate,
+  getLocaleDateTimeString,
+} from "../../utils/Converters";
 import { downloadUserFile } from "../../utils/Downloaders";
 import Tabs from "../Tabs";
 import DialogTaskReview from "../dialogs/DialogTaskReview";
 import { MenuTaskActions } from "../menus/MenuTaskActions";
+import { IApprovalRequest } from "../../models/ApprovalRequest";
 
 // Data grid with approval requests.
 const GridTasks = () => {
-  const { approvalRequests } = approvalRequestStore;
+  const { tasks } = taskStore;
 
   const customToolbar = () => {
     return (
@@ -50,10 +55,10 @@ const GridTasks = () => {
 
   const columns: GridColDef[] = [
     {
-      field: "createdDate",
-      headerName: "Created",
+      field: "approvalRequest",
+      headerName: "Received",
       flex: 2,
-      valueFormatter: (params) => getHumanReadableRelativeDate(params.value),
+      valueGetter: (params) => getHumanReadableRelativeDate(params.value.submittedDate),
     },
     {
       field: "status",
@@ -68,88 +73,64 @@ const GridTasks = () => {
       },
       valueGetter: (params) => ApprovalStatus[params.row.status],
     },
-    {
-      field: "approveByDate",
-      headerName: "Approve by",
-      flex: 3,
-      valueFormatter: (params) =>
-        `${(params.value as Date).toLocaleDateString()} ${(
-          params.value as Date
-        ).toLocaleTimeString()}`,
-    },
-    {
-      field: "author",
-      headerName: "Requester",
-      flex: 5,
-      valueGetter: (params) => (params.value as string).toLowerCase(),
-    },
-    {
-      field: "approvers",
-      headerName: "Approvers",
-      flex: 5,
-      valueGetter: (params) =>
-        params.value
-          .map((approver: string) => approver.toLowerCase())
-          .join(", "),
-      renderCell: (params) => {
-        return (
-          <Stack>
-            {params.row.approvers.map((approver: string) => {
-              return (
-                <Typography variant="body2">
-                  {approver.toLowerCase()}
-                </Typography>
-              );
-            })}
-          </Stack>
-        );
-      },
-    },
-    {
-      field: "userFiles",
-      headerName: "Files",
-      flex: 5,
-      valueGetter: (params) =>
-        params.value.map((userFile: IUserFile) => userFile.name).join(", "),
-      renderCell: (params) => {
-        return (
-          <Stack>
-            {params.row.userFiles.map((userFile: IUserFile) => {
-              return (
-                <Link
-                  component="button"
-                  onClick={() => downloadUserFile(userFile)}
-                >
-                  {userFile.name}
-                </Link>
-              );
-            })}
-          </Stack>
-        );
-      },
-    },
-    {
-      field: "comment",
-      headerName: "Comment",
-      flex: 10,
-      renderCell: (params) => {
-        return (
-          <Stack>
-            {(params.value.split(/\r?\n/) as string[]).map((line) => (
-              <Box>{line}</Box>
-            ))}
-          </Stack>
-        );
-      },
-    },
-    {
-      field: "action",
-      headerName: "Action",
-      flex: 1,
-      renderCell: (params) => {
-        return <MenuTaskActions task={params.row} />;
-      },
-    },
+    // {
+    //   field: "approvalRequest",
+    //   headerName: "Approve by",
+    //   flex: 3,
+    //   valueGetter: (params) =>
+    //     params.value.approveByDate ? getLocaleDateTimeString(params.value.approveByDate as Date) : null,
+    // },
+    // {
+    //   field: "approvalRequest.author",
+    //   headerName: "Requester",
+    //   flex: 5,
+    //   valueGetter: (params) => (params.value as string).toLowerCase(),
+    // },
+    // {
+    //   field: "approvalRequest.userFiles",
+    //   headerName: "Files",
+    //   flex: 5,
+    //   valueGetter: (params) =>
+    //     params.value.map((userFile: IUserFile) => userFile.name).join(", "),
+    //   renderCell: (params) => {
+    //     return (
+    //       <Stack>
+    //         {params.row.userFiles.map((userFile: IUserFile) => {
+    //           return (
+    //             <Link
+    //               component="button"
+    //               onClick={() => downloadUserFile(userFile)}
+    //             >
+    //               {userFile.name}
+    //             </Link>
+    //           );
+    //         })}
+    //       </Stack>
+    //     );
+    //   },
+    // },
+    // {
+    //   field: "approvalRequest.comment",
+    //   headerName: "Comment",
+    //   flex: 10,
+    //   renderCell: (params) => {
+    //     return (
+    //       <Stack>
+    //         {(params.value.split(/\r?\n/) as string[]).map((line) => (
+    //           <Box>{line}</Box>
+    //         ))}
+    //       </Stack>
+    //     );
+    //   },
+    // },
+    // {
+    //   field: "action",
+    //   headerName: "Action",
+    //   flex: 1,
+    //   renderCell: (params) => {
+    //     return <MenuTaskActions task={params.row} />;
+    //   },
+    // },
   ];
 
   return (
@@ -158,7 +139,7 @@ const GridTasks = () => {
       <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
         <DataGrid
           className="DataGridDefault"
-          rows={approvalRequests}
+          rows={tasks}
           columns={columns}
           initialState={{
             pagination: {

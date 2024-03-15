@@ -31,20 +31,17 @@ const DialogApprovalRequestSubmit = () => {
   const { getSelectedUserFiles } = fileStore;
   const [approvers, setApprovers] = useState<string>("");
   const [approveBy, setApproveBy] = useState<Dayjs | null>(null);
-  const [comment, setComment] = useState<string>("");
+  const [comment, setComment] = useState<string | null>(null);
 
   const handleSend = async () => {
     try {
       if (!approvers) {
         throw new Error("Approver email is not defined.");
       }
-      if (!approveBy) {
-        throw new Error("Approve by is not defined.");
-      }
       await submitApprovalRequest(
         getSelectedUserFiles(),
         approvers.split(",").map((a) => a.toLocaleLowerCase().trim()),
-        approveBy.toDate(),
+        approveBy ? approveBy.toDate() : null,
         comment
       );
       handleClose();
@@ -60,7 +57,7 @@ const DialogApprovalRequestSubmit = () => {
   const handleClose = () => {
     setApprovers("");
     setApproveBy(null);
-    setComment("");
+    setComment(null);
     setApprovalRequestSubmitDialogIsOpen(false);
   };
 
@@ -95,7 +92,13 @@ const DialogApprovalRequestSubmit = () => {
         />
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DateTimePicker
-            slotProps={{ textField: { fullWidth: true, variant: "standard" } }}
+            slotProps={{
+              textField: {
+                fullWidth: true,
+                variant: "standard",
+                required: false,
+              },
+            }}
             value={approveBy}
             onChange={(newValue) => setApproveBy(newValue)}
             label="Approve by"

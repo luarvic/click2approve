@@ -4,18 +4,18 @@ import { Tab } from "../models/Tab";
 class CommonStore {
   currentTab: Tab;
   approvalRequestSubmitDialogIsOpen: boolean;
-  approvalRequestReviewDialogIsOpen: boolean;
+  approvalRequestViewDialogIsOpen: boolean;
   taskReviewDialogIsOpen: boolean;
 
   constructor(
     currentTab: Tab = Tab.Files,
     approvalRequestSubmitDialogIsOpen: boolean = false,
-    approvalRequestReviewDialogIsOpen: boolean = false,
+    approvalRequestViewDialogIsOpen: boolean = false,
     taskReviewDialogIsOpen: boolean = false
   ) {
     this.currentTab = currentTab;
     this.approvalRequestSubmitDialogIsOpen = approvalRequestSubmitDialogIsOpen;
-    this.approvalRequestReviewDialogIsOpen = approvalRequestReviewDialogIsOpen;
+    this.approvalRequestViewDialogIsOpen = approvalRequestViewDialogIsOpen;
     this.taskReviewDialogIsOpen = taskReviewDialogIsOpen;
     makeAutoObservable(this);
   }
@@ -32,15 +32,15 @@ class CommonStore {
     });
   };
 
-  setApprovalRequestReviewDialogIsOpen = (isOpen: boolean) => {
+  setApprovalRequestViewDialogIsOpen = (isOpen: boolean) => {
     runInAction(() => {
-      this.approvalRequestReviewDialogIsOpen = isOpen;
+      this.approvalRequestViewDialogIsOpen = isOpen;
     });
   };
 
   setTaskReviewDialogIsOpen = (isOpen: boolean) => {
     runInAction(() => {
-      this.approvalRequestReviewDialogIsOpen = isOpen;
+      this.approvalRequestViewDialogIsOpen = isOpen;
     });
   };
 }

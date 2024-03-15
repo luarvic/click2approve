@@ -6,5 +6,7 @@ export interface IApprovalRequestTask {
   approvalRequest: IApprovalRequest;
   approver: string;
   status: ApprovalStatus;
-  comment: string;
+  completed: string;
+  completedDate?: Date;
+  comment?: string;
 }

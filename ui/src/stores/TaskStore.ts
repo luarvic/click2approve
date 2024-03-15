@@ -1,23 +1,18 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { toast } from "react-toastify";
-import { IApprovalRequest } from "../models/ApprovalRequest";
 import { IApprovalRequestTask } from "../models/ApprovalRequestTask";
-import { ApprovalStatus } from "../models/ApprovalStatus";
 import { Tab } from "../models/Tab";
 import {
-  completeTask,
   countUncompletedTasks,
-  listApprovalRequests,
   listCompletedTasks,
   listUncompletedTasks,
-  submitApprovalRequest,
 } from "../utils/ApiClient";
 
 class TaskStore {
   registry: Map<number, IApprovalRequestTask>;
   currentTask: IApprovalRequestTask | null;
   numberOfUncompletedTasks: number;
-  approvalRequestReviewDialogIsOpen: boolean;
+  approvalRequestViewDialogIsOpen: boolean;
 
   constructor(
     registry: Map<number, IApprovalRequestTask> = new Map<
@@ -26,17 +21,17 @@ class TaskStore {
     >(),
     currentTask: IApprovalRequestTask | null = null,
     numberOfUncompletedTasks: number = 0,
-    approvalRequestReviewDialogIsOpen: boolean = false
+    approvalRequestViewDialogIsOpen: boolean = false
   ) {
     this.registry = registry;
     this.currentTask = currentTask;
     this.numberOfUncompletedTasks = numberOfUncompletedTasks;
     this.numberOfUncompletedTasks = numberOfUncompletedTasks;
-    this.approvalRequestReviewDialogIsOpen = approvalRequestReviewDialogIsOpen;
+    this.approvalRequestViewDialogIsOpen = approvalRequestViewDialogIsOpen;
     makeAutoObservable(this);
   }
 
-  get approvalRequests(): IApprovalRequestTask[] {
+  get tasks(): IApprovalRequestTask[] {
     return Array.from(this.registry.values()).sort((a, b) => b.id - a.id);
   }
 
@@ -52,12 +47,11 @@ class TaskStore {
         task.approvalRequest.submittedDate = new Date(
           task.approvalRequest.submitted + "Z"
         );
-        task.approvalRequest.approveByDate = new Date(
-          task.approvalRequest.approveBy + "Z"
-        );
-        task.approvalRequest.logs.forEach((log) => {
-          log.whenDate = new Date(log.when + "Z");
-        });
+        if (task.approvalRequest.approveBy) {
+          task.approvalRequest.approveByDate = new Date(
+            task.approvalRequest.approveBy + "Z"
+          );
+        }
         runInAction(() => {
           this.registry.set(task.id, task);
         });
