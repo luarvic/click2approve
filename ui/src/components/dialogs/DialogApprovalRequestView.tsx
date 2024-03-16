@@ -56,7 +56,7 @@ const DialogApprovalRequestView = () => {
     steps = steps.concat(
       completedTasks.map((task) => (
         <Step active={true}>
-          <StepLabel>
+          <StepLabel error={task.status === ApprovalStatus.Rejected}>
             {ApprovalStatus[task.status]} by {task.approver.toLowerCase()}
           </StepLabel>
           {task.completedDate && (
@@ -83,7 +83,9 @@ const DialogApprovalRequestView = () => {
 
     return (
       <Box sx={{ pb: 2 }}>
-        <Stepper orientation="vertical">{steps}</Stepper>
+        <Stepper orientation="vertical" activeStep={completedTasks.length}>
+          {steps}
+        </Stepper>
       </Box>
     );
   };

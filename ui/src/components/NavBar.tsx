@@ -1,5 +1,5 @@
 import { AttachFile } from "@mui/icons-material";
-import { AppBar, Button, Toolbar, Typography } from "@mui/material";
+import { AppBar, Button, Link, Toolbar, Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import { fileStore } from "../stores/FileStore";
@@ -24,16 +24,14 @@ const NavBar = () => {
           Click2approve
         </Typography>
         {currentUser === undefined ? (
-          <></>
-        ) : currentUser === null ? (
           <Button variant="outlined" color="inherit" href="/signin">
             Sign in
           </Button>
         ) : (
           <>
-            <Typography sx={{ mr: 1 }}>
+            <Link sx={{ mr: 1 }} color="inherit" href="/files">
               {currentUser.email.toLowerCase()}
-            </Typography>
+            </Link>
             <Button
               variant="outlined"
               color="inherit"

@@ -4,11 +4,9 @@ import { IUserAccount, UserAccount } from "../models/UserAccount";
 import { signInUser, signUpUser, validateToken } from "../utils/ApiClient";
 
 class UserAccountStore {
-  // Null means anonymous user.
-  // Undefined means we don't yet know whether the user is anonymous or authenticated.
-  currentUser: IUserAccount | undefined | null;
+  currentUser: IUserAccount | undefined;
 
-  constructor(currentUser: IUserAccount | undefined | null = undefined) {
+  constructor(currentUser: IUserAccount | undefined = undefined) {
     this.currentUser = currentUser;
     makeAutoObservable(this);
   }
@@ -34,7 +32,7 @@ class UserAccountStore {
       }
     } else {
       runInAction(() => {
-        this.currentUser = null;
+        this.currentUser = undefined;
       });
     }
   };
@@ -84,7 +82,7 @@ class UserAccountStore {
     localStorage.removeItem("email");
     localStorage.removeItem("token");
     runInAction(() => {
-      this.currentUser = null;
+      this.currentUser = undefined;
     });
   };
 }
