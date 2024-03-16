@@ -52,6 +52,9 @@ class TaskStore {
             task.approvalRequest.approveBy + "Z"
           );
         }
+        if (task.completed) {
+          task.completedDate = new Date(task.completed + "Z");
+        }
         runInAction(() => {
           this.registry.set(task.id, task);
         });

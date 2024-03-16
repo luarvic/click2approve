@@ -16,6 +16,7 @@ public class ApprovalRequestService(ApiDbContext db) : IApprovalRequestService
             .ToListAsync(cancellationToken);
         var normalizedEmails = payload.Emails.Select(e => e.ToUpper()).ToList();
         var utcNow = DateTime.UtcNow;
+
         // Add request.
         var newApprovalRequest = _db.ApprovalRequests.Add(new ApprovalRequest
         {
@@ -28,6 +29,7 @@ public class ApprovalRequestService(ApiDbContext db) : IApprovalRequestService
             Author = user.NormalizedEmail!,
             Tasks = []
         });
+
         // Add tasks.
         foreach (var approver in normalizedEmails)
         {
@@ -38,12 +40,16 @@ public class ApprovalRequestService(ApiDbContext db) : IApprovalRequestService
                 Status = ApprovalStatus.Submitted
             });
         }
+
+        // Save changes to generate IDs of the new entries.
+        await _db.SaveChangesAsync(cancellationToken);
+
         // Add audit log entry.
         _db.AuditLogEntries.Add(new AuditLogEntry
         {
             Who = user.NormalizedEmail!,
             When = utcNow,
-            What = "Submitted approval request.",
+            What = "Submitted approval request",
             Data = newApprovalRequest.Entity.ToString()
         });
         await _db.SaveChangesAsync(cancellationToken);
@@ -62,6 +68,7 @@ public class ApprovalRequestService(ApiDbContext db) : IApprovalRequestService
     {
         return await _db.ApprovalRequestTasks
             .Include(t => t.ApprovalRequest)
+            .Include(t => t.ApprovalRequest.UserFiles)
             .Where(t => statuses.Contains(t.Status) && t.Approver == user.NormalizedEmail)
             .ToListAsync(cancellationToken);
     }
@@ -79,6 +86,7 @@ public class ApprovalRequestService(ApiDbContext db) : IApprovalRequestService
         // Complete approval request task.
         approvalRequestTask.Status = payload.Status;
         approvalRequestTask.Comment = payload.Comment;
+        approvalRequestTask.Completed = DateTime.UtcNow;
 
         // Calculate and update approval request status.
         if (approvalRequestTask.ApprovalRequest.Status == ApprovalStatus.Submitted)
@@ -98,7 +106,7 @@ public class ApprovalRequestService(ApiDbContext db) : IApprovalRequestService
         {
             Who = user.NormalizedEmail!,
             When = DateTime.UtcNow,
-            What = $"{payload.Status} task.",
+            What = "Completed task",
             Data = approvalRequestTask.ToString()
         });
         await _db.SaveChangesAsync(cancellationToken);

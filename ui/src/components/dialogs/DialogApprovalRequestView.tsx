@@ -5,6 +5,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Paper,
   Step,
   StepContent,
   StepLabel,
@@ -31,6 +32,21 @@ const DialogApprovalRequestView = () => {
     setCurrentApprovalRequest(null);
   };
 
+  const renderComment = (comment: string | undefined) => {
+    return comment ? (
+      <>
+        <Typography>with comment:</Typography>
+        <Paper sx={{ p: 1, mt: 1 }} elevation={3}>
+          {(comment.split(/\r?\n/) as string[]).map((line) => (
+            <Box>{line}</Box>
+          ))}
+        </Paper>
+      </>
+    ) : (
+      <></>
+    );
+  };
+
   const renderSteps = (approvalRequest: IApprovalRequest) => {
     let steps: JSX.Element[] = [];
     const completedTasks = approvalRequest.tasks.filter((t) => t.completed);
@@ -40,12 +56,15 @@ const DialogApprovalRequestView = () => {
     steps = steps.concat(
       completedTasks.map((task) => (
         <Step active={true}>
-          <StepLabel>Task for {task.approver.toLowerCase()}</StepLabel>
+          <StepLabel>
+            {ApprovalStatus[task.status]} by {task.approver.toLowerCase()}
+          </StepLabel>
           {task.completedDate && (
             <StepContent>
-              <Typography>{`${
-                ApprovalStatus[task.status]
-              } on ${getLocaleDateTimeString(task.completedDate)}`}</Typography>
+              <Typography>{`on ${getLocaleDateTimeString(
+                task.completedDate
+              )}`}</Typography>
+              {renderComment(task.comment)}
             </StepContent>
           )}
         </Step>

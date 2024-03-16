@@ -8,11 +8,9 @@ import {
   List,
   ListItem,
   TextField,
-  Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
-import { IApprovalRequest } from "../../models/ApprovalRequest";
 import { ApprovalStatus } from "../../models/ApprovalStatus";
 import { Tab } from "../../models/Tab";
 import { IUserFile } from "../../models/UserFile";
@@ -20,7 +18,6 @@ import { commonStore } from "../../stores/CommonStore";
 import { taskStore } from "../../stores/TaskStore";
 import { userAccountStore } from "../../stores/UserAccountStore";
 import { completeTask } from "../../utils/ApiClient";
-import { getLocaleDateTimeString } from "../../utils/Converters";
 import { downloadUserFile } from "../../utils/Downloaders";
 
 const DialogTaskReview = () => {
@@ -34,23 +31,23 @@ const DialogTaskReview = () => {
     loadNumberOfUncompletedTasks,
   } = taskStore;
   const { currentUser } = userAccountStore;
-  const [comment, setComment] = useState<string>("");
+  const [comment, setComment] = useState<string | null>("");
 
   const handleClose = () => {
-    setTaskReviewDialogIsOpen(false);
     setCurrentTask(null);
+    setComment(null);
+    setTaskReviewDialogIsOpen(false);
   };
 
   const rejectOrApprove = (status: ApprovalStatus) => {
-    setTaskReviewDialogIsOpen(false);
     currentTask &&
       currentUser &&
       completeTask(currentTask.id, status, comment).then(() => {
+        handleClose();
         clearTasks();
         loadTasks(Tab.Inbox);
         loadNumberOfUncompletedTasks();
       });
-    setCurrentTask(null);
   };
 
   const handleReject = () => {
@@ -63,7 +60,7 @@ const DialogTaskReview = () => {
 
   const renderDialogActions = (tab: Tab) => {
     const result: JSX.Element[] = [
-      <Button onClick={handleClose}>Close</Button>,
+      <Button onClick={handleClose}>Cancel</Button>,
     ];
     if (tab === Tab.Inbox) {
       result.push(<Button onClick={handleReject}>Reject</Button>);
@@ -92,19 +89,10 @@ const DialogTaskReview = () => {
     return <>{result}</>;
   };
 
-  const renderApproveBy = (approvalRequest: IApprovalRequest) => {
-    return (
-      <Typography>{`Requested to approve by ${getLocaleDateTimeString(
-        approvalRequest.approveByDate
-      )}`}</Typography>
-    );
-  };
-
   return (
     <Dialog open={taskReviewDialogIsOpen} onClose={handleClose}>
-      <DialogTitle>Review</DialogTitle>
+      <DialogTitle>Review the files</DialogTitle>
       <DialogContent dividers>
-        {currentTask && renderApproveBy(currentTask.approvalRequest)}
         <List>
           {currentTask &&
             currentTask.approvalRequest.userFiles.map((userFile: IUserFile) => {

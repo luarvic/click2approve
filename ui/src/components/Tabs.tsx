@@ -42,10 +42,15 @@ const Tabs = () => {
         loadUserFiles();
         navigate("/files");
         break;
-      case Tab.Inbox || Tab.Archive:
+      case Tab.Inbox:
         clearTasks();
         loadTasks(tab);
-        navigate(`/${Tab[tab].toLowerCase()}`);
+        navigate(`/inbox`);
+        break;
+      case Tab.Archive:
+        clearTasks();
+        loadTasks(tab);
+        navigate(`/archive`);
         break;
       case Tab.Sent:
         clearApprovalRequests();

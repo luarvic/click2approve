@@ -40,7 +40,7 @@ class CommonStore {
 
   setTaskReviewDialogIsOpen = (isOpen: boolean) => {
     runInAction(() => {
-      this.approvalRequestViewDialogIsOpen = isOpen;
+      this.taskReviewDialogIsOpen = isOpen;
     });
   };
 }

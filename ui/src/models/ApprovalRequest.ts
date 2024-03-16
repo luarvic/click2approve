@@ -6,8 +6,8 @@ export interface IApprovalRequest {
   id: number;
   userFiles: IUserFile[];
   approvers: string[];
-  approveBy: string;
-  approveByDate: Date;
+  approveBy?: string;
+  approveByDate?: Date;
   comment?: string;
   submitted: string;
   submittedDate: Date;

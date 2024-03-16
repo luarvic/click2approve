@@ -46,7 +46,7 @@ export const MenuTaskActions: React.FC<IMenuTaskActionsProps> = ({ task }) => {
           "aria-labelledby": "basic-button",
         }}
       >
-        <MenuItem onClick={handleReview}>Review</MenuItem>,
+        <MenuItem onClick={handleReview}>Review</MenuItem>
       </Menu>
     </div>
   );
