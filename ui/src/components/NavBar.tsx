@@ -1,4 +1,4 @@
-import { AttachFile } from "@mui/icons-material";
+import { Verified } from "@mui/icons-material";
 import { AppBar, Button, Link, Toolbar, Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
@@ -14,14 +14,14 @@ const NavBar = () => {
   return (
     <AppBar position="static">
       <Toolbar disableGutters sx={{ pl: 2, pr: 2 }}>
-        <AttachFile sx={{ display: "block", mr: 1 }} />
+        <Verified sx={{ display: "block", mr: 1 }} />
         <Typography
           variant="h6"
           component="a"
           href="/"
           sx={{ flexGrow: 1, color: "inherit", textDecoration: "none" }}
         >
-          Click2approve
+          click2approve
         </Typography>
         {currentUser === undefined ? (
           <Button variant="outlined" color="inherit" href="/signin">
