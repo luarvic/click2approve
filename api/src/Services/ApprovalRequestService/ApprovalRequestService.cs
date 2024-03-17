@@ -77,6 +77,7 @@ public class ApprovalRequestService(ApiDbContext db) : IApprovalRequestService
     {
         var approvalRequestTask = await _db.ApprovalRequestTasks
             .Include(t => t.ApprovalRequest)
+            .Include(t => t.ApprovalRequest.Tasks)
             .FirstAsync(t => t.Id == payload.Id && t.Approver == user.NormalizedEmail, cancellationToken);
         if (approvalRequestTask.Status != ApprovalStatus.Submitted)
         {
@@ -91,13 +92,18 @@ public class ApprovalRequestService(ApiDbContext db) : IApprovalRequestService
         // Calculate and update approval request status.
         if (approvalRequestTask.ApprovalRequest.Status == ApprovalStatus.Submitted)
         {
-            if (payload.Status == ApprovalStatus.Rejected)
+            switch (payload.Status)
             {
-                approvalRequestTask.ApprovalRequest.Status = ApprovalStatus.Rejected;
-            }
-            else if (!approvalRequestTask.ApprovalRequest.Tasks.Any(t => t.Status != ApprovalStatus.Approved && t.Approver != user.NormalizedEmail))
-            {
-                approvalRequestTask.ApprovalRequest.Status = ApprovalStatus.Approved;
+                case ApprovalStatus.Rejected:
+                    approvalRequestTask.ApprovalRequest.Status = ApprovalStatus.Rejected;
+                    break;
+                case ApprovalStatus.Approved:
+                    if (!approvalRequestTask.ApprovalRequest.Tasks.Any(t => t.Id != approvalRequestTask.Id
+                        && t.Status == ApprovalStatus.Submitted))
+                    {
+                        approvalRequestTask.ApprovalRequest.Status = ApprovalStatus.Approved;
+                    }
+                    break;
             }
         }
 
