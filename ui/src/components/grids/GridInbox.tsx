@@ -1,5 +1,4 @@
-import { Check, Close, Loop, QuestionMark } from "@mui/icons-material";
-import { Box, Link, Stack, Tooltip } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -10,21 +9,30 @@ import {
   GridToolbarFilterButton,
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
-import { ApprovalStatus } from "../../models/ApprovalStatus";
+import { useEffect } from "react";
+import { Tab } from "../../models/Tab";
 import { IUserFile } from "../../models/UserFile";
+import { commonStore } from "../../stores/CommonStore";
 import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../stores/Constants";
 import { taskStore } from "../../stores/TaskStore";
 import {
   getHumanReadableRelativeDate,
   getLocaleDateTimeString,
 } from "../../utils/Converters";
-import { downloadUserFile } from "../../utils/Downloaders";
 import Tabs from "../Tabs";
 import DialogTaskReview from "../dialogs/DialogTaskReview";
+import { ListUserFiles } from "../lists/ListUserFiles";
 import { MenuTaskActions } from "../menus/MenuTaskActions";
 
 const GridInbox = () => {
-  const { tasks } = taskStore;
+  const { setCurrentTab } = commonStore;
+  const { tasks, clearTasks, loadTasks } = taskStore;
+
+  useEffect(() => {
+    setCurrentTab(Tab.Inbox);
+    clearTasks();
+    loadTasks(Tab.Inbox);
+  }, []);
 
   const customToolbar = () => {
     return (
@@ -35,19 +43,6 @@ const GridInbox = () => {
         <GridToolbarExport />
       </GridToolbarContainer>
     );
-  };
-
-  const renderStatus = (status: ApprovalStatus) => {
-    switch (status) {
-      case 0:
-        return <Loop />;
-      case 1:
-        return <Check />;
-      case 2:
-        return <Close />;
-      default:
-        return <QuestionMark />;
-    }
   };
 
   const columns: GridColDef[] = [
@@ -86,18 +81,7 @@ const GridInbox = () => {
           .join(", "),
       renderCell: (params) => {
         return (
-          <Stack>
-            {params.row.approvalRequest.userFiles.map((userFile: IUserFile) => {
-              return (
-                <Link
-                  component="button"
-                  onClick={() => downloadUserFile(userFile)}
-                >
-                  {userFile.name}
-                </Link>
-              );
-            })}
-          </Stack>
+          <ListUserFiles userFiles={params.row.approvalRequest.userFiles} />
         );
       },
     },

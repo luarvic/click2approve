@@ -1,5 +1,5 @@
 import { Check, Close, Loop, QuestionMark } from "@mui/icons-material";
-import { Box, Link, Stack, Tooltip } from "@mui/material";
+import { Box, Stack, Tooltip } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -10,20 +10,30 @@ import {
   GridToolbarFilterButton,
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
+import { useEffect } from "react";
 import { ApprovalStatus } from "../../models/ApprovalStatus";
+import { Tab } from "../../models/Tab";
 import { IUserFile } from "../../models/UserFile";
+import { commonStore } from "../../stores/CommonStore";
 import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../stores/Constants";
 import { taskStore } from "../../stores/TaskStore";
 import {
   getHumanReadableRelativeDate,
   getLocaleDateTimeString,
 } from "../../utils/Converters";
-import { downloadUserFile } from "../../utils/Downloaders";
 import Tabs from "../Tabs";
 import DialogTaskReview from "../dialogs/DialogTaskReview";
+import { ListUserFiles } from "../lists/ListUserFiles";
 
 const GridArchive = () => {
-  const { tasks } = taskStore;
+  const { setCurrentTab } = commonStore;
+  const { tasks, clearTasks, loadTasks } = taskStore;
+
+  useEffect(() => {
+    setCurrentTab(Tab.Archive);
+    clearTasks();
+    loadTasks(Tab.Archive);
+  }, []);
 
   const customToolbar = () => {
     return (
@@ -105,18 +115,7 @@ const GridArchive = () => {
           .join(", "),
       renderCell: (params) => {
         return (
-          <Stack>
-            {params.row.approvalRequest.userFiles.map((userFile: IUserFile) => {
-              return (
-                <Link
-                  component="button"
-                  onClick={() => downloadUserFile(userFile)}
-                >
-                  {userFile.name}
-                </Link>
-              );
-            })}
-          </Stack>
+          <ListUserFiles userFiles={params.row.approvalRequest.userFiles} />
         );
       },
     },

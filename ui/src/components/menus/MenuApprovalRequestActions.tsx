@@ -12,7 +12,10 @@ interface IApprovalRequestActionsProps {
 export const MenuApprovalRequestActions: React.FC<
   IApprovalRequestActionsProps
 > = ({ approvalRequest }) => {
-  const { setApprovalRequestViewDialogIsOpen } = commonStore;
+  const {
+    setApprovalRequestViewDialogIsOpen,
+    setApprovalRequestDeleteDialogIsOpen,
+  } = commonStore;
   const { setCurrentApprovalRequest } = approvalRequestStore;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -28,6 +31,8 @@ export const MenuApprovalRequestActions: React.FC<
     handleClose();
   };
   const handleDelete = () => {
+    setCurrentApprovalRequest(approvalRequest);
+    setApprovalRequestDeleteDialogIsOpen(true);
     handleClose();
   };
 
@@ -51,7 +56,7 @@ export const MenuApprovalRequestActions: React.FC<
           "aria-labelledby": "basic-button",
         }}
       >
-        <MenuItem onClick={handleView}>Track approval</MenuItem>
+        <MenuItem onClick={handleView}>Track</MenuItem>
         <MenuItem onClick={handleDelete}>Delete</MenuItem>
       </Menu>
     </div>

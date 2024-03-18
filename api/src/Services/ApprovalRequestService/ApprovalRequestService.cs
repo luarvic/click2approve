@@ -5,9 +5,10 @@ using Microsoft.EntityFrameworkCore;
 namespace api.Services;
 
 // Implements a service that manages approval requests.
-public class ApprovalRequestService(ApiDbContext db) : IApprovalRequestService
+public class ApprovalRequestService(ApiDbContext db, IAuditLogService auditLogService) : IApprovalRequestService
 {
     private readonly ApiDbContext _db = db;
+    private readonly IAuditLogService _auditLogService = auditLogService;
 
     public async Task SubmitApprovalRequestAsync(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
     {
@@ -18,7 +19,7 @@ public class ApprovalRequestService(ApiDbContext db) : IApprovalRequestService
         var utcNow = DateTime.UtcNow;
 
         // Add request.
-        var newApprovalRequest = _db.ApprovalRequests.Add(new ApprovalRequest
+        var newApprovalRequest = await _db.ApprovalRequests.AddAsync(new ApprovalRequest
         {
             UserFiles = userFiles,
             Approvers = normalizedEmails,
@@ -28,31 +29,46 @@ public class ApprovalRequestService(ApiDbContext db) : IApprovalRequestService
             Status = ApprovalStatus.Submitted,
             Author = user.NormalizedEmail!,
             Tasks = []
-        });
+        }, cancellationToken);
 
         // Add tasks.
         foreach (var approver in normalizedEmails)
         {
-            _db.ApprovalRequestTasks.Add(new ApprovalRequestTask
+            await _db.ApprovalRequestTasks.AddAsync(new ApprovalRequestTask
             {
                 ApprovalRequest = newApprovalRequest.Entity,
                 Approver = approver.ToUpper(),
                 Status = ApprovalStatus.Submitted
-            });
+            }, cancellationToken);
         }
-
-        // Save changes to generate IDs of the new entries.
         await _db.SaveChangesAsync(cancellationToken);
 
         // Add audit log entry.
-        _db.AuditLogEntries.Add(new AuditLogEntry
-        {
-            Who = user.NormalizedEmail!,
-            When = utcNow,
-            What = "Submitted approval request",
-            Data = newApprovalRequest.Entity.ToString()
-        });
+        await _auditLogService.LogAsync(user.NormalizedEmail!,
+            utcNow,
+            "Submitted approval request",
+            newApprovalRequest.Entity.ToString(),
+            cancellationToken
+        );
+    }
+
+    public async Task DeleteApprovalRequestAsync(AppUser user, long id, CancellationToken cancellationToken)
+    {
+        var approvalRequest = await _db.ApprovalRequests
+            .Include(r => r.Tasks)
+            .Include(r => r.UserFiles)
+            .FirstAsync(r => r.Id == id && r.Author == user.NormalizedEmail, cancellationToken);
+        var approvalRequestJson = approvalRequest.ToString();
+        _db.ApprovalRequests.Remove(approvalRequest);
         await _db.SaveChangesAsync(cancellationToken);
+
+        // Add audit log entry.
+        await _auditLogService.LogAsync(user.NormalizedEmail!,
+            DateTime.UtcNow,
+            "Deleted approval request",
+            approvalRequestJson,
+            cancellationToken
+        );
     }
 
     public async Task<List<ApprovalRequest>> ListApprovalRequestsAsync(AppUser user, CancellationToken cancellationToken)
@@ -107,15 +123,13 @@ public class ApprovalRequestService(ApiDbContext db) : IApprovalRequestService
             }
         }
 
-        // Add log entry.
-        _db.AuditLogEntries.Add(new AuditLogEntry
-        {
-            Who = user.NormalizedEmail!,
-            When = DateTime.UtcNow,
-            What = "Completed task",
-            Data = approvalRequestTask.ToString()
-        });
-        await _db.SaveChangesAsync(cancellationToken);
+        // Add audit log entry.
+        await _auditLogService.LogAsync(user.NormalizedEmail!,
+            DateTime.UtcNow,
+            "Completed task",
+            approvalRequestTask.ToString(),
+            cancellationToken
+        );
     }
 
     public async Task<long> CountUncompletedTasksAsync(AppUser user, CancellationToken cancellationToken)

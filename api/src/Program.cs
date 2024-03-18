@@ -50,6 +50,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddHttpClient();
 builder.Services.AddDbContext<ApiDbContext>();
+builder.Services.AddTransient<IAuditLogService, AuditLogService>();
 builder.Services.AddTransient<IUserFileService, UserFileService>();
 builder.Services.AddTransient<IApprovalRequestService, ApprovalRequestService>();
 builder.Services.AddSingleton<IStoreService, StoreService>();

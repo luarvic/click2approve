@@ -1,5 +1,5 @@
 import { Check, Close, Loop, QuestionMark } from "@mui/icons-material";
-import { Box, Link, Stack, Tooltip, Typography } from "@mui/material";
+import { Box, Stack, Tooltip } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -10,22 +10,35 @@ import {
   GridToolbarFilterButton,
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
+import { useEffect } from "react";
 import { ApprovalStatus } from "../../models/ApprovalStatus";
+import { Tab } from "../../models/Tab";
 import { IUserFile } from "../../models/UserFile";
 import { approvalRequestStore } from "../../stores/ApprovalRequestStore";
+import { commonStore } from "../../stores/CommonStore";
 import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../stores/Constants";
 import {
   getHumanReadableRelativeDate,
   getLocaleDateTimeString,
 } from "../../utils/Converters";
-import { downloadUserFile } from "../../utils/Downloaders";
 import Tabs from "../Tabs";
+import DialogApprovalRequestDelete from "../dialogs/DialogApprovalRequestDelete";
 import DialogApprovalRequestView from "../dialogs/DialogApprovalRequestView";
+import { ListApprovers } from "../lists/ListApprovers";
+import { ListUserFiles } from "../lists/ListUserFiles";
 import { MenuApprovalRequestActions } from "../menus/MenuApprovalRequestActions";
 
 // Data grid with approval requests.
 const GridApprovalRequests = () => {
-  const { approvalRequests } = approvalRequestStore;
+  const { setCurrentTab } = commonStore;
+  const { approvalRequests, clearApprovalRequests, loadApprovalRequests } =
+    approvalRequestStore;
+
+  useEffect(() => {
+    setCurrentTab(Tab.Sent);
+    clearApprovalRequests();
+    loadApprovalRequests();
+  }, []);
 
   const customToolbar = () => {
     return (
@@ -87,17 +100,7 @@ const GridApprovalRequests = () => {
           .map((approver: string) => approver.toLowerCase())
           .join(", "),
       renderCell: (params) => {
-        return (
-          <Stack>
-            {params.row.approvers.map((approver: string) => {
-              return (
-                <Typography variant="body2">
-                  {approver.toLowerCase()}
-                </Typography>
-              );
-            })}
-          </Stack>
-        );
+        return <ListApprovers approvers={params.row.approvers} />;
       },
     },
     {
@@ -107,20 +110,7 @@ const GridApprovalRequests = () => {
       valueGetter: (params) =>
         params.value.map((userFile: IUserFile) => userFile.name).join(", "),
       renderCell: (params) => {
-        return (
-          <Stack>
-            {params.row.userFiles.map((userFile: IUserFile) => {
-              return (
-                <Link
-                  component="button"
-                  onClick={() => downloadUserFile(userFile)}
-                >
-                  {userFile.name}
-                </Link>
-              );
-            })}
-          </Stack>
-        );
+        return <ListUserFiles userFiles={params.row.userFiles} />;
       },
     },
     {
@@ -186,6 +176,7 @@ const GridApprovalRequests = () => {
         />
       </Box>
       <DialogApprovalRequestView />
+      <DialogApprovalRequestDelete />
     </Box>
   );
 };

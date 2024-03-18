@@ -4,21 +4,17 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Link,
-  List,
-  ListItem,
   TextField,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { ApprovalStatus } from "../../models/ApprovalStatus";
 import { Tab } from "../../models/Tab";
-import { IUserFile } from "../../models/UserFile";
 import { commonStore } from "../../stores/CommonStore";
 import { taskStore } from "../../stores/TaskStore";
 import { userAccountStore } from "../../stores/UserAccountStore";
 import { completeTask } from "../../utils/ApiClient";
-import { downloadUserFile } from "../../utils/Downloaders";
+import { ListUserFiles } from "../lists/ListUserFiles";
 
 const DialogTaskReview = () => {
   const { currentTab, taskReviewDialogIsOpen, setTaskReviewDialogIsOpen } =
@@ -93,24 +89,12 @@ const DialogTaskReview = () => {
     <Dialog open={taskReviewDialogIsOpen} onClose={handleClose}>
       <DialogTitle>Review the files</DialogTitle>
       <DialogContent dividers>
-        <List>
-          {currentTask &&
-            currentTask.approvalRequest.userFiles.map((userFile: IUserFile) => {
-              return (
-                <ListItem disablePadding>
-                  <Link
-                    component="button"
-                    onClick={() => downloadUserFile(userFile)}
-                  >
-                    {userFile.name}
-                  </Link>
-                </ListItem>
-              );
-            })}
-        </List>
-        {renderDialogInputs(currentTab)}
+        {currentTask && (
+          <ListUserFiles userFiles={currentTask.approvalRequest.userFiles} />
+        )}
+        {currentTab && renderDialogInputs(currentTab)}
       </DialogContent>
-      {renderDialogActions(currentTab)}
+      {currentTab && renderDialogActions(currentTab)}
     </Dialog>
   );
 };

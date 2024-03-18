@@ -21,9 +21,7 @@ public class StoreService(IConfiguration configuration, ILogger<StoreService> lo
         }
         catch (Exception e)
         {
-            var errorMessage = $"Unable to create file {Path.GetFileName(path)}.";
-            _logger.LogError(e, errorMessage);
-            throw new Exception(errorMessage, e);
+            throw new Exception($"Unable to create file {Path.GetFileName(path)}.", e);
         }
     }
 

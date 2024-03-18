@@ -86,7 +86,7 @@ export const submitApprovalRequest = async (
   approveBy: Date | null,
   comment: string | null
 ): Promise<string> => {
-  const { data } = await axios.post("api/request/submit", {
+  const { data } = await axios.post("api/request", {
     userFileIds: files.map((userFile) => userFile.id.toString()),
     emails: approvers,
     approveBy: approveBy,
@@ -95,9 +95,13 @@ export const submitApprovalRequest = async (
   return data;
 };
 
+export const deleteApprovalRequest = async (id: number): Promise<string> => {
+  const { data } = await axios.delete(`api/request?id=${id}`);
+  return data;
+};
+
 export const listApprovalRequests = async (): Promise<IApprovalRequest[]> => {
   const { data } = await axios.get<IApprovalRequest[]>("api/request/list");
-  console.table(data);
   return data;
 };
 

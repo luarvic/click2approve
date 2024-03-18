@@ -34,7 +34,7 @@ public class ApprovalRequestController(
     /// <response code="200">If request succeeded.</response>
     /// <response code="401">If authorization failed.</response>
     /// <response code="500">If request failed.</response>
-    [HttpPost("submit")]
+    [HttpPost()]
     public async Task<IActionResult> SubmitAsync([FromBody] ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
     {
         try
@@ -46,6 +46,30 @@ public class ApprovalRequestController(
         catch (Exception e)
         {
             _logger.LogError(e, "Unable to submit approval request.");
+            return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+        }
+    }
+
+    /// <summary>
+    /// Deletes an approval request.
+    /// </summary>
+    /// <param name="id">An ID of the approval request to delete.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <response code="200">If request succeeded.</response>
+    /// <response code="401">If authorization failed.</response>
+    /// <response code="500">If request failed.</response>
+    [HttpDelete()]
+    public async Task<IActionResult> SubmitAsync(long id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
+            await _approvalRequestService.DeleteApprovalRequestAsync(user, id, cancellationToken);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Unable to delete approval request {id}.", id);
             return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }

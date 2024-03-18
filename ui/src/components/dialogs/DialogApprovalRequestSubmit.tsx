@@ -1,14 +1,9 @@
-import { InsertDriveFile } from "@mui/icons-material";
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Link,
-  List,
-  ListItem,
-  ListItemIcon,
   TextField,
 } from "@mui/material";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -17,11 +12,10 @@ import { Dayjs } from "dayjs";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { IUserFile } from "../../models/UserFile";
 import { commonStore } from "../../stores/CommonStore";
 import { fileStore } from "../../stores/FileStore";
 import { submitApprovalRequest } from "../../utils/ApiClient";
-import { downloadUserFile } from "../../utils/Downloaders";
+import { ListUserFiles } from "../lists/ListUserFiles";
 
 const DialogApprovalRequestSubmit = () => {
   const {
@@ -65,21 +59,7 @@ const DialogApprovalRequestSubmit = () => {
     <Dialog open={approvalRequestSubmitDialogIsOpen} onClose={handleClose}>
       <DialogTitle>Submit for approval</DialogTitle>
       <DialogContent dividers>
-        <List>
-          {fileStore.getSelectedUserFiles().map((userFile: IUserFile) => (
-            <ListItem disableGutters>
-              <ListItemIcon>
-                <InsertDriveFile />
-              </ListItemIcon>
-              <Link
-                component="button"
-                onClick={() => downloadUserFile(userFile)}
-              >
-                {userFile.name}
-              </Link>
-            </ListItem>
-          ))}
-        </List>
+        <ListUserFiles userFiles={getSelectedUserFiles()} />
         <TextField
           margin="normal"
           required

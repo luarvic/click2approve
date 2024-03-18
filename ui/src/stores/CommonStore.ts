@@ -2,20 +2,23 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { Tab } from "../models/Tab";
 
 class CommonStore {
-  currentTab: Tab;
+  currentTab?: Tab;
   approvalRequestSubmitDialogIsOpen: boolean;
   approvalRequestViewDialogIsOpen: boolean;
+  approvalRequestDeleteDialogIsOpen: boolean;
   taskReviewDialogIsOpen: boolean;
 
   constructor(
-    currentTab: Tab = Tab.Files,
+    currentTab?: Tab,
     approvalRequestSubmitDialogIsOpen: boolean = false,
     approvalRequestViewDialogIsOpen: boolean = false,
+    approvalRequestDeleteDialogIsOpen: boolean = false,
     taskReviewDialogIsOpen: boolean = false
   ) {
     this.currentTab = currentTab;
     this.approvalRequestSubmitDialogIsOpen = approvalRequestSubmitDialogIsOpen;
     this.approvalRequestViewDialogIsOpen = approvalRequestViewDialogIsOpen;
+    this.approvalRequestDeleteDialogIsOpen = approvalRequestDeleteDialogIsOpen;
     this.taskReviewDialogIsOpen = taskReviewDialogIsOpen;
     makeAutoObservable(this);
   }
@@ -35,6 +38,12 @@ class CommonStore {
   setApprovalRequestViewDialogIsOpen = (isOpen: boolean) => {
     runInAction(() => {
       this.approvalRequestViewDialogIsOpen = isOpen;
+    });
+  };
+
+  setApprovalRequestDeleteDialogIsOpen = (isOpen: boolean) => {
+    runInAction(() => {
+      this.approvalRequestDeleteDialogIsOpen = isOpen;
     });
   };
 

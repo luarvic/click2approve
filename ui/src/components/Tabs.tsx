@@ -11,52 +11,38 @@ import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tab } from "../models/Tab";
-import { approvalRequestStore } from "../stores/ApprovalRequestStore";
 import { commonStore } from "../stores/CommonStore";
-import { fileStore } from "../stores/FileStore";
 import { taskStore } from "../stores/TaskStore";
 
 // Tabs (Files, Inbox, Archive, Sent).
 const Tabs = () => {
   const { currentTab, setCurrentTab } = commonStore;
-  const { clearUserFiles, loadUserFiles } = fileStore;
-  const { clearApprovalRequests, loadApprovalRequests } = approvalRequestStore;
-  const {
-    numberOfUncompletedTasks,
-    clearTasks,
-    loadTasks,
-    loadNumberOfUncompletedTasks,
-  } = taskStore;
+
+  const { numberOfUncompletedTasks, loadNumberOfUncompletedTasks } = taskStore;
   const navigate = useNavigate();
 
   useEffect(() => {
-    handleTabChange(currentTab);
+    loadNumberOfUncompletedTasks();
   }, []);
 
   const handleTabChange = (tab: Tab) => {
     loadNumberOfUncompletedTasks();
-    currentTab !== tab && setCurrentTab(tab);
-    switch (tab) {
-      case Tab.Files:
-        clearUserFiles();
-        loadUserFiles();
-        navigate("/files");
-        break;
-      case Tab.Inbox:
-        clearTasks();
-        loadTasks(tab);
-        navigate(`/inbox`);
-        break;
-      case Tab.Archive:
-        clearTasks();
-        loadTasks(tab);
-        navigate(`/archive`);
-        break;
-      case Tab.Sent:
-        clearApprovalRequests();
-        loadApprovalRequests();
-        navigate("/sent");
-        break;
+    if (currentTab !== tab) {
+      setCurrentTab(tab);
+      switch (tab) {
+        case Tab.Files:
+          navigate("/files");
+          break;
+        case Tab.Inbox:
+          navigate(`/inbox`);
+          break;
+        case Tab.Archive:
+          navigate(`/archive`);
+          break;
+        case Tab.Sent:
+          navigate("/sent");
+          break;
+      }
     }
   };
 
