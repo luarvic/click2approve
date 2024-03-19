@@ -1,7 +1,9 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { toast } from "react-toastify";
-import { IUserAccount, UserAccount } from "../models/UserAccount";
-import { signInUser, signUpUser, validateToken } from "../utils/ApiClient";
+import { ICredentials } from "../models/Credentials";
+import { IUserAccount } from "../models/UserAccount";
+import { getUserInfo, signInUser, signUpUser } from "../utils/ApiClient";
+import { deleteTokens, readTokens } from "../utils/CacheClient";
 
 class UserAccountStore {
   currentUser: IUserAccount | undefined;
@@ -11,44 +13,28 @@ class UserAccountStore {
     makeAutoObservable(this);
   }
 
-  cacheUserAccount = () => {
-    if (this.currentUser) {
-      localStorage.setItem("email", this.currentUser.email);
-      localStorage.setItem("token", this.currentUser.token);
-    }
-  };
-
-  trySigningInWithCachedUserAccount = async () => {
-    const email = localStorage.getItem("email");
-    const token = localStorage.getItem("token");
-    if (email && token) {
-      try {
-        await validateToken();
+  trySigningInWithCachedToken = async () => {
+    try {
+      const tokens = readTokens();
+      if (tokens) {
+        const currentUser = await getUserInfo();
         runInAction(() => {
-          this.currentUser = new UserAccount(email, "", "", token);
+          this.currentUser = currentUser;
         });
-      } catch {
-        this.signOut();
       }
-    } else {
-      runInAction(() => {
-        this.currentUser = undefined;
-      });
+    } catch {
+      this.signOut();
     }
   };
 
-  signUp = async (userAccount: IUserAccount): Promise<boolean> => {
-    if (userAccount.password !== userAccount.passwordConfirmation) {
+  signUp = async (credentials: ICredentials): Promise<boolean> => {
+    if (credentials.password !== credentials.passwordConfirmation) {
       toast.warn("Password and confirmation do not match.");
       return false;
     }
     try {
-      await signUpUser(userAccount.email, userAccount.password);
-      const token = await signInUser(userAccount.email, userAccount.password);
-      runInAction(() => {
-        this.currentUser = new UserAccount(userAccount.email, "", "", token);
-      });
-      this.cacheUserAccount();
+      await signUpUser(credentials);
+      await this.signIn(credentials);
     } catch (e) {
       if (e instanceof Error) {
         toast.warn(e.message);
@@ -60,13 +46,13 @@ class UserAccountStore {
     return true;
   };
 
-  signIn = async (userAccount: IUserAccount): Promise<boolean> => {
+  signIn = async (credentials: ICredentials): Promise<boolean> => {
     try {
-      const token = await signInUser(userAccount.email, userAccount.password);
+      await signInUser(credentials);
+      const currentUser = await getUserInfo();
       runInAction(() => {
-        this.currentUser = new UserAccount(userAccount.email, "", "", token);
+        this.currentUser = currentUser;
       });
-      this.cacheUserAccount();
     } catch (e) {
       if (e instanceof Error) {
         toast.warn(e.message);
@@ -79,8 +65,7 @@ class UserAccountStore {
   };
 
   signOut = () => {
-    localStorage.removeItem("email");
-    localStorage.removeItem("token");
+    deleteTokens();
     runInAction(() => {
       this.currentUser = undefined;
     });

@@ -10,8 +10,8 @@ import {
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { Credentials } from "../models/Credentials";
 import { Tab } from "../models/Tab";
-import { UserAccount } from "../models/UserAccount";
 import { commonStore } from "../stores/CommonStore";
 import { userAccountStore } from "../stores/UserAccountStore";
 
@@ -25,10 +25,13 @@ const SignIn = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const name = data.get("email");
+    const email = data.get("email");
     const password = data.get("password");
-    if (name && password) {
-      const credentials = new UserAccount(name.toString(), password.toString());
+    if (email && password) {
+      const credentials = new Credentials(
+        email.toString(),
+        password.toString()
+      );
       if (await signIn(credentials)) {
         setCurrentTab(Tab.Files);
         navigate("/files");

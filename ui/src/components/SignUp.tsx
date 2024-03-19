@@ -10,7 +10,7 @@ import {
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { UserAccount } from "../models/UserAccount";
+import { Credentials } from "../models/Credentials";
 import { userAccountStore } from "../stores/UserAccountStore";
 
 // Sign up dialog.
@@ -21,12 +21,12 @@ const SignUp = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const name = data.get("email");
+    const email = data.get("email");
     const password = data.get("password");
     const passwordConfirmation = data.get("passwordConfirmation");
-    if (name && password && passwordConfirmation) {
-      const credentials = new UserAccount(
-        name.toString(),
+    if (email && password && passwordConfirmation) {
+      const credentials = new Credentials(
+        email.toString(),
         password.toString(),
         passwordConfirmation.toString()
       );

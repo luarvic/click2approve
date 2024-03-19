@@ -23,10 +23,10 @@ import GridInbox from "./grids/GridInbox";
 
 // Top level component.
 const App = () => {
-  const { trySigningInWithCachedUserAccount } = userAccountStore;
+  const { trySigningInWithCachedToken } = userAccountStore;
 
   useEffect(() => {
-    trySigningInWithCachedUserAccount();
+    trySigningInWithCachedToken();
   }, []);
 
   return (

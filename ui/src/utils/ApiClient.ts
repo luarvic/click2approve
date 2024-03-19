@@ -3,14 +3,18 @@ import { IApprovalRequest } from "../models/ApprovalRequest";
 import { IApprovalRequestTask } from "../models/ApprovalRequestTask";
 import { ApprovalStatus } from "../models/ApprovalStatus";
 import { IAuthResponse } from "../models/AuthResponse";
+import { ICredentials } from "../models/Credentials";
+import { IUserAccount } from "../models/UserAccount";
 import { IUserFile } from "../models/UserFile";
 import { API_URI } from "../stores/Constants";
+import { readTokens, writeTokens } from "./CacheClient";
 
 axios.defaults.baseURL = API_URI;
 axios.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  var tokens = readTokens();
+  if (tokens) {
+    console.log(tokens);
+    config.headers.Authorization = `Bearer ${tokens.accessToken}`;
   }
   return config;
 });
@@ -18,9 +22,21 @@ axios.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config;
     if (error.response.status === 401) {
-      window.location.href = "/signin";
+      if (!originalRequest._retry) {
+        const tokens = readTokens();
+        if (tokens) {
+          const newTokens = await refreshAccessToken(tokens.refreshToken);
+          axios.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${newTokens.accessToken}`;
+          return axios(originalRequest);
+        }
+      } else {
+        window.location.href = "/signin";
+      }
     }
     // TODO
     // Come up with better solution.
@@ -30,28 +46,39 @@ axios.interceptors.response.use(
 );
 
 export const signUpUser = async (
-  email: string,
-  password: string
+  credentials: ICredentials
 ): Promise<string> => {
   const { data } = await axios.post<string>("api/account/register", {
-    email: email,
-    password: password,
+    email: credentials.email,
+    password: credentials.password,
   });
   return data;
 };
+
 export const signInUser = async (
-  email: string,
-  password: string
-): Promise<string> => {
+  credentials: ICredentials
+): Promise<IAuthResponse> => {
   const { data } = await axios.post<IAuthResponse>("api/account/login", {
-    email: email,
-    password: password,
+    email: credentials.email,
+    password: credentials.password,
   });
-  return data.accessToken;
+  writeTokens(data);
+  return data;
 };
 
-export const validateToken = async (): Promise<void> => {
-  await axios.get("api/account/manage/info");
+export const refreshAccessToken = async (
+  refreshToken: string
+): Promise<IAuthResponse> => {
+  const { data } = await axios.post<IAuthResponse>("api/account/refresh", {
+    refreshToken: refreshToken,
+  });
+  writeTokens(data);
+  return data;
+};
+
+export const getUserInfo = async (): Promise<IUserAccount> => {
+  const { data } = await axios.get<IUserAccount>("api/account/manage/info");
+  return data;
 };
 
 export const uploadFiles = async (files: FileList): Promise<IUserFile[]> => {
