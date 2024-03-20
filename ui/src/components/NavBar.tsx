@@ -23,7 +23,7 @@ const NavBar = () => {
         >
           click2approve
         </Typography>
-        {currentUser === undefined ? (
+        {!currentUser ? (
           <Button variant="outlined" color="inherit" href="/signin">
             Sign in
           </Button>

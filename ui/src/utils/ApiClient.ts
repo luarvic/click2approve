@@ -25,7 +25,10 @@ axios.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-    if (error.response.status === 401) {
+    if (
+      error.response.status === 401 &&
+      originalRequest.url !== "api/account/refresh"
+    ) {
       if (!originalRequest._retry) {
         const tokens = readTokens();
         if (tokens) {

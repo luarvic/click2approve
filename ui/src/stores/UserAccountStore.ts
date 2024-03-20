@@ -6,7 +6,7 @@ import { getUserInfo, signInUser, signUpUser } from "../utils/ApiClient";
 import { deleteTokens, readTokens } from "../utils/CacheClient";
 
 class UserAccountStore {
-  currentUser: IUserAccount | undefined;
+  currentUser: IUserAccount | null | undefined; // undefined means we don't know yet if it's authenticated or anonymous user
 
   constructor(currentUser: IUserAccount | undefined = undefined) {
     this.currentUser = currentUser;
@@ -42,17 +42,16 @@ class UserAccountStore {
           this.currentUser = currentUser;
         });
         return true;
-      } else {
-        this.signOut();
       }
     }
+    this.signOut();
     return false;
   };
 
   signOut = () => {
     deleteTokens();
     runInAction(() => {
-      this.currentUser = undefined;
+      this.currentUser = null;
     });
   };
 }

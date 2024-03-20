@@ -1,6 +1,6 @@
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
+import { Fragment, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import {
@@ -23,13 +23,15 @@ import GridInbox from "./grids/GridInbox";
 
 // Top level component.
 const App = () => {
-  const { signInWithCachedToken } = userAccountStore;
+  const { currentUser, signInWithCachedToken } = userAccountStore;
 
   useEffect(() => {
     signInWithCachedToken();
   }, []);
 
-  return (
+  return currentUser === undefined ? (
+    <Fragment></Fragment>
+  ) : (
     <ThemeProvider theme={THEME}>
       <CssBaseline>
         <BrowserRouter>
@@ -38,10 +40,22 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
-            <Route path="/files" element={<GridFiles />} />
-            <Route path="/inbox" element={<GridInbox />} />
-            <Route path="/archive" element={<GridArchive />} />
-            <Route path="/sent" element={<GridApprovalRequests />} />
+            <Route
+              path="/files"
+              element={currentUser ? <GridFiles /> : <SignIn />}
+            />
+            <Route
+              path="/inbox"
+              element={currentUser ? <GridInbox /> : <SignIn />}
+            />
+            <Route
+              path="/archive"
+              element={currentUser ? <GridArchive /> : <SignIn />}
+            />
+            <Route
+              path="/sent"
+              element={currentUser ? <GridApprovalRequests /> : <SignIn />}
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
