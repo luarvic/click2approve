@@ -11,7 +11,6 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
-import { toast } from "react-toastify";
 import { commonStore } from "../../stores/CommonStore";
 import { fileStore } from "../../stores/FileStore";
 import { submitApprovalRequest } from "../../utils/ApiClient";
@@ -25,33 +24,25 @@ const DialogApprovalRequestSubmit = () => {
   const { getSelectedUserFiles } = fileStore;
   const [approvers, setApprovers] = useState<string>("");
   const [approveBy, setApproveBy] = useState<Dayjs | null>(null);
-  const [comment, setComment] = useState<string | null>(null);
+  const [comment, setComment] = useState<string>("");
 
   const handleSend = async () => {
-    try {
-      if (!approvers) {
-        throw new Error("Approver email is not defined.");
-      }
-      await submitApprovalRequest(
-        getSelectedUserFiles(),
-        approvers.split(",").map((a) => a.toLocaleLowerCase().trim()),
-        approveBy ? approveBy.toDate() : null,
-        comment
-      );
-      handleClose();
-    } catch (e) {
-      if (e instanceof Error) {
-        toast.warn(e.message);
-      } else {
-        toast.warn("Unable to send files.");
-      }
+    if (!approvers) {
+      throw new Error("Approver email is not defined.");
     }
+    await submitApprovalRequest(
+      getSelectedUserFiles(),
+      approvers.split(",").map((a) => a.toLocaleLowerCase().trim()),
+      approveBy ? approveBy.toDate() : null,
+      comment
+    );
+    handleClose();
   };
 
   const handleClose = () => {
     setApprovers("");
     setApproveBy(null);
-    setComment(null);
+    setComment("");
     setApprovalRequestSubmitDialogIsOpen(false);
   };
 

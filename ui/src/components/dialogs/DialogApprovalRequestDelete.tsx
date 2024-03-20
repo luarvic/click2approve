@@ -6,7 +6,6 @@ import {
   DialogTitle,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { toast } from "react-toastify";
 import { approvalRequestStore } from "../../stores/ApprovalRequestStore";
 import { commonStore } from "../../stores/CommonStore";
 import { deleteApprovalRequest } from "../../utils/ApiClient";
@@ -25,20 +24,12 @@ const DialogApprovalRequestDelete = () => {
   } = approvalRequestStore;
 
   const handleDelete = async () => {
-    try {
-      currentApprovalRequest &&
-        deleteApprovalRequest(currentApprovalRequest.id).then(() => {
-          handleClose();
-          clearApprovalRequests();
-          loadApprovalRequests();
-        });
-    } catch (e) {
-      if (e instanceof Error) {
-        toast.warn(e.message);
-      } else {
-        toast.warn("Unable to delete approval request.");
-      }
-    }
+    currentApprovalRequest &&
+      deleteApprovalRequest(currentApprovalRequest.id).then(() => {
+        handleClose();
+        clearApprovalRequests();
+        loadApprovalRequests();
+      });
   };
 
   const handleClose = () => {

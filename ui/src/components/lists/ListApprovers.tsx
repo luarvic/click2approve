@@ -16,8 +16,8 @@ export const ListApprovers: React.FC<IListApproversProps> = ({
       alignItems="flex-start"
       sx={{ ...sx }}
     >
-      {approvers.map((approver) => (
-        <Box>{approver.toLowerCase()}</Box>
+      {approvers.map((approver, index) => (
+        <Box key={index}>{approver.toLowerCase()}</Box>
       ))}
     </Stack>
   );

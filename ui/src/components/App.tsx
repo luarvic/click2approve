@@ -23,10 +23,10 @@ import GridInbox from "./grids/GridInbox";
 
 // Top level component.
 const App = () => {
-  const { trySigningInWithCachedToken } = userAccountStore;
+  const { signInWithCachedToken } = userAccountStore;
 
   useEffect(() => {
-    trySigningInWithCachedToken();
+    signInWithCachedToken();
   }, []);
 
   return (
@@ -42,7 +42,6 @@ const App = () => {
             <Route path="/inbox" element={<GridInbox />} />
             <Route path="/archive" element={<GridArchive />} />
             <Route path="/sent" element={<GridApprovalRequests />} />
-            <Route path="/notfound" element={<NotFound />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -134,10 +134,12 @@ const GridArchive = () => {
               ).map((line) => <Box>{line}</Box>)}
             {params.row.comment && (
               <>
-                <Box>{">>>"}</Box>
-                {(params.row.comment.split(/\r?\n/) as string[]).map((line) => (
-                  <Box>{line}</Box>
-                ))}
+                <Box key="separator">{">>>"}</Box>
+                {(params.row.comment.split(/\r?\n/) as string[]).map(
+                  (line, index) => (
+                    <Box key={index}>{line}</Box>
+                  )
+                )}
               </>
             )}
           </Stack>
@@ -174,8 +176,12 @@ const GridArchive = () => {
           }}
           getRowHeight={() => "auto"}
           sx={{
-            "&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell": { py: 0.5 },
-            "&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell": { py: 1 },
+            "&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell": {
+              py: 0.5,
+            },
+            "&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell": {
+              py: 1,
+            },
             "&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell": {
               py: 1.5,
             },

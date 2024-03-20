@@ -13,55 +13,40 @@ class UserAccountStore {
     makeAutoObservable(this);
   }
 
-  trySigningInWithCachedToken = async () => {
-    try {
-      const tokens = readTokens();
-      if (tokens) {
-        const currentUser = await getUserInfo();
-        runInAction(() => {
-          this.currentUser = currentUser;
-        });
-      }
-    } catch {
-      this.signOut();
-    }
-  };
-
   signUp = async (credentials: ICredentials): Promise<boolean> => {
     if (credentials.password !== credentials.passwordConfirmation) {
       toast.warn("Password and confirmation do not match.");
       return false;
     }
-    try {
-      await signUpUser(credentials);
-      await this.signIn(credentials);
-    } catch (e) {
-      if (e instanceof Error) {
-        toast.warn(e.message);
-      } else {
-        toast.warn("Unable to sign up.");
-      }
+    await signUpUser(credentials);
+    if (await this.signIn(credentials)) {
       return false;
     }
     return true;
   };
 
   signIn = async (credentials: ICredentials): Promise<boolean> => {
-    try {
-      await signInUser(credentials);
-      const currentUser = await getUserInfo();
-      runInAction(() => {
-        this.currentUser = currentUser;
-      });
-    } catch (e) {
-      if (e instanceof Error) {
-        toast.warn(e.message);
-      } else {
-        toast.warn("Unable to sign in.");
-      }
-      return false;
+    if (this.currentUser) {
+      this.signOut();
     }
-    return true;
+    await signInUser(credentials);
+    return await this.signInWithCachedToken();
+  };
+
+  signInWithCachedToken = async (): Promise<boolean> => {
+    const tokens = readTokens();
+    if (tokens) {
+      const currentUser = await getUserInfo();
+      if (currentUser) {
+        runInAction(() => {
+          this.currentUser = currentUser;
+        });
+        return true;
+      } else {
+        this.signOut();
+      }
+    }
+    return false;
   };
 
   signOut = () => {

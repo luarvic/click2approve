@@ -34,10 +34,10 @@ const Tabs = () => {
           navigate("/files");
           break;
         case Tab.Inbox:
-          navigate(`/inbox`);
+          navigate("/inbox");
           break;
         case Tab.Archive:
-          navigate(`/archive`);
+          navigate("/archive");
           break;
         case Tab.Sent:
           navigate("/sent");

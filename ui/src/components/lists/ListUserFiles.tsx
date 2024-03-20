@@ -18,8 +18,12 @@ export const ListUserFiles: React.FC<IListUserFilesProps> = ({
       alignItems="flex-start"
       sx={{ ...sx }}
     >
-      {userFiles.map((userFile) => (
-        <Link component="button" onClick={() => downloadUserFile(userFile)}>
+      {userFiles.map((userFile, index) => (
+        <Link
+          key={index}
+          component="button"
+          onClick={() => downloadUserFile(userFile)}
+        >
           {userFile.name}
         </Link>
       ))}

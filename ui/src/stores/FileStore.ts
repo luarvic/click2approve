@@ -1,5 +1,4 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { toast } from "react-toastify";
 import { IUserFile } from "../models/UserFile";
 import { listFiles, uploadFiles } from "../utils/ApiClient";
 
@@ -18,42 +17,23 @@ class FileStore {
   }
 
   loadUserFiles = async () => {
-    try {
-      const userFiles = await listFiles();
-      userFiles.forEach(async (userFile) => {
-        userFile.createdDate = new Date(userFile.created + "Z");
-        runInAction(() => {
-          this.registry.set(userFile.id, userFile);
-        });
+    const userFiles = await listFiles();
+    userFiles.forEach(async (userFile) => {
+      userFile.createdDate = new Date(userFile.created + "Z");
+      runInAction(() => {
+        this.registry.set(userFile.id, userFile);
       });
-    } catch (e) {
-      if (e instanceof Error) {
-        toast.warn(e.message);
-      } else {
-        toast.warn("Unable to load user files.");
-      }
-    }
+    });
   };
 
   addUserFiles = async (files: FileList) => {
-    try {
-      const fileNames = Array.from(files, (file) => file.name);
-      toast.info(`Uploading file(s): ${fileNames.toString()}`, {});
-      const userFiles = await uploadFiles(files);
-      userFiles.forEach(async (userFile) => {
-        userFile.createdDate = new Date(userFile.created);
-        runInAction(() => {
-          this.registry.set(userFile.id, userFile);
-        });
+    const userFiles = await uploadFiles(files);
+    userFiles.forEach(async (userFile) => {
+      userFile.createdDate = new Date(userFile.created);
+      runInAction(() => {
+        this.registry.set(userFile.id, userFile);
       });
-      toast.success(`File(s) uploaded: ${fileNames.toString()}`);
-    } catch (e) {
-      if (e instanceof Error) {
-        toast.warn(e.message);
-      } else {
-        toast.warn("Unable to add file(s).");
-      }
-    }
+    });
   };
 
   clearUserFiles = () => {

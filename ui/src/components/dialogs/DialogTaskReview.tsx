@@ -27,11 +27,11 @@ const DialogTaskReview = () => {
     loadNumberOfUncompletedTasks,
   } = taskStore;
   const { currentUser } = userAccountStore;
-  const [comment, setComment] = useState<string | null>("");
+  const [comment, setComment] = useState<string>("");
 
   const handleClose = () => {
     setCurrentTask(null);
-    setComment(null);
+    setComment("");
     setTaskReviewDialogIsOpen(false);
   };
 
@@ -56,11 +56,21 @@ const DialogTaskReview = () => {
 
   const renderDialogActions = (tab: Tab) => {
     const result: JSX.Element[] = [
-      <Button onClick={handleClose}>Cancel</Button>,
+      <Button key="Cancel" onClick={handleClose}>
+        Cancel
+      </Button>,
     ];
     if (tab === Tab.Inbox) {
-      result.push(<Button onClick={handleReject}>Reject</Button>);
-      result.push(<Button onClick={handleApprove}>Approve</Button>);
+      result.push(
+        <Button key="Reject" onClick={handleReject}>
+          Reject
+        </Button>
+      );
+      result.push(
+        <Button key="Approve" onClick={handleApprove}>
+          Approve
+        </Button>
+      );
     }
     return <DialogActions>{result}</DialogActions>;
   };
@@ -70,6 +80,7 @@ const DialogTaskReview = () => {
     if (tab === Tab.Inbox) {
       result.push(
         <TextField
+          key="comment"
           margin="normal"
           fullWidth
           label="Comment"

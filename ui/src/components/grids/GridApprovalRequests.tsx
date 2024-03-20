@@ -166,8 +166,12 @@ const GridApprovalRequests = () => {
           }}
           getRowHeight={() => "auto"}
           sx={{
-            "&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell": { py: 0.5 },
-            "&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell": { py: 1 },
+            "&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell": {
+              py: 0.5,
+            },
+            "&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell": {
+              py: 1,
+            },
             "&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell": {
               py: 1.5,
             },

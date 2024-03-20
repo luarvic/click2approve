@@ -28,8 +28,8 @@ export const StepsApproval: React.FC<IStepsApprovalProps> = ({
           <Box>
             <Typography>with comment:</Typography>
             <Paper sx={{ p: 1, mt: 1 }} elevation={3}>
-              {(comment.split(/\r?\n/) as string[]).map((line) => (
-                <Box>{line}</Box>
+              {(comment.split(/\r?\n/) as string[]).map((line, index) => (
+                <Box key={index}>{line}</Box>
               ))}
             </Paper>
           </Box>
@@ -44,8 +44,8 @@ export const StepsApproval: React.FC<IStepsApprovalProps> = ({
     (a, b) => b.completedDate!.getDate() - a.completedDate!.getDate()
   );
   steps = steps.concat(
-    completedTasks.map((task) => (
-      <Step active={true}>
+    completedTasks.map((task, index) => (
+      <Step key={index} active={true}>
         <StepLabel error={task.status === ApprovalStatus.Rejected}>
           {ApprovalStatus[task.status]} by {task.approver.toLowerCase()}
         </StepLabel>
@@ -62,8 +62,8 @@ export const StepsApproval: React.FC<IStepsApprovalProps> = ({
   );
   const uncompletedTasks = approvalRequest.tasks.filter((t) => !t.completed);
   steps = steps.concat(
-    uncompletedTasks.map((task) => (
-      <Step active={false}>
+    uncompletedTasks.map((task, index) => (
+      <Step key={index} active={false}>
         <StepLabel>
           Requested approval from {task.approver.toLowerCase()}
         </StepLabel>
