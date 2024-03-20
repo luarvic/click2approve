@@ -85,7 +85,6 @@ export const refreshAccessToken = async (
     writeTokens(data);
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
     return null;
   }
 };
@@ -95,7 +94,6 @@ export const getUserInfo = async (): Promise<IUserAccount | null> => {
     const { data } = await axios.get<IUserAccount>("api/account/manage/info");
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
     return null;
   }
 };
