@@ -14,23 +14,20 @@ class UserAccountStore {
   }
 
   signUp = async (credentials: ICredentials): Promise<boolean> => {
-    if (credentials.password !== credentials.passwordConfirmation) {
-      toast.warn("Password and confirmation do not match.");
-      return false;
+    if (await signUpUser(credentials)) {
+      return await this.signIn(credentials);
     }
-    await signUpUser(credentials);
-    if (await this.signIn(credentials)) {
-      return false;
-    }
-    return true;
+    return false;
   };
 
   signIn = async (credentials: ICredentials): Promise<boolean> => {
     if (this.currentUser) {
       this.signOut();
     }
-    await signInUser(credentials);
-    return await this.signInWithCachedToken();
+    if (await signInUser(credentials)) {
+      return await this.signInWithCachedToken();
+    }
+    return false;
   };
 
   signInWithCachedToken = async (): Promise<boolean> => {

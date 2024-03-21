@@ -8,18 +8,21 @@ import {
   Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { Credentials } from "../models/Credentials";
 import { Tab } from "../models/Tab";
 import { commonStore } from "../stores/CommonStore";
 import { userAccountStore } from "../stores/UserAccountStore";
+import { validateEmail } from "../utils/Validators";
 
 // Sign in dialog.
 const SignIn = () => {
+  const [emailError, setEmailError] = useState<boolean>(false);
+  const [passwordError, setPasswordError] = useState<boolean>(false);
   const { signIn } = userAccountStore;
   const { setCurrentTab } = commonStore;
-
   const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -27,7 +30,11 @@ const SignIn = () => {
     const data = new FormData(event.currentTarget);
     const email = data.get("email");
     const password = data.get("password");
-    if (email && password) {
+    if (!email || !validateEmail(email.toString()) || !password) {
+      setEmailError(!email || !validateEmail(email.toString()));
+      setPasswordError(!password);
+      toast.error("Invalid input.");
+    } else {
       const credentials = new Credentials(
         email.toString(),
         password.toString()
@@ -62,6 +69,9 @@ const SignIn = () => {
             name="email"
             autoComplete="email"
             autoFocus
+            error={emailError}
+            helperText={emailError && "Invalid email address"}
+            onChange={() => setEmailError(false)}
           />
           <TextField
             margin="normal"
@@ -72,6 +82,9 @@ const SignIn = () => {
             type="password"
             id="password"
             autoComplete="current-password"
+            error={passwordError}
+            helperText={passwordError && "Password cannot be empty"}
+            onChange={() => setPasswordError(false)}
           />
           <Button
             type="submit"

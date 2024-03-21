@@ -51,27 +51,33 @@ axios.interceptors.response.use(
 
 export const signUpUser = async (
   credentials: ICredentials
-): Promise<void | null> => {
+): Promise<boolean> => {
   try {
-    await axios.post<string>("api/account/register", {
+    await axios.post("api/account/register", {
       email: credentials.email,
       password: credentials.password,
     });
+    return true;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
+    return false;
   }
 };
 
-export const signInUser = async (credentials: ICredentials): Promise<void> => {
+export const signInUser = async (
+  credentials: ICredentials
+): Promise<boolean> => {
   try {
     const { data } = await axios.post<IAuthResponse>("api/account/login", {
       email: credentials.email,
       password: credentials.password,
     });
     writeTokens(data);
+    return true;
   } catch (e) {
     deleteTokens();
     toast.error(getUserFriendlyApiErrorMessage(e));
+    return false;
   }
 };
 

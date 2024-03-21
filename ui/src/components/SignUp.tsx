@@ -8,13 +8,20 @@ import {
   Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { Credentials } from "../models/Credentials";
+import { PASSWORD_VALIDATOR_ERROR } from "../stores/Constants";
 import { userAccountStore } from "../stores/UserAccountStore";
+import { validateEmail, validatePassword } from "../utils/Validators";
 
 // Sign up dialog.
 const SignUp = () => {
+  const [emailError, setEmailError] = useState<boolean>(false);
+  const [passwordError, setPasswordError] = useState<boolean>(false);
+  const [passwordConfirmationError, setPasswordConfirmationError] =
+    useState<boolean>(false);
   const navigate = useNavigate();
   const { signUp } = userAccountStore;
 
@@ -24,7 +31,27 @@ const SignUp = () => {
     const email = data.get("email");
     const password = data.get("password");
     const passwordConfirmation = data.get("passwordConfirmation");
-    if (email && password && passwordConfirmation) {
+    if (
+      !email ||
+      !validateEmail(email.toString()) ||
+      !password ||
+      !validatePassword(password.toString()) ||
+      !passwordConfirmation ||
+      password.toString() !== passwordConfirmation.toString()
+    ) {
+      setEmailError(!email || !validateEmail(email.toString()));
+      setPasswordError(!password || !validatePassword(password.toString()));
+      if (!password || !validatePassword(password.toString())) {
+        setPasswordConfirmationError(false);
+      } else {
+        setPasswordConfirmationError(
+          password !== null &&
+            passwordConfirmation !== null &&
+            password.toString() !== passwordConfirmation.toString()
+        );
+      }
+      toast.error("Invalid input.");
+    } else {
       const credentials = new Credentials(
         email.toString(),
         password.toString(),
@@ -58,6 +85,9 @@ const SignUp = () => {
             label="Email Address"
             name="email"
             autoFocus
+            error={emailError}
+            helperText={emailError && "Invalid email address"}
+            onChange={() => setEmailError(false)}
           />
           <TextField
             margin="normal"
@@ -67,6 +97,12 @@ const SignUp = () => {
             label="Password"
             type="password"
             id="password"
+            error={passwordError}
+            helperText={passwordError && PASSWORD_VALIDATOR_ERROR}
+            onChange={() => {
+              setPasswordError(false);
+              setPasswordConfirmationError(false);
+            }}
           />
           <TextField
             margin="normal"
@@ -76,6 +112,15 @@ const SignUp = () => {
             label="Password Confirmation"
             type="password"
             id="passwordConfirmation"
+            error={passwordConfirmationError}
+            helperText={
+              !passwordError &&
+              passwordConfirmationError &&
+              "Does not match password"
+            }
+            onChange={() => {
+              setPasswordConfirmationError(false);
+            }}
           />
           <Button
             type="submit"
