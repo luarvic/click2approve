@@ -18,7 +18,7 @@ public static class ServiceCollectionExtensions
             {
                 options.User.RequireUniqueEmail = true;
                 options.Password.RequiredLength = configuration.GetValue<int>("Identity:Password:RequiredLength");
-                options.SignIn.RequireConfirmedEmail = true;
+                options.SignIn.RequireConfirmedEmail = configuration.GetValue<bool>("Identity:RequireConfirmedEmail");
             })
             .AddEntityFrameworkStores<ApiDbContext>();
         return services;
