@@ -9,11 +9,9 @@ import {
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Credentials } from "../models/Credentials";
-import { Tab } from "../models/Tab";
-import { commonStore } from "../stores/CommonStore";
 import { userAccountStore } from "../stores/UserAccountStore";
 import { validateEmail } from "../utils/Validators";
 
@@ -22,8 +20,8 @@ const SignIn = () => {
   const [emailError, setEmailError] = useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<boolean>(false);
   const { signIn } = userAccountStore;
-  const { setCurrentTab } = commonStore;
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -40,8 +38,10 @@ const SignIn = () => {
         password.toString()
       );
       if (await signIn(credentials)) {
-        setCurrentTab(Tab.Files);
-        navigate("/files");
+        console.log(location.pathname);
+        if (location.pathname === "/signin") {
+          navigate("/files");
+        }
       }
     }
   };
