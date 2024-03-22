@@ -23,10 +23,11 @@ export const THEME = createTheme({
 });
 
 // Validation parameters.
+export const PASSWORD_MIN_LENGTH = 8;
 export const EMAIL_VALIDATION_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]+$/i;
 export const PASSWORD_VALIDATOR = new passwordValidator();
 PASSWORD_VALIDATOR.is()
-  .min(6)
+  .min(PASSWORD_MIN_LENGTH)
   .has()
   .uppercase()
   .has()
@@ -35,8 +36,7 @@ PASSWORD_VALIDATOR.is()
   .digits()
   .has()
   .symbols();
-export const PASSWORD_VALIDATOR_ERROR =
-  "Password must be min 6 chars, have at least one lower case letter, one uppercase letter, one digit, and one symbol";
+export const PASSWORD_VALIDATOR_ERROR = `Password must be min ${PASSWORD_MIN_LENGTH} chars, have at least one lower case letter, one uppercase letter, one digit, and one symbol`;
 
 // Navigation.
 export const DEFAULT_PATH = "/inbox";

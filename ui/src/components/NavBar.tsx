@@ -2,6 +2,7 @@ import { Verified } from "@mui/icons-material";
 import { AppBar, Button, Link, Toolbar, Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
+import { DEFAULT_PATH } from "../stores/Constants";
 import { fileStore } from "../stores/FileStore";
 import { userAccountStore } from "../stores/UserAccountStore";
 
@@ -29,7 +30,7 @@ const NavBar = () => {
           </Button>
         ) : (
           <>
-            <Link sx={{ mr: 1 }} color="inherit" href="/files">
+            <Link sx={{ mr: 1 }} color="inherit" href={DEFAULT_PATH}>
               {currentUser.email.toLowerCase()}
             </Link>
             <Button
