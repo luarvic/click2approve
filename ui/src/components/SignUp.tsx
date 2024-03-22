@@ -58,7 +58,7 @@ const SignUp = () => {
         passwordConfirmation.toString()
       );
       if (await signUp(credentials)) {
-        navigate("/files");
+        navigate("/inbox");
       }
     }
   };

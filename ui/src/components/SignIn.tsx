@@ -40,7 +40,7 @@ const SignIn = () => {
       if (await signIn(credentials)) {
         console.log(location.pathname);
         if (location.pathname === "/signin") {
-          navigate("/files");
+          navigate("/inbox");
         }
       }
     }
