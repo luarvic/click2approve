@@ -12,6 +12,7 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Credentials } from "../models/Credentials";
+import { DEFAULT_PATH } from "../stores/Constants";
 import { userAccountStore } from "../stores/UserAccountStore";
 import { validateEmail } from "../utils/Validators";
 
@@ -40,7 +41,7 @@ const SignIn = () => {
       if (await signIn(credentials)) {
         console.log(location.pathname);
         if (location.pathname === "/signin") {
-          navigate("/inbox");
+          navigate(DEFAULT_PATH);
         }
       }
     }

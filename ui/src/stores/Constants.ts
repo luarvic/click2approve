@@ -37,3 +37,6 @@ PASSWORD_VALIDATOR.is()
   .symbols();
 export const PASSWORD_VALIDATOR_ERROR =
   "Password must be min 6 chars, have at least one lower case letter, one uppercase letter, one digit, and one symbol";
+
+// Navigation.
+export const DEFAULT_PATH = "/inbox";

@@ -12,7 +12,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Credentials } from "../models/Credentials";
-import { PASSWORD_VALIDATOR_ERROR } from "../stores/Constants";
+import { DEFAULT_PATH, PASSWORD_VALIDATOR_ERROR } from "../stores/Constants";
 import { userAccountStore } from "../stores/UserAccountStore";
 import { validateEmail, validatePassword } from "../utils/Validators";
 
@@ -58,7 +58,7 @@ const SignUp = () => {
         passwordConfirmation.toString()
       );
       if (await signUp(credentials)) {
-        navigate("/inbox");
+        navigate(DEFAULT_PATH);
       }
     }
   };
