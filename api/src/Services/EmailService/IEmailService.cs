@@ -4,6 +4,6 @@ namespace api.Services;
 
 public interface IEmailService
 {
-    Task Send(EmailMessage emailMessage);
+    Task SendAsync(EmailMessage emailMessage);
 }
 

@@ -8,7 +8,7 @@ public class EmailService(ILogger<EmailService> logger, IFluentEmailFactory flue
     private readonly ILogger<EmailService> _logger = logger;
     private readonly IFluentEmailFactory _fluentEmailFactory = fluentEmailFactory;
 
-    public async Task Send(EmailMessage emailMessage)
+    public async Task SendAsync(EmailMessage emailMessage)
     {
         await _fluentEmailFactory.Create().To(emailMessage.ToAddress)
             .Subject(emailMessage.Subject)

@@ -22,7 +22,7 @@ public class EmailSender(IEmailService emailService, IConfiguration configuratio
                 new Uri(confirmationLinkPlainText), _configuration.GetValue<Uri>("UI:BaseUrl")
             ).ToString()
         };
-        await _emailService.Send(emailMessage);
+        await _emailService.SendAsync(emailMessage);
     }
 
     public async Task SendPasswordResetCodeAsync(AppUser user, string email, string resetCode)
@@ -33,7 +33,7 @@ public class EmailSender(IEmailService emailService, IConfiguration configuratio
             Subject = "Reset your password on click2approve",
             Body = resetCode
         };
-        await _emailService.Send(emailMessage);
+        await _emailService.SendAsync(emailMessage);
     }
 
     public async Task SendPasswordResetLinkAsync(AppUser user, string email, string resetLink)
@@ -44,6 +44,6 @@ public class EmailSender(IEmailService emailService, IConfiguration configuratio
             Subject = "Reset your password on click2approve",
             Body = resetLink
         };
-        await _emailService.Send(emailMessage);
+        await _emailService.SendAsync(emailMessage);
     }
 }
