@@ -20,7 +20,7 @@ public static class ServiceCollectionExtensions
             {
                 options.User.RequireUniqueEmail = true;
                 options.Password.RequiredLength = configuration.GetValue<int>("Identity:Password:RequiredLength");
-                options.SignIn.RequireConfirmedEmail = configuration.GetValue<bool>("Identity:RequireConfirmedEmail");
+                options.SignIn.RequireConfirmedEmail = configuration.GetValue<bool>("EmailSettings:EmailServiceIsEnabled");
             })
             .AddEntityFrameworkStores<ApiDbContext>();
         return services;
@@ -29,23 +29,31 @@ public static class ServiceCollectionExtensions
     public static void AddEmailServices(this IServiceCollection services, IConfiguration configuration)
     {
         var emailSettings = configuration.GetSection("EmailSettings");
-        var defaultFromEmail = emailSettings["DefaultFromEmail"];
-        var host = emailSettings["Host"];
-        var port = emailSettings.GetValue<int>("Port");
-        services.AddFluentEmail(defaultFromEmail);
-        var username = emailSettings["Username"];
-        var password = emailSettings["Password"];
-        services.AddTransient<ISender>(x =>
-            new SmtpSender(new SmtpClient(host, port)
-            {
-                EnableSsl = true,
-                Credentials = new NetworkCredential
+        var emailServiceIsEnabled = emailSettings.GetValue<bool>("EmailServiceIsEnabled");
+        if (!emailServiceIsEnabled)
+        {
+            services.AddTransient<IEmailService, EmailServiceStub>();
+        }
+        else
+        {
+            var defaultFromEmail = emailSettings["DefaultFromEmail"];
+            var host = emailSettings["Host"];
+            var port = emailSettings.GetValue<int>("Port");
+            services.AddFluentEmail(defaultFromEmail);
+            var username = emailSettings["Username"];
+            var password = emailSettings["Password"];
+            services.AddTransient<ISender>(x =>
+                new SmtpSender(new SmtpClient(host, port)
                 {
-                    UserName = username,
-                    Password = password
-                }
-            }));
-        services.AddTransient<IEmailService, EmailService>();
+                    EnableSsl = true,
+                    Credentials = new NetworkCredential
+                    {
+                        UserName = username,
+                        Password = password
+                    }
+                }));
+            services.AddTransient<IEmailService, EmailService>();
+        }
         services.AddTransient<IEmailSender<AppUser>, EmailSender>();
     }
 

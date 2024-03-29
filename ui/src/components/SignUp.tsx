@@ -14,7 +14,7 @@ import { toast } from "react-toastify";
 import { Credentials } from "../models/Credentials";
 import {
   DEFAULT_PATH,
-  EMAIL_CONFIRMATION_REQUIRED,
+  EMAIL_CONFIRMATION_IS_REQUIRED,
   PASSWORD_VALIDATOR_ERROR,
 } from "../stores/Constants";
 import { userAccountStore } from "../stores/UserAccountStore";
@@ -62,7 +62,7 @@ const SignUp = () => {
         passwordConfirmation.toString()
       );
       if (await signUp(credentials)) {
-        if (EMAIL_CONFIRMATION_REQUIRED) {
+        if (EMAIL_CONFIRMATION_IS_REQUIRED) {
           navigate("/confirmEmail");
         } else {
           if (await signIn(credentials)) {
