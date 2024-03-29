@@ -1,5 +1,4 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { toast } from "react-toastify";
 import { ICredentials } from "../models/Credentials";
 import { IUserAccount } from "../models/UserAccount";
 import { getUserInfo, signInUser, signUpUser } from "../utils/ApiClient";
@@ -14,10 +13,7 @@ class UserAccountStore {
   }
 
   signUp = async (credentials: ICredentials): Promise<boolean> => {
-    if (await signUpUser(credentials)) {
-      return await this.signIn(credentials);
-    }
-    return false;
+    return await signUpUser(credentials);
   };
 
   signIn = async (credentials: ICredentials): Promise<boolean> => {

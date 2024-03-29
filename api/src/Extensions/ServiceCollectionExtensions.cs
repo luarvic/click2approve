@@ -1,8 +1,10 @@
 using System.Net;
 using System.Net.Mail;
 using api.Models;
+using api.Services;
 using FluentEmail.Core.Interfaces;
 using FluentEmail.Smtp;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
 
 namespace api.Extensions;
@@ -24,7 +26,7 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static void AddFluentEmail(this IServiceCollection services, IConfiguration configuration)
+    public static void AddEmailServices(this IServiceCollection services, IConfiguration configuration)
     {
         var emailSettings = configuration.GetSection("EmailSettings");
         var defaultFromEmail = emailSettings["DefaultFromEmail"];
@@ -33,7 +35,7 @@ public static class ServiceCollectionExtensions
         services.AddFluentEmail(defaultFromEmail);
         var username = emailSettings["Username"];
         var password = emailSettings["Password"];
-        services.AddSingleton<ISender>(x =>
+        services.AddTransient<ISender>(x =>
             new SmtpSender(new SmtpClient(host, port)
             {
                 EnableSsl = true,
@@ -43,6 +45,8 @@ public static class ServiceCollectionExtensions
                     Password = password
                 }
             }));
+        services.AddTransient<IEmailService, EmailService>();
+        services.AddTransient<IEmailSender<AppUser>, EmailSender>();
     }
 
     public static void AddSwagger(this IServiceCollection services)

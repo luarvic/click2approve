@@ -39,7 +39,6 @@ const SignIn = () => {
         password.toString()
       );
       if (await signIn(credentials)) {
-        console.log(location.pathname);
         if (location.pathname === "/signin") {
           navigate(DEFAULT_PATH);
         }

@@ -27,7 +27,8 @@ axios.interceptors.response.use(
     const originalRequest = error.config;
     if (
       error.response.status === 401 &&
-      originalRequest.url !== "api/account/refresh"
+      originalRequest.url !== "api/account/refresh" &&
+      !originalRequest.url.startsWith("api/account/confirmEmail")
     ) {
       if (!originalRequest._retry) {
         const tokens = readTokens();
@@ -60,6 +61,19 @@ export const signUpUser = async (
     return true;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
+    return false;
+  }
+};
+
+export const confirmEmail = async (
+  userId: string,
+  code: string
+): Promise<boolean> => {
+  try {
+    await axios.get(`api/account/confirmEmail?userId=${userId}&code=${code}`);
+    return true;
+  } catch {
+    toast.error("Email confirmation failed.");
     return false;
   }
 };

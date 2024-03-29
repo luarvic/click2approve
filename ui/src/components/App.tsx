@@ -20,6 +20,7 @@ import GridApprovalRequests from "./grids/GridApprovalRequests";
 import GridArchive from "./grids/GridArchive";
 import GridFiles from "./grids/GridFiles";
 import GridInbox from "./grids/GridInbox";
+import ConfirmEmail from "./ConfirmEmail";
 
 // Top level component.
 const App = () => {
@@ -57,6 +58,7 @@ const App = () => {
               element={currentUser ? <GridApprovalRequests /> : <SignIn />}
             />
             <Route path="*" element={<NotFound />} />
+            <Route path="/confirmEmail" element={<ConfirmEmail />} />
           </Routes>
         </BrowserRouter>
         <ToastContainer

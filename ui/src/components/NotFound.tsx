@@ -1,5 +1,4 @@
 import { Box } from "@mui/material";
-import { observer } from "mobx-react-lite";
 
 // Not found page.
 const NotFound = () => {
@@ -10,4 +9,4 @@ const NotFound = () => {
   );
 };
 
-export default observer(NotFound);
+export default NotFound;

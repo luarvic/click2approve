@@ -1,8 +1,11 @@
 import { createTheme } from "@mui/material";
 import passwordValidator from "password-validator";
 
-// Toast parameters.
+// General parameters.
 export const API_URI = process.env.REACT_APP_API_URI;
+export const EMAIL_CONFIRMATION_REQUIRED: boolean = process.env.REACT_APP_EMAIL_CONFIRMATION_REQUIRED?.toLowerCase() === "true"
+
+// Toast parameters.
 export const TOAST_AUTO_CLOSE = 3000;
 export const TOAST_LIMIT = 2;
 export const TOAST_CLOSE_BUTTON = true;

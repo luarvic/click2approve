@@ -21,9 +21,7 @@ builder.Services.AddTransient<IAuditLogService, AuditLogService>();
 builder.Services.AddTransient<IUserFileService, UserFileService>();
 builder.Services.AddTransient<IApprovalRequestService, ApprovalRequestService>();
 builder.Services.AddSingleton<IStoreService, StoreService>();
-builder.Services.AddFluentEmail(builder.Configuration);
-builder.Services.AddTransient<IEmailService, EmailService>();
-builder.Services.AddTransient<IEmailSender<AppUser>, EmailSender>();
+builder.Services.AddEmailServices(builder.Configuration);
 var app = builder.Build();
 
 // Create the database and schema.

@@ -12,7 +12,11 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Credentials } from "../models/Credentials";
-import { DEFAULT_PATH, PASSWORD_VALIDATOR_ERROR } from "../stores/Constants";
+import {
+  DEFAULT_PATH,
+  EMAIL_CONFIRMATION_REQUIRED,
+  PASSWORD_VALIDATOR_ERROR,
+} from "../stores/Constants";
 import { userAccountStore } from "../stores/UserAccountStore";
 import { validateEmail, validatePassword } from "../utils/Validators";
 
@@ -23,7 +27,7 @@ const SignUp = () => {
   const [passwordConfirmationError, setPasswordConfirmationError] =
     useState<boolean>(false);
   const navigate = useNavigate();
-  const { signUp } = userAccountStore;
+  const { signUp, signIn } = userAccountStore;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -58,7 +62,13 @@ const SignUp = () => {
         passwordConfirmation.toString()
       );
       if (await signUp(credentials)) {
-        navigate(DEFAULT_PATH);
+        if (EMAIL_CONFIRMATION_REQUIRED) {
+          navigate("/confirmEmail");
+        } else {
+          if (await signIn(credentials)) {
+            navigate(DEFAULT_PATH);
+          }
+        }
       }
     }
   };

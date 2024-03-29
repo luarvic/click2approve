@@ -1,19 +1,26 @@
+using System.Text;
+using System.Web;
+using api.Helpers;
 using api.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace api.Services;
 
-public class EmailSender(IEmailService emailService) : IEmailSender<AppUser>
+public class EmailSender(IEmailService emailService, IConfiguration configuration) : IEmailSender<AppUser>
 {
     private readonly IEmailService _emailService = emailService;
+    private readonly IConfiguration _configuration = configuration;
 
     public async Task SendConfirmationLinkAsync(AppUser user, string email, string confirmationLink)
     {
+        var confirmationLinkPlainText = HttpUtility.HtmlDecode(confirmationLink);
         var emailMessage = new EmailMessage
         {
             ToAddress = email,
             Subject = "Confirm your email address to get started on click2approve",
-            Body = confirmationLink
+            Body = UriHelpers.GetDerivedEmailConfirmationLink(
+                new Uri(confirmationLinkPlainText), _configuration.GetValue<Uri>("UI:BaseUrl")
+            ).ToString()
         };
         await _emailService.Send(emailMessage);
     }
