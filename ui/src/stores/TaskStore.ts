@@ -1,11 +1,11 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { IApprovalRequestTask } from "../models/ApprovalRequestTask";
-import { Tab } from "../models/Tab";
+import { IApprovalRequestTask } from "../models/approvalRequestTask";
+import { Tab } from "../models/tab";
 import {
   countUncompletedTasks,
   listCompletedTasks,
   listUncompletedTasks,
-} from "../utils/ApiClient";
+} from "../utils/apiClient";
 
 class TaskStore {
   registry: Map<number, IApprovalRequestTask>;

@@ -1,7 +1,7 @@
 import {
   EMAIL_VALIDATION_REGEX,
   PASSWORD_VALIDATOR,
-} from "../stores/Constants";
+} from "../stores/constantsStore";
 
 
 export const validateEmails = (emails: string[]): boolean => {

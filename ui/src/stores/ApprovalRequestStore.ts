@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { IApprovalRequest } from "../models/ApprovalRequest";
-import { listApprovalRequests } from "../utils/ApiClient";
+import { IApprovalRequest } from "../models/approvalRequest";
+import { listApprovalRequests } from "../utils/apiClient";
 
 class ApprovalRequestStore {
   registry: Map<number, IApprovalRequest>;

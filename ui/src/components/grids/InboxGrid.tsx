@@ -10,21 +10,20 @@ import {
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
-import { Tab } from "../../models/Tab";
-import { IUserFile } from "../../models/UserFile";
-import { commonStore } from "../../stores/CommonStore";
-import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../stores/Constants";
-import { taskStore } from "../../stores/TaskStore";
+import { Tab } from "../../models/tab";
+import { IUserFile } from "../../models/userFile";
+import { commonStore } from "../../stores/commonStore";
+import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../stores/constantsStore";
+import { taskStore } from "../../stores/taskStore";
 import {
   getHumanReadableRelativeDate,
   getLocaleDateTimeString,
-} from "../../utils/Converters";
-import Tabs from "../Tabs";
-import DialogTaskReview from "../dialogs/DialogTaskReview";
-import { ListUserFiles } from "../lists/ListUserFiles";
-import { MenuTaskActions } from "../menus/MenuTaskActions";
+} from "../../utils/converters";
+import TaskReviewDialog from "../dialogs/TaskReviewDialog";
+import { UserFilesList } from "../lists/UserFilesList";
+import { TaskActionsMenu } from "../menus/TaskActionsMenu";
 
-const GridInbox = () => {
+const InboxGrid = () => {
   const { setCurrentTab } = commonStore;
   const { tasks, clearTasks, loadTasks } = taskStore;
 
@@ -81,7 +80,7 @@ const GridInbox = () => {
           .join(", "),
       renderCell: (params) => {
         return (
-          <ListUserFiles userFiles={params.row.approvalRequest.userFiles} />
+          <UserFilesList userFiles={params.row.approvalRequest.userFiles} />
         );
       },
     },
@@ -105,55 +104,52 @@ const GridInbox = () => {
       headerName: "Action",
       flex: 1,
       renderCell: (params) => {
-        return <MenuTaskActions task={params.row} />;
+        return <TaskActionsMenu task={params.row} />;
       },
     },
   ];
 
   return (
-    <Box sx={{ display: "flex", pt: 2 }}>
-      <Tabs />
-      <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
-        <DataGrid
-          className="DataGridDefault"
-          rows={tasks}
-          columns={columns}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: DATA_GRID_DEFAULT_PAGE_SIZE,
-              },
+    <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
+      <DataGrid
+        className="DataGridDefault"
+        rows={tasks}
+        columns={columns}
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: DATA_GRID_DEFAULT_PAGE_SIZE,
             },
-          }}
-          pageSizeOptions={[DATA_GRID_DEFAULT_PAGE_SIZE]}
-          disableRowSelectionOnClick
-          slots={{
-            toolbar: customToolbar,
-          }}
-          slotProps={{
-            columnsPanel: {
-              disableHideAllButton: true,
-              disableShowAllButton: true,
-            },
-          }}
-          getRowHeight={() => "auto"}
-          sx={{
-            "&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell": {
-              py: 0.5,
-            },
-            "&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell": {
-              py: 1,
-            },
-            "&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell": {
-              py: 1.5,
-            },
-          }}
-          autoHeight
-        />
-      </Box>
-      <DialogTaskReview />
+          },
+        }}
+        pageSizeOptions={[DATA_GRID_DEFAULT_PAGE_SIZE]}
+        disableRowSelectionOnClick
+        slots={{
+          toolbar: customToolbar,
+        }}
+        slotProps={{
+          columnsPanel: {
+            disableHideAllButton: true,
+            disableShowAllButton: true,
+          },
+        }}
+        getRowHeight={() => "auto"}
+        sx={{
+          "&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell": {
+            py: 0.5,
+          },
+          "&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell": {
+            py: 1,
+          },
+          "&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell": {
+            py: 1.5,
+          },
+        }}
+        autoHeight
+      />
+      <TaskReviewDialog />
     </Box>
   );
 };
 
-export default observer(GridInbox);
+export default observer(InboxGrid);

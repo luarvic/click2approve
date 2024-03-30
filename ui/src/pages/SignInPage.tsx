@@ -11,13 +11,12 @@ import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Credentials } from "../models/Credentials";
-import { DEFAULT_PATH } from "../stores/Constants";
-import { userAccountStore } from "../stores/UserAccountStore";
-import { validateEmail } from "../utils/Validators";
+import { Credentials } from "../models/credentials";
+import { DEFAULT_PATH } from "../stores/constantsStore";
+import { userAccountStore } from "../stores/userAccountStore";
+import { validateEmail } from "../utils/validators";
 
-// Sign in dialog.
-const SignIn = () => {
+const SignInPage = () => {
   const [emailError, setEmailError] = useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<boolean>(false);
   const { signIn } = userAccountStore;
@@ -112,4 +111,4 @@ const SignIn = () => {
   );
 };
 
-export default observer(SignIn);
+export default observer(SignInPage);

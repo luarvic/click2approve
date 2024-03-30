@@ -1,17 +1,22 @@
 import { ArrowDropDownCircle } from "@mui/icons-material";
 import { IconButton, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
-import { IApprovalRequestTask } from "../../models/ApprovalRequestTask";
-import { commonStore } from "../../stores/CommonStore";
-import { taskStore } from "../../stores/TaskStore";
+import { IApprovalRequest } from "../../models/approvalRequest";
+import { approvalRequestStore } from "../../stores/approvalRequestStore";
+import { commonStore } from "../../stores/commonStore";
 
-interface IMenuTaskActionsProps {
-  task: IApprovalRequestTask;
+interface IApprovalRequestActionsMenuProps {
+  approvalRequest: IApprovalRequest;
 }
 
-export const MenuTaskActions: React.FC<IMenuTaskActionsProps> = ({ task }) => {
-  const { setTaskReviewDialogIsOpen } = commonStore;
-  const { setCurrentTask } = taskStore;
+export const ApprovalRequestActionsMenu: React.FC<
+  IApprovalRequestActionsMenuProps
+> = ({ approvalRequest }) => {
+  const {
+    setApprovalRequestViewDialogIsOpen,
+    setApprovalRequestDeleteDialogIsOpen,
+  } = commonStore;
+  const { setCurrentApprovalRequest } = approvalRequestStore;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -20,9 +25,14 @@ export const MenuTaskActions: React.FC<IMenuTaskActionsProps> = ({ task }) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const handleReview = () => {
-    setCurrentTask(task);
-    setTaskReviewDialogIsOpen(true);
+  const handleView = () => {
+    setCurrentApprovalRequest(approvalRequest);
+    setApprovalRequestViewDialogIsOpen(true);
+    handleClose();
+  };
+  const handleDelete = () => {
+    setCurrentApprovalRequest(approvalRequest);
+    setApprovalRequestDeleteDialogIsOpen(true);
     handleClose();
   };
 
@@ -46,7 +56,8 @@ export const MenuTaskActions: React.FC<IMenuTaskActionsProps> = ({ task }) => {
           "aria-labelledby": "basic-button",
         }}
       >
-        <MenuItem onClick={handleReview}>Review</MenuItem>
+        <MenuItem onClick={handleView}>Track</MenuItem>
+        <MenuItem onClick={handleDelete}>Delete</MenuItem>
       </Menu>
     </div>
   );

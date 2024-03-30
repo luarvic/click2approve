@@ -1,5 +1,5 @@
-import { IApprovalRequest } from "./ApprovalRequest";
-import { ApprovalStatus } from "./ApprovalStatus";
+import { IApprovalRequest } from "./approvalRequest";
+import { ApprovalStatus } from "./approvalStatus";
 
 export interface IApprovalRequestTask {
   id: number;

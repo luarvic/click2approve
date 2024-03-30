@@ -1,5 +1,5 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { Tab } from "../models/Tab";
+import { Tab } from "../models/tab";
 
 class CommonStore {
   currentTab?: Tab;

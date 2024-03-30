@@ -1,6 +1,6 @@
-import { IApprovalRequestTask } from "./ApprovalRequestTask";
-import { ApprovalStatus } from "./ApprovalStatus";
-import { IUserFile } from "./UserFile";
+import { IApprovalRequestTask } from "./approvalRequestTask";
+import { ApprovalStatus } from "./approvalStatus";
+import { IUserFile } from "./userFile";
 
 export interface IApprovalRequest {
   id: number;

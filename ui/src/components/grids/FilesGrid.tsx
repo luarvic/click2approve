@@ -11,19 +11,18 @@ import {
 import { observer } from "mobx-react-lite";
 import prettyBytes from "pretty-bytes";
 import { useEffect } from "react";
-import { Tab } from "../../models/Tab";
-import { IUserFile } from "../../models/UserFile";
-import { commonStore } from "../../stores/CommonStore";
-import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../stores/Constants";
-import { fileStore } from "../../stores/FileStore";
-import { getHumanReadableRelativeDate } from "../../utils/Converters";
-import { downloadUserFile } from "../../utils/Downloaders";
-import Tabs from "../Tabs";
-import GridToolbarSendButton from "./GridToolbarSendButton";
-import GridToolbarUploadButton from "./GridToolbarUploadButton";
+import { Tab } from "../../models/tab";
+import { IUserFile } from "../../models/userFile";
+import { commonStore } from "../../stores/commonStore";
+import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../stores/constantsStore";
+import { fileStore } from "../../stores/fileStore";
+import { getHumanReadableRelativeDate } from "../../utils/converters";
+import { downloadUserFile } from "../../utils/downloaders";
+import ButtonSend from "../buttons/ButtonSend";
+import ButtonUpload from "../buttons/ButtonUpload";
 
 // Data grid with user files.
-const GridFiles = () => {
+const FilesGrid = () => {
   const { setCurrentTab } = commonStore;
   const { userFiles, handleUserFileCheckbox, clearUserFiles, loadUserFiles } =
     fileStore;
@@ -37,8 +36,8 @@ const GridFiles = () => {
   const customToolbar = () => {
     return (
       <GridToolbarContainer>
-        <GridToolbarUploadButton />
-        <GridToolbarSendButton />
+        <ButtonUpload />
+        <ButtonSend />
         <GridToolbarColumnsButton />
         <GridToolbarFilterButton />
         <GridToolbarDensitySelector />
@@ -84,42 +83,39 @@ const GridFiles = () => {
   ];
 
   return (
-    <Box sx={{ display: "flex", pt: 2 }}>
-      <Tabs />
-      <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
-        <Box>
-          <DataGrid
-            className="DataGridDefault"
-            rows={userFiles}
-            columns={columns}
-            initialState={{
-              pagination: {
-                paginationModel: {
-                  pageSize: DATA_GRID_DEFAULT_PAGE_SIZE,
-                },
+    <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
+      <Box>
+        <DataGrid
+          className="DataGridDefault"
+          rows={userFiles}
+          columns={columns}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: DATA_GRID_DEFAULT_PAGE_SIZE,
               },
-            }}
-            pageSizeOptions={[DATA_GRID_DEFAULT_PAGE_SIZE]}
-            checkboxSelection
-            disableRowSelectionOnClick
-            onRowSelectionModelChange={(items) =>
-              handleUserFileCheckbox(items as string[])
-            }
-            slots={{
-              toolbar: customToolbar,
-            }}
-            slotProps={{
-              columnsPanel: {
-                disableHideAllButton: true,
-                disableShowAllButton: true,
-              },
-            }}
-            autoHeight
-          />
-        </Box>
+            },
+          }}
+          pageSizeOptions={[DATA_GRID_DEFAULT_PAGE_SIZE]}
+          checkboxSelection
+          disableRowSelectionOnClick
+          onRowSelectionModelChange={(items) =>
+            handleUserFileCheckbox(items as string[])
+          }
+          slots={{
+            toolbar: customToolbar,
+          }}
+          slotProps={{
+            columnsPanel: {
+              disableHideAllButton: true,
+              disableShowAllButton: true,
+            },
+          }}
+          autoHeight
+        />
       </Box>
     </Box>
   );
 };
 
-export default observer(GridFiles);
+export default observer(FilesGrid);

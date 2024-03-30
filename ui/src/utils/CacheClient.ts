@@ -1,4 +1,4 @@
-import { IAuthResponse } from "../models/AuthResponse";
+import { IAuthResponse } from "../models/authResponse";
 
 const STORAGE_ITEM_KEY: string = "tokens";
 

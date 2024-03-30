@@ -2,12 +2,11 @@ import { Verified } from "@mui/icons-material";
 import { AppBar, Button, Link, Toolbar, Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
-import { DEFAULT_PATH } from "../stores/Constants";
-import { fileStore } from "../stores/FileStore";
-import { userAccountStore } from "../stores/UserAccountStore";
+import { DEFAULT_PATH } from "../../stores/constantsStore";
+import { fileStore } from "../../stores/fileStore";
+import { userAccountStore } from "../../stores/userAccountStore";
 
-// Main menu.
-const NavBar = () => {
+const MainNavBar = () => {
   const { currentUser, signOut } = userAccountStore;
   const { clearUserFiles } = fileStore;
   const navigate = useNavigate();
@@ -51,4 +50,4 @@ const NavBar = () => {
   );
 };
 
-export default observer(NavBar);
+export default observer(MainNavBar);

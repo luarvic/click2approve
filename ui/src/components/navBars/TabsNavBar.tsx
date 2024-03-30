@@ -10,12 +10,11 @@ import {
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Tab } from "../models/Tab";
-import { commonStore } from "../stores/CommonStore";
-import { taskStore } from "../stores/TaskStore";
+import { Tab } from "../../models/tab";
+import { commonStore } from "../../stores/commonStore";
+import { taskStore } from "../../stores/taskStore";
 
-// Tabs (Files, Inbox, Archive, Sent).
-const Tabs = () => {
+const TabsNavBar = () => {
   const { currentTab, setCurrentTab } = commonStore;
 
   const { numberOfUncompletedTasks, loadNumberOfUncompletedTasks } = taskStore;
@@ -100,4 +99,4 @@ const Tabs = () => {
   );
 };
 
-export default observer(Tabs);
+export default observer(TabsNavBar);

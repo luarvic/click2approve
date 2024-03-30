@@ -1,17 +1,16 @@
 import { Send } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { Fragment } from "react";
-import { fileStore } from "../../stores/FileStore";
-import DialogApprovalRequestSubmit from "../dialogs/DialogApprovalRequestSubmit";
-import { commonStore } from "../../stores/CommonStore";
+import { commonStore } from "../../stores/commonStore";
+import { fileStore } from "../../stores/fileStore";
+import ApprovalRequestSubmitDialog from "../dialogs/ApprovalRequestSubmitDialog";
 
-const GridToolbarSendButton = () => {
+const ButtonSend = () => {
   const { getSelectedUserFiles } = fileStore;
   const { setApprovalRequestSubmitDialogIsOpen } = commonStore;
 
   return (
-    <Fragment>
+    <>
       <Button
         size="small"
         variant="text"
@@ -21,9 +20,9 @@ const GridToolbarSendButton = () => {
       >
         Send
       </Button>
-      <DialogApprovalRequestSubmit />
-    </Fragment>
+      <ApprovalRequestSubmitDialog />
+    </>
   );
 };
 
-export default observer(GridToolbarSendButton);
+export default observer(ButtonSend);

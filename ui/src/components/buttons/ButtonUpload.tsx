@@ -2,9 +2,9 @@ import { CloudUpload } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, Fragment, useRef } from "react";
-import { fileStore } from "../../stores/FileStore";
+import { fileStore } from "../../stores/fileStore";
 
-const GridToolbarUploadButton = () => {
+const ButtonUpload = () => {
   const hiddenFileInput = useRef<HTMLInputElement>(null);
   const { addUserFiles } = fileStore;
   const handleUploadClick = () => {
@@ -23,7 +23,7 @@ const GridToolbarUploadButton = () => {
   };
 
   return (
-    <Fragment>
+    <>
       <Button
         size="small"
         variant="contained"
@@ -39,8 +39,8 @@ const GridToolbarUploadButton = () => {
         ref={hiddenFileInput}
         style={{ display: "none" }}
       />
-    </Fragment>
+    </>
   );
 };
 
-export default observer(GridToolbarUploadButton);
+export default observer(ButtonUpload);

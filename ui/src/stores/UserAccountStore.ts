@@ -1,8 +1,8 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { ICredentials } from "../models/Credentials";
-import { IUserAccount } from "../models/UserAccount";
-import { getUserInfo, signInUser, signUpUser } from "../utils/ApiClient";
-import { deleteTokens, readTokens } from "../utils/CacheClient";
+import { ICredentials } from "../models/credentials";
+import { IUserAccount } from "../models/userAccount";
+import { getUserInfo, signInUser, signUpUser } from "../utils/apiClient";
+import { deleteTokens, readTokens } from "../utils/cacheClient";
 
 class UserAccountStore {
   currentUser: IUserAccount | null | undefined; // undefined means we don't know yet if it's authenticated or anonymous user

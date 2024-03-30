@@ -14,14 +14,14 @@ import { Dayjs } from "dayjs";
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, useState } from "react";
 import { toast } from "react-toastify";
-import { commonStore } from "../../stores/CommonStore";
-import { EMAIL_VALIDATION_REGEX } from "../../stores/Constants";
-import { fileStore } from "../../stores/FileStore";
-import { submitApprovalRequest } from "../../utils/ApiClient";
-import { ListUserFiles } from "../lists/ListUserFiles";
-import { validateEmails } from "../../utils/Validators";
+import { commonStore } from "../../stores/commonStore";
+import { EMAIL_VALIDATION_REGEX } from "../../stores/constantsStore";
+import { fileStore } from "../../stores/fileStore";
+import { submitApprovalRequest } from "../../utils/apiClient";
+import { validateEmails } from "../../utils/validators";
+import { UserFilesList } from "../lists/UserFilesList";
 
-const DialogApprovalRequestSubmit = () => {
+const ApprovalRequestSubmitDialog = () => {
   const {
     approvalRequestSubmitDialogIsOpen,
     setApprovalRequestSubmitDialogIsOpen,
@@ -74,7 +74,7 @@ const DialogApprovalRequestSubmit = () => {
     <Dialog open={approvalRequestSubmitDialogIsOpen} onClose={handleClose}>
       <DialogTitle>Submit for approval</DialogTitle>
       <DialogContent dividers>
-        <ListUserFiles userFiles={getSelectedUserFiles()} />
+        <UserFilesList userFiles={getSelectedUserFiles()} />
         <Autocomplete
           multiple
           id="approvers"
@@ -141,4 +141,4 @@ const DialogApprovalRequestSubmit = () => {
   );
 };
 
-export default observer(DialogApprovalRequestSubmit);
+export default observer(ApprovalRequestSubmitDialog);

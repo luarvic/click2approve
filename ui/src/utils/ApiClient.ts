@@ -1,15 +1,15 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-import { IApprovalRequest } from "../models/ApprovalRequest";
-import { IApprovalRequestTask } from "../models/ApprovalRequestTask";
-import { ApprovalStatus } from "../models/ApprovalStatus";
-import { IAuthResponse } from "../models/AuthResponse";
-import { ICredentials } from "../models/Credentials";
-import { IUserAccount } from "../models/UserAccount";
-import { IUserFile } from "../models/UserFile";
-import { API_URI } from "../stores/Constants";
-import { deleteTokens, readTokens, writeTokens } from "./CacheClient";
-import { getUserFriendlyApiErrorMessage } from "./Converters";
+import { IApprovalRequest } from "../models/approvalRequest";
+import { IApprovalRequestTask } from "../models/approvalRequestTask";
+import { ApprovalStatus } from "../models/approvalStatus";
+import { IAuthResponse } from "../models/authResponse";
+import { ICredentials } from "../models/credentials";
+import { IUserAccount } from "../models/userAccount";
+import { IUserFile } from "../models/userFile";
+import { API_URI } from "../stores/constantsStore";
+import { deleteTokens, readTokens, writeTokens } from "./cacheClient";
+import { getUserFriendlyApiErrorMessage } from "./converters";
 
 axios.defaults.baseURL = API_URI;
 axios.interceptors.request.use((config) => {

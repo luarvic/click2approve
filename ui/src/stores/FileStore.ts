@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { IUserFile } from "../models/UserFile";
-import { listFiles, uploadFiles } from "../utils/ApiClient";
+import { IUserFile } from "../models/userFile";
+import { listFiles, uploadFiles } from "../utils/apiClient";
 
 class FileStore {
   registry: Map<string, IUserFile>;

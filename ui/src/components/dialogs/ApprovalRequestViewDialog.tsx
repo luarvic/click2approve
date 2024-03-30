@@ -6,12 +6,12 @@ import {
   DialogTitle,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { approvalRequestStore } from "../../stores/ApprovalRequestStore";
-import { commonStore } from "../../stores/CommonStore";
-import { ListUserFiles } from "../lists/ListUserFiles";
-import { StepsApproval } from "../steps/StepsApproval";
+import { approvalRequestStore } from "../../stores/approvalRequestStore";
+import { commonStore } from "../../stores/commonStore";
+import { UserFilesList } from "../lists/UserFilesList";
+import { ApprovalSteps } from "../steps/ApprovalSteps";
 
-const DialogApprovalRequestView = () => {
+const ApprovalRequestViewDialog = () => {
   const {
     approvalRequestViewDialogIsOpen,
     setApprovalRequestViewDialogIsOpen,
@@ -29,13 +29,13 @@ const DialogApprovalRequestView = () => {
       <DialogTitle>Track approval request</DialogTitle>
       <DialogContent dividers>
         {currentApprovalRequest && (
-          <ListUserFiles
+          <UserFilesList
             userFiles={currentApprovalRequest.userFiles}
             sx={{ mb: 1 }}
           />
         )}
         {currentApprovalRequest && (
-          <StepsApproval approvalRequest={currentApprovalRequest} />
+          <ApprovalSteps approvalRequest={currentApprovalRequest} />
         )}
       </DialogContent>
       <DialogActions>
@@ -45,4 +45,4 @@ const DialogApprovalRequestView = () => {
   );
 };
 
-export default observer(DialogApprovalRequestView);
+export default observer(ApprovalRequestViewDialog);

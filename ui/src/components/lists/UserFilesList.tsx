@@ -1,13 +1,13 @@
 import { Link, Stack, SxProps } from "@mui/material";
-import { IUserFile } from "../../models/UserFile";
-import { downloadUserFile } from "../../utils/Downloaders";
+import { IUserFile } from "../../models/userFile";
+import { downloadUserFile } from "../../utils/downloaders";
 
-interface IListUserFilesProps {
+interface IUserFilesListProps {
   userFiles: IUserFile[];
   sx?: SxProps;
 }
 
-export const ListUserFiles: React.FC<IListUserFilesProps> = ({
+export const UserFilesList: React.FC<IUserFilesListProps> = ({
   userFiles,
   sx,
 }) => {

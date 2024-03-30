@@ -1,11 +1,11 @@
 import { Box, Stack, SxProps } from "@mui/material";
 
-interface IListApproversProps {
+interface IApproversListProps {
   approvers: string[];
   sx?: SxProps;
 }
 
-export const ListApprovers: React.FC<IListApproversProps> = ({
+export const ApproversList: React.FC<IApproversListProps> = ({
   approvers,
   sx,
 }) => {

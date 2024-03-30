@@ -8,15 +8,15 @@ import {
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
-import { ApprovalStatus } from "../../models/ApprovalStatus";
-import { Tab } from "../../models/Tab";
-import { commonStore } from "../../stores/CommonStore";
-import { taskStore } from "../../stores/TaskStore";
-import { userAccountStore } from "../../stores/UserAccountStore";
-import { completeTask } from "../../utils/ApiClient";
-import { ListUserFiles } from "../lists/ListUserFiles";
+import { ApprovalStatus } from "../../models/approvalStatus";
+import { Tab } from "../../models/tab";
+import { commonStore } from "../../stores/commonStore";
+import { taskStore } from "../../stores/taskStore";
+import { userAccountStore } from "../../stores/userAccountStore";
+import { completeTask } from "../../utils/apiClient";
+import { UserFilesList } from "../lists/UserFilesList";
 
-const DialogTaskReview = () => {
+const TaskReviewDialog = () => {
   const { currentTab, taskReviewDialogIsOpen, setTaskReviewDialogIsOpen } =
     commonStore;
   const {
@@ -101,7 +101,7 @@ const DialogTaskReview = () => {
       <DialogTitle>Review the files</DialogTitle>
       <DialogContent dividers>
         {currentTask && (
-          <ListUserFiles userFiles={currentTask.approvalRequest.userFiles} />
+          <UserFilesList userFiles={currentTask.approvalRequest.userFiles} />
         )}
         {currentTab && renderDialogInputs(currentTab)}
       </DialogContent>
@@ -110,4 +110,4 @@ const DialogTaskReview = () => {
   );
 };
 
-export default observer(DialogTaskReview);
+export default observer(TaskReviewDialog);

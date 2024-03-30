@@ -8,16 +8,16 @@ import {
   SxProps,
   Typography,
 } from "@mui/material";
-import { IApprovalRequest } from "../../models/ApprovalRequest";
-import { ApprovalStatus } from "../../models/ApprovalStatus";
-import { getLocaleDateTimeString } from "../../utils/Converters";
+import { IApprovalRequest } from "../../models/approvalRequest";
+import { ApprovalStatus } from "../../models/approvalStatus";
+import { getLocaleDateTimeString } from "../../utils/converters";
 
-interface IStepsApprovalProps {
+interface IApprovalStepsProps {
   approvalRequest: IApprovalRequest;
   sx?: SxProps;
 }
 
-export const StepsApproval: React.FC<IStepsApprovalProps> = ({
+export const ApprovalSteps: React.FC<IApprovalStepsProps> = ({
   approvalRequest,
   sx,
 }) => {

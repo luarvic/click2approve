@@ -11,25 +11,24 @@ import {
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
-import { ApprovalStatus } from "../../models/ApprovalStatus";
-import { Tab } from "../../models/Tab";
-import { IUserFile } from "../../models/UserFile";
-import { approvalRequestStore } from "../../stores/ApprovalRequestStore";
-import { commonStore } from "../../stores/CommonStore";
-import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../stores/Constants";
+import { ApprovalStatus } from "../../models/approvalStatus";
+import { Tab } from "../../models/tab";
+import { IUserFile } from "../../models/userFile";
+import { approvalRequestStore } from "../../stores/approvalRequestStore";
+import { commonStore } from "../../stores/commonStore";
+import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../stores/constantsStore";
 import {
   getHumanReadableRelativeDate,
   getLocaleDateTimeString,
-} from "../../utils/Converters";
-import Tabs from "../Tabs";
-import DialogApprovalRequestDelete from "../dialogs/DialogApprovalRequestDelete";
-import DialogApprovalRequestView from "../dialogs/DialogApprovalRequestView";
-import { ListApprovers } from "../lists/ListApprovers";
-import { ListUserFiles } from "../lists/ListUserFiles";
-import { MenuApprovalRequestActions } from "../menus/MenuApprovalRequestActions";
+} from "../../utils/converters";
+import ApprovalRequestDeleteDialog from "../dialogs/ApprovalRequestDeleteDialog";
+import ApprovalRequestViewDialog from "../dialogs/ApprovalRequestViewDialog";
+import { ApproversList } from "../lists/ApproversList";
+import { UserFilesList } from "../lists/UserFilesList";
+import { ApprovalRequestActionsMenu } from "../menus/ApprovalRequestActionsMenu";
 
 // Data grid with approval requests.
-const GridApprovalRequests = () => {
+const ApprovalRequestsGrid = () => {
   const { setCurrentTab } = commonStore;
   const { approvalRequests, clearApprovalRequests, loadApprovalRequests } =
     approvalRequestStore;
@@ -100,7 +99,7 @@ const GridApprovalRequests = () => {
           .map((approver: string) => approver.toLowerCase())
           .join(", "),
       renderCell: (params) => {
-        return <ListApprovers approvers={params.row.approvers} />;
+        return <ApproversList approvers={params.row.approvers} />;
       },
     },
     {
@@ -110,7 +109,7 @@ const GridApprovalRequests = () => {
       valueGetter: (params) =>
         params.value.map((userFile: IUserFile) => userFile.name).join(", "),
       renderCell: (params) => {
-        return <ListUserFiles userFiles={params.row.userFiles} />;
+        return <UserFilesList userFiles={params.row.userFiles} />;
       },
     },
     {
@@ -133,56 +132,53 @@ const GridApprovalRequests = () => {
       headerName: "Action",
       flex: 1,
       renderCell: (params) => {
-        return <MenuApprovalRequestActions approvalRequest={params.row} />;
+        return <ApprovalRequestActionsMenu approvalRequest={params.row} />;
       },
     },
   ];
 
   return (
-    <Box sx={{ display: "flex", pt: 2 }}>
-      <Tabs />
-      <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
-        <DataGrid
-          className="DataGridDefault"
-          rows={approvalRequests}
-          columns={columns}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: DATA_GRID_DEFAULT_PAGE_SIZE,
-              },
+    <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
+      <DataGrid
+        className="DataGridDefault"
+        rows={approvalRequests}
+        columns={columns}
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: DATA_GRID_DEFAULT_PAGE_SIZE,
             },
-          }}
-          pageSizeOptions={[DATA_GRID_DEFAULT_PAGE_SIZE]}
-          disableRowSelectionOnClick
-          slots={{
-            toolbar: customToolbar,
-          }}
-          slotProps={{
-            columnsPanel: {
-              disableHideAllButton: true,
-              disableShowAllButton: true,
-            },
-          }}
-          getRowHeight={() => "auto"}
-          sx={{
-            "&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell": {
-              py: 0.5,
-            },
-            "&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell": {
-              py: 1,
-            },
-            "&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell": {
-              py: 1.5,
-            },
-          }}
-          autoHeight
-        />
-      </Box>
-      <DialogApprovalRequestView />
-      <DialogApprovalRequestDelete />
+          },
+        }}
+        pageSizeOptions={[DATA_GRID_DEFAULT_PAGE_SIZE]}
+        disableRowSelectionOnClick
+        slots={{
+          toolbar: customToolbar,
+        }}
+        slotProps={{
+          columnsPanel: {
+            disableHideAllButton: true,
+            disableShowAllButton: true,
+          },
+        }}
+        getRowHeight={() => "auto"}
+        sx={{
+          "&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell": {
+            py: 0.5,
+          },
+          "&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell": {
+            py: 1,
+          },
+          "&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell": {
+            py: 1.5,
+          },
+        }}
+        autoHeight
+      />
+      <ApprovalRequestViewDialog />
+      <ApprovalRequestDeleteDialog />
     </Box>
   );
 };
 
-export default observer(GridApprovalRequests);
+export default observer(ApprovalRequestsGrid);

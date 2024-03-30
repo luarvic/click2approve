@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 
 // Not found page.
-const NotFound = () => {
+const NotFoundPage = () => {
   return (
     <Box sx={{ p: 2 }}>
       Sorry, but the page you are looking for has not been found.
@@ -9,4 +9,4 @@ const NotFound = () => {
   );
 };
 
-export default NotFound;
+export default NotFoundPage;

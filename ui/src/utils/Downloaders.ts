@@ -1,5 +1,5 @@
-import { IUserFile } from "../models/UserFile";
-import { downloadFileBase64 } from "./ApiClient";
+import { IUserFile } from "../models/userFile";
+import { downloadFileBase64 } from "./apiClient";
 
 export const downloadUserFile = async (userFile: IUserFile) => {
   const base64String = await downloadFileBase64(userFile.id);

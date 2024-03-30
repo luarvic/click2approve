@@ -1,9 +1,9 @@
 import { Box } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { confirmEmail } from "../utils/ApiClient";
+import { confirmEmail } from "../utils/apiClient";
 
-const ConfirmEmail = () => {
+const ConfirmEmailPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [message, setMessage] = useState<string>("");
@@ -29,4 +29,4 @@ const ConfirmEmail = () => {
   return <Box sx={{ p: 2 }}>{message}</Box>;
 };
 
-export default ConfirmEmail;
+export default ConfirmEmailPage;
