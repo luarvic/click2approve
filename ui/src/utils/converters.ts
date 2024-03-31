@@ -1,5 +1,6 @@
+import ago from "s-ago";
+
 export const getHumanReadableRelativeDate = (date: Date): string => {
-  const ago = require("s-ago");
   return ago(date);
 };
 
@@ -21,14 +22,11 @@ export const getUserFriendlyApiErrorMessage = (error: any): string => {
         message += message === "" ? "" : " ";
         switch (error.response.data.detail) {
           case "Failed":
-            message += "(Email address does not exist)";
-            break;
           case "NotAllowed":
-            message +=
-              "(Email address is not confirmed or password is incorrect)";
+            message += "(Incorrect credentials or email is not confirmed)";
             break;
           default:
-            message += "(Email address is blocked)";
+            message += "(Email address is locked out)";
             break;
         }
       }

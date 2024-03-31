@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite";
 import InboxGrid from "../../components/grids/InboxGrid";
 import TabsNavBar from "../../components/navBars/TabsNavBar";
 import { stores } from "../../stores/Stores";
-import InformationPage from "../InformationPage";
+import InformationPage from "../other/InformationPage";
 
 const InboxPage = () => {
   return stores.userAccountStore.currentUser ? (

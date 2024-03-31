@@ -9,7 +9,6 @@ interface ICommentsListProps {
 export const CommentsList: React.FC<ICommentsListProps> = ({
   approvalRequestComment,
   approverComment,
-  sx,
 }) => {
   return (
     <Stack>

@@ -64,7 +64,7 @@ const SentGrid = () => {
       field: "submittedDate",
       headerName: "Submitted",
       flex: 2,
-      valueFormatter: (params) => getHumanReadableRelativeDate(params.value),
+      valueFormatter: (value) => getHumanReadableRelativeDate(value),
     },
     {
       field: "status",
@@ -77,23 +77,21 @@ const SentGrid = () => {
           </Tooltip>
         );
       },
-      valueGetter: (params) => ApprovalStatus[params.row.status],
+      valueGetter: (_value, row) => ApprovalStatus[row.status],
     },
     {
       field: "approveByDate",
       headerName: "Approve by",
       flex: 3,
-      valueFormatter: (params) =>
-        params.value && getLocaleDateTimeString(params.value as Date),
+      valueFormatter: (value) =>
+        value && getLocaleDateTimeString(value as Date),
     },
     {
       field: "approvers",
       headerName: "Approvers",
       flex: 5,
-      valueGetter: (params) =>
-        params.value
-          .map((approver: string) => approver.toLowerCase())
-          .join(", "),
+      valueGetter: (value: string[]) =>
+        value.map((approver) => approver.toLowerCase()).join(", "),
       renderCell: (params) => {
         return <ApproversList approvers={params.row.approvers} />;
       },
@@ -102,8 +100,8 @@ const SentGrid = () => {
       field: "userFiles",
       headerName: "Files",
       flex: 5,
-      valueGetter: (params) =>
-        params.value.map((userFile: IUserFile) => userFile.name).join(", "),
+      valueGetter: (value: IUserFile[]) =>
+        value.map((userFile) => userFile.name).join(", "),
       renderCell: (params) => {
         return <UserFilesList userFiles={params.row.userFiles} />;
       },
@@ -129,7 +127,6 @@ const SentGrid = () => {
   return (
     <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
       <DataGrid
-        className="DataGridDefault"
         rows={stores.approvalRequestStore.approvalRequests}
         columns={columns}
         initialState={{
@@ -144,12 +141,6 @@ const SentGrid = () => {
         slots={{
           toolbar: customToolbar,
           noRowsOverlay: NoRowsOverlay,
-        }}
-        slotProps={{
-          columnsPanel: {
-            disableHideAllButton: true,
-            disableShowAllButton: true,
-          },
         }}
         getRowHeight={() => "auto"}
         sx={{

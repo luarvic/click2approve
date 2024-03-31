@@ -18,9 +18,9 @@ const TaskReviewDialog = () => {
   const [comment, setComment] = useState<string>("");
 
   const handleClose = () => {
+    stores.commonStore.setTaskReviewDialogIsOpen(false);
     stores.taskStore.setCurrentTask(null);
     setComment("");
-    stores.commonStore.setTaskReviewDialogIsOpen(false);
   };
 
   const rejectOrApprove = (status: ApprovalStatus) => {

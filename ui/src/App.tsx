@@ -5,9 +5,6 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import LoadingOverlay from "./components/overlays/LoadingOverlay";
 import MainLayout from "./layouts/MainLayout";
-import HomePage from "./pages/HomePage";
-import InformationPage from "./pages/InformationPage";
-import NotFoundPage from "./pages/NotFoundPage";
 import ArchivePage from "./pages/approval/ArchivePage";
 import FilesPage from "./pages/approval/FilesPage";
 import InboxPage from "./pages/approval/InboxPage";
@@ -16,6 +13,9 @@ import ConfirmEmailPage from "./pages/identity/ConfirmEmailPage";
 import ForgotPasswordPage from "./pages/identity/ForgotPasswordPage";
 import SignInPage from "./pages/identity/SignInPage";
 import SignUpPage from "./pages/identity/SignUpPage";
+import HomePage from "./pages/other/HomePage";
+import InformationPage from "./pages/other/InformationPage";
+import NotFoundPage from "./pages/other/NotFoundPage";
 // import { useStores } from "./stores/Stores";
 import {
   THEME,

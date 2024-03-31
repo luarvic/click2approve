@@ -46,33 +46,31 @@ const InboxGrid = () => {
       field: "approvalRequest.submittedDate",
       headerName: "Received",
       flex: 2,
-      valueGetter: (params) =>
-        getHumanReadableRelativeDate(params.row.approvalRequest.submittedDate),
+      valueGetter: (_value, row) =>
+        getHumanReadableRelativeDate(row.approvalRequest.submittedDate),
     },
     {
       field: "approvalRequest.approveByDate",
       headerName: "Approve by",
       flex: 3,
-      valueGetter: (params) =>
-        params.row.approvalRequest.approveByDate
-          ? getLocaleDateTimeString(
-              params.row.approvalRequest.approveByDate as Date
-            )
+      valueGetter: (_value, row) =>
+        row.approvalRequest.approveByDate
+          ? getLocaleDateTimeString(row.approvalRequest.approveByDate as Date)
           : null,
     },
     {
       field: "approvalRequest.author",
       headerName: "Requester",
       flex: 5,
-      valueGetter: (params) =>
-        (params.row.approvalRequest.author as string).toLowerCase(),
+      valueGetter: (_value, row) =>
+        (row.approvalRequest.author as string).toLowerCase(),
     },
     {
       field: "approvalRequest.userFiles",
       headerName: "Files",
       flex: 5,
-      valueGetter: (params) =>
-        params.row.approvalRequest.userFiles
+      valueGetter: (_value, row) =>
+        row.approvalRequest.userFiles
           .map((userFile: IUserFile) => userFile.name)
           .join(", "),
       renderCell: (params) => {
@@ -109,7 +107,6 @@ const InboxGrid = () => {
   return (
     <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
       <DataGrid
-        className="DataGridDefault"
         rows={stores.taskStore.tasks}
         columns={columns}
         initialState={{
@@ -124,12 +121,6 @@ const InboxGrid = () => {
         slots={{
           toolbar: customToolbar,
           noRowsOverlay: NoRowsOverlay,
-        }}
-        slotProps={{
-          columnsPanel: {
-            disableHideAllButton: true,
-            disableShowAllButton: true,
-          },
         }}
         getRowHeight={() => "auto"}
         sx={{

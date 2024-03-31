@@ -47,7 +47,7 @@ const FilesGrid = () => {
       field: "createdDate",
       headerName: "Uploaded",
       flex: 2,
-      valueFormatter: (params) => getHumanReadableRelativeDate(params.value),
+      valueFormatter: (value) => getHumanReadableRelativeDate(value),
     },
     {
       field: "name",
@@ -74,7 +74,7 @@ const FilesGrid = () => {
       field: "size",
       headerName: "Size",
       flex: 2,
-      valueFormatter: (params) => prettyBytes(params.value),
+      valueFormatter: (value) => prettyBytes(value),
     },
   ];
 
@@ -82,7 +82,6 @@ const FilesGrid = () => {
     <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
       <Box>
         <DataGrid
-          className="DataGridDefault"
           rows={stores.fileStore.userFiles}
           columns={columns}
           initialState={{
@@ -101,12 +100,6 @@ const FilesGrid = () => {
           slots={{
             toolbar: customToolbar,
             noRowsOverlay: NoRowsOverlay,
-          }}
-          slotProps={{
-            columnsPanel: {
-              disableHideAllButton: true,
-              disableShowAllButton: true,
-            },
           }}
           sx={{
             "--DataGrid-overlayHeight": "300px",

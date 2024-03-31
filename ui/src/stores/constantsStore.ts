@@ -2,10 +2,10 @@ import { createTheme } from "@mui/material";
 import passwordValidator from "password-validator";
 
 // General parameters.
-export const API_URI = process.env.REACT_APP_API_URI;
-export const EMAIL_SERVICE_IS_ENABLED: boolean =
-  process.env.REACT_APP_EMAIL_SERVICE_IS_ENABLED?.toLowerCase() ===
-  "true";
+export const API_URI = import.meta.env.VITE_API_URI;
+export const EMAIL_SERVICE_IS_ENABLED: boolean = JSON.parse(
+  import.meta.env.VITE_EMAIL_SERVICE_IS_ENABLED
+);
 
 // Toast parameters.
 export const TOAST_AUTO_CLOSE = 3000;

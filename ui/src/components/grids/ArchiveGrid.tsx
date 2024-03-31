@@ -61,8 +61,8 @@ const ArchiveGrid = () => {
       field: "approvalRequest.submittedDate",
       headerName: "Received",
       flex: 2,
-      valueGetter: (params) =>
-        getHumanReadableRelativeDate(params.row.approvalRequest.submittedDate),
+      valueGetter: (_value, row) =>
+        getHumanReadableRelativeDate(row.approvalRequest.submittedDate),
     },
     {
       field: "status",
@@ -75,39 +75,37 @@ const ArchiveGrid = () => {
           </Tooltip>
         );
       },
-      valueGetter: (params) => ApprovalStatus[params.row.status],
+      valueGetter: (_value, row) => ApprovalStatus[row.status],
     },
     {
       field: "approvalRequest.approveByDate",
       headerName: "Approve by",
       flex: 3,
-      valueGetter: (params) =>
-        params.row.approvalRequest.approveByDate
-          ? getLocaleDateTimeString(
-              params.row.approvalRequest.approveByDate as Date
-            )
+      valueGetter: (_value, row) =>
+        row.approvalRequest.approveByDate
+          ? getLocaleDateTimeString(row.approvalRequest.approveByDate as Date)
           : null,
     },
     {
       field: "completedDate",
       headerName: "Completed",
       flex: 3,
-      valueFormatter: (params) =>
-        params.value ? getLocaleDateTimeString(params.value as Date) : null,
+      valueFormatter: (value) =>
+        value ? getLocaleDateTimeString(value as Date) : null,
     },
     {
       field: "approvalRequest.author",
       headerName: "Requester",
       flex: 5,
-      valueGetter: (params) =>
-        (params.row.approvalRequest.author as string).toLowerCase(),
+      valueGetter: (_value, row) =>
+        (row.approvalRequest.author as string).toLowerCase(),
     },
     {
       field: "approvalRequest.userFiles",
       headerName: "Files",
       flex: 5,
-      valueGetter: (params) =>
-        params.row.approvalRequest.userFiles
+      valueGetter: (_value, row) =>
+        row.approvalRequest.userFiles
           .map((userFile: IUserFile) => userFile.name)
           .join(", "),
       renderCell: (params) => {
@@ -120,8 +118,8 @@ const ArchiveGrid = () => {
       field: "approvalRequest.comment",
       headerName: "Comment",
       flex: 10,
-      valueGetter: (params) =>
-        [params.row.approvalRequest.comment, params.row.comment].join(" "),
+      valueGetter: (_value, row) =>
+        [row.approvalRequest.comment, row.comment].join(" "),
       renderCell: (params) => {
         return (
           <CommentsList
@@ -136,7 +134,6 @@ const ArchiveGrid = () => {
   return (
     <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
       <DataGrid
-        className="DataGridDefault"
         rows={stores.taskStore.tasks}
         columns={columns}
         initialState={{
@@ -151,12 +148,6 @@ const ArchiveGrid = () => {
         slots={{
           toolbar: customToolbar,
           noRowsOverlay: NoRowsOverlay,
-        }}
-        slotProps={{
-          columnsPanel: {
-            disableHideAllButton: true,
-            disableShowAllButton: true,
-          },
         }}
         getRowHeight={() => "auto"}
         sx={{

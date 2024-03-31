@@ -42,7 +42,7 @@ axios.interceptors.response.use(
           }
         }
       }
-      if (!window.location.pathname.toLocaleLowerCase().startsWith("/signIn")) {
+      if (!window.location.pathname.toLocaleLowerCase().startsWith("/sign")) {
         window.location.href = "/signIn";
       }
     }
