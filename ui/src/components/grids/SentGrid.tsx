@@ -26,9 +26,9 @@ import ApprovalRequestViewDialog from "../dialogs/ApprovalRequestViewDialog";
 import { ApproversList } from "../lists/ApproversList";
 import { UserFilesList } from "../lists/UserFilesList";
 import { ApprovalRequestActionsMenu } from "../menus/ApprovalRequestActionsMenu";
+import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
-// Data grid with approval requests.
-const ApprovalRequestsGrid = () => {
+const SentGrid = () => {
   const { setCurrentTab } = commonStore;
   const { approvalRequests, clearApprovalRequests, loadApprovalRequests } =
     approvalRequestStore;
@@ -154,6 +154,7 @@ const ApprovalRequestsGrid = () => {
         disableRowSelectionOnClick
         slots={{
           toolbar: customToolbar,
+          noRowsOverlay: NoRowsOverlay,
         }}
         slotProps={{
           columnsPanel: {
@@ -172,6 +173,7 @@ const ApprovalRequestsGrid = () => {
           "&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell": {
             py: 1.5,
           },
+          "--DataGrid-overlayHeight": "300px",
         }}
         autoHeight
       />
@@ -181,4 +183,4 @@ const ApprovalRequestsGrid = () => {
   );
 };
 
-export default observer(ApprovalRequestsGrid);
+export default observer(SentGrid);

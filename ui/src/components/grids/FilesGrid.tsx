@@ -20,6 +20,7 @@ import { getHumanReadableRelativeDate } from "../../utils/converters";
 import { downloadUserFile } from "../../utils/downloaders";
 import ButtonSend from "../buttons/ButtonSend";
 import ButtonUpload from "../buttons/ButtonUpload";
+import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
 // Data grid with user files.
 const FilesGrid = () => {
@@ -104,12 +105,16 @@ const FilesGrid = () => {
           }
           slots={{
             toolbar: customToolbar,
+            noRowsOverlay: NoRowsOverlay,
           }}
           slotProps={{
             columnsPanel: {
               disableHideAllButton: true,
               disableShowAllButton: true,
             },
+          }}
+          sx={{
+            "--DataGrid-overlayHeight": "300px",
           }}
           autoHeight
         />

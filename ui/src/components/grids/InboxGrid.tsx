@@ -22,6 +22,7 @@ import {
 import TaskReviewDialog from "../dialogs/TaskReviewDialog";
 import { UserFilesList } from "../lists/UserFilesList";
 import { TaskActionsMenu } from "../menus/TaskActionsMenu";
+import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
 const InboxGrid = () => {
   const { setCurrentTab } = commonStore;
@@ -126,6 +127,7 @@ const InboxGrid = () => {
         disableRowSelectionOnClick
         slots={{
           toolbar: customToolbar,
+          noRowsOverlay: NoRowsOverlay,
         }}
         slotProps={{
           columnsPanel: {
@@ -144,6 +146,7 @@ const InboxGrid = () => {
           "&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell": {
             py: 1.5,
           },
+          "--DataGrid-overlayHeight": "300px",
         }}
         autoHeight
       />

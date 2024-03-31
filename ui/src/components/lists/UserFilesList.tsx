@@ -16,7 +16,7 @@ export const UserFilesList: React.FC<IUserFilesListProps> = ({
       direction="column"
       justifyContent="flex-start"
       alignItems="flex-start"
-      sx={{ ...sx }}
+      sx={{ ...sx, overflow: "hidden" }}
     >
       {userFiles.map((userFile, index) => (
         <Link

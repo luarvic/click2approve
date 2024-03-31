@@ -23,6 +23,7 @@ import {
 } from "../../utils/converters";
 import TaskReviewDialog from "../dialogs/TaskReviewDialog";
 import { UserFilesList } from "../lists/UserFilesList";
+import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
 const ArchiveGrid = () => {
   const { setCurrentTab } = commonStore;
@@ -164,6 +165,7 @@ const ArchiveGrid = () => {
         disableRowSelectionOnClick
         slots={{
           toolbar: customToolbar,
+          noRowsOverlay: NoRowsOverlay,
         }}
         slotProps={{
           columnsPanel: {
@@ -182,6 +184,7 @@ const ArchiveGrid = () => {
           "&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell": {
             py: 1.5,
           },
+          "--DataGrid-overlayHeight": "300px",
         }}
         autoHeight
       />

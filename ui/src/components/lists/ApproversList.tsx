@@ -14,7 +14,7 @@ export const ApproversList: React.FC<IApproversListProps> = ({
       direction="column"
       justifyContent="flex-start"
       alignItems="flex-start"
-      sx={{ ...sx }}
+      sx={{ ...sx, overflow: "hidden" }}
     >
       {approvers.map((approver, index) => (
         <Box key={index}>{approver.toLowerCase()}</Box>
