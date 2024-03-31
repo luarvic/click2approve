@@ -22,6 +22,7 @@ import {
   getLocaleDateTimeString,
 } from "../../utils/converters";
 import TaskReviewDialog from "../dialogs/TaskReviewDialog";
+import { CommentsList } from "../lists/CommentsList";
 import { UserFilesList } from "../lists/UserFilesList";
 import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
@@ -127,22 +128,10 @@ const ArchiveGrid = () => {
         [params.row.approvalRequest.comment, params.row.comment].join(" "),
       renderCell: (params) => {
         return (
-          <Stack>
-            {params.row.approvalRequest.comment &&
-              (
-                params.row.approvalRequest.comment.split(/\r?\n/) as string[]
-              ).map((line) => <Box>{line}</Box>)}
-            {params.row.comment && (
-              <>
-                <Box key="separator">{">>>"}</Box>
-                {(params.row.comment.split(/\r?\n/) as string[]).map(
-                  (line, index) => (
-                    <Box key={index}>{line}</Box>
-                  )
-                )}
-              </>
-            )}
-          </Stack>
+          <CommentsList
+            approvalRequestComment={params.row.approvalRequest.comment}
+            approverComment={params.row.comment}
+          />
         );
       },
     },

@@ -24,6 +24,7 @@ import {
 import ApprovalRequestDeleteDialog from "../dialogs/ApprovalRequestDeleteDialog";
 import ApprovalRequestViewDialog from "../dialogs/ApprovalRequestViewDialog";
 import { ApproversList } from "../lists/ApproversList";
+import { CommentsList } from "../lists/CommentsList";
 import { UserFilesList } from "../lists/UserFilesList";
 import { ApprovalRequestActionsMenu } from "../menus/ApprovalRequestActionsMenu";
 import NoRowsOverlay from "../overlays/NoRowsOverlay";
@@ -117,14 +118,7 @@ const SentGrid = () => {
       headerName: "Comment",
       flex: 10,
       renderCell: (params) => {
-        return (
-          <Stack>
-            {params.value &&
-              (params.value.split(/\r?\n/) as string[]).map((line) => (
-                <Box>{line}</Box>
-              ))}
-          </Stack>
-        );
+        return <CommentsList approvalRequestComment={params.value} />;
       },
     },
     {
