@@ -2,13 +2,10 @@ import { Verified } from "@mui/icons-material";
 import { AppBar, Button, Link, Toolbar, Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
+import { stores } from "../../stores/Stores";
 import { DEFAULT_PATH } from "../../stores/constantsStore";
-import { fileStore } from "../../stores/fileStore";
-import { userAccountStore } from "../../stores/userAccountStore";
 
 const MainNavBar = () => {
-  const { currentUser, signOut } = userAccountStore;
-  const { clearUserFiles } = fileStore;
   const navigate = useNavigate();
 
   return (
@@ -23,21 +20,21 @@ const MainNavBar = () => {
         >
           click2approve
         </Typography>
-        {!currentUser ? (
-          <Button variant="outlined" color="inherit" href="/signin">
+        {!stores.userAccountStore.currentUser ? (
+          <Button variant="outlined" color="inherit" href="/signIn">
             Sign in
           </Button>
         ) : (
           <>
             <Link sx={{ mr: 1 }} color="inherit" href={DEFAULT_PATH}>
-              {currentUser.email.toLowerCase()}
+              {stores.userAccountStore.currentUser.email.toLowerCase()}
             </Link>
             <Button
               variant="outlined"
               color="inherit"
               onClick={() => {
-                clearUserFiles();
-                signOut();
+                stores.fileStore.clearUserFiles();
+                stores.userAccountStore.signOut();
                 navigate("/");
               }}
             >

@@ -1,5 +1,5 @@
 import { Check, Close, Loop, QuestionMark } from "@mui/icons-material";
-import { Box, Stack, Tooltip } from "@mui/material";
+import { Box, Tooltip } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -14,8 +14,7 @@ import { useEffect } from "react";
 import { ApprovalStatus } from "../../models/approvalStatus";
 import { Tab } from "../../models/tab";
 import { IUserFile } from "../../models/userFile";
-import { approvalRequestStore } from "../../stores/approvalRequestStore";
-import { commonStore } from "../../stores/commonStore";
+import { stores } from "../../stores/Stores";
 import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../stores/constantsStore";
 import {
   getHumanReadableRelativeDate,
@@ -30,14 +29,10 @@ import { ApprovalRequestActionsMenu } from "../menus/ApprovalRequestActionsMenu"
 import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
 const SentGrid = () => {
-  const { setCurrentTab } = commonStore;
-  const { approvalRequests, clearApprovalRequests, loadApprovalRequests } =
-    approvalRequestStore;
-
   useEffect(() => {
-    setCurrentTab(Tab.Sent);
-    clearApprovalRequests();
-    loadApprovalRequests();
+    stores.commonStore.setCurrentTab(Tab.Sent);
+    stores.approvalRequestStore.clearApprovalRequests();
+    stores.approvalRequestStore.loadApprovalRequests();
   }, []);
 
   const customToolbar = () => {
@@ -135,7 +130,7 @@ const SentGrid = () => {
     <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
       <DataGrid
         className="DataGridDefault"
-        rows={approvalRequests}
+        rows={stores.approvalRequestStore.approvalRequests}
         columns={columns}
         initialState={{
           pagination: {

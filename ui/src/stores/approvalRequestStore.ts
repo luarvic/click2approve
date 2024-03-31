@@ -2,7 +2,7 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { IApprovalRequest } from "../models/approvalRequest";
 import { listApprovalRequests } from "../utils/apiClient";
 
-class ApprovalRequestStore {
+export class ApprovalRequestStore {
   registry: Map<number, IApprovalRequest>;
   currentApprovalRequest: IApprovalRequest | null;
   approvalRequestSubmitDialogIsOpen: boolean;
@@ -60,5 +60,3 @@ class ApprovalRequestStore {
     });
   };
 }
-
-export const approvalRequestStore = new ApprovalRequestStore();

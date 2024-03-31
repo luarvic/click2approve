@@ -11,23 +11,19 @@ import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tab } from "../../models/tab";
-import { commonStore } from "../../stores/commonStore";
-import { taskStore } from "../../stores/taskStore";
+import { stores } from "../../stores/Stores";
 
 const TabsNavBar = () => {
-  const { currentTab, setCurrentTab } = commonStore;
-
-  const { numberOfUncompletedTasks, loadNumberOfUncompletedTasks } = taskStore;
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadNumberOfUncompletedTasks();
+    stores.taskStore.loadNumberOfUncompletedTasks();
   }, []);
 
   const handleTabChange = (tab: Tab) => {
-    loadNumberOfUncompletedTasks();
-    if (currentTab !== tab) {
-      setCurrentTab(tab);
+    stores.taskStore.loadNumberOfUncompletedTasks();
+    if (stores.commonStore.currentTab !== tab) {
+      stores.commonStore.setCurrentTab(tab);
       switch (tab) {
         case Tab.Files:
           navigate("/files");
@@ -49,7 +45,7 @@ const TabsNavBar = () => {
     <Box sx={{ pr: 2 }}>
       <List disablePadding>
         <ListItemButton
-          selected={currentTab === Tab.Files}
+          selected={stores.commonStore.currentTab === Tab.Files}
           onClick={() => {
             handleTabChange(Tab.Files);
           }}
@@ -60,20 +56,23 @@ const TabsNavBar = () => {
           <ListItemText primary="Files" />
         </ListItemButton>
         <ListItemButton
-          selected={currentTab === Tab.Inbox}
+          selected={stores.commonStore.currentTab === Tab.Inbox}
           onClick={() => {
             handleTabChange(Tab.Inbox);
           }}
         >
           <ListItemIcon>
-            <Badge badgeContent={numberOfUncompletedTasks} color="error">
+            <Badge
+              badgeContent={stores.taskStore.numberOfUncompletedTasks}
+              color="error"
+            >
               <Inbox />
             </Badge>
           </ListItemIcon>
           <ListItemText primary="Inbox" />
         </ListItemButton>
         <ListItemButton
-          selected={currentTab === Tab.Archive}
+          selected={stores.commonStore.currentTab === Tab.Archive}
           onClick={() => {
             handleTabChange(Tab.Archive);
           }}
@@ -84,7 +83,7 @@ const TabsNavBar = () => {
           <ListItemText primary="Archive" />
         </ListItemButton>
         <ListItemButton
-          selected={currentTab === Tab.Sent}
+          selected={stores.commonStore.currentTab === Tab.Sent}
           onClick={() => {
             handleTabChange(Tab.Sent);
           }}

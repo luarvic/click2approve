@@ -3,8 +3,8 @@ import passwordValidator from "password-validator";
 
 // General parameters.
 export const API_URI = process.env.REACT_APP_API_URI;
-export const EMAIL_CONFIRMATION_IS_REQUIRED: boolean =
-  process.env.REACT_APP_EMAIL_CONFIRMATION_IS_REQUIRED?.toLowerCase() ===
+export const EMAIL_SERVICE_IS_ENABLED: boolean =
+  process.env.REACT_APP_EMAIL_SERVICE_IS_ENABLED?.toLowerCase() ===
   "true";
 
 // Toast parameters.

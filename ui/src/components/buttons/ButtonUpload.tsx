@@ -2,11 +2,10 @@ import { CloudUpload } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, Fragment, useRef } from "react";
-import { fileStore } from "../../stores/fileStore";
+import { stores } from "../../stores/Stores";
 
 const ButtonUpload = () => {
   const hiddenFileInput = useRef<HTMLInputElement>(null);
-  const { addUserFiles } = fileStore;
   const handleUploadClick = () => {
     if (hiddenFileInput.current) {
       hiddenFileInput.current.click();
@@ -17,7 +16,7 @@ const ButtonUpload = () => {
     if (event.currentTarget) {
       const filesToUpload = event.currentTarget.files;
       if (filesToUpload) {
-        addUserFiles(filesToUpload);
+        stores.fileStore.addUserFiles(filesToUpload);
       }
     }
   };

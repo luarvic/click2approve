@@ -3,16 +3,20 @@ import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import LoadingOverlay from "./components/overlays/LoadingOverlay";
 import MainLayout from "./layouts/MainLayout";
-import ArchivePage from "./pages/ArchivePage";
-import ConfirmEmailPage from "./pages/ConfirmEmailPage";
-import FilesPage from "./pages/FilesPage";
 import HomePage from "./pages/HomePage";
-import InboxPage from "./pages/InboxPage";
+import InformationPage from "./pages/InformationPage";
 import NotFoundPage from "./pages/NotFoundPage";
-import SentPage from "./pages/SentPage";
-import SignInPage from "./pages/SignInPage";
-import SignUpPage from "./pages/SignUpPage";
+import ArchivePage from "./pages/approval/ArchivePage";
+import FilesPage from "./pages/approval/FilesPage";
+import InboxPage from "./pages/approval/InboxPage";
+import SentPage from "./pages/approval/SentPage";
+import ConfirmEmailPage from "./pages/identity/ConfirmEmailPage";
+import ForgotPasswordPage from "./pages/identity/ForgotPasswordPage";
+import SignInPage from "./pages/identity/SignInPage";
+import SignUpPage from "./pages/identity/SignUpPage";
+// import { useStores } from "./stores/Stores";
 import {
   THEME,
   TOAST_AUTO_CLOSE,
@@ -20,18 +24,16 @@ import {
   TOAST_DRAGGABLE,
   TOAST_LIMIT,
 } from "./stores/constantsStore";
-import { userAccountStore } from "./stores/userAccountStore";
+import { stores } from "./stores/Stores";
 
-// Top level component.
 const App = () => {
-  const { currentUser, signInWithCachedToken } = userAccountStore;
-
+  // const { userAccountStore } = useStores();
   useEffect(() => {
-    signInWithCachedToken();
+    stores.userAccountStore.signInWithCachedToken();
   }, []);
 
-  return currentUser === undefined ? (
-    <></>
+  return stores.userAccountStore.currentUser === undefined ? (
+    <LoadingOverlay />
   ) : (
     <ThemeProvider theme={THEME}>
       <CssBaseline>
@@ -39,26 +41,17 @@ const App = () => {
           <Routes>
             <Route path="/" element={<MainLayout />}>
               <Route index element={<HomePage />} />
-              <Route path="/signin" element={<SignInPage />} />
-              <Route path="/signup" element={<SignUpPage />} />
-              <Route
-                path="/files"
-                element={currentUser ? <FilesPage /> : <SignInPage />}
-              />
-              <Route
-                path="/inbox"
-                element={currentUser ? <InboxPage /> : <SignInPage />}
-              />
-              <Route
-                path="/archive"
-                element={currentUser ? <ArchivePage /> : <SignInPage />}
-              />
-              <Route
-                path="/sent"
-                element={currentUser ? <SentPage /> : <SignInPage />}
-              />
-              <Route path="*" element={<NotFoundPage />} />
+              <Route path="/signIn" element={<SignInPage />} />
+              <Route path="/forgotPassword" element={<ForgotPasswordPage />} />
+              <Route path="/signUp" element={<SignUpPage />} />
+              <Route path="/files" element={<FilesPage />} />
+              <Route path="/inbox" element={<InboxPage />} />
+              <Route path="/archive" element={<ArchivePage />} />
+              <Route path="/sent" element={<SentPage />} />
               <Route path="/confirmEmail" element={<ConfirmEmailPage />} />
+              <Route path="/forgotPassword" element={<ForgotPasswordPage />} />
+              <Route path="/information" element={<InformationPage />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

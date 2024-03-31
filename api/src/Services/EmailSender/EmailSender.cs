@@ -30,7 +30,9 @@ public class EmailSender(IEmailService emailService, IConfiguration configuratio
         {
             ToAddress = email,
             Subject = "Reset your password on click2approve",
-            Body = resetCode
+            Body = UriHelpers.GetDerivedPasswordResetLink(
+                user.Email!.ToLower(), resetCode, _configuration.GetValue<Uri>("UI:BaseUrl")
+            ).ToString()
         };
         await _emailService.SendAsync(emailMessage);
     }

@@ -11,15 +11,14 @@ import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Credentials } from "../models/credentials";
-import { DEFAULT_PATH } from "../stores/constantsStore";
-import { userAccountStore } from "../stores/userAccountStore";
-import { validateEmail } from "../utils/validators";
+import { Credentials } from "../../models/credentials";
+import { stores } from "../../stores/Stores";
+import { DEFAULT_PATH } from "../../stores/constantsStore";
+import { validateEmail } from "../../utils/validators";
 
 const SignInPage = () => {
   const [emailError, setEmailError] = useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<boolean>(false);
-  const { signIn } = userAccountStore;
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -37,8 +36,8 @@ const SignInPage = () => {
         email.toString(),
         password.toString()
       );
-      if (await signIn(credentials)) {
-        if (location.pathname === "/signin") {
+      if (await stores.userAccountStore.signIn(credentials)) {
+        if (location.pathname === "/signIn") {
           navigate(DEFAULT_PATH);
         }
       }
@@ -95,13 +94,13 @@ const SignInPage = () => {
           </Button>
           <Grid container>
             <Grid item xs>
-              <Link href="#" variant="body2">
+              <Link href="/forgotPassword" variant="body2">
                 Forgot password?
               </Link>
             </Grid>
             <Grid item>
-              <Link href="/signup" variant="body2">
-                {"New to us? Sign up"}
+              <Link href="/signUp" variant="body2">
+                New to us? Sign up
               </Link>
             </Grid>
           </Grid>

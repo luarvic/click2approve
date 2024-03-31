@@ -11,14 +11,14 @@ import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Credentials } from "../models/credentials";
+import { Credentials } from "../../models/credentials";
+import { stores } from "../../stores/Stores";
 import {
   DEFAULT_PATH,
-  EMAIL_CONFIRMATION_IS_REQUIRED,
+  EMAIL_SERVICE_IS_ENABLED,
   PASSWORD_VALIDATOR_ERROR,
-} from "../stores/constantsStore";
-import { userAccountStore } from "../stores/userAccountStore";
-import { validateEmail, validatePassword } from "../utils/validators";
+} from "../../stores/constantsStore";
+import { validateEmail, validatePassword } from "../../utils/validators";
 
 const SignUpPage = () => {
   const [emailError, setEmailError] = useState<boolean>(false);
@@ -26,7 +26,6 @@ const SignUpPage = () => {
   const [passwordConfirmationError, setPasswordConfirmationError] =
     useState<boolean>(false);
   const navigate = useNavigate();
-  const { signUp, signIn } = userAccountStore;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -60,11 +59,11 @@ const SignUpPage = () => {
         password.toString(),
         passwordConfirmation.toString()
       );
-      if (await signUp(credentials)) {
-        if (EMAIL_CONFIRMATION_IS_REQUIRED) {
+      if (await stores.userAccountStore.signUp(credentials)) {
+        if (EMAIL_SERVICE_IS_ENABLED) {
           navigate("/confirmEmail");
         } else {
-          if (await signIn(credentials)) {
+          if (await stores.userAccountStore.signIn(credentials)) {
             navigate(DEFAULT_PATH);
           }
         }
@@ -142,8 +141,8 @@ const SignUpPage = () => {
           <Grid container>
             <Grid item xs></Grid>
             <Grid item>
-              <Link href="/signin" variant="body2">
-                {"Already have an account? Sign in"}
+              <Link href="/signIn" variant="body2">
+                Already have an account? Sign in
               </Link>
             </Grid>
           </Grid>

@@ -2,16 +2,13 @@ import { ArrowDropDownCircle } from "@mui/icons-material";
 import { IconButton, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
 import { IApprovalRequestTask } from "../../models/approvalRequestTask";
-import { commonStore } from "../../stores/commonStore";
-import { taskStore } from "../../stores/taskStore";
+import { stores } from "../../stores/Stores";
 
 interface ITaskActionsMenuProps {
   task: IApprovalRequestTask;
 }
 
 export const TaskActionsMenu: React.FC<ITaskActionsMenuProps> = ({ task }) => {
-  const { setTaskReviewDialogIsOpen } = commonStore;
-  const { setCurrentTask } = taskStore;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -21,8 +18,8 @@ export const TaskActionsMenu: React.FC<ITaskActionsMenuProps> = ({ task }) => {
     setAnchorEl(null);
   };
   const handleReview = () => {
-    setCurrentTask(task);
-    setTaskReviewDialogIsOpen(true);
+    stores.taskStore.setCurrentTask(task);
+    stores.commonStore.setTaskReviewDialogIsOpen(true);
     handleClose();
   };
 

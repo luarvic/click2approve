@@ -6,36 +6,35 @@ import {
   DialogTitle,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { approvalRequestStore } from "../../stores/approvalRequestStore";
-import { commonStore } from "../../stores/commonStore";
+import { stores } from "../../stores/Stores";
 import { UserFilesList } from "../lists/UserFilesList";
 import { ApprovalSteps } from "../steps/ApprovalSteps";
 
 const ApprovalRequestViewDialog = () => {
-  const {
-    approvalRequestViewDialogIsOpen,
-    setApprovalRequestViewDialogIsOpen,
-  } = commonStore;
-  const { currentApprovalRequest, setCurrentApprovalRequest } =
-    approvalRequestStore;
-
   const handleClose = () => {
-    setApprovalRequestViewDialogIsOpen(false);
-    setCurrentApprovalRequest(null);
+    stores.commonStore.setApprovalRequestViewDialogIsOpen(false);
+    stores.approvalRequestStore.setCurrentApprovalRequest(null);
   };
 
   return (
-    <Dialog open={approvalRequestViewDialogIsOpen} onClose={handleClose}>
+    <Dialog
+      open={stores.commonStore.approvalRequestViewDialogIsOpen}
+      onClose={handleClose}
+    >
       <DialogTitle>Track approval request</DialogTitle>
       <DialogContent dividers>
-        {currentApprovalRequest && (
+        {stores.approvalRequestStore.currentApprovalRequest && (
           <UserFilesList
-            userFiles={currentApprovalRequest.userFiles}
+            userFiles={
+              stores.approvalRequestStore.currentApprovalRequest.userFiles
+            }
             sx={{ mb: 1 }}
           />
         )}
-        {currentApprovalRequest && (
-          <ApprovalSteps approvalRequest={currentApprovalRequest} />
+        {stores.approvalRequestStore.currentApprovalRequest && (
+          <ApprovalSteps
+            approvalRequest={stores.approvalRequestStore.currentApprovalRequest}
+          />
         )}
       </DialogContent>
       <DialogActions>

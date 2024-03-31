@@ -2,7 +2,7 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { IUserFile } from "../models/userFile";
 import { listFiles, uploadFiles } from "../utils/apiClient";
 
-class FileStore {
+export class FileStore {
   registry: Map<string, IUserFile>;
 
   get userFiles(): IUserFile[] {
@@ -11,7 +11,9 @@ class FileStore {
     );
   }
 
-  constructor(userFilesRegistry: Map<string, IUserFile>) {
+  constructor(
+    userFilesRegistry: Map<string, IUserFile> = new Map<string, IUserFile>()
+  ) {
     this.registry = userFilesRegistry;
     makeAutoObservable(this);
   }
@@ -59,5 +61,3 @@ class FileStore {
     );
   };
 }
-
-export const fileStore = new FileStore(new Map<string, IUserFile>());

@@ -1,5 +1,5 @@
 import { Check, Close, Loop, QuestionMark } from "@mui/icons-material";
-import { Box, Stack, Tooltip } from "@mui/material";
+import { Box, Tooltip } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -14,9 +14,8 @@ import { useEffect } from "react";
 import { ApprovalStatus } from "../../models/approvalStatus";
 import { Tab } from "../../models/tab";
 import { IUserFile } from "../../models/userFile";
-import { commonStore } from "../../stores/commonStore";
+import { stores } from "../../stores/Stores";
 import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../stores/constantsStore";
-import { taskStore } from "../../stores/taskStore";
 import {
   getHumanReadableRelativeDate,
   getLocaleDateTimeString,
@@ -27,13 +26,10 @@ import { UserFilesList } from "../lists/UserFilesList";
 import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
 const ArchiveGrid = () => {
-  const { setCurrentTab } = commonStore;
-  const { tasks, clearTasks, loadTasks } = taskStore;
-
   useEffect(() => {
-    setCurrentTab(Tab.Archive);
-    clearTasks();
-    loadTasks(Tab.Archive);
+    stores.commonStore.setCurrentTab(Tab.Archive);
+    stores.taskStore.clearTasks();
+    stores.taskStore.loadTasks(Tab.Archive);
   }, []);
 
   const customToolbar = () => {
@@ -141,7 +137,7 @@ const ArchiveGrid = () => {
     <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
       <DataGrid
         className="DataGridDefault"
-        rows={tasks}
+        rows={stores.taskStore.tasks}
         columns={columns}
         initialState={{
           pagination: {

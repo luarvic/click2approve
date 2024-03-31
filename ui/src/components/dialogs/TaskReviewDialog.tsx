@@ -10,40 +10,30 @@ import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { ApprovalStatus } from "../../models/approvalStatus";
 import { Tab } from "../../models/tab";
-import { commonStore } from "../../stores/commonStore";
-import { taskStore } from "../../stores/taskStore";
-import { userAccountStore } from "../../stores/userAccountStore";
+import { stores } from "../../stores/Stores";
 import { completeTask } from "../../utils/apiClient";
 import { UserFilesList } from "../lists/UserFilesList";
 
 const TaskReviewDialog = () => {
-  const { currentTab, taskReviewDialogIsOpen, setTaskReviewDialogIsOpen } =
-    commonStore;
-  const {
-    currentTask,
-    setCurrentTask,
-    clearTasks,
-    loadTasks,
-    loadNumberOfUncompletedTasks,
-  } = taskStore;
-  const { currentUser } = userAccountStore;
   const [comment, setComment] = useState<string>("");
 
   const handleClose = () => {
-    setCurrentTask(null);
+    stores.taskStore.setCurrentTask(null);
     setComment("");
-    setTaskReviewDialogIsOpen(false);
+    stores.commonStore.setTaskReviewDialogIsOpen(false);
   };
 
   const rejectOrApprove = (status: ApprovalStatus) => {
-    currentTask &&
-      currentUser &&
-      completeTask(currentTask.id, status, comment).then(() => {
-        handleClose();
-        clearTasks();
-        loadTasks(Tab.Inbox);
-        loadNumberOfUncompletedTasks();
-      });
+    stores.taskStore.currentTask &&
+      stores.userAccountStore.currentUser &&
+      completeTask(stores.taskStore.currentTask.id, status, comment).then(
+        () => {
+          handleClose();
+          stores.taskStore.clearTasks();
+          stores.taskStore.loadTasks(Tab.Inbox);
+          stores.taskStore.loadNumberOfUncompletedTasks();
+        }
+      );
   };
 
   const handleReject = () => {
@@ -97,15 +87,22 @@ const TaskReviewDialog = () => {
   };
 
   return (
-    <Dialog open={taskReviewDialogIsOpen} onClose={handleClose}>
+    <Dialog
+      open={stores.commonStore.taskReviewDialogIsOpen}
+      onClose={handleClose}
+    >
       <DialogTitle>Review the files</DialogTitle>
       <DialogContent dividers>
-        {currentTask && (
-          <UserFilesList userFiles={currentTask.approvalRequest.userFiles} />
+        {stores.taskStore.currentTask && (
+          <UserFilesList
+            userFiles={stores.taskStore.currentTask.approvalRequest.userFiles}
+          />
         )}
-        {currentTab && renderDialogInputs(currentTab)}
+        {stores.commonStore.currentTab &&
+          renderDialogInputs(stores.commonStore.currentTab)}
       </DialogContent>
-      {currentTab && renderDialogActions(currentTab)}
+      {stores.commonStore.currentTab &&
+        renderDialogActions(stores.commonStore.currentTab)}
     </Dialog>
   );
 };

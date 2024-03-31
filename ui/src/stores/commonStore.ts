@@ -1,7 +1,7 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { Tab } from "../models/tab";
 
-class CommonStore {
+export class CommonStore {
   currentTab?: Tab;
   approvalRequestSubmitDialogIsOpen: boolean;
   approvalRequestViewDialogIsOpen: boolean;
@@ -53,5 +53,3 @@ class CommonStore {
     });
   };
 }
-
-export const commonStore = new CommonStore();

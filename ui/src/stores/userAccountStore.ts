@@ -1,10 +1,15 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { ICredentials } from "../models/credentials";
 import { IUserAccount } from "../models/userAccount";
-import { getUserInfo, signInUser, signUpUser } from "../utils/apiClient";
+import {
+  getUserInfo,
+  sendResetPasswordLink,
+  signInUser,
+  signUpUser,
+} from "../utils/apiClient";
 import { deleteTokens, readTokens } from "../utils/cacheClient";
 
-class UserAccountStore {
+export class UserAccountStore {
   currentUser: IUserAccount | null | undefined; // undefined means we don't know yet if it's authenticated or anonymous user
 
   constructor(currentUser: IUserAccount | undefined = undefined) {
@@ -24,6 +29,10 @@ class UserAccountStore {
       return await this.signInWithCachedToken();
     }
     return false;
+  };
+
+  resetPassword = async (email: string): Promise<boolean> => {
+    return await sendResetPasswordLink(email);
   };
 
   signInWithCachedToken = async (): Promise<boolean> => {
@@ -48,5 +57,3 @@ class UserAccountStore {
     });
   };
 }
-
-export const userAccountStore = new UserAccountStore();

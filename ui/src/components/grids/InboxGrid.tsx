@@ -12,9 +12,8 @@ import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { Tab } from "../../models/tab";
 import { IUserFile } from "../../models/userFile";
-import { commonStore } from "../../stores/commonStore";
+import { stores } from "../../stores/Stores";
 import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../stores/constantsStore";
-import { taskStore } from "../../stores/taskStore";
 import {
   getHumanReadableRelativeDate,
   getLocaleDateTimeString,
@@ -25,13 +24,10 @@ import { TaskActionsMenu } from "../menus/TaskActionsMenu";
 import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
 const InboxGrid = () => {
-  const { setCurrentTab } = commonStore;
-  const { tasks, clearTasks, loadTasks } = taskStore;
-
   useEffect(() => {
-    setCurrentTab(Tab.Inbox);
-    clearTasks();
-    loadTasks(Tab.Inbox);
+    stores.commonStore.setCurrentTab(Tab.Inbox);
+    stores.taskStore.clearTasks();
+    stores.taskStore.loadTasks(Tab.Inbox);
   }, []);
 
   const customToolbar = () => {
@@ -114,7 +110,7 @@ const InboxGrid = () => {
     <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
       <DataGrid
         className="DataGridDefault"
-        rows={tasks}
+        rows={stores.taskStore.tasks}
         columns={columns}
         initialState={{
           pagination: {

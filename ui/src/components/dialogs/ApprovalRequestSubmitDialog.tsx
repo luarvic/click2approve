@@ -12,21 +12,14 @@ import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
 import { observer } from "mobx-react-lite";
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
-import { commonStore } from "../../stores/commonStore";
-import { EMAIL_VALIDATION_REGEX } from "../../stores/constantsStore";
-import { fileStore } from "../../stores/fileStore";
+import { stores } from "../../stores/Stores";
 import { submitApprovalRequest } from "../../utils/apiClient";
 import { validateEmails } from "../../utils/validators";
 import { UserFilesList } from "../lists/UserFilesList";
 
 const ApprovalRequestSubmitDialog = () => {
-  const {
-    approvalRequestSubmitDialogIsOpen,
-    setApprovalRequestSubmitDialogIsOpen,
-  } = commonStore;
-  const { getSelectedUserFiles } = fileStore;
   const [approver, setApprover] = useState<string>("");
   const [approvers, setApprovers] = useState<string[]>([]);
   const [approveBy, setApproveBy] = useState<Dayjs | null>(null);
@@ -40,7 +33,7 @@ const ApprovalRequestSubmitDialog = () => {
       toast.error("Invalid input.");
     } else {
       await submitApprovalRequest(
-        getSelectedUserFiles(),
+        stores.fileStore.getSelectedUserFiles(),
         emails.map((a) => a.toLocaleLowerCase().trim()),
         approveBy ? approveBy.toDate() : null,
         comment
@@ -54,7 +47,7 @@ const ApprovalRequestSubmitDialog = () => {
     setApprovers([]);
     setApproveBy(null);
     setComment("");
-    setApprovalRequestSubmitDialogIsOpen(false);
+    stores.commonStore.setApprovalRequestSubmitDialogIsOpen(false);
   };
 
   const handleApproversChange = (
@@ -71,10 +64,13 @@ const ApprovalRequestSubmitDialog = () => {
   };
 
   return (
-    <Dialog open={approvalRequestSubmitDialogIsOpen} onClose={handleClose}>
+    <Dialog
+      open={stores.commonStore.approvalRequestSubmitDialogIsOpen}
+      onClose={handleClose}
+    >
       <DialogTitle>Submit for approval</DialogTitle>
       <DialogContent dividers>
-        <UserFilesList userFiles={getSelectedUserFiles()} />
+        <UserFilesList userFiles={stores.fileStore.getSelectedUserFiles()} />
         <Autocomplete
           multiple
           id="approvers"

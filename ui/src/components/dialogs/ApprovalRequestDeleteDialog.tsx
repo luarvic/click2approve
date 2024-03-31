@@ -6,48 +6,46 @@ import {
   DialogTitle,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { approvalRequestStore } from "../../stores/approvalRequestStore";
-import { commonStore } from "../../stores/commonStore";
+import { stores } from "../../stores/Stores";
 import { deleteApprovalRequest } from "../../utils/apiClient";
 import { UserFilesList } from "../lists/UserFilesList";
 import { ApprovalSteps } from "../steps/ApprovalSteps";
 
 const ApprovalRequestDeleteDialog = () => {
-  const {
-    approvalRequestDeleteDialogIsOpen,
-    setApprovalRequestDeleteDialogIsOpen,
-  } = commonStore;
-  const {
-    currentApprovalRequest,
-    clearApprovalRequests,
-    loadApprovalRequests,
-  } = approvalRequestStore;
-
   const handleDelete = async () => {
-    currentApprovalRequest &&
-      deleteApprovalRequest(currentApprovalRequest.id).then(() => {
+    stores.approvalRequestStore.currentApprovalRequest &&
+      deleteApprovalRequest(
+        stores.approvalRequestStore.currentApprovalRequest.id
+      ).then(() => {
         handleClose();
-        clearApprovalRequests();
-        loadApprovalRequests();
+        stores.approvalRequestStore.clearApprovalRequests();
+        stores.approvalRequestStore.loadApprovalRequests();
       });
   };
 
   const handleClose = () => {
-    setApprovalRequestDeleteDialogIsOpen(false);
+    stores.commonStore.setApprovalRequestDeleteDialogIsOpen(false);
   };
 
   return (
-    <Dialog open={approvalRequestDeleteDialogIsOpen} onClose={handleClose}>
+    <Dialog
+      open={stores.commonStore.approvalRequestDeleteDialogIsOpen}
+      onClose={handleClose}
+    >
       <DialogTitle>Delete approval request</DialogTitle>
       <DialogContent dividers>
-        {currentApprovalRequest && (
+        {stores.approvalRequestStore.currentApprovalRequest && (
           <UserFilesList
-            userFiles={currentApprovalRequest.userFiles}
+            userFiles={
+              stores.approvalRequestStore.currentApprovalRequest.userFiles
+            }
             sx={{ mb: 1 }}
           />
         )}
-        {currentApprovalRequest && (
-          <ApprovalSteps approvalRequest={currentApprovalRequest} />
+        {stores.approvalRequestStore.currentApprovalRequest && (
+          <ApprovalSteps
+            approvalRequest={stores.approvalRequestStore.currentApprovalRequest}
+          />
         )}
       </DialogContent>
       <DialogActions>

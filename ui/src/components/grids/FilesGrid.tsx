@@ -13,9 +13,8 @@ import prettyBytes from "pretty-bytes";
 import { useEffect } from "react";
 import { Tab } from "../../models/tab";
 import { IUserFile } from "../../models/userFile";
-import { commonStore } from "../../stores/commonStore";
+import { stores } from "../../stores/Stores";
 import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../stores/constantsStore";
-import { fileStore } from "../../stores/fileStore";
 import { getHumanReadableRelativeDate } from "../../utils/converters";
 import { downloadUserFile } from "../../utils/downloaders";
 import ButtonSend from "../buttons/ButtonSend";
@@ -24,14 +23,10 @@ import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
 // Data grid with user files.
 const FilesGrid = () => {
-  const { setCurrentTab } = commonStore;
-  const { userFiles, handleUserFileCheckbox, clearUserFiles, loadUserFiles } =
-    fileStore;
-
   useEffect(() => {
-    setCurrentTab(Tab.Files);
-    clearUserFiles();
-    loadUserFiles();
+    stores.commonStore.setCurrentTab(Tab.Files);
+    stores.fileStore.clearUserFiles();
+    stores.fileStore.loadUserFiles();
   }, []);
 
   const customToolbar = () => {
@@ -88,7 +83,7 @@ const FilesGrid = () => {
       <Box>
         <DataGrid
           className="DataGridDefault"
-          rows={userFiles}
+          rows={stores.fileStore.userFiles}
           columns={columns}
           initialState={{
             pagination: {
@@ -101,7 +96,7 @@ const FilesGrid = () => {
           checkboxSelection
           disableRowSelectionOnClick
           onRowSelectionModelChange={(items) =>
-            handleUserFileCheckbox(items as string[])
+            stores.fileStore.handleUserFileCheckbox(items as string[])
           }
           slots={{
             toolbar: customToolbar,

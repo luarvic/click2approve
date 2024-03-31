@@ -7,7 +7,7 @@ import {
   listUncompletedTasks,
 } from "../utils/apiClient";
 
-class TaskStore {
+export class TaskStore {
   registry: Map<number, IApprovalRequestTask>;
   currentTask: IApprovalRequestTask | null;
   numberOfUncompletedTasks: number;
@@ -78,5 +78,3 @@ class TaskStore {
     });
   };
 }
-
-export const taskStore = new TaskStore();

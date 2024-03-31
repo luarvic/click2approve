@@ -42,8 +42,8 @@ axios.interceptors.response.use(
           }
         }
       }
-      if (!window.location.pathname.toLocaleLowerCase().startsWith("/signin")) {
-        window.location.href = "/signin";
+      if (!window.location.pathname.toLocaleLowerCase().startsWith("/signIn")) {
+        window.location.href = "/signIn";
       }
     }
     return Promise.reject(error);
@@ -90,6 +90,20 @@ export const signInUser = async (
     return true;
   } catch (e) {
     deleteTokens();
+    toast.error(getUserFriendlyApiErrorMessage(e));
+    return false;
+  }
+};
+
+export const sendResetPasswordLink = async (
+  email: string
+): Promise<boolean> => {
+  try {
+    await axios.post("api/account/forgotPassword", {
+      email: email,
+    });
+    return true;
+  } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
     return false;
   }

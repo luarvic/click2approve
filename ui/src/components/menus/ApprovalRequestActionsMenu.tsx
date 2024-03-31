@@ -2,8 +2,7 @@ import { ArrowDropDownCircle } from "@mui/icons-material";
 import { IconButton, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
 import { IApprovalRequest } from "../../models/approvalRequest";
-import { approvalRequestStore } from "../../stores/approvalRequestStore";
-import { commonStore } from "../../stores/commonStore";
+import { stores } from "../../stores/Stores";
 
 interface IApprovalRequestActionsMenuProps {
   approvalRequest: IApprovalRequest;
@@ -12,11 +11,6 @@ interface IApprovalRequestActionsMenuProps {
 export const ApprovalRequestActionsMenu: React.FC<
   IApprovalRequestActionsMenuProps
 > = ({ approvalRequest }) => {
-  const {
-    setApprovalRequestViewDialogIsOpen,
-    setApprovalRequestDeleteDialogIsOpen,
-  } = commonStore;
-  const { setCurrentApprovalRequest } = approvalRequestStore;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -26,13 +20,13 @@ export const ApprovalRequestActionsMenu: React.FC<
     setAnchorEl(null);
   };
   const handleView = () => {
-    setCurrentApprovalRequest(approvalRequest);
-    setApprovalRequestViewDialogIsOpen(true);
+    stores.approvalRequestStore.setCurrentApprovalRequest(approvalRequest);
+    stores.commonStore.setApprovalRequestViewDialogIsOpen(true);
     handleClose();
   };
   const handleDelete = () => {
-    setCurrentApprovalRequest(approvalRequest);
-    setApprovalRequestDeleteDialogIsOpen(true);
+    stores.approvalRequestStore.setCurrentApprovalRequest(approvalRequest);
+    stores.commonStore.setApprovalRequestDeleteDialogIsOpen(true);
     handleClose();
   };
 

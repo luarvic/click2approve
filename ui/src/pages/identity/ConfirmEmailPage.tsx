@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { confirmEmail } from "../utils/apiClient";
+import { confirmEmail } from "../../utils/apiClient";
 
 const ConfirmEmailPage = () => {
   const [searchParams] = useSearchParams();
