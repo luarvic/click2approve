@@ -2,9 +2,9 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { IApprovalRequestTask } from "../models/approvalRequestTask";
 import { Tab } from "../models/tab";
 import {
-  countUncompletedTasks,
-  listCompletedTasks,
-  listUncompletedTasks,
+  taskCountUncompleted,
+  taskListCompleted,
+  taskListUncompleted,
 } from "../utils/apiClient";
 
 export class TaskStore {
@@ -37,9 +37,9 @@ export class TaskStore {
   loadTasks = async (tab: Tab) => {
     let tasks: IApprovalRequestTask[] = [];
     if (tab === Tab.Inbox) {
-      tasks = await listUncompletedTasks();
+      tasks = await taskListUncompleted();
     } else if (tab === Tab.Archive) {
-      tasks = await listCompletedTasks();
+      tasks = await taskListCompleted();
     }
     tasks.forEach((task) => {
       task.approvalRequest.submittedDate = new Date(
@@ -60,7 +60,7 @@ export class TaskStore {
   };
 
   loadNumberOfUncompletedTasks = async () => {
-    const numberOfUncompletedTasks = await countUncompletedTasks();
+    const numberOfUncompletedTasks = await taskCountUncompleted();
     runInAction(() => {
       this.numberOfUncompletedTasks = numberOfUncompletedTasks;
     });

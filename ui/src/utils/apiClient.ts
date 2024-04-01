@@ -33,7 +33,7 @@ axios.interceptors.response.use(
       if (!originalRequest._retry) {
         const tokens = readTokens();
         if (tokens) {
-          const newTokens = await refreshAccessToken(tokens.refreshToken);
+          const newTokens = await accountRefresh(tokens.refreshToken);
           if (newTokens) {
             axios.defaults.headers.common[
               "Authorization"
@@ -50,9 +50,7 @@ axios.interceptors.response.use(
   }
 );
 
-export const signUpUser = async (
-  credentials: ICredentials
-): Promise<boolean> => {
+export const register = async (credentials: ICredentials): Promise<boolean> => {
   try {
     await axios.post("api/account/register", {
       email: credentials.email,
@@ -78,9 +76,7 @@ export const confirmEmail = async (
   }
 };
 
-export const signInUser = async (
-  credentials: ICredentials
-): Promise<boolean> => {
+export const login = async (credentials: ICredentials): Promise<boolean> => {
   try {
     const { data } = await axios.post<IAuthResponse>("api/account/login", {
       email: credentials.email,
@@ -95,7 +91,21 @@ export const signInUser = async (
   }
 };
 
-export const sendResetPasswordLink = async (
+export const accountResendConfirmationEmail = async (
+  email: string
+): Promise<boolean> => {
+  try {
+    await axios.post("api/account/resendConfirmationEmail", {
+      email: email,
+    });
+    return true;
+  } catch (e) {
+    toast.error(getUserFriendlyApiErrorMessage(e));
+    return false;
+  }
+};
+
+export const accountForgotPassword = async (
   email: string
 ): Promise<boolean> => {
   try {
@@ -109,7 +119,7 @@ export const sendResetPasswordLink = async (
   }
 };
 
-export const resetPassword = async (
+export const accountResetPassword = async (
   email: string,
   code: string,
   password: string
@@ -127,7 +137,7 @@ export const resetPassword = async (
   }
 };
 
-export const refreshAccessToken = async (
+export const accountRefresh = async (
   refreshToken: string
 ): Promise<IAuthResponse | null> => {
   try {
@@ -141,7 +151,7 @@ export const refreshAccessToken = async (
   }
 };
 
-export const getUserInfo = async (): Promise<IUserAccount | null> => {
+export const accountManageInfo = async (): Promise<IUserAccount | null> => {
   try {
     const { data } = await axios.get<IUserAccount>("api/account/manage/info");
     return data;
@@ -150,7 +160,7 @@ export const getUserInfo = async (): Promise<IUserAccount | null> => {
   }
 };
 
-export const uploadFiles = async (files: FileList): Promise<IUserFile[]> => {
+export const fileUpload = async (files: FileList): Promise<IUserFile[]> => {
   try {
     const formData = new FormData();
     Array.from(files).forEach((file) => {
@@ -170,7 +180,7 @@ export const uploadFiles = async (files: FileList): Promise<IUserFile[]> => {
   }
 };
 
-export const listFiles = async (): Promise<IUserFile[]> => {
+export const fileList = async (): Promise<IUserFile[]> => {
   try {
     const { data } = await axios.get<IUserFile[]>("api/file/list");
     return data;
@@ -180,7 +190,7 @@ export const listFiles = async (): Promise<IUserFile[]> => {
   }
 };
 
-export const downloadFileBase64 = async (
+export const fileDownloadBase64 = async (
   id: string
 ): Promise<string | null> => {
   try {
@@ -192,7 +202,7 @@ export const downloadFileBase64 = async (
   }
 };
 
-export const submitApprovalRequest = async (
+export const approvalRequestSubmit = async (
   files: IUserFile[],
   approvers: string[],
   approveBy: Date | null,
@@ -210,7 +220,7 @@ export const submitApprovalRequest = async (
   }
 };
 
-export const deleteApprovalRequest = async (id: number): Promise<void> => {
+export const approvalRequestDelete = async (id: number): Promise<void> => {
   try {
     await axios.delete(`api/request?id=${id}`);
   } catch (e) {
@@ -218,7 +228,7 @@ export const deleteApprovalRequest = async (id: number): Promise<void> => {
   }
 };
 
-export const listApprovalRequests = async (): Promise<IApprovalRequest[]> => {
+export const approvalRequestList = async (): Promise<IApprovalRequest[]> => {
   try {
     const { data } = await axios.get<IApprovalRequest[]>("api/request/list");
     return data;
@@ -228,7 +238,7 @@ export const listApprovalRequests = async (): Promise<IApprovalRequest[]> => {
   }
 };
 
-export const completeTask = async (
+export const taskComplete = async (
   id: number,
   status: ApprovalStatus,
   comment: string | null
@@ -244,7 +254,7 @@ export const completeTask = async (
   }
 };
 
-export const listUncompletedTasks = async (): Promise<
+export const taskListUncompleted = async (): Promise<
   IApprovalRequestTask[]
 > => {
   try {
@@ -258,7 +268,7 @@ export const listUncompletedTasks = async (): Promise<
   }
 };
 
-export const listCompletedTasks = async (): Promise<IApprovalRequestTask[]> => {
+export const taskListCompleted = async (): Promise<IApprovalRequestTask[]> => {
   try {
     const { data } = await axios.get<IApprovalRequestTask[]>(
       "api/task/listCompleted"
@@ -270,7 +280,7 @@ export const listCompletedTasks = async (): Promise<IApprovalRequestTask[]> => {
   }
 };
 
-export const countUncompletedTasks = async (): Promise<number> => {
+export const taskCountUncompleted = async (): Promise<number> => {
   try {
     const { data } = await axios.get<number>("api/task/countUncompleted");
     return data;

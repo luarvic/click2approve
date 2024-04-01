@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { IApprovalRequest } from "../models/approvalRequest";
-import { listApprovalRequests } from "../utils/apiClient";
+import { approvalRequestList } from "../utils/apiClient";
 
 export class ApprovalRequestStore {
   registry: Map<number, IApprovalRequest>;
@@ -29,7 +29,7 @@ export class ApprovalRequestStore {
   }
 
   loadApprovalRequests = async () => {
-    const approvalRequests = await listApprovalRequests();
+    const approvalRequests = await approvalRequestList();
     approvalRequests.forEach((approvalRequest) => {
       approvalRequest.submittedDate = new Date(approvalRequest.submitted + "Z");
       if (approvalRequest.approveBy) {

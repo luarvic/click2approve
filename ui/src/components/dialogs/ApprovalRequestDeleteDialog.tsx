@@ -7,14 +7,14 @@ import {
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { stores } from "../../stores/Stores";
-import { deleteApprovalRequest } from "../../utils/apiClient";
+import { approvalRequestDelete } from "../../utils/apiClient";
 import { UserFilesList } from "../lists/UserFilesList";
 import { ApprovalSteps } from "../steps/ApprovalSteps";
 
 const ApprovalRequestDeleteDialog = () => {
   const handleDelete = async () => {
     stores.approvalRequestStore.currentApprovalRequest &&
-      deleteApprovalRequest(
+      approvalRequestDelete(
         stores.approvalRequestStore.currentApprovalRequest.id
       ).then(() => {
         handleClose();

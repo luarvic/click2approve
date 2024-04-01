@@ -72,10 +72,6 @@ const ResetPasswordPage = () => {
       if (await stores.userAccountStore.signIn(credentials)) {
         navigate(DEFAULT_PATH);
       }
-    } else {
-      navigate("/information", {
-        state: { message: "Password reset failed." },
-      });
     }
   };
 

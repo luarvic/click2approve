@@ -1,8 +1,8 @@
 import { IUserFile } from "../models/userFile";
-import { downloadFileBase64 } from "./apiClient";
+import { fileDownloadBase64 } from "./apiClient";
 
 export const downloadUserFile = async (userFile: IUserFile) => {
-  const base64String = await downloadFileBase64(userFile.id);
+  const base64String = await fileDownloadBase64(userFile.id);
   if (base64String) {
     const a = document.createElement("a");
     a.hidden = true;

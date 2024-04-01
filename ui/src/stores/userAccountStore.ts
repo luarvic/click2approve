@@ -2,11 +2,12 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { ICredentials } from "../models/credentials";
 import { IUserAccount } from "../models/userAccount";
 import {
-  getUserInfo,
-  resetPassword,
-  sendResetPasswordLink,
-  signInUser,
-  signUpUser,
+  accountForgotPassword,
+  accountManageInfo,
+  accountResendConfirmationEmail,
+  accountResetPassword,
+  login,
+  register,
 } from "../utils/apiClient";
 import { deleteTokens, readTokens } from "../utils/cacheClient";
 
@@ -19,21 +20,25 @@ export class UserAccountStore {
   }
 
   signUp = async (credentials: ICredentials): Promise<boolean> => {
-    return await signUpUser(credentials);
+    return await register(credentials);
   };
 
   signIn = async (credentials: ICredentials): Promise<boolean> => {
     if (this.currentUser) {
       this.signOut();
     }
-    if (await signInUser(credentials)) {
+    if (await login(credentials)) {
       return await this.signInWithCachedToken();
     }
     return false;
   };
 
+  resendConfirmationEmail = async (email: string): Promise<boolean> => {
+    return await accountResendConfirmationEmail(email);
+  };
+
   sendResetPasswordLink = async (email: string): Promise<boolean> => {
-    return await sendResetPasswordLink(email);
+    return await accountForgotPassword(email);
   };
 
   resetPassword = async (
@@ -41,13 +46,13 @@ export class UserAccountStore {
     code: string,
     password: string
   ): Promise<boolean> => {
-    return await resetPassword(email, code, password);
+    return await accountResetPassword(email, code, password);
   };
 
   signInWithCachedToken = async (): Promise<boolean> => {
     const tokens = readTokens();
     if (tokens) {
-      const currentUser = await getUserInfo();
+      const currentUser = await accountManageInfo();
       if (currentUser) {
         runInAction(() => {
           this.currentUser = currentUser;

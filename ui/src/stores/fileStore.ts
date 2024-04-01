@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { IUserFile } from "../models/userFile";
-import { listFiles, uploadFiles } from "../utils/apiClient";
+import { fileList, fileUpload } from "../utils/apiClient";
 
 export class FileStore {
   registry: Map<string, IUserFile>;
@@ -19,7 +19,7 @@ export class FileStore {
   }
 
   loadUserFiles = async () => {
-    const userFiles = await listFiles();
+    const userFiles = await fileList();
     userFiles.forEach(async (userFile) => {
       userFile.createdDate = new Date(userFile.created + "Z");
       runInAction(() => {
@@ -29,7 +29,7 @@ export class FileStore {
   };
 
   addUserFiles = async (files: FileList) => {
-    const userFiles = await uploadFiles(files);
+    const userFiles = await fileUpload(files);
     userFiles.forEach(async (userFile) => {
       userFile.createdDate = new Date(userFile.created);
       runInAction(() => {

@@ -11,7 +11,7 @@ import { useState } from "react";
 import { ApprovalStatus } from "../../models/approvalStatus";
 import { Tab } from "../../models/tab";
 import { stores } from "../../stores/Stores";
-import { completeTask } from "../../utils/apiClient";
+import { taskComplete } from "../../utils/apiClient";
 import { UserFilesList } from "../lists/UserFilesList";
 
 const TaskReviewDialog = () => {
@@ -26,7 +26,7 @@ const TaskReviewDialog = () => {
   const rejectOrApprove = (status: ApprovalStatus) => {
     stores.taskStore.currentTask &&
       stores.userAccountStore.currentUser &&
-      completeTask(stores.taskStore.currentTask.id, status, comment).then(
+      taskComplete(stores.taskStore.currentTask.id, status, comment).then(
         () => {
           handleClose();
           stores.taskStore.clearTasks();

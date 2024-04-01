@@ -11,6 +11,7 @@ import InboxPage from "./pages/approval/InboxPage";
 import SentPage from "./pages/approval/SentPage";
 import ConfirmEmailPage from "./pages/identity/ConfirmEmailPage";
 import ForgotPasswordPage from "./pages/identity/ForgotPasswordPage";
+import ResendConfirmationEmailPage from "./pages/identity/ResendConfirmationEmailPage";
 import ResetPasswordPage from "./pages/identity/ResetPasswordPage";
 import SignInPage from "./pages/identity/SignInPage";
 import SignUpPage from "./pages/identity/SignUpPage";
@@ -47,6 +48,10 @@ const App = () => {
               <Route path="/inbox" element={<InboxPage />} />
               <Route path="/archive" element={<ArchivePage />} />
               <Route path="/sent" element={<SentPage />} />
+              <Route
+                path="/resendConfirmationEmail"
+                element={<ResendConfirmationEmailPage />}
+              />
               <Route path="/confirmEmail" element={<ConfirmEmailPage />} />
               <Route path="/forgotPassword" element={<ForgotPasswordPage />} />
               <Route path="/resetPassword" element={<ResetPasswordPage />} />
@@ -62,6 +67,7 @@ const App = () => {
           limit={TOAST_LIMIT}
           closeButton={TOAST_CLOSE_BUTTON}
           draggable={TOAST_DRAGGABLE}
+          stacked
         />
       </CssBaseline>
     </ThemeProvider>

@@ -15,7 +15,7 @@ import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { stores } from "../../stores/Stores";
-import { submitApprovalRequest } from "../../utils/apiClient";
+import { approvalRequestSubmit } from "../../utils/apiClient";
 import { validateEmails } from "../../utils/validators";
 import { UserFilesList } from "../lists/UserFilesList";
 
@@ -32,7 +32,7 @@ const ApprovalRequestSubmitDialog = () => {
       setApproversError(true);
       toast.error("Invalid input.");
     } else {
-      await submitApprovalRequest(
+      await approvalRequestSubmit(
         stores.fileStore.getSelectedUserFiles(),
         emails.map((a) => a.toLocaleLowerCase().trim()),
         approveBy ? approveBy.toDate() : null,

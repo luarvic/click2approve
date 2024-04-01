@@ -7,40 +7,32 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Credentials } from "../../models/credentials";
 import { stores } from "../../stores/Stores";
-import { DEFAULT_PATH } from "../../stores/constantsStore";
 import { validateEmail } from "../../utils/validators";
 
-const SignInPage = () => {
+const ResendConfirmationEmailPage = () => {
   const [emailError, setEmailError] = useState<boolean>(false);
-  const [passwordError, setPasswordError] = useState<boolean>(false);
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const email = data.get("email");
-    const password = data.get("password");
-    if (!email || !validateEmail(email.toString()) || !password) {
+    if (!email || !validateEmail(email.toString())) {
       setEmailError(!email || !validateEmail(email.toString()));
-      setPasswordError(!password);
       toast.error("Invalid input.");
-    } else {
-      const credentials = new Credentials(
-        email.toString(),
-        password.toString()
-      );
-      if (await stores.userAccountStore.signIn(credentials)) {
-        if (location.pathname === "/signIn") {
-          navigate(DEFAULT_PATH);
-        }
-      }
+    } else if (
+      await stores.userAccountStore.resendConfirmationEmail(email.toString())
+    ) {
+      navigate("/information", {
+        state: {
+          message:
+            "A confirmation link was sent to your email. Confirm your email address to continue.",
+        },
+      });
     }
   };
 
@@ -55,7 +47,7 @@ const SignInPage = () => {
         }}
       >
         <Typography component="h1" variant="h5">
-          Sign in
+          Resend confirmation email
         </Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <TextField
@@ -71,39 +63,21 @@ const SignInPage = () => {
             helperText={emailError && "Invalid email address"}
             onChange={() => setEmailError(false)}
           />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-            error={passwordError}
-            helperText={passwordError && "Password cannot be empty"}
-            onChange={() => setPasswordError(false)}
-          />
           <Button
             type="submit"
             fullWidth
             variant="contained"
             sx={{ mt: 2, mb: 2 }}
           >
-            Sign in
+            Resend
           </Button>
           <Grid container>
-            <Grid item xs={4}>
-              <Link href="/forgotPassword" variant="body2">
-                Forgot password
+            <Grid item xs>
+              <Link href="/signIn" variant="body2">
+                Sign in
               </Link>
             </Grid>
-            <Grid item xs={4} sx={{ textAlign: "center" }}>
-              <Link href="/resendConfirmationEmail" variant="body2">
-                Resend confirmation
-              </Link>
-            </Grid>
-            <Grid item xs={4} sx={{ textAlign: "right" }}>
+            <Grid item>
               <Link href="/signUp" variant="body2">
                 New to us? Sign up
               </Link>
@@ -115,4 +89,4 @@ const SignInPage = () => {
   );
 };
 
-export default observer(SignInPage);
+export default ResendConfirmationEmailPage;
