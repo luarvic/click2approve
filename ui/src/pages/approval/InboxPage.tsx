@@ -1,9 +1,9 @@
 import { Box } from "@mui/material";
 import { observer } from "mobx-react-lite";
+import { Navigate } from "react-router-dom";
 import InboxGrid from "../../components/grids/InboxGrid";
 import TabsNavBar from "../../components/navBars/TabsNavBar";
 import { stores } from "../../stores/Stores";
-import InformationPage from "../other/InformationPage";
 
 const InboxPage = () => {
   return stores.userAccountStore.currentUser ? (
@@ -12,7 +12,7 @@ const InboxPage = () => {
       <InboxGrid />
     </Box>
   ) : (
-    <InformationPage message="Sign in to manage files." />
+    <Navigate to="/signIn" />
   );
 };
 

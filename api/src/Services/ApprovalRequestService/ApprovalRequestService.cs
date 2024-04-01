@@ -5,10 +5,15 @@ using Microsoft.EntityFrameworkCore;
 namespace api.Services;
 
 // Implements a service that manages approval requests.
-public class ApprovalRequestService(ApiDbContext db, IAuditLogService auditLogService) : IApprovalRequestService
+public class ApprovalRequestService(ApiDbContext db,
+    IAuditLogService auditLogService,
+    IEmailService emailService,
+    IConfiguration configuration) : IApprovalRequestService
 {
     private readonly ApiDbContext _db = db;
     private readonly IAuditLogService _auditLogService = auditLogService;
+    private readonly IEmailService _emailService = emailService;
+    private readonly IConfiguration _configuration = configuration;
 
     public async Task SubmitApprovalRequestAsync(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
     {
@@ -37,7 +42,7 @@ public class ApprovalRequestService(ApiDbContext db, IAuditLogService auditLogSe
             await _db.ApprovalRequestTasks.AddAsync(new ApprovalRequestTask
             {
                 ApprovalRequest = newApprovalRequest.Entity,
-                Approver = approver.ToUpper(),
+                Approver = approver,
                 Status = ApprovalStatus.Submitted
             }, cancellationToken);
         }
@@ -50,6 +55,17 @@ public class ApprovalRequestService(ApiDbContext db, IAuditLogService auditLogSe
             newApprovalRequest.Entity.ToString(),
             cancellationToken
         );
+
+        // Notify approvers via email.
+        foreach (var email in payload.Emails)
+        {
+            await _emailService.SendAsync(new EmailMessage
+            {
+                ToAddress = email.ToLower(),
+                Subject = "You have a new document to review",
+                Body = $"Hi! {user.Email!.ToLower()} sent you a document. Please visit {_configuration["UI:BaseUrl"]}/inbox to review it."
+            });
+        }
     }
 
     public async Task DeleteApprovalRequestAsync(AppUser user, long id, CancellationToken cancellationToken)
@@ -69,6 +85,17 @@ public class ApprovalRequestService(ApiDbContext db, IAuditLogService auditLogSe
             approvalRequestJson,
             cancellationToken
         );
+
+        // Notify approvers via email.
+        foreach (var email in approvalRequest.Approvers)
+        {
+            await _emailService.SendAsync(new EmailMessage
+            {
+                ToAddress = email.ToLower(),
+                Subject = "A document was deleted by the requester",
+                Body = $"Hi! {user.Email!.ToLower()} deleted a document that was sent to you previously."
+            });
+        }
     }
 
     public async Task<List<ApprovalRequest>> ListApprovalRequestsAsync(AppUser user, CancellationToken cancellationToken)
@@ -130,6 +157,14 @@ public class ApprovalRequestService(ApiDbContext db, IAuditLogService auditLogSe
             approvalRequestTask.ToString(),
             cancellationToken
         );
+
+        // Notify requester via email.
+        await _emailService.SendAsync(new EmailMessage
+        {
+            ToAddress = approvalRequestTask.ApprovalRequest.Author.ToLower(),
+            Subject = "A document was reviewed",
+            Body = $"Hi! {user.Email!.ToLower()} reviewed a document. Please visit {_configuration["UI:BaseUrl"]}/sent to check it."
+        });
     }
 
     public async Task<long> CountUncompletedTasksAsync(AppUser user, CancellationToken cancellationToken)
