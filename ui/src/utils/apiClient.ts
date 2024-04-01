@@ -109,6 +109,24 @@ export const sendResetPasswordLink = async (
   }
 };
 
+export const resetPassword = async (
+  email: string,
+  code: string,
+  password: string
+): Promise<boolean> => {
+  try {
+    await axios.post("api/account/resetPassword", {
+      email: email,
+      resetCode: code,
+      newPassword: password,
+    });
+    return true;
+  } catch (e) {
+    toast.error(getUserFriendlyApiErrorMessage(e));
+    return false;
+  }
+};
+
 export const refreshAccessToken = async (
   refreshToken: string
 ): Promise<IAuthResponse | null> => {

@@ -3,6 +3,7 @@ import { ICredentials } from "../models/credentials";
 import { IUserAccount } from "../models/userAccount";
 import {
   getUserInfo,
+  resetPassword,
   sendResetPasswordLink,
   signInUser,
   signUpUser,
@@ -31,8 +32,16 @@ export class UserAccountStore {
     return false;
   };
 
-  resetPassword = async (email: string): Promise<boolean> => {
+  sendResetPasswordLink = async (email: string): Promise<boolean> => {
     return await sendResetPasswordLink(email);
+  };
+
+  resetPassword = async (
+    email: string,
+    code: string,
+    password: string
+  ): Promise<boolean> => {
+    return await resetPassword(email, code, password);
   };
 
   signInWithCachedToken = async (): Promise<boolean> => {

@@ -11,12 +11,13 @@ import InboxPage from "./pages/approval/InboxPage";
 import SentPage from "./pages/approval/SentPage";
 import ConfirmEmailPage from "./pages/identity/ConfirmEmailPage";
 import ForgotPasswordPage from "./pages/identity/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/identity/ResetPasswordPage";
 import SignInPage from "./pages/identity/SignInPage";
 import SignUpPage from "./pages/identity/SignUpPage";
 import HomePage from "./pages/other/HomePage";
 import InformationPage from "./pages/other/InformationPage";
 import NotFoundPage from "./pages/other/NotFoundPage";
-// import { useStores } from "./stores/Stores";
+import { stores } from "./stores/Stores";
 import {
   THEME,
   TOAST_AUTO_CLOSE,
@@ -24,10 +25,8 @@ import {
   TOAST_DRAGGABLE,
   TOAST_LIMIT,
 } from "./stores/constantsStore";
-import { stores } from "./stores/Stores";
 
 const App = () => {
-  // const { userAccountStore } = useStores();
   useEffect(() => {
     stores.userAccountStore.signInWithCachedToken();
   }, []);
@@ -50,6 +49,7 @@ const App = () => {
               <Route path="/sent" element={<SentPage />} />
               <Route path="/confirmEmail" element={<ConfirmEmailPage />} />
               <Route path="/forgotPassword" element={<ForgotPasswordPage />} />
+              <Route path="/resetPassword" element={<ResetPasswordPage />} />
               <Route path="/information" element={<InformationPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>

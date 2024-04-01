@@ -63,7 +63,7 @@ const SignInPage = () => {
             required
             fullWidth
             id="email"
-            label="Email Address"
+            label="Email address"
             name="email"
             autoComplete="email"
             autoFocus

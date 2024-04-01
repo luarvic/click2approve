@@ -25,12 +25,16 @@ const ForgotPasswordPage = () => {
     if (!email || !validateEmail(email.toString())) {
       setEmailError(!email || !validateEmail(email.toString()));
       toast.error("Invalid input.");
+    } else if (
+      await stores.userAccountStore.sendResetPasswordLink(email.toString())
+    ) {
+      navigate("/information", {
+        state: { message: "A reset password link was sent to your email." },
+      });
     } else {
-      if (await stores.userAccountStore.resetPassword(email.toString())) {
-        navigate("/information", {
-          state: { message: "A reset password link was sent to your email." },
-        });
-      }
+      navigate("/information", {
+        state: { message: "Unable to send a reset password link." },
+      });
     }
   };
 
@@ -53,7 +57,7 @@ const ForgotPasswordPage = () => {
             required
             fullWidth
             id="email"
-            label="Email Address"
+            label="Email address"
             name="email"
             autoComplete="email"
             autoFocus

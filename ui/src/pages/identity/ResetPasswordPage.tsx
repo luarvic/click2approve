@@ -7,41 +7,49 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { observer } from "mobx-react-lite";
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Credentials } from "../../models/credentials";
 import { stores } from "../../stores/Stores";
 import {
   DEFAULT_PATH,
-  EMAIL_SERVICE_IS_ENABLED,
   PASSWORD_VALIDATOR_ERROR,
 } from "../../stores/constantsStore";
-import { validateEmail, validatePassword } from "../../utils/validators";
+import { validatePassword } from "../../utils/validators";
 
-const SignUpPage = () => {
-  const [emailError, setEmailError] = useState<boolean>(false);
+const ResetPasswordPage = () => {
+  const [searchParams] = useSearchParams();
+  const [email, setEmail] = useState<string>("");
+  const [code, setCode] = useState<string>("");
   const [passwordError, setPasswordError] = useState<boolean>(false);
   const [passwordConfirmationError, setPasswordConfirmationError] =
     useState<boolean>(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const emailParam = searchParams.get("email");
+    const codeParam = searchParams.get("code");
+
+    if (emailParam && codeParam) {
+      setEmail(emailParam);
+      setCode(codeParam);
+    } else {
+      navigate("/notfound");
+    }
+  }, []);
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const email = data.get("email");
     const password = data.get("password");
     const passwordConfirmation = data.get("passwordConfirmation");
     if (
-      !email ||
-      !validateEmail(email.toString()) ||
       !password ||
       !validatePassword(password.toString()) ||
       !passwordConfirmation ||
       password.toString() !== passwordConfirmation.toString()
     ) {
-      setEmailError(!email || !validateEmail(email.toString()));
       setPasswordError(!password || !validatePassword(password.toString()));
       if (!password || !validatePassword(password.toString())) {
         setPasswordConfirmationError(false);
@@ -53,26 +61,21 @@ const SignUpPage = () => {
         );
       }
       toast.error("Invalid input.");
-    } else {
-      const credentials = new Credentials(
-        email.toString(),
-        password.toString(),
-        passwordConfirmation.toString()
-      );
-      if (await stores.userAccountStore.signUp(credentials)) {
-        if (EMAIL_SERVICE_IS_ENABLED) {
-          navigate("/information", {
-            state: {
-              message:
-                "A confirmation link was sent to your email. Confirm your email address to continue.",
-            },
-          });
-        } else {
-          if (await stores.userAccountStore.signIn(credentials)) {
-            navigate(DEFAULT_PATH);
-          }
-        }
+    } else if (
+      await stores.userAccountStore.resetPassword(
+        email,
+        code,
+        password.toString()
+      )
+    ) {
+      const credentials = new Credentials(email, password.toString());
+      if (await stores.userAccountStore.signIn(credentials)) {
+        navigate(DEFAULT_PATH);
       }
+    } else {
+      navigate("/information", {
+        state: { message: "Password reset failed." },
+      });
     }
   };
 
@@ -87,27 +90,15 @@ const SignUpPage = () => {
         }}
       >
         <Typography component="h1" variant="h5">
-          Sign up
+          Reset password
         </Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <TextField
             margin="normal"
             required
             fullWidth
-            id="email"
-            label="Email address"
-            name="email"
-            autoFocus
-            error={emailError}
-            helperText={emailError && "Invalid email address"}
-            onChange={() => setEmailError(false)}
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
             name="password"
-            label="Password"
+            label="New password"
             type="password"
             id="password"
             error={passwordError}
@@ -122,7 +113,7 @@ const SignUpPage = () => {
             required
             fullWidth
             name="passwordConfirmation"
-            label="Password confirmation"
+            label="New password confirmation"
             type="password"
             id="passwordConfirmation"
             error={passwordConfirmationError}
@@ -141,7 +132,7 @@ const SignUpPage = () => {
             variant="contained"
             sx={{ mt: 2, mb: 2 }}
           >
-            Sign up
+            Reset
           </Button>
           <Grid container>
             <Grid item xs></Grid>
@@ -157,4 +148,4 @@ const SignUpPage = () => {
   );
 };
 
-export default observer(SignUpPage);
+export default ResetPasswordPage;

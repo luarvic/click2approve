@@ -11,18 +11,17 @@ const ConfirmEmailPage = () => {
   useEffect(() => {
     const userId = searchParams.get("userId");
     const code = searchParams.get("code");
+
     if (userId && code) {
       confirmEmail(userId, code).then((result) => {
         if (result) {
           setMessage("Email confirmation succeeded. Sing in to continue.");
         } else {
-          navigate("/");
+          setMessage("Email confirmation failed.");
         }
       });
     } else {
-      setMessage(
-        "A confirmation link was sent to your email. Confirm your email address to continue."
-      );
+      navigate("/notfound");
     }
   }, []);
 
