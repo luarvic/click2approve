@@ -62,8 +62,11 @@ public class ApprovalRequestService(ApiDbContext db,
             await _emailService.SendAsync(new EmailMessage
             {
                 ToAddress = email.ToLower(),
-                Subject = "You have a new document to review",
-                Body = $"Hi! {user.Email!.ToLower()} sent you a document. Please visit {_configuration["UI:BaseUrl"]}/inbox to review it."
+                Subject = _configuration["EmailSettings:Templates:ApprovalRequestSentSubject"]!,
+                Body = string.Format(_configuration["EmailSettings:Templates:ApprovalRequestSentBody"]!,
+                    newApprovalRequest.Entity.Author.ToLower(),
+                    string.Join(", ", newApprovalRequest.Entity.UserFiles.Select(f => f.Name)),
+                    $"{_configuration["UI:BaseUrl"]}/inbox")
             });
         }
     }
@@ -92,8 +95,10 @@ public class ApprovalRequestService(ApiDbContext db,
             await _emailService.SendAsync(new EmailMessage
             {
                 ToAddress = email.ToLower(),
-                Subject = "A document was deleted by the requester",
-                Body = $"Hi! {user.Email!.ToLower()} deleted a document that was sent to you previously."
+                Subject = _configuration["EmailSettings:Templates:ApprovalRequestDeletedSubject"]!,
+                Body = string.Format(_configuration["EmailSettings:Templates:ApprovalRequestDeletedBody"]!,
+                    approvalRequest.Author.ToLower(),
+                    string.Join(", ", approvalRequest.UserFiles.Select(f => f.Name)))
             });
         }
     }
@@ -120,6 +125,7 @@ public class ApprovalRequestService(ApiDbContext db,
     {
         var approvalRequestTask = await _db.ApprovalRequestTasks
             .Include(t => t.ApprovalRequest)
+            .Include(t => t.ApprovalRequest.UserFiles)
             .Include(t => t.ApprovalRequest.Tasks)
             .FirstAsync(t => t.Id == payload.Id && t.Approver == user.NormalizedEmail, cancellationToken);
         if (approvalRequestTask.Status != ApprovalStatus.Submitted)
@@ -162,8 +168,11 @@ public class ApprovalRequestService(ApiDbContext db,
         await _emailService.SendAsync(new EmailMessage
         {
             ToAddress = approvalRequestTask.ApprovalRequest.Author.ToLower(),
-            Subject = "A document was reviewed",
-            Body = $"Hi! {user.Email!.ToLower()} reviewed a document. Please visit {_configuration["UI:BaseUrl"]}/sent to check it."
+            Subject = _configuration["EmailSettings:Templates:ApprovalRequestReviewedSubject"]!,
+            Body = string.Format(_configuration["EmailSettings:Templates:ApprovalRequestReviewedBody"]!,
+                user.Email!.ToLower(),
+                string.Join(", ", approvalRequestTask.ApprovalRequest.UserFiles.Select(f => f.Name)),
+                $"{_configuration["UI:BaseUrl"]}/sent")
         });
     }
 
