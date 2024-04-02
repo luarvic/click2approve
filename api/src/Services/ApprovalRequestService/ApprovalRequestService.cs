@@ -15,8 +15,34 @@ public class ApprovalRequestService(ApiDbContext db,
     private readonly IEmailService _emailService = emailService;
     private readonly IConfiguration _configuration = configuration;
 
+    private async Task CheckLimitations(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
+    {
+        var maxApprovalRequestCount = _configuration.GetValue<int>("Limitations:MaxApprovalRequestCount");
+        if (maxApprovalRequestCount > 0)
+        {
+            var approvalRequestCount = await _db.ApprovalRequests.CountAsync(r => r.Author == user.NormalizedEmail, cancellationToken);
+            if (approvalRequestCount + 1 > maxApprovalRequestCount)
+            {
+                throw new Exception($"Maximum approval request count ({maxApprovalRequestCount}) is exceeded.");
+            }
+        }
+
+        var maxApproverCount = _configuration.GetValue<int>("Limitations:MaxApproverCount");
+        if (maxApproverCount > 0)
+        {
+            var approverCount = payload.Emails.Count;
+            if (approverCount > maxApprovalRequestCount)
+            {
+                throw new Exception($"Maximum approver count ({maxApproverCount}) is exceeded.");
+            }
+        }
+    }
+
     public async Task SubmitApprovalRequestAsync(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
     {
+        await CheckLimitations(user, payload, cancellationToken);
+
+        // Collect required data.
         var userFiles = await _db.UserFiles
             .Where(f => payload.UserFileIds.Contains(f.Id) && f.Owner == user.Id)
             .ToListAsync(cancellationToken);

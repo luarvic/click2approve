@@ -31,6 +31,7 @@ const ApprovalRequestDeleteDialog = () => {
     <Dialog
       open={stores.commonStore.approvalRequestDeleteDialogIsOpen}
       onClose={handleClose}
+      fullWidth
     >
       <DialogTitle>Delete approval request</DialogTitle>
       <DialogContent dividers>

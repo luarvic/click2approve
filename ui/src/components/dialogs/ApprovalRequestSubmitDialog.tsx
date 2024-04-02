@@ -67,6 +67,7 @@ const ApprovalRequestSubmitDialog = () => {
     <Dialog
       open={stores.commonStore.approvalRequestSubmitDialogIsOpen}
       onClose={handleClose}
+      fullWidth
     >
       <DialogTitle>Submit for approval</DialogTitle>
       <DialogContent dividers>

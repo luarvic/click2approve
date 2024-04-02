@@ -18,8 +18,23 @@ public class UserFileService(
     private readonly IStoreService _storeService = storeService;
     private readonly ILogger<UserFileService> _logger = logger;
 
+    private async Task CheckLimitations(AppUser user, IFormFileCollection files, CancellationToken cancellationToken)
+    {
+        var maxFileCount = _configuration.GetValue<int>("Limitations:MaxFileCount");
+        if (maxFileCount > 0)
+        {
+            var fileCount = await _db.UserFiles.CountAsync(f => f.Owner == user.Id, cancellationToken);
+            if (fileCount + files.Count > maxFileCount)
+            {
+                throw new Exception($"Maximum file count ({maxFileCount}) is exceeded.");
+            }
+        }
+    }
+
     public async Task<IList<UserFile>> UploadAsync(AppUser user, IFormFileCollection files, CancellationToken cancellationToken)
     {
+        await CheckLimitations(user, files, cancellationToken);
+
         // A collection of uploaded files to return.
         var userFiles = new List<UserFile>();
         foreach (var file in files)

@@ -90,6 +90,7 @@ const TaskReviewDialog = () => {
     <Dialog
       open={stores.commonStore.taskReviewDialogIsOpen}
       onClose={handleClose}
+      fullWidth
     >
       <DialogTitle>Review the files</DialogTitle>
       <DialogContent dividers>

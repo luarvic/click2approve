@@ -20,6 +20,7 @@ const ApprovalRequestViewDialog = () => {
     <Dialog
       open={stores.commonStore.approvalRequestViewDialogIsOpen}
       onClose={handleClose}
+      fullWidth
     >
       <DialogTitle>Track approval request</DialogTitle>
       <DialogContent dividers>

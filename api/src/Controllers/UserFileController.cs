@@ -32,6 +32,7 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     /// <response code="401">If authorization failed.</response>
     /// <response code="500">If request failed.</response>
     [HttpPost("upload")]
+    [RequestSizeLimit(1_000_000)]
     public async Task<ActionResult<List<UserFile>>> UploadAsync([FromForm] IFormFileCollection files, CancellationToken cancellationToken)
     {
         try
