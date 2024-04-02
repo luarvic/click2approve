@@ -7,12 +7,15 @@ import { IAuthResponse } from "../models/authResponse";
 import { ICredentials } from "../models/credentials";
 import { IUserAccount } from "../models/userAccount";
 import { IUserFile } from "../models/userFile";
+import { stores } from "../stores/Stores";
 import { API_URI } from "../stores/constantsStore";
 import { deleteTokens, readTokens, writeTokens } from "./cacheClient";
 import { getUserFriendlyApiErrorMessage } from "./converters";
 
 axios.defaults.baseURL = API_URI;
-axios.interceptors.request.use((config) => {
+axios.interceptors.request.use(async (config) => {
+  config.url &&
+    stores.commonStore.updateLoadingCounterBasedOnUrl(config.url, 1);
   var tokens = readTokens();
   if (tokens) {
     config.headers.Authorization = `Bearer ${tokens.accessToken}`;
@@ -20,7 +23,12 @@ axios.interceptors.request.use((config) => {
   return config;
 });
 axios.interceptors.response.use(
-  (response) => {
+  async (response) => {
+    response.config.url &&
+      stores.commonStore.updateLoadingCounterBasedOnUrl(
+        response.config.url,
+        -1
+      );
     return response;
   },
   async (error) => {
@@ -46,6 +54,8 @@ axios.interceptors.response.use(
         window.location.href = "/signIn";
       }
     }
+    error.config.url &&
+      stores.commonStore.updateLoadingCounterBasedOnUrl(error.config.url, -1);
     return Promise.reject(error);
   }
 );

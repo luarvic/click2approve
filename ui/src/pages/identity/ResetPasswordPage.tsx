@@ -1,12 +1,15 @@
 import {
+  Backdrop,
   Box,
   Button,
+  CircularProgress,
   Container,
   Grid,
   Link,
   TextField,
   Typography,
 } from "@mui/material";
+import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -140,8 +143,14 @@ const ResetPasswordPage = () => {
           </Grid>
         </Box>
       </Box>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.modal + 1 }}
+        open={stores.commonStore.isLoading("common")}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Container>
   );
 };
 
-export default ResetPasswordPage;
+export default observer(ResetPasswordPage);

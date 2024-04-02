@@ -1,7 +1,8 @@
-import { Box, Stack } from "@mui/material";
+import { Box, LinearProgress, Stack } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
+  GridSlots,
   GridToolbarColumnsButton,
   GridToolbarContainer,
   GridToolbarDensitySelector,
@@ -121,6 +122,7 @@ const InboxGrid = () => {
         slots={{
           toolbar: customToolbar,
           noRowsOverlay: NoRowsOverlay,
+          loadingOverlay: LinearProgress as GridSlots["loadingOverlay"],
         }}
         getRowHeight={() => "auto"}
         sx={{
@@ -136,6 +138,7 @@ const InboxGrid = () => {
           "--DataGrid-overlayHeight": "300px",
         }}
         autoHeight
+        loading={stores.commonStore.isLoading("grid")}
       />
       <TaskReviewDialog />
     </Box>

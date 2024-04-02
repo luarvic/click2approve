@@ -20,20 +20,16 @@ const TaskReviewDialog = () => {
   const handleClose = () => {
     stores.commonStore.setTaskReviewDialogIsOpen(false);
     stores.taskStore.setCurrentTask(null);
-    setComment("");
   };
 
-  const rejectOrApprove = (status: ApprovalStatus) => {
+  const rejectOrApprove = async (status: ApprovalStatus) => {
     stores.taskStore.currentTask &&
       stores.userAccountStore.currentUser &&
-      taskComplete(stores.taskStore.currentTask.id, status, comment).then(
-        () => {
-          handleClose();
-          stores.taskStore.clearTasks();
-          stores.taskStore.loadTasks(Tab.Inbox);
-          stores.taskStore.loadNumberOfUncompletedTasks();
-        }
-      );
+      (await taskComplete(stores.taskStore.currentTask.id, status, comment));
+    handleClose();
+    stores.taskStore.clearTasks();
+    stores.taskStore.loadTasks(Tab.Inbox);
+    stores.taskStore.loadNumberOfUncompletedTasks();
   };
 
   const handleReject = () => {

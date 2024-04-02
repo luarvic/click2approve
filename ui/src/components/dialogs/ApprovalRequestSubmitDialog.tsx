@@ -43,10 +43,6 @@ const ApprovalRequestSubmitDialog = () => {
   };
 
   const handleClose = () => {
-    setApprover("");
-    setApprovers([]);
-    setApproveBy(null);
-    setComment("");
     stores.commonStore.setApprovalRequestSubmitDialogIsOpen(false);
   };
 
@@ -69,7 +65,7 @@ const ApprovalRequestSubmitDialog = () => {
       onClose={handleClose}
       fullWidth
     >
-      <DialogTitle>Submit for approval</DialogTitle>
+      <DialogTitle>Send for approval</DialogTitle>
       <DialogContent dividers>
         <UserFilesList userFiles={stores.fileStore.getSelectedUserFiles()} />
         <Autocomplete

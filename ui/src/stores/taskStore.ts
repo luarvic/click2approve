@@ -11,7 +11,6 @@ export class TaskStore {
   registry: Map<number, IApprovalRequestTask>;
   currentTask: IApprovalRequestTask | null;
   numberOfUncompletedTasks: number;
-  approvalRequestViewDialogIsOpen: boolean;
 
   constructor(
     registry: Map<number, IApprovalRequestTask> = new Map<
@@ -19,14 +18,12 @@ export class TaskStore {
       IApprovalRequestTask
     >(),
     currentTask: IApprovalRequestTask | null = null,
-    numberOfUncompletedTasks: number = 0,
-    approvalRequestViewDialogIsOpen: boolean = false
+    numberOfUncompletedTasks: number = 0
   ) {
     this.registry = registry;
     this.currentTask = currentTask;
     this.numberOfUncompletedTasks = numberOfUncompletedTasks;
     this.numberOfUncompletedTasks = numberOfUncompletedTasks;
-    this.approvalRequestViewDialogIsOpen = approvalRequestViewDialogIsOpen;
     makeAutoObservable(this);
   }
 

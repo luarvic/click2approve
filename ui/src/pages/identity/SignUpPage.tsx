@@ -1,6 +1,8 @@
 import {
+  Backdrop,
   Box,
   Button,
+  CircularProgress,
   Container,
   Grid,
   Link,
@@ -158,6 +160,12 @@ const SignUpPage = () => {
           </Grid>
         </Box>
       </Box>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.modal + 1 }}
+        open={stores.commonStore.isLoading("common")}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Container>
   );
 };

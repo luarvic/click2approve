@@ -14,13 +14,12 @@ import { ApprovalSteps } from "../steps/ApprovalSteps";
 const ApprovalRequestDeleteDialog = () => {
   const handleDelete = async () => {
     stores.approvalRequestStore.currentApprovalRequest &&
-      approvalRequestDelete(
+      (await approvalRequestDelete(
         stores.approvalRequestStore.currentApprovalRequest.id
-      ).then(() => {
-        handleClose();
-        stores.approvalRequestStore.clearApprovalRequests();
-        stores.approvalRequestStore.loadApprovalRequests();
-      });
+      ));
+    handleClose();
+    stores.approvalRequestStore.clearApprovalRequests();
+    stores.approvalRequestStore.loadApprovalRequests();
   };
 
   const handleClose = () => {

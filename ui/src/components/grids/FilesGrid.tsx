@@ -1,7 +1,8 @@
-import { Box, Link } from "@mui/material";
+import { Box, LinearProgress, Link } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
+  GridSlots,
   GridToolbarColumnsButton,
   GridToolbarContainer,
   GridToolbarDensitySelector,
@@ -19,6 +20,7 @@ import { getHumanReadableRelativeDate } from "../../utils/converters";
 import { downloadUserFile } from "../../utils/downloaders";
 import ButtonSend from "../buttons/ButtonSend";
 import ButtonUpload from "../buttons/ButtonUpload";
+import ApprovalRequestSubmitDialog from "../dialogs/ApprovalRequestSubmitDialog";
 import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
 // Data grid with user files.
@@ -80,33 +82,34 @@ const FilesGrid = () => {
 
   return (
     <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
-      <Box>
-        <DataGrid
-          rows={stores.fileStore.userFiles}
-          columns={columns}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: DATA_GRID_DEFAULT_PAGE_SIZE,
-              },
+      <DataGrid
+        rows={stores.fileStore.userFiles}
+        columns={columns}
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: DATA_GRID_DEFAULT_PAGE_SIZE,
             },
-          }}
-          pageSizeOptions={[DATA_GRID_DEFAULT_PAGE_SIZE]}
-          checkboxSelection
-          disableRowSelectionOnClick
-          onRowSelectionModelChange={(items) =>
-            stores.fileStore.handleUserFileCheckbox(items as string[])
-          }
-          slots={{
-            toolbar: customToolbar,
-            noRowsOverlay: NoRowsOverlay,
-          }}
-          sx={{
-            "--DataGrid-overlayHeight": "300px",
-          }}
-          autoHeight
-        />
-      </Box>
+          },
+        }}
+        pageSizeOptions={[DATA_GRID_DEFAULT_PAGE_SIZE]}
+        checkboxSelection
+        disableRowSelectionOnClick
+        onRowSelectionModelChange={(items) =>
+          stores.fileStore.handleUserFileCheckbox(items as string[])
+        }
+        slots={{
+          toolbar: customToolbar,
+          noRowsOverlay: NoRowsOverlay,
+          loadingOverlay: LinearProgress as GridSlots["loadingOverlay"],
+        }}
+        sx={{
+          "--DataGrid-overlayHeight": "300px",
+        }}
+        autoHeight
+        loading={stores.commonStore.isLoading("grid")}
+      />
+      <ApprovalRequestSubmitDialog />
     </Box>
   );
 };

@@ -1,8 +1,9 @@
 import { Check, Close, Loop, QuestionMark } from "@mui/icons-material";
-import { Box, Tooltip } from "@mui/material";
+import { Box, LinearProgress, Tooltip } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
+  GridSlots,
   GridToolbarColumnsButton,
   GridToolbarContainer,
   GridToolbarDensitySelector,
@@ -148,6 +149,7 @@ const ArchiveGrid = () => {
         slots={{
           toolbar: customToolbar,
           noRowsOverlay: NoRowsOverlay,
+          loadingOverlay: LinearProgress as GridSlots["loadingOverlay"],
         }}
         getRowHeight={() => "auto"}
         sx={{
@@ -163,6 +165,7 @@ const ArchiveGrid = () => {
           "--DataGrid-overlayHeight": "300px",
         }}
         autoHeight
+        loading={stores.commonStore.isLoading("grid")}
       />
       <TaskReviewDialog />
     </Box>

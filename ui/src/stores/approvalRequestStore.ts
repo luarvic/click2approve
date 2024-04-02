@@ -5,22 +5,16 @@ import { approvalRequestList } from "../utils/apiClient";
 export class ApprovalRequestStore {
   registry: Map<number, IApprovalRequest>;
   currentApprovalRequest: IApprovalRequest | null;
-  approvalRequestSubmitDialogIsOpen: boolean;
-  approvalRequestViewDialogIsOpen: boolean;
 
   constructor(
     registry: Map<number, IApprovalRequest> = new Map<
       number,
       IApprovalRequest
     >(),
-    currentApprovalRequest: IApprovalRequest | null = null,
-    approvalRequestSubmitDialogIsOpen: boolean = false,
-    approvalRequestViewDialogIsOpen: boolean = false
+    currentApprovalRequest: IApprovalRequest | null = null
   ) {
     this.registry = registry;
     this.currentApprovalRequest = currentApprovalRequest;
-    this.approvalRequestSubmitDialogIsOpen = approvalRequestSubmitDialogIsOpen;
-    this.approvalRequestViewDialogIsOpen = approvalRequestViewDialogIsOpen;
     makeAutoObservable(this);
   }
 
