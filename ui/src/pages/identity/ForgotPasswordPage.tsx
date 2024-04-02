@@ -51,7 +51,12 @@ const ForgotPasswordPage = () => {
         <Typography component="h1" variant="h5">
           Forgot password
         </Typography>
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          noValidate
+          sx={{ mt: 1, width: 400 }}
+        >
           <TextField
             margin="normal"
             required
