@@ -1,3 +1,4 @@
+import { InternalAxiosRequestConfig } from "axios";
 import ago from "s-ago";
 
 export const getHumanReadableRelativeDate = (date: Date): string => {
@@ -41,4 +42,13 @@ export const getUserFriendlyApiErrorMessage = (error: any): string => {
   } catch {
     return "Unknown error occurred.";
   }
+};
+
+export const getLoaderName = (
+  request: InternalAxiosRequestConfig<any>
+): string => {
+  const parametersStartIndex = request.url?.indexOf("?");
+  return parametersStartIndex && parametersStartIndex > 0
+    ? `${request.method}_${request.url?.substring(0, request.url.indexOf("?"))}`
+    : `${request.method}_${request.url}`;
 };

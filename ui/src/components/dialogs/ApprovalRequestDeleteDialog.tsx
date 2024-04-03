@@ -12,16 +12,6 @@ import { UserFilesList } from "../lists/UserFilesList";
 import { ApprovalSteps } from "../steps/ApprovalSteps";
 
 const ApprovalRequestDeleteDialog = () => {
-  const handleDelete = async () => {
-    stores.approvalRequestStore.currentApprovalRequest &&
-      (await approvalRequestDelete(
-        stores.approvalRequestStore.currentApprovalRequest.id
-      ));
-    handleClose();
-    stores.approvalRequestStore.clearApprovalRequests();
-    stores.approvalRequestStore.loadApprovalRequests();
-  };
-
   const handleClose = () => {
     stores.commonStore.setApprovalRequestDeleteDialogIsOpen(false);
   };
@@ -31,6 +21,19 @@ const ApprovalRequestDeleteDialog = () => {
       open={stores.commonStore.approvalRequestDeleteDialogIsOpen}
       onClose={handleClose}
       fullWidth
+      PaperProps={{
+        component: "form",
+        onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+          stores.commonStore.setApprovalRequestDeleteDialogIsOpen(false);
+          stores.approvalRequestStore.currentApprovalRequest &&
+            (await approvalRequestDelete(
+              stores.approvalRequestStore.currentApprovalRequest.id
+            ));
+          stores.approvalRequestStore.clearApprovalRequests();
+          stores.approvalRequestStore.loadApprovalRequests();
+        },
+      }}
     >
       <DialogTitle>Delete approval request</DialogTitle>
       <DialogContent dividers>
@@ -50,7 +53,7 @@ const ApprovalRequestDeleteDialog = () => {
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button type="submit" onClick={handleDelete} color="error">
+        <Button type="submit" color="error">
           Delete
         </Button>
       </DialogActions>

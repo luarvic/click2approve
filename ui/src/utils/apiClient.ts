@@ -10,12 +10,12 @@ import { IUserFile } from "../models/userFile";
 import { stores } from "../stores/Stores";
 import { API_URI } from "../stores/constantsStore";
 import { deleteTokens, readTokens, writeTokens } from "./cacheClient";
-import { getUserFriendlyApiErrorMessage } from "./converters";
+import { getLoaderName, getUserFriendlyApiErrorMessage } from "./converters";
 
 axios.defaults.baseURL = API_URI;
 axios.interceptors.request.use(async (config) => {
   config.url &&
-    stores.commonStore.updateLoadingCounterBasedOnUrl(config.url, 1);
+    stores.commonStore.updateLoadingCounter(getLoaderName(config), 1);
   var tokens = readTokens();
   if (tokens) {
     config.headers.Authorization = `Bearer ${tokens.accessToken}`;
@@ -24,9 +24,10 @@ axios.interceptors.request.use(async (config) => {
 });
 axios.interceptors.response.use(
   async (response) => {
+    // await new Promise((resolve) => setTimeout(resolve, 1000));
     response.config.url &&
-      stores.commonStore.updateLoadingCounterBasedOnUrl(
-        response.config.url,
+      stores.commonStore.updateLoadingCounter(
+        getLoaderName(response.config),
         -1
       );
     return response;
@@ -55,7 +56,7 @@ axios.interceptors.response.use(
       }
     }
     error.config.url &&
-      stores.commonStore.updateLoadingCounterBasedOnUrl(error.config.url, -1);
+      stores.commonStore.updateLoadingCounter(getLoaderName(error.config), -1);
     return Promise.reject(error);
   }
 );
@@ -216,7 +217,7 @@ export const approvalRequestSubmit = async (
   files: IUserFile[],
   approvers: string[],
   approveBy: Date | null,
-  comment: string | null
+  comment: string | undefined
 ): Promise<void> => {
   try {
     await axios.post("api/request", {
@@ -251,7 +252,7 @@ export const approvalRequestList = async (): Promise<IApprovalRequest[]> => {
 export const taskComplete = async (
   id: number,
   status: ApprovalStatus,
-  comment: string | null
+  comment: string | undefined
 ): Promise<void> => {
   try {
     await axios.post("api/task/complete", {

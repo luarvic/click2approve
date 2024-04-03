@@ -20,31 +20,9 @@ import { validateEmails } from "../../utils/validators";
 import { UserFilesList } from "../lists/UserFilesList";
 
 const ApprovalRequestSubmitDialog = () => {
-  const [approver, setApprover] = useState<string>("");
   const [approvers, setApprovers] = useState<string[]>([]);
   const [approveBy, setApproveBy] = useState<Dayjs | null>(null);
-  const [comment, setComment] = useState<string>("");
   const [approversError, setApproversError] = useState(false);
-
-  const handleSend = async () => {
-    const emails = approvers.length > 0 ? approvers : [approver];
-    if (!validateEmails(emails)) {
-      setApproversError(true);
-      toast.error("Invalid input.");
-    } else {
-      await approvalRequestSubmit(
-        stores.fileStore.getSelectedUserFiles(),
-        emails.map((a) => a.toLocaleLowerCase().trim()),
-        approveBy ? approveBy.toDate() : null,
-        comment
-      );
-      handleClose();
-    }
-  };
-
-  const handleClose = () => {
-    stores.commonStore.setApprovalRequestSubmitDialogIsOpen(false);
-  };
 
   const handleApproversChange = (
     _event: React.SyntheticEvent<Element, Event>,
@@ -54,9 +32,29 @@ const ApprovalRequestSubmitDialog = () => {
     setApprovers(value as string[]);
   };
 
-  const handleApproverChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAutocompleteFocusOut = (
+    event: React.FormEvent<HTMLDivElement>
+  ) => {
+    var pressEnter = new KeyboardEvent("keydown", {
+      code: "Enter",
+      key: "Enter",
+      charCode: 13,
+      keyCode: 13,
+      view: window,
+      bubbles: true,
+    });
+    event.target.dispatchEvent(pressEnter);
+  };
+
+  const cleanUp = () => {
+    setApprovers([]);
+    setApproveBy(null);
     setApproversError(false);
-    setApprover(event.target.value);
+  };
+
+  const handleClose = () => {
+    stores.commonStore.setApprovalRequestSubmitDialogIsOpen(false);
+    cleanUp();
   };
 
   return (
@@ -64,23 +62,39 @@ const ApprovalRequestSubmitDialog = () => {
       open={stores.commonStore.approvalRequestSubmitDialogIsOpen}
       onClose={handleClose}
       fullWidth
+      PaperProps={{
+        component: "form",
+        onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+          const data = new FormData(event.currentTarget);
+          const comment = data.get("comment");
+          if (!validateEmails(approvers)) {
+            setApproversError(true);
+            toast.error("Invalid input.");
+          } else {
+            stores.commonStore.setApprovalRequestSubmitDialogIsOpen(false);
+            await approvalRequestSubmit(
+              stores.fileStore.getSelectedUserFiles(),
+              approvers.map((a) => a.toLocaleLowerCase().trim()),
+              approveBy ? approveBy.toDate() : null,
+              comment?.toString()
+            );
+            cleanUp();
+          }
+        },
+      }}
     >
-      <DialogTitle>Send for approval</DialogTitle>
+      <DialogTitle>Send for review</DialogTitle>
       <DialogContent dividers>
         <UserFilesList userFiles={stores.fileStore.getSelectedUserFiles()} />
         <Autocomplete
           multiple
-          id="approvers"
           options={[]}
           defaultValue={[]}
           freeSolo
           renderTags={(value: readonly string[], getTagProps) =>
             value.map((option: string, index: number) => (
-              <Chip
-                variant="outlined"
-                label={option}
-                {...getTagProps({ index })}
-              />
+              <Chip label={option} {...getTagProps({ index })} />
             ))
           }
           renderInput={(params) => (
@@ -89,7 +103,6 @@ const ApprovalRequestSubmitDialog = () => {
               label="Email (press Enter to add multiple)"
               variant="standard"
               margin="normal"
-              onChange={handleApproverChange}
               error={approversError}
               helperText={
                 approversError && "Specify one ore more valid email addresses"
@@ -97,6 +110,7 @@ const ApprovalRequestSubmitDialog = () => {
             />
           )}
           onChange={handleApproversChange}
+          onBlur={handleAutocompleteFocusOut}
         />
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DateTimePicker
@@ -108,27 +122,25 @@ const ApprovalRequestSubmitDialog = () => {
                 margin: "normal",
               },
             }}
+            label="Review by"
             value={approveBy}
             onChange={(newValue) => setApproveBy(newValue)}
-            label="Approve by"
           />
         </LocalizationProvider>
         <TextField
+          id="comment"
+          name="comment"
           margin="normal"
           fullWidth
           label="Comment"
           variant="standard"
-          value={comment}
-          onChange={(event) => setComment(event.currentTarget.value)}
           multiline
           rows={4}
         />
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button type="submit" onClick={handleSend}>
-          Submit
-        </Button>
+        <Button type="submit">Submit</Button>
       </DialogActions>
     </Dialog>
   );

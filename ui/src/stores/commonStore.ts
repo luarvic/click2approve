@@ -12,7 +12,7 @@ export class CommonStore {
 
   constructor(
     currentTab?: Tab,
-    loadingCounter: Dictionary<number> = { grid: 0, common: 0 },
+    loadingCounter: Dictionary<number> = {},
     approvalRequestSubmitDialogIsOpen: boolean = false,
     approvalRequestViewDialogIsOpen: boolean = false,
     approvalRequestDeleteDialogIsOpen: boolean = false,
@@ -29,28 +29,16 @@ export class CommonStore {
 
   updateLoadingCounter = (loader: string, delta: number): void => {
     runInAction(() => {
+      this.loadingCounter[loader] = this.loadingCounter[loader] ?? 0;
       this.loadingCounter[loader] += delta;
     });
   };
 
   isLoading = (loader: string): boolean => {
-    return this.loadingCounter[loader] > 0;
-  };
-
-  updateLoadingCounterBasedOnUrl = (url: string, delta: number) => {
-    switch (url) {
-      case "api/task/countUncompleted":
-        break;
-      case "api/file/list":
-      case "api/request/list":
-      case "api/task/listUncompleted":
-      case "api/task/listCompleted":
-        this.updateLoadingCounter("grid", delta);
-        break;
-      default:
-        this.updateLoadingCounter("common", delta);
-        break;
-    }
+    this.loadingCounter
+    return (
+      !isNaN(this.loadingCounter[loader]) && this.loadingCounter[loader] > 0
+    );
   };
 
   setCurrentTab = (tab: Tab): void => {

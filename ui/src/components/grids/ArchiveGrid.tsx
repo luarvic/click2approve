@@ -22,7 +22,6 @@ import {
   getLocaleDateTimeString,
 } from "../../utils/converters";
 import TaskReviewDialog from "../dialogs/TaskReviewDialog";
-import { CommentsList } from "../lists/CommentsList";
 import { UserFilesList } from "../lists/UserFilesList";
 import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
@@ -80,7 +79,7 @@ const ArchiveGrid = () => {
     },
     {
       field: "approvalRequest.approveByDate",
-      headerName: "Approve by",
+      headerName: "Review by",
       flex: 3,
       valueGetter: (_value, row) =>
         row.approvalRequest.approveByDate
@@ -89,7 +88,7 @@ const ArchiveGrid = () => {
     },
     {
       field: "completedDate",
-      headerName: "Completed",
+      headerName: "Reviewed",
       flex: 3,
       valueFormatter: (value) =>
         value ? getLocaleDateTimeString(value as Date) : null,
@@ -115,21 +114,6 @@ const ArchiveGrid = () => {
         );
       },
     },
-    {
-      field: "approvalRequest.comment",
-      headerName: "Comment",
-      flex: 10,
-      valueGetter: (_value, row) =>
-        [row.approvalRequest.comment, row.comment].join(" "),
-      renderCell: (params) => {
-        return (
-          <CommentsList
-            approvalRequestComment={params.row.approvalRequest.comment}
-            approverComment={params.row.comment}
-          />
-        );
-      },
-    },
   ];
 
   return (
@@ -151,21 +135,11 @@ const ArchiveGrid = () => {
           noRowsOverlay: NoRowsOverlay,
           loadingOverlay: LinearProgress as GridSlots["loadingOverlay"],
         }}
-        getRowHeight={() => "auto"}
         sx={{
-          "&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell": {
-            py: 0.5,
-          },
-          "&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell": {
-            py: 1,
-          },
-          "&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell": {
-            py: 1.5,
-          },
           "--DataGrid-overlayHeight": "300px",
         }}
         autoHeight
-        loading={stores.commonStore.isLoading("grid")}
+        loading={stores.commonStore.isLoading("get_api/task/listCompleted")}
       />
       <TaskReviewDialog />
     </Box>

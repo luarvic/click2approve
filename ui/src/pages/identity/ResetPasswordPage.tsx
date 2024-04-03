@@ -1,8 +1,6 @@
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
-  Backdrop,
   Box,
-  Button,
-  CircularProgress,
   Container,
   Grid,
   Link,
@@ -28,6 +26,7 @@ const ResetPasswordPage = () => {
   const [passwordError, setPasswordError] = useState<boolean>(false);
   const [passwordConfirmationError, setPasswordConfirmationError] =
     useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -64,17 +63,21 @@ const ResetPasswordPage = () => {
         );
       }
       toast.error("Invalid input.");
-    } else if (
-      await stores.userAccountStore.resetPassword(
-        email,
-        code,
-        password.toString()
-      )
-    ) {
-      const credentials = new Credentials(email, password.toString());
-      if (await stores.userAccountStore.signIn(credentials)) {
-        navigate(DEFAULT_PATH);
+    } else {
+      setIsLoading(true);
+      if (
+        await stores.userAccountStore.resetPassword(
+          email,
+          code,
+          password.toString()
+        )
+      ) {
+        const credentials = new Credentials(email, password.toString());
+        if (await stores.userAccountStore.signIn(credentials)) {
+          navigate(DEFAULT_PATH);
+        }
       }
+      setIsLoading(false);
     }
   };
 
@@ -125,14 +128,15 @@ const ResetPasswordPage = () => {
               setPasswordConfirmationError(false);
             }}
           />
-          <Button
+          <LoadingButton
+            loading={isLoading}
             type="submit"
             fullWidth
             variant="contained"
             sx={{ mt: 2, mb: 2 }}
           >
             Reset
-          </Button>
+          </LoadingButton>
           <Grid container>
             <Grid item xs></Grid>
             <Grid item>
@@ -143,12 +147,6 @@ const ResetPasswordPage = () => {
           </Grid>
         </Box>
       </Box>
-      <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.modal + 1 }}
-        open={stores.commonStore.isLoading("common")}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
     </Container>
   );
 };

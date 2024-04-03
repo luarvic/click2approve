@@ -4,6 +4,11 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
+  FormControlLabel,
+  FormHelperText,
+  Radio,
+  RadioGroup,
   TextField,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
@@ -15,71 +20,15 @@ import { taskComplete } from "../../utils/apiClient";
 import { UserFilesList } from "../lists/UserFilesList";
 
 const TaskReviewDialog = () => {
-  const [comment, setComment] = useState<string>("");
+  const [decisionError, setDecisionError] = useState(false);
+
+  const cleanUp = () => {
+    setDecisionError(false);
+  };
 
   const handleClose = () => {
     stores.commonStore.setTaskReviewDialogIsOpen(false);
-    stores.taskStore.setCurrentTask(null);
-  };
-
-  const rejectOrApprove = async (status: ApprovalStatus) => {
-    stores.taskStore.currentTask &&
-      stores.userAccountStore.currentUser &&
-      (await taskComplete(stores.taskStore.currentTask.id, status, comment));
-    handleClose();
-    stores.taskStore.clearTasks();
-    stores.taskStore.loadTasks(Tab.Inbox);
-    stores.taskStore.loadNumberOfUncompletedTasks();
-  };
-
-  const handleReject = () => {
-    rejectOrApprove(ApprovalStatus.Rejected);
-  };
-
-  const handleApprove = () => {
-    rejectOrApprove(ApprovalStatus.Approved);
-  };
-
-  const renderDialogActions = (tab: Tab) => {
-    const result: JSX.Element[] = [
-      <Button key="Cancel" onClick={handleClose}>
-        Cancel
-      </Button>,
-    ];
-    if (tab === Tab.Inbox) {
-      result.push(
-        <Button key="Reject" onClick={handleReject}>
-          Reject
-        </Button>
-      );
-      result.push(
-        <Button key="Approve" onClick={handleApprove}>
-          Approve
-        </Button>
-      );
-    }
-    return <DialogActions>{result}</DialogActions>;
-  };
-
-  const renderDialogInputs = (tab: Tab) => {
-    const result: JSX.Element[] = [];
-    if (tab === Tab.Inbox) {
-      result.push(
-        <TextField
-          key="comment"
-          margin="normal"
-          fullWidth
-          label="Comment"
-          autoFocus
-          variant="standard"
-          value={comment}
-          onChange={(event) => setComment(event.currentTarget.value)}
-          multiline
-          rows={4}
-        />
-      );
-    }
-    return <>{result}</>;
+    cleanUp();
   };
 
   return (
@@ -87,19 +36,85 @@ const TaskReviewDialog = () => {
       open={stores.commonStore.taskReviewDialogIsOpen}
       onClose={handleClose}
       fullWidth
+      PaperProps={{
+        component: "form",
+        onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+          const data = new FormData(event.currentTarget);
+          const comment = data.get("comment");
+          const decision = data.get("decision");
+          if (!decision) {
+            setDecisionError(true);
+          } else {
+            stores.commonStore.setTaskReviewDialogIsOpen(false);
+            stores.taskStore.currentTask &&
+              stores.userAccountStore.currentUser &&
+              (await taskComplete(
+                stores.taskStore.currentTask.id,
+                decision === "approve"
+                  ? ApprovalStatus.Approved
+                  : ApprovalStatus.Rejected,
+                comment?.toString()
+              ));
+            cleanUp();
+            stores.taskStore.clearTasks();
+            stores.taskStore.loadTasks(Tab.Inbox);
+            stores.taskStore.loadNumberOfUncompletedTasks();
+          }
+        },
+      }}
     >
-      <DialogTitle>Review the files</DialogTitle>
+      <DialogTitle>Review the file(s)</DialogTitle>
       <DialogContent dividers>
         {stores.taskStore.currentTask && (
           <UserFilesList
             userFiles={stores.taskStore.currentTask.approvalRequest.userFiles}
           />
         )}
-        {stores.commonStore.currentTab &&
-          renderDialogInputs(stores.commonStore.currentTab)}
+        <FormControl key="decision" error={decisionError}>
+          <RadioGroup
+            row
+            name="decision"
+            onChange={() => setDecisionError(false)}
+          >
+            <FormControlLabel
+              value="approve"
+              control={<Radio />}
+              label="Approve"
+            />
+            <FormControlLabel
+              value="reject"
+              control={<Radio />}
+              label="Reject"
+            />
+          </RadioGroup>
+          {decisionError && (
+            <FormHelperText sx={{ mx: 0 }}>
+              You should either approve or reject
+            </FormHelperText>
+          )}
+        </FormControl>
+        <TextField
+          key="comment"
+          id="comment"
+          name="comment"
+          margin="normal"
+          fullWidth
+          label="Comment"
+          autoFocus
+          variant="standard"
+          multiline
+          rows={4}
+        />
       </DialogContent>
-      {stores.commonStore.currentTab &&
-        renderDialogActions(stores.commonStore.currentTab)}
+      <DialogActions>
+        <Button key="Cancel" onClick={handleClose}>
+          Cancel
+        </Button>
+        <Button key="Submit" type="submit">
+          Submit
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 };

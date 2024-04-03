@@ -3,10 +3,9 @@ import {
   PASSWORD_VALIDATOR,
 } from "../stores/constantsStore";
 
-
 export const validateEmails = (emails: string[]): boolean => {
   const invalidEmails = emails.filter((email) => !validateEmail(email));
-  return invalidEmails.length === 0;
+  return emails.length !== 0 && invalidEmails.length === 0;
 };
 
 export const validateEmail = (email: string): boolean => {

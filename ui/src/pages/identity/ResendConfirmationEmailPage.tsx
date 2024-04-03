@@ -1,8 +1,6 @@
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
-  Backdrop,
   Box,
-  Button,
-  CircularProgress,
   Container,
   Grid,
   Link,
@@ -18,6 +16,7 @@ import { validateEmail } from "../../utils/validators";
 
 const ResendConfirmationEmailPage = () => {
   const [emailError, setEmailError] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -27,15 +26,19 @@ const ResendConfirmationEmailPage = () => {
     if (!email || !validateEmail(email.toString())) {
       setEmailError(!email || !validateEmail(email.toString()));
       toast.error("Invalid input.");
-    } else if (
-      await stores.userAccountStore.resendConfirmationEmail(email.toString())
-    ) {
-      navigate("/information", {
-        state: {
-          message:
-            "A confirmation link was sent to your email. Confirm your email address to continue.",
-        },
-      });
+    } else {
+      setIsLoading(true);
+      if (
+        await stores.userAccountStore.resendConfirmationEmail(email.toString())
+      ) {
+        navigate("/information", {
+          state: {
+            message:
+              "A confirmation link was sent to your email. Confirm your email address to continue.",
+          },
+        });
+      }
+      setIsLoading(false);
     }
   };
 
@@ -71,14 +74,15 @@ const ResendConfirmationEmailPage = () => {
             helperText={emailError && "Invalid email address"}
             onChange={() => setEmailError(false)}
           />
-          <Button
+          <LoadingButton
+            loading={isLoading}
             type="submit"
             fullWidth
             variant="contained"
             sx={{ mt: 2, mb: 2 }}
           >
             Resend
-          </Button>
+          </LoadingButton>
           <Grid container>
             <Grid item xs>
               <Link href="/signIn" variant="body2">
@@ -93,12 +97,6 @@ const ResendConfirmationEmailPage = () => {
           </Grid>
         </Box>
       </Box>
-      <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.modal + 1 }}
-        open={stores.commonStore.isLoading("common")}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
     </Container>
   );
 };

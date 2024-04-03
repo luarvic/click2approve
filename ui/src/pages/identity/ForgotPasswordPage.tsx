@@ -1,8 +1,6 @@
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
-  Backdrop,
   Box,
-  Button,
-  CircularProgress,
   Container,
   Grid,
   Link,
@@ -18,6 +16,7 @@ import { validateEmail } from "../../utils/validators";
 
 const ForgotPasswordPage = () => {
   const [emailError, setEmailError] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -27,16 +26,16 @@ const ForgotPasswordPage = () => {
     if (!email || !validateEmail(email.toString())) {
       setEmailError(!email || !validateEmail(email.toString()));
       toast.error("Invalid input.");
-    } else if (
-      await stores.userAccountStore.sendResetPasswordLink(email.toString())
-    ) {
-      navigate("/information", {
-        state: { message: "A reset password link was sent to your email." },
-      });
     } else {
-      navigate("/information", {
-        state: { message: "Unable to send a reset password link." },
-      });
+      setIsLoading(true);
+      if (
+        await stores.userAccountStore.sendResetPasswordLink(email.toString())
+      ) {
+        navigate("/information", {
+          state: { message: "A reset password link was sent to your email." },
+        });
+      }
+      setIsLoading(false);
     }
   };
 
@@ -72,14 +71,15 @@ const ForgotPasswordPage = () => {
             helperText={emailError && "Invalid email address"}
             onChange={() => setEmailError(false)}
           />
-          <Button
+          <LoadingButton
+            loading={isLoading}
             type="submit"
             fullWidth
             variant="contained"
             sx={{ mt: 2, mb: 2 }}
           >
             Send password reset link
-          </Button>
+          </LoadingButton>
           <Grid container>
             <Grid item xs>
               <Link href="/signIn" variant="body2">
@@ -94,12 +94,6 @@ const ForgotPasswordPage = () => {
           </Grid>
         </Box>
       </Box>
-      <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.modal + 1 }}
-        open={stores.commonStore.isLoading("common")}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
     </Container>
   );
 };

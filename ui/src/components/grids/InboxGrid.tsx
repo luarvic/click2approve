@@ -1,4 +1,4 @@
-import { Box, LinearProgress, Stack } from "@mui/material";
+import { Box, LinearProgress } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -52,7 +52,7 @@ const InboxGrid = () => {
     },
     {
       field: "approvalRequest.approveByDate",
-      headerName: "Approve by",
+      headerName: "Review by",
       flex: 3,
       valueGetter: (_value, row) =>
         row.approvalRequest.approveByDate
@@ -77,21 +77,6 @@ const InboxGrid = () => {
       renderCell: (params) => {
         return (
           <UserFilesList userFiles={params.row.approvalRequest.userFiles} />
-        );
-      },
-    },
-    {
-      field: "approvalRequest.comment",
-      headerName: "Comment",
-      flex: 10,
-      renderCell: (params) => {
-        return (
-          <Stack>
-            {params.row.approvalRequest.comment &&
-              (
-                params.row.approvalRequest.comment.split(/\r?\n/) as string[]
-              ).map((line) => <Box>{line}</Box>)}
-          </Stack>
         );
       },
     },
@@ -124,21 +109,14 @@ const InboxGrid = () => {
           noRowsOverlay: NoRowsOverlay,
           loadingOverlay: LinearProgress as GridSlots["loadingOverlay"],
         }}
-        getRowHeight={() => "auto"}
         sx={{
-          "&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell": {
-            py: 0.5,
-          },
-          "&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell": {
-            py: 1,
-          },
-          "&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell": {
-            py: 1.5,
-          },
           "--DataGrid-overlayHeight": "300px",
         }}
         autoHeight
-        loading={stores.commonStore.isLoading("grid")}
+        loading={
+          stores.commonStore.isLoading("get_api/task/listUncompleted") ||
+          stores.commonStore.isLoading("post_api/task/complete")
+        }
       />
       <TaskReviewDialog />
     </Box>

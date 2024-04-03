@@ -1,8 +1,6 @@
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
-  Backdrop,
   Box,
-  Button,
-  CircularProgress,
   Container,
   Grid,
   Link,
@@ -27,6 +25,7 @@ const SignUpPage = () => {
   const [passwordError, setPasswordError] = useState<boolean>(false);
   const [passwordConfirmationError, setPasswordConfirmationError] =
     useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -61,6 +60,7 @@ const SignUpPage = () => {
         password.toString(),
         passwordConfirmation.toString()
       );
+      setIsLoading(true);
       if (await stores.userAccountStore.signUp(credentials)) {
         if (EMAIL_SERVICE_IS_ENABLED) {
           navigate("/information", {
@@ -75,6 +75,7 @@ const SignUpPage = () => {
           }
         }
       }
+      setIsLoading(false);
     }
   };
 
@@ -142,14 +143,15 @@ const SignUpPage = () => {
               setPasswordConfirmationError(false);
             }}
           />
-          <Button
+          <LoadingButton
+            loading={isLoading}
             type="submit"
             fullWidth
             variant="contained"
             sx={{ mt: 2, mb: 2 }}
           >
             Sign up
-          </Button>
+          </LoadingButton>
           <Grid container>
             <Grid item xs></Grid>
             <Grid item>
@@ -160,12 +162,6 @@ const SignUpPage = () => {
           </Grid>
         </Box>
       </Box>
-      <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.modal + 1 }}
-        open={stores.commonStore.isLoading("common")}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
     </Container>
   );
 };

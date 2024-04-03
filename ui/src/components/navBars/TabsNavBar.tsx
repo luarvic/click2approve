@@ -45,6 +45,7 @@ const TabsNavBar = () => {
     <Box sx={{ pr: 2 }}>
       <List disablePadding>
         <ListItemButton
+          key="Files"
           selected={stores.commonStore.currentTab === Tab.Files}
           onClick={() => {
             handleTabChange(Tab.Files);
@@ -56,6 +57,7 @@ const TabsNavBar = () => {
           <ListItemText primary="Files" />
         </ListItemButton>
         <ListItemButton
+          key="Inbox"
           selected={stores.commonStore.currentTab === Tab.Inbox}
           onClick={() => {
             handleTabChange(Tab.Inbox);
@@ -72,6 +74,7 @@ const TabsNavBar = () => {
           <ListItemText primary="Inbox" />
         </ListItemButton>
         <ListItemButton
+          key="Archive"
           selected={stores.commonStore.currentTab === Tab.Archive}
           onClick={() => {
             handleTabChange(Tab.Archive);
@@ -83,6 +86,7 @@ const TabsNavBar = () => {
           <ListItemText primary="Archive" />
         </ListItemButton>
         <ListItemButton
+          key="Sent"
           selected={stores.commonStore.currentTab === Tab.Sent}
           onClick={() => {
             handleTabChange(Tab.Sent);

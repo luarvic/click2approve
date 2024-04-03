@@ -1,4 +1,4 @@
-import { Backdrop, Box, CircularProgress } from "@mui/material";
+import { Box } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { Navigate } from "react-router-dom";
 import SentGrid from "../../components/grids/SentGrid";
@@ -10,12 +10,6 @@ const SentPage = () => {
     <Box sx={{ display: "flex", pt: 2 }}>
       <TabsNavBar />
       <SentGrid />
-      <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.modal + 1 }}
-        open={stores.commonStore.isLoading("common")}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
     </Box>
   ) : (
     <Navigate to="/signIn" />

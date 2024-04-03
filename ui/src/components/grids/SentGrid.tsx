@@ -24,7 +24,6 @@ import {
 import ApprovalRequestDeleteDialog from "../dialogs/ApprovalRequestDeleteDialog";
 import ApprovalRequestViewDialog from "../dialogs/ApprovalRequestViewDialog";
 import { ApproversList } from "../lists/ApproversList";
-import { CommentsList } from "../lists/CommentsList";
 import { UserFilesList } from "../lists/UserFilesList";
 import { ApprovalRequestActionsMenu } from "../menus/ApprovalRequestActionsMenu";
 import NoRowsOverlay from "../overlays/NoRowsOverlay";
@@ -82,7 +81,7 @@ const SentGrid = () => {
     },
     {
       field: "approveByDate",
-      headerName: "Approve by",
+      headerName: "Review by",
       flex: 3,
       valueFormatter: (value) =>
         value && getLocaleDateTimeString(value as Date),
@@ -105,14 +104,6 @@ const SentGrid = () => {
         value.map((userFile) => userFile.name).join(", "),
       renderCell: (params) => {
         return <UserFilesList userFiles={params.row.userFiles} />;
-      },
-    },
-    {
-      field: "comment",
-      headerName: "Comment",
-      flex: 10,
-      renderCell: (params) => {
-        return <CommentsList approvalRequestComment={params.value} />;
       },
     },
     {
@@ -144,21 +135,14 @@ const SentGrid = () => {
           noRowsOverlay: NoRowsOverlay,
           loadingOverlay: LinearProgress as GridSlots["loadingOverlay"],
         }}
-        getRowHeight={() => "auto"}
         sx={{
-          "&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell": {
-            py: 0.5,
-          },
-          "&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell": {
-            py: 1,
-          },
-          "&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell": {
-            py: 1.5,
-          },
           "--DataGrid-overlayHeight": "300px",
         }}
         autoHeight
-        loading={stores.commonStore.isLoading("grid")}
+        loading={
+          stores.commonStore.isLoading("get_api/request/list") ||
+          stores.commonStore.isLoading("delete_api/request")
+        }
       />
       <ApprovalRequestViewDialog />
       <ApprovalRequestDeleteDialog />

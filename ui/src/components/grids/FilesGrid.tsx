@@ -107,7 +107,10 @@ const FilesGrid = () => {
           "--DataGrid-overlayHeight": "300px",
         }}
         autoHeight
-        loading={stores.commonStore.isLoading("grid")}
+        loading={
+          stores.commonStore.isLoading("get_api/file/list") ||
+          stores.commonStore.isLoading("post_api/file/upload")
+        }
       />
       <ApprovalRequestSubmitDialog />
     </Box>
