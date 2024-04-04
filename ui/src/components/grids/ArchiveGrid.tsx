@@ -78,20 +78,11 @@ const ArchiveGrid = () => {
         getHumanReadableRelativeDate(row.approvalRequest.submittedDate),
     },
     {
-      field: "reviewBy",
-      headerName: "Review by",
-      flex: 3,
-      valueGetter: (_value, row) =>
-        row.approvalRequest.approveByDate
-          ? getLocaleDateTimeString(row.approvalRequest.approveByDate as Date)
-          : null,
-    },
-    {
       field: "completedDate",
       headerName: "Reviewed",
       flex: 3,
       valueFormatter: (value) =>
-        value ? getLocaleDateTimeString(value as Date) : null,
+        value ? getHumanReadableRelativeDate(value) : null,
     },
     {
       field: "requester",

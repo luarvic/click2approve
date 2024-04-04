@@ -49,7 +49,7 @@ const SentGrid = () => {
     {
       field: "files",
       headerName: "Sent files",
-      flex: 7,
+      flex: 5,
       valueGetter: (_value, row) =>
         row.userFiles.map((userFile: IUserFile) => userFile.name).join(", "),
       renderCell: (params) => {
@@ -74,7 +74,7 @@ const SentGrid = () => {
       valueFormatter: (value) => getHumanReadableRelativeDate(value),
     },
     {
-      field: "reviewBy",
+      field: "approveByDate",
       headerName: "Review by",
       flex: 3,
       valueFormatter: (value) =>
