@@ -78,7 +78,7 @@ const InboxGrid = () => {
     {
       field: "requester",
       headerName: "Requester",
-      flex: 3,
+      flex: 5,
       valueGetter: (_value, row) =>
         (row.approvalRequest.author as string).toLowerCase(),
     },
@@ -102,7 +102,6 @@ const InboxGrid = () => {
         columnVisibilityModel={{
           received: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
           reviewBy: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
-          requester: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
         }}
         initialState={{
           pagination: {

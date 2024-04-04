@@ -107,7 +107,6 @@ const FilesGrid = () => {
             theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)
           ),
           type: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
-          size: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
         }}
         initialState={{
           pagination: {

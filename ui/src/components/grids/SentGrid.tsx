@@ -83,7 +83,7 @@ const SentGrid = () => {
     {
       field: "approvers",
       headerName: "Approvers",
-      flex: 3,
+      flex: 5,
       valueGetter: (value: string[]) =>
         value.map((approver) => approver.toLowerCase()).join(", "),
       renderCell: (params) => {
@@ -113,8 +113,9 @@ const SentGrid = () => {
           submittedDate: useMediaQuery(
             theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)
           ),
-          reviewBy: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
-          approvers: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
+          approveByDate: useMediaQuery(
+            theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)
+          ),
         }}
         initialState={{
           pagination: {
