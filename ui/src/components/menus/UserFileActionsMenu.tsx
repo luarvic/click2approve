@@ -3,6 +3,10 @@ import { Box, IconButton, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
 import { IUserFile } from "../../models/userFile";
 import { stores } from "../../stores/Stores";
+import {
+  MENU_SLOT_PROPS,
+  MENU_TRANSFORM_ORIGIN,
+} from "../../stores/constantsStore";
 
 interface IUserFileActionsMenuProps {
   userFile: IUserFile;
@@ -44,6 +48,8 @@ const UserFileActionsMenu: React.FC<IUserFileActionsMenuProps> = ({
         MenuListProps={{
           "aria-labelledby": "basic-button",
         }}
+        transformOrigin={MENU_TRANSFORM_ORIGIN}
+        slotProps={MENU_SLOT_PROPS}
       >
         <MenuItem onClick={handleDelete}>Delete</MenuItem>
       </Menu>

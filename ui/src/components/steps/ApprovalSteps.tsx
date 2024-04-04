@@ -27,7 +27,7 @@ const ApprovalSteps: React.FC<IApprovalStepsProps> = ({
   );
   steps = steps.concat(
     completedTasks.map((task, index) => (
-      <Step key={index} active={true}>
+      <Step key={`completedTask${index}`} active={true}>
         <StepLabel error={task.status === ApprovalStatus.Rejected}>
           {ApprovalStatus[task.status]} by {task.approver.toLowerCase()}
         </StepLabel>
@@ -43,7 +43,7 @@ const ApprovalSteps: React.FC<IApprovalStepsProps> = ({
   const uncompletedTasks = approvalRequest.tasks.filter((t) => !t.completed);
   steps = steps.concat(
     uncompletedTasks.map((task, index) => (
-      <Step key={index} active={false}>
+      <Step key={`uncompletedTask${index}`} active={false}>
         <StepLabel>
           Requested approval from {task.approver.toLowerCase()}
         </StepLabel>

@@ -1,30 +1,32 @@
-import { Box, LinearProgress } from "@mui/material";
+import { Box, LinearProgress, useMediaQuery, useTheme } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
   GridSlots,
-  GridToolbarColumnsButton,
   GridToolbarContainer,
-  GridToolbarDensitySelector,
-  GridToolbarExport,
-  GridToolbarFilterButton,
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { Tab } from "../../models/tab";
 import { IUserFile } from "../../models/userFile";
 import { stores } from "../../stores/Stores";
-import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../stores/constantsStore";
+import {
+  DATA_GRID_DEFAULT_PAGE_SIZE,
+  MAX_SIZE_WHEN_DISPLAY,
+} from "../../stores/constantsStore";
 import {
   getHumanReadableRelativeDate,
   getLocaleDateTimeString,
 } from "../../utils/converters";
+import GridToolbarButtons from "../buttons/GridToolbarButtons";
 import UncompletedTaskReviewDialog from "../dialogs/UncompletedTaskReviewDialog";
 import UserFilesList from "../lists/UserFilesList";
 import TaskActionsMenu from "../menus/TaskActionsMenu";
 import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
 const InboxGrid = () => {
+  const theme = useTheme();
+
   useEffect(() => {
     stores.commonStore.setCurrentTab(Tab.Inbox);
     stores.taskStore.clearTasks();
@@ -34,41 +36,15 @@ const InboxGrid = () => {
   const customToolbar = () => {
     return (
       <GridToolbarContainer>
-        <GridToolbarColumnsButton />
-        <GridToolbarFilterButton />
-        <GridToolbarDensitySelector />
-        <GridToolbarExport />
+        <GridToolbarButtons />
       </GridToolbarContainer>
     );
   };
 
   const columns: GridColDef[] = [
     {
-      field: "approvalRequest.submittedDate",
-      headerName: "Received",
-      flex: 2,
-      valueGetter: (_value, row) =>
-        getHumanReadableRelativeDate(row.approvalRequest.submittedDate),
-    },
-    {
-      field: "approvalRequest.approveByDate",
-      headerName: "Review by",
-      flex: 3,
-      valueGetter: (_value, row) =>
-        row.approvalRequest.approveByDate
-          ? getLocaleDateTimeString(row.approvalRequest.approveByDate as Date)
-          : null,
-    },
-    {
-      field: "approvalRequest.author",
-      headerName: "Requester",
-      flex: 5,
-      valueGetter: (_value, row) =>
-        (row.approvalRequest.author as string).toLowerCase(),
-    },
-    {
-      field: "approvalRequest.userFiles",
-      headerName: "Files",
+      field: "files",
+      headerName: "Files to review",
       flex: 5,
       valueGetter: (_value, row) =>
         row.approvalRequest.userFiles
@@ -82,6 +58,29 @@ const InboxGrid = () => {
           />
         );
       },
+    },
+    {
+      field: "received",
+      headerName: "Received",
+      flex: 3,
+      valueGetter: (_value, row) =>
+        getHumanReadableRelativeDate(row.approvalRequest.submittedDate),
+    },
+    {
+      field: "reviewBy",
+      headerName: "Review by",
+      flex: 3,
+      valueGetter: (_value, row) =>
+        row.approvalRequest.approveByDate
+          ? getLocaleDateTimeString(row.approvalRequest.approveByDate as Date)
+          : null,
+    },
+    {
+      field: "requester",
+      headerName: "Requester",
+      flex: 3,
+      valueGetter: (_value, row) =>
+        (row.approvalRequest.author as string).toLowerCase(),
     },
     {
       field: "action",
@@ -100,6 +99,11 @@ const InboxGrid = () => {
       <DataGrid
         rows={stores.taskStore.tasks}
         columns={columns}
+        columnVisibilityModel={{
+          received: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
+          reviewBy: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
+          requester: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
+        }}
         initialState={{
           pagination: {
             paginationModel: {

@@ -1,13 +1,9 @@
-import { Box, LinearProgress } from "@mui/material";
+import { Box, LinearProgress, useMediaQuery, useTheme } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
   GridSlots,
-  GridToolbarColumnsButton,
   GridToolbarContainer,
-  GridToolbarDensitySelector,
-  GridToolbarExport,
-  GridToolbarFilterButton,
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
@@ -15,11 +11,15 @@ import { ApprovalStatus } from "../../models/approvalStatus";
 import { Tab } from "../../models/tab";
 import { IUserFile } from "../../models/userFile";
 import { stores } from "../../stores/Stores";
-import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../stores/constantsStore";
+import {
+  DATA_GRID_DEFAULT_PAGE_SIZE,
+  MAX_SIZE_WHEN_DISPLAY,
+} from "../../stores/constantsStore";
 import {
   getHumanReadableRelativeDate,
   getLocaleDateTimeString,
 } from "../../utils/converters";
+import GridToolbarButtons from "../buttons/GridToolbarButtons";
 import CompletedTaskViewDialog from "../dialogs/CompletedTaskViewDialog";
 import StatusIcon from "../icons/StatusIcon";
 import UserFilesList from "../lists/UserFilesList";
@@ -27,6 +27,8 @@ import TaskActionsMenu from "../menus/TaskActionsMenu";
 import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
 const ArchiveGrid = () => {
+  const theme = useTheme();
+
   useEffect(() => {
     stores.commonStore.setCurrentTab(Tab.Archive);
     stores.taskStore.clearTasks();
@@ -36,21 +38,28 @@ const ArchiveGrid = () => {
   const customToolbar = () => {
     return (
       <GridToolbarContainer>
-        <GridToolbarColumnsButton />
-        <GridToolbarFilterButton />
-        <GridToolbarDensitySelector />
-        <GridToolbarExport />
+        <GridToolbarButtons />
       </GridToolbarContainer>
     );
   };
 
   const columns: GridColDef[] = [
     {
-      field: "approvalRequest.submittedDate",
-      headerName: "Received",
-      flex: 2,
+      field: "files",
+      headerName: "Reviewed files",
+      flex: 5,
       valueGetter: (_value, row) =>
-        getHumanReadableRelativeDate(row.approvalRequest.submittedDate),
+        row.approvalRequest.userFiles
+          .map((userFile: IUserFile) => userFile.name)
+          .join(", "),
+      renderCell: (params) => {
+        return (
+          <UserFilesList
+            userFiles={params.row.approvalRequest.userFiles}
+            direction="row"
+          />
+        );
+      },
     },
     {
       field: "status",
@@ -62,7 +71,14 @@ const ArchiveGrid = () => {
       valueGetter: (_value, row) => ApprovalStatus[row.status],
     },
     {
-      field: "approvalRequest.approveByDate",
+      field: "received",
+      headerName: "Received",
+      flex: 3,
+      valueGetter: (_value, row) =>
+        getHumanReadableRelativeDate(row.approvalRequest.submittedDate),
+    },
+    {
+      field: "reviewBy",
       headerName: "Review by",
       flex: 3,
       valueGetter: (_value, row) =>
@@ -78,28 +94,11 @@ const ArchiveGrid = () => {
         value ? getLocaleDateTimeString(value as Date) : null,
     },
     {
-      field: "approvalRequest.author",
+      field: "requester",
       headerName: "Requester",
-      flex: 5,
+      flex: 3,
       valueGetter: (_value, row) =>
         (row.approvalRequest.author as string).toLowerCase(),
-    },
-    {
-      field: "approvalRequest.userFiles",
-      headerName: "Files",
-      flex: 5,
-      valueGetter: (_value, row) =>
-        row.approvalRequest.userFiles
-          .map((userFile: IUserFile) => userFile.name)
-          .join(", "),
-      renderCell: (params) => {
-        return (
-          <UserFilesList
-            userFiles={params.row.approvalRequest.userFiles}
-            direction="row"
-          />
-        );
-      },
     },
     {
       field: "action",
@@ -118,6 +117,14 @@ const ArchiveGrid = () => {
       <DataGrid
         rows={stores.taskStore.tasks}
         columns={columns}
+        columnVisibilityModel={{
+          received: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
+          reviewBy: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
+          completedDate: useMediaQuery(
+            theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)
+          ),
+          requester: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
+        }}
         initialState={{
           pagination: {
             paginationModel: {

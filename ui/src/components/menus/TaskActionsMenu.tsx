@@ -3,6 +3,10 @@ import { Box, IconButton, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
 import { IApprovalRequestTask } from "../../models/approvalRequestTask";
 import { stores } from "../../stores/Stores";
+import {
+  MENU_SLOT_PROPS,
+  MENU_TRANSFORM_ORIGIN,
+} from "../../stores/constantsStore";
 
 interface ITaskActionsMenuProps {
   task: IApprovalRequestTask;
@@ -42,6 +46,8 @@ const TaskActionsMenu: React.FC<ITaskActionsMenuProps> = ({ task }) => {
         MenuListProps={{
           "aria-labelledby": "basic-button",
         }}
+        transformOrigin={MENU_TRANSFORM_ORIGIN}
+        slotProps={MENU_SLOT_PROPS}
       >
         <MenuItem onClick={handleReview}>Review</MenuItem>
       </Menu>

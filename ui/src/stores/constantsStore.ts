@@ -1,4 +1,4 @@
-import { createTheme } from "@mui/material";
+import { PopoverOrigin, createTheme } from "@mui/material";
 import passwordValidator from "password-validator";
 
 // General parameters.
@@ -26,6 +26,60 @@ export const THEME = createTheme({
     },
   },
 });
+
+// Visibility parameters.
+export const MAX_SIZE_WHEN_DISPLAY = "md";
+export const DISPLAY_DEPENDING_ON_SIZE = {
+  xs: "none",
+  md: "flex",
+};
+
+// Tabs parameters.
+export const LIST_ITEM_ICON_SX = { minWidth: 0 };
+export const LIST_ITEM_TEXT_SX = {
+  display: DISPLAY_DEPENDING_ON_SIZE,
+  ml: 2,
+};
+
+// Grid parameters.
+export const GRID_TOOLBAR_BUTTON_SLOT_PROPS = {
+  button: { sx: { display: DISPLAY_DEPENDING_ON_SIZE } },
+};
+
+// Menu parameters.
+export const MENU_SLOT_PROPS = {
+  paper: {
+    elevation: 0,
+    sx: {
+      overflow: "visible",
+      filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+      mt: 1.5,
+      "& .MuiAvatar-root": {
+        width: 32,
+        height: 32,
+        ml: -0.5,
+        mr: 1,
+      },
+      "&::before": {
+        content: '""',
+        display: "block",
+        position: "absolute",
+        top: 0,
+        right: 14,
+        width: 10,
+        height: 10,
+        bgcolor: "background.paper",
+        transform: "translateY(-50%) rotate(45deg)",
+        zIndex: 0,
+      },
+    },
+  },
+};
+
+export const MENU_TRANSFORM_ORIGIN: PopoverOrigin = {
+  horizontal: 40,
+  vertical: "top",
+};
 
 // Validation parameters.
 export const PASSWORD_MIN_LENGTH = 8;

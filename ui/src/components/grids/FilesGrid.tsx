@@ -1,13 +1,15 @@
-import { Box, LinearProgress, Link } from "@mui/material";
+import {
+  Box,
+  LinearProgress,
+  Link,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import {
   DataGrid,
   GridColDef,
   GridSlots,
-  GridToolbarColumnsButton,
   GridToolbarContainer,
-  GridToolbarDensitySelector,
-  GridToolbarExport,
-  GridToolbarFilterButton,
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import prettyBytes from "pretty-bytes";
@@ -15,9 +17,13 @@ import { useEffect } from "react";
 import { Tab } from "../../models/tab";
 import { IUserFile } from "../../models/userFile";
 import { stores } from "../../stores/Stores";
-import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../stores/constantsStore";
+import {
+  DATA_GRID_DEFAULT_PAGE_SIZE,
+  MAX_SIZE_WHEN_DISPLAY,
+} from "../../stores/constantsStore";
 import { getHumanReadableRelativeDate } from "../../utils/converters";
 import { downloadUserFile } from "../../utils/downloaders";
+import GridToolbarButtons from "../buttons/GridToolbarButtons";
 import SendButton from "../buttons/SendButton";
 import UploadButton from "../buttons/UploadButton";
 import ApprovalRequestSubmitDialog from "../dialogs/ApprovalRequestSubmitDialog";
@@ -27,6 +33,8 @@ import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
 // Data grid with user files.
 const FilesGrid = () => {
+  const theme = useTheme();
+
   useEffect(() => {
     stores.commonStore.setCurrentTab(Tab.Files);
     stores.fileStore.clearUserFiles();
@@ -38,25 +46,16 @@ const FilesGrid = () => {
       <GridToolbarContainer>
         <UploadButton />
         <SendButton />
-        <GridToolbarColumnsButton />
-        <GridToolbarFilterButton />
-        <GridToolbarDensitySelector />
-        <GridToolbarExport />
+        <GridToolbarButtons />
       </GridToolbarContainer>
     );
   };
 
   const columns: GridColDef[] = [
     {
-      field: "createdDate",
-      headerName: "Uploaded",
-      flex: 2,
-      valueFormatter: (value) => getHumanReadableRelativeDate(value),
-    },
-    {
       field: "name",
-      headerName: "Name",
-      flex: 3,
+      headerName: "File name",
+      flex: 10,
       renderCell: (params) => {
         return (
           <Link
@@ -69,15 +68,21 @@ const FilesGrid = () => {
       },
     },
     {
+      field: "createdDate",
+      headerName: "Uploaded",
+      flex: 3,
+      valueFormatter: (value) => getHumanReadableRelativeDate(value),
+    },
+    {
       field: "type",
       headerName: "Type",
-      flex: 1,
+      flex: 3,
       minWidth: 70,
     },
     {
       field: "size",
       headerName: "Size",
-      flex: 2,
+      flex: 3,
       valueFormatter: (value) => prettyBytes(value),
     },
     {
@@ -97,6 +102,13 @@ const FilesGrid = () => {
       <DataGrid
         rows={stores.fileStore.userFiles}
         columns={columns}
+        columnVisibilityModel={{
+          createdDate: useMediaQuery(
+            theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)
+          ),
+          type: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
+          size: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
+        }}
         initialState={{
           pagination: {
             paginationModel: {

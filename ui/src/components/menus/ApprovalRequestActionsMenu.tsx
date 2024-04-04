@@ -3,6 +3,10 @@ import { Box, IconButton, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
 import { IApprovalRequest } from "../../models/approvalRequest";
 import { stores } from "../../stores/Stores";
+import {
+  MENU_SLOT_PROPS,
+  MENU_TRANSFORM_ORIGIN,
+} from "../../stores/constantsStore";
 
 interface IApprovalRequestActionsMenuProps {
   approvalRequest: IApprovalRequest;
@@ -49,6 +53,8 @@ const ApprovalRequestActionsMenu: React.FC<
         MenuListProps={{
           "aria-labelledby": "basic-button",
         }}
+        transformOrigin={MENU_TRANSFORM_ORIGIN}
+        slotProps={MENU_SLOT_PROPS}
       >
         <MenuItem onClick={handleView}>Track</MenuItem>
         <MenuItem onClick={handleDelete}>Delete</MenuItem>

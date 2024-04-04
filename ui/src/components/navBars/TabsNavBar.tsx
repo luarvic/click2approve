@@ -12,6 +12,10 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tab } from "../../models/tab";
 import { stores } from "../../stores/Stores";
+import {
+  LIST_ITEM_ICON_SX,
+  LIST_ITEM_TEXT_SX,
+} from "../../stores/constantsStore";
 
 const TabsNavBar = () => {
   const navigate = useNavigate();
@@ -51,10 +55,10 @@ const TabsNavBar = () => {
             handleTabChange(Tab.Files);
           }}
         >
-          <ListItemIcon>
+          <ListItemIcon sx={LIST_ITEM_ICON_SX}>
             <InsertDriveFile />
           </ListItemIcon>
-          <ListItemText primary="Files" />
+          <ListItemText primary="Files" sx={LIST_ITEM_TEXT_SX} />
         </ListItemButton>
         <ListItemButton
           key="Inbox"
@@ -63,7 +67,7 @@ const TabsNavBar = () => {
             handleTabChange(Tab.Inbox);
           }}
         >
-          <ListItemIcon>
+          <ListItemIcon sx={LIST_ITEM_ICON_SX}>
             <Badge
               badgeContent={stores.taskStore.numberOfUncompletedTasks}
               color="error"
@@ -71,7 +75,7 @@ const TabsNavBar = () => {
               <Inbox />
             </Badge>
           </ListItemIcon>
-          <ListItemText primary="Inbox" />
+          <ListItemText primary="Inbox" sx={LIST_ITEM_TEXT_SX} />
         </ListItemButton>
         <ListItemButton
           key="Archive"
@@ -80,10 +84,10 @@ const TabsNavBar = () => {
             handleTabChange(Tab.Archive);
           }}
         >
-          <ListItemIcon>
+          <ListItemIcon sx={LIST_ITEM_ICON_SX}>
             <Archive />
           </ListItemIcon>
-          <ListItemText primary="Archive" />
+          <ListItemText primary="Archive" sx={LIST_ITEM_TEXT_SX} />
         </ListItemButton>
         <ListItemButton
           key="Sent"
@@ -92,10 +96,10 @@ const TabsNavBar = () => {
             handleTabChange(Tab.Sent);
           }}
         >
-          <ListItemIcon>
+          <ListItemIcon sx={LIST_ITEM_ICON_SX}>
             <Send />
           </ListItemIcon>
-          <ListItemText primary="Sent" />
+          <ListItemText primary="Sent" sx={LIST_ITEM_TEXT_SX} />
         </ListItemButton>
       </List>
     </Box>
