@@ -32,7 +32,7 @@ const ConfirmEmailPage = () => {
 
   return (
     <>
-      <Box sx={{ p: 2 }}>{message}</Box>;
+      <Box sx={{ p: 2 }}>{message}</Box>
       <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.modal + 1 }}
         open={isLoading}

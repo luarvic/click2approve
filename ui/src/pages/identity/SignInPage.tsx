@@ -2,8 +2,14 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Box,
   Container,
+  FormControl,
+  FormHelperText,
   Grid,
+  IconButton,
+  InputAdornment,
+  InputLabel,
   Link,
+  OutlinedInput,
   TextField,
   Typography,
 } from "@mui/material";
@@ -15,13 +21,23 @@ import { Credentials } from "../../models/credentials";
 import { stores } from "../../stores/Stores";
 import { DEFAULT_PATH } from "../../stores/constantsStore";
 import { validateEmail } from "../../utils/validators";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const SignInPage = () => {
+  const [showPassword, setShowPassword] = React.useState(false);
   const [emailError, setEmailError] = useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault();
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -79,19 +95,33 @@ const SignInPage = () => {
             helperText={emailError && "Invalid email address"}
             onChange={() => setEmailError(false)}
           />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-            error={passwordError}
-            helperText={passwordError && "Password cannot be empty"}
-            onChange={() => setPasswordError(false)}
-          />
+          <FormControl margin="normal" fullWidth variant="outlined">
+            <InputLabel htmlFor="outlined-adornment-password">
+              Password
+            </InputLabel>
+            <OutlinedInput
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
+              label="Password"
+              onChange={() => setPasswordError(false)}
+            />
+            <FormHelperText error id="passwordError">
+              {passwordError && "Password cannot be empty"}
+            </FormHelperText>
+          </FormControl>
           <LoadingButton
             loading={isLoading}
             type="submit"

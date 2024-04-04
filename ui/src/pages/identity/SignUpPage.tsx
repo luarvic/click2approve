@@ -1,9 +1,16 @@
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Box,
   Container,
+  FormControl,
+  FormHelperText,
   Grid,
+  IconButton,
+  InputAdornment,
+  InputLabel,
   Link,
+  OutlinedInput,
   TextField,
   Typography,
 } from "@mui/material";
@@ -21,12 +28,25 @@ import {
 import { validateEmail, validatePassword } from "../../utils/validators";
 
 const SignUpPage = () => {
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [showPasswordConfirmation, setShowPasswordConfirmation] =
+    React.useState(false);
   const [emailError, setEmailError] = useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<boolean>(false);
   const [passwordConfirmationError, setPasswordConfirmationError] =
     useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const handleClickShowPasswordConfirmation = () =>
+    setShowPasswordConfirmation((show) => !show);
+
+  const handleMouseDownPassword = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault();
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -110,39 +130,66 @@ const SignUpPage = () => {
             helperText={emailError && "Invalid email address"}
             onChange={() => setEmailError(false)}
           />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            error={passwordError}
-            helperText={passwordError && PASSWORD_VALIDATOR_ERROR}
-            onChange={() => {
-              setPasswordError(false);
-              setPasswordConfirmationError(false);
-            }}
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="passwordConfirmation"
-            label="Password confirmation"
-            type="password"
-            id="passwordConfirmation"
-            error={passwordConfirmationError}
-            helperText={
-              !passwordError &&
-              passwordConfirmationError &&
-              "Does not match password"
-            }
-            onChange={() => {
-              setPasswordConfirmationError(false);
-            }}
-          />
+          <FormControl margin="normal" fullWidth variant="outlined">
+            <InputLabel htmlFor="outlined-adornment-password">
+              Password
+            </InputLabel>
+            <OutlinedInput
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
+              label="Password"
+              onChange={() => setPasswordError(false)}
+            />
+            <FormHelperText error id="passwordError">
+              {passwordError && PASSWORD_VALIDATOR_ERROR}
+            </FormHelperText>
+          </FormControl>
+          <FormControl margin="normal" fullWidth variant="outlined">
+            <InputLabel htmlFor="outlined-adornment-password-confirmation">
+              Password confirmation
+            </InputLabel>
+            <OutlinedInput
+              id="passwordConfirmation"
+              name="passwordConfirmation"
+              type={showPasswordConfirmation ? "text" : "password"}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password confirmation visibility"
+                    onClick={handleClickShowPasswordConfirmation}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showPasswordConfirmation ? (
+                      <VisibilityOff />
+                    ) : (
+                      <Visibility />
+                    )}
+                  </IconButton>
+                </InputAdornment>
+              }
+              label="Password confirmation"
+              onChange={() => setPasswordConfirmationError(false)}
+            />
+            <FormHelperText error id="passwordConfirmationError">
+              {!passwordError &&
+                passwordConfirmationError &&
+                "Does not match password"}
+            </FormHelperText>
+          </FormControl>
           <LoadingButton
             loading={isLoading}
             type="submit"
