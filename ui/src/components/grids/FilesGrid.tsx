@@ -18,8 +18,8 @@ import { stores } from "../../stores/Stores";
 import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../stores/constantsStore";
 import { getHumanReadableRelativeDate } from "../../utils/converters";
 import { downloadUserFile } from "../../utils/downloaders";
-import ButtonSend from "../buttons/ButtonSend";
-import ButtonUpload from "../buttons/ButtonUpload";
+import SendButton from "../buttons/SendButton";
+import UploadButton from "../buttons/UploadButton";
 import ApprovalRequestSubmitDialog from "../dialogs/ApprovalRequestSubmitDialog";
 import UserFileDeleteDialog from "../dialogs/UserFileDeleteDialog";
 import UserFileActionsMenu from "../menus/UserFileActionsMenu";
@@ -36,8 +36,8 @@ const FilesGrid = () => {
   const customToolbar = () => {
     return (
       <GridToolbarContainer>
-        <ButtonUpload />
-        <ButtonSend />
+        <UploadButton />
+        <SendButton />
         <GridToolbarColumnsButton />
         <GridToolbarFilterButton />
         <GridToolbarDensitySelector />
@@ -83,6 +83,8 @@ const FilesGrid = () => {
     {
       field: "action",
       headerName: "Action",
+      headerAlign: "right",
+      align: "right",
       flex: 1,
       renderCell: (params) => {
         return <UserFileActionsMenu userFile={params.row} />;

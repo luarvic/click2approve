@@ -8,6 +8,7 @@ import {
 import { observer } from "mobx-react-lite";
 import { stores } from "../../stores/Stores";
 import UserFilesList from "../lists/UserFilesList";
+import CommentPaper from "../papers/CommentPaper";
 import ApprovalSteps from "../steps/ApprovalSteps";
 
 const ApprovalRequestViewDialog = () => {
@@ -24,15 +25,16 @@ const ApprovalRequestViewDialog = () => {
     >
       <DialogTitle>Track approval request</DialogTitle>
       <DialogContent dividers>
-        {stores.approvalRequestStore.currentApprovalRequest && (
-          <UserFilesList
-            userFiles={
-              stores.approvalRequestStore.currentApprovalRequest.userFiles
-            }
-            direction="column"
-            sx={{ mb: 1 }}
-          />
-        )}
+        <UserFilesList
+          userFiles={
+            stores.approvalRequestStore.currentApprovalRequest?.userFiles
+          }
+          direction="column"
+          sx={{ mb: 1 }}
+        />
+        <CommentPaper
+          text={stores.approvalRequestStore.currentApprovalRequest?.comment}
+        />
         {stores.approvalRequestStore.currentApprovalRequest && (
           <ApprovalSteps
             approvalRequest={stores.approvalRequestStore.currentApprovalRequest}

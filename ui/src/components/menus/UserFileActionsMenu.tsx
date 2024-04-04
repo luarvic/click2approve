@@ -26,7 +26,7 @@ const UserFileActionsMenu: React.FC<IUserFileActionsMenuProps> = ({
   };
 
   return (
-    <Box textAlign="right">
+    <Box>
       <IconButton
         id="basic-button"
         aria-controls={open ? "basic-menu" : undefined}

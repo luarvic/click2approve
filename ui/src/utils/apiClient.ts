@@ -34,6 +34,11 @@ axios.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
+    originalRequest.url &&
+      stores.commonStore.updateLoadingCounter(
+        getLoaderName(originalRequest),
+        -1
+      );
     if (
       error.response.status === 401 &&
       originalRequest.url !== "api/account/refresh" &&
@@ -55,8 +60,6 @@ axios.interceptors.response.use(
         window.location.href = "/signIn";
       }
     }
-    error.config.url &&
-      stores.commonStore.updateLoadingCounter(getLoaderName(error.config), -1);
     return Promise.reject(error);
   }
 );

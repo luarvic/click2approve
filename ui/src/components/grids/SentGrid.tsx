@@ -1,5 +1,4 @@
-import { Check, Close, Loop, QuestionMark } from "@mui/icons-material";
-import { Box, LinearProgress, Tooltip } from "@mui/material";
+import { Box, LinearProgress } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -21,6 +20,7 @@ import {
   getHumanReadableRelativeDate,
   getLocaleDateTimeString,
 } from "../../utils/converters";
+import StatusButton from "../buttons/StatusButton";
 import ApprovalRequestDeleteDialog from "../dialogs/ApprovalRequestDeleteDialog";
 import ApprovalRequestViewDialog from "../dialogs/ApprovalRequestViewDialog";
 import ApproversList from "../lists/ApproversList";
@@ -46,19 +46,6 @@ const SentGrid = () => {
     );
   };
 
-  const renderStatus = (status: ApprovalStatus) => {
-    switch (status) {
-      case 0:
-        return <Loop />;
-      case 1:
-        return <Check />;
-      case 2:
-        return <Close />;
-      default:
-        return <QuestionMark />;
-    }
-  };
-
   const columns: GridColDef[] = [
     {
       field: "submittedDate",
@@ -71,11 +58,7 @@ const SentGrid = () => {
       headerName: "Status",
       flex: 1,
       renderCell: (params) => {
-        return (
-          <Tooltip title={ApprovalStatus[params.row.status]}>
-            {renderStatus(params.row.status)}
-          </Tooltip>
-        );
+        return <StatusButton status={params.row.status} />;
       },
       valueGetter: (_value, row) => ApprovalStatus[row.status],
     },
@@ -113,6 +96,8 @@ const SentGrid = () => {
     {
       field: "action",
       headerName: "Action",
+      headerAlign: "right",
+      align: "right",
       flex: 1,
       renderCell: (params) => {
         return <ApprovalRequestActionsMenu approvalRequest={params.row} />;

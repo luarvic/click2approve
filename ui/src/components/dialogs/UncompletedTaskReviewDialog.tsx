@@ -18,8 +18,9 @@ import { Tab } from "../../models/tab";
 import { stores } from "../../stores/Stores";
 import { taskComplete } from "../../utils/apiClient";
 import UserFilesList from "../lists/UserFilesList";
+import CommentPaper from "../papers/CommentPaper";
 
-const TaskReviewDialog = () => {
+const UncompletedTaskReviewDialog = () => {
   const [decisionError, setDecisionError] = useState(false);
 
   const cleanUp = () => {
@@ -66,12 +67,16 @@ const TaskReviewDialog = () => {
     >
       <DialogTitle>Review the file(s)</DialogTitle>
       <DialogContent dividers>
-        {stores.taskStore.currentTask && (
+        <>
           <UserFilesList
-            userFiles={stores.taskStore.currentTask.approvalRequest.userFiles}
+            userFiles={stores.taskStore.currentTask?.approvalRequest.userFiles}
             direction="column"
+            sx={{ mb: 1 }}
           />
-        )}
+          <CommentPaper
+            text={stores.taskStore.currentTask?.approvalRequest.comment}
+          />
+        </>
         <FormControl key="decision" error={decisionError}>
           <RadioGroup
             row
@@ -120,4 +125,4 @@ const TaskReviewDialog = () => {
   );
 };
 
-export default observer(TaskReviewDialog);
+export default observer(UncompletedTaskReviewDialog);

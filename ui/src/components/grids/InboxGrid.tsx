@@ -19,7 +19,7 @@ import {
   getHumanReadableRelativeDate,
   getLocaleDateTimeString,
 } from "../../utils/converters";
-import TaskReviewDialog from "../dialogs/TaskReviewDialog";
+import UncompletedTaskReviewDialog from "../dialogs/UncompletedTaskReviewDialog";
 import UserFilesList from "../lists/UserFilesList";
 import TaskActionsMenu from "../menus/TaskActionsMenu";
 import NoRowsOverlay from "../overlays/NoRowsOverlay";
@@ -86,6 +86,8 @@ const InboxGrid = () => {
     {
       field: "action",
       headerName: "Action",
+      headerAlign: "right",
+      align: "right",
       flex: 1,
       renderCell: (params) => {
         return <TaskActionsMenu task={params.row} />;
@@ -121,7 +123,7 @@ const InboxGrid = () => {
           stores.commonStore.isLoading("post_api/task/complete")
         }
       />
-      <TaskReviewDialog />
+      <UncompletedTaskReviewDialog />
     </Box>
   );
 };

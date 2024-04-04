@@ -3,7 +3,7 @@ import { IUserFile } from "../../models/userFile";
 import { downloadUserFile } from "../../utils/downloaders";
 
 interface IUserFilesListProps {
-  userFiles: IUserFile[];
+  userFiles?: IUserFile[];
   direction: "row" | "row-reverse" | "column" | "column-reverse" | undefined;
   sx?: SxProps;
 }
@@ -19,17 +19,18 @@ const UserFilesList: React.FC<IUserFilesListProps> = ({
       direction={direction}
       justifyContent="flex-start"
       alignItems="flex-start"
-      sx={{ ...sx, overflow: "hidden" }}
+      sx={{ overflow: "hidden", ...sx }}
     >
-      {userFiles.map((userFile, index) => (
-        <Link
-          key={index}
-          component="button"
-          onClick={() => downloadUserFile(userFile)}
-        >
-          {userFile.name}
-        </Link>
-      ))}
+      {userFiles &&
+        userFiles.map((userFile, index) => (
+          <Link
+            key={index}
+            component="button"
+            onClick={() => downloadUserFile(userFile)}
+          >
+            {userFile.name}
+          </Link>
+        ))}
     </Stack>
   );
 };

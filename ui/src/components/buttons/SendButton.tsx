@@ -3,7 +3,7 @@ import { Button } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { stores } from "../../stores/Stores";
 
-const ButtonSend = () => {
+const SendButton = () => {
   return (
     <Button
       size="small"
@@ -21,4 +21,4 @@ const ButtonSend = () => {
   );
 };
 
-export default observer(ButtonSend);
+export default observer(SendButton);

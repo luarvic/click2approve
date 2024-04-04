@@ -24,7 +24,7 @@ const TaskActionsMenu: React.FC<ITaskActionsMenuProps> = ({ task }) => {
   };
 
   return (
-    <Box textAlign="right">
+    <Box>
       <IconButton
         id="basic-button"
         aria-controls={open ? "basic-menu" : undefined}

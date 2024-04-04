@@ -1,16 +1,15 @@
 import {
   Box,
-  Paper,
   Step,
   StepContent,
   StepLabel,
   Stepper,
   SxProps,
-  Typography,
 } from "@mui/material";
 import { IApprovalRequest } from "../../models/approvalRequest";
 import { ApprovalStatus } from "../../models/approvalStatus";
 import { getLocaleDateTimeString } from "../../utils/converters";
+import CommentPaper from "../papers/CommentPaper";
 
 interface IApprovalStepsProps {
   approvalRequest: IApprovalRequest;
@@ -21,23 +20,6 @@ const ApprovalSteps: React.FC<IApprovalStepsProps> = ({
   approvalRequest,
   sx,
 }) => {
-  const renderComment = (comment: string | undefined) => {
-    return (
-      <Box>
-        {comment && (
-          <Box>
-            <Typography>with comment:</Typography>
-            <Paper sx={{ p: 1, mt: 1 }} elevation={3}>
-              {(comment.split(/\r?\n/) as string[]).map((line, index) => (
-                <Box key={index}>{line}</Box>
-              ))}
-            </Paper>
-          </Box>
-        )}
-      </Box>
-    );
-  };
-
   let steps: JSX.Element[] = [];
   const completedTasks = approvalRequest.tasks.filter((t) => t.completed);
   completedTasks.sort(
@@ -51,10 +33,8 @@ const ApprovalSteps: React.FC<IApprovalStepsProps> = ({
         </StepLabel>
         {task.completedDate && (
           <StepContent>
-            <Typography>{`on ${getLocaleDateTimeString(
-              task.completedDate
-            )}`}</Typography>
-            {renderComment(task.comment)}
+            {`on ${getLocaleDateTimeString(task.completedDate)}`}
+            <CommentPaper text={task.comment} sx={{ mt: 1 }} />
           </StepContent>
         )}
       </Step>

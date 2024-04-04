@@ -4,7 +4,7 @@ import { observer } from "mobx-react-lite";
 import { ChangeEvent, useRef } from "react";
 import { stores } from "../../stores/Stores";
 
-const ButtonUpload = () => {
+const UploadButton = () => {
   const hiddenFileInput = useRef<HTMLInputElement>(null);
   const handleUploadClick = () => {
     if (hiddenFileInput.current) {
@@ -42,4 +42,4 @@ const ButtonUpload = () => {
   );
 };
 
-export default observer(ButtonUpload);
+export default observer(UploadButton);

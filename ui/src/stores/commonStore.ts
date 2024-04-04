@@ -32,8 +32,10 @@ export class CommonStore {
 
   updateLoadingCounter = (loader: string, delta: number): void => {
     runInAction(() => {
-      this.loadingCounter[loader] = this.loadingCounter[loader] ?? 0;
-      this.loadingCounter[loader] += delta;
+      try {
+        this.loadingCounter[loader] = this.loadingCounter[loader] ?? 0;
+        this.loadingCounter[loader] += delta;
+      } catch {}
     });
   };
 
