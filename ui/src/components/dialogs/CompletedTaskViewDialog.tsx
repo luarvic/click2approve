@@ -8,11 +8,13 @@ import {
   FormControlLabel,
   Radio,
   RadioGroup,
+  Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { ApprovalStatus } from "../../models/approvalStatus";
 import { stores } from "../../stores/Stores";
+import { getLocaleDateTimeString } from "../../utils/converters";
 import UserFilesList from "../lists/UserFilesList";
 import CommentPaper from "../papers/CommentPaper";
 
@@ -68,6 +70,9 @@ const CompletedTaskViewDialog = () => {
             />
           </RadioGroup>
         </FormControl>
+        <Typography>{`on ${getLocaleDateTimeString(
+          stores.taskStore.currentTask?.completedDate
+        )}`}</Typography>
         <CommentPaper
           text={stores.taskStore.currentTask?.comment}
           sx={{ mt: 1 }}

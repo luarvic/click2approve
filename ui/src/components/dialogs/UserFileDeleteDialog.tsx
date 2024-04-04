@@ -3,8 +3,8 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
+  Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { stores } from "../../stores/Stores";
@@ -35,15 +35,15 @@ const UserFileDeleteDialog = () => {
     >
       <DialogTitle>Delete file</DialogTitle>
       <DialogContent dividers>
-        <DialogContentText>
+        <Typography>
           Are you sure you want to delete the following file together with all
           related approval requests?
-        </DialogContentText>
+        </Typography>
         {stores.fileStore.currentUserFile && (
           <UserFilesList
             userFiles={[stores.fileStore.currentUserFile]}
             direction="column"
-            sx={{ my: 1 }}
+            sx={{ mb: 1 }}
           />
         )}
       </DialogContent>
