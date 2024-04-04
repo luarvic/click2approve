@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace api.Models;
 
 // Represents a user's file.
@@ -10,4 +12,9 @@ public class UserFile
     public required string Owner { get; set; }
     public required long Size { get; set; }
     public List<ApprovalRequest> ApprovalRequests { get; set; } = [];
+
+    public override string ToString()
+    {
+        return JsonConvert.SerializeObject(this, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+    }
 }

@@ -8,8 +8,8 @@ import {
 import { observer } from "mobx-react-lite";
 import { stores } from "../../stores/Stores";
 import { approvalRequestDelete } from "../../utils/apiClient";
-import { UserFilesList } from "../lists/UserFilesList";
-import { ApprovalSteps } from "../steps/ApprovalSteps";
+import UserFilesList from "../lists/UserFilesList";
+import ApprovalSteps from "../steps/ApprovalSteps";
 
 const ApprovalRequestDeleteDialog = () => {
   const handleClose = () => {
@@ -42,6 +42,7 @@ const ApprovalRequestDeleteDialog = () => {
             userFiles={
               stores.approvalRequestStore.currentApprovalRequest.userFiles
             }
+            direction="column"
             sx={{ mb: 1 }}
           />
         )}

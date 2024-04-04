@@ -45,7 +45,7 @@ public class ApprovalRequestTaskController(
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Unable to complete approval request task.");
+            _logger.LogError(e, "Unable to complete an approval request task.");
             return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }
@@ -69,7 +69,7 @@ public class ApprovalRequestTaskController(
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Unable to list approval request tasks.");
+            _logger.LogError(e, "Unable to list uncompleted approval request tasks.");
             return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }
@@ -93,7 +93,7 @@ public class ApprovalRequestTaskController(
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Unable to list approval request tasks.");
+            _logger.LogError(e, "Unable to list completed approval request tasks.");
             return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }

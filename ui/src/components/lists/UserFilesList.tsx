@@ -4,16 +4,19 @@ import { downloadUserFile } from "../../utils/downloaders";
 
 interface IUserFilesListProps {
   userFiles: IUserFile[];
+  direction: "row" | "row-reverse" | "column" | "column-reverse" | undefined;
   sx?: SxProps;
 }
 
-export const UserFilesList: React.FC<IUserFilesListProps> = ({
+const UserFilesList: React.FC<IUserFilesListProps> = ({
   userFiles,
+  direction,
   sx,
 }) => {
   return (
     <Stack
-      direction="column"
+      spacing={1}
+      direction={direction}
       justifyContent="flex-start"
       alignItems="flex-start"
       sx={{ ...sx, overflow: "hidden" }}
@@ -30,3 +33,5 @@ export const UserFilesList: React.FC<IUserFilesListProps> = ({
     </Stack>
   );
 };
+
+export default UserFilesList;

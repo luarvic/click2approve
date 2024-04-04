@@ -17,7 +17,7 @@ import { toast } from "react-toastify";
 import { stores } from "../../stores/Stores";
 import { approvalRequestSubmit } from "../../utils/apiClient";
 import { validateEmails } from "../../utils/validators";
-import { UserFilesList } from "../lists/UserFilesList";
+import UserFilesList from "../lists/UserFilesList";
 
 const ApprovalRequestSubmitDialog = () => {
   const [approvers, setApprovers] = useState<string[]>([]);
@@ -86,7 +86,10 @@ const ApprovalRequestSubmitDialog = () => {
     >
       <DialogTitle>Send for review</DialogTitle>
       <DialogContent dividers>
-        <UserFilesList userFiles={stores.fileStore.getSelectedUserFiles()} />
+        <UserFilesList
+          userFiles={stores.fileStore.getSelectedUserFiles()}
+          direction="column"
+        />
         <Autocomplete
           multiple
           options={[]}

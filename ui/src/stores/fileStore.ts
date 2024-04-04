@@ -3,19 +3,22 @@ import { IUserFile } from "../models/userFile";
 import { fileList, fileUpload } from "../utils/apiClient";
 
 export class FileStore {
-  registry: Map<string, IUserFile>;
+  registry: Map<number, IUserFile>;
+  currentUserFile: IUserFile | null;
+
+  constructor(
+    userFilesRegistry: Map<number, IUserFile> = new Map<number, IUserFile>(),
+    currentUserFile = null
+  ) {
+    this.registry = userFilesRegistry;
+    this.currentUserFile = currentUserFile;
+    makeAutoObservable(this);
+  }
 
   get userFiles(): IUserFile[] {
     return Array.from(this.registry.values()).sort(
       (a, b) => b.createdDate.getTime() - a.createdDate.getTime()
     );
-  }
-
-  constructor(
-    userFilesRegistry: Map<string, IUserFile> = new Map<string, IUserFile>()
-  ) {
-    this.registry = userFilesRegistry;
-    makeAutoObservable(this);
   }
 
   loadUserFiles = async () => {
@@ -44,7 +47,7 @@ export class FileStore {
     });
   };
 
-  handleUserFileCheckbox = (ids: string[]) => {
+  handleUserFileCheckbox = (ids: number[]) => {
     this.registry.forEach((userFile) => {
       const checkedInUi = ids.includes(userFile.id);
       if (checkedInUi !== userFile.checked) {
@@ -59,5 +62,11 @@ export class FileStore {
     return Array.from(this.registry.values()).filter(
       (userFile) => userFile.checked
     );
+  };
+
+  setCurrentUSerFile = (userFile: IUserFile | null) => {
+    runInAction(() => {
+      this.currentUserFile = userFile;
+    });
   };
 }

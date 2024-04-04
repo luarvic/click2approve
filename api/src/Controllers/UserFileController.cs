@@ -32,7 +32,6 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     /// <response code="401">If authorization failed.</response>
     /// <response code="500">If request failed.</response>
     [HttpPost("upload")]
-    [RequestSizeLimit(1_000_000)]
     public async Task<ActionResult<List<UserFile>>> UploadAsync([FromForm] IFormFileCollection files, CancellationToken cancellationToken)
     {
         try
@@ -121,6 +120,30 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
         catch (Exception e)
         {
             _logger.LogError(e, "Unable to download a file with id {id}.", id);
+            return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+        }
+    }
+
+    /// <summary>
+    /// Deletes a file.
+    /// </summary>
+    /// <param name="id">An ID of the file to delete.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <response code="200">If request succeeded.</response>
+    /// <response code="401">If authorization failed.</response>
+    /// <response code="500">If request failed.</response>
+    [HttpDelete()]
+    public async Task<IActionResult> DeleteAsync(long id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
+            await _userFileService.DeleteAsync(user, id, cancellationToken);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Unable to delete a file with id {id}.", id);
             return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }

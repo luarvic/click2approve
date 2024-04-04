@@ -22,7 +22,7 @@ import {
   getLocaleDateTimeString,
 } from "../../utils/converters";
 import TaskReviewDialog from "../dialogs/TaskReviewDialog";
-import { UserFilesList } from "../lists/UserFilesList";
+import UserFilesList from "../lists/UserFilesList";
 import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
 const ArchiveGrid = () => {
@@ -110,7 +110,10 @@ const ArchiveGrid = () => {
           .join(", "),
       renderCell: (params) => {
         return (
-          <UserFilesList userFiles={params.row.approvalRequest.userFiles} />
+          <UserFilesList
+            userFiles={params.row.approvalRequest.userFiles}
+            direction="row"
+          />
         );
       },
     },

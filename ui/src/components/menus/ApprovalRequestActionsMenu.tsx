@@ -1,5 +1,5 @@
 import { ArrowDropDownCircle } from "@mui/icons-material";
-import { IconButton, Menu, MenuItem } from "@mui/material";
+import { Box, IconButton, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
 import { IApprovalRequest } from "../../models/approvalRequest";
 import { stores } from "../../stores/Stores";
@@ -8,7 +8,7 @@ interface IApprovalRequestActionsMenuProps {
   approvalRequest: IApprovalRequest;
 }
 
-export const ApprovalRequestActionsMenu: React.FC<
+const ApprovalRequestActionsMenu: React.FC<
   IApprovalRequestActionsMenuProps
 > = ({ approvalRequest }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -31,7 +31,7 @@ export const ApprovalRequestActionsMenu: React.FC<
   };
 
   return (
-    <div>
+    <Box textAlign="right">
       <IconButton
         id="basic-button"
         aria-controls={open ? "basic-menu" : undefined}
@@ -53,6 +53,8 @@ export const ApprovalRequestActionsMenu: React.FC<
         <MenuItem onClick={handleView}>Track</MenuItem>
         <MenuItem onClick={handleDelete}>Delete</MenuItem>
       </Menu>
-    </div>
+    </Box>
   );
 };
+
+export default ApprovalRequestActionsMenu;

@@ -23,9 +23,9 @@ import {
 } from "../../utils/converters";
 import ApprovalRequestDeleteDialog from "../dialogs/ApprovalRequestDeleteDialog";
 import ApprovalRequestViewDialog from "../dialogs/ApprovalRequestViewDialog";
-import { ApproversList } from "../lists/ApproversList";
-import { UserFilesList } from "../lists/UserFilesList";
-import { ApprovalRequestActionsMenu } from "../menus/ApprovalRequestActionsMenu";
+import ApproversList from "../lists/ApproversList";
+import UserFilesList from "../lists/UserFilesList";
+import ApprovalRequestActionsMenu from "../menus/ApprovalRequestActionsMenu";
 import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
 const SentGrid = () => {
@@ -93,7 +93,9 @@ const SentGrid = () => {
       valueGetter: (value: string[]) =>
         value.map((approver) => approver.toLowerCase()).join(", "),
       renderCell: (params) => {
-        return <ApproversList approvers={params.row.approvers} />;
+        return (
+          <ApproversList approvers={params.row.approvers} direction="row" />
+        );
       },
     },
     {
@@ -103,7 +105,9 @@ const SentGrid = () => {
       valueGetter: (value: IUserFile[]) =>
         value.map((userFile) => userFile.name).join(", "),
       renderCell: (params) => {
-        return <UserFilesList userFiles={params.row.userFiles} />;
+        return (
+          <UserFilesList userFiles={params.row.userFiles} direction="row" />
+        );
       },
     },
     {

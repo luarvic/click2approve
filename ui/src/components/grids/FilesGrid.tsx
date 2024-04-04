@@ -21,6 +21,8 @@ import { downloadUserFile } from "../../utils/downloaders";
 import ButtonSend from "../buttons/ButtonSend";
 import ButtonUpload from "../buttons/ButtonUpload";
 import ApprovalRequestSubmitDialog from "../dialogs/ApprovalRequestSubmitDialog";
+import UserFileDeleteDialog from "../dialogs/UserFileDeleteDialog";
+import UserFileActionsMenu from "../menus/UserFileActionsMenu";
 import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
 // Data grid with user files.
@@ -78,6 +80,14 @@ const FilesGrid = () => {
       flex: 2,
       valueFormatter: (value) => prettyBytes(value),
     },
+    {
+      field: "action",
+      headerName: "Action",
+      flex: 1,
+      renderCell: (params) => {
+        return <UserFileActionsMenu userFile={params.row} />;
+      },
+    },
   ];
 
   return (
@@ -96,7 +106,7 @@ const FilesGrid = () => {
         checkboxSelection
         disableRowSelectionOnClick
         onRowSelectionModelChange={(items) =>
-          stores.fileStore.handleUserFileCheckbox(items as string[])
+          stores.fileStore.handleUserFileCheckbox(items as number[])
         }
         slots={{
           toolbar: customToolbar,
@@ -109,10 +119,12 @@ const FilesGrid = () => {
         autoHeight
         loading={
           stores.commonStore.isLoading("get_api/file/list") ||
-          stores.commonStore.isLoading("post_api/file/upload")
+          stores.commonStore.isLoading("post_api/file/upload") ||
+          stores.commonStore.isLoading("delete_api/file")
         }
       />
       <ApprovalRequestSubmitDialog />
+      <UserFileDeleteDialog />
     </Box>
   );
 };

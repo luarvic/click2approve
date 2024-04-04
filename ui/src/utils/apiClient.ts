@@ -213,6 +213,14 @@ export const fileDownloadBase64 = async (
   }
 };
 
+export const fileDelete = async (id: number): Promise<void> => {
+  try {
+    await axios.delete(`api/file?id=${id}`);
+  } catch (e) {
+    toast.error(getUserFriendlyApiErrorMessage(e));
+  }
+};
+
 export const approvalRequestSubmit = async (
   files: IUserFile[],
   approvers: string[],

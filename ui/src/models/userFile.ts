@@ -1,5 +1,5 @@
 export interface IUserFile {
-  id: string;
+  id: number;
   name: string;
   type: string;
   created: string;

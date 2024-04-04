@@ -9,6 +9,7 @@ export class CommonStore {
   approvalRequestViewDialogIsOpen: boolean;
   approvalRequestDeleteDialogIsOpen: boolean;
   taskReviewDialogIsOpen: boolean;
+  userFileDeleteDialogIsOpen: boolean;
 
   constructor(
     currentTab?: Tab,
@@ -16,7 +17,8 @@ export class CommonStore {
     approvalRequestSubmitDialogIsOpen: boolean = false,
     approvalRequestViewDialogIsOpen: boolean = false,
     approvalRequestDeleteDialogIsOpen: boolean = false,
-    taskReviewDialogIsOpen: boolean = false
+    taskReviewDialogIsOpen: boolean = false,
+    userFileDeleteDialogIsOpen: boolean = false
   ) {
     this.currentTab = currentTab;
     this.loadingCounter = loadingCounter;
@@ -24,6 +26,7 @@ export class CommonStore {
     this.approvalRequestViewDialogIsOpen = approvalRequestViewDialogIsOpen;
     this.approvalRequestDeleteDialogIsOpen = approvalRequestDeleteDialogIsOpen;
     this.taskReviewDialogIsOpen = taskReviewDialogIsOpen;
+    this.userFileDeleteDialogIsOpen = userFileDeleteDialogIsOpen;
     makeAutoObservable(this);
   }
 
@@ -35,7 +38,7 @@ export class CommonStore {
   };
 
   isLoading = (loader: string): boolean => {
-    this.loadingCounter
+    this.loadingCounter;
     return (
       !isNaN(this.loadingCounter[loader]) && this.loadingCounter[loader] > 0
     );
@@ -68,6 +71,12 @@ export class CommonStore {
   setTaskReviewDialogIsOpen = (isOpen: boolean) => {
     runInAction(() => {
       this.taskReviewDialogIsOpen = isOpen;
+    });
+  };
+
+  setUserFileDeleteDialogIsOpen = (isOpen: boolean) => {
+    runInAction(() => {
+      this.userFileDeleteDialogIsOpen = isOpen;
     });
   };
 }

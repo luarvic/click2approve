@@ -45,7 +45,7 @@ public class ApprovalRequestController(
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Unable to submit approval request.");
+            _logger.LogError(e, "Unable to submit an approval request.");
             return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }
@@ -59,7 +59,7 @@ public class ApprovalRequestController(
     /// <response code="401">If authorization failed.</response>
     /// <response code="500">If request failed.</response>
     [HttpDelete()]
-    public async Task<IActionResult> SubmitAsync(long id, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteAsync(long id, CancellationToken cancellationToken)
     {
         try
         {
@@ -69,7 +69,7 @@ public class ApprovalRequestController(
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Unable to delete approval request {id}.", id);
+            _logger.LogError(e, "Unable to delete an approval request with id {id}.", id);
             return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }

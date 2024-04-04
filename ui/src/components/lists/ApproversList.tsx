@@ -2,16 +2,19 @@ import { Box, Stack, SxProps } from "@mui/material";
 
 interface IApproversListProps {
   approvers: string[];
+  direction: "row" | "row-reverse" | "column" | "column-reverse" | undefined;
   sx?: SxProps;
 }
 
-export const ApproversList: React.FC<IApproversListProps> = ({
+const ApproversList: React.FC<IApproversListProps> = ({
   approvers,
+  direction,
   sx,
 }) => {
   return (
     <Stack
-      direction="column"
+      spacing={1}
+      direction={direction}
       justifyContent="flex-start"
       alignItems="flex-start"
       sx={{ ...sx, overflow: "hidden" }}
@@ -22,3 +25,5 @@ export const ApproversList: React.FC<IApproversListProps> = ({
     </Stack>
   );
 };
+
+export default ApproversList;

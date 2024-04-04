@@ -7,8 +7,8 @@ import {
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { stores } from "../../stores/Stores";
-import { UserFilesList } from "../lists/UserFilesList";
-import { ApprovalSteps } from "../steps/ApprovalSteps";
+import UserFilesList from "../lists/UserFilesList";
+import ApprovalSteps from "../steps/ApprovalSteps";
 
 const ApprovalRequestViewDialog = () => {
   const handleClose = () => {
@@ -29,6 +29,7 @@ const ApprovalRequestViewDialog = () => {
             userFiles={
               stores.approvalRequestStore.currentApprovalRequest.userFiles
             }
+            direction="column"
             sx={{ mb: 1 }}
           />
         )}

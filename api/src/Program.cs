@@ -1,7 +1,6 @@
 using api.Extensions;
 using api.Models;
 using api.Services;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 

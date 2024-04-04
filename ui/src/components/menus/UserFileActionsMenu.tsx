@@ -1,14 +1,16 @@
 import { ArrowDropDownCircle } from "@mui/icons-material";
 import { Box, IconButton, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
-import { IApprovalRequestTask } from "../../models/approvalRequestTask";
+import { IUserFile } from "../../models/userFile";
 import { stores } from "../../stores/Stores";
 
-interface ITaskActionsMenuProps {
-  task: IApprovalRequestTask;
+interface IUserFileActionsMenuProps {
+  userFile: IUserFile;
 }
 
-const TaskActionsMenu: React.FC<ITaskActionsMenuProps> = ({ task }) => {
+const UserFileActionsMenu: React.FC<IUserFileActionsMenuProps> = ({
+  userFile,
+}) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -17,9 +19,9 @@ const TaskActionsMenu: React.FC<ITaskActionsMenuProps> = ({ task }) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const handleReview = () => {
-    stores.taskStore.setCurrentTask(task);
-    stores.commonStore.setTaskReviewDialogIsOpen(true);
+  const handleDelete = () => {
+    stores.fileStore.setCurrentUSerFile(userFile);
+    stores.commonStore.setUserFileDeleteDialogIsOpen(true);
     handleClose();
   };
 
@@ -43,10 +45,10 @@ const TaskActionsMenu: React.FC<ITaskActionsMenuProps> = ({ task }) => {
           "aria-labelledby": "basic-button",
         }}
       >
-        <MenuItem onClick={handleReview}>Review</MenuItem>
+        <MenuItem onClick={handleDelete}>Delete</MenuItem>
       </Menu>
     </Box>
   );
 };
 
-export default TaskActionsMenu;
+export default UserFileActionsMenu;

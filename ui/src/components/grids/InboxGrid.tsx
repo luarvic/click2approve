@@ -20,8 +20,8 @@ import {
   getLocaleDateTimeString,
 } from "../../utils/converters";
 import TaskReviewDialog from "../dialogs/TaskReviewDialog";
-import { UserFilesList } from "../lists/UserFilesList";
-import { TaskActionsMenu } from "../menus/TaskActionsMenu";
+import UserFilesList from "../lists/UserFilesList";
+import TaskActionsMenu from "../menus/TaskActionsMenu";
 import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
 const InboxGrid = () => {
@@ -76,7 +76,10 @@ const InboxGrid = () => {
           .join(", "),
       renderCell: (params) => {
         return (
-          <UserFilesList userFiles={params.row.approvalRequest.userFiles} />
+          <UserFilesList
+            userFiles={params.row.approvalRequest.userFiles}
+            direction="row"
+          />
         );
       },
     },

@@ -17,7 +17,7 @@ interface IApprovalStepsProps {
   sx?: SxProps;
 }
 
-export const ApprovalSteps: React.FC<IApprovalStepsProps> = ({
+const ApprovalSteps: React.FC<IApprovalStepsProps> = ({
   approvalRequest,
   sx,
 }) => {
@@ -79,3 +79,5 @@ export const ApprovalSteps: React.FC<IApprovalStepsProps> = ({
     </Box>
   );
 };
+
+export default ApprovalSteps;

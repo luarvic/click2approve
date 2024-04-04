@@ -8,11 +8,15 @@ namespace api.Services;
 
 // Implements a service that manages user files.
 public class UserFileService(
+    IAuditLogService auditLogService,
+    IApprovalRequestService approvalRequestService,
     IConfiguration configuration,
     ApiDbContext db,
     IStoreService storeService,
     ILogger<UserFileService> logger) : IUserFileService
 {
+    private readonly IAuditLogService _auditLogService = auditLogService;
+    private readonly IApprovalRequestService _approvalRequestService = approvalRequestService;
     private readonly IConfiguration _configuration = configuration;
     private readonly ApiDbContext _db = db;
     private readonly IStoreService _storeService = storeService;
@@ -28,6 +32,12 @@ public class UserFileService(
             {
                 throw new Exception($"Maximum file count ({maxFileCount}) is exceeded.");
             }
+        }
+
+        var maxFileSizeBytes = _configuration.GetValue<int>("Limitations:MaxFileSizeBytes");
+        if (files.Any(file => file.Length > maxFileSizeBytes))
+        {
+            throw new Exception($"Maximum file size ({maxFileSizeBytes} bytes) is exceeded.");
         }
     }
 
@@ -58,6 +68,14 @@ public class UserFileService(
             // Save the file.
             var bytes = await file.ToBytesAsync(cancellationToken);
             await _storeService.AddFileAsync(GetFilePath(user.Id, id, file.FileName), bytes, cancellationToken);
+
+            // Add audit log entry.
+            await _auditLogService.LogAsync(user.NormalizedEmail!,
+                DateTime.UtcNow,
+                "Uploaded user file",
+                userFileEntry.Entity.ToString(),
+                cancellationToken
+            );
         }
 
         return userFiles;
@@ -136,5 +154,30 @@ public class UserFileService(
     {
         var userFiles = await _db.UserFiles.Where(f => f.Owner == user.Id).ToListAsync(cancellationToken);
         return userFiles;
+    }
+
+    public async Task DeleteAsync(AppUser user, long id, CancellationToken cancellationToken)
+    {
+        var userFile = await _db.UserFiles
+            .Include(f => f.ApprovalRequests)
+            .ThenInclude(r => r.Tasks)
+            .FirstAsync(f => f.Id == id && f.Owner == user.Id, cancellationToken);
+        var userFileJson = userFile.ToString();
+        _db.UserFiles.Remove(userFile);
+        await _db.SaveChangesAsync(cancellationToken);
+
+        // Delete related approval requests.
+        foreach (var approvalRequest in userFile.ApprovalRequests)
+        {
+            await _approvalRequestService.DeleteApprovalRequestAsync(user, approvalRequest.Id, cancellationToken);
+        }
+
+        // Add audit log entry.
+        await _auditLogService.LogAsync(user.NormalizedEmail!,
+            DateTime.UtcNow,
+            "Deleted user file",
+            userFileJson,
+            cancellationToken
+        );
     }
 }
