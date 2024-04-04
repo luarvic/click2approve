@@ -21,10 +21,10 @@ import {
   getLocaleDateTimeString,
 } from "../../utils/converters";
 import CompletedTaskViewDialog from "../dialogs/CompletedTaskViewDialog";
+import StatusIcon from "../icons/StatusIcon";
 import UserFilesList from "../lists/UserFilesList";
 import TaskActionsMenu from "../menus/TaskActionsMenu";
 import NoRowsOverlay from "../overlays/NoRowsOverlay";
-import StatusButton from "../buttons/StatusButton";
 
 const ArchiveGrid = () => {
   useEffect(() => {
@@ -57,7 +57,7 @@ const ArchiveGrid = () => {
       headerName: "Status",
       flex: 1,
       renderCell: (params) => {
-        return <StatusButton status={params.row.status} />;
+        return <StatusIcon status={params.row.status} />;
       },
       valueGetter: (_value, row) => ApprovalStatus[row.status],
     },

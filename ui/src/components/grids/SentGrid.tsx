@@ -20,9 +20,9 @@ import {
   getHumanReadableRelativeDate,
   getLocaleDateTimeString,
 } from "../../utils/converters";
-import StatusButton from "../buttons/StatusButton";
 import ApprovalRequestDeleteDialog from "../dialogs/ApprovalRequestDeleteDialog";
 import ApprovalRequestViewDialog from "../dialogs/ApprovalRequestViewDialog";
+import StatusIcon from "../icons/StatusIcon";
 import ApproversList from "../lists/ApproversList";
 import UserFilesList from "../lists/UserFilesList";
 import ApprovalRequestActionsMenu from "../menus/ApprovalRequestActionsMenu";
@@ -58,7 +58,7 @@ const SentGrid = () => {
       headerName: "Status",
       flex: 1,
       renderCell: (params) => {
-        return <StatusButton status={params.row.status} />;
+        return <StatusIcon status={params.row.status} />;
       },
       valueGetter: (_value, row) => ApprovalStatus[row.status],
     },

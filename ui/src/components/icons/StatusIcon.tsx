@@ -3,11 +3,11 @@ import { Tooltip } from "@mui/material";
 import React from "react";
 import { ApprovalStatus } from "../../models/approvalStatus";
 
-interface IStatusButtonProps {
+interface IStatusIconProps {
   status: ApprovalStatus;
 }
 
-const StatusButton: React.FC<IStatusButtonProps> = ({ status }) => {
+const StatusIcon: React.FC<IStatusIconProps> = ({ status }) => {
   const renderStatus = () => {
     switch (status) {
       case 0:
@@ -26,4 +26,4 @@ const StatusButton: React.FC<IStatusButtonProps> = ({ status }) => {
   return <Tooltip title={ApprovalStatus[status]}>{renderStatus()}</Tooltip>;
 };
 
-export default StatusButton;
+export default StatusIcon;
