@@ -1,7 +1,7 @@
 import { Menu, Verified } from "@mui/icons-material";
 import { AppBar, Button, IconButton, Toolbar, Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { stores } from "../../stores/Stores";
+import { stores } from "../../stores/stores";
 
 const MainNavBar = () => {
   return (

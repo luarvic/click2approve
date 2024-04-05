@@ -1,7 +1,7 @@
 import { Send } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { stores } from "../../stores/Stores";
+import { stores } from "../../stores/stores";
 
 const SendButton = () => {
   return (

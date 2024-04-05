@@ -11,7 +11,7 @@ import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { stores } from "../../stores/Stores";
+import { stores } from "../../stores/stores";
 import { validateEmail } from "../../utils/validators";
 
 const ForgotPasswordPage = () => {

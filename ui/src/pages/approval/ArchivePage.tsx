@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite";
 import { Navigate } from "react-router-dom";
 import ArchiveGrid from "../../components/grids/ArchiveGrid";
 import TabsNavBar from "../../components/navBars/TabsNavBar";
-import { stores } from "../../stores/Stores";
+import { stores } from "../../stores/stores";
 
 const ArchivePage = () => {
   return stores.userAccountStore.currentUser ? (

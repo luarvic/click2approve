@@ -10,7 +10,7 @@ import { useEffect } from "react";
 import { ApprovalStatus } from "../../models/approvalStatus";
 import { Tab } from "../../models/tab";
 import { IUserFile } from "../../models/userFile";
-import { stores } from "../../stores/Stores";
+import { stores } from "../../stores/stores";
 import {
   DATA_GRID_DEFAULT_PAGE_SIZE,
   MAX_SIZE_WHEN_DISPLAY,

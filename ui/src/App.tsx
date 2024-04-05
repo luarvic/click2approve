@@ -21,7 +21,7 @@ import HomePage from "./pages/other/HomePage";
 import InformationPage from "./pages/other/InformationPage";
 import NotFoundPage from "./pages/other/NotFoundPage";
 import UserSettingsPage from "./pages/other/UserSettingsPage";
-import { stores } from "./stores/Stores";
+import { stores } from "./stores/stores";
 import {
   TOAST_AUTO_CLOSE,
   TOAST_CLOSE_BUTTON,

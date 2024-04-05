@@ -15,7 +15,7 @@ import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { ApprovalStatus } from "../../models/approvalStatus";
 import { Tab } from "../../models/tab";
-import { stores } from "../../stores/Stores";
+import { stores } from "../../stores/stores";
 import { taskComplete } from "../../utils/apiClient";
 import UserFilesList from "../lists/UserFilesList";
 import CommentPaper from "../papers/CommentPaper";

@@ -18,7 +18,7 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Credentials } from "../../models/credentials";
-import { stores } from "../../stores/Stores";
+import { stores } from "../../stores/stores";
 import { DEFAULT_PATH } from "../../stores/constantsStore";
 import { validateEmail } from "../../utils/validators";
 import { Visibility, VisibilityOff } from "@mui/icons-material";

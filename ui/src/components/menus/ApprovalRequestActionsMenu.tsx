@@ -2,7 +2,7 @@ import { ArrowDropDownCircle } from "@mui/icons-material";
 import { Box, IconButton, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
 import { IApprovalRequest } from "../../models/approvalRequest";
-import { stores } from "../../stores/Stores";
+import { stores } from "../../stores/stores";
 import {
   MENU_SLOT_PROPS,
   MENU_TRANSFORM_ORIGIN,

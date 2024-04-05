@@ -18,7 +18,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Credentials } from "../../models/credentials";
-import { stores } from "../../stores/Stores";
+import { stores } from "../../stores/stores";
 import {
   DEFAULT_PATH,
   PASSWORD_VALIDATOR_ERROR,

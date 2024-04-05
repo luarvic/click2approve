@@ -7,7 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { stores } from "../../stores/Stores";
+import { stores } from "../../stores/stores";
 import { fileDelete } from "../../utils/apiClient";
 import UserFilesList from "../lists/UserFilesList";
 

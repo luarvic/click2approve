@@ -14,7 +14,7 @@ import { Dayjs } from "dayjs";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { stores } from "../../stores/Stores";
+import { stores } from "../../stores/stores";
 import { approvalRequestSubmit } from "../../utils/apiClient";
 import { validateEmails } from "../../utils/validators";
 import UserFilesList from "../lists/UserFilesList";

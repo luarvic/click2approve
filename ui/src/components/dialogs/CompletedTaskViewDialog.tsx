@@ -13,7 +13,7 @@ import {
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { ApprovalStatus } from "../../models/approvalStatus";
-import { stores } from "../../stores/Stores";
+import { stores } from "../../stores/stores";
 import { getLocaleDateTimeString } from "../../utils/converters";
 import UserFilesList from "../lists/UserFilesList";
 import CommentPaper from "../papers/CommentPaper";

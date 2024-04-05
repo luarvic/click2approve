@@ -2,7 +2,7 @@ import { CloudUpload } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, useRef } from "react";
-import { stores } from "../../stores/Stores";
+import { stores } from "../../stores/stores";
 
 const UploadButton = () => {
   const hiddenFileInput = useRef<HTMLInputElement>(null);

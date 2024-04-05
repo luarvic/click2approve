@@ -7,7 +7,7 @@ import { IAuthResponse } from "../models/authResponse";
 import { ICredentials } from "../models/credentials";
 import { IUserAccount } from "../models/userAccount";
 import { IUserFile } from "../models/userFile";
-import { stores } from "../stores/Stores";
+import { stores } from "../stores/stores";
 import { API_URI } from "../stores/constantsStore";
 import { deleteTokens, readTokens, writeTokens } from "./cacheClient";
 import { getLoaderName, getUserFriendlyApiErrorMessage } from "./converters";
