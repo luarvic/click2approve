@@ -11,7 +11,9 @@ const CommentPaper: React.FC<ICommentProps> = ({ text, sx }) => {
       {text && (
         <Paper sx={{ p: 1, mb: 1, ...sx }} variant="outlined">
           {(text.split(/\r?\n/) as string[]).map((line, index) => (
-            <Box key={index}>{line}</Box>
+            <Box key={index} sx={{ fontStyle: "italic" }}>
+              {line}
+            </Box>
           ))}
         </Paper>
       )}

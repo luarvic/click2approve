@@ -56,7 +56,6 @@ const ForgotPasswordPage = () => {
           component="form"
           onSubmit={handleSubmit}
           noValidate
-          sx={{ mt: 1, width: 400 }}
         >
           <TextField
             margin="normal"

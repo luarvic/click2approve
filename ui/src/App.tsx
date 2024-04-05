@@ -15,6 +15,7 @@ import ResendConfirmationEmailPage from "./pages/identity/ResendConfirmationEmai
 import ResetPasswordPage from "./pages/identity/ResetPasswordPage";
 import SignInPage from "./pages/identity/SignInPage";
 import SignUpPage from "./pages/identity/SignUpPage";
+import HelpPage from "./pages/other/HelpPage";
 import HomePage from "./pages/other/HomePage";
 import InformationPage from "./pages/other/InformationPage";
 import NotFoundPage from "./pages/other/NotFoundPage";
@@ -41,6 +42,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<MainLayout />}>
               <Route index element={<HomePage />} />
+              <Route path="help" element={<HelpPage />} />
               <Route path="/signIn" element={<SignInPage />} />
               <Route path="/forgotPassword" element={<ForgotPasswordPage />} />
               <Route path="/signUp" element={<SignUpPage />} />

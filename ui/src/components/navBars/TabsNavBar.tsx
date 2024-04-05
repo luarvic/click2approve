@@ -12,10 +12,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tab } from "../../models/tab";
 import { stores } from "../../stores/Stores";
-import {
-  LIST_ITEM_ICON_SX,
-  LIST_ITEM_TEXT_SX,
-} from "../../stores/constantsStore";
+import { DISPLAY_DEPENDING_ON_SIZE } from "../../stores/constantsStore";
 
 const TabsNavBar = () => {
   const navigate = useNavigate();
@@ -45,6 +42,13 @@ const TabsNavBar = () => {
     }
   };
 
+  const listItemIconSx = { minWidth: 0, my: "4px" };
+  const listItemTextSx = {
+    display: DISPLAY_DEPENDING_ON_SIZE,
+    ml: 2,
+  };
+  const listItemButtonSx = { borderRadius: "0 20px 20px 0" };
+
   return (
     <Box sx={{ pr: 2 }}>
       <List disablePadding>
@@ -54,11 +58,12 @@ const TabsNavBar = () => {
           onClick={() => {
             handleTabChange(Tab.Files);
           }}
+          sx={listItemButtonSx}
         >
-          <ListItemIcon sx={LIST_ITEM_ICON_SX}>
+          <ListItemIcon sx={listItemIconSx}>
             <InsertDriveFile />
           </ListItemIcon>
-          <ListItemText primary="Files" sx={LIST_ITEM_TEXT_SX} />
+          <ListItemText primary="Files" sx={listItemTextSx} />
         </ListItemButton>
         <ListItemButton
           key="Inbox"
@@ -66,8 +71,9 @@ const TabsNavBar = () => {
           onClick={() => {
             handleTabChange(Tab.Inbox);
           }}
+          sx={listItemButtonSx}
         >
-          <ListItemIcon sx={LIST_ITEM_ICON_SX}>
+          <ListItemIcon sx={listItemIconSx}>
             <Badge
               badgeContent={stores.taskStore.numberOfUncompletedTasks}
               color="error"
@@ -75,7 +81,7 @@ const TabsNavBar = () => {
               <Inbox />
             </Badge>
           </ListItemIcon>
-          <ListItemText primary="Inbox" sx={LIST_ITEM_TEXT_SX} />
+          <ListItemText primary="Inbox" sx={listItemTextSx} />
         </ListItemButton>
         <ListItemButton
           key="Archive"
@@ -83,11 +89,12 @@ const TabsNavBar = () => {
           onClick={() => {
             handleTabChange(Tab.Archive);
           }}
+          sx={listItemButtonSx}
         >
-          <ListItemIcon sx={LIST_ITEM_ICON_SX}>
+          <ListItemIcon sx={listItemIconSx}>
             <Archive />
           </ListItemIcon>
-          <ListItemText primary="Archive" sx={LIST_ITEM_TEXT_SX} />
+          <ListItemText primary="Archive" sx={listItemTextSx} />
         </ListItemButton>
         <ListItemButton
           key="Sent"
@@ -95,11 +102,12 @@ const TabsNavBar = () => {
           onClick={() => {
             handleTabChange(Tab.Sent);
           }}
+          sx={listItemButtonSx}
         >
-          <ListItemIcon sx={LIST_ITEM_ICON_SX}>
+          <ListItemIcon sx={listItemIconSx}>
             <Send />
           </ListItemIcon>
-          <ListItemText primary="Sent" sx={LIST_ITEM_TEXT_SX} />
+          <ListItemText primary="Sent" sx={listItemTextSx} />
         </ListItemButton>
       </List>
     </Box>

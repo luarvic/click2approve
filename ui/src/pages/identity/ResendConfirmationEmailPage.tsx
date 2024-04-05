@@ -53,13 +53,12 @@ const ResendConfirmationEmailPage = () => {
         }}
       >
         <Typography component="h1" variant="h5">
-          Resend confirmation email
+          Email confirmation
         </Typography>
         <Box
           component="form"
           onSubmit={handleSubmit}
           noValidate
-          sx={{ mt: 1, width: 400 }}
         >
           <TextField
             margin="normal"
@@ -81,7 +80,7 @@ const ResendConfirmationEmailPage = () => {
             variant="contained"
             sx={{ mt: 2, mb: 2 }}
           >
-            Resend
+            Send email confirmation link
           </LoadingButton>
           <Grid container>
             <Grid item xs>

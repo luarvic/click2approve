@@ -1,8 +1,8 @@
-import { Box } from "@mui/material";
 import { observer } from "mobx-react-lite";
+import HelpPage from "./HelpPage";
 
-const Home = () => {
-  return <Box sx={{ p: 2 }}>Welcome to file approval portal.</Box>;
+const HomePage = () => {
+  return <HelpPage />;
 };
 
-export default observer(Home);
+export default observer(HomePage);

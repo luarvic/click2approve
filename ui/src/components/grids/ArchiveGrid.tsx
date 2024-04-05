@@ -114,6 +114,7 @@ const ArchiveGrid = () => {
           completedDate: useMediaQuery(
             theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)
           ),
+          requester: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
         }}
         initialState={{
           pagination: {

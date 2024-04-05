@@ -102,6 +102,7 @@ const InboxGrid = () => {
         columnVisibilityModel={{
           received: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
           reviewBy: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
+          requester: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
         }}
         initialState={{
           pagination: {

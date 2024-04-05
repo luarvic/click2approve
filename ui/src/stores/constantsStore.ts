@@ -1,52 +1,37 @@
 import { PopoverOrigin, createTheme } from "@mui/material";
 import passwordValidator from "password-validator";
 
-// General parameters.
+// Global settings
+
+// General
 export const API_URI = import.meta.env.VITE_API_URI;
 export const EMAIL_SERVICE_IS_ENABLED: boolean = JSON.parse(
   import.meta.env.VITE_EMAIL_SERVICE_IS_ENABLED
 );
 
-// Toast parameters.
+// Toast
 export const TOAST_AUTO_CLOSE = 3000;
 export const TOAST_LIMIT = 2;
 export const TOAST_CLOSE_BUTTON = true;
 export const TOAST_DRAGGABLE = false;
 export const DATA_GRID_DEFAULT_PAGE_SIZE = 10;
 
-// Theme parameters.
-export const THEME = createTheme({
-  components: {
-    MuiListItemButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: "0 20px 20px 0",
-        },
-      },
-    },
-  },
-});
+// Theme
+export const THEME = createTheme({});
 
-// Visibility parameters.
+// Visibility
 export const MAX_SIZE_WHEN_DISPLAY = "md";
 export const DISPLAY_DEPENDING_ON_SIZE = {
   xs: "none",
   md: "flex",
 };
 
-// Tabs parameters.
-export const LIST_ITEM_ICON_SX = { minWidth: 0 };
-export const LIST_ITEM_TEXT_SX = {
-  display: DISPLAY_DEPENDING_ON_SIZE,
-  ml: 2,
-};
-
-// Grid parameters.
+// Grids
 export const GRID_TOOLBAR_BUTTON_SLOT_PROPS = {
   button: { sx: { display: DISPLAY_DEPENDING_ON_SIZE } },
 };
 
-// Menu parameters.
+// Menus
 export const MENU_SLOT_PROPS = {
   paper: {
     elevation: 0,
@@ -81,7 +66,7 @@ export const MENU_TRANSFORM_ORIGIN: PopoverOrigin = {
   vertical: "top",
 };
 
-// Validation parameters.
+// Validation
 export const PASSWORD_MIN_LENGTH = 8;
 export const EMAIL_VALIDATION_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]+$/i;
 export const PASSWORD_VALIDATOR = new passwordValidator();
@@ -97,5 +82,5 @@ PASSWORD_VALIDATOR.is()
   .symbols();
 export const PASSWORD_VALIDATOR_ERROR = `Password must be min ${PASSWORD_MIN_LENGTH} chars, have at least one lower case letter, one uppercase letter, one digit, and one symbol`;
 
-// Navigation.
+// Navigation
 export const DEFAULT_PATH = "/inbox";

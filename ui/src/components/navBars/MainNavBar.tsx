@@ -1,12 +1,9 @@
-import { Verified } from "@mui/icons-material";
-import { AppBar, Button, Link, Toolbar, Typography } from "@mui/material";
+import { Menu, Verified } from "@mui/icons-material";
+import { AppBar, Button, IconButton, Toolbar, Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { useNavigate } from "react-router-dom";
 import { stores } from "../../stores/Stores";
-import { DEFAULT_PATH } from "../../stores/constantsStore";
 
 const MainNavBar = () => {
-  const navigate = useNavigate();
 
   return (
     <AppBar position="static">
@@ -15,7 +12,6 @@ const MainNavBar = () => {
         <Typography
           variant="h6"
           component="a"
-          href="/"
           sx={{ flexGrow: 1, color: "inherit", textDecoration: "none" }}
         >
           click2approve
@@ -25,22 +21,12 @@ const MainNavBar = () => {
             Sign in
           </Button>
         ) : (
-          <>
-            <Link sx={{ mr: 1 }} color="inherit" href={DEFAULT_PATH}>
-              {stores.userAccountStore.currentUser.email.toLowerCase()}
-            </Link>
-            <Button
-              variant="outlined"
-              color="inherit"
-              onClick={() => {
-                stores.fileStore.clearUserFiles();
-                stores.userAccountStore.signOut();
-                navigate("/");
-              }}
-            >
-              Sign out
-            </Button>
-          </>
+          <IconButton
+            color="inherit"
+            onClick={() => stores.commonStore.setUserSettingsDrawerIsOpen(true)}
+          >
+            <Menu />
+          </IconButton>
         )}
       </Toolbar>
     </AppBar>

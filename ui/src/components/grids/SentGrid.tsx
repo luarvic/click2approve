@@ -116,6 +116,7 @@ const SentGrid = () => {
           approveByDate: useMediaQuery(
             theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)
           ),
+          approvers: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
         }}
         initialState={{
           pagination: {
