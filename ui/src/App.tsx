@@ -21,13 +21,13 @@ import HomePage from "./pages/other/HomePage";
 import InformationPage from "./pages/other/InformationPage";
 import NotFoundPage from "./pages/other/NotFoundPage";
 import UserSettingsPage from "./pages/other/UserSettingsPage";
-import { stores } from "./stores/stores";
 import {
   TOAST_AUTO_CLOSE,
   TOAST_CLOSE_BUTTON,
   TOAST_DRAGGABLE,
   TOAST_LIMIT,
 } from "./stores/constantsStore";
+import { stores } from "./stores/stores";
 
 const App = () => {
   useEffect(() => {
@@ -37,7 +37,7 @@ const App = () => {
   return stores.userAccountStore.currentUser === undefined ? (
     <LoadingOverlay />
   ) : (
-    <ThemeProvider theme={stores.commonStore.theme}>
+    <ThemeProvider theme={stores.userSettingsStore.theme}>
       <CssBaseline>
         <BrowserRouter>
           <Routes>

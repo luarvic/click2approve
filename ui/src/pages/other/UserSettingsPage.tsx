@@ -6,15 +6,17 @@ import {
   Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
+import React from "react";
 import { Navigate } from "react-router-dom";
 import { stores } from "../../stores/stores";
-import React from "react";
 
 const UserSettingsPage = () => {
   const handleColorModeChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    stores.commonStore.setColorMode(event.target.checked ? "dark" : "light");
+    stores.userSettingsStore.setColorMode(
+      event.target.checked ? "dark" : "light"
+    );
   };
 
   return stores.userAccountStore.currentUser ? (
@@ -32,7 +34,7 @@ const UserSettingsPage = () => {
           <FormControlLabel
             control={
               <Switch
-                checked={stores.commonStore.theme.palette.mode === "dark"}
+                checked={stores.userSettingsStore.theme.palette.mode === "dark"}
                 onChange={handleColorModeChange}
               />
             }
