@@ -19,12 +19,12 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Credentials } from "../../models/credentials";
-import { stores } from "../../stores/stores";
 import {
   DEFAULT_PATH,
   EMAIL_SERVICE_IS_ENABLED,
   PASSWORD_VALIDATOR_ERROR,
 } from "../../stores/constantsStore";
+import { stores } from "../../stores/stores";
 import { validateEmail, validatePassword } from "../../utils/validators";
 
 const SignUpPage = () => {
@@ -64,15 +64,11 @@ const SignUpPage = () => {
     ) {
       setEmailError(!email || !validateEmail(email.toString()));
       setPasswordError(!password || !validatePassword(password.toString()));
-      if (!password || !validatePassword(password.toString())) {
-        setPasswordConfirmationError(false);
-      } else {
-        setPasswordConfirmationError(
-          password !== null &&
-            passwordConfirmation !== null &&
-            password.toString() !== passwordConfirmation.toString()
-        );
-      }
+      setPasswordConfirmationError(
+        !password ||
+          !passwordConfirmation ||
+          password.toString() !== passwordConfirmation.toString()
+      );
       toast.error("Invalid input.");
     } else {
       const credentials = new Credentials(
@@ -125,10 +121,8 @@ const SignUpPage = () => {
             helperText={emailError && "Invalid email address"}
             onChange={() => setEmailError(false)}
           />
-          <FormControl margin="normal" fullWidth variant="outlined">
-            <InputLabel htmlFor="outlined-adornment-password">
-              Password
-            </InputLabel>
+          <FormControl margin="normal" fullWidth variant="outlined" required>
+            <InputLabel error={passwordError}>Password</InputLabel>
             <OutlinedInput
               id="password"
               name="password"
@@ -152,8 +146,8 @@ const SignUpPage = () => {
               {passwordError && PASSWORD_VALIDATOR_ERROR}
             </FormHelperText>
           </FormControl>
-          <FormControl margin="normal" fullWidth variant="outlined">
-            <InputLabel htmlFor="outlined-adornment-password-confirmation">
+          <FormControl margin="normal" fullWidth variant="outlined" required>
+            <InputLabel error={passwordConfirmationError}>
               Password confirmation
             </InputLabel>
             <OutlinedInput
@@ -196,7 +190,11 @@ const SignUpPage = () => {
           </LoadingButton>
           <Grid container>
             <Grid item>
-              <Link href="/signIn" variant="body2">
+              <Link
+                component="button"
+                variant="body2"
+                onClick={() => navigate("/signIn")}
+              >
                 Already have an account? Sign in
               </Link>
             </Grid>

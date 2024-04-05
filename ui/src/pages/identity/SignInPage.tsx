@@ -90,10 +90,8 @@ const SignInPage = () => {
             helperText={emailError && "Invalid email address"}
             onChange={() => setEmailError(false)}
           />
-          <FormControl margin="normal" fullWidth variant="outlined">
-            <InputLabel htmlFor="outlined-adornment-password">
-              Password
-            </InputLabel>
+          <FormControl margin="normal" fullWidth variant="outlined" required>
+            <InputLabel error={passwordError}>Password</InputLabel>
             <OutlinedInput
               id="password"
               name="password"
@@ -128,17 +126,29 @@ const SignInPage = () => {
           </LoadingButton>
           <Grid container>
             <Grid item xs={4}>
-              <Link href="/forgotPassword" variant="body2">
+              <Link
+                component="button"
+                variant="body2"
+                onClick={() => navigate("/forgotPassword")}
+              >
                 Forgot password
               </Link>
             </Grid>
             <Grid item xs={4} sx={{ textAlign: "center" }}>
-              <Link href="/resendConfirmationEmail" variant="body2">
+              <Link
+                component="button"
+                variant="body2"
+                onClick={() => navigate("/resendConfirmationEmail")}
+              >
                 Resend confirmation
               </Link>
             </Grid>
             <Grid item xs={4} sx={{ textAlign: "right" }}>
-              <Link href="/signUp" variant="body2">
+              <Link
+                component="button"
+                variant="body2"
+                onClick={() => navigate("/signUp")}
+              >
                 New to us? Sign up
               </Link>
             </Grid>

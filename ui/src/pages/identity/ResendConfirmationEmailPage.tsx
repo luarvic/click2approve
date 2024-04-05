@@ -55,11 +55,7 @@ const ResendConfirmationEmailPage = () => {
         <Typography component="h1" variant="h5">
           Email confirmation
         </Typography>
-        <Box
-          component="form"
-          onSubmit={handleSubmit}
-          noValidate
-        >
+        <Box component="form" onSubmit={handleSubmit} noValidate>
           <TextField
             margin="normal"
             required
@@ -84,12 +80,20 @@ const ResendConfirmationEmailPage = () => {
           </LoadingButton>
           <Grid container>
             <Grid item xs>
-              <Link href="/signIn" variant="body2">
+              <Link
+                component="button"
+                variant="body2"
+                onClick={() => navigate("/signIn")}
+              >
                 Sign in
               </Link>
             </Grid>
             <Grid item>
-              <Link href="/signUp" variant="body2">
+              <Link
+                component="button"
+                variant="body2"
+                onClick={() => navigate("/signUp")}
+              >
                 New to us? Sign up
               </Link>
             </Grid>

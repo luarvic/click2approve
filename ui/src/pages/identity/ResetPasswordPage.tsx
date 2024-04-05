@@ -18,11 +18,11 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Credentials } from "../../models/credentials";
-import { stores } from "../../stores/stores";
 import {
   DEFAULT_PATH,
   PASSWORD_VALIDATOR_ERROR,
 } from "../../stores/constantsStore";
+import { stores } from "../../stores/stores";
 import { validatePassword } from "../../utils/validators";
 
 const ResetPasswordPage = () => {
@@ -72,15 +72,11 @@ const ResetPasswordPage = () => {
       password.toString() !== passwordConfirmation.toString()
     ) {
       setPasswordError(!password || !validatePassword(password.toString()));
-      if (!password || !validatePassword(password.toString())) {
-        setPasswordConfirmationError(false);
-      } else {
-        setPasswordConfirmationError(
-          password !== null &&
-            passwordConfirmation !== null &&
-            password.toString() !== passwordConfirmation.toString()
-        );
-      }
+      setPasswordConfirmationError(
+        !password ||
+          !passwordConfirmation ||
+          password.toString() !== passwordConfirmation.toString()
+      );
       toast.error("Invalid input.");
     } else {
       setIsLoading(true);
@@ -114,10 +110,8 @@ const ResetPasswordPage = () => {
           Reset password
         </Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-          <FormControl margin="normal" fullWidth variant="outlined">
-            <InputLabel htmlFor="outlined-adornment-password">
-              Password
-            </InputLabel>
+          <FormControl margin="normal" fullWidth variant="outlined" required>
+            <InputLabel error={passwordError}>Password</InputLabel>
             <OutlinedInput
               id="password"
               name="password"
@@ -141,8 +135,8 @@ const ResetPasswordPage = () => {
               {passwordError && PASSWORD_VALIDATOR_ERROR}
             </FormHelperText>
           </FormControl>
-          <FormControl margin="normal" fullWidth variant="outlined">
-            <InputLabel htmlFor="outlined-adornment-password-confirmation">
+          <FormControl margin="normal" fullWidth variant="outlined" required>
+            <InputLabel error={passwordConfirmationError}>
               Password confirmation
             </InputLabel>
             <OutlinedInput
@@ -184,10 +178,22 @@ const ResetPasswordPage = () => {
             Reset
           </LoadingButton>
           <Grid container>
-            <Grid item xs></Grid>
+            <Grid item xs>
+              <Link
+                component="button"
+                variant="body2"
+                onClick={() => navigate("/signIn")}
+              >
+                Sign in
+              </Link>
+            </Grid>
             <Grid item>
-              <Link href="/signIn" variant="body2">
-                Already have an account? Sign in
+              <Link
+                component="button"
+                variant="body2"
+                onClick={() => navigate("/signUp")}
+              >
+                New to us? Sign up
               </Link>
             </Grid>
           </Grid>
