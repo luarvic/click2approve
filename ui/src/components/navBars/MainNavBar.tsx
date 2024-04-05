@@ -4,14 +4,12 @@ import { observer } from "mobx-react-lite";
 import { stores } from "../../stores/Stores";
 
 const MainNavBar = () => {
-
   return (
     <AppBar position="static">
       <Toolbar disableGutters sx={{ pl: 2, pr: 2 }}>
-        <Verified sx={{ display: "block", mr: 1 }} />
+        <Verified sx={{ mr: 1 }} />
         <Typography
           variant="h6"
-          component="a"
           sx={{ flexGrow: 1, color: "inherit", textDecoration: "none" }}
         >
           click2approve

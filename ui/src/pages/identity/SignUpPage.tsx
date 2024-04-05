@@ -195,7 +195,6 @@ const SignUpPage = () => {
             Sign up
           </LoadingButton>
           <Grid container>
-            <Grid item xs></Grid>
             <Grid item>
               <Link href="/signIn" variant="body2">
                 Already have an account? Sign in

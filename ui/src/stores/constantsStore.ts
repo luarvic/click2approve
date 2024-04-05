@@ -1,4 +1,4 @@
-import { PopoverOrigin, createTheme } from "@mui/material";
+import { PopoverOrigin } from "@mui/material";
 import passwordValidator from "password-validator";
 
 // Global settings
@@ -15,9 +15,6 @@ export const TOAST_LIMIT = 2;
 export const TOAST_CLOSE_BUTTON = true;
 export const TOAST_DRAGGABLE = false;
 export const DATA_GRID_DEFAULT_PAGE_SIZE = 10;
-
-// Theme
-export const THEME = createTheme({});
 
 // Visibility
 export const MAX_SIZE_WHEN_DISPLAY = "md";
@@ -83,4 +80,4 @@ PASSWORD_VALIDATOR.is()
 export const PASSWORD_VALIDATOR_ERROR = `Password must be min ${PASSWORD_MIN_LENGTH} chars, have at least one lower case letter, one uppercase letter, one digit, and one symbol`;
 
 // Navigation
-export const DEFAULT_PATH = "/inbox";
+export const DEFAULT_PATH = "/files";

@@ -1,9 +1,4 @@
-import {
-  HelpOutline,
-  Home,
-  Logout,
-  ManageAccounts,
-} from "@mui/icons-material";
+import { HelpOutline, Home, Logout, ManageAccounts } from "@mui/icons-material";
 import {
   Box,
   Divider,
@@ -35,7 +30,7 @@ const UserSettingsDrawer = () => {
       >
         <List>
           <ListItem key="manageAccount" disablePadding>
-            <ListItemButton>
+            <ListItemButton onClick={() => navigate("/userSettings")}>
               <ListItemIcon sx={listItemIconSx}>
                 <ManageAccounts />
               </ListItemIcon>
@@ -44,8 +39,8 @@ const UserSettingsDrawer = () => {
               />
             </ListItemButton>
           </ListItem>
-          <ListItem key="home" disablePadding>
-            <ListItemButton href={DEFAULT_PATH}>
+          <ListItem key="filesAndRequests" disablePadding>
+            <ListItemButton onClick={() => navigate(DEFAULT_PATH)}>
               <ListItemIcon sx={listItemIconSx}>
                 <Home />
               </ListItemIcon>
@@ -53,7 +48,7 @@ const UserSettingsDrawer = () => {
             </ListItemButton>
           </ListItem>
           <ListItem key="help" disablePadding>
-            <ListItemButton href="/help">
+            <ListItemButton onClick={() => navigate("/help")}>
               <ListItemIcon sx={listItemIconSx}>
                 <HelpOutline />
               </ListItemIcon>

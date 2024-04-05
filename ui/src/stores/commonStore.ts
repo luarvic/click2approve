@@ -1,6 +1,8 @@
+import { PaletteMode, Theme, createTheme } from "@mui/material";
 import { makeAutoObservable, runInAction } from "mobx";
 import { Dictionary } from "../models/dictionary";
 import { Tab } from "../models/tab";
+import { readColorMode, writeColorMode } from "../utils/cacheClient";
 
 export class CommonStore {
   currentTab?: Tab;
@@ -11,6 +13,7 @@ export class CommonStore {
   taskReviewDialogIsOpen: boolean;
   userFileDeleteDialogIsOpen: boolean;
   userSettingsDrawerIsOpen: boolean;
+  theme: Theme;
 
   constructor(
     currentTab?: Tab,
@@ -20,7 +23,8 @@ export class CommonStore {
     approvalRequestDeleteDialogIsOpen: boolean = false,
     taskReviewDialogIsOpen: boolean = false,
     userFileDeleteDialogIsOpen: boolean = false,
-    userSettingsDrawerIsOpen: boolean = false
+    userSettingsDrawerIsOpen: boolean = false,
+    theme: Theme = createTheme({ palette: { mode: readColorMode() } })
   ) {
     this.currentTab = currentTab;
     this.loadingCounter = loadingCounter;
@@ -30,6 +34,7 @@ export class CommonStore {
     this.taskReviewDialogIsOpen = taskReviewDialogIsOpen;
     this.userFileDeleteDialogIsOpen = userFileDeleteDialogIsOpen;
     this.userSettingsDrawerIsOpen = userSettingsDrawerIsOpen;
+    this.theme = theme;
     makeAutoObservable(this);
   }
 
@@ -89,5 +94,14 @@ export class CommonStore {
     runInAction(() => {
       this.userSettingsDrawerIsOpen = isOpen;
     });
+  };
+
+  setColorMode = (colorMode: PaletteMode) => {
+    runInAction(() => {
+      this.theme = createTheme({
+        palette: { mode: colorMode },
+      });
+    });
+    writeColorMode(colorMode);
   };
 }

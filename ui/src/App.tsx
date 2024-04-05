@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import LoadingOverlay from "./components/overlays/LoadingOverlay";
 import MainLayout from "./layouts/MainLayout";
+import WrapperLayout from "./layouts/WrapperLayout";
 import ArchivePage from "./pages/approval/ArchivePage";
 import FilesPage from "./pages/approval/FilesPage";
 import InboxPage from "./pages/approval/InboxPage";
@@ -19,9 +20,9 @@ import HelpPage from "./pages/other/HelpPage";
 import HomePage from "./pages/other/HomePage";
 import InformationPage from "./pages/other/InformationPage";
 import NotFoundPage from "./pages/other/NotFoundPage";
+import UserSettingsPage from "./pages/other/UserSettingsPage";
 import { stores } from "./stores/Stores";
 import {
-  THEME,
   TOAST_AUTO_CLOSE,
   TOAST_CLOSE_BUTTON,
   TOAST_DRAGGABLE,
@@ -36,29 +37,32 @@ const App = () => {
   return stores.userAccountStore.currentUser === undefined ? (
     <LoadingOverlay />
   ) : (
-    <ThemeProvider theme={THEME}>
+    <ThemeProvider theme={stores.commonStore.theme}>
       <CssBaseline>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<MainLayout />}>
-              <Route index element={<HomePage />} />
-              <Route path="help" element={<HelpPage />} />
-              <Route path="/signIn" element={<SignInPage />} />
-              <Route path="/forgotPassword" element={<ForgotPasswordPage />} />
-              <Route path="/signUp" element={<SignUpPage />} />
+            <Route element={<MainLayout />}>
               <Route path="/files" element={<FilesPage />} />
               <Route path="/inbox" element={<InboxPage />} />
               <Route path="/archive" element={<ArchivePage />} />
               <Route path="/sent" element={<SentPage />} />
+              <Route path="/signIn" element={<SignInPage />} />
+              <Route path="/signUp" element={<SignUpPage />} />
+              <Route path="/forgotPassword" element={<ForgotPasswordPage />} />
               <Route
                 path="/resendConfirmationEmail"
                 element={<ResendConfirmationEmailPage />}
               />
-              <Route path="/confirmEmail" element={<ConfirmEmailPage />} />
               <Route path="/forgotPassword" element={<ForgotPasswordPage />} />
               <Route path="/resetPassword" element={<ResetPasswordPage />} />
-              <Route path="/information" element={<InformationPage />} />
-              <Route path="*" element={<NotFoundPage />} />
+              <Route element={<WrapperLayout />}>
+                <Route index element={<HomePage />} />
+                <Route path="help" element={<HelpPage />} />
+                <Route path="/confirmEmail" element={<ConfirmEmailPage />} />
+                <Route path="/information" element={<InformationPage />} />
+                <Route path="/userSettings" element={<UserSettingsPage />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Route>
             </Route>
           </Routes>
         </BrowserRouter>
