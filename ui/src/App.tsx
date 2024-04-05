@@ -74,6 +74,7 @@ const App = () => {
           closeButton={TOAST_CLOSE_BUTTON}
           draggable={TOAST_DRAGGABLE}
           stacked
+          theme={stores.userSettingsStore.theme.palette.mode}
         />
       </CssBaseline>
     </ThemeProvider>
