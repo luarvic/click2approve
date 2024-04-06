@@ -3,12 +3,15 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { stores } from "../../stores/stores";
 import { approvalRequestDelete } from "../../utils/apiClient";
+import { getLocaleDateTimeString } from "../../utils/converters";
 import UserFilesList from "../lists/UserFilesList";
+import CommentPaper from "../papers/CommentPaper";
 import ApprovalSteps from "../steps/ApprovalSteps";
 
 const ApprovalRequestDeleteDialog = () => {
@@ -37,18 +40,37 @@ const ApprovalRequestDeleteDialog = () => {
     >
       <DialogTitle>Delete approval request</DialogTitle>
       <DialogContent dividers>
-        {stores.approvalRequestStore.currentApprovalRequest && (
-          <UserFilesList
-            userFiles={
-              stores.approvalRequestStore.currentApprovalRequest.userFiles
-            }
-            direction="column"
-            sx={{ mb: 1 }}
-          />
+        <DialogContentText>
+          On{" "}
+          {getLocaleDateTimeString(
+            stores.approvalRequestStore.currentApprovalRequest?.submittedDate
+          )}{" "}
+          you requested to review the following file(s):
+        </DialogContentText>
+        <UserFilesList
+          userFiles={
+            stores.approvalRequestStore.currentApprovalRequest?.userFiles
+          }
+          direction="column"
+          sx={{ my: 1 }}
+        />
+        {stores.approvalRequestStore.currentApprovalRequest?.approveBy && (
+          <DialogContentText>
+            by{" "}
+            {getLocaleDateTimeString(
+              stores.taskStore.currentTask?.approvalRequest.approveByDate
+            )}
+          </DialogContentText>
         )}
+        <CommentPaper
+          text={stores.approvalRequestStore.currentApprovalRequest?.comment}
+          sx={{ my: 1 }}
+        />
+        <DialogContentText>from the following contact(s):</DialogContentText>
         {stores.approvalRequestStore.currentApprovalRequest && (
           <ApprovalSteps
             approvalRequest={stores.approvalRequestStore.currentApprovalRequest}
+            sx={{ my: 1 }}
           />
         )}
       </DialogContent>

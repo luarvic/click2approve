@@ -3,12 +3,12 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
   FormControl,
   FormControlLabel,
   Radio,
   RadioGroup,
-  Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
@@ -36,16 +36,39 @@ const CompletedTaskViewDialog = () => {
       onClose={handleClose}
       fullWidth
     >
-      <DialogTitle>You reviewed the file(s)</DialogTitle>
+      <DialogTitle>Reviewed file(s)</DialogTitle>
       <DialogContent dividers>
+        <DialogContentText>
+          {stores.taskStore.currentTask?.approvalRequest.author.toLowerCase()}{" "}
+          on{" "}
+          {getLocaleDateTimeString(
+            stores.taskStore.currentTask?.approvalRequest.submittedDate
+          )}{" "}
+          requested you to review the following file(s):
+        </DialogContentText>
+
         <UserFilesList
           userFiles={stores.taskStore.currentTask?.approvalRequest.userFiles}
           direction="column"
-          sx={{ mb: 1 }}
+          sx={{ my: 1 }}
         />
+        {stores.taskStore.currentTask?.approvalRequest.approveBy && (
+          <DialogContentText>
+            by{" "}
+            {getLocaleDateTimeString(
+              stores.taskStore.currentTask?.approvalRequest.approveByDate
+            )}
+          </DialogContentText>
+        )}
         <CommentPaper
           text={stores.taskStore.currentTask?.approvalRequest.comment}
+          sx={{ my: 1 }}
         />
+        <DialogContentText>
+          On{" "}
+          {getLocaleDateTimeString(stores.taskStore.currentTask?.completedDate)}{" "}
+          you
+        </DialogContentText>
         <FormControl key="decision" error={decisionError}>
           <RadioGroup
             row
@@ -70,12 +93,9 @@ const CompletedTaskViewDialog = () => {
             />
           </RadioGroup>
         </FormControl>
-        <Typography>{`on ${getLocaleDateTimeString(
-          stores.taskStore.currentTask?.completedDate
-        )}`}</Typography>
         <CommentPaper
           text={stores.taskStore.currentTask?.comment}
-          sx={{ mt: 1 }}
+          sx={{ my: 1 }}
         />
       </DialogContent>
       <DialogActions>

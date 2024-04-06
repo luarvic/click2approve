@@ -3,6 +3,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
   FormControl,
   FormControlLabel,
@@ -17,6 +18,7 @@ import { ApprovalStatus } from "../../models/approvalStatus";
 import { Tab } from "../../models/tab";
 import { stores } from "../../stores/stores";
 import { taskComplete } from "../../utils/apiClient";
+import { getLocaleDateTimeString } from "../../utils/converters";
 import UserFilesList from "../lists/UserFilesList";
 import CommentPaper from "../papers/CommentPaper";
 
@@ -67,16 +69,31 @@ const UncompletedTaskReviewDialog = () => {
     >
       <DialogTitle>Review the file(s)</DialogTitle>
       <DialogContent dividers>
-        <>
-          <UserFilesList
-            userFiles={stores.taskStore.currentTask?.approvalRequest.userFiles}
-            direction="column"
-            sx={{ mb: 1 }}
-          />
-          <CommentPaper
-            text={stores.taskStore.currentTask?.approvalRequest.comment}
-          />
-        </>
+        <DialogContentText>
+          {stores.taskStore.currentTask?.approvalRequest.author.toLowerCase()}{" "}
+          on{" "}
+          {getLocaleDateTimeString(
+            stores.taskStore.currentTask?.approvalRequest.submittedDate
+          )}{" "}
+          requested you to review the following file(s):
+        </DialogContentText>
+        <UserFilesList
+          userFiles={stores.taskStore.currentTask?.approvalRequest.userFiles}
+          direction="column"
+          sx={{ my: 1 }}
+        />
+        {stores.taskStore.currentTask?.approvalRequest.approveBy && (
+          <DialogContentText>
+            by{" "}
+            {getLocaleDateTimeString(
+              stores.taskStore.currentTask?.approvalRequest.approveByDate
+            )}
+          </DialogContentText>
+        )}
+        <CommentPaper
+          text={stores.taskStore.currentTask?.approvalRequest.comment}
+          sx={{ my: 1 }}
+        />
         <FormControl key="decision" error={decisionError}>
           <RadioGroup
             row

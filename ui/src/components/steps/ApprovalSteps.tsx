@@ -29,12 +29,13 @@ const ApprovalSteps: React.FC<IApprovalStepsProps> = ({
     completedTasks.map((task, index) => (
       <Step key={`completedTask${index}`} active={true}>
         <StepLabel error={task.status === ApprovalStatus.Rejected}>
-          {ApprovalStatus[task.status]} by {task.approver.toLowerCase()}
+          {task.approver.toLowerCase()}{" "}
+          {ApprovalStatus[task.status].toLowerCase()}
         </StepLabel>
         {task.completedDate && (
           <StepContent>
             {`on ${getLocaleDateTimeString(task.completedDate)}`}
-            <CommentPaper text={task.comment} sx={{ mt: 1 }} />
+            <CommentPaper text={task.comment} sx={{ my: 1 }} />
           </StepContent>
         )}
       </Step>
@@ -44,9 +45,7 @@ const ApprovalSteps: React.FC<IApprovalStepsProps> = ({
   steps = steps.concat(
     uncompletedTasks.map((task, index) => (
       <Step key={`uncompletedTask${index}`} active={false}>
-        <StepLabel>
-          Requested approval from {task.approver.toLowerCase()}
-        </StepLabel>
+        <StepLabel>{task.approver.toLowerCase()}</StepLabel>
       </Step>
     ))
   );

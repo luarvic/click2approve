@@ -37,13 +37,13 @@ const UserFileDeleteDialog = () => {
       <DialogContent dividers>
         <Typography>
           Are you sure you want to delete the following file together with all
-          related approval requests?
+          related approval requests? This cannot be undone.
         </Typography>
         {stores.fileStore.currentUserFile && (
           <UserFilesList
             userFiles={[stores.fileStore.currentUserFile]}
             direction="column"
-            sx={{ mb: 1 }}
+            sx={{ my: 1 }}
           />
         )}
       </DialogContent>

@@ -5,6 +5,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
   TextField,
 } from "@mui/material";
@@ -84,11 +85,15 @@ const ApprovalRequestSubmitDialog = () => {
         },
       }}
     >
-      <DialogTitle>Send for review</DialogTitle>
+      <DialogTitle>Send file(s)</DialogTitle>
       <DialogContent dividers>
+        <DialogContentText>
+          You are about to send the following file(s) for review:
+        </DialogContentText>
         <UserFilesList
           userFiles={stores.fileStore.getSelectedUserFiles()}
           direction="column"
+          sx={{ my: 1 }}
         />
         <Autocomplete
           multiple
