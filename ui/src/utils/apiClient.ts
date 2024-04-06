@@ -205,7 +205,7 @@ export const fileList = async (): Promise<IUserFile[]> => {
 };
 
 export const fileDownloadBase64 = async (
-  id: string
+  id: number
 ): Promise<string | null> => {
   try {
     const { data } = await axios.get(`api/file/downloadBase64?id=${id}`);

@@ -19,7 +19,7 @@ const ConfirmEmailPage = () => {
       confirmEmail(userId, code)
         .then((result) => {
           if (result) {
-            setMessage("Email confirmation succeeded. Sing in to continue.");
+            setMessage("Email confirmation succeeded. Sign in to continue.");
           } else {
             setMessage("Email confirmation failed.");
           }

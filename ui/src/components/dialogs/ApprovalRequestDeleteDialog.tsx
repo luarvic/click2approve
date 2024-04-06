@@ -58,7 +58,7 @@ const ApprovalRequestDeleteDialog = () => {
           <DialogContentText>
             by{" "}
             {getLocaleDateTimeString(
-              stores.taskStore.currentTask?.approvalRequest.approveByDate
+              stores.approvalRequestStore.currentApprovalRequest?.approveByDate
             )}
           </DialogContentText>
         )}

@@ -172,6 +172,9 @@ public class UserFileService(
             await _approvalRequestService.DeleteApprovalRequestAsync(user, approvalRequest.Id, cancellationToken);
         }
 
+        // Delete the file.
+        _storeService.DeleteFile(GetFilePath(user.Id, userFile.Id.ToString(), userFile.Name));
+
         // Add audit log entry.
         await _auditLogService.LogAsync(user.NormalizedEmail!,
             DateTime.UtcNow,

@@ -26,7 +26,10 @@ const UserFilesList: React.FC<IUserFilesListProps> = ({
           <Link
             key={index}
             component="button"
-            onClick={() => downloadUserFile(userFile)}
+            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+              event.preventDefault();
+              downloadUserFile(userFile);
+            }}
           >
             {userFile.name}
           </Link>

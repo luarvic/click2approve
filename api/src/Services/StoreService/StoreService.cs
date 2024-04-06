@@ -25,6 +25,23 @@ public class StoreService(IConfiguration configuration, ILogger<StoreService> lo
         }
     }
 
+    public void DeleteFile(string path)
+    {
+        try
+        {
+            var fullPath = Path.Combine(_rootPath, path);
+            var directory = Path.GetDirectoryName(fullPath);
+            if (directory != null && Path.Exists(Path.GetDirectoryName(fullPath)))
+            {
+                Directory.Delete(directory, true);
+            }
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"Unable to delete file {Path.GetFileName(path)}.", e);
+        }
+    }
+
     public async Task<byte[]> GetFileAsync(string path, CancellationToken cancellationToken)
     {
         try
