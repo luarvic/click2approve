@@ -77,7 +77,13 @@ PASSWORD_VALIDATOR.is()
   .digits()
   .has()
   .symbols();
-export const PASSWORD_VALIDATOR_ERROR = `Password must be min ${PASSWORD_MIN_LENGTH} chars, have at least one lower case letter, one uppercase letter, one digit, and one symbol`;
+export const PASSWORD_VALIDATOR_ERROR = `Password must be min ${PASSWORD_MIN_LENGTH} chars,
+  have at least one lower case letter,
+  one uppercase letter,
+  one digit,
+  and one symbol`;
+export const ACCOUNT_MAX_FAILED_ATTEMPTS_TO_SIGN_IN = 3;
+export const ACCOUNT_LOCK_OUT_TIME_IN_MINUTES = 5;
 
 // Navigation
 export const DEFAULT_PATH = "/files";

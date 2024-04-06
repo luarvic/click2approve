@@ -1,5 +1,9 @@
 import { InternalAxiosRequestConfig } from "axios";
 import ago from "s-ago";
+import {
+  ACCOUNT_LOCK_OUT_TIME_IN_MINUTES,
+  ACCOUNT_MAX_FAILED_ATTEMPTS_TO_SIGN_IN,
+} from "../stores/constantsStore";
 
 export const getHumanReadableRelativeDate = (date: Date): string => {
   return ago(date);
@@ -29,7 +33,8 @@ export const getUserFriendlyApiErrorMessage = (error: any): string => {
             message += "(Incorrect credentials or email is not confirmed)";
             break;
           default:
-            message += "(Email address is locked out)";
+            message += `(Email address is locked out for ${ACCOUNT_LOCK_OUT_TIME_IN_MINUTES} minutes
+              after ${ACCOUNT_MAX_FAILED_ATTEMPTS_TO_SIGN_IN} failed attempts to sign in)`;
             break;
         }
       }

@@ -21,6 +21,9 @@ public static class ServiceCollectionExtensions
                 options.User.RequireUniqueEmail = true;
                 options.Password.RequiredLength = configuration.GetValue<int>("Identity:Password:RequiredLength");
                 options.SignIn.RequireConfirmedEmail = configuration.GetValue<bool>("EmailSettings:EmailServiceIsEnabled");
+                options.Lockout.MaxFailedAccessAttempts = configuration.GetValue<int>("Identity:Lockout:MaxFailedAccessAttempts");
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(configuration.GetValue<int>("Identity:Lockout:LockoutTimeSpanInMinutes"));
+                options.Lockout.AllowedForNewUsers = configuration.GetValue<bool>("Identity:Lockout:AllowedForNewUsers");
             })
             .AddEntityFrameworkStores<ApiDbContext>();
         return services;
