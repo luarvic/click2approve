@@ -80,6 +80,7 @@ const ApprovalRequestSubmitDialog = () => {
               approveBy ? approveBy.toDate() : null,
               comment?.toString()
             );
+            toast.success("The request was successfully sent")
             cleanUp();
           }
         },
