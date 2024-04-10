@@ -10,15 +10,12 @@ import { useEffect } from "react";
 import { ApprovalStatus } from "../../models/approvalStatus";
 import { Tab } from "../../models/tab";
 import { IUserFile } from "../../models/userFile";
-import { stores } from "../../stores/stores";
 import {
   DATA_GRID_DEFAULT_PAGE_SIZE,
   MAX_SIZE_WHEN_DISPLAY,
 } from "../../stores/constantsStore";
-import {
-  getHumanReadableRelativeDate,
-  getLocaleDateTimeString,
-} from "../../utils/converters";
+import { stores } from "../../stores/stores";
+import { getHumanReadableRelativeDate } from "../../utils/converters";
 import GridToolbarButtons from "../buttons/GridToolbarButtons";
 import CompletedTaskViewDialog from "../dialogs/CompletedTaskViewDialog";
 import StatusIcon from "../icons/StatusIcon";

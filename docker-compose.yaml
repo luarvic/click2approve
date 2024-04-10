@@ -15,14 +15,19 @@ services:
       - db
     build: ./api
     image: luarvic/click2approve-api:latest
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
     ports:
-      - "5557:8080"
+      - "5555:5555"
     command: /app/wait-for-it.sh -t 60 db:1433 -- dotnet /app/api.dll
   ui:
     container_name: ui
     depends_on:
       - api
-    build: ./ui
+    build:
+      context: ./ui
+      args:
+        - ENV=development
     image: luarvic/click2approve-ui:latest
     ports:
-      - "80:80"
+      - "3333:3333"
