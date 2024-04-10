@@ -3,8 +3,8 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
-  Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { stores } from "../../stores/stores";
@@ -35,10 +35,10 @@ const UserFileDeleteDialog = () => {
     >
       <DialogTitle>Delete file</DialogTitle>
       <DialogContent dividers>
-        <Typography>
+        <DialogContentText>
           Are you sure you want to delete the following file together with all
           related approval requests? This cannot be undone.
-        </Typography>
+        </DialogContentText>
         {stores.fileStore.currentUserFile && (
           <UserFilesList
             userFiles={[stores.fileStore.currentUserFile]}
