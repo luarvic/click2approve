@@ -22,7 +22,7 @@ const TabsNavBar = () => {
   }, []);
 
   const handleTabChange = (tab: Tab) => {
-    stores.taskStore.loadNumberOfUncompletedTasks();
+    // stores.taskStore.loadNumberOfUncompletedTasks();
     if (stores.commonStore.currentTab !== tab) {
       stores.commonStore.setCurrentTab(tab);
       switch (tab) {
