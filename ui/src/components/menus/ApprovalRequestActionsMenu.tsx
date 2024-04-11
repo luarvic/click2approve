@@ -2,11 +2,12 @@ import { ArrowDropDownCircle } from "@mui/icons-material";
 import { Box, IconButton, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
 import { IApprovalRequest } from "../../models/approvalRequest";
-import { stores } from "../../stores/stores";
 import {
+  MENU_ANCHOR_ORIGIN,
   MENU_SLOT_PROPS,
   MENU_TRANSFORM_ORIGIN,
 } from "../../stores/constantsStore";
+import { stores } from "../../stores/stores";
 
 interface IApprovalRequestActionsMenuProps {
   approvalRequest: IApprovalRequest;
@@ -53,6 +54,7 @@ const ApprovalRequestActionsMenu: React.FC<
         MenuListProps={{
           "aria-labelledby": "basic-button",
         }}
+        anchorOrigin={MENU_ANCHOR_ORIGIN}
         transformOrigin={MENU_TRANSFORM_ORIGIN}
         slotProps={MENU_SLOT_PROPS}
       >

@@ -3,12 +3,14 @@ version: "3"
 services:
   db:
     container_name: db
-    image: mcr.microsoft.com/azure-sql-edge:latest
+    image: mysql:latest
     environment:
-      ACCEPT_EULA: Y
-      MSSQL_SA_PASSWORD: P@ssw0rd
+      MYSQL_USER: sa
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: click2approve
     ports:
-      - "1433:1433"
+      - "3306:3306"
   api:
     container_name: api
     depends_on:
@@ -19,7 +21,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Docker
     ports:
       - "5555:5555"
-    command: /app/wait-for-it.sh -t 60 db:1433 -- dotnet /app/api.dll
+    command: /app/wait-for-it.sh -t 60 db:3306 -- dotnet /app/api.dll
   ui:
     container_name: ui
     depends_on:

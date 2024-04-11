@@ -29,6 +29,11 @@ export const GRID_TOOLBAR_BUTTON_SLOT_PROPS = {
 };
 
 // Menus
+export const MENU_ANCHOR_ORIGIN: PopoverOrigin = {
+  vertical: "bottom",
+  horizontal: "right",
+};
+
 export const MENU_SLOT_PROPS = {
   paper: {
     elevation: 0,
@@ -47,7 +52,7 @@ export const MENU_SLOT_PROPS = {
         display: "block",
         position: "absolute",
         top: 0,
-        right: 14,
+        right: 27,
         width: 10,
         height: 10,
         bgcolor: "background.paper",

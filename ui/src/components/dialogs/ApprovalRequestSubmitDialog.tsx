@@ -9,7 +9,10 @@ import {
   DialogTitle,
   TextField,
 } from "@mui/material";
-import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import {
+  LocalizationProvider,
+  MobileDateTimePicker,
+} from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
 import { observer } from "mobx-react-lite";
@@ -80,7 +83,7 @@ const ApprovalRequestSubmitDialog = () => {
               approveBy ? approveBy.toDate() : null,
               comment?.toString()
             );
-            toast.success("The request was successfully sent")
+            toast.success("The request was successfully sent");
             cleanUp();
           }
         },
@@ -122,7 +125,7 @@ const ApprovalRequestSubmitDialog = () => {
           onBlur={handleAutocompleteFocusOut}
         />
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DateTimePicker
+          <MobileDateTimePicker
             slotProps={{
               textField: {
                 fullWidth: true,

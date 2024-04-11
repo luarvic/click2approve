@@ -11,7 +11,9 @@ public class ApiDbContext(DbContextOptions options, IConfiguration configuration
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
-        optionsBuilder.UseSqlServer(_configuration.GetConnectionString("Default"));
+        var connectionString = _configuration.GetConnectionString("Default");
+        optionsBuilder.UseMySql(_configuration.GetConnectionString("Default"),
+            ServerVersion.AutoDetect(connectionString));
     }
 
     public DbSet<UserFile> UserFiles { get; set; }
