@@ -12,7 +12,7 @@ import {
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import { stores } from "../../stores/stores";
-import { DEFAULT_PATH } from "../../stores/constantsStore";
+import { DEFAULT_PATH } from "../../utils/constants";
 
 const UserSettingsDrawer = () => {
   const navigate = useNavigate();

@@ -13,9 +13,9 @@ import { IUserFile } from "../../models/userFile";
 import {
   DATA_GRID_DEFAULT_PAGE_SIZE,
   MAX_SIZE_WHEN_DISPLAY,
-} from "../../stores/constantsStore";
+} from "../../utils/constants";
 import { stores } from "../../stores/stores";
-import { getHumanReadableRelativeDate } from "../../utils/converters";
+import { getHumanReadableRelativeDate } from "../../utils/helpers";
 import GridToolbarButtons from "../buttons/GridToolbarButtons";
 import CompletedTaskViewDialog from "../dialogs/CompletedTaskViewDialog";
 import StatusIcon from "../icons/StatusIcon";
@@ -28,8 +28,8 @@ const ArchiveGrid = () => {
 
   useEffect(() => {
     stores.commonStore.setCurrentTab(Tab.Archive);
-    stores.taskStore.clearTasks();
-    stores.taskStore.loadTasks(Tab.Archive);
+    stores.approvalRequestTaskStore.clearTasks();
+    stores.approvalRequestTaskStore.loadTasks(Tab.Archive);
   }, []);
 
   const customToolbar = () => {
@@ -103,7 +103,7 @@ const ArchiveGrid = () => {
   return (
     <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
       <DataGrid
-        rows={stores.taskStore.tasks}
+        rows={stores.approvalRequestTaskStore.tasks}
         columns={columns}
         columnVisibilityModel={{
           received: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),

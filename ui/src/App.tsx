@@ -26,7 +26,7 @@ import {
   TOAST_CLOSE_BUTTON,
   TOAST_DRAGGABLE,
   TOAST_LIMIT,
-} from "./stores/constantsStore";
+} from "./utils/constants";
 import { stores } from "./stores/stores";
 
 const App = () => {

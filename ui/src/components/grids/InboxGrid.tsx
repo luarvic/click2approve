@@ -13,11 +13,11 @@ import { stores } from "../../stores/stores";
 import {
   DATA_GRID_DEFAULT_PAGE_SIZE,
   MAX_SIZE_WHEN_DISPLAY,
-} from "../../stores/constantsStore";
+} from "../../utils/constants";
 import {
   getHumanReadableRelativeDate,
   getLocaleDateTimeString,
-} from "../../utils/converters";
+} from "../../utils/helpers";
 import GridToolbarButtons from "../buttons/GridToolbarButtons";
 import UncompletedTaskReviewDialog from "../dialogs/UncompletedTaskReviewDialog";
 import UserFilesList from "../lists/UserFilesList";
@@ -29,8 +29,8 @@ const InboxGrid = () => {
 
   useEffect(() => {
     stores.commonStore.setCurrentTab(Tab.Inbox);
-    stores.taskStore.clearTasks();
-    stores.taskStore.loadTasks(Tab.Inbox);
+    stores.approvalRequestTaskStore.clearTasks();
+    stores.approvalRequestTaskStore.loadTasks(Tab.Inbox);
   }, []);
 
   const customToolbar = () => {
@@ -97,7 +97,7 @@ const InboxGrid = () => {
   return (
     <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
       <DataGrid
-        rows={stores.taskStore.tasks}
+        rows={stores.approvalRequestTaskStore.tasks}
         columns={columns}
         columnVisibilityModel={{
           received: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),

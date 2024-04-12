@@ -6,7 +6,7 @@ import {
   MENU_ANCHOR_ORIGIN,
   MENU_SLOT_PROPS,
   MENU_TRANSFORM_ORIGIN,
-} from "../../stores/constantsStore";
+} from "../../utils/constants";
 import { stores } from "../../stores/stores";
 
 interface ITaskActionsMenuProps {
@@ -23,7 +23,7 @@ const TaskActionsMenu: React.FC<ITaskActionsMenuProps> = ({ task }) => {
     setAnchorEl(null);
   };
   const handleReview = () => {
-    stores.taskStore.setCurrentTask(task);
+    stores.approvalRequestTaskStore.setCurrentTask(task);
     stores.commonStore.setTaskReviewDialogIsOpen(true);
     handleClose();
   };

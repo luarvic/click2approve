@@ -21,7 +21,7 @@ import { Credentials } from "../../models/credentials";
 import {
   DEFAULT_PATH,
   PASSWORD_VALIDATOR_ERROR,
-} from "../../stores/constantsStore";
+} from "../../utils/constants";
 import { stores } from "../../stores/stores";
 import { validatePassword } from "../../utils/validators";
 

@@ -19,7 +19,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Credentials } from "../../models/credentials";
 import { stores } from "../../stores/stores";
-import { DEFAULT_PATH } from "../../stores/constantsStore";
+import { DEFAULT_PATH } from "../../utils/constants";
 import { validateEmail } from "../../utils/validators";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 

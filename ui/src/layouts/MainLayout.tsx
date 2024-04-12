@@ -1,11 +1,11 @@
 import { Outlet } from "react-router-dom";
+import MainAppBar from "../components/appBars/MainAppBar";
 import UserSettingsDrawer from "../components/drawers/UserSettingsDrawer";
-import MainNavBar from "../components/navBars/MainNavBar";
 
 const MainLayout = () => {
   return (
     <>
-      <MainNavBar />
+      <MainAppBar />
       <UserSettingsDrawer />
       <Outlet />
     </>

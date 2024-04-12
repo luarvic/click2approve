@@ -23,7 +23,7 @@ import {
   DEFAULT_PATH,
   EMAIL_SERVICE_IS_ENABLED,
   PASSWORD_VALIDATOR_ERROR,
-} from "../../stores/constantsStore";
+} from "../../utils/constants";
 import { stores } from "../../stores/stores";
 import { validateEmail, validatePassword } from "../../utils/validators";
 

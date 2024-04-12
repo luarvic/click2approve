@@ -1,6 +1,6 @@
 import { PaletteMode, Theme, createTheme } from "@mui/material";
 import { makeAutoObservable, runInAction } from "mobx";
-import { readColorMode, writeColorMode } from "../utils/cacheClient";
+import { readColorMode, writeColorMode } from "../modules/session";
 
 export class UserSettingsStore {
   theme: Theme;

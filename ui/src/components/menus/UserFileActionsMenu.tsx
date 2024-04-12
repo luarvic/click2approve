@@ -6,7 +6,7 @@ import {
   MENU_ANCHOR_ORIGIN,
   MENU_SLOT_PROPS,
   MENU_TRANSFORM_ORIGIN,
-} from "../../stores/constantsStore";
+} from "../../utils/constants";
 import { stores } from "../../stores/stores";
 
 interface IUserFileActionsMenuProps {
@@ -25,7 +25,7 @@ const UserFileActionsMenu: React.FC<IUserFileActionsMenuProps> = ({
     setAnchorEl(null);
   };
   const handleDelete = () => {
-    stores.fileStore.setCurrentUSerFile(userFile);
+    stores.userFileStore.setCurrentUSerFile(userFile);
     stores.commonStore.setUserFileDeleteDialogIsOpen(true);
     handleClose();
   };

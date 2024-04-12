@@ -13,7 +13,7 @@ const SendButton = () => {
         stores.commonStore.setApprovalRequestSubmitDialogIsOpen(true)
       }
       disabled={
-        stores.fileStore.getSelectedUserFiles().length > 0 ? false : true
+        stores.userFileStore.getSelectedUserFiles().length > 0 ? false : true
       }
     >
       Send

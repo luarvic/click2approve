@@ -16,7 +16,7 @@ const UploadButton = () => {
     if (event.currentTarget) {
       const filesToUpload = event.currentTarget.files;
       if (filesToUpload) {
-        stores.fileStore.addUserFiles(filesToUpload);
+        stores.userFileStore.addUserFiles(filesToUpload);
       }
     }
   };

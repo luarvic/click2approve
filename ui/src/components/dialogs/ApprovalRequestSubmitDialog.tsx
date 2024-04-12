@@ -18,8 +18,8 @@ import { Dayjs } from "dayjs";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { approvalRequestSubmit } from "../../api/controllers/approvalRequest";
 import { stores } from "../../stores/stores";
-import { approvalRequestSubmit } from "../../utils/apiClient";
 import { validateEmails } from "../../utils/validators";
 import UserFilesList from "../lists/UserFilesList";
 
@@ -78,7 +78,7 @@ const ApprovalRequestSubmitDialog = () => {
           } else {
             stores.commonStore.setApprovalRequestSubmitDialogIsOpen(false);
             await approvalRequestSubmit(
-              stores.fileStore.getSelectedUserFiles(),
+              stores.userFileStore.getSelectedUserFiles(),
               approvers.map((a) => a.toLocaleLowerCase().trim()),
               approveBy ? approveBy.toDate() : null,
               comment?.toString()
@@ -95,7 +95,7 @@ const ApprovalRequestSubmitDialog = () => {
           You are about to send the following file(s) for review:
         </DialogContentText>
         <UserFilesList
-          userFiles={stores.fileStore.getSelectedUserFiles()}
+          userFiles={stores.userFileStore.getSelectedUserFiles()}
           direction="column"
           sx={{ my: 1 }}
         />

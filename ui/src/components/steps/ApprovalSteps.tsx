@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { IApprovalRequest } from "../../models/approvalRequest";
 import { ApprovalStatus } from "../../models/approvalStatus";
-import { getLocaleDateTimeString } from "../../utils/converters";
+import { getLocaleDateTimeString } from "../../utils/helpers";
 import CommentPaper from "../papers/CommentPaper";
 
 interface IApprovalStepsProps {

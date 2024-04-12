@@ -6,7 +6,7 @@ import {
   MENU_ANCHOR_ORIGIN,
   MENU_SLOT_PROPS,
   MENU_TRANSFORM_ORIGIN,
-} from "../../stores/constantsStore";
+} from "../../utils/constants";
 import { stores } from "../../stores/stores";
 
 interface IApprovalRequestActionsMenuProps {

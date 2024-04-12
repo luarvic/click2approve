@@ -14,11 +14,11 @@ import {
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
+import { taskComplete } from "../../api/controllers/approvalRequestTask";
 import { ApprovalStatus } from "../../models/approvalStatus";
 import { Tab } from "../../models/tab";
 import { stores } from "../../stores/stores";
-import { taskComplete } from "../../utils/apiClient";
-import { getLocaleDateTimeString } from "../../utils/converters";
+import { getLocaleDateTimeString } from "../../utils/helpers";
 import UserFilesList from "../lists/UserFilesList";
 import CommentPaper from "../papers/CommentPaper";
 
@@ -50,19 +50,19 @@ const UncompletedTaskReviewDialog = () => {
             setDecisionError(true);
           } else {
             stores.commonStore.setTaskReviewDialogIsOpen(false);
-            stores.taskStore.currentTask &&
+            stores.approvalRequestTaskStore.currentTask &&
               stores.userAccountStore.currentUser &&
               (await taskComplete(
-                stores.taskStore.currentTask.id,
+                stores.approvalRequestTaskStore.currentTask.id,
                 decision === "approve"
                   ? ApprovalStatus.Approved
                   : ApprovalStatus.Rejected,
                 comment?.toString()
               ));
             cleanUp();
-            stores.taskStore.clearTasks();
-            stores.taskStore.loadTasks(Tab.Inbox);
-            stores.taskStore.loadNumberOfUncompletedTasks();
+            stores.approvalRequestTaskStore.clearTasks();
+            stores.approvalRequestTaskStore.loadTasks(Tab.Inbox);
+            stores.approvalRequestTaskStore.loadNumberOfUncompletedTasks();
           }
         },
       }}
@@ -70,28 +70,36 @@ const UncompletedTaskReviewDialog = () => {
       <DialogTitle>Review the file(s)</DialogTitle>
       <DialogContent dividers>
         <DialogContentText>
-          {stores.taskStore.currentTask?.approvalRequest.author.toLowerCase()}{" "}
+          {stores.approvalRequestTaskStore.currentTask?.approvalRequest.author.toLowerCase()}{" "}
           on{" "}
           {getLocaleDateTimeString(
-            stores.taskStore.currentTask?.approvalRequest.submittedDate
+            stores.approvalRequestTaskStore.currentTask?.approvalRequest
+              .submittedDate
           )}{" "}
           requested you to review the following file(s):
         </DialogContentText>
         <UserFilesList
-          userFiles={stores.taskStore.currentTask?.approvalRequest.userFiles}
+          userFiles={
+            stores.approvalRequestTaskStore.currentTask?.approvalRequest
+              .userFiles
+          }
           direction="column"
           sx={{ my: 1 }}
         />
-        {stores.taskStore.currentTask?.approvalRequest.approveBy && (
+        {stores.approvalRequestTaskStore.currentTask?.approvalRequest
+          .approveBy && (
           <DialogContentText>
             by{" "}
             {getLocaleDateTimeString(
-              stores.taskStore.currentTask?.approvalRequest.approveByDate
+              stores.approvalRequestTaskStore.currentTask?.approvalRequest
+                .approveByDate
             )}
           </DialogContentText>
         )}
         <CommentPaper
-          text={stores.taskStore.currentTask?.approvalRequest.comment}
+          text={
+            stores.approvalRequestTaskStore.currentTask?.approvalRequest.comment
+          }
           sx={{ my: 1 }}
         />
         <FormControl key="decision" error={decisionError}>

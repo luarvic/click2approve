@@ -7,8 +7,8 @@ import {
   DialogTitle,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
+import { fileDelete } from "../../api/controllers/userFile";
 import { stores } from "../../stores/stores";
-import { fileDelete } from "../../utils/apiClient";
 import UserFilesList from "../lists/UserFilesList";
 
 const UserFileDeleteDialog = () => {
@@ -26,10 +26,10 @@ const UserFileDeleteDialog = () => {
         onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
           event.preventDefault();
           stores.commonStore.setUserFileDeleteDialogIsOpen(false);
-          stores.fileStore.currentUserFile &&
-            (await fileDelete(stores.fileStore.currentUserFile.id));
-          stores.fileStore.clearUserFiles();
-          stores.fileStore.loadUserFiles();
+          stores.userFileStore.currentUserFile &&
+            (await fileDelete(stores.userFileStore.currentUserFile.id));
+          stores.userFileStore.clearUserFiles();
+          stores.userFileStore.loadUserFiles();
         },
       }}
     >
@@ -39,9 +39,9 @@ const UserFileDeleteDialog = () => {
           Are you sure you want to delete the following file together with all
           related approval requests? This cannot be undone.
         </DialogContentText>
-        {stores.fileStore.currentUserFile && (
+        {stores.userFileStore.currentUserFile && (
           <UserFilesList
-            userFiles={[stores.fileStore.currentUserFile]}
+            userFiles={[stores.userFileStore.currentUserFile]}
             direction="column"
             sx={{ my: 1 }}
           />

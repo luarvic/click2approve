@@ -20,8 +20,8 @@ import { stores } from "../../stores/stores";
 import {
   DATA_GRID_DEFAULT_PAGE_SIZE,
   MAX_SIZE_WHEN_DISPLAY,
-} from "../../stores/constantsStore";
-import { getHumanReadableRelativeDate } from "../../utils/converters";
+} from "../../utils/constants";
+import { getHumanReadableRelativeDate } from "../../utils/helpers";
 import { downloadUserFile } from "../../utils/downloaders";
 import GridToolbarButtons from "../buttons/GridToolbarButtons";
 import SendButton from "../buttons/SendButton";
@@ -37,8 +37,8 @@ const FilesGrid = () => {
 
   useEffect(() => {
     stores.commonStore.setCurrentTab(Tab.Files);
-    stores.fileStore.clearUserFiles();
-    stores.fileStore.loadUserFiles();
+    stores.userFileStore.clearUserFiles();
+    stores.userFileStore.loadUserFiles();
   }, []);
 
   const customToolbar = () => {
@@ -100,7 +100,7 @@ const FilesGrid = () => {
   return (
     <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
       <DataGrid
-        rows={stores.fileStore.userFiles}
+        rows={stores.userFileStore.userFiles}
         columns={columns}
         columnVisibilityModel={{
           createdDate: useMediaQuery(
@@ -120,7 +120,7 @@ const FilesGrid = () => {
         checkboxSelection
         disableRowSelectionOnClick
         onRowSelectionModelChange={(items) =>
-          stores.fileStore.handleUserFileCheckbox(items as number[])
+          stores.userFileStore.handleUserFileCheckbox(items as number[])
         }
         slots={{
           toolbar: customToolbar,

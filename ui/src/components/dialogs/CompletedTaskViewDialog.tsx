@@ -14,7 +14,7 @@ import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { ApprovalStatus } from "../../models/approvalStatus";
 import { stores } from "../../stores/stores";
-import { getLocaleDateTimeString } from "../../utils/converters";
+import { getLocaleDateTimeString } from "../../utils/helpers";
 import UserFilesList from "../lists/UserFilesList";
 import CommentPaper from "../papers/CommentPaper";
 
@@ -39,34 +39,44 @@ const CompletedTaskViewDialog = () => {
       <DialogTitle>Reviewed file(s)</DialogTitle>
       <DialogContent dividers>
         <DialogContentText>
-          {stores.taskStore.currentTask?.approvalRequest.author.toLowerCase()}{" "}
+          {stores.approvalRequestTaskStore.currentTask?.approvalRequest.author.toLowerCase()}{" "}
           on{" "}
           {getLocaleDateTimeString(
-            stores.taskStore.currentTask?.approvalRequest.submittedDate
+            stores.approvalRequestTaskStore.currentTask?.approvalRequest
+              .submittedDate
           )}{" "}
           requested you to review the following file(s):
         </DialogContentText>
 
         <UserFilesList
-          userFiles={stores.taskStore.currentTask?.approvalRequest.userFiles}
+          userFiles={
+            stores.approvalRequestTaskStore.currentTask?.approvalRequest
+              .userFiles
+          }
           direction="column"
           sx={{ my: 1 }}
         />
-        {stores.taskStore.currentTask?.approvalRequest.approveBy && (
+        {stores.approvalRequestTaskStore.currentTask?.approvalRequest
+          .approveBy && (
           <DialogContentText>
             by{" "}
             {getLocaleDateTimeString(
-              stores.taskStore.currentTask?.approvalRequest.approveByDate
+              stores.approvalRequestTaskStore.currentTask?.approvalRequest
+                .approveByDate
             )}
           </DialogContentText>
         )}
         <CommentPaper
-          text={stores.taskStore.currentTask?.approvalRequest.comment}
+          text={
+            stores.approvalRequestTaskStore.currentTask?.approvalRequest.comment
+          }
           sx={{ my: 1 }}
         />
         <DialogContentText>
           On{" "}
-          {getLocaleDateTimeString(stores.taskStore.currentTask?.completedDate)}{" "}
+          {getLocaleDateTimeString(
+            stores.approvalRequestTaskStore.currentTask?.completedDate
+          )}{" "}
           you
         </DialogContentText>
         <FormControl key="decision" error={decisionError}>
@@ -74,7 +84,8 @@ const CompletedTaskViewDialog = () => {
             row
             name="decision"
             value={
-              stores.taskStore.currentTask?.status === ApprovalStatus.Approved
+              stores.approvalRequestTaskStore.currentTask?.status ===
+              ApprovalStatus.Approved
                 ? "approved"
                 : "rejected"
             }
@@ -94,7 +105,7 @@ const CompletedTaskViewDialog = () => {
           </RadioGroup>
         </FormControl>
         <CommentPaper
-          text={stores.taskStore.currentTask?.comment}
+          text={stores.approvalRequestTaskStore.currentTask?.comment}
           sx={{ my: 1 }}
         />
       </DialogContent>
