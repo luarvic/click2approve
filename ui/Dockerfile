@@ -15,7 +15,7 @@ RUN npm install react-scripts@5.0.1 -g --silent
 RUN if [ "${ENV}" = "production" ]; then \
   npm run build; \
   else \
-  npm run dev; \
+  npm run build-dev; \
   fi
 
 FROM nginx:stable-alpine

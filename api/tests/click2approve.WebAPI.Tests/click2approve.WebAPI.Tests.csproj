@@ -22,4 +22,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\click2approve.WebAPI\click2approve.WebAPI.csproj" />
+  </ItemGroup>
+
 </Project>

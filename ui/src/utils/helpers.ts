@@ -1,4 +1,4 @@
-import { InternalAxiosRequestConfig } from "axios";
+import { AxiosError, InternalAxiosRequestConfig } from "axios";
 import ago from "s-ago";
 import {
   ACCOUNT_LOCK_OUT_TIME_IN_MINUTES,
@@ -19,13 +19,14 @@ export const getUserFriendlyApiErrorMessage = (error: any): string => {
   try {
     let message = "";
     if (
-      error.hasOwnProperty("response") &&
-      error.response.hasOwnProperty("data")
+      error instanceof AxiosError &&
+      error.response &&
+      Object.prototype.hasOwnProperty.call(error.response, "data")
     ) {
-      if (error.response.data.hasOwnProperty("title")) {
+      if (Object.prototype.hasOwnProperty.call(error.response.data, "title")) {
         message += error.response.data.title;
       }
-      if (error.response.data.hasOwnProperty("detail")) {
+      if (Object.prototype.hasOwnProperty.call(error.response.data, "detail")) {
         message += message === "" ? "" : " ";
         switch (error.response.data.detail) {
           case "Failed":
@@ -38,7 +39,7 @@ export const getUserFriendlyApiErrorMessage = (error: any): string => {
             break;
         }
       }
-      if (error.response.data.hasOwnProperty("errors")) {
+      if (Object.prototype.hasOwnProperty.call(error.response.data, "errors")) {
         message += message === "" ? "" : "\n";
         message += JSON.stringify(error.response.data.errors);
       }

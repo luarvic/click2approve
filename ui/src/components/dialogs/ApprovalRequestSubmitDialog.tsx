@@ -39,7 +39,7 @@ const ApprovalRequestSubmitDialog = () => {
   const handleAutocompleteFocusOut = (
     event: React.FormEvent<HTMLDivElement>
   ) => {
-    var pressEnter = new KeyboardEvent("keydown", {
+    const pressEnter = new KeyboardEvent("keydown", {
       code: "Enter",
       key: "Enter",
       charCode: 13,

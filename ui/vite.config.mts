@@ -7,5 +7,9 @@ export default defineConfig(() => {
       port: 3333,
     },
     plugins: [react()],
+    test: {
+      globals: true,
+      environment: "happy-dom",
+    },
   };
 });

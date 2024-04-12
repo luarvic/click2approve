@@ -28,7 +28,7 @@ const ConfirmEmailPage = () => {
     } else {
       navigate("/notfound");
     }
-  }, []);
+  }, [navigate, searchParams]);
 
   return (
     <>

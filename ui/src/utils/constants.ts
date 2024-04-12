@@ -4,9 +4,8 @@ import passwordValidator from "password-validator";
 // API
 export const API_URI = import.meta.env.VITE_API_URI;
 export const API_TIMEOUT_MS = 1000;
-export const EMAIL_SERVICE_IS_ENABLED: boolean = JSON.parse(
-  import.meta.env.VITE_EMAIL_SERVICE_IS_ENABLED
-);
+export const EMAIL_SERVICE_IS_ENABLED: boolean =
+  import.meta.env.VITE_EMAIL_SERVICE_IS_ENABLED === "true";
 
 // Toast
 export const TOAST_AUTO_CLOSE = 3000;

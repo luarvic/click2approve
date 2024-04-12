@@ -14,7 +14,7 @@ axiosInstance.defaults.baseURL = API_URI;
 axiosInstance.interceptors.request.use(async (config) => {
   config.url &&
     stores.commonStore.updateLoadingCounter(getLoaderName(config), 1);
-  var tokens = readTokens();
+  const tokens = readTokens();
   if (tokens) {
     config.headers.Authorization = `Bearer ${tokens.accessToken}`;
   }

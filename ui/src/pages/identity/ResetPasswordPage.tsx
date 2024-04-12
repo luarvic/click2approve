@@ -18,10 +18,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Credentials } from "../../models/credentials";
-import {
-  DEFAULT_PATH,
-  PASSWORD_VALIDATOR_ERROR,
-} from "../../utils/constants";
+import { DEFAULT_PATH, PASSWORD_VALIDATOR_ERROR } from "../../utils/constants";
 import { stores } from "../../stores/stores";
 import { validatePassword } from "../../utils/validators";
 
@@ -48,7 +45,7 @@ const ResetPasswordPage = () => {
     } else {
       navigate("/notfound");
     }
-  }, []);
+  }, [navigate, searchParams]);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleClickShowPasswordConfirmation = () =>
