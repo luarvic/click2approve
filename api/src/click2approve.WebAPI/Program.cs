@@ -15,7 +15,12 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwagger();
 builder.Services.AddHttpClient();
-builder.Services.AddDbContext<ApiDbContext>();
+builder.Services.AddDbContext<ApiDbContext>(options =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("Default");
+    options.UseMySql(builder.Configuration.GetConnectionString("Default"),
+        ServerVersion.AutoDetect(connectionString));
+});
 builder.Services.AddTransient<IAuditLogService, AuditLogService>();
 builder.Services.AddTransient<IUserFileService, UserFileService>();
 builder.Services.AddTransient<IApprovalRequestService, ApprovalRequestService>();
@@ -50,3 +55,6 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapGroup("/api/account").MapIdentityApi<AppUser>();
 app.Run();
+
+// This declaration is required for integration tests.
+public partial class Program { }
