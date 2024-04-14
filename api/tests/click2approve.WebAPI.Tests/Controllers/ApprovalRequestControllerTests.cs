@@ -10,19 +10,13 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
 
     [Theory]
     [InlineData("POST", "api/request")]
+    [InlineData("DELETE", "api/request")]
+    [InlineData("GET", "api/request/list")]
     public async Task Requests_WithoutBearerToken_ShouldReturnUnauthorized(string httpMethod, string url)
     {
-        HttpResponseMessage response = new();
         var client = _applicationFactory.CreateClient();
-        switch (httpMethod)
-        {
-            case "POST":
-                response = await client.PostAsync(new Uri(baseUrl, url), new StringContent(""));
-                break;
-        }
-
-        // Assert
-        ; // Status Code 200-299
+        var request = new HttpRequestMessage(HttpMethod.Parse(httpMethod), url);
+        var response = await client.SendAsync(request);
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 }
