@@ -1,6 +1,6 @@
 using click2approve.WebAPI.Helpers;
 
-namespace click2approve.WebAPI.Tests.Helpers;
+namespace click2approve.WebAPI.Tests.HelpersTests;
 
 public class UriHelpersTests
 {

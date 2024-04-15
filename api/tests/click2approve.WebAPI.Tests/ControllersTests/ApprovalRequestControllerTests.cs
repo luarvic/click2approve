@@ -1,10 +1,9 @@
 using System.Net;
 
-namespace click2approve.WebAPI.Tests.Controllers;
+namespace click2approve.WebAPI.Tests.ControllersTests;
 
 public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program> applicationFactory) : IClassFixture<CustomWebApplicationFactory<Program>>
 {
-    private readonly Uri baseUrl = new("http://localhost:5555");
     private readonly CustomWebApplicationFactory<Program> _applicationFactory = applicationFactory;
 
     [Theory]
