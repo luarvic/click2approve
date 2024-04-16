@@ -1,10 +1,6 @@
 using System.Net;
-using System.Text;
-using click2approve.WebAPI.Models;
 using click2approve.WebAPI.Tests.Extensions;
-using click2approve.WebAPI.Tests.Helpers;
 using click2approve.WebAPI.Tests.Models;
-using Newtonsoft.Json;
 
 namespace click2approve.WebAPI.Tests.ControllersTests;
 
