@@ -88,66 +88,20 @@ public class UserFileService(
 
     public async Task<(string Filename, byte[] Bytes)> DownloadAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
+        var isApprover = await _db.ApprovalRequestTasks
+            .AnyAsync(t => t.Approver == user.NormalizedEmail && t.ApprovalRequest.UserFiles.Any(f => f.Id == id), cancellationToken);
+
         var userFile = await _db.UserFiles
             .FirstAsync(f => f.Id == id &&
             (
                 f.Owner == user.Id || // the user is either an owner
-                f.ApprovalRequests.Any(r => r.Approvers.Any(a => a == user.NormalizedEmail)) // or an approver
+                isApprover // or an approver
             ), cancellationToken: cancellationToken);
         return
         (
             userFile.Name,
             await _storeService.GetFileAsync(GetFilePath(userFile.Owner, userFile.Id.ToString(), userFile.Name), cancellationToken)
         );
-    }
-
-    public async Task<(string Filename, byte[] Bytes)> DownloadArchiveAsync(AppUser user, long[] ids, CancellationToken cancellationToken)
-    {
-        var userFiles = await _db.UserFiles
-            .Where(f => ids.Contains(f.Id) &&
-            (
-                f.Owner == user.Id || // the user is either an owner
-                f.ApprovalRequests.Any(r => r.Approvers.Any(a => a == user.NormalizedEmail)) // or an approver
-            ))
-            .ToListAsync(cancellationToken);
-
-        // Let's handle multiple files in parallel.
-        var files = new ConcurrentDictionary<string, byte[]>();
-        var tasks = new List<Task>();
-        foreach (var userFile in userFiles)
-        {
-            tasks.Add(Task.Run(() =>
-            _storeService.GetFileAsync(GetFilePath(userFile.Owner, userFile.Id.ToString(), userFile.Name), cancellationToken))
-                .ContinueWith(bytes =>
-                {
-                    // Files can have same names.
-                    var derivedFilename = $"{Path.GetFileNameWithoutExtension(userFile.Name)}-{userFile.Id}{userFile.Type}";
-                    files.TryAdd(derivedFilename, bytes.Result);
-                }, cancellationToken));
-        }
-        Task.WaitAll([.. tasks], cancellationToken);
-
-        return await CompressAsync(files.ToDictionary(), cancellationToken);
-    }
-
-    private static async Task<(string Filename, byte[] Bytes)> CompressAsync(IDictionary<string, byte[]> files, CancellationToken cancellationToken)
-    {
-        using (var compressedFileStream = new MemoryStream())
-        {
-            using (var zipArchive = new ZipArchive(compressedFileStream, ZipArchiveMode.Create, false))
-            {
-                foreach (var file in files)
-                {
-                    var zipEntry = zipArchive.CreateEntry(file.Key);
-                    using (var originalFileStream = new MemoryStream(file.Value))
-                    using (var zipEntryStream = zipEntry.Open())
-                    {
-                        await originalFileStream.CopyToAsync(zipEntryStream);
-                    }
-                }
-            }
-            return ("archive.zip", compressedFileStream.ToArray());
-        }
     }
 
     public async Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken)
