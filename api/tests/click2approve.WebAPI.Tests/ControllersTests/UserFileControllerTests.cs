@@ -35,8 +35,8 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
     /// Makes sure that:
     ///     - Authenticated users can access the controller's endpoints.
     ///     - Uploading files works correctly.
-    ///     - Authenticated users can only work with their own files.
-    ///     - Deleting files works correctly.
+    ///     - Only owners can list and delete their files.
+    ///     - Only owners and approvers can download their files.
     /// </summary>
     [Fact]
     public async Task UserFileControllerEndpoints_WhenRequestedWithBearerToken_ShouldWork()
@@ -66,53 +66,30 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
         foreach (var testScenario in testScenarios)
         {
             // Register and log in.
-            await _client.RegisterAsync(testScenario.Credentials);
-            var loginResponse = await _client.LoginAsync(testScenario.Credentials);
+            await _client.RegisterAsync(testScenario.Credentials, CancellationToken.None);
+            var loginResponse = await _client.LogInAsync(testScenario.Credentials, CancellationToken.None);
 
             // Upload files and assert the result.
-            var formContent = new MultipartFormDataContent();
-            foreach (var file in testScenario.FilesToUpload)
-            {
-                formContent.Add(Converters.GetStreamContentFromBytes(Encoding.UTF8.GetBytes(file.Value)), "files", file.Key);
-            }
-            var uploadRequest = new HttpRequestMessage(HttpMethod.Post, "api/file/upload")
-            {
-                Content = formContent
-            };
-            uploadRequest.Headers.Add("Authorization", $"Bearer {loginResponse.AccessToken}");
-            var uploadResponse = await _client.SendAsync(uploadRequest);
-            var uploadErrorMessage = $"Upload failed for user {testScenario.Credentials.Email}.";
-            if (!uploadResponse.IsSuccessStatusCode) throw new Exception(uploadErrorMessage);
-            var uploadResponseJson = await uploadResponse.Content.ReadAsStringAsync() ?? throw new Exception(uploadErrorMessage);
-            testScenario.UploadedFiles = JsonConvert.DeserializeObject<List<UserFile>>(uploadResponseJson) ?? throw new Exception(uploadErrorMessage);
+            testScenario.UploadedFiles = await _client.UploadTextFilesAsync(loginResponse.AccessToken, testScenario.FilesToUpload, CancellationToken.None);
             Assert.Equal(testScenario.FilesToUpload.Count, testScenario.UploadedFiles.Count);
 
             // List uploaded files and assert the result.
-            var listRequest = new HttpRequestMessage(HttpMethod.Get, "api/file/list");
-            listRequest.Headers.Add("Authorization", $"Bearer {loginResponse.AccessToken}");
-            var listResponse = await _client.SendAsync(listRequest);
-            var listErrorMessage = $"List failed for user {testScenario.Credentials.Email}.";
-            if (!listResponse.IsSuccessStatusCode) throw new Exception(listErrorMessage);
-            var listResponseJson = await listResponse.Content.ReadAsStringAsync() ?? throw new Exception(listErrorMessage);
-            var listResponseContent = JsonConvert.DeserializeObject<List<UserFile>>(listResponseJson) ?? throw new Exception(listErrorMessage);
-            Assert.Equal(testScenario.FilesToUpload.Count, listResponseContent.Count);
+            var userFiles = await _client.ListFilesAsync(loginResponse.AccessToken, CancellationToken.None);
+            Assert.Equal(testScenario.FilesToUpload.Count, userFiles.Count);
             foreach (var file in testScenario.FilesToUpload)
             {
-                Assert.Contains(listResponseContent, f => f.Name == file.Key);
+                Assert.Contains(userFiles, f => f.Name == file.Key);
             }
 
-            // Download files and assert the result.
+            // Download uploaded files and assert the result.
             foreach (var uploadedFile in testScenario.UploadedFiles)
             {
-                var downloadRequest = new HttpRequestMessage(HttpMethod.Get, $"api/file/download?id={uploadedFile.Id}");
-                downloadRequest.Headers.Add("Authorization", $"Bearer {loginResponse.AccessToken}");
-                var downloadResponse = await _client.SendAsync(downloadRequest);
-                var downloadErrorMessage = $"Download failed for user {testScenario.Credentials.Email} and id {uploadedFile.Id}.";
-                if (!downloadResponse.IsSuccessStatusCode) throw new Exception(listErrorMessage);
-                var downloadResponseString = await downloadResponse.Content.ReadAsStringAsync() ?? throw new Exception(listErrorMessage);
+                var downloadedFileContent = await _client.DownloadFileAsync(loginResponse.AccessToken, uploadedFile.Id, CancellationToken.None);
                 var originalFileContent = testScenario.FilesToUpload.Single(f => f.Key == uploadedFile.Name).Value;
-                Assert.Equal(originalFileContent, downloadResponseString);
+                Assert.Equal(originalFileContent, downloadedFileContent);
             }
+
+            // Try downloading a file that doesn't belong to the user
 
             // Download base64 and assert the result.
 
