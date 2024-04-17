@@ -17,4 +17,13 @@ public static class Converters
         streamContent.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
         return streamContent;
     }
+
+    public static string GetQueryStringFromDictionary(Dictionary<string, string>? dictionary)
+    {
+        return dictionary != null ?
+            string.Join("&",
+                dictionary.Select(kvp =>
+                    string.Format("{0}={1}", kvp.Key, kvp.Value))) :
+            "";
+    }
 }

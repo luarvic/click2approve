@@ -3,7 +3,7 @@ namespace click2approve.WebAPI.Tests.Models;
 /// <summary>
 /// Represents a JSON data returned by api/account/login endpoint.
 /// </summary>
-public class LoginResponseContent
+public class LoginResponse
 {
     public required string TokenType { get; set; }
     public required string AccessToken { get; set; }
