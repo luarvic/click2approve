@@ -18,6 +18,9 @@ public static class Converters
         return streamContent;
     }
 
+    /// <summary>
+    /// Generates a query string out of dictionary.
+    /// </summary>
     public static string GetQueryStringFromDictionary(Dictionary<string, string>? dictionary)
     {
         return dictionary != null ?
@@ -27,6 +30,9 @@ public static class Converters
             "";
     }
 
+    /// <summary>
+    /// Encodes a string to Base64.
+    /// </summary>
     public static string GetBase64FromString(string plainText)
     {
         var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);

@@ -32,11 +32,12 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
     }
 
     /// <summary>
-    /// Makes sure that:
-    ///     - Authenticated users can access the controller's endpoints.
-    ///     - Uploading files works correctly.
-    ///     - Only owners can list and delete their files.
-    ///     - Only owners and approvers can download their files.
+    /// Tests if:
+    ///     1. Uploading files works correctly.
+    ///     2. Owners can list their files.
+    ///     3. Owners can download their files.
+    ///     4. Users cannot download and delete files owned by other users.
+    ///     5. Owners can delete their files.
     /// </summary>
     [Fact]
     public async Task AllEndpoints_WhenRequestedWithBearerToken_ShouldWorkProperly()
@@ -69,7 +70,7 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
             await _client.RegisterAsync(testDataEntry.Credentials, CancellationToken.None);
         }
 
-        // Upload files and assert the result.
+        // 1. Uploading files works correctly.
         foreach (var testDataEntry in testData)
         {
             // Log in.
@@ -79,7 +80,7 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
             Assert.Equal(testDataEntry.FilesToUpload.Count, uploadedFiles.Count);
         }
 
-        // List files and assert the result.
+        // 2. Owners can list their files.
         foreach (var testDataEntry in testData)
         {
             // Log in.
@@ -93,7 +94,7 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
             }
         }
 
-        // Download files and assert the result.
+        // 3. Owners can download their files.
         foreach (var testDataEntry in testData)
         {
             // Log in.
@@ -117,7 +118,7 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
             }
         }
 
-        // Try downloading and delete files owned by other users and assert the result.
+        // 4. Users cannot download and delete files owned by other users.
         foreach (var testDataEntry in testData)
         {
             // Log in.
@@ -137,7 +138,9 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
             }
         }
 
-        // Delete files and assert the result.
+        // TBD Approvers can download files but cannot delete files.
+
+        // 5. Owners can delete their files.
         foreach (var testDataEntry in testData)
         {
             // Log in.

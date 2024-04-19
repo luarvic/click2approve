@@ -1,7 +1,6 @@
 using click2approve.WebAPI.Extensions;
 using click2approve.WebAPI.Models;
 using click2approve.WebAPI.Services;
-using click2approve.WebAPI;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
