@@ -44,7 +44,7 @@ public class ApprovalRequestService(ApiDbContext db,
 
         // Collect required data.
         var userFiles = await _db.UserFiles
-            .Where(f => payload.UserFileIds.Contains(f.Id) && f.Owner == user.Id)
+            .Where(f => payload.UserFileIds.Contains(f.Id) && f.Owner == user)
             .ToListAsync(cancellationToken);
         var normalizedEmails = payload.Emails.Select(e => e.ToUpper()).ToList();
         var utcNow = DateTime.UtcNow;

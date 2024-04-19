@@ -26,4 +26,10 @@ public static class Converters
                     string.Format("{0}={1}", kvp.Key, kvp.Value))) :
             "";
     }
+
+    public static string GetBase64FromString(string plainText)
+    {
+        var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
+        return Convert.ToBase64String(plainTextBytes);
+    }
 }

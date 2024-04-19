@@ -1,5 +1,3 @@
-using System.Collections.Concurrent;
-using System.IO.Compression;
 using click2approve.WebAPI.Extensions;
 using click2approve.WebAPI.Models;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +25,7 @@ public class UserFileService(
         var maxFileCount = _configuration.GetValue<int>("Limitations:MaxFileCount");
         if (maxFileCount > 0)
         {
-            var fileCount = await _db.UserFiles.CountAsync(f => f.Owner == user.Id, cancellationToken);
+            var fileCount = await _db.UserFiles.CountAsync(f => f.Owner == user, cancellationToken);
             if (fileCount + files.Count > maxFileCount)
             {
                 throw new Exception($"Maximum file count ({maxFileCount}) is exceeded.");
@@ -55,7 +53,7 @@ public class UserFileService(
                 Name = file.FileName,
                 Type = Path.GetExtension(file.FileName),
                 Created = DateTime.UtcNow,
-                Owner = user.Id,
+                Owner = user,
                 Size = file.Length
             };
             var userFileEntry = await _db.UserFiles.AddAsync(userFile, cancellationToken);
@@ -94,19 +92,19 @@ public class UserFileService(
         var userFile = await _db.UserFiles
             .FirstAsync(f => f.Id == id &&
             (
-                f.Owner == user.Id || // the user is either an owner
+                f.Owner == user || // the user is either an owner
                 isApprover // or an approver
             ), cancellationToken: cancellationToken);
         return
         (
             userFile.Name,
-            await _storeService.GetFileAsync(GetFilePath(userFile.Owner, userFile.Id.ToString(), userFile.Name), cancellationToken)
+            await _storeService.GetFileAsync(GetFilePath(userFile.Owner.Id, userFile.Id.ToString(), userFile.Name), cancellationToken)
         );
     }
 
     public async Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
-        var userFiles = await _db.UserFiles.Where(f => f.Owner == user.Id).ToListAsync(cancellationToken);
+        var userFiles = await _db.UserFiles.Where(f => f.Owner == user).ToListAsync(cancellationToken);
         return userFiles;
     }
 
@@ -115,7 +113,7 @@ public class UserFileService(
         var userFile = await _db.UserFiles
             .Include(f => f.ApprovalRequests)
             .ThenInclude(r => r.Tasks)
-            .FirstAsync(f => f.Id == id && f.Owner == user.Id, cancellationToken);
+            .FirstAsync(f => f.Id == id && f.Owner == user, cancellationToken);
         var userFileJson = userFile.ToString();
         _db.UserFiles.Remove(userFile);
         await _db.SaveChangesAsync(cancellationToken);

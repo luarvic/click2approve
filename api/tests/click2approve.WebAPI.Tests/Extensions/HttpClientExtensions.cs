@@ -153,4 +153,46 @@ public static class HttpClientExtensions
             cancellationToken
             );
     }
+
+    /// <summary>
+    /// Downloads base64 representation of a file by sending GET request to api/file/downloadBase64 endpoint.
+    /// </summary>
+    public static async Task<string> DownloadBase64Async(this HttpClient httpClient,
+    string accessToken,
+    long id,
+    CancellationToken cancellationToken)
+    {
+        return await httpClient.SendAsync<string>(HttpMethod.Get,
+            "api/file/downloadBase64",
+            new Dictionary<string, string> {
+                {"Authorization", $"Bearer {accessToken}"}
+            },
+            new Dictionary<string, string> {
+                {"id", id.ToString()},
+            },
+            null,
+            cancellationToken
+            );
+    }
+
+    /// <summary>
+    /// Deletes a file by sending DELETE request to api/file endpoint.
+    /// </summary>
+    public static async Task<string> DeleteFileAsync(this HttpClient httpClient,
+    string accessToken,
+    long id,
+    CancellationToken cancellationToken)
+    {
+        return await httpClient.SendAsync<string>(HttpMethod.Delete,
+            "api/file",
+            new Dictionary<string, string> {
+                {"Authorization", $"Bearer {accessToken}"}
+            },
+            new Dictionary<string, string> {
+                {"id", id.ToString()},
+            },
+            null,
+            cancellationToken
+            );
+    }
 }
