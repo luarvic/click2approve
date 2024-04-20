@@ -90,6 +90,7 @@ public class UserFileService(
             .AnyAsync(t => t.Approver == user.NormalizedEmail && t.ApprovalRequest.UserFiles.Any(f => f.Id == id), cancellationToken);
 
         var userFile = await _db.UserFiles
+            .Include(f => f.Owner)
             .FirstAsync(f => f.Id == id &&
             (
                 f.Owner == user || // the user is either an owner

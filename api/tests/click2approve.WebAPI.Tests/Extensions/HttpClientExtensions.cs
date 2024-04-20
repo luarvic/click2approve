@@ -1,6 +1,8 @@
 using System.Net.Http.Json;
+using System.Net.Mime;
 using System.Text;
 using click2approve.WebAPI.Models;
+using click2approve.WebAPI.Models.DTOs;
 using click2approve.WebAPI.Tests.Helpers;
 using click2approve.WebAPI.Tests.Models;
 using Newtonsoft.Json;
@@ -192,6 +194,29 @@ public static class HttpClientExtensions
                 {"id", id.ToString()},
             },
             null,
+            cancellationToken
+            );
+    }
+
+    /// <summary>
+    /// Submits an approval request by sending POST request to api/request endpoint.
+    /// </summary>
+    public static async Task<string> SubmitApprovalRequestAsync(this HttpClient httpClient,
+    string accessToken,
+    ApprovalRequestSubmitDto payload,
+    CancellationToken cancellationToken)
+    {
+        var body = new StringContent(
+            JsonConvert.SerializeObject(payload),
+            Encoding.UTF8,
+            MediaTypeNames.Application.Json);
+        return await httpClient.SendAsync<string>(HttpMethod.Post,
+            "api/request",
+            new Dictionary<string, string> {
+                {"Authorization", $"Bearer {accessToken}"}
+            },
+            null,
+            body,
             cancellationToken
             );
     }

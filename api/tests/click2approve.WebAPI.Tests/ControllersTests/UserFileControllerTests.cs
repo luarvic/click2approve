@@ -1,5 +1,6 @@
 using System.Net;
 using click2approve.WebAPI.Models;
+using click2approve.WebAPI.Models.DTOs;
 using click2approve.WebAPI.Tests.Extensions;
 using click2approve.WebAPI.Tests.Helpers;
 using click2approve.WebAPI.Tests.Models;
@@ -37,7 +38,8 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
     ///     2. Owners can list their files.
     ///     3. Owners can download their files.
     ///     4. Users cannot download and delete files owned by other users.
-    ///     5. Owners can delete their files.
+    ///     5. Approvers can download files that were sent to them.
+    ///     6. Owners can delete their files.
     /// </summary>
     [Fact]
     public async Task AllEndpoints_WhenRequestedWithBearerToken_ShouldWorkProperly()
@@ -138,9 +140,33 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
             }
         }
 
-        // TBD Approvers can download files but cannot delete files.
+        // 5. Approvers can download files that were sent to them.
+        // Let's prepare an approval request.
+        var requester = testData.First();
+        var approver = testData.First(x => x.Credentials.Email != requester.Credentials.Email);
+        var filesOwnedByRequester = _db.UserFiles
+            .Where(x => x.Owner.NormalizedEmail!.Equals(requester.Credentials.Email.ToUpper()))
+            .ToList();
+        var payload = new ApprovalRequestSubmitDto
+        {
+            UserFileIds = filesOwnedByRequester.Select(x => x.Id).ToList(),
+            Emails = [approver.Credentials.Email]
+        };
 
-        // 5. Owners can delete their files.
+        // Log in with requester and submit the request.
+        var requesterLoginData = await _client.LogInAsync(requester.Credentials, CancellationToken.None);
+        await _client.SubmitApprovalRequestAsync(requesterLoginData.AccessToken, payload, CancellationToken.None);
+
+        // Log in with approver and download the files owned by requester.
+        var approverLoginData = await _client.LogInAsync(approver.Credentials, CancellationToken.None);
+        foreach (var file in filesOwnedByRequester)
+        {
+            // Downloading should not throw.
+            await _client.DownloadFileAsync(approverLoginData.AccessToken, file.Id, CancellationToken.None);
+            await _client.DownloadBase64Async(approverLoginData.AccessToken, file.Id, CancellationToken.None);
+        }
+
+        // 6. Owners can delete their files.
         foreach (var testDataEntry in testData)
         {
             // Log in.
