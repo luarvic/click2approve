@@ -1,0 +1,67 @@
+name: Build and push Dev images
+on:
+  push:
+    branches:
+      - "**"
+env:
+  REGISTRY: docker.io
+  USERNAME: luarvic
+  IMAGE_NAME: ${{ github.repository }}
+jobs:
+  build-test-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        node-version: [16.x]
+        dotnet-version: [8.0.x]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build
+      - name: Test API
+        run: dotnet test
+      - name: Use Node.js ${{ matrix.node-version }}
+        working-directory: ./ui
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+      - name: Test UI
+        run: |
+          npm ci
+          npm run test
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      - name: Build and push API Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./api
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-api:dev
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: Build and push UI Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./ui
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-ui:dev
+          labels: ${{ steps.meta.outputs.labels }}
