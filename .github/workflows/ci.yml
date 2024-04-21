@@ -13,17 +13,13 @@ jobs:
     permissions:
       contents: read
       packages: write
-    strategy:
-      matrix:
-        node-version: [18.x]
-        dotnet-version: [8.0.x]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Setup dotnet
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ matrix.dotnet-version }}
+          dotnet-version: "8.0.x"
       - name: Install dependencies
         working-directory: ./api/src/click2approve.WebAPI
         run: dotnet restore
@@ -33,11 +29,11 @@ jobs:
       - name: Test API
         working-directory: ./api
         run: dotnet test
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js
         working-directory: ./ui
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: "18.x"
           cache: "npm"
       - name: Test UI
         run: |
