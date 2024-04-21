@@ -1,8 +1,8 @@
 import axios from "axios";
+import { readTokens } from "../modules/session";
 import { stores } from "../stores/stores";
 import { API_TIMEOUT_MS, API_URI } from "../utils/constants";
 import { getLoaderName } from "../utils/helpers";
-import { readTokens } from "../modules/session";
 import { accountRefresh } from "./controllers/auth";
 
 const axiosInstance = axios.create({
@@ -38,6 +38,8 @@ axiosInstance.interceptors.response.use(
         -1
       );
     if (
+      error.response &&
+      error.response.status &&
       error.response.status === 401 &&
       originalRequest.url !== "api/account/refresh" &&
       !originalRequest.url.startsWith("api/account/confirmEmail")

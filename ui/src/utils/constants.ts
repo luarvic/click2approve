@@ -3,7 +3,7 @@ import passwordValidator from "password-validator";
 
 // API
 export const API_URI = import.meta.env.VITE_API_URI;
-export const API_TIMEOUT_MS = 1000;
+export const API_TIMEOUT_MS = 10000;
 export const EMAIL_SERVICE_IS_ENABLED: boolean =
   import.meta.env.VITE_EMAIL_SERVICE_IS_ENABLED === "true";
 
