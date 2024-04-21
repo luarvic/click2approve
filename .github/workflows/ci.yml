@@ -8,71 +8,30 @@ env:
   USERNAME: luarvic
   IMAGE_NAME: ${{ github.repository }}
 jobs:
-  # build-test-and-push-api-image:
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: read
-  #     packages: write
-  #   strategy:
-  #     matrix:
-  #       dotnet-version: [8.0.x]
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v4
-  #     - name: Setup dotnet
-  #       uses: actions/setup-dotnet@v4
-  #       with:
-  #         dotnet-version: ${{ matrix.dotnet-version }}
-  #     - name: Install dependencies
-  #       working-directory: ./api/src/click2approve.WebAPI
-  #       run: dotnet restore
-  #     - name: Build
-  #       working-directory: ./api/src/click2approve.WebAPI
-  #       run: dotnet build
-  #     - name: Test
-  #       working-directory: ./api
-  #       run: dotnet test
-  #     - name: Log in to the Container registry
-  #       uses: docker/login-action@v3
-  #       with:
-  #         registry: ${{ env.REGISTRY }}
-  #         username: ${{ env.USERNAME }}
-  #         password: ${{ secrets.DOCKER_HUB_TOKEN }}
-  #     - name: Extract metadata (tags, labels) for Docker
-  #       id: meta
-  #       uses: docker/metadata-action@v5
-  #       with:
-  #         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-  #     - name: Build and push Docker image
-  #       uses: docker/build-push-action@v5
-  #       with:
-  #         context: ./api
-  #         push: true
-  #         tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-api:dev
-  #         labels: ${{ steps.meta.outputs.labels }}
-  build-test-and-push-ui-image:
+  build-test-and-push-api-image:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     strategy:
       matrix:
-        node-version: [18.x]
+        dotnet-version: [8.0.x]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Setup Node.js ${{ matrix.node-version }}
-        working-directory: ./ui
-        uses: actions/setup-node@v3
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: "npm"
+          dotnet-version: ${{ matrix.dotnet-version }}
       - name: Install dependencies
-        working-directory: ./ui
-        run: npm ci
+        working-directory: ./api/src/click2approve.WebAPI
+        run: dotnet restore
+      - name: Build
+        working-directory: ./api/src/click2approve.WebAPI
+        run: dotnet build
       - name: Test
-        working-directory: ./ui
-        run: npm test
+        working-directory: ./api
+        run: dotnet test
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
@@ -87,7 +46,48 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./ui
+          context: ./api
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-ui:dev
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-api:dev
           labels: ${{ steps.meta.outputs.labels }}
+  # build-test-and-push-ui-image:
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     packages: write
+  #   strategy:
+  #     matrix:
+  #       node-version: [18.x]
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #     - name: Setup Node.js ${{ matrix.node-version }}
+  #       working-directory: ./ui
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: ${{ matrix.node-version }}
+  #         cache: "npm"
+  #     - name: Install dependencies
+  #       working-directory: ./ui
+  #       run: npm ci
+  #     - name: Test
+  #       working-directory: ./ui
+  #       run: npm test
+  #     - name: Log in to the Container registry
+  #       uses: docker/login-action@v3
+  #       with:
+  #         registry: ${{ env.REGISTRY }}
+  #         username: ${{ env.USERNAME }}
+  #         password: ${{ secrets.DOCKER_HUB_TOKEN }}
+  #     - name: Extract metadata (tags, labels) for Docker
+  #       id: meta
+  #       uses: docker/metadata-action@v5
+  #       with:
+  #         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+  #     - name: Build and push Docker image
+  #       uses: docker/build-push-action@v5
+  #       with:
+  #         context: ./ui
+  #         push: true
+  #         tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-ui:dev
+  #         labels: ${{ steps.meta.outputs.labels }}
