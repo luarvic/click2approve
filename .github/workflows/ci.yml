@@ -3,23 +3,33 @@ on:
   push:
     branches:
       - "**"
+  workflow_call:
+    inputs:
+      runs-on:
+        description: Platform to execute on
+        type: string
+        default: ubuntu-latest
 env:
   REGISTRY: docker.io
   USERNAME: luarvic
   IMAGE_NAME: ${{ github.repository }}
 jobs:
   build-test-and-push-image:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        node-version: [18.x]
+        dotnet-version: [8.0.x]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Setup dotnet
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "8.0.x"
+          dotnet-version: ${{ matrix.dotnet-version }}
       - name: Install dependencies
         working-directory: ./api/src/click2approve.WebAPI
         run: dotnet restore
@@ -29,11 +39,11 @@ jobs:
       - name: Test API
         working-directory: ./api
         run: dotnet test
-      - name: Setup Node.js
+      - name: Setup Node.js ${{ matrix.node-version }}
         working-directory: ./ui
         uses: actions/setup-node@v4
         with:
-          node-version: "18.x"
+          node-version: ${{ matrix.node-version }}
           cache: "npm"
       - name: Test UI
         run: |
