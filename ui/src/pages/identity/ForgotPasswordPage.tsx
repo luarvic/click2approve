@@ -79,6 +79,7 @@ const ForgotPasswordPage = () => {
             <Grid item xs>
               <Link
                 component="button"
+                type="button"
                 variant="body2"
                 onClick={() => navigate("/signIn")}
               >
@@ -88,6 +89,7 @@ const ForgotPasswordPage = () => {
             <Grid item>
               <Link
                 component="button"
+                type="button"
                 variant="body2"
                 onClick={() => navigate("/signUp")}
               >

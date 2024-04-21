@@ -192,6 +192,7 @@ const SignUpPage = () => {
             <Grid item>
               <Link
                 component="button"
+                type="button"
                 variant="body2"
                 onClick={() => navigate("/signIn")}
               >

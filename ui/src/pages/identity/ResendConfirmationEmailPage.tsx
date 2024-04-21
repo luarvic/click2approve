@@ -82,6 +82,7 @@ const ResendConfirmationEmailPage = () => {
             <Grid item xs>
               <Link
                 component="button"
+                type="button"
                 variant="body2"
                 onClick={() => navigate("/signIn")}
               >
@@ -91,6 +92,7 @@ const ResendConfirmationEmailPage = () => {
             <Grid item>
               <Link
                 component="button"
+                type="button"
                 variant="body2"
                 onClick={() => navigate("/signUp")}
               >

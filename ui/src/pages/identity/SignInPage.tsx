@@ -128,6 +128,7 @@ const SignInPage = () => {
             <Grid item xs={4}>
               <Link
                 component="button"
+                type="button"
                 variant="body2"
                 onClick={() => navigate("/forgotPassword")}
               >
@@ -137,6 +138,7 @@ const SignInPage = () => {
             <Grid item xs={4} sx={{ textAlign: "center" }}>
               <Link
                 component="button"
+                type="button"
                 variant="body2"
                 onClick={() => navigate("/resendConfirmationEmail")}
               >
@@ -146,6 +148,7 @@ const SignInPage = () => {
             <Grid item xs={4} sx={{ textAlign: "right" }}>
               <Link
                 component="button"
+                type="button"
                 variant="body2"
                 onClick={() => navigate("/signUp")}
               >
