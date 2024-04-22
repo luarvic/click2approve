@@ -102,11 +102,7 @@ public class ApprovalRequestService(ApiDbContext db,
         var approvalRequest = await _db.ApprovalRequests
             .Include(r => r.Tasks)
             .Include(r => r.UserFiles)
-            .Include(r => r.Tasks)
             .FirstAsync(r => r.Id == id && r.Author == user.NormalizedEmail, cancellationToken);
-        var approvalRequestAuthor = approvalRequest.Author.ToLower();
-        var approvalRequestApprovers = approvalRequest.Tasks.Select(t => t.Approver);
-        var approvalRequestUserFiles = string.Join(", ", approvalRequest.UserFiles.Select(f => f.Name));
         var approvalRequestJson = approvalRequest.ToString();
         _db.ApprovalRequests.Remove(approvalRequest);
         await _db.SaveChangesAsync(cancellationToken);
@@ -120,15 +116,15 @@ public class ApprovalRequestService(ApiDbContext db,
         );
 
         // Notify approvers via email.
-        foreach (var email in approvalRequestApprovers)
+        foreach (var email in approvalRequest.Approvers)
         {
             await _emailService.SendAsync(new EmailMessage
             {
                 ToAddress = email.ToLower(),
                 Subject = _configuration["EmailSettings:Templates:ApprovalRequestDeletedSubject"]!,
                 Body = string.Format(_configuration["EmailSettings:Templates:ApprovalRequestDeletedBody"]!,
-                    approvalRequestAuthor,
-                    approvalRequestUserFiles)
+                    approvalRequest.Author.ToLower(),
+                    string.Join(", ", approvalRequest.UserFiles.Select(f => f.Name)))
             }, cancellationToken);
         }
     }

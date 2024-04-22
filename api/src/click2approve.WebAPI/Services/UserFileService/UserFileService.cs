@@ -116,8 +116,6 @@ public class UserFileService(
             .ThenInclude(r => r.Tasks)
             .FirstAsync(f => f.Id == id && f.Owner == user, cancellationToken);
         var userFileJson = userFile.ToString();
-        _db.UserFiles.Remove(userFile);
-        await _db.SaveChangesAsync(cancellationToken);
 
         // Delete related approval requests.
         foreach (var approvalRequest in userFile.ApprovalRequests)
@@ -126,6 +124,8 @@ public class UserFileService(
         }
 
         // Delete the file.
+        _db.UserFiles.Remove(userFile);
+        await _db.SaveChangesAsync(cancellationToken);
         _storeService.DeleteFile(GetFilePath(user.Id, userFile.Id.ToString(), userFile.Name));
 
         // Add audit log entry.
