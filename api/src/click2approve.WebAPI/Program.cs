@@ -1,11 +1,13 @@
 using click2approve.WebAPI.Extensions;
 using click2approve.WebAPI.Models;
 using click2approve.WebAPI.Services;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddIdentityServices(builder.Configuration);
+builder.Services.AddHangfireServices(builder.Configuration);
 builder.Services.AddCors();
 builder.Services.AddControllers()
     .AddNewtonsoftJson(options =>
@@ -50,6 +52,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseHangfireDashboard();
 }
 app.UseAuthorization();
 app.MapControllers();

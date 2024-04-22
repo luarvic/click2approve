@@ -4,6 +4,6 @@ namespace click2approve.WebAPI.Services;
 
 public interface IEmailService
 {
-    Task SendAsync(EmailMessage emailMessage);
+    Task SendAsync(EmailMessage emailMessage, CancellationToken cancellationToken);
 }
 

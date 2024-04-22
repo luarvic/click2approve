@@ -4,6 +4,8 @@ using click2approve.WebAPI.Models;
 using click2approve.WebAPI.Services;
 using FluentEmail.Core.Interfaces;
 using FluentEmail.Smtp;
+using Hangfire;
+using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
 
@@ -27,6 +29,16 @@ public static class ServiceCollectionExtensions
             })
             .AddEntityFrameworkStores<ApiDbContext>();
         return services;
+    }
+
+    public static void AddHangfireServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddHangfire(config =>
+        {
+            config.UseMemoryStorage()
+                .WithJobExpirationTimeout(TimeSpan.FromMinutes(configuration.GetValue<int>("Hangfire:JobExpirationTimeoutMin")));
+        });
+        services.AddHangfireServer();
     }
 
     public static void AddEmailServices(this IServiceCollection services, IConfiguration configuration)

@@ -93,7 +93,7 @@ public class ApprovalRequestService(ApiDbContext db,
                     newApprovalRequest.Entity.Author.ToLower(),
                     string.Join(", ", newApprovalRequest.Entity.UserFiles.Select(f => f.Name)),
                     $"{_configuration["UI:BaseUrl"]}/inbox")
-            });
+            }, cancellationToken);
         }
     }
 
@@ -125,7 +125,7 @@ public class ApprovalRequestService(ApiDbContext db,
                 Body = string.Format(_configuration["EmailSettings:Templates:ApprovalRequestDeletedBody"]!,
                     approvalRequest.Author.ToLower(),
                     string.Join(", ", approvalRequest.UserFiles.Select(f => f.Name)))
-            });
+            }, cancellationToken);
         }
     }
 
@@ -199,7 +199,7 @@ public class ApprovalRequestService(ApiDbContext db,
                 user.Email!.ToLower(),
                 string.Join(", ", approvalRequestTask.ApprovalRequest.UserFiles.Select(f => f.Name)),
                 $"{_configuration["UI:BaseUrl"]}/sent")
-        });
+        }, cancellationToken);
     }
 
     public async Task<long> CountUncompletedTasksAsync(AppUser user, CancellationToken cancellationToken)
