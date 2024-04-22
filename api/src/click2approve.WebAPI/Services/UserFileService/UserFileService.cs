@@ -111,19 +111,21 @@ public class UserFileService(
 
     public async Task DeleteAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
-        var userFile = await _db.UserFiles
-            .Include(f => f.ApprovalRequests)
-            .ThenInclude(r => r.Tasks)
-            .FirstAsync(f => f.Id == id && f.Owner == user, cancellationToken);
-        var userFileJson = userFile.ToString();
-
-        // Delete related approval requests.
-        foreach (var approvalRequest in userFile.ApprovalRequests)
+        // Delete related approval requests first.
+        var approvalRequests = await _db.ApprovalRequests
+            .Where(r => r.UserFiles.Any(f => f.Id == id))
+            .ToListAsync(cancellationToken);
+        foreach (var approvalRequest in approvalRequests)
         {
             await _approvalRequestService.DeleteApprovalRequestAsync(user, approvalRequest.Id, cancellationToken);
         }
 
         // Delete the file.
+        var userFile = await _db.UserFiles
+            .Include(f => f.ApprovalRequests)
+            .ThenInclude(r => r.Tasks)
+            .FirstAsync(f => f.Id == id && f.Owner == user, cancellationToken);
+        var userFileJson = userFile.ToString();
         _db.UserFiles.Remove(userFile);
         await _db.SaveChangesAsync(cancellationToken);
         _storeService.DeleteFile(GetFilePath(user.Id, userFile.Id.ToString(), userFile.Name));

@@ -42,7 +42,7 @@ public static class HttpClientExtensions
             request.Content = body;
         }
         var response = await httpClient.SendAsync(request, cancellationToken);
-        if (!response.IsSuccessStatusCode) throw new Exception($"Failed sending request to {url}.");
+        if (!response.IsSuccessStatusCode) throw new Exception($"Failed sending {method} request to {url}.");
         return response.Content;
     }
 
@@ -65,7 +65,7 @@ public static class HttpClientExtensions
         return typeof(T) == typeof(string) ?
             (T)(object)await httpContent.ReadAsStringAsync(cancellationToken) :
             await httpContent.ReadFromJsonAsync<T>(cancellationToken)
-                ?? throw new Exception($"Failed sending request to {url}.");
+                ?? throw new Exception($"Failed sending {method} request to {url}.");
     }
 
     /// <summary>
