@@ -1,3 +1,5 @@
+![CI status](https://github.com/luarvic/click2approve/actions/workflows/ci.yml/badge.svg)
+
 # Table of Contents
 
 1. [Click2approve specification.](#click2approve-specification)
