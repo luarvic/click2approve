@@ -4,9 +4,8 @@
 
 1. [Click2approve specification.](#click2approve-specification)
 2. [How to run locally.](#how-to-run-locally)
-3. [How to test.](#how-to-test)
+3. [How to deploy.](#how-to-deploy)
 4. [Architecture and design decisions.](#architecture-and-design-decisions)
-5. [To-do list.](#to-do-list)
 
 # Click2approve Specification
 
@@ -19,12 +18,8 @@ Click2approve is a web application that allows to:
 
 The application consists of two main components:
 
-- Client-side UI (frontend based on `React TypeScript v18.2.0`).
-- Server-side API (backend based on `ASP.NET Core v8.0.1`).
-
-The application uses the following third-party microservices:
-
-- [Azure SQL Edge](https://azure.microsoft.com/en-us/products/azure-sql/edge) as a SQL database engine.
+- Server-side API (backend based on `ASP.NET Core v8.0`).
+- Client-side UI (frontend based on `React TypeScript v18.2`).
 
 All microservises and components are containerizes with [Docker](https://docs.docker.com/).
 
@@ -73,43 +68,23 @@ docker ps -a
 
 Wait until all of the following containers are in `Up` status:
 
+- ui;
 - api;
 - db.
-- ui;
 
 (Find more details about those containers below in [Architecture and design decisions](#architecture-and-design-decisions).)
 
 ### 5. Open Click2approve Web Page
 
-In the web browser open [http://localhost/](http://localhost/).
+In the web browser open [http://localhost:3333/](http://localhost:3333/).
 
-You should see a page with `Click2approve` title.
+You should see a page with `click2approve` title.
 
-Welcome to the Click2approve service! 🎉🎉🎉
+Welcome to the `click2approve` service! 🎉🎉🎉
 
-# How to Test
+# How to Deploy
 
 TBD
-
-# Folder Structure
-
-```
-click2approve
-├──api                         # API code base.
-│  ├──src                      # API component source files.
-│  │  ├──Controllers           # Classes that implement API endpoints.
-│  │  ├──Extensions            # Classes that extend other classes functionality.
-│  │  ├──Models                # Entity classes.
-│  │  ├──Services              # Classes that implement business logic.
-├──ui                          # UI code base.
-│  ├──nginx                    # Nginx configuration.
-│  ├──public                   # Public HTML directory.
-│  ├──src                      # UI component source files.
-│  │  ├──components            # React components that implement UI pieces.
-│  │  ├──models                # Entity classes.
-│  │  ├──stores                # Classes that manage application state plus constants.
-│  │  ├──utils                 # Set of helpful methods mostly for communication with API.
-```
 
 # Architecture and Design Decisions
 
@@ -117,7 +92,7 @@ Click2approve application is a set of containerized microservices that interact 
 
 Those microservices are:
 
-- `UI` is a frontend component hosted on `Nginx` web server.
+- `UI` is a frontend component.
 - `API` is a backend component.
 - `DB` is a SQL engine.
 
@@ -162,25 +137,3 @@ It is written in [C#](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-cs
 ## DB
 
 Its purpose to provide a storage for the relational data.
-
-Its a third-party microservice [Azure SQL Edge](https://azure.microsoft.com/en-us/products/azure-sql/edge).
-
-It can be replaced with any other DB engine.
-
-# To-Do List
-
-A list of things that might be enhanced from **technical** perspective:
-
-- Entity Framework models should be configured to use optimal SQL types and indexes.
-- [Unit](https://en.wikipedia.org/wiki/Unit_testing) and [integration tests](https://en.wikipedia.org/wiki/Integration_testing) should be added.
-- [CI/CD](https://en.wikipedia.org/wiki/CI/CD) should be added.
-- A [worker service](https://learn.microsoft.com/en-us/dotnet/core/extensions/workers) or a [hangfire](https://www.hangfire.io/) service should be added to remove outdated links.
-- Better error handling and user input validation.
-- Responsive UI that adapts to any possible screen size.
-
-A list of things that might be enhanced from **user** perspective:
-
-- More actions for the user files, e.g.:
-  - Delete.
-- Admin page for managing the application.
-- Storage limits per user.
