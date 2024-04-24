@@ -34,7 +34,7 @@ const HelpPage = () => {
               <Grid item xs={12}>
                 2. Open Files tab and upload documents.
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} textAlign="center">
                 <Box
                   component="img"
                   sx={{
@@ -48,7 +48,7 @@ const HelpPage = () => {
               <Grid item xs={12}>
                 3. Select documents and click SEND.
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} textAlign="center">
                 <Box
                   component="img"
                   sx={{
@@ -62,7 +62,7 @@ const HelpPage = () => {
               <Grid item xs={12}>
                 4. Enter the email addresses of the approvers and click SUBMIT.
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} textAlign="center">
                 <Box
                   component="img"
                   sx={{
@@ -76,7 +76,7 @@ const HelpPage = () => {
               <Grid item xs={12}>
                 5. Open Sent tab to manage approval requests.
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} textAlign="center">
                 <Box
                   component="img"
                   sx={{
@@ -90,7 +90,7 @@ const HelpPage = () => {
               <Grid item xs={12}>
                 6. Click Track to see the approval request details.
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} textAlign="center">
                 <Box
                   component="img"
                   sx={{
@@ -105,7 +105,7 @@ const HelpPage = () => {
                 7. Once the request is processed by the approver, its status
                 will change and you will receive an email notification.
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} textAlign="center">
                 <Box
                   component="img"
                   sx={{
@@ -135,7 +135,7 @@ const HelpPage = () => {
               <Grid item xs={12}>
                 2. Open Inbox tab and click Review.
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} textAlign="center">
                 <Box
                   component="img"
                   sx={{
@@ -150,7 +150,7 @@ const HelpPage = () => {
                 3. Click filename to download the file. Choose Approve or
                 Reject. Click SUBMIT.
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} textAlign="center">
                 <Box
                   component="img"
                   sx={{
@@ -164,7 +164,7 @@ const HelpPage = () => {
               <Grid item xs={12}>
                 4. Open Archive tab to manage processed requests.
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} textAlign="center">
                 <Box
                   component="img"
                   sx={{
@@ -177,6 +177,8 @@ const HelpPage = () => {
               </Grid>
               <Grid item xs={12}>
                 5. Click Review to see the processed request details.
+              </Grid>
+              <Grid item xs={12} textAlign="center">
                 <Box
                   component="img"
                   sx={{
