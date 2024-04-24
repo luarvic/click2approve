@@ -3,7 +3,7 @@ import ago from "s-ago";
 import {
   ACCOUNT_LOCK_OUT_TIME_IN_MINUTES,
   ACCOUNT_MAX_FAILED_ATTEMPTS_TO_SIGN_IN,
-} from "./constants";
+} from "../data/constants";
 
 export const getHumanReadableRelativeDate = (date: Date): string => {
   return ago(date);

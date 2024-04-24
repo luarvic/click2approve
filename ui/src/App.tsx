@@ -4,6 +4,12 @@ import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import LoadingOverlay from "./components/overlays/LoadingOverlay";
+import {
+  TOAST_AUTO_CLOSE,
+  TOAST_CLOSE_BUTTON,
+  TOAST_DRAGGABLE,
+  TOAST_LIMIT,
+} from "./data/constants";
 import MainLayout from "./layouts/MainLayout";
 import WrapperLayout from "./layouts/WrapperLayout";
 import ArchivePage from "./pages/approval/ArchivePage";
@@ -21,12 +27,6 @@ import HomePage from "./pages/other/HomePage";
 import InformationPage from "./pages/other/InformationPage";
 import NotFoundPage from "./pages/other/NotFoundPage";
 import UserSettingsPage from "./pages/other/UserSettingsPage";
-import {
-  TOAST_AUTO_CLOSE,
-  TOAST_CLOSE_BUTTON,
-  TOAST_DRAGGABLE,
-  TOAST_LIMIT,
-} from "./utils/constants";
 import { stores } from "./stores/stores";
 
 const App = () => {

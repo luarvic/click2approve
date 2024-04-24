@@ -7,12 +7,12 @@ import {
   DialogTitle,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
+import { approvalRequestDelete } from "../../lib/controllers/approvalRequest";
 import { stores } from "../../stores/stores";
 import { getLocaleDateTimeString } from "../../utils/helpers";
 import UserFilesList from "../lists/UserFilesList";
 import CommentPaper from "../papers/CommentPaper";
 import ApprovalSteps from "../steps/ApprovalSteps";
-import { approvalRequestDelete } from "../../api/controllers/approvalRequest";
 
 const ApprovalRequestDeleteDialog = () => {
   const handleClose = () => {

@@ -1,12 +1,12 @@
 import { ArrowDropDownCircle } from "@mui/icons-material";
 import { Box, IconButton, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
-import { IApprovalRequestTask } from "../../models/approvalRequestTask";
 import {
   MENU_ANCHOR_ORIGIN,
   MENU_SLOT_PROPS,
   MENU_TRANSFORM_ORIGIN,
-} from "../../utils/constants";
+} from "../../data/constants";
+import { IApprovalRequestTask } from "../../models/approvalRequestTask";
 import { stores } from "../../stores/stores";
 
 interface ITaskActionsMenuProps {

@@ -1,5 +1,5 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { fileList, fileUpload } from "../api/controllers/userFile";
+import { fileList, fileUpload } from "../lib/controllers/userFile";
 import { IUserFile } from "../models/userFile";
 
 export class UserFileStore {

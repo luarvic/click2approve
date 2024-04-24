@@ -11,8 +11,8 @@ import {
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
+import { DEFAULT_PATH } from "../../data/constants";
 import { stores } from "../../stores/stores";
-import { DEFAULT_PATH } from "../../utils/constants";
 
 const UserSettingsDrawer = () => {
   const navigate = useNavigate();

@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
-import { taskComplete } from "../../api/controllers/approvalRequestTask";
+import { taskComplete } from "../../lib/controllers/approvalRequestTask";
 import { ApprovalStatus } from "../../models/approvalStatus";
 import { Tab } from "../../models/tab";
 import { stores } from "../../stores/stores";

@@ -1,9 +1,9 @@
 import axios from "axios";
-import { readTokens } from "../modules/session";
+import { API_TIMEOUT_MS, API_URI } from "../data/constants";
 import { stores } from "../stores/stores";
-import { API_TIMEOUT_MS, API_URI } from "../utils/constants";
 import { getLoaderName } from "../utils/helpers";
 import { accountRefresh } from "./controllers/auth";
+import { readTokens } from "./session";
 
 const axiosInstance = axios.create({
   baseURL: API_URI,
@@ -37,6 +37,7 @@ axiosInstance.interceptors.response.use(
         getLoaderName(originalRequest),
         -1
       );
+    // Try refreshing access token on 401 status code.
     if (
       error.response &&
       error.response.status &&
@@ -49,14 +50,12 @@ axiosInstance.interceptors.response.use(
         if (tokens) {
           const newTokens = await accountRefresh(tokens.refreshToken);
           if (newTokens) {
-            axios.defaults.headers.common[
-              "Authorization"
-            ] = `Bearer ${newTokens.accessToken}`;
+            originalRequest.headers.Authorization = `Bearer ${newTokens.accessToken}`;
             return axios(originalRequest);
           }
         }
       }
-      if (!window.location.pathname.toLocaleLowerCase().startsWith("/sign")) {
+      if (!window.location.pathname.toLowerCase().startsWith("/sign")) {
         window.location.href = "/signIn";
       }
     }

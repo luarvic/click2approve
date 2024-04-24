@@ -1,3 +1,4 @@
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Box,
@@ -17,11 +18,10 @@ import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { DEFAULT_PATH } from "../../data/constants";
 import { Credentials } from "../../models/credentials";
 import { stores } from "../../stores/stores";
-import { DEFAULT_PATH } from "../../utils/constants";
 import { validateEmail } from "../../utils/validators";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const SignInPage = () => {
   const [showPassword, setShowPassword] = React.useState(false);

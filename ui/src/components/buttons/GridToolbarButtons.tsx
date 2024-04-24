@@ -5,7 +5,7 @@ import {
   GridToolbarExport,
   GridToolbarFilterButton,
 } from "@mui/x-data-grid";
-import { DISPLAY_DEPENDING_ON_SIZE } from "../../utils/constants";
+import { DISPLAY_DEPENDING_ON_SIZE } from "../../data/constants";
 
 const GridToolbarButtons = () => {
   return (

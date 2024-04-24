@@ -2,7 +2,7 @@ import { Backdrop, Box, CircularProgress } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { confirmEmail } from "../../api/controllers/auth";
+import { confirmEmail } from "../../lib/controllers/auth";
 
 const ConfirmEmailPage = () => {
   const [searchParams] = useSearchParams();

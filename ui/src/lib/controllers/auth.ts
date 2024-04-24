@@ -2,9 +2,9 @@ import { toast } from "react-toastify";
 import { IAuthResponse } from "../../models/authResponse";
 import { ICredentials } from "../../models/credentials";
 import { IUserAccount } from "../../models/userAccount";
-import { deleteTokens, writeTokens } from "../../modules/session";
 import { getUserFriendlyApiErrorMessage } from "../../utils/helpers";
 import axios from "../axios";
+import { deleteTokens, writeTokens } from "../session";
 
 export const register = async (credentials: ICredentials): Promise<boolean> => {
   try {
@@ -103,6 +103,7 @@ export const accountRefresh = async (
     writeTokens(data);
     return data;
   } catch (e) {
+    
     return null;
   }
 };

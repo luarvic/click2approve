@@ -1,7 +1,7 @@
 import {
   EMAIL_VALIDATION_REGEX,
   PASSWORD_VALIDATOR,
-} from "./constants";
+} from "../data/constants";
 
 export const validateEmails = (emails: string[]): boolean => {
   const invalidEmails = emails.filter((email) => !validateEmail(email));

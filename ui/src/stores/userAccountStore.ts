@@ -1,7 +1,4 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { ICredentials } from "../models/credentials";
-import { IUserAccount } from "../models/userAccount";
-import { deleteTokens, readTokens } from "../modules/session";
 import {
   accountForgotPassword,
   accountManageInfo,
@@ -9,7 +6,10 @@ import {
   accountResetPassword,
   login,
   register,
-} from "../api/controllers/auth";
+} from "../lib/controllers/auth";
+import { deleteTokens, readTokens } from "../lib/session";
+import { ICredentials } from "../models/credentials";
+import { IUserAccount } from "../models/userAccount";
 
 export class UserAccountStore {
   currentUser: IUserAccount | null | undefined; // undefined means we don't know yet if it's authenticated or anonymous user

@@ -18,7 +18,7 @@ import { Dayjs } from "dayjs";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { approvalRequestSubmit } from "../../api/controllers/approvalRequest";
+import { approvalRequestSubmit } from "../../lib/controllers/approvalRequest";
 import { stores } from "../../stores/stores";
 import { validateEmails } from "../../utils/validators";
 import UserFilesList from "../lists/UserFilesList";
@@ -79,7 +79,7 @@ const ApprovalRequestSubmitDialog = () => {
             stores.commonStore.setApprovalRequestSubmitDialogIsOpen(false);
             await approvalRequestSubmit(
               stores.userFileStore.getSelectedUserFiles(),
-              approvers.map((a) => a.toLocaleLowerCase().trim()),
+              approvers.map((a) => a.toLowerCase().trim()),
               approveBy ? approveBy.toDate() : null,
               comment?.toString()
             );

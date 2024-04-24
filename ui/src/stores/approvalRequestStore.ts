@@ -1,5 +1,5 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { approvalRequestList } from "../api/controllers/approvalRequest";
+import { approvalRequestList } from "../lib/controllers/approvalRequest";
 import { IApprovalRequest } from "../models/approvalRequest";
 
 export class ApprovalRequestStore {

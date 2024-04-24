@@ -10,9 +10,9 @@ import {
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { DISPLAY_DEPENDING_ON_SIZE } from "../../data/constants";
 import { Tab } from "../../models/tab";
 import { stores } from "../../stores/stores";
-import { DISPLAY_DEPENDING_ON_SIZE } from "../../utils/constants";
 
 const TabsList = () => {
   const navigate = useNavigate();

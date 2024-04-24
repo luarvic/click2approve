@@ -14,15 +14,15 @@ import {
 import { observer } from "mobx-react-lite";
 import prettyBytes from "pretty-bytes";
 import { useEffect } from "react";
-import { Tab } from "../../models/tab";
-import { IUserFile } from "../../models/userFile";
-import { stores } from "../../stores/stores";
 import {
   DATA_GRID_DEFAULT_PAGE_SIZE,
   MAX_SIZE_WHEN_DISPLAY,
-} from "../../utils/constants";
-import { getHumanReadableRelativeDate } from "../../utils/helpers";
+} from "../../data/constants";
+import { Tab } from "../../models/tab";
+import { IUserFile } from "../../models/userFile";
+import { stores } from "../../stores/stores";
 import { downloadUserFile } from "../../utils/downloaders";
+import { getHumanReadableRelativeDate } from "../../utils/helpers";
 import GridToolbarButtons from "../buttons/GridToolbarButtons";
 import SendButton from "../buttons/SendButton";
 import UploadButton from "../buttons/UploadButton";

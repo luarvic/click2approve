@@ -1,4 +1,4 @@
-import { fileDownloadBase64 } from "../api/controllers/userFile";
+import { fileDownloadBase64 } from "../lib/controllers/userFile";
 import { IUserFile } from "../models/userFile";
 
 export const downloadUserFile = async (userFile: IUserFile) => {

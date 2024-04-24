@@ -7,14 +7,14 @@ import {
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
+import {
+  DATA_GRID_DEFAULT_PAGE_SIZE,
+  MAX_SIZE_WHEN_DISPLAY,
+} from "../../data/constants";
 import { ApprovalStatus } from "../../models/approvalStatus";
 import { Tab } from "../../models/tab";
 import { IUserFile } from "../../models/userFile";
 import { stores } from "../../stores/stores";
-import {
-  DATA_GRID_DEFAULT_PAGE_SIZE,
-  MAX_SIZE_WHEN_DISPLAY,
-} from "../../utils/constants";
 import {
   getHumanReadableRelativeDate,
   getLocaleDateTimeString,

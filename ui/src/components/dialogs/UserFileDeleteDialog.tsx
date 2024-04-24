@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { fileDelete } from "../../api/controllers/userFile";
+import { fileDelete } from "../../lib/controllers/userFile";
 import { stores } from "../../stores/stores";
 import UserFilesList from "../lists/UserFilesList";
 

@@ -3,7 +3,7 @@ import {
   taskCountUncompleted,
   taskListCompleted,
   taskListUncompleted,
-} from "../api/controllers/approvalRequestTask";
+} from "../lib/controllers/approvalRequestTask";
 import { IApprovalRequestTask } from "../models/approvalRequestTask";
 import { Tab } from "../models/tab";
 
