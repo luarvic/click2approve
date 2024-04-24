@@ -1,4 +1,5 @@
-![CI status](https://github.com/luarvic/click2approve/actions/workflows/ci.yml/badge.svg)
+![Dev build status](https://github.com/luarvic/click2approve/actions/workflows/dev-build.yml/badge.svg)
+![Prod build status](https://github.com/luarvic/click2approve/actions/workflows/prod-build.yml/badge.svg)
 
 # Table of Contents
 
