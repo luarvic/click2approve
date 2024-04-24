@@ -3,25 +3,22 @@
 # Table of Contents
 
 1. [Click2approve specification.](#click2approve-specification)
-2. [How to run locally.](#how-to-run-locally)
-3. [How to deploy.](#how-to-deploy)
+2. [Demo.](#demo)
+3. [How to run locally.](#how-to-run-locally)
 4. [Architecture and design decisions.](#architecture-and-design-decisions)
 
 # Click2approve Specification
 
-Click2approve is a web application that allows to:
+Click2approve is a free open-source document approval system that allows to:
 
-- Upload files.
-- Send the files for approval specifying a list of approvers' email addresses.
+- Upload documents.
+- Send documents for approval specifying a list of approvers' email addresses.
 - Notify the requesting and approving parties via email.
 - Keep track the approval requests.
 
-The application consists of two main components:
+# Demo
 
-- Server-side API (backend based on `ASP.NET Core v8.0`).
-- Client-side UI (frontend based on `React TypeScript v18.2`).
-
-All microservises and components are containerizes with [Docker](https://docs.docker.com/).
+Please, open [click2approve.com](https://click2approve.com/) to check how it works.
 
 # How to Run Locally
 
@@ -56,8 +53,6 @@ Run in terminal:
 docker-compose up
 ```
 
-Wait a few minutes until all images are built / downloaded.
-
 ### 4. Verify Running Docker Containers
 
 In a separate terminal window run:
@@ -66,15 +61,15 @@ In a separate terminal window run:
 docker ps -a
 ```
 
-Wait until all of the following containers are in `Up` status:
+Wait until all of the following containers are up and running:
 
-- ui;
-- api;
-- db.
+- `ui`.
+- `api`.
+- `db`.
 
 (Find more details about those containers below in [Architecture and design decisions](#architecture-and-design-decisions).)
 
-### 5. Open Click2approve Web Page
+### 5. Open the Web Page
 
 In the web browser open [http://localhost:3333/](http://localhost:3333/).
 
@@ -82,37 +77,19 @@ You should see a page with `click2approve` title.
 
 Welcome to the `click2approve` service! 🎉🎉🎉
 
-# How to Deploy
-
-TBD
-
 # Architecture and Design Decisions
 
-Click2approve application is a set of containerized microservices that interact with each other over the network.
+The application consists of the following microservices:
 
-Those microservices are:
+- Client-side UI (`React TypeScript v18.2`).
+- Server-side API (`ASP.NET Core v8.0`).
+- Relational database (`MySQL 8.3.0`).
 
-- `UI` is a frontend component.
-- `API` is a backend component.
-- `DB` is a SQL engine.
+All microservises are containerizes with [Docker](https://docs.docker.com/).
 
-Containerization solves the following main goals:
+## Client-side UI
 
-- _Platform-agnostic philosophy._ The microservices can be deployed to and run on any operating system, any cloud provider or any on-premise infrastructure.
-- _Scalability._ Once deployed, the services can be scaled out horizontally by adding new instances (e.g. new pods in Kubernetes) to address performance issues.
-
-Microservices architecture solves these main goals:
-
-- _Programming language agnostic philosophy_. Each microservice is written in the language that suits best for the particular purposes.
-- _Independent development and deployment_. Each microservice can be managed by a separate team.
-- _Replaceability_. Each microservice can be easily replaced by a new one.
-- _Resilience_. If one of the microservices is down, some of the application functionality might still be working.
-
-Let's take a closer look at each of the microservices.
-
-## UI
-
-Its goal is to provide a graphic interface that allows a user to interact with the application via a web browser.
+It provides a graphic interface to allows a user to interact with the application via a web browser.
 
 It is written in [TypeScript](https://www.typescriptlang.org/) and uses:
 
@@ -120,13 +97,11 @@ It is written in [TypeScript](https://www.typescriptlang.org/) and uses:
 - [Material UI](https://mui.com/material-ui/) CSS framework;
 - [MobX](https://mobx.js.org/react-integration.html) state management framework.
 
-The build transforms the TypeScript code to a JavaScripts single-page application (SPA). The `ui` container hosts [Nginx](https://www.nginx.com/) web server that handles the user HTTP requests and returns the SPA that works in the user browser and interacts with the `API` microservice.
+The build transforms the TypeScript code to a JavaScripts single-page application (SPA). The `ui` container hosts [Nginx](https://www.nginx.com/) web server that handles the user HTTP requests and returns the SPA that works in the user browser and interacts with the `Server-side API` microservice.
 
-## API
+## Server-side API
 
-Its goals are:
-
-- To provide the HTTP endpoints that implement the business logic.
+It provides HTTP endpoints that implement the business logic.
 
 It is written in [C#](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp/) and uses:
 
@@ -134,6 +109,6 @@ It is written in [C#](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-cs
 - [Entity Framework](https://learn.microsoft.com/en-us/ef/).
 - [ASP.NET Identity](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity) framework.
 
-## DB
+## Relational Database
 
-Its purpose to provide a storage for the relational data.
+It provides a relational data storage.
