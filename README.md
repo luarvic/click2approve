@@ -10,7 +10,7 @@
 
 # Click2approve Specification
 
-Click2approve is a free open-source document approval system that allows to:
+Click2approve is a free, open source, cross-platform document approval system with a responsive user interface that allows you to:
 
 - Upload documents.
 - Send documents for approval specifying a list of approvers' email addresses.
@@ -51,12 +51,12 @@ cd click2approve
 Run in terminal:
 
 ```bash
-docker-compose up
+docker-compose up -d
 ```
 
 ### 4. Verify Running Docker Containers
 
-In a separate terminal window run:
+Run in terminal:
 
 ```bash
 docker ps -a
@@ -90,7 +90,7 @@ All microservises are containerizes with [Docker](https://docs.docker.com/).
 
 ## Client-side UI
 
-It provides a graphic interface to allows a user to interact with the application via a web browser.
+It provides a graphic interface to allow users to interact with the application via a web browser.
 
 It is written in [TypeScript](https://www.typescriptlang.org/) and uses:
 
@@ -98,7 +98,7 @@ It is written in [TypeScript](https://www.typescriptlang.org/) and uses:
 - [Material UI](https://mui.com/material-ui/) CSS framework;
 - [MobX](https://mobx.js.org/react-integration.html) state management framework.
 
-The build transforms the TypeScript code to a JavaScripts single-page application (SPA). The `ui` container hosts [Nginx](https://www.nginx.com/) web server that handles the user HTTP requests and returns the SPA that works in the user browser and interacts with the `Server-side API` microservice.
+The build transforms the TypeScript code into a JavaScripts single-page application (SPA). The `ui` container hosts [Nginx](https://www.nginx.com/) web server that returns the SPA to the users. The SPA handles HTTP requests coming from the users and interacts with the `Server-side API` microservice.
 
 ## Server-side API
 
@@ -110,6 +110,9 @@ It is written in [C#](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-cs
 - [Entity Framework](https://learn.microsoft.com/en-us/ef/).
 - [ASP.NET Identity](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity) framework.
 
+The build compiles the C# code into a self-hosted web API application that handles HTTP requests coming from the UI.
+The application interacts with the relational database and the filesystem to manage user data.
+
 ## Relational Database
 
-It provides a relational data storage.
+It provides the relational data storage required for system operation.
