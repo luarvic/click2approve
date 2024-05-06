@@ -3,7 +3,9 @@ using click2approve.WebAPI.Models.DTOs;
 
 namespace click2approve.WebAPI.Services;
 
-// Defines a contract for a service that manages approval requests and derived tasks.
+/// <summary>
+/// Defines a contract for a service that manages approval requests and approval request tasks.
+/// </summary>
 public interface IApprovalRequestService
 {
     Task SubmitApprovalRequestAsync(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken);

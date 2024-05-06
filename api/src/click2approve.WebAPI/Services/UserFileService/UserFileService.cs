@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace click2approve.WebAPI.Services;
 
-// Implements a service that manages user files.
+/// <summary>
+/// Implements a service that manages user files.
+/// </summary>
 public class UserFileService(
     IAuditLogService auditLogService,
     IApprovalRequestService approvalRequestService,
@@ -20,6 +22,10 @@ public class UserFileService(
     private readonly IStoreService _storeService = storeService;
     private readonly ILogger<UserFileService> _logger = logger;
 
+    /// <summary>
+    /// Checks the limitations defined for user files and throws
+    /// when any of them is exceeded.
+    /// </summary>
     private async Task CheckLimitations(AppUser user, IFormFileCollection files, CancellationToken cancellationToken)
     {
         var maxFileCount = _configuration.GetValue<int>("Limitations:MaxFileCount");
@@ -39,6 +45,9 @@ public class UserFileService(
         }
     }
 
+    /// <summary>
+    /// Uploads a user file.
+    /// </summary>
     public async Task<IList<UserFile>> UploadAsync(AppUser user, IFormFileCollection files, CancellationToken cancellationToken)
     {
         await CheckLimitations(user, files, cancellationToken);
@@ -79,11 +88,17 @@ public class UserFileService(
         return userFiles;
     }
 
+    /// <summary>
+    /// Gets the file path out of the user and file properties.
+    /// </summary>
     private static string GetFilePath(string userId, string fileId, string fileName)
     {
         return Path.Combine(userId, fileId, fileName);
     }
 
+    /// <summary>
+    /// Downloads the user file.
+    /// </summary>
     public async Task<(string Filename, byte[] Bytes)> DownloadAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
         var isApprover = await _db.ApprovalRequestTasks
@@ -103,12 +118,18 @@ public class UserFileService(
         );
     }
 
+    /// <summary>
+    /// Lists the user files.
+    /// </summary>
     public async Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
         var userFiles = await _db.UserFiles.Where(f => f.Owner == user).ToListAsync(cancellationToken);
         return userFiles;
     }
 
+    /// <summary>
+    /// Deletes the user file.
+    /// </summary>
     public async Task DeleteAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
         // Delete related approval requests first.

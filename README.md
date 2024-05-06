@@ -86,7 +86,7 @@ The application consists of the following microservices:
 - Server-side API (`ASP.NET Core v8.0`).
 - Relational database (`MySQL 8.3.0`).
 
-All microservises are containerizes with [Docker](https://docs.docker.com/).
+All microservises are containerized with [Docker](https://docs.docker.com/).
 
 ## Client-side UI
 

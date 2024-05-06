@@ -11,9 +11,14 @@ using Microsoft.OpenApi.Models;
 
 namespace click2approve.WebAPI.Extensions;
 
-// Extends IServiceCollection interface.
+/// <summary>
+/// Extends IServiceCollection interface.
+/// </summary>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Adds and configures AuthN/Z services to the service collection.
+    /// </summary>
     public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddAuthentication();
@@ -31,6 +36,9 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    /// <summary>
+    /// Adds and configures Hangfire services to the service collection.
+    /// </summary>
     public static void AddHangfireServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddHangfire(config =>
@@ -41,6 +49,9 @@ public static class ServiceCollectionExtensions
         services.AddHangfireServer();
     }
 
+    /// <summary>
+    /// Adds and configures Email services to the service collection.
+    /// </summary>
     public static void AddEmailServices(this IServiceCollection services, IConfiguration configuration)
     {
         var emailSettings = configuration.GetSection("EmailSettings");
@@ -72,6 +83,9 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IEmailSender<AppUser>, EmailSender>();
     }
 
+    /// <summary>
+    /// Adds and configures Swagger services to the service collection.
+    /// </summary>
     public static void AddSwagger(this IServiceCollection services)
     {
         services.AddSwaggerGen(options =>

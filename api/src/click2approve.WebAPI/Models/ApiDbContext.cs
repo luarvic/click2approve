@@ -3,7 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace click2approve.WebAPI.Models;
 
-// Represents an EF database context.
+/// <summary>
+/// Represents an entity framework database context.
+/// </summary>
 public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>(options)
 {
     public DbSet<UserFile> UserFiles { get; set; }

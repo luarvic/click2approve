@@ -1,8 +1,13 @@
 namespace click2approve.WebAPI.Extensions;
 
-// Extends methods for Stream class.
+/// <summary>
+/// Extends methods for Stream class.
+/// </summary>
 public static class StreamExtensions
 {
+    /// <summary>
+    /// Converts stream to bytes.
+    /// </summary>
     public static async Task<byte[]> ToBytesAsync(this Stream stream, CancellationToken cancellationToken)
     {
         using var memoryStream = new MemoryStream();

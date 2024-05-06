@@ -2,7 +2,9 @@ using Newtonsoft.Json;
 
 namespace click2approve.WebAPI.Models;
 
-// Represents an approval request.
+/// <summary>
+/// Represents an approval request.
+/// </summary>
 public class ApprovalRequest
 {
     public long Id { get; set; }

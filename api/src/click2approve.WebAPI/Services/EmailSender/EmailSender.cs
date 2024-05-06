@@ -5,11 +5,17 @@ using Microsoft.AspNetCore.Identity;
 
 namespace click2approve.WebAPI.Services;
 
+/// <summary>
+/// Implements IEmailSender interface of Identity framework.
+/// </summary>
 public class EmailSender(IEmailService emailService, IConfiguration configuration) : IEmailSender<AppUser>
 {
     private readonly IEmailService _emailService = emailService;
     private readonly IConfiguration _configuration = configuration;
 
+    /// <summary>
+    /// Sends an email confirmation link.
+    /// </summary>
     public async Task SendConfirmationLinkAsync(AppUser user, string email, string confirmationLink)
     {
         var confirmationLinkPlainText = HttpUtility.HtmlDecode(confirmationLink);
@@ -24,6 +30,9 @@ public class EmailSender(IEmailService emailService, IConfiguration configuratio
         await _emailService.SendAsync(emailMessage, CancellationToken.None);
     }
 
+    /// <summary>
+    /// Sends a password reset code.
+    /// </summary>
     public async Task SendPasswordResetCodeAsync(AppUser user, string email, string resetCode)
     {
         var emailMessage = new EmailMessage
@@ -37,6 +46,9 @@ public class EmailSender(IEmailService emailService, IConfiguration configuratio
         await _emailService.SendAsync(emailMessage, CancellationToken.None);
     }
 
+    /// <summary>
+    /// Sends a password reset link.
+    /// </summary>
     public async Task SendPasswordResetLinkAsync(AppUser user, string email, string resetLink)
     {
         var emailMessage = new EmailMessage

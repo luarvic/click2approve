@@ -3,7 +3,9 @@ using Newtonsoft.Json;
 
 namespace click2approve.WebAPI.Models;
 
-// Represents a user's file.
+/// <summary>
+/// Represents a user file.
+/// </summary>
 public class UserFile
 {
     public long Id { get; set; }

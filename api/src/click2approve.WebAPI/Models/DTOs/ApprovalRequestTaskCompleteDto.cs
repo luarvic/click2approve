@@ -1,6 +1,8 @@
 namespace click2approve.WebAPI.Models.DTOs;
 
-// Represents a DTO required to complete an approval request task.
+/// <summary>
+/// Represents a data transfer object required to complete an approval request task.
+/// </summary>
 public class ApprovalRequestTaskCompleteDto
 {
     public required long Id { get; set; }

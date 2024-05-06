@@ -1,5 +1,8 @@
 namespace click2approve.WebAPI.Models;
 
+/// <summary>
+/// Represents an audit log entry.
+/// </summary>
 public class AuditLogEntry
 {
     public long Id { get; set; }

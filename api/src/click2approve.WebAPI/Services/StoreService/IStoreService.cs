@@ -1,6 +1,8 @@
 namespace click2approve.WebAPI.Services;
 
-// Defines a contract for a service that manages binary files.
+/// <summary>
+/// Defines a contract for a service that manages binary files.
+/// </summary>
 public interface IStoreService
 {
     Task AddFileAsync(string path, byte[] bytes, CancellationToken cancellationToken);

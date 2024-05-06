@@ -1,11 +1,16 @@
 namespace click2approve.WebAPI.Services;
 
-// Implements a service that manages binary files.
+/// <summary>
+/// Implements a service that manages binary files.
+/// </summary>
 public class StoreService(IConfiguration configuration, ILogger<StoreService> logger) : IStoreService
 {
     private readonly ILogger<StoreService> _logger = logger;
     private readonly string _rootPath = configuration["FileStorage:RootPath"] ?? throw new Exception("File storage root path is not defined.");
 
+    /// <summary>
+    /// Creates a file in the file system out of bytes.
+    /// </summary>
     public async Task AddFileAsync(string path, byte[] bytes, CancellationToken cancellationToken)
     {
         try
@@ -25,6 +30,9 @@ public class StoreService(IConfiguration configuration, ILogger<StoreService> lo
         }
     }
 
+    /// <summary>
+    /// Deletes a file from the file system.
+    /// </summary>
     public void DeleteFile(string path)
     {
         try
@@ -42,6 +50,9 @@ public class StoreService(IConfiguration configuration, ILogger<StoreService> lo
         }
     }
 
+    /// <summary>
+    /// Returns bytes out of the file.
+    /// </summary>
     public async Task<byte[]> GetFileAsync(string path, CancellationToken cancellationToken)
     {
         try

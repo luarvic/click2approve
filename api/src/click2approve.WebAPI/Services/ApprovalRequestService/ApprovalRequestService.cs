@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace click2approve.WebAPI.Services;
 
-// Implements a service that manages approval requests.
+/// <summary>
+/// Implements a service that manages approval requests and approval request tasks.
+/// </summary>
 public class ApprovalRequestService(ApiDbContext db,
     IAuditLogService auditLogService,
     IEmailService emailService,
@@ -15,6 +17,10 @@ public class ApprovalRequestService(ApiDbContext db,
     private readonly IEmailService _emailService = emailService;
     private readonly IConfiguration _configuration = configuration;
 
+    /// <summary>
+    /// Checks the limitations defined for approval requests and throws
+    /// when any of them is exceeded.
+    /// </summary>
     private async Task CheckLimitations(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
     {
         var maxApprovalRequestCount = _configuration.GetValue<int>("Limitations:MaxApprovalRequestCount");
@@ -38,6 +44,9 @@ public class ApprovalRequestService(ApiDbContext db,
         }
     }
 
+    /// <summary>
+    /// Creates a new approval request.
+    /// </summary>
     public async Task SubmitApprovalRequestAsync(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
     {
         await CheckLimitations(user, payload, cancellationToken);
@@ -97,6 +106,9 @@ public class ApprovalRequestService(ApiDbContext db,
         }
     }
 
+    /// <summary>
+    /// Deletes the approval request.
+    /// </summary>
     public async Task DeleteApprovalRequestAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
         var approvalRequest = await _db.ApprovalRequests
@@ -129,6 +141,9 @@ public class ApprovalRequestService(ApiDbContext db,
         }
     }
 
+    /// <summary>
+    /// Lists the approval requests of the user.
+    /// </summary>
     public async Task<List<ApprovalRequest>> ListApprovalRequestsAsync(AppUser user, CancellationToken cancellationToken)
     {
         return await _db.ApprovalRequests
@@ -138,6 +153,9 @@ public class ApprovalRequestService(ApiDbContext db,
             .ToListAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Lists the approval request tasks.
+    /// </summary>
     public async Task<List<ApprovalRequestTask>> ListTasksAsync(AppUser user, ApprovalStatus[] statuses, CancellationToken cancellationToken)
     {
         return await _db.ApprovalRequestTasks
@@ -147,6 +165,9 @@ public class ApprovalRequestService(ApiDbContext db,
             .ToListAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Completes the approval request task.
+    /// </summary>
     public async Task CompleteTaskAsync(AppUser user, ApprovalRequestTaskCompleteDto payload, CancellationToken cancellationToken)
     {
         var approvalRequestTask = await _db.ApprovalRequestTasks
@@ -202,6 +223,9 @@ public class ApprovalRequestService(ApiDbContext db,
         }, cancellationToken);
     }
 
+    /// <summary>
+    /// Counts uncompleted approval request tasks.
+    /// </summary>
     public async Task<long> CountUncompletedTasksAsync(AppUser user, CancellationToken cancellationToken)
     {
         return await _db.ApprovalRequestTasks

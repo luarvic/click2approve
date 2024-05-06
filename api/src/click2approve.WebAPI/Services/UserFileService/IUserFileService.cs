@@ -2,7 +2,9 @@ using click2approve.WebAPI.Models;
 
 namespace click2approve.WebAPI.Services;
 
-// Defines a contract for a service that manages user files.
+/// <summary>
+/// Defines a contract for a service that manages user files.
+/// </summary>
 public interface IUserFileService
 {
     Task<IList<UserFile>> UploadAsync(AppUser user, IFormFileCollection files, CancellationToken cancellationToken);

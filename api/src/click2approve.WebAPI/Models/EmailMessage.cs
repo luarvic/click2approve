@@ -1,5 +1,8 @@
 namespace click2approve.WebAPI.Models;
 
+/// <summary>
+/// Represents an email message.
+/// </summary>
 public class EmailMessage
 {
     public required string ToAddress { get; set; }
