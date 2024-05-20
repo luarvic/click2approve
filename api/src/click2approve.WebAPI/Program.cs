@@ -26,7 +26,7 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
 builder.Services.AddTransient<IAuditLogService, AuditLogService>();
 builder.Services.AddTransient<IUserFileService, UserFileService>();
 builder.Services.AddTransient<IApprovalRequestService, ApprovalRequestService>();
-builder.Services.AddSingleton<IStoreService, StoreService>();
+builder.Services.AddTransient<IStoreService, StoreService>();
 builder.Services.AddEmailServices(builder.Configuration);
 var app = builder.Build();
 
