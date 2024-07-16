@@ -19,7 +19,7 @@ Click2approve is a free, open source, cross-platform document approval system wi
 
 # Demo
 
-Please, open [click2approve.com](https://click2approve.com/) to check how it works.
+Please, visit [click2approve.com](https://click2approve.com/) to check how it works.
 
 # How to Run Locally
 
@@ -90,7 +90,7 @@ All microservises are containerized with [Docker](https://docs.docker.com/).
 
 ## Client-side UI
 
-It provides a graphic interface to allow users to interact with the application via a web browser.
+It provides a graphical interface, allowing users to interact with the application via a web browser.
 
 It is written in [TypeScript](https://www.typescriptlang.org/) and uses:
 
@@ -98,11 +98,11 @@ It is written in [TypeScript](https://www.typescriptlang.org/) and uses:
 - [Material UI](https://mui.com/material-ui/) CSS framework;
 - [MobX](https://mobx.js.org/react-integration.html) state management framework.
 
-The build transforms the TypeScript code into a JavaScripts single-page application (SPA). The `ui` container hosts [Nginx](https://www.nginx.com/) web server that returns the SPA to the users. The SPA handles HTTP requests coming from the users and interacts with the `Server-side API` microservice.
+The build transforms the TypeScript code into a JavaScript single-page application (SPA). The `ui` container hosts [Nginx](https://www.nginx.com/) web server that returns the SPA to the users. The SPA handles HTTP requests coming from the users and interacts with the `Server-side API` microservice.
 
 ## Server-side API
 
-It provides HTTP endpoints that implement the business logic.
+It provides HTTP endpoints that implement business logic.
 
 It is written in [C#](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp/) and uses:
 
