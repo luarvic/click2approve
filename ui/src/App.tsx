@@ -1,7 +1,7 @@
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import LoadingOverlay from "./components/overlays/LoadingOverlay";
 import {
@@ -40,6 +40,7 @@ const App = () => {
       <CssBaseline>
         <BrowserRouter basename="ui">
           <Routes>
+            <Route path="/" element={<Navigate to="/ui" replace />} />
             <Route element={<MainLayout />}>
               <Route path="/files" element={<FilesPage />} />
               <Route path="/inbox" element={<InboxPage />} />

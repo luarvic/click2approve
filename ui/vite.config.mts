@@ -6,6 +6,7 @@ export default defineConfig(() => {
     server: {
       port: 3333,
     },
+    base: "/ui",
     plugins: [react()],
     test: {
       globals: true,
