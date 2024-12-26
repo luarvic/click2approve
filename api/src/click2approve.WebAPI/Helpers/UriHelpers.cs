@@ -1,4 +1,5 @@
 using System.Web;
+using Flurl;
 
 namespace click2approve.WebAPI.Helpers;
 
@@ -23,12 +24,20 @@ public static class UriHelpers
         {
             throw new ArgumentException("Missing query parameter", code);
         }
-        return new Uri(uiBaseUri, $"confirmEmail?userId={userId}&code={code}");
+        return uiBaseUri
+            .AppendPathSegment("confirmEmail")
+            .SetQueryParam("userId", userId)
+            .SetQueryParam("code", code)
+            .ToUri();
     }
 
     public static Uri GetDerivedPasswordResetLink(string email, string resetCode, Uri? uiBaseUri)
     {
         uiBaseUri ??= new Uri("");
-        return new Uri(uiBaseUri, $"resetPassword?email={email}&code={resetCode}");
+        return uiBaseUri
+            .AppendPathSegment("resetPassword")
+            .SetQueryParam("email", email)
+            .SetQueryParam("code", resetCode)
+            .ToUri();
     }
 }
