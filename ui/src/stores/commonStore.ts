@@ -3,7 +3,7 @@ import { Dictionary } from "../models/dictionary";
 import { Tab } from "../models/tab";
 
 export class CommonStore {
-  currentTab?: Tab;
+  currentTab: Tab;
   loadingCounter: Dictionary<number>;
   approvalRequestSubmitDialogIsOpen: boolean;
   approvalRequestViewDialogIsOpen: boolean;
@@ -13,7 +13,7 @@ export class CommonStore {
   userSettingsDrawerIsOpen: boolean;
 
   constructor(
-    currentTab?: Tab,
+    currentTab: Tab = Tab.Files,
     loadingCounter: Dictionary<number> = {},
     approvalRequestSubmitDialogIsOpen: boolean = false,
     approvalRequestViewDialogIsOpen: boolean = false,

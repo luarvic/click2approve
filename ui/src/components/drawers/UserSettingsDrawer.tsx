@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
-import { DEFAULT_PATH } from "../../data/constants";
+import { DEFAULT_PATH, UI_BASE_URI } from "../../data/constants";
 import { stores } from "../../stores/stores";
 
 const UserSettingsDrawer = () => {
@@ -48,7 +48,7 @@ const UserSettingsDrawer = () => {
             </ListItemButton>
           </ListItem>
           <ListItem key="help" disablePadding>
-            <ListItemButton onClick={() => navigate("/help")}>
+            <ListItemButton component="a" href={UI_BASE_URI}>
               <ListItemIcon sx={listItemIconSx}>
                 <HelpOutline />
               </ListItemIcon>

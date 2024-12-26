@@ -1,7 +1,7 @@
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import LoadingOverlay from "./components/overlays/LoadingOverlay";
 import {
@@ -22,7 +22,6 @@ import ResendConfirmationEmailPage from "./pages/identity/ResendConfirmationEmai
 import ResetPasswordPage from "./pages/identity/ResetPasswordPage";
 import SignInPage from "./pages/identity/SignInPage";
 import SignUpPage from "./pages/identity/SignUpPage";
-import HelpPage from "./pages/other/HelpPage";
 import HomePage from "./pages/other/HomePage";
 import InformationPage from "./pages/other/InformationPage";
 import NotFoundPage from "./pages/other/NotFoundPage";
@@ -39,8 +38,9 @@ const App = () => {
   ) : (
     <ThemeProvider theme={stores.userSettingsStore.theme}>
       <CssBaseline>
-        <BrowserRouter>
+        <BrowserRouter basename="ui">
           <Routes>
+            <Route path="/" element={<Navigate to="/ui" replace />} />
             <Route element={<MainLayout />}>
               <Route path="/files" element={<FilesPage />} />
               <Route path="/inbox" element={<InboxPage />} />
@@ -57,7 +57,6 @@ const App = () => {
               <Route path="/resetPassword" element={<ResetPasswordPage />} />
               <Route element={<WrapperLayout />}>
                 <Route index element={<HomePage />} />
-                <Route path="help" element={<HelpPage />} />
                 <Route path="/confirmEmail" element={<ConfirmEmailPage />} />
                 <Route path="/information" element={<InformationPage />} />
                 <Route path="/userSettings" element={<UserSettingsPage />} />

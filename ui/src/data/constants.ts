@@ -2,7 +2,8 @@ import { PopoverOrigin } from "@mui/material";
 import passwordValidator from "password-validator";
 
 // API
-export const API_URI = import.meta.env.VITE_API_URI;
+export const API_BASE_URI = import.meta.env.VITE_API_BASE_URI;
+export const UI_BASE_URI = import.meta.env.VITE_UI_BASE_URI;
 export const API_TIMEOUT_MS = 10000;
 export const EMAIL_SERVICE_IS_ENABLED: boolean =
   import.meta.env.VITE_EMAIL_SERVICE_IS_ENABLED === "true";
