@@ -49,7 +49,7 @@ const MainAppBar = () => {
           <Button
             variant="outlined"
             color="inherit"
-            onClick={() => navigate("signIn")}
+            onClick={() => navigate("/signIn")}
           >
             Sign in
           </Button>

@@ -55,9 +55,9 @@ axiosInstance.interceptors.response.use(
           }
         }
       }
-      if (!window.location.pathname.toLowerCase().startsWith("/sign")) {
-        window.location.href = "/signIn";
-      }
+      // if (!window.location.pathname.toLowerCase().startsWith("/sign")) {
+      //   window.location.href = "/ui/signIn";
+      // }
     }
     return Promise.reject(error);
   }
