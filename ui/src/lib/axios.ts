@@ -1,16 +1,16 @@
 import axios from "axios";
-import { API_TIMEOUT_MS, API_URI } from "../data/constants";
+import { API_BASE_URI, API_TIMEOUT_MS } from "../data/constants";
 import { stores } from "../stores/stores";
 import { getLoaderName } from "../utils/helpers";
 import { accountRefresh } from "./controllers/auth";
 import { readTokens } from "./session";
 
 const axiosInstance = axios.create({
-  baseURL: API_URI,
+  baseURL: API_BASE_URI,
   timeout: API_TIMEOUT_MS,
 });
 
-axiosInstance.defaults.baseURL = API_URI;
+axiosInstance.defaults.baseURL = API_BASE_URI;
 axiosInstance.interceptors.request.use(async (config) => {
   config.url &&
     stores.commonStore.updateLoadingCounter(getLoaderName(config), 1);
