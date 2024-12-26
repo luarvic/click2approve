@@ -1,4 +1,4 @@
-import { ArrowDropDownCircle } from "@mui/icons-material";
+import { MoreHoriz } from "@mui/icons-material";
 import { Box, IconButton, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
 import {
@@ -39,7 +39,7 @@ const UserFileActionsMenu: React.FC<IUserFileActionsMenuProps> = ({
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
       >
-        <ArrowDropDownCircle />
+        <MoreHoriz />
       </IconButton>
       <Menu
         id="basic-menu"

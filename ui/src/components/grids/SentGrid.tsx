@@ -105,7 +105,7 @@ const SentGrid = () => {
   ];
 
   return (
-    <Box sx={{ width: "100%", overflow: "hidden", pr: 2 }}>
+    <Box sx={{ width: "100%", overflow: "hidden" }}>
       <DataGrid
         rows={stores.approvalRequestStore.approvalRequests}
         columns={columns}
