@@ -3,12 +3,179 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <meta
+      name="description"
+      content="Click2approve is a free, open-source, cross-platform document approval system with a responsive user interface."
+    />
+    <meta
+      name="keywords"
+      content="Click2approve, Document Approval, Free Software, Cross-Platform"
+    />
+    <meta name="author" content="Rostislav Semenov" />
+    <title>Click2approve - Document Approval System</title>
+    <link rel="stylesheet" href="help.css" />
   </head>
   <body>
-    <h1>Welcome to Click2approve.com</h1>
-    <p>
-      Click <a href="/ui">here</a> to start using the file approval service.
-    </p>
+    <header>
+      <h1>click2approve.com</h1>
+    </header>
+    <main>
+      <section>
+        <h2>What is click2approve</h2>
+        <p>
+          <i>Click2approve</i> is a free, open-source, cross-platform document
+          approval system with a responsive user interface that allows you to:
+        </p>
+        <ul>
+          <li>Upload documents.</li>
+          <li>
+            Send documents for approval specifying a list of approvers' email
+            addresses.
+          </li>
+          <li>Notify the requesting and approving parties via email.</li>
+          <li>Keep track of the approval requests.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>How to use the document approval system</h2>
+        <p>
+          You can start using the document approval system right away by
+          clicking <a href="/ui" target="_blank">click2approve.com/ui</a>.
+        </p>
+        <p>
+          Or you can install it on your computer by following the instructions
+          in the
+          <a href="https://github.com/luarvic/click2approve" target="_blank"
+            >README</a
+          >
+          file.
+        </p>
+        <p>
+          If you have any questions or need help, please contact us at
+          <a href="https://t.me/pierex" target="_blank">t.me/pierex</a>.
+        </p>
+      </section>
+      <section>
+        <h2>How to upload documents</h2>
+        <p>
+          Sign in and open the <i>FILES</i> tab to upload new documents. Click
+          the <i>UPLOAD</i> button and choose the files you want to upload.
+        </p>
+        <img src="/ui/public/images/upload-files-1.png" alt="Upload files" />
+        <p>
+          The files will be uploaded to the server, and you will be able to see
+          them in the <i>FILES</i> tab. Only you have access to the files you
+          uploaded.
+        </p>
+        <img src="/ui/public/images/upload-files-2.png" alt="Uploaded files" />
+        <p>
+          To delete a file, click the ellipsis button next to the file name and
+          choose the <i>Delete</i> action.
+        </p>
+        <img src="/ui/public/images/delete-file-1.png" alt="Delete file" />
+        <p>
+          Confirm that you want to delete the file along with all related
+          approval requests, if any, by clicking the <i>DELETE</i> button.
+        </p>
+        <img
+          src="/ui/public/images/delete-file-2.png"
+          alt="File deletion confirmation"
+        />
+      </section>
+      <section>
+        <h2>How to send documents for approval</h2>
+        <p>
+          Sending documents for approval means that you are requesting the
+          approvers to review the documents and approve or reject the request.
+          The documents sent to the approvers will be accessible only to them
+          and to you.
+        </p>
+        <p>
+          Open the <i>FILES</i> tab, select the files you want to send for
+          approval, and click the <i>SEND</i> button.
+        </p>
+        <img src="/ui/public/images/send-files-1.png" alt="Send files" />
+        <p>
+          In the dialog that appears, enter the email address of the approver
+          and press <i>Enter</i>. Optionally, specify a <i>Review by</i> date
+          and time, and enter a comment for the approvers. Click the
+          <i>SUBMIT</i> button to send the documents for approval.
+        </p>
+        <img
+          src="/ui/public/images/send-files-2.png"
+          alt="Approval request submission"
+        />
+        <p>
+          All approvers will receive an email notification with instructions on
+          how to review and approve the documents you sent them.
+        </p>
+        <p>
+          To track an approval request, go to the <i>SENT</i> tab, click the
+          ellipsis button next to the request, and choose the
+          <i>Track</i> action.
+        </p>
+        <img
+          src="/ui/public/images/sent-files-1.png"
+          alt="Track approval request"
+        />
+        <p>
+          Once the request is approved, you will be notified via email, and the
+          dialog will show the approval status with comments and timestamps.
+        </p>
+        <img
+          src="/ui/public/images/sent-files-2.png"
+          alt="Approved request details"
+        />
+        <p>
+          To cancel an approval request, click the ellipsis button next to the
+          request and choose the <i>Delete</i> action. Approvers will be
+          notified of the cancellation.
+        </p>
+      </section>
+      <section>
+        <h2>How to review and approve documents</h2>
+        <p>
+          Reviewing and approving documents is simple. Open the email
+          notification you received and click the link to review the documents.
+        </p>
+        <p>
+          Sign in or sign up on the <i>click2approve.com</i> website. Navigate
+          to the <i>INBOX</i> tab to see the requests you need to review and
+          approve. Click a file name to open the document for review.
+        </p>
+        <p>
+          To approve or reject the request, click the ellipsis button and choose
+          the <i>Review</i> action.
+        </p>
+        <img
+          src="/ui/public/images/approve-files-1.png"
+          alt="Review document"
+        />
+        <p>
+          In the dialog that appears, choose <i>Approve</i> or <i>Reject</i>,
+          optionally add a comment, and click the <i>SUBMIT</i> button.
+        </p>
+        <img
+          src="/ui/public/images/approve-files-2.png"
+          alt="Submit decision"
+        />
+        <p>Approved requests will be moved to the <i>ARCHIVE</i> tab.</p>
+        <img
+          src="/ui/public/images/approved-files-1.png"
+          alt="Archived approval request"
+        />
+        <p>
+          You can see the request details by clicking the ellipsis button and
+          choosing the <i>Review</i> action.
+        </p>
+        <img
+          src="/ui/public/images/approved-files-2.png"
+          alt="Approved request details"
+        />
+      </section>
+    </main>
+    <footer>
+      <p>&copy; 2024 Rostislav Semenov. All rights reserved.</p>
+    </footer>
   </body>
 </html>
