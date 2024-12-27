@@ -10,7 +10,7 @@
 
 # Click2approve Specification
 
-Click2approve is a free, open source, cross-platform document approval system with a responsive user interface that allows you to:
+Click2approve is a free, open-source, cross-platform document approval system with a responsive user interface that allows you to:
 
 - Upload documents.
 - Send documents for approval specifying a list of approvers' email addresses.
