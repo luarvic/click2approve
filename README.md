@@ -51,7 +51,18 @@ cd click2approve
 Run in terminal:
 
 ```bash
-docker-compose up -d
+docker compose up -d
+```
+
+Wait until you see:
+
+```
+ ✔ api                            Built
+ ✔ ui                             Built
+ ✔ Network click2approve_default  Created
+ ✔ Container db                   Started
+ ✔ Container api                  Started
+ ✔ Container ui                   Started
 ```
 
 ### 4. Verify Running Docker Containers
@@ -62,11 +73,11 @@ Run in terminal:
 docker ps -a
 ```
 
-Wait until all of the following containers are up and running:
+Make sure all of the following containers are up and running:
 
-- `ui`.
 - `api`.
 - `db`.
+- `ui`.
 
 (Find more details about those containers below in [Architecture and design decisions](#architecture-and-design-decisions).)
 
