@@ -51,7 +51,7 @@ cd click2approve
 Run in terminal:
 
 ```bash
-docker compose up -d
+docker compose up -d --build
 ```
 
 Wait until you see:
