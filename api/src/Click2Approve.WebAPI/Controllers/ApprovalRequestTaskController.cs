@@ -60,7 +60,7 @@ public class ApprovalRequestTaskController(
     /// <response code="401">If authorization failed.</response>
     /// <response code="500">If request failed.</response>
     [HttpGet("listUncompleted")]
-    public async Task<ActionResult<List<UserFile>>> ListUncompletedAsync(CancellationToken cancellationToken)
+    public async Task<ActionResult<List<ApprovalRequestTask>>> ListUncompletedAsync(CancellationToken cancellationToken)
     {
         try
         {
@@ -84,7 +84,7 @@ public class ApprovalRequestTaskController(
     /// <response code="401">If authorization failed.</response>
     /// <response code="500">If request failed.</response>
     [HttpGet("listCompleted")]
-    public async Task<ActionResult<List<UserFile>>> ListCompletedAsync(CancellationToken cancellationToken)
+    public async Task<ActionResult<List<ApprovalRequestTask>>> ListCompletedAsync(CancellationToken cancellationToken)
     {
         try
         {

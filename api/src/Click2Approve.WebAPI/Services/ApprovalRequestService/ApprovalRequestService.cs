@@ -39,7 +39,7 @@ public class ApprovalRequestService(ApiDbContext db,
         if (maxApproverCount > 0)
         {
             var approverCount = payload.Emails.Count;
-            if (approverCount > maxApprovalRequestCount)
+            if (approverCount > maxApproverCount)
             {
                 throw new Exception($"Maximum approver count ({maxApproverCount}) is exceeded.");
             }

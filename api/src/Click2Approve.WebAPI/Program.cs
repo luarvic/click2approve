@@ -38,7 +38,6 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
     db.Database.EnsureCreated();
-    db.Database.Migrate();
 }
 
 // Configure CORS
