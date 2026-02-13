@@ -1,0 +1,40 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build-webapi",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "api/src/Click2Approve.WebAPI/Click2Approve.WebAPI.csproj"
+      ],
+      "problemMatcher": ["$msCompile"],
+      "group": "build"
+    },
+    {
+      "label": "run-webapi",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "api/src/Click2Approve.WebAPI/Click2Approve.WebAPI.csproj"
+      ],
+      "isBackground": true,
+      "problemMatcher": ["$msCompile"],
+      "group": "test"
+    },
+    {
+      "label": "test-webapi",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "api/tests/Click2Approve.WebAPI.Tests/Click2Approve.WebAPI.Tests.csproj"
+      ],
+      "problemMatcher": ["$msCompile"],
+      "group": "test"
+    }
+  ]
+}

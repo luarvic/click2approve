@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch WebAPI",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-webapi",
+      "program": "${workspaceFolder}/api/src/Click2Approve.WebAPI/bin/Debug/net8.0/Click2Approve.WebAPI.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/api/src/Click2Approve.WebAPI",
+      "stopAtEntry": false,
+      "console": "integratedTerminal",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    {
+      "name": "Attach to WebAPI",
+      "type": "coreclr",
+      "request": "attach"
+    }
+  ]
+}
