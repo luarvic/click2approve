@@ -14,7 +14,7 @@ services:
     depends_on:
       - db
     build: ./api
-    image: luarvic/click2approve-api:latest
+    image: click2approve-api:local
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
     ports:
@@ -28,6 +28,6 @@ services:
       context: ./ui
       args:
         - ENV=development
-    image: luarvic/click2approve-ui:latest
+    image: click2approve-ui:local
     ports:
       - "3333:3333"
