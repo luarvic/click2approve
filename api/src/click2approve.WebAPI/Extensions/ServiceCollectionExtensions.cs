@@ -94,7 +94,7 @@ public static class ServiceCollectionExtensions
             options.SwaggerDoc("v1", new OpenApiInfo
             {
                 Version = "v1",
-                Title = "Click2approve API Specification",
+                Title = "click2approve API Specification",
             });
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "ApiSpecification.XML"));
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
