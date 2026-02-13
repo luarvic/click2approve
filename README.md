@@ -51,18 +51,17 @@ cd click2approve
 Run in terminal:
 
 ```bash
-docker compose up -d --build
+docker compose build --no-cache
+docker compose up -d
 ```
 
 Wait until you see:
 
 ```
- ✔ api                            Built
- ✔ ui                             Built
  ✔ Network click2approve_default  Created
- ✔ Container db                   Started
- ✔ Container api                  Started
- ✔ Container ui                   Started
+ ✔ Container db                   Created
+ ✔ Container api                  Created
+ ✔ Container ui                   Created
 ```
 
 ### 4. Verify Running Docker Containers

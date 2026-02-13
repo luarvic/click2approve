@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
 WORKDIR /app
-COPY src/click2approve.WebAPI ./
+COPY src/Click2Approve.WebAPI ./
 RUN dotnet restore
 RUN dotnet publish -c Release -o out
 
@@ -10,4 +10,4 @@ COPY --from=build-env /app/out .
 COPY ./wait-for-it.sh .
 RUN chmod +x wait-for-it.sh
 
-CMD ["dotnet", "click2approve.WebAPI.dll"]
+CMD ["dotnet", "Click2Approve.WebAPI.dll"]

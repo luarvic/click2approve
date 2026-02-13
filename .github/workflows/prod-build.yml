@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./api/src/click2approve.WebAPI
+        working-directory: ./api/src/Click2Approve.WebAPI
     permissions:
       contents: read
       packages: write

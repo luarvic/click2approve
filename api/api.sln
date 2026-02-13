@@ -5,11 +5,11 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{031906BE-4430-45BE-A8AE-E69FD55A9243}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "click2approve.WebAPI", "src\click2approve.WebAPI\click2approve.WebAPI.csproj", "{8558DDD1-4562-4D4A-97D8-C74A4BADCED7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Click2Approve.WebAPI", "src\Click2Approve.WebAPI\Click2Approve.WebAPI.csproj", "{8558DDD1-4562-4D4A-97D8-C74A4BADCED7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{47A9BCCB-5D91-401C-A63C-CAE150A84AFB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "click2approve.WebAPI.Tests", "tests\click2approve.WebAPI.Tests\click2approve.WebAPI.Tests.csproj", "{90DEED59-584F-4331-9191-CC8C0796D7A4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Click2Approve.WebAPI.Tests", "tests\Click2Approve.WebAPI.Tests\Click2Approve.WebAPI.Tests.csproj", "{90DEED59-584F-4331-9191-CC8C0796D7A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

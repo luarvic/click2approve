@@ -19,7 +19,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Docker
     ports:
       - "5555:5555"
-    command: /app/wait-for-it.sh -t 60 db:3306 -- dotnet /app/click2approve.WebAPI.dll
+    command: /app/wait-for-it.sh -t 60 db:3306 -- dotnet /app/Click2Approve.WebAPI.dll
   ui:
     container_name: ui
     depends_on:
