@@ -2,23 +2,23 @@
 
 # Table of Contents
 
-1. [click2approve specification.](#click2approve-specification)
+1. [Product overview.](#product-overview)
 2. [Demo.](#demo)
 3. [How to run locally.](#how-to-run-locally)
 4. [Architecture and design decisions.](#architecture-and-design-decisions)
 
-# click2approve Specification
+# Product Overview
 
-click2approve is a free, open-source, cross-platform document approval system with a responsive user interface that allows you to:
+`click2approve` is a free, open-source, cross-platform document approval system with a responsive user interface that allows you to:
 
 - Upload documents.
-- Send documents for approval specifying a list of approvers' email addresses.
-- Notify the requesting and approving parties via email.
-- Keep track the approval requests.
+- Send documents for approval by specifying a list of approvers' email addresses.
+- Notify requesting and approving parties via email.
+- Keep track of approval requests.
 
 # Demo
 
-Please, visit [click2approve.com](https://click2approve.com/) to check how it works.
+Please visit [click2approve.com](https://click2approve.com/) to see how it works.
 
 # How to Run Locally
 
@@ -31,7 +31,7 @@ Please, visit [click2approve.com](https://click2approve.com/) to check how it wo
 
 ### 1. Clone the Repository
 
-Run in terminal:
+Run in a terminal:
 
 ```bash
 git clone git@github.com:luarvic/click2approve.git
@@ -39,7 +39,7 @@ git clone git@github.com:luarvic/click2approve.git
 
 ### 2. Open `click2approve` Directory
 
-Run in terminal:
+Run in a terminal:
 
 ```bash
 cd click2approve
@@ -47,7 +47,7 @@ cd click2approve
 
 ### 3. Build and Run Docker Images
 
-Run in terminal:
+Run in a terminal:
 
 ```bash
 docker compose build --no-cache
@@ -65,7 +65,7 @@ Wait until you see:
 
 ### 4. Verify Running Docker Containers
 
-Run in terminal:
+Run in a terminal:
 
 ```bash
 docker ps -a
@@ -83,7 +83,7 @@ Make sure all of the following containers are up and running:
 
 In the web browser open [http://localhost:3333/](http://localhost:3333/).
 
-You should see a page with `click2approve` title.
+You should see a page with the `click2approve` title.
 
 Welcome to the `click2approve` service! 🎉🎉🎉
 
@@ -95,7 +95,7 @@ The application consists of the following microservices:
 - Server-side API (`ASP.NET Core v8.0`).
 - Relational database (`MySQL 8.3.0`).
 
-All microservises are containerized with [Docker](https://docs.docker.com/).
+All microservices are containerized with [Docker](https://docs.docker.com/).
 
 ## Client-side UI
 
