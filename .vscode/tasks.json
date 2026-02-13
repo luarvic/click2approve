@@ -13,6 +13,17 @@
       "group": "build"
     },
     {
+      "label": "test-webapi",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "api/tests/Click2Approve.WebAPI.Tests/Click2Approve.WebAPI.Tests.csproj"
+      ],
+      "problemMatcher": ["$msCompile"],
+      "group": "test"
+    },
+    {
       "label": "run-webapi",
       "type": "shell",
       "command": "dotnet",
@@ -22,17 +33,6 @@
         "api/src/Click2Approve.WebAPI/Click2Approve.WebAPI.csproj"
       ],
       "isBackground": true,
-      "problemMatcher": ["$msCompile"],
-      "group": "test"
-    },
-    {
-      "label": "test-webapi",
-      "type": "shell",
-      "command": "dotnet",
-      "args": [
-        "test",
-        "api/tests/Click2Approve.WebAPI.Tests/Click2Approve.WebAPI.Tests.csproj"
-      ],
       "problemMatcher": ["$msCompile"],
       "group": "test"
     }
