@@ -1,6 +1,6 @@
+using System.Security.Claims;
 using Click2Approve.WebAPI.Models;
 using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
 
 namespace Click2Approve.WebAPI.Extensions;
 

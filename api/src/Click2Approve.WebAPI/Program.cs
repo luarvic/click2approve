@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Click2Approve.WebAPI.Extensions;
 using Click2Approve.WebAPI.Models;
 using Click2Approve.WebAPI.Services.ApprovalRequestService;
@@ -6,16 +7,15 @@ using Click2Approve.WebAPI.Services.StoreService;
 using Click2Approve.WebAPI.Services.UserFileService;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddIdentityServices(builder.Configuration);
 builder.Services.AddHangfireServices(builder.Configuration);
 builder.Services.AddCors();
 builder.Services.AddControllers()
-    .AddNewtonsoftJson(options =>
+    .AddJsonOptions(options =>
     {
-        options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwagger();

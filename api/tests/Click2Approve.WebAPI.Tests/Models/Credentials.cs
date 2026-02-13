@@ -5,6 +5,6 @@ namespace Click2Approve.WebAPI.Tests.Models;
 /// </summary>
 public class Credentials
 {
-  public required string Email { get; set; }
-  public required string Password { get; set; }
+    public required string Email { get; set; }
+    public required string Password { get; set; }
 }

@@ -1,11 +1,11 @@
 using System.Net.Http.Json;
 using System.Net.Mime;
 using System.Text;
+using System.Text.Json;
 using Click2Approve.WebAPI.Models;
 using Click2Approve.WebAPI.Models.DTOs;
 using Click2Approve.WebAPI.Tests.Helpers;
 using Click2Approve.WebAPI.Tests.Models;
-using Newtonsoft.Json;
 
 namespace Click2Approve.WebAPI.Tests.Extensions;
 
@@ -77,7 +77,7 @@ public static class HttpClientExtensions
             "api/account/register",
             null,
             null,
-            new StringContent(JsonConvert.SerializeObject(credentials), Encoding.UTF8, "application/json"),
+            new StringContent(JsonSerializer.Serialize(credentials), Encoding.UTF8, "application/json"),
             cancellationToken);
     }
 
@@ -90,7 +90,7 @@ public static class HttpClientExtensions
             "api/account/login",
             null,
             null,
-            new StringContent(JsonConvert.SerializeObject(credentials), Encoding.UTF8, "application/json"),
+            new StringContent(JsonSerializer.Serialize(credentials), Encoding.UTF8, "application/json"),
             cancellationToken);
     }
 
@@ -207,7 +207,7 @@ public static class HttpClientExtensions
     CancellationToken cancellationToken)
     {
         var body = new StringContent(
-            JsonConvert.SerializeObject(payload),
+            JsonSerializer.Serialize(payload),
             Encoding.UTF8,
             MediaTypeNames.Application.Json);
         return await httpClient.SendAsync<string>(HttpMethod.Post,

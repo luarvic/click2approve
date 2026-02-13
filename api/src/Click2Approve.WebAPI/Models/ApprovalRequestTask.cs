@@ -1,4 +1,5 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Click2Approve.WebAPI.Models;
 
@@ -7,6 +8,11 @@ namespace Click2Approve.WebAPI.Models;
 /// </summary>
 public class ApprovalRequestTask
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        ReferenceHandler = ReferenceHandler.IgnoreCycles
+    };
+
     public long Id { get; set; }
     public required ApprovalRequest ApprovalRequest { get; set; }
     public required string Approver { get; set; }
@@ -15,6 +21,6 @@ public class ApprovalRequestTask
     public string? Comment { get; set; }
     public override string ToString()
     {
-        return JsonConvert.SerializeObject(this, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+        return JsonSerializer.Serialize(this, JsonOptions);
     }
 }

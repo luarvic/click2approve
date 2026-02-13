@@ -5,6 +5,6 @@ namespace Click2Approve.WebAPI.Tests.Models;
 /// </summary>
 public class UserFileControllerTestDataEntry
 {
-  public required Credentials Credentials { get; set; }
-  public required Dictionary<string, string> FilesToUpload { get; set; }
+    public required Credentials Credentials { get; set; }
+    public required Dictionary<string, string> FilesToUpload { get; set; }
 }
