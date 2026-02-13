@@ -1,2 +1,5 @@
+# Ignore the .DS_Store file created by macOS in directories
 .DS_Store
+
+# Ignore the filestorage directory where uploaded files are stored during development
 filestorage
