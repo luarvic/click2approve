@@ -12,4 +12,15 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
     public DbSet<ApprovalRequest> ApprovalRequests { get; set; }
     public DbSet<ApprovalRequestTask> ApprovalRequestTasks { get; set; }
     public DbSet<AuditLogEntry> AuditLogEntries { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<ApprovalRequest>()
+            .HasIndex(r => r.Author);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .HasIndex(t => new { t.Approver, t.Status });
+    }
 }
