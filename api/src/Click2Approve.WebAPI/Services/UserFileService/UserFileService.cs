@@ -26,29 +26,6 @@ public class UserFileService(
     private readonly ILogger<UserFileService> _logger = logger;
 
     /// <summary>
-    /// Checks the limitations defined for user files and throws
-    /// when any of them is exceeded.
-    /// </summary>
-    private async Task CheckLimitations(AppUser user, IFormFileCollection files, CancellationToken cancellationToken)
-    {
-        var maxFileCount = _configuration.GetValue<int>("Limitations:MaxFileCount");
-        if (maxFileCount > 0)
-        {
-            var fileCount = await _db.UserFiles.CountAsync(f => f.Owner == user, cancellationToken);
-            if (fileCount + files.Count > maxFileCount)
-            {
-                throw new Exception($"Maximum file count ({maxFileCount}) is exceeded.");
-            }
-        }
-
-        var maxFileSizeBytes = _configuration.GetValue<int>("Limitations:MaxFileSizeBytes");
-        if (files.Any(file => file.Length > maxFileSizeBytes))
-        {
-            throw new Exception($"Maximum file size ({maxFileSizeBytes} bytes) is exceeded.");
-        }
-    }
-
-    /// <summary>
     /// Uploads a user file.
     /// </summary>
     public async Task<IList<UserFile>> UploadAsync(AppUser user, IFormFileCollection files, CancellationToken cancellationToken)
@@ -89,14 +66,6 @@ public class UserFileService(
         }
 
         return userFiles;
-    }
-
-    /// <summary>
-    /// Gets the file path out of the user and file properties.
-    /// </summary>
-    private static string GetFilePath(string userId, string fileId, string fileName)
-    {
-        return Path.Combine(userId, fileId, fileName);
     }
 
     /// <summary>
@@ -161,5 +130,36 @@ public class UserFileService(
             userFileJson,
             cancellationToken
         );
+    }
+
+    /// <summary>
+    /// Checks the limitations defined for user files and throws
+    /// when any of them is exceeded.
+    /// </summary>
+    private async Task CheckLimitations(AppUser user, IFormFileCollection files, CancellationToken cancellationToken)
+    {
+        var maxFileCount = _configuration.GetValue<int>("Limitations:MaxFileCount");
+        if (maxFileCount > 0)
+        {
+            var fileCount = await _db.UserFiles.CountAsync(f => f.Owner == user, cancellationToken);
+            if (fileCount + files.Count > maxFileCount)
+            {
+                throw new Exception($"Maximum file count ({maxFileCount}) is exceeded.");
+            }
+        }
+
+        var maxFileSizeBytes = _configuration.GetValue<int>("Limitations:MaxFileSizeBytes");
+        if (files.Any(file => file.Length > maxFileSizeBytes))
+        {
+            throw new Exception($"Maximum file size ({maxFileSizeBytes} bytes) is exceeded.");
+        }
+    }
+
+    /// <summary>
+    /// Gets the file path out of the user and file properties.
+    /// </summary>
+    private static string GetFilePath(string userId, string fileId, string fileName)
+    {
+        return Path.Combine(userId, fileId, fileName);
     }
 }

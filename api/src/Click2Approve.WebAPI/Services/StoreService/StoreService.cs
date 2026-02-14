@@ -8,18 +8,6 @@ public class StoreService(IConfiguration configuration, IHostEnvironment hostEnv
     private readonly ILogger<StoreService> _logger = logger;
     private readonly string _rootPath = ResolveRootPath(configuration["FileStorage:RootPath"], hostEnvironment.ContentRootPath);
 
-    private static string ResolveRootPath(string? configuredRootPath, string contentRootPath)
-    {
-        if (string.IsNullOrWhiteSpace(configuredRootPath))
-        {
-            throw new Exception("File storage root path is not defined.");
-        }
-
-        return Path.IsPathRooted(configuredRootPath)
-            ? configuredRootPath
-            : Path.GetFullPath(Path.Combine(contentRootPath, configuredRootPath));
-    }
-
     /// <summary>
     /// Creates a file in the file system out of bytes.
     /// </summary>
@@ -78,5 +66,17 @@ public class StoreService(IConfiguration configuration, IHostEnvironment hostEnv
             _logger.LogError(e, errorMessage);
             throw new Exception(errorMessage, e);
         }
+    }
+
+    private static string ResolveRootPath(string? configuredRootPath, string contentRootPath)
+    {
+        if (string.IsNullOrWhiteSpace(configuredRootPath))
+        {
+            throw new Exception("File storage root path is not defined.");
+        }
+
+        return Path.IsPathRooted(configuredRootPath)
+            ? configuredRootPath
+            : Path.GetFullPath(Path.Combine(contentRootPath, configuredRootPath));
     }
 }

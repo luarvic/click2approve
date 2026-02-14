@@ -20,33 +20,6 @@ public class ApprovalRequestService(ApiDbContext db,
     private readonly IConfiguration _configuration = configuration;
 
     /// <summary>
-    /// Checks the limitations defined for approval requests and throws
-    /// when any of them is exceeded.
-    /// </summary>
-    private async Task CheckLimitations(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
-    {
-        var maxApprovalRequestCount = _configuration.GetValue<int>("Limitations:MaxApprovalRequestCount");
-        if (maxApprovalRequestCount > 0)
-        {
-            var approvalRequestCount = await _db.ApprovalRequests.CountAsync(r => r.Author == user.NormalizedEmail, cancellationToken);
-            if (approvalRequestCount + 1 > maxApprovalRequestCount)
-            {
-                throw new Exception($"Maximum approval request count ({maxApprovalRequestCount}) is exceeded.");
-            }
-        }
-
-        var maxApproverCount = _configuration.GetValue<int>("Limitations:MaxApproverCount");
-        if (maxApproverCount > 0)
-        {
-            var approverCount = payload.Emails.Count;
-            if (approverCount > maxApproverCount)
-            {
-                throw new Exception($"Maximum approver count ({maxApproverCount}) is exceeded.");
-            }
-        }
-    }
-
-    /// <summary>
     /// Creates a new approval request.
     /// </summary>
     public async Task SubmitApprovalRequestAsync(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
@@ -233,5 +206,32 @@ public class ApprovalRequestService(ApiDbContext db,
         return await _db.ApprovalRequestTasks
             .Where(t => t.Approver == user.NormalizedEmail && t.Status == ApprovalStatus.Submitted)
             .CountAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Checks the limitations defined for approval requests and throws
+    /// when any of them is exceeded.
+    /// </summary>
+    private async Task CheckLimitations(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
+    {
+        var maxApprovalRequestCount = _configuration.GetValue<int>("Limitations:MaxApprovalRequestCount");
+        if (maxApprovalRequestCount > 0)
+        {
+            var approvalRequestCount = await _db.ApprovalRequests.CountAsync(r => r.Author == user.NormalizedEmail, cancellationToken);
+            if (approvalRequestCount + 1 > maxApprovalRequestCount)
+            {
+                throw new Exception($"Maximum approval request count ({maxApprovalRequestCount}) is exceeded.");
+            }
+        }
+
+        var maxApproverCount = _configuration.GetValue<int>("Limitations:MaxApproverCount");
+        if (maxApproverCount > 0)
+        {
+            var approverCount = payload.Emails.Count;
+            if (approverCount > maxApproverCount)
+            {
+                throw new Exception($"Maximum approver count ({maxApproverCount}) is exceeded.");
+            }
+        }
     }
 }
