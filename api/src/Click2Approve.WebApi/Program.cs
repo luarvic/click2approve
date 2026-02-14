@@ -24,8 +24,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddDbContext<ApiDbContext>(options =>
 {
     var connectionString = builder.Configuration.GetConnectionString("Default");
-    options.UseMySql(builder.Configuration.GetConnectionString("Default"),
-        ServerVersion.AutoDetect(connectionString));
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 });
 builder.Services.AddTransient<IAuditLogService, AuditLogService>();
 builder.Services.AddTransient<IUserFileService, UserFileService>();
@@ -34,14 +33,14 @@ builder.Services.AddTransient<IStoreService, StoreService>();
 builder.Services.AddEmailServices(builder.Configuration);
 var app = builder.Build();
 
-// Create the database and schema.
+// Ensure the database is created. If the database already exists, this will do nothing.
+// Changes to the database schema should be handled via EF Core migrations.
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
     db.Database.EnsureCreated();
 }
 
-// Configure CORS
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
 if (allowedOrigins is not null && allowedOrigins.Length > 0)
 {
@@ -50,7 +49,6 @@ if (allowedOrigins is not null && allowedOrigins.Length > 0)
         .WithOrigins(allowedOrigins));
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
