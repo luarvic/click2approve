@@ -1,0 +1,21 @@
+using System.Security.Claims;
+using Click2Approve.WebApi.Models;
+using Microsoft.AspNetCore.Identity;
+
+namespace Click2Approve.WebApi.Extensions;
+
+/// <summary>
+/// Extends UserManager class.
+/// </summary>
+public static class UserManagerExtensions
+{
+    /// <summary>
+    /// Returns AppUser object out of principal claims.
+    /// </summary>
+    public static async Task<AppUser> GetUserByPrincipalAsync(this UserManager<AppUser> userManager, ClaimsPrincipal principal, CancellationToken cancellationToken)
+    {
+        var identity = principal.Identity ?? throw new Exception("Unable to get user identity.");
+        var username = identity.Name ?? throw new Exception("Unable to get username.");
+        return await userManager.FindByNameAsync(username) ?? throw new Exception("Unable to get user by its name.");
+    }
+}

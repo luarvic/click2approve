@@ -14,7 +14,7 @@ jobs:
       DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
     defaults:
       run:
-        working-directory: ./api/src/Click2Approve.WebAPI
+        working-directory: ./api/src/Click2Approve.WebApi
     permissions:
       contents: read
       packages: write

@@ -7,9 +7,11 @@
       "command": "dotnet",
       "args": [
         "build",
-        "api/src/Click2Approve.WebAPI/Click2Approve.WebAPI.csproj"
+        "api/src/Click2Approve.WebApi/Click2Approve.WebApi.csproj"
       ],
-      "problemMatcher": ["$msCompile"],
+      "problemMatcher": [
+        "$msCompile"
+      ],
       "group": "build"
     },
     {
@@ -18,9 +20,11 @@
       "command": "dotnet",
       "args": [
         "test",
-        "api/tests/Click2Approve.WebAPI.Tests/Click2Approve.WebAPI.Tests.csproj"
+        "api/tests/Click2Approve.WebApi.Tests/Click2Approve.WebApi.Tests.csproj"
       ],
-      "problemMatcher": ["$msCompile"],
+      "problemMatcher": [
+        "$msCompile"
+      ],
       "group": "test"
     },
     {
@@ -30,10 +34,12 @@
       "args": [
         "run",
         "--project",
-        "api/src/Click2Approve.WebAPI/Click2Approve.WebAPI.csproj"
+        "api/src/Click2Approve.WebApi/Click2Approve.WebApi.csproj"
       ],
       "isBackground": true,
-      "problemMatcher": ["$msCompile"],
+      "problemMatcher": [
+        "$msCompile"
+      ],
       "group": "test"
     }
   ]
