@@ -39,7 +39,7 @@ public class UserFileService(
             // Record new user file to the database.
             var userFile = new UserFile
             {
-                Name = file.FileName,
+                Name = Path.GetFileName(file.FileName),
                 Type = Path.GetExtension(file.FileName),
                 Created = DateTime.UtcNow,
                 Owner = user,
@@ -54,7 +54,7 @@ public class UserFileService(
 
             // Save the file.
             var bytes = await file.ToBytesAsync(cancellationToken);
-            await _storeService.AddFileAsync(GetFilePath(user.Id, id, file.FileName), bytes, cancellationToken);
+            await _storeService.AddFileAsync(GetFilePath(user.Id, id, Path.GetFileName(file.FileName)), bytes, cancellationToken);
 
             // Add audit log entry.
             await _auditLogService.LogAsync(user.NormalizedEmail!,
