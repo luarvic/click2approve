@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Click2Approve.WebAPI.Extensions;
+using Click2Approve.WebAPI.Middlewares;
 using Click2Approve.WebAPI.Models;
 using Click2Approve.WebAPI.Services.ApprovalRequestService;
 using Click2Approve.WebAPI.Services.AuditLogService;
@@ -56,6 +57,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     app.UseHangfireDashboard();
 }
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapGroup("/api/account").MapIdentityApi<AppUser>();

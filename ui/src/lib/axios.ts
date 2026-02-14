@@ -22,7 +22,6 @@ axiosInstance.interceptors.request.use(async (config) => {
 });
 axiosInstance.interceptors.response.use(
   async (response) => {
-    // await new Promise((resolve) => setTimeout(resolve, 1000));
     response.config.url &&
       stores.commonStore.updateLoadingCounter(
         getLoaderName(response.config),
@@ -32,11 +31,12 @@ axiosInstance.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-    originalRequest.url &&
+    if (originalRequest?.url) {
       stores.commonStore.updateLoadingCounter(
         getLoaderName(originalRequest),
         -1
       );
+    }
     // Try refreshing access token on 401 status code.
     if (
       error.response &&
@@ -46,18 +46,17 @@ axiosInstance.interceptors.response.use(
       !originalRequest.url.startsWith("api/account/confirmEmail")
     ) {
       if (!originalRequest._retry) {
+        originalRequest._retry = true;
         const tokens = readTokens();
         if (tokens) {
           const newTokens = await accountRefresh(tokens.refreshToken);
           if (newTokens) {
+            originalRequest.headers = originalRequest.headers ?? {};
             originalRequest.headers.Authorization = `Bearer ${newTokens.accessToken}`;
-            return axios(originalRequest);
+            return axiosInstance(originalRequest);
           }
         }
       }
-      // if (!window.location.pathname.toLowerCase().startsWith("/sign")) {
-      //   window.location.href = "/ui/signIn";
-      // }
     }
     return Promise.reject(error);
   }
