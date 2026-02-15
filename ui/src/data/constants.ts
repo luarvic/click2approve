@@ -88,6 +88,7 @@ export const PASSWORD_VALIDATOR_ERROR = `Password must be min ${PASSWORD_MIN_LEN
   and one symbol`;
 export const ACCOUNT_MAX_FAILED_ATTEMPTS_TO_SIGN_IN = 3;
 export const ACCOUNT_LOCK_OUT_TIME_IN_MINUTES = 5;
+export const UNKNOWN_ERROR_MESSAGE = "Unknown error occurred.";
 
 // Navigation
 export const DEFAULT_PATH = "/files";
