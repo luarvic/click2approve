@@ -57,10 +57,10 @@ docker compose up -d
 Wait until you see:
 
 ```
- ✔ Network click2approve_default  Created
- ✔ Container db                   Created
- ✔ Container api                  Created
- ✔ Container ui                   Created
+ ✔ Network click2approve_default Created
+ ✔ Container click2approve-db-1  Created
+ ✔ Container click2approve-api-1 Created
+ ✔ Container click2approve-ui-1  Created
 ```
 
 ### 4. Verify Running Docker Containers
@@ -73,9 +73,9 @@ docker ps -a
 
 Make sure all of the following containers are up and running:
 
-- `api`.
-- `db`.
-- `ui`.
+- `click2approve-api-1`.
+- `click2approve-db-1`.
+- `click2approve-ui-1`.
 
 (Find more details about those containers below in [Architecture and design decisions](#architecture-and-design-decisions).)
 

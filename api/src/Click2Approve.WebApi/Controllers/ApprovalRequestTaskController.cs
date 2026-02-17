@@ -35,7 +35,7 @@ public class ApprovalRequestTaskController(
     [HttpPost("complete")]
     public async Task<IActionResult> CompleteAsync([FromBody] ApprovalRequestTaskCompleteDto payload, CancellationToken cancellationToken)
     {
-        var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
+        var user = await _userManager.GetAppUserAsync(User);
         await _approvalRequestService.CompleteTaskAsync(user, payload, cancellationToken);
         return Ok();
     }
@@ -48,7 +48,7 @@ public class ApprovalRequestTaskController(
     [HttpGet("listUncompleted")]
     public async Task<ActionResult<List<ApprovalRequestTask>>> ListUncompletedAsync(CancellationToken cancellationToken)
     {
-        var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
+        var user = await _userManager.GetAppUserAsync(User);
         var approvalRequests = await _approvalRequestService.ListTasksAsync(user, [ApprovalStatus.Submitted], cancellationToken);
         return Ok(approvalRequests);
     }
@@ -61,7 +61,7 @@ public class ApprovalRequestTaskController(
     [HttpGet("listCompleted")]
     public async Task<ActionResult<List<ApprovalRequestTask>>> ListCompletedAsync(CancellationToken cancellationToken)
     {
-        var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
+        var user = await _userManager.GetAppUserAsync(User);
         var approvalRequests = await _approvalRequestService.ListTasksAsync(user, [ApprovalStatus.Approved, ApprovalStatus.Rejected], cancellationToken);
         return Ok(approvalRequests);
     }
@@ -74,7 +74,7 @@ public class ApprovalRequestTaskController(
     [HttpGet("countUncompleted")]
     public async Task<ActionResult<long>> CountUncompletedAsync(CancellationToken cancellationToken)
     {
-        var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
+        var user = await _userManager.GetAppUserAsync(User);
         var count = await _approvalRequestService.CountUncompletedTasksAsync(user, cancellationToken);
         return Ok(count);
     }

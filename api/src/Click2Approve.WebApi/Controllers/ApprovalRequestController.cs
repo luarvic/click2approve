@@ -35,7 +35,7 @@ public class ApprovalRequestController(
     [HttpPost()]
     public async Task<IActionResult> SubmitAsync([FromBody] ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
     {
-        var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
+        var user = await _userManager.GetAppUserAsync(User);
         await _approvalRequestService.SubmitApprovalRequestAsync(user, payload, cancellationToken);
         return Ok();
     }
@@ -48,7 +48,7 @@ public class ApprovalRequestController(
     [HttpDelete()]
     public async Task<IActionResult> DeleteAsync(long id, CancellationToken cancellationToken)
     {
-        var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
+        var user = await _userManager.GetAppUserAsync(User);
         await _approvalRequestService.DeleteApprovalRequestAsync(user, id, cancellationToken);
         return Ok();
     }
@@ -61,7 +61,7 @@ public class ApprovalRequestController(
     [HttpGet("list")]
     public async Task<ActionResult<List<ApprovalRequest>>> ListAsync(CancellationToken cancellationToken)
     {
-        var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
+        var user = await _userManager.GetAppUserAsync(User);
         var approvalRequests = await _approvalRequestService.ListApprovalRequestsAsync(user, cancellationToken);
         return Ok(approvalRequests);
     }

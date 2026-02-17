@@ -32,7 +32,7 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     [HttpPost("upload")]
     public async Task<ActionResult<List<UserFile>>> UploadAsync([FromForm] IFormFileCollection files, CancellationToken cancellationToken)
     {
-        var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
+        var user = await _userManager.GetAppUserAsync(User);
         var userFiles = await _userFileService.UploadAsync(user, files, cancellationToken);
         return Ok(userFiles);
     }
@@ -45,7 +45,7 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     [HttpGet("list")]
     public async Task<ActionResult<List<UserFile>>> ListAsync(CancellationToken cancellationToken)
     {
-        var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
+        var user = await _userManager.GetAppUserAsync(User);
         var userFiles = await _userFileService.ListAsync(user, cancellationToken);
         return Ok(userFiles);
     }
@@ -59,7 +59,7 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     [HttpGet("download")]
     public async Task<IActionResult> DownloadAsync(long id, CancellationToken cancellationToken)
     {
-        var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
+        var user = await _userManager.GetAppUserAsync(User);
         var (filename, bytes) = await _userFileService.DownloadAsync(user, id, cancellationToken);
         return new FileContentResult(bytes, MimeTypes.GetMimeType(filename))
         {
@@ -76,7 +76,7 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     [HttpGet("downloadBase64")]
     public async Task<ActionResult<string>> DownloadBase64Async(long id, CancellationToken cancellationToken)
     {
-        var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
+        var user = await _userManager.GetAppUserAsync(User);
         var (filename, bytes) = await _userFileService.DownloadAsync(user, id, cancellationToken);
         return $"data:{MimeTypes.GetMimeType(filename)};base64,{Convert.ToBase64String(bytes)}";
     }
@@ -89,7 +89,7 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     [HttpDelete()]
     public async Task<IActionResult> DeleteAsync(long id, CancellationToken cancellationToken)
     {
-        var user = await _userManager.GetUserByPrincipalAsync(User, cancellationToken);
+        var user = await _userManager.GetAppUserAsync(User);
         await _userFileService.DeleteAsync(user, id, cancellationToken);
         return Ok();
     }
