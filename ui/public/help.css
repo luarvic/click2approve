@@ -96,9 +96,7 @@ img {
   max-width: 100%;
   height: auto;
   border-radius: 14px;
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.12);
   margin: 14px 0 6px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 /* Footer Styling */
