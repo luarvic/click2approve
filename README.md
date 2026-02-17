@@ -20,6 +20,8 @@
 
 Please visit [click2approve.com](https://click2approve.com/) to see how it works.
 
+> ⭐ If you find this project useful, please give the repository a star to support ongoing development and visibility.
+
 # How to Run Locally
 
 ## Prerequisites
