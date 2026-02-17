@@ -43,15 +43,15 @@ const MainAppBar = () => {
               fill="none"
               role="img"
               aria-label="click2approve"
-              sx={{ mr: 1, display: "block", width: 32, height: 32, color: "inherit" }}
+              sx={{ display: "block", width: 36, height: 36, color: "inherit" }}
             >
               <defs>
                 <mask id="click2approve-cutout">
-                  <rect width="24" height="24" fill="white" />
+                  <rect width="24" height="24" fill="none" />
                   <path
-                    d="M6.2 14.4L11.2 18.4L18.2 6.6"
-                    stroke="black"
-                    strokeWidth="3.2"
+                    d="M6.4 13.9L10.8 17.6L17.0 7.8"
+                    stroke="white"
+                    strokeWidth="3.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
