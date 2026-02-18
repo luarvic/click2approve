@@ -2,6 +2,7 @@ import { Menu } from "@mui/icons-material";
 import {
   AppBar,
   Box,
+  Button,
   IconButton,
   Link,
   Toolbar,
@@ -61,7 +62,15 @@ const MainAppBar = () => {
             </Typography>
           </Link>
         </Box>
-        {!stores.userAccountStore.currentUser ? null : (
+        {!stores.userAccountStore.currentUser ? (
+          <Button
+            variant="outlined"
+            color="inherit"
+            onClick={() => navigate("/signIn")}
+          >
+            Sign in
+          </Button>
+        ) : (
           <IconButton
             color="inherit"
             onClick={() => stores.commonStore.setUserSettingsDrawerIsOpen(true)}
