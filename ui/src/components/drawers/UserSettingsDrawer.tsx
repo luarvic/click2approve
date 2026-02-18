@@ -1,4 +1,4 @@
-import { HelpOutline, Home, Logout, ManageAccounts } from "@mui/icons-material";
+import { HelpOutline, Home, Logout, Settings } from "@mui/icons-material";
 import {
   Box,
   Divider,
@@ -32,7 +32,7 @@ const UserSettingsDrawer = () => {
           <ListItem key="manageAccount" disablePadding>
             <ListItemButton onClick={() => navigate("/userSettings")}>
               <ListItemIcon sx={listItemIconSx}>
-                <ManageAccounts />
+                <Settings />
               </ListItemIcon>
               <ListItemText
                 primary={stores.userAccountStore.currentUser?.email.toLowerCase()}

@@ -119,6 +119,7 @@ const InboxGrid = () => {
           loadingOverlay: LinearProgress as GridSlots["loadingOverlay"],
         }}
         sx={{
+          border: "none",
           "--DataGrid-overlayHeight": "300px",
         }}
         autoHeight

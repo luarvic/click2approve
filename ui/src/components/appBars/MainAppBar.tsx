@@ -17,7 +17,7 @@ const MainAppBar = () => {
   const navigate = useNavigate();
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" color="transparent" elevation={0}>
       <Toolbar disableGutters sx={{ pl: 2, pr: 2 }}>
         <Box sx={{ flexGrow: 1 }}>
           <Link
@@ -45,26 +45,13 @@ const MainAppBar = () => {
               aria-label="click2approve"
               sx={{ display: "block", width: 36, height: 36, color: "inherit" }}
             >
-              <defs>
-                <mask id="click2approve-cutout">
-                  <rect width="24" height="24" fill="none" />
-                  <path
-                    d="M6.4 13.9L10.8 17.6L17.0 7.8"
-                    stroke="white"
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </mask>
-              </defs>
-              <rect
-                x="1.5"
-                y="1.5"
-                width="21"
-                height="21"
-                rx="6"
-                fill="currentColor"
-                mask="url(#click2approve-cutout)"
+              <path
+                d="M6.4 13.9L10.8 17.6L17.0 7.8"
+                stroke="#22C55E"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                transform="translate(0 -2)"
               />
             </Box>
             <Typography

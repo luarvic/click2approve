@@ -1,4 +1,4 @@
-import { CloudUpload } from "@mui/icons-material";
+import { Add } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, useRef } from "react";
@@ -25,8 +25,8 @@ const UploadButton = () => {
     <>
       <Button
         size="small"
-        variant="contained"
-        startIcon={<CloudUpload />}
+        variant="text"
+        startIcon={<Add />}
         onClick={handleUploadClick}
       >
         Upload

@@ -18,7 +18,7 @@
 }
 
 body {
-  font-family: "Sora", "Manrope", "Helvetica Neue", sans-serif;
+  font-family: "Sora", sans-serif;
   line-height: 1.7;
   background: radial-gradient(circle at top left, #fff4e6, transparent 55%),
     radial-gradient(circle at 70% 0%, #e4f7f5, transparent 50%), var(--bg);

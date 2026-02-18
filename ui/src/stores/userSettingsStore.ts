@@ -6,7 +6,10 @@ export class UserSettingsStore {
   theme: Theme;
 
   constructor(
-    theme: Theme = createTheme({ palette: { mode: readColorMode() } })
+    theme: Theme = createTheme({
+      typography: { fontFamily: "Sora, sans-serif" },
+      palette: { mode: readColorMode() }
+    })
   ) {
     this.theme = theme;
     makeAutoObservable(this);
@@ -15,6 +18,7 @@ export class UserSettingsStore {
   setColorMode = (colorMode: PaletteMode) => {
     runInAction(() => {
       this.theme = createTheme({
+        typography: { fontFamily: "Sora, sans-serif" },
         palette: { mode: colorMode },
       });
     });

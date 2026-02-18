@@ -1,3 +1,6 @@
+import "@fontsource/sora/400.css";
+import "@fontsource/sora/500.css";
+import "@fontsource/sora/600.css";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
