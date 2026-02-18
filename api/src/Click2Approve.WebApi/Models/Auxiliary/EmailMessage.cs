@@ -1,4 +1,4 @@
-namespace Click2Approve.WebApi.Models;
+namespace Click2Approve.WebApi.Models.Auxiliary;
 
 /// <summary>
 /// Represents an email message.

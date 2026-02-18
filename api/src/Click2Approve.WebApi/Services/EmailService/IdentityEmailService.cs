@@ -1,15 +1,15 @@
 using System.Web;
 using Click2Approve.WebApi.Helpers;
 using Click2Approve.WebApi.Models;
-using Click2Approve.WebApi.Services.EmailService;
+using Click2Approve.WebApi.Models.Auxiliary;
 using Microsoft.AspNetCore.Identity;
 
-namespace Click2Approve.WebApi.Services.EmailSender;
+namespace Click2Approve.WebApi.Services.EmailService;
 
 /// <summary>
 /// Implements IEmailSender interface of Identity framework.
 /// </summary>
-public class EmailSender(IEmailService emailService, IConfiguration configuration) : IEmailSender<AppUser>
+public class IdentityEmailService(IEmailService emailService, IConfiguration configuration) : IEmailSender<AppUser>
 {
     private readonly IEmailService _emailService = emailService;
     private readonly IConfiguration _configuration = configuration;
@@ -23,7 +23,7 @@ public class EmailSender(IEmailService emailService, IConfiguration configuratio
         var emailMessage = new EmailMessage
         {
             ToAddress = email,
-            Subject = "Confirm your email address to get started on click2approve",
+            Subject = "Confirm your email to get started with click2approve",
             Body = UriHelpers.GetDerivedEmailConfirmationLink(
                 new Uri(confirmationLinkPlainText), _configuration.GetValue<Uri>("UI:BaseUrl")
             ).ToString()
@@ -39,7 +39,7 @@ public class EmailSender(IEmailService emailService, IConfiguration configuratio
         var emailMessage = new EmailMessage
         {
             ToAddress = email,
-            Subject = "Reset your password on click2approve",
+            Subject = "Your click2approve password reset link",
             Body = UriHelpers.GetDerivedPasswordResetLink(
                 user.Email!.ToLower(), resetCode, _configuration.GetValue<Uri>("UI:BaseUrl")
             ).ToString()
@@ -55,7 +55,7 @@ public class EmailSender(IEmailService emailService, IConfiguration configuratio
         var emailMessage = new EmailMessage
         {
             ToAddress = email,
-            Subject = "Reset your password on click2approve",
+            Subject = "Reset your click2approve password",
             Body = resetLink
         };
         await _emailService.SendAsync(emailMessage, CancellationToken.None);

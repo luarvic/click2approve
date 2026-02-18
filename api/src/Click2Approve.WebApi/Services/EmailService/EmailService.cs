@@ -1,4 +1,4 @@
-using Click2Approve.WebApi.Models;
+using Click2Approve.WebApi.Models.Auxiliary;
 using FluentEmail.Core;
 using Hangfire;
 

@@ -1,5 +1,7 @@
 using Click2Approve.WebApi.Models;
+using Click2Approve.WebApi.Models.Auxiliary;
 using Click2Approve.WebApi.Models.DTOs;
+using Click2Approve.WebApi.Persistence;
 using Click2Approve.WebApi.Services.AuditLogService;
 using Click2Approve.WebApi.Services.EmailService;
 using Microsoft.EntityFrameworkCore;
@@ -72,8 +74,8 @@ public class ApprovalRequestService(ApiDbContext db,
             await _emailService.SendAsync(new EmailMessage
             {
                 ToAddress = email.ToLower(),
-                Subject = _configuration["EmailSettings:Templates:ApprovalRequestSentSubject"]!,
-                Body = string.Format(_configuration["EmailSettings:Templates:ApprovalRequestSentBody"]!,
+                Subject = _configuration["Email:Templates:ApprovalRequestSentSubject"]!,
+                Body = string.Format(_configuration["Email:Templates:ApprovalRequestSentBody"]!,
                     newApprovalRequest.Entity.Author.ToLower(),
                     string.Join(", ", newApprovalRequest.Entity.UserFiles.Select(f => f.Name)),
                     $"{_configuration["UI:BaseUrl"]}/inbox")
@@ -108,8 +110,8 @@ public class ApprovalRequestService(ApiDbContext db,
             await _emailService.SendAsync(new EmailMessage
             {
                 ToAddress = email.ToLower(),
-                Subject = _configuration["EmailSettings:Templates:ApprovalRequestDeletedSubject"]!,
-                Body = string.Format(_configuration["EmailSettings:Templates:ApprovalRequestDeletedBody"]!,
+                Subject = _configuration["Email:Templates:ApprovalRequestDeletedSubject"]!,
+                Body = string.Format(_configuration["Email:Templates:ApprovalRequestDeletedBody"]!,
                     approvalRequest.Author.ToLower(),
                     string.Join(", ", approvalRequest.UserFiles.Select(f => f.Name)))
             }, cancellationToken);
@@ -190,8 +192,8 @@ public class ApprovalRequestService(ApiDbContext db,
         await _emailService.SendAsync(new EmailMessage
         {
             ToAddress = approvalRequestTask.ApprovalRequest.Author.ToLower(),
-            Subject = _configuration["EmailSettings:Templates:ApprovalRequestReviewedSubject"]!,
-            Body = string.Format(_configuration["EmailSettings:Templates:ApprovalRequestReviewedBody"]!,
+            Subject = _configuration["Email:Templates:ApprovalRequestReviewedSubject"]!,
+            Body = string.Format(_configuration["Email:Templates:ApprovalRequestReviewedBody"]!,
                 user.Email!.ToLower(),
                 string.Join(", ", approvalRequestTask.ApprovalRequest.UserFiles.Select(f => f.Name)),
                 $"{_configuration["UI:BaseUrl"]}/sent")

@@ -1,5 +1,5 @@
 using System.Data.Common;
-using Click2Approve.WebApi.Models;
+using Click2Approve.WebApi.Persistence;
 using Click2Approve.WebApi.Services;
 using Click2Approve.WebApi.Services.StoreService;
 using Microsoft.AspNetCore.Hosting;

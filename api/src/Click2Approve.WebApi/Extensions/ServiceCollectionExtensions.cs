@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Mail;
 using Click2Approve.WebApi.Models;
-using Click2Approve.WebApi.Services.EmailSender;
+using Click2Approve.WebApi.Persistence;
 using Click2Approve.WebApi.Services.EmailService;
 using FluentEmail.Core.Interfaces;
 using FluentEmail.Smtp;
@@ -34,7 +34,7 @@ public static class ServiceCollectionExtensions
             {
                 options.User.RequireUniqueEmail = true;
                 options.Password.RequiredLength = configuration.GetValue<int>("Identity:Password:RequiredLength");
-                options.SignIn.RequireConfirmedEmail = configuration.GetValue<bool>("EmailSettings:EmailServiceIsEnabled");
+                options.SignIn.RequireConfirmedEmail = configuration.GetValue<bool>("Email:IsEnabled");
                 options.Lockout.MaxFailedAccessAttempts = configuration.GetValue<int>("Identity:Lockout:MaxFailedAccessAttempts");
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(configuration.GetValue<int>("Identity:Lockout:LockoutTimeSpanInMinutes"));
                 options.Lockout.AllowedForNewUsers = configuration.GetValue<bool>("Identity:Lockout:AllowedForNewUsers");
@@ -87,7 +87,7 @@ public static class ServiceCollectionExtensions
                 }));
             services.AddTransient<IEmailService, EmailService>();
         }
-        services.AddTransient<IEmailSender<AppUser>, EmailSender>();
+        services.AddTransient<IEmailSender<AppUser>, IdentityEmailService>();
     }
 
     /// <summary>

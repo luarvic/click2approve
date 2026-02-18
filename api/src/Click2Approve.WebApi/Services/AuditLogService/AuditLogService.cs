@@ -1,4 +1,5 @@
 using Click2Approve.WebApi.Models;
+using Click2Approve.WebApi.Persistence;
 
 namespace Click2Approve.WebApi.Services.AuditLogService;
 

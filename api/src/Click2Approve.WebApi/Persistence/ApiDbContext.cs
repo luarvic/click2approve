@@ -1,7 +1,8 @@
+using Click2Approve.WebApi.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace Click2Approve.WebApi.Models;
+namespace Click2Approve.WebApi.Persistence;
 
 /// <summary>
 /// Represents an entity framework database context.

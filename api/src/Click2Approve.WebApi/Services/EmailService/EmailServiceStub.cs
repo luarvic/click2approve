@@ -1,4 +1,4 @@
-using Click2Approve.WebApi.Models;
+using Click2Approve.WebApi.Models.Auxiliary;
 
 namespace Click2Approve.WebApi.Services.EmailService;
 

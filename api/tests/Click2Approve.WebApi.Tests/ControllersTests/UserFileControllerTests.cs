@@ -1,6 +1,6 @@
 using System.Net;
-using Click2Approve.WebApi.Models;
 using Click2Approve.WebApi.Models.DTOs;
+using Click2Approve.WebApi.Persistence;
 using Click2Approve.WebApi.Tests.Extensions;
 using Click2Approve.WebApi.Tests.Helpers;
 using Click2Approve.WebApi.Tests.Models;
