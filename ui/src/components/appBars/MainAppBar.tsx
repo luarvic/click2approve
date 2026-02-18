@@ -2,11 +2,10 @@ import { Menu } from "@mui/icons-material";
 import {
   AppBar,
   Box,
-  Button,
   IconButton,
   Link,
   Toolbar,
-  Typography,
+  Typography
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
@@ -62,15 +61,7 @@ const MainAppBar = () => {
             </Typography>
           </Link>
         </Box>
-        {!stores.userAccountStore.currentUser ? (
-          <Button
-            variant="outlined"
-            color="inherit"
-            onClick={() => navigate("/signIn")}
-          >
-            Sign in
-          </Button>
-        ) : (
+        {!stores.userAccountStore.currentUser ? null : (
           <IconButton
             color="inherit"
             onClick={() => stores.commonStore.setUserSettingsDrawerIsOpen(true)}

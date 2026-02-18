@@ -90,7 +90,7 @@ const FilesGrid = () => {
       headerName: "Action",
       headerAlign: "right",
       align: "right",
-      flex: 1,
+      flex: 2,
       renderCell: (params) => {
         return <UserFileActionsMenu userFile={params.row} />;
       },
