@@ -61,8 +61,8 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static void AddEmailServices(this IServiceCollection services, IConfiguration configuration)
     {
-        var emailSettings = configuration.GetSection("EmailSettings");
-        var emailServiceIsEnabled = emailSettings.GetValue<bool>("EmailServiceIsEnabled");
+        var emailSettings = configuration.GetSection("Email");
+        var emailServiceIsEnabled = emailSettings.GetValue<bool>("IsEnabled");
         if (!emailServiceIsEnabled)
         {
             services.AddTransient<IEmailService, EmailServiceStub>();
