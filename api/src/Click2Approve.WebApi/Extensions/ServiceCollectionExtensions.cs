@@ -69,10 +69,10 @@ public static class ServiceCollectionExtensions
         }
         else
         {
-            var defaultFromEmail = emailSettings["DefaultFromEmail"];
+            var fromEmailAddress = emailSettings["FromEmailAddress"];
             var host = emailSettings["Host"];
             var port = emailSettings.GetValue<int>("Port");
-            services.AddFluentEmail(defaultFromEmail);
+            services.AddFluentEmail(fromEmailAddress);
             var username = emailSettings["Username"];
             var password = emailSettings["Password"];
             services.AddTransient<ISender>(x =>
