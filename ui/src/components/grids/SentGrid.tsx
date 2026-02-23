@@ -1,4 +1,10 @@
-import { Box, LinearProgress, useMediaQuery, useTheme } from "@mui/material";
+import {
+  Box,
+  Chip,
+  LinearProgress,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -22,7 +28,6 @@ import {
 import GridToolbarButtons from "../buttons/GridToolbarButtons";
 import ApprovalRequestDeleteDialog from "../dialogs/ApprovalRequestDeleteDialog";
 import ApprovalRequestViewDialog from "../dialogs/ApprovalRequestViewDialog";
-import StatusIcon from "../icons/StatusIcon";
 import ApproversList from "../lists/ApproversList";
 import UserFilesList from "../lists/UserFilesList";
 import ApprovalRequestActionsMenu from "../menus/ApprovalRequestActionsMenu";
@@ -30,6 +35,17 @@ import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
 const SentGrid = () => {
   const theme = useTheme();
+
+  const getStatusChipColor = (status: ApprovalStatus) => {
+    switch (status) {
+      case ApprovalStatus.Approved:
+        return "success" as const;
+      case ApprovalStatus.Rejected:
+        return "error" as const;
+      default:
+        return "default" as const;
+    }
+  };
 
   useEffect(() => {
     stores.commonStore.setCurrentTab(Tab.Sent);
@@ -61,9 +77,16 @@ const SentGrid = () => {
     {
       field: "status",
       headerName: "Status",
-      flex: 1,
+      flex: 3,
       renderCell: (params) => {
-        return <StatusIcon status={params.row.status} />;
+        const label = ApprovalStatus[params.row.status];
+        return (
+          <Chip
+            label={label}
+            size="small"
+            color={getStatusChipColor(params.row.status)}
+          />
+        );
       },
       valueGetter: (_value, row) => ApprovalStatus[row.status],
     },

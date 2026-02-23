@@ -1,4 +1,10 @@
-import { Box, LinearProgress, useMediaQuery, useTheme } from "@mui/material";
+import {
+  Box,
+  Chip,
+  LinearProgress,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -18,13 +24,23 @@ import { stores } from "../../stores/stores";
 import { getHumanReadableRelativeDate } from "../../utils/helpers";
 import GridToolbarButtons from "../buttons/GridToolbarButtons";
 import CompletedTaskViewDialog from "../dialogs/CompletedTaskViewDialog";
-import StatusIcon from "../icons/StatusIcon";
 import UserFilesList from "../lists/UserFilesList";
 import TaskActionsMenu from "../menus/TaskActionsMenu";
 import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
 const ArchiveGrid = () => {
   const theme = useTheme();
+
+  const getStatusChipColor = (status: ApprovalStatus) => {
+    switch (status) {
+      case ApprovalStatus.Approved:
+        return "success" as const;
+      case ApprovalStatus.Rejected:
+        return "error" as const;
+      default:
+        return "default" as const;
+    }
+  };
 
   useEffect(() => {
     stores.commonStore.setCurrentTab(Tab.Archive);
@@ -61,9 +77,16 @@ const ArchiveGrid = () => {
     {
       field: "status",
       headerName: "Status",
-      flex: 1,
+      flex: 3,
       renderCell: (params) => {
-        return <StatusIcon status={params.row.status} />;
+        const label = ApprovalStatus[params.row.status];
+        return (
+          <Chip
+            label={label}
+            size="small"
+            color={getStatusChipColor(params.row.status)}
+          />
+        );
       },
       valueGetter: (_value, row) => ApprovalStatus[row.status],
     },
