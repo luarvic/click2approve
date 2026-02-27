@@ -43,7 +43,13 @@ const MainAppBar = () => {
               fill="none"
               role="img"
               aria-label="click2approve"
-              sx={{ display: "block", width: 36, height: 36, color: "inherit" }}
+              sx={{
+                display: "block",
+                width: 36,
+                height: 36,
+                color: "inherit",
+                mr: 0.5,
+              }}
             >
               <g transform="rotate(45 12 12)">
                 <rect x="7.5" y="7.5"
