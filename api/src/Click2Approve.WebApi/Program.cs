@@ -27,10 +27,10 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
     var connectionString = builder.Configuration.GetConnectionString("Default");
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 });
-builder.Services.AddTransient<IAuditLogService, AuditLogService>();
-builder.Services.AddTransient<IUserFileService, UserFileService>();
-builder.Services.AddTransient<IApprovalRequestService, ApprovalRequestService>();
-builder.Services.AddTransient<IStoreService, StoreService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<IUserFileService, UserFileService>();
+builder.Services.AddScoped<IApprovalRequestService, ApprovalRequestService>();
+builder.Services.AddScoped<IStoreService, StoreService>();
 builder.Services.AddEmailServices(builder.Configuration);
 var app = builder.Build();
 

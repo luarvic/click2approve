@@ -66,7 +66,7 @@ public static class ServiceCollectionExtensions
         var emailServiceIsEnabled = emailSettings.GetValue<bool>("IsEnabled");
         if (!emailServiceIsEnabled)
         {
-            services.AddTransient<IEmailService, EmailServiceStub>();
+            services.AddScoped<IEmailService, EmailServiceStub>();
         }
         else
         {
@@ -76,7 +76,7 @@ public static class ServiceCollectionExtensions
             services.AddFluentEmail(fromEmailAddress);
             var username = emailSettings["Username"];
             var password = emailSettings["Password"];
-            services.AddTransient<ISender>(x =>
+            services.AddScoped<ISender>(x =>
                 new SmtpSender(new SmtpClient(host, port)
                 {
                     EnableSsl = true,
@@ -86,9 +86,9 @@ public static class ServiceCollectionExtensions
                         Password = password
                     }
                 }));
-            services.AddTransient<IEmailService, EmailService>();
+            services.AddScoped<IEmailService, EmailService>();
         }
-        services.AddTransient<IEmailSender<AppUser>, IdentityEmailService>();
+        services.AddScoped<IEmailSender<AppUser>, IdentityEmailService>();
         return services;
     }
 
