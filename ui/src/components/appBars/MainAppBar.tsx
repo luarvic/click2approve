@@ -45,14 +45,20 @@ const MainAppBar = () => {
               aria-label="click2approve"
               sx={{ display: "block", width: 36, height: 36, color: "inherit" }}
             >
-              <path
-                d="M6.4 13.9L10.8 17.6L17.0 7.8"
-                stroke="#22C55E"
-                strokeWidth="3.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                transform="translate(0 -2)"
-              />
+              <g transform="rotate(45 12 12)">
+                <rect x="7.5" y="7.5"
+                  width="13" height="13"
+                  rx="3"
+                  fill="#22C55E" />
+              </g>
+              <g transform="rotate(45 12 12)">
+                <rect x="3" y="3"
+                  width="13" height="13"
+                  rx="3"
+                  fill="#FFFFFF"
+                  stroke="#22C55E"
+                  stroke-width="0.8" />
+              </g>
             </Box>
             <Typography
               variant="h6"
