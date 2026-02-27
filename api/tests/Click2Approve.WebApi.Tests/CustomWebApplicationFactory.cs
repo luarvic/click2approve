@@ -6,7 +6,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Click2Approve.WebApi.Tests;
 
@@ -21,15 +24,10 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
         builder.ConfigureServices(services =>
         {
             // Replace MySQL DB context with SQLite.
-            var dbContextOptionsDescriptor = services.Single(
-                s => s.ServiceType ==
-                    typeof(DbContextOptions<ApiDbContext>));
-            services.Remove(dbContextOptionsDescriptor);
-
-            var dbContextDescriptor = services.Single(
-                s => s.ServiceType ==
-                    typeof(ApiDbContext));
-            services.Remove(dbContextDescriptor);
+            services.RemoveAll<DbContextOptions<ApiDbContext>>();
+            services.RemoveAll<IDbContextOptionsConfiguration<ApiDbContext>>();
+            services.RemoveAll<ApiDbContext>();
+            services.RemoveAll<IDatabaseProvider>();
 
             // Create open SqliteConnection so EF won't automatically close it.
             services.AddSingleton<DbConnection>(container =>
@@ -46,8 +44,7 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
             });
 
             // Replace StoreService with MockStoreService.
-            var storeServiceDescriptor = services.Single(s => s.ServiceType == typeof(IStoreService));
-            services.Remove(storeServiceDescriptor);
+            services.RemoveAll<IStoreService>();
             services.AddSingleton<IStoreService, MockStoreService>();
         });
     }

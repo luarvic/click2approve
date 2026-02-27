@@ -9,7 +9,7 @@ using Hangfire;
 using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Click2Approve.WebApi.Extensions;
 
@@ -46,7 +46,7 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Adds and configures Hangfire services to the service collection.
     /// </summary>
-    public static void AddHangfireServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddHangfireServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddHangfire(config =>
         {
@@ -54,12 +54,13 @@ public static class ServiceCollectionExtensions
                 .WithJobExpirationTimeout(TimeSpan.FromMinutes(configuration.GetValue<int>("Hangfire:JobExpirationTimeoutMin")));
         });
         services.AddHangfireServer();
+        return services;
     }
 
     /// <summary>
     /// Adds and configures Email services to the service collection.
     /// </summary>
-    public static void AddEmailServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddEmailServices(this IServiceCollection services, IConfiguration configuration)
     {
         var emailSettings = configuration.GetSection("Email");
         var emailServiceIsEnabled = emailSettings.GetValue<bool>("IsEnabled");
@@ -88,12 +89,13 @@ public static class ServiceCollectionExtensions
             services.AddTransient<IEmailService, EmailService>();
         }
         services.AddTransient<IEmailSender<AppUser>, IdentityEmailService>();
+        return services;
     }
 
     /// <summary>
     /// Adds and configures Swagger services to the service collection.
     /// </summary>
-    public static void AddSwagger(this IServiceCollection services)
+    public static IServiceCollection AddSwagger(this IServiceCollection services)
     {
         services.AddSwaggerGen(options =>
         {
@@ -103,29 +105,18 @@ public static class ServiceCollectionExtensions
                 Title = "click2approve API Specification",
             });
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "ApiSpecification.XML"));
-            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            options.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
             {
-                In = ParameterLocation.Header,
-                Description = "Please enter access token",
-                Name = "Authorization",
                 Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
                 BearerFormat = "JWT",
-                Scheme = "bearer"
+                Description = "JWT Authorization header using the Bearer scheme."
             });
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
             {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        }
-                    },
-                    Array.Empty<string>()
-                }
+                [new OpenApiSecuritySchemeReference("bearer", document)] = []
             });
         });
+        return services;
     }
 }

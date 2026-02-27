@@ -62,6 +62,3 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapGroup("/api/account").MapIdentityApi<AppUser>();
 app.Run();
-
-// This declaration is required for integration tests.
-public partial class Program { }
