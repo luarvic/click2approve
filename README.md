@@ -95,7 +95,7 @@ The application consists of the following microservices:
 
 - Client-side UI (`React TypeScript v18.2`).
 - Server-side API (`ASP.NET Core v10.0`).
-- Relational database (`MySQL 8.3.0`).
+- Relational database (`MySQL 8.4.0`).
 
 All microservices are containerized with [Docker](https://docs.docker.com/).
 
