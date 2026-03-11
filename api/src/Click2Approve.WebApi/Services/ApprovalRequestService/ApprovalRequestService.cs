@@ -1,3 +1,4 @@
+using Click2Approve.WebApi.Exceptions;
 using Click2Approve.WebApi.Models;
 using Click2Approve.WebApi.Models.Auxiliary;
 using Click2Approve.WebApi.Models.DTOs;
@@ -154,7 +155,7 @@ public class ApprovalRequestService(ApiDbContext db,
             .FirstAsync(t => t.Id == payload.Id && t.Approver == user.NormalizedEmail, cancellationToken);
         if (approvalRequestTask.Status != ApprovalStatus.Submitted)
         {
-            throw new Exception("Task is already completed.");
+            throw new TaskAlreadyCompletedException();
         }
 
         // Complete approval request task.
@@ -222,7 +223,7 @@ public class ApprovalRequestService(ApiDbContext db,
             var approvalRequestCount = await _db.ApprovalRequests.CountAsync(r => r.Author == user.NormalizedEmail, cancellationToken);
             if (approvalRequestCount + 1 > maxApprovalRequestCount)
             {
-                throw new Exception($"Maximum approval request count ({maxApprovalRequestCount}) is exceeded.");
+                throw new ApprovalRequestCountExceededException(maxApprovalRequestCount);
             }
         }
 
@@ -232,7 +233,7 @@ public class ApprovalRequestService(ApiDbContext db,
             var approverCount = payload.Emails.Count;
             if (approverCount > maxApproverCount)
             {
-                throw new Exception($"Maximum approver count ({maxApproverCount}) is exceeded.");
+                throw new ApproverCountExceededException(maxApproverCount);
             }
         }
     }

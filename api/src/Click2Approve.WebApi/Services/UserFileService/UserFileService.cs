@@ -1,3 +1,4 @@
+using Click2Approve.WebApi.Exceptions;
 using Click2Approve.WebApi.Extensions;
 using Click2Approve.WebApi.Models;
 using Click2Approve.WebApi.Persistence;
@@ -145,14 +146,14 @@ public class UserFileService(
             var fileCount = await _db.UserFiles.CountAsync(f => f.Owner == user, cancellationToken);
             if (fileCount + files.Count > maxFileCount)
             {
-                throw new Exception($"Maximum file count ({maxFileCount}) is exceeded.");
+                throw new FileCountExceededException(maxFileCount);
             }
         }
 
         var maxFileSizeBytes = _configuration.GetValue<int>("Limitations:MaxFileSizeBytes");
         if (files.Any(file => file.Length > maxFileSizeBytes))
         {
-            throw new Exception($"Maximum file size ({maxFileSizeBytes} bytes) is exceeded.");
+            throw new FileSizeExceededException(maxFileSizeBytes);
         }
     }
 

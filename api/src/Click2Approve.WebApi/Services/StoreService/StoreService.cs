@@ -1,3 +1,5 @@
+using Click2Approve.WebApi.Exceptions;
+
 namespace Click2Approve.WebApi.Services.StoreService;
 
 /// <summary>
@@ -26,7 +28,7 @@ public class StoreService(IConfiguration configuration, IHostEnvironment hostEnv
         }
         catch (Exception e)
         {
-            throw new Exception($"Unable to create file {Path.GetFileName(path)}.", e);
+            throw new FileCreateException(path, e);
         }
     }
 
@@ -46,7 +48,7 @@ public class StoreService(IConfiguration configuration, IHostEnvironment hostEnv
         }
         catch (Exception e)
         {
-            throw new Exception($"Unable to delete file {Path.GetFileName(path)}.", e);
+            throw new FileDeleteException(path, e);
         }
     }
 
@@ -62,9 +64,7 @@ public class StoreService(IConfiguration configuration, IHostEnvironment hostEnv
         }
         catch (Exception e)
         {
-            var errorMessage = $"Unable to read file {Path.GetFileName(path)}.";
-            _logger.LogError(e, errorMessage);
-            throw new Exception(errorMessage, e);
+            throw new FileReadException(path, e);
         }
     }
 
@@ -72,7 +72,7 @@ public class StoreService(IConfiguration configuration, IHostEnvironment hostEnv
     {
         if (string.IsNullOrWhiteSpace(configuredRootPath))
         {
-            throw new Exception("File storage root path is not defined.");
+            throw new FileStorageException();
         }
 
         return Path.IsPathRooted(configuredRootPath)
