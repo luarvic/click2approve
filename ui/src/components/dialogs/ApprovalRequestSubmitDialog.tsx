@@ -76,15 +76,17 @@ const ApprovalRequestSubmitDialog = () => {
             setApproversError(true);
             toast.error("Invalid input.");
           } else {
-            stores.commonStore.setApprovalRequestSubmitDialogIsOpen(false);
-            await approvalRequestSubmit(
+            const didSubmit = await approvalRequestSubmit(
               stores.userFileStore.getSelectedUserFiles(),
               approvers.map((a) => a.toLowerCase().trim()),
               approveBy ? approveBy.toDate() : null,
               comment?.toString()
             );
-            toast.success("The request was successfully sent");
-            cleanUp();
+            if (didSubmit) {
+              stores.commonStore.setApprovalRequestSubmitDialogIsOpen(false);
+              toast.success("The request was successfully sent");
+              cleanUp();
+            }
           }
         },
       }}

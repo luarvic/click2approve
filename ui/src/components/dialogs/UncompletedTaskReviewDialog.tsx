@@ -49,20 +49,25 @@ const UncompletedTaskReviewDialog = () => {
           if (!decision) {
             setDecisionError(true);
           } else {
-            stores.commonStore.setTaskReviewDialogIsOpen(false);
-            stores.approvalRequestTaskStore.currentTask &&
-              stores.userAccountStore.currentUser &&
-              (await taskComplete(
+            if (
+              stores.approvalRequestTaskStore.currentTask &&
+              stores.userAccountStore.currentUser
+            ) {
+              const didComplete = await taskComplete(
                 stores.approvalRequestTaskStore.currentTask.id,
                 decision === "approve"
                   ? ApprovalStatus.Approved
                   : ApprovalStatus.Rejected,
                 comment?.toString()
-              ));
-            cleanUp();
-            stores.approvalRequestTaskStore.clearTasks();
-            stores.approvalRequestTaskStore.loadTasks(Tab.Inbox);
-            stores.approvalRequestTaskStore.loadNumberOfUncompletedTasks();
+              );
+              if (didComplete) {
+                stores.commonStore.setTaskReviewDialogIsOpen(false);
+                cleanUp();
+                stores.approvalRequestTaskStore.clearTasks();
+                stores.approvalRequestTaskStore.loadTasks(Tab.Inbox);
+                stores.approvalRequestTaskStore.loadNumberOfUncompletedTasks();
+              }
+            }
           }
         },
       }}
@@ -88,14 +93,14 @@ const UncompletedTaskReviewDialog = () => {
         />
         {stores.approvalRequestTaskStore.currentTask?.approvalRequest
           .approveBy && (
-          <DialogContentText>
-            by{" "}
-            {getLocaleDateTimeString(
-              stores.approvalRequestTaskStore.currentTask?.approvalRequest
-                .approveByDate
-            )}
-          </DialogContentText>
-        )}
+            <DialogContentText>
+              by{" "}
+              {getLocaleDateTimeString(
+                stores.approvalRequestTaskStore.currentTask?.approvalRequest
+                  .approveByDate
+              )}
+            </DialogContentText>
+          )}
         <CommentPaper
           text={
             stores.approvalRequestTaskStore.currentTask?.approvalRequest.comment

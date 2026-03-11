@@ -45,10 +45,12 @@ export const fileDownloadBase64 = async (
   }
 };
 
-export const fileDelete = async (id: number): Promise<void> => {
+export const fileDelete = async (id: number): Promise<boolean> => {
   try {
     await axios.delete(`api/file?id=${id}`);
+    return true;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
+    return false;
   }
 };

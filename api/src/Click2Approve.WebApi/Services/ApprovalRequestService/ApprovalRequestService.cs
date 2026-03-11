@@ -217,23 +217,27 @@ public class ApprovalRequestService(ApiDbContext db,
     /// </summary>
     private async Task CheckLimitations(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
     {
-        var maxApprovalRequestCount = _configuration.GetValue<int>("Limitations:MaxApprovalRequestCount");
-        if (maxApprovalRequestCount > 0)
+        var maxApprovalRequestsPerDay = _configuration.GetValue<int>("Limitations:MaxApprovalRequestsPerDay");
+        if (maxApprovalRequestsPerDay > 0)
         {
-            var approvalRequestCount = await _db.ApprovalRequests.CountAsync(r => r.Author == user.NormalizedEmail, cancellationToken);
-            if (approvalRequestCount + 1 > maxApprovalRequestCount)
+            var utcTodayStart = DateTime.UtcNow.Date;
+            var utcTomorrowStart = utcTodayStart.AddDays(1);
+            var approvalRequestCount = await _db.ApprovalRequests.CountAsync(r => r.Author == user.NormalizedEmail
+                && r.Submitted >= utcTodayStart
+                && r.Submitted < utcTomorrowStart, cancellationToken);
+            if (approvalRequestCount >= maxApprovalRequestsPerDay)
             {
-                throw new ApprovalRequestCountExceededException(maxApprovalRequestCount);
+                throw new ApprovalRequestLimitExceededException(maxApprovalRequestsPerDay);
             }
         }
 
-        var maxApproverCount = _configuration.GetValue<int>("Limitations:MaxApproverCount");
-        if (maxApproverCount > 0)
+        var maxApproversPerRequest = _configuration.GetValue<int>("Limitations:MaxApproversPerRequest");
+        if (maxApproversPerRequest > 0)
         {
             var approverCount = payload.Emails.Count;
-            if (approverCount > maxApproverCount)
+            if (approverCount > maxApproversPerRequest)
             {
-                throw new ApproverCountExceededException(maxApproverCount);
+                throw new ApproverLimitExceededException(maxApproversPerRequest);
             }
         }
     }

@@ -25,11 +25,18 @@ const UserFileDeleteDialog = () => {
         component: "form",
         onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
           event.preventDefault();
-          stores.commonStore.setUserFileDeleteDialogIsOpen(false);
-          stores.userFileStore.currentUserFile &&
-            (await fileDelete(stores.userFileStore.currentUserFile.id));
-          stores.userFileStore.clearUserFiles();
-          stores.userFileStore.loadUserFiles();
+          if (stores.userFileStore.currentUserFile) {
+            const didDelete = await fileDelete(
+              stores.userFileStore.currentUserFile.id
+            );
+            if (didDelete) {
+              stores.commonStore.setUserFileDeleteDialogIsOpen(false);
+              stores.userFileStore.clearUserFiles();
+              stores.userFileStore.loadUserFiles();
+            }
+          } else {
+            stores.commonStore.setUserFileDeleteDialogIsOpen(false);
+          }
         },
       }}
     >

@@ -140,20 +140,20 @@ public class UserFileService(
     /// </summary>
     private async Task CheckLimitations(AppUser user, IFormFileCollection files, CancellationToken cancellationToken)
     {
-        var maxFileCount = _configuration.GetValue<int>("Limitations:MaxFileCount");
-        if (maxFileCount > 0)
+        var maxFiles = _configuration.GetValue<int>("Limitations:MaxFiles");
+        if (maxFiles > 0)
         {
             var fileCount = await _db.UserFiles.CountAsync(f => f.Owner == user, cancellationToken);
-            if (fileCount + files.Count > maxFileCount)
+            if (fileCount + files.Count > maxFiles)
             {
-                throw new FileCountExceededException(maxFileCount);
+                throw new FileLimitExceededException(maxFiles);
             }
         }
 
         var maxFileSizeBytes = _configuration.GetValue<int>("Limitations:MaxFileSizeBytes");
         if (files.Any(file => file.Length > maxFileSizeBytes))
         {
-            throw new FileSizeExceededException(maxFileSizeBytes);
+            throw new FileSizeLimitExceededException(maxFileSizeBytes);
         }
     }
 

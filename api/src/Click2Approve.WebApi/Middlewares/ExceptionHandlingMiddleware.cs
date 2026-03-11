@@ -39,11 +39,20 @@ public class ExceptionHandlingMiddleware(
         }
         catch (Exception e)
         {
+            var isCustomException = e is TaskAlreadyCompletedException
+                or ApprovalRequestLimitExceededException
+                or ApproverLimitExceededException
+                or FileLimitExceededException
+                or FileSizeLimitExceededException
+                or FileStorageException
+                or FileCreateException
+                or FileDeleteException
+                or FileReadException;
+
             var logLevel = e switch
             {
                 UnauthorizedAccessException => LogLevel.Warning,
-                // Base exception should go last to avoid shadowing more specific exceptions.
-                BaseException => LogLevel.Warning,
+                _ when isCustomException => LogLevel.Warning,
                 _ => LogLevel.Error
             };
 
@@ -54,13 +63,12 @@ public class ExceptionHandlingMiddleware(
             var statusCode = e switch
             {
                 UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
-                // Base exception should go last to avoid shadowing more specific exceptions.
-                BaseException => StatusCodes.Status400BadRequest,
+                _ when isCustomException => StatusCodes.Status400BadRequest,
                 _ => StatusCodes.Status500InternalServerError
             };
 
             var problemDetails = new ErrorResponse(
-                title: e is BaseException ? e.Message : "An unexpected error occurred. Please try again later.",
+                title: isCustomException ? e.Message : "An unexpected error occurred. Please try again later.",
                 status: statusCode,
                 traceId: context.TraceIdentifier
             );

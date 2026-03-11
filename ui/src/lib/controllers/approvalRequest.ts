@@ -9,7 +9,7 @@ export const approvalRequestSubmit = async (
   approvers: string[],
   approveBy: Date | null,
   comment: string | undefined
-): Promise<void> => {
+): Promise<boolean> => {
   try {
     await axios.post("api/request", {
       userFileIds: files.map((userFile) => userFile.id.toString()),
@@ -17,16 +17,20 @@ export const approvalRequestSubmit = async (
       approveBy: approveBy,
       comment: comment,
     });
+    return true;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
+    return false;
   }
 };
 
-export const approvalRequestDelete = async (id: number): Promise<void> => {
+export const approvalRequestDelete = async (id: number): Promise<boolean> => {
   try {
     await axios.delete(`api/request?id=${id}`);
+    return true;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
+    return false;
   }
 };
 

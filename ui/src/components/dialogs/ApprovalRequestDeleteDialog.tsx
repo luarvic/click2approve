@@ -28,13 +28,18 @@ const ApprovalRequestDeleteDialog = () => {
         component: "form",
         onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
           event.preventDefault();
-          stores.commonStore.setApprovalRequestDeleteDialogIsOpen(false);
-          stores.approvalRequestStore.currentApprovalRequest &&
-            (await approvalRequestDelete(
+          if (stores.approvalRequestStore.currentApprovalRequest) {
+            const didDelete = await approvalRequestDelete(
               stores.approvalRequestStore.currentApprovalRequest.id
-            ));
-          stores.approvalRequestStore.clearApprovalRequests();
-          stores.approvalRequestStore.loadApprovalRequests();
+            );
+            if (didDelete) {
+              stores.commonStore.setApprovalRequestDeleteDialogIsOpen(false);
+              stores.approvalRequestStore.clearApprovalRequests();
+              stores.approvalRequestStore.loadApprovalRequests();
+            }
+          } else {
+            stores.commonStore.setApprovalRequestDeleteDialogIsOpen(false);
+          }
         },
       }}
     >

@@ -8,15 +8,17 @@ export const taskComplete = async (
   id: number,
   status: ApprovalStatus,
   comment: string | undefined
-): Promise<void> => {
+): Promise<boolean> => {
   try {
     await axios.post("api/task/complete", {
       id: id,
       status: status,
       comment: comment,
     });
+    return true;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
+    return false;
   }
 };
 
