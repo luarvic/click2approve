@@ -23,15 +23,19 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
         var derivedConfirmationLink = UriHelpers.GetDerivedEmailConfirmationLink(
             new Uri(confirmationLinkPlainText), _configuration.GetValue<Uri>("UI:BaseUrl")
         ).ToString();
+        var confirmationHeading = _configuration["Email:Templates:IdentityConfirmationHeading"]!;
+        var confirmationMessageTemplate = _configuration["Email:Templates:IdentityConfirmationMessage"]!;
+        var confirmationLinkText = _configuration["Email:Templates:IdentityConfirmationLinkText"]!;
+        var confirmationSubject = _configuration["Email:Templates:IdentityConfirmationSubject"]!;
         var emailMessage = new EmailMessage
         {
             ToAddress = email,
-            Subject = "Confirm your email for click2approve",
+            Subject = confirmationSubject,
             Body = BuildHtmlEmail(
-                "Hi there,",
-                "Thanks for creating a click2approve account. Please confirm your email address using the link below.",
+                confirmationHeading,
+                string.Format(confirmationMessageTemplate),
                 derivedConfirmationLink,
-                "Confirm Email"
+                confirmationLinkText
             )
         };
         await _emailService.SendAsync(emailMessage, CancellationToken.None);
@@ -45,15 +49,19 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
         var derivedResetLink = UriHelpers.GetDerivedPasswordResetLink(
             user.Email!.ToLower(), resetCode, _configuration.GetValue<Uri>("UI:BaseUrl")
         ).ToString();
+        var resetHeading = _configuration["Email:Templates:IdentityResetHeading"]!;
+        var resetMessageTemplate = _configuration["Email:Templates:IdentityResetMessage"]!;
+        var resetLinkText = _configuration["Email:Templates:IdentityResetLinkText"]!;
+        var resetSubject = _configuration["Email:Templates:IdentityResetSubject"]!;
         var emailMessage = new EmailMessage
         {
             ToAddress = email,
-            Subject = "Reset your click2approve password",
+            Subject = resetSubject,
             Body = BuildHtmlEmail(
-                "Hi there,",
-                "We received a request to reset your click2approve password. Use the link below.",
+                resetHeading,
+                string.Format(resetMessageTemplate),
                 derivedResetLink,
-                "Reset Password"
+                resetLinkText
             )
         };
         await _emailService.SendAsync(emailMessage, CancellationToken.None);
@@ -64,15 +72,19 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
     /// </summary>
     public async Task SendPasswordResetLinkAsync(AppUser user, string email, string resetLink)
     {
+        var resetHeading = _configuration["Email:Templates:IdentityResetHeading"]!;
+        var resetMessageTemplate = _configuration["Email:Templates:IdentityResetMessage"]!;
+        var resetLinkText = _configuration["Email:Templates:IdentityResetLinkText"]!;
+        var resetSubject = _configuration["Email:Templates:IdentityResetSubject"]!;
         var emailMessage = new EmailMessage
         {
             ToAddress = email,
-            Subject = "Reset your click2approve password",
+            Subject = resetSubject,
             Body = BuildHtmlEmail(
-                "Hi there,",
-                "We received a request to reset your click2approve password. Use the link below.",
+                resetHeading,
+                string.Format(resetMessageTemplate),
                 resetLink,
-                "Reset Password"
+                resetLinkText
             )
         };
         await _emailService.SendAsync(emailMessage, CancellationToken.None);
@@ -89,8 +101,8 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
             $"<p style=\"margin: 0 0 1em;\">{heading}</p>",
             $"<p style=\"margin: 0 0 1em;\">{message}</p>",
             $"<p style=\"margin: 0 0 1em;\"><a href=\"{link}\">{linkText}</a></p>",
-            "<p style=\"margin: 0 0 0.5em;\">Thanks,</p>",
-            "<p style=\"margin: 0;\">The click2approve team</p>",
+            "<p style=\"margin: 0 0 1em;\">Thanks,</p>",
+            "<p style=\"margin: 0 0 1em;\">The click2approve team</p>",
             "</div>"
         );
     }

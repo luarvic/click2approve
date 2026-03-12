@@ -72,14 +72,23 @@ public class ApprovalRequestService(ApiDbContext db,
         // Notify approvers via email.
         foreach (var email in payload.Emails)
         {
+            var sentHeadingTemplate = _configuration["Email:Templates:ApprovalRequestSentHeading"]!;
+            var sentMessageTemplate = _configuration["Email:Templates:ApprovalRequestSentMessage"]!;
+            var sentLinkText = _configuration["Email:Templates:ApprovalRequestSentLinkText"]!;
+            var sentSubject = _configuration["Email:Templates:ApprovalRequestSentSubject"]!;
+            var sentLink = $"{_configuration["UI:BaseUrl"]}/inbox";
+
             await _emailService.SendAsync(new EmailMessage
             {
                 ToAddress = email.ToLower(),
-                Subject = _configuration["Email:Templates:ApprovalRequestSentSubject"]!,
-                Body = string.Format(_configuration["Email:Templates:ApprovalRequestSentBody"]!,
-                    newApprovalRequest.Entity.Author.ToLower(),
-                    string.Join(", ", newApprovalRequest.Entity.UserFiles.Select(f => f.Name)),
-                    $"{_configuration["UI:BaseUrl"]}/inbox")
+                Subject = sentSubject,
+                Body = BuildHtmlEmail(
+                    sentHeadingTemplate,
+                    string.Format(sentMessageTemplate,
+                        newApprovalRequest.Entity.Author.ToLower(),
+                        string.Join(", ", newApprovalRequest.Entity.UserFiles.Select(f => f.Name))),
+                    sentLink,
+                    sentLinkText)
             }, cancellationToken);
         }
     }
@@ -108,13 +117,23 @@ public class ApprovalRequestService(ApiDbContext db,
         // Notify approvers via email.
         foreach (var email in approvalRequest.Approvers)
         {
+            var deletedHeadingTemplate = _configuration["Email:Templates:ApprovalRequestDeletedHeading"]!;
+            var deletedMessageTemplate = _configuration["Email:Templates:ApprovalRequestDeletedMessage"]!;
+            var deletedLinkText = _configuration["Email:Templates:ApprovalRequestDeletedLinkText"]!;
+            var deletedSubject = _configuration["Email:Templates:ApprovalRequestDeletedSubject"]!;
+            var deletedLink = $"{_configuration["UI:BaseUrl"]}/inbox";
+
             await _emailService.SendAsync(new EmailMessage
             {
                 ToAddress = email.ToLower(),
-                Subject = _configuration["Email:Templates:ApprovalRequestDeletedSubject"]!,
-                Body = string.Format(_configuration["Email:Templates:ApprovalRequestDeletedBody"]!,
-                    approvalRequest.Author.ToLower(),
-                    string.Join(", ", approvalRequest.UserFiles.Select(f => f.Name)))
+                Subject = deletedSubject,
+                Body = BuildHtmlEmail(
+                    deletedHeadingTemplate,
+                    string.Format(deletedMessageTemplate,
+                        approvalRequest.Author.ToLower(),
+                        string.Join(", ", approvalRequest.UserFiles.Select(f => f.Name))),
+                    deletedLink,
+                    deletedLinkText)
             }, cancellationToken);
         }
     }
@@ -190,14 +209,23 @@ public class ApprovalRequestService(ApiDbContext db,
         );
 
         // Notify requester via email.
+        var reviewedHeadingTemplate = _configuration["Email:Templates:ApprovalRequestReviewedHeading"]!;
+        var reviewedMessageTemplate = _configuration["Email:Templates:ApprovalRequestReviewedMessage"]!;
+        var reviewedLinkText = _configuration["Email:Templates:ApprovalRequestReviewedLinkText"]!;
+        var reviewedSubject = _configuration["Email:Templates:ApprovalRequestReviewedSubject"]!;
+        var reviewedLink = $"{_configuration["UI:BaseUrl"]}/sent";
+
         await _emailService.SendAsync(new EmailMessage
         {
             ToAddress = approvalRequestTask.ApprovalRequest.Author.ToLower(),
-            Subject = _configuration["Email:Templates:ApprovalRequestReviewedSubject"]!,
-            Body = string.Format(_configuration["Email:Templates:ApprovalRequestReviewedBody"]!,
-                user.Email!.ToLower(),
-                string.Join(", ", approvalRequestTask.ApprovalRequest.UserFiles.Select(f => f.Name)),
-                $"{_configuration["UI:BaseUrl"]}/sent")
+            Subject = reviewedSubject,
+            Body = BuildHtmlEmail(
+                reviewedHeadingTemplate,
+                string.Format(reviewedMessageTemplate,
+                    user.Email!.ToLower(),
+                    string.Join(", ", approvalRequestTask.ApprovalRequest.UserFiles.Select(f => f.Name))),
+                reviewedLink,
+                reviewedLinkText)
         }, cancellationToken);
     }
 
@@ -240,5 +268,22 @@ public class ApprovalRequestService(ApiDbContext db,
                 throw new ApproverLimitExceededException(maxApproversPerRequest);
             }
         }
+    }
+
+    /// <summary>
+    /// Builds an HTML email body with the given heading, message and link.
+    /// </summary>
+    private static string BuildHtmlEmail(string heading, string message, string link, string linkText)
+    {
+        return string.Join(
+            Environment.NewLine,
+            "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">",
+            $"<p style=\"margin: 0 0 1em;\">{heading}</p>",
+            $"<p style=\"margin: 0 0 1em;\">{message}</p>",
+            $"<p style=\"margin: 0 0 1em;\"><a href=\"{link}\">{linkText}</a></p>",
+            "<p style=\"margin: 0 0 1em;\">Thanks,</p>",
+            "<p style=\"margin: 0 0 1em;\">The click2approve team</p>",
+            "</div>"
+        );
     }
 }
