@@ -7,6 +7,18 @@ export const UI_BASE_URI = import.meta.env.VITE_UI_BASE_URI;
 export const API_TIMEOUT_MS = 10000;
 export const EMAIL_SERVICE_IS_ENABLED: boolean =
   import.meta.env.VITE_EMAIL_SERVICE_IS_ENABLED === "true";
+const UNCOMPLETED_TASKS_REFRESH_SECONDS_DEFAULT = 30;
+const uncompletedTasksRefreshSeconds = Number(
+  import.meta.env.VITE_UNCOMPLETED_TASKS_REFRESH_SECONDS ??
+  String(UNCOMPLETED_TASKS_REFRESH_SECONDS_DEFAULT)
+);
+export const UNCOMPLETED_TASKS_REFRESH_SECONDS =
+  Number.isFinite(uncompletedTasksRefreshSeconds) &&
+    uncompletedTasksRefreshSeconds > 0
+    ? uncompletedTasksRefreshSeconds
+    : UNCOMPLETED_TASKS_REFRESH_SECONDS_DEFAULT;
+export const UNCOMPLETED_TASKS_REFRESH_MS =
+  UNCOMPLETED_TASKS_REFRESH_SECONDS * 1000;
 
 // Toast
 export const TOAST_AUTO_CLOSE = 3000;

@@ -2,6 +2,7 @@ import { Badge, Box, Tab as MuiTab, Tabs } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { SyntheticEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { UNCOMPLETED_TASKS_REFRESH_MS } from "../../data/constants";
 import { Tab } from "../../models/tab";
 import { stores } from "../../stores/stores";
 
@@ -10,6 +11,13 @@ const NavigationTabs = () => {
 
   useEffect(() => {
     stores.approvalRequestTaskStore.loadNumberOfUncompletedTasks();
+    if (UNCOMPLETED_TASKS_REFRESH_MS <= 0) {
+      return;
+    }
+    const intervalId = window.setInterval(() => {
+      stores.approvalRequestTaskStore.loadNumberOfUncompletedTasks();
+    }, UNCOMPLETED_TASKS_REFRESH_MS);
+    return () => window.clearInterval(intervalId);
   }, []);
 
   const handleTabChange = (_event: SyntheticEvent, tab: Tab) => {
