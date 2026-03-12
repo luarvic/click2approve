@@ -42,13 +42,18 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
     /// </summary>
     public async Task SendPasswordResetCodeAsync(AppUser user, string email, string resetCode)
     {
+        var derivedResetLink = UriHelpers.GetDerivedPasswordResetLink(
+            user.Email!.ToLower(), resetCode, _configuration.GetValue<Uri>("UI:BaseUrl")
+        ).ToString();
         var emailMessage = new EmailMessage
         {
             ToAddress = email,
             Subject = "Reset your click2approve password",
             Body = BuildHtmlEmail(
                 "Hi there,",
-                $"We received a request to reset your click2approve password. Use this code: {resetCode}"
+                "We received a request to reset your click2approve password. Use the link below.",
+                derivedResetLink,
+                "Reset Password"
             )
         };
         await _emailService.SendAsync(emailMessage, CancellationToken.None);
@@ -76,20 +81,16 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
     /// <summary>
     /// Builds an HTML email body with the given heading, message and link.
     /// </summary>
-    private static string BuildHtmlEmail(string heading, string message, string? link = null, string? linkText = null)
+    private static string BuildHtmlEmail(string heading, string message, string link, string linkText)
     {
-        var linkSection = string.IsNullOrWhiteSpace(link) || string.IsNullOrWhiteSpace(linkText)
-            ? string.Empty
-            : $"<p style=\"margin: 0 0 12px;\"><a href=\"{link}\">{linkText}</a></p>";
-
         return string.Join(
             Environment.NewLine,
             "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">",
             $"<p style=\"margin: 0 0 12px;\">{heading}</p>",
             $"<p style=\"margin: 0 0 12px;\">{message}</p>",
-            linkSection,
-            "<p style=\"margin: 0 0 12px;\">Thanks,</p>",
-            "<p style=\"margin: 0 0 12px;\">The click2approve team</p>",
+            $"<p style=\"margin: 0 0 12px;\"><a href=\"{link}\">{linkText}</a></p>",
+            "<p style=\"margin: 0 0 6px;\">Thanks,</p>",
+            "<p>The click2approve team</p>",
             "</div>"
         );
     }
