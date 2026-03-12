@@ -14,22 +14,6 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
     private readonly IEmailService _emailService = emailService;
     private readonly IConfiguration _configuration = configuration;
 
-    private static string BuildHtmlEmail(string heading, string message, string link)
-    {
-        return string.Join(
-            Environment.NewLine,
-            "<div style=\"font-family: Arial, sans-serif; font-size: 14px; color: #1f2933;\">",
-            $"<p style=\"margin: 0 0 12px;\">{heading}</p>",
-            $"<p style=\"margin: 0 0 12px;\">{message}</p>",
-            $"<p style=\"margin: 0 0 12px;\"><a href=\"{link}\" style=\"color: #1a73e8;\">Open link</a></p>",
-            "<p style=\"margin: 0 0 12px;\">If the button does not work, copy and paste this URL into your browser:</p>",
-            $"<p style=\"margin: 0 0 12px; word-break: break-all;\">{link}</p>",
-            "<p style=\"margin: 16px 0 0; color: #52616b;\">If you did not request this, you can ignore this email.</p>",
-            "<p style=\"margin: 16px 0 0; color: #52616b;\">click2approve</p>",
-            "</div>"
-        );
-    }
-
     /// <summary>
     /// Sends an email confirmation link.
     /// </summary>
@@ -89,5 +73,24 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
             )
         };
         await _emailService.SendAsync(emailMessage, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Builds an HTML email body with the given heading, message and link.
+    /// </summary>
+    private static string BuildHtmlEmail(string heading, string message, string link)
+    {
+        return string.Join(
+            Environment.NewLine,
+            "<div style=\"font-family: Arial, sans-serif; font-size: 14px; color: #1f2933;\">",
+            $"<p style=\"margin: 0 0 12px;\">{heading}</p>",
+            $"<p style=\"margin: 0 0 12px;\">{message}</p>",
+            $"<p style=\"margin: 0 0 12px;\"><a href=\"{link}\" style=\"color: #1a73e8;\">Open link</a></p>",
+            "<p style=\"margin: 0 0 12px;\">If the button does not work, copy and paste this URL into your browser:</p>",
+            $"<p style=\"margin: 0 0 12px; word-break: break-all;\">{link}</p>",
+            "<p style=\"margin: 16px 0 0; color: #52616b;\">If you did not request this, you can ignore this email.</p>",
+            "<p style=\"margin: 16px 0 0; color: #52616b;\">click2approve</p>",
+            "</div>"
+        );
     }
 }
