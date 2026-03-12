@@ -30,7 +30,8 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
             Body = BuildHtmlEmail(
                 "Hi there,",
                 "Thanks for creating a click2approve account. Please confirm your email address using the link below.",
-                derivedConfirmationLink
+                derivedConfirmationLink,
+                "Confirm Email"
             )
         };
         await _emailService.SendAsync(emailMessage, CancellationToken.None);
@@ -41,17 +42,13 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
     /// </summary>
     public async Task SendPasswordResetCodeAsync(AppUser user, string email, string resetCode)
     {
-        var derivedResetLink = UriHelpers.GetDerivedPasswordResetLink(
-            user.Email!.ToLower(), resetCode, _configuration.GetValue<Uri>("UI:BaseUrl")
-        ).ToString();
         var emailMessage = new EmailMessage
         {
             ToAddress = email,
             Subject = "Reset your click2approve password",
             Body = BuildHtmlEmail(
                 "Hi there,",
-                "We received a request to reset your click2approve password. Use the link below.",
-                derivedResetLink
+                $"We received a request to reset your click2approve password. Use this code: {resetCode}"
             )
         };
         await _emailService.SendAsync(emailMessage, CancellationToken.None);
@@ -69,7 +66,8 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
             Body = BuildHtmlEmail(
                 "Hi there,",
                 "We received a request to reset your click2approve password. Use the link below.",
-                resetLink
+                resetLink,
+                "Reset Password"
             )
         };
         await _emailService.SendAsync(emailMessage, CancellationToken.None);
@@ -78,18 +76,20 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
     /// <summary>
     /// Builds an HTML email body with the given heading, message and link.
     /// </summary>
-    private static string BuildHtmlEmail(string heading, string message, string link)
+    private static string BuildHtmlEmail(string heading, string message, string? link = null, string? linkText = null)
     {
+        var linkSection = string.IsNullOrWhiteSpace(link) || string.IsNullOrWhiteSpace(linkText)
+            ? string.Empty
+            : $"<p style=\"margin: 0 0 12px;\"><a href=\"{link}\">{linkText}</a></p>";
+
         return string.Join(
             Environment.NewLine,
-            "<div style=\"font-family: Arial, sans-serif; font-size: 14px; color: #1f2933;\">",
+            "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">",
             $"<p style=\"margin: 0 0 12px;\">{heading}</p>",
             $"<p style=\"margin: 0 0 12px;\">{message}</p>",
-            $"<p style=\"margin: 0 0 12px;\"><a href=\"{link}\" style=\"color: #1a73e8;\">Open link</a></p>",
-            "<p style=\"margin: 0 0 12px;\">If the button does not work, copy and paste this URL into your browser:</p>",
-            $"<p style=\"margin: 0 0 12px; word-break: break-all;\">{link}</p>",
-            "<p style=\"margin: 16px 0 0; color: #52616b;\">If you did not request this, you can ignore this email.</p>",
-            "<p style=\"margin: 16px 0 0; color: #52616b;\">click2approve</p>",
+            linkSection,
+            "<p style=\"margin: 0 0 12px;\">Thanks,</p>",
+            "<p style=\"margin: 0 0 12px;\">The click2approve team</p>",
             "</div>"
         );
     }
