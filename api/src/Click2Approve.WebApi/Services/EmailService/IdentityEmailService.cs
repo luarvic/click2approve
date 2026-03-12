@@ -20,13 +20,24 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
     public async Task SendConfirmationLinkAsync(AppUser user, string email, string confirmationLink)
     {
         var confirmationLinkPlainText = HttpUtility.HtmlDecode(confirmationLink);
+        var derivedConfirmationLink = UriHelpers.GetDerivedEmailConfirmationLink(
+            new Uri(confirmationLinkPlainText), _configuration.GetValue<Uri>("UI:BaseUrl")
+        ).ToString();
         var emailMessage = new EmailMessage
         {
             ToAddress = email,
-            Subject = "Confirm your email to get started with click2approve",
-            Body = UriHelpers.GetDerivedEmailConfirmationLink(
-                new Uri(confirmationLinkPlainText), _configuration.GetValue<Uri>("UI:BaseUrl")
-            ).ToString()
+            Subject = "Confirm your email for click2approve",
+            Body = string.Join(
+                Environment.NewLine,
+                "Hi there,",
+                "",
+                "Thanks for creating a click2approve account. Please confirm your email address by using this link:",
+                derivedConfirmationLink,
+                "",
+                "If you did not request this, you can ignore this email.",
+                "",
+                "click2approve"
+            )
         };
         await _emailService.SendAsync(emailMessage, CancellationToken.None);
     }
@@ -36,13 +47,24 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
     /// </summary>
     public async Task SendPasswordResetCodeAsync(AppUser user, string email, string resetCode)
     {
+        var derivedResetLink = UriHelpers.GetDerivedPasswordResetLink(
+            user.Email!.ToLower(), resetCode, _configuration.GetValue<Uri>("UI:BaseUrl")
+        ).ToString();
         var emailMessage = new EmailMessage
         {
             ToAddress = email,
-            Subject = "Your click2approve password reset link",
-            Body = UriHelpers.GetDerivedPasswordResetLink(
-                user.Email!.ToLower(), resetCode, _configuration.GetValue<Uri>("UI:BaseUrl")
-            ).ToString()
+            Subject = "Reset your click2approve password",
+            Body = string.Join(
+                Environment.NewLine,
+                "Hi there,",
+                "",
+                "We received a request to reset your click2approve password. Use the link below:",
+                derivedResetLink,
+                "",
+                "If you did not request this, you can ignore this email.",
+                "",
+                "click2approve"
+            )
         };
         await _emailService.SendAsync(emailMessage, CancellationToken.None);
     }
@@ -56,7 +78,17 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
         {
             ToAddress = email,
             Subject = "Reset your click2approve password",
-            Body = resetLink
+            Body = string.Join(
+                Environment.NewLine,
+                "Hi there,",
+                "",
+                "We received a request to reset your click2approve password. Use the link below:",
+                resetLink,
+                "",
+                "If you did not request this, you can ignore this email.",
+                "",
+                "click2approve"
+            )
         };
         await _emailService.SendAsync(emailMessage, CancellationToken.None);
     }
