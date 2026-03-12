@@ -14,6 +14,22 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
     private readonly IEmailService _emailService = emailService;
     private readonly IConfiguration _configuration = configuration;
 
+    private static string BuildHtmlEmail(string heading, string message, string link)
+    {
+        return string.Join(
+            Environment.NewLine,
+            "<div style=\"font-family: Arial, sans-serif; font-size: 14px; color: #1f2933;\">",
+            $"<p style=\"margin: 0 0 12px;\">{heading}</p>",
+            $"<p style=\"margin: 0 0 12px;\">{message}</p>",
+            $"<p style=\"margin: 0 0 12px;\"><a href=\"{link}\" style=\"color: #1a73e8;\">Open link</a></p>",
+            "<p style=\"margin: 0 0 12px;\">If the button does not work, copy and paste this URL into your browser:</p>",
+            $"<p style=\"margin: 0 0 12px; word-break: break-all;\">{link}</p>",
+            "<p style=\"margin: 16px 0 0; color: #52616b;\">If you did not request this, you can ignore this email.</p>",
+            "<p style=\"margin: 16px 0 0; color: #52616b;\">click2approve</p>",
+            "</div>"
+        );
+    }
+
     /// <summary>
     /// Sends an email confirmation link.
     /// </summary>
@@ -27,16 +43,10 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
         {
             ToAddress = email,
             Subject = "Confirm your email for click2approve",
-            Body = string.Join(
-                Environment.NewLine,
+            Body = BuildHtmlEmail(
                 "Hi there,",
-                "",
-                "Thanks for creating a click2approve account. Please confirm your email address by using this link:",
-                derivedConfirmationLink,
-                "",
-                "If you did not request this, you can ignore this email.",
-                "",
-                "click2approve"
+                "Thanks for creating a click2approve account. Please confirm your email address using the link below.",
+                derivedConfirmationLink
             )
         };
         await _emailService.SendAsync(emailMessage, CancellationToken.None);
@@ -54,16 +64,10 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
         {
             ToAddress = email,
             Subject = "Reset your click2approve password",
-            Body = string.Join(
-                Environment.NewLine,
+            Body = BuildHtmlEmail(
                 "Hi there,",
-                "",
-                "We received a request to reset your click2approve password. Use the link below:",
-                derivedResetLink,
-                "",
-                "If you did not request this, you can ignore this email.",
-                "",
-                "click2approve"
+                "We received a request to reset your click2approve password. Use the link below.",
+                derivedResetLink
             )
         };
         await _emailService.SendAsync(emailMessage, CancellationToken.None);
@@ -78,16 +82,10 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
         {
             ToAddress = email,
             Subject = "Reset your click2approve password",
-            Body = string.Join(
-                Environment.NewLine,
+            Body = BuildHtmlEmail(
                 "Hi there,",
-                "",
-                "We received a request to reset your click2approve password. Use the link below:",
-                resetLink,
-                "",
-                "If you did not request this, you can ignore this email.",
-                "",
-                "click2approve"
+                "We received a request to reset your click2approve password. Use the link below.",
+                resetLink
             )
         };
         await _emailService.SendAsync(emailMessage, CancellationToken.None);
