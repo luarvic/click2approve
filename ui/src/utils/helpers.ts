@@ -24,12 +24,34 @@ export const getUserFriendlyApiErrorMessage = (error: any): string => {
 
     const data = error.response?.data;
     const parts: string[] = [];
+    const status = error.response?.status;
+
+    if (typeof data === "string") {
+      const trimmed = data.trim();
+      const looksLikeHtml =
+        trimmed.startsWith("<") &&
+        /<html|<head|<body|<title/i.test(trimmed);
+
+      if (looksLikeHtml) {
+        switch (status) {
+          case 413:
+            return "The file is too large to upload.";
+          case 502:
+          case 503:
+          case 504:
+            return "The service is temporarily unavailable. Please try again.";
+          case 404:
+            return "The requested resource was not found.";
+          default:
+            return "The server returned an unexpected response.";
+        }
+      }
+    }
 
     if (data?.title) {
       parts.push(String(data.title));
     }
 
-    const status = error.response?.status;
     if (status === 401 || status === 403) {
       switch (data?.detail) {
         case "Failed":
