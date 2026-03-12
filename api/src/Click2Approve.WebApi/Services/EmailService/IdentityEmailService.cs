@@ -86,11 +86,11 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
         return string.Join(
             Environment.NewLine,
             "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">",
-            $"<p style=\"margin: 0 0 12px;\">{heading}</p>",
-            $"<p style=\"margin: 0 0 12px;\">{message}</p>",
-            $"<p style=\"margin: 0 0 12px;\"><a href=\"{link}\">{linkText}</a></p>",
-            "<p style=\"margin: 0 0 6px;\">Thanks,</p>",
-            "<p>The click2approve team</p>",
+            $"<p style=\"margin: 0 0 1em;\">{heading}</p>",
+            $"<p style=\"margin: 0 0 1em;\">{message}</p>",
+            $"<p style=\"margin: 0 0 1em;\"><a href=\"{link}\">{linkText}</a></p>",
+            "<p style=\"margin: 0 0 0.5em;\">Thanks,</p>",
+            "<p style=\"margin: 0;\">The click2approve team</p>",
             "</div>"
         );
     }
