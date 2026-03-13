@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Mail;
+using Azure.Core;
 using Click2Approve.WebApi.Models;
 using Click2Approve.WebApi.Persistence;
 using Click2Approve.WebApi.Services.EmailService;
@@ -9,6 +10,7 @@ using Hangfire;
 using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Azure;
 using Microsoft.OpenApi;
 
 namespace Click2Approve.WebApi.Extensions;
@@ -89,6 +91,37 @@ public static class ServiceCollectionExtensions
             services.AddTransient<IEmailService, EmailService>();
         }
         services.AddTransient<IEmailSender<AppUser>, IdentityEmailService>();
+        return services;
+    }
+
+    /// <summary>
+    /// Adds and configures Azure Email services to the service collection.
+    /// </summary>
+    public static IServiceCollection AddAzureEmailServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        if (!configuration.GetSection("Email").GetValue<bool>("IsEnabled"))
+        {
+            services.AddSingleton<IEmailService, EmailServiceStub>();
+        }
+        else
+        {
+            var settings = configuration.GetSection("AzureEmailCommunication");
+            var connectionString = settings.GetValue<string>("ConnectionString");
+            var retryDelaySeconds = settings.GetValue<int>("RetryDelaySeconds");
+            var maxRetryAttempts = settings.GetValue<int>("MaxRetryAttempts");
+            services.AddAzureClients(clientBuilder =>
+            {
+                clientBuilder.AddEmailClient(connectionString)
+                    .ConfigureOptions(options =>
+                    {
+                        options.Retry.Mode = RetryMode.Fixed;
+                        options.Retry.Delay = TimeSpan.FromSeconds(retryDelaySeconds);
+                        options.Retry.MaxRetries = maxRetryAttempts;
+                    });
+            });
+            services.AddSingleton<IEmailService, AzureEmailCommunicationService>();
+        }
+        services.AddSingleton<IEmailSender<AppUser>, IdentityEmailService>();
         return services;
     }
 
