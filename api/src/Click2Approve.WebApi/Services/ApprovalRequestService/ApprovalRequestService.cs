@@ -1,4 +1,5 @@
 using Click2Approve.WebApi.Exceptions;
+using Click2Approve.WebApi.Helpers;
 using Click2Approve.WebApi.Models;
 using Click2Approve.WebApi.Models.Auxiliary;
 using Click2Approve.WebApi.Models.DTOs;
@@ -82,7 +83,7 @@ public class ApprovalRequestService(ApiDbContext db,
             {
                 ToAddress = email.ToLower(),
                 Subject = sentSubject,
-                Body = BuildHtmlEmail(
+                Body = EmailHelpers.BuildHtmlEmail(
                     sentHeadingTemplate,
                     string.Format(sentMessageTemplate,
                         newApprovalRequest.Entity.Author.ToLower(),
@@ -127,7 +128,7 @@ public class ApprovalRequestService(ApiDbContext db,
             {
                 ToAddress = email.ToLower(),
                 Subject = deletedSubject,
-                Body = BuildHtmlEmail(
+                Body = EmailHelpers.BuildHtmlEmail(
                     deletedHeadingTemplate,
                     string.Format(deletedMessageTemplate,
                         approvalRequest.Author.ToLower(),
@@ -219,7 +220,7 @@ public class ApprovalRequestService(ApiDbContext db,
         {
             ToAddress = approvalRequestTask.ApprovalRequest.Author.ToLower(),
             Subject = reviewedSubject,
-            Body = BuildHtmlEmail(
+            Body = EmailHelpers.BuildHtmlEmail(
                 reviewedHeadingTemplate,
                 string.Format(reviewedMessageTemplate,
                     user.Email!.ToLower(),
@@ -268,22 +269,5 @@ public class ApprovalRequestService(ApiDbContext db,
                 throw new ApproverLimitExceededException(maxApproversPerRequest);
             }
         }
-    }
-
-    /// <summary>
-    /// Builds an HTML email body with the given heading, message and link.
-    /// </summary>
-    private static string BuildHtmlEmail(string heading, string message, string link, string linkText)
-    {
-        return string.Join(
-            Environment.NewLine,
-            "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">",
-            $"<p style=\"margin: 0 0 1em;\">{heading}</p>",
-            $"<p style=\"margin: 0 0 1em;\">{message}</p>",
-            $"<p style=\"margin: 0 0 1em;\"><a href=\"{link}\">{linkText}</a></p>",
-            "<p style=\"margin: 0 0 1em;\">Thanks,</p>",
-            "<p style=\"margin: 0 0 1em;\">The click2approve team</p>",
-            "</div>"
-        );
     }
 }

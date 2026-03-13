@@ -31,7 +31,7 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
         {
             ToAddress = email,
             Subject = confirmationSubject,
-            Body = BuildHtmlEmail(
+            Body = EmailHelpers.BuildHtmlEmail(
                 confirmationHeading,
                 string.Format(confirmationMessageTemplate),
                 derivedConfirmationLink,
@@ -57,7 +57,7 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
         {
             ToAddress = email,
             Subject = resetSubject,
-            Body = BuildHtmlEmail(
+            Body = EmailHelpers.BuildHtmlEmail(
                 resetHeading,
                 string.Format(resetMessageTemplate),
                 derivedResetLink,
@@ -80,7 +80,7 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
         {
             ToAddress = email,
             Subject = resetSubject,
-            Body = BuildHtmlEmail(
+            Body = EmailHelpers.BuildHtmlEmail(
                 resetHeading,
                 string.Format(resetMessageTemplate),
                 resetLink,
@@ -88,22 +88,5 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
             )
         };
         await _emailService.SendAsync(emailMessage, CancellationToken.None);
-    }
-
-    /// <summary>
-    /// Builds an HTML email body with the given heading, message and link.
-    /// </summary>
-    private static string BuildHtmlEmail(string heading, string message, string link, string linkText)
-    {
-        return string.Join(
-            Environment.NewLine,
-            "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">",
-            $"<p style=\"margin: 0 0 1em;\">{heading}</p>",
-            $"<p style=\"margin: 0 0 1em;\">{message}</p>",
-            $"<p style=\"margin: 0 0 1em;\"><a href=\"{link}\">{linkText}</a></p>",
-            "<p style=\"margin: 0 0 1em;\">Thanks,</p>",
-            "<p style=\"margin: 0 0 1em;\">The click2approve team</p>",
-            "</div>"
-        );
     }
 }
