@@ -5,7 +5,8 @@
 1. [Product overview.](#product-overview)
 2. [Demo.](#demo)
 3. [How to run locally.](#how-to-run-locally)
-4. [Architecture and design decisions.](#architecture-and-design-decisions)
+4. [How to host on-premises.](#how-to-host-on-premises)
+5. [Architecture and design decisions.](#architecture-and-design-decisions)
 
 # Product Overview
 
@@ -88,6 +89,12 @@ In the web browser open [http://localhost:3333/](http://localhost:3333/).
 You should see a page with the `click2approve` title.
 
 Welcome to the `click2approve` service! 🎉🎉🎉
+
+# How to Host On-Premises
+
+The same Docker-based setup can be used as a foundation: run the containers on your own servers, place the UI and API behind your internal load balancer or reverse proxy, and persist the database volume on managed storage. The steps above cover a local run, but the approach is identical for an on-prem deployment with your environment-specific networking, DNS, and TLS configuration.
+
+For production on-prem, consider using a dedicated VM or Kubernetes node pool, configuring externalized secrets for database credentials and email settings, and enabling regular backups for the database volume. These details depend on your infrastructure, so adapt them to your internal standards.
 
 # Architecture and Design Decisions
 
