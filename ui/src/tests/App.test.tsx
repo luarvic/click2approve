@@ -20,7 +20,7 @@ describe("<App />", () => {
 
     // Get by h6
     const h6 = wrapper.container.querySelector("h6");
-    expect(h6?.textContent).toBe("click2approve");
+    expect(h6?.textContent).toBe("click2approve®");
 
     // Get by text using the React testing library
     const text = screen.getByText(/click2approve/i);

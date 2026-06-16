@@ -42,7 +42,7 @@ const MainAppBar = () => {
               viewBox="0 0 24 24"
               fill="none"
               role="img"
-              aria-label="click2approve"
+              aria-label="click2approve®"
               sx={{
                 display: "block",
                 width: 36,
@@ -70,7 +70,7 @@ const MainAppBar = () => {
               variant="h6"
               sx={{ color: "inherit", textDecoration: "none" }}
             >
-              click2approve
+              click2approve®
             </Typography>
           </Link>
         </Box>

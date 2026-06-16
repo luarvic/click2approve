@@ -7,6 +7,7 @@
 3. [How to run locally.](#how-to-run-locally)
 4. [How to host on-premises.](#how-to-host-on-premises)
 5. [Architecture and design decisions.](#architecture-and-design-decisions)
+6. [License and trademark.](#license-and-trademark)
 
 # Product Overview
 
@@ -134,3 +135,12 @@ The application interacts with the relational database and the filesystem to man
 ## Relational Database
 
 It provides the relational data storage required for system operation.
+
+# License and Trademark
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE).
+
+Click2Approve is a registered trademark of Rostislav Semenov in the United
+States. The MIT License applies to the software, but does not grant permission
+to use the Click2Approve name, logo, or trademarks except as required to
+identify this software.
