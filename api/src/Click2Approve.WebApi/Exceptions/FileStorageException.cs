@@ -1,6 +1,6 @@
 namespace Click2Approve.WebApi.Exceptions;
 
-public class FileStorageException() : Exception(DefaultMessage)
+public class FileStorageException() : BaseException(DefaultMessage)
 {
     private const string DefaultMessage = "File storage configuration is invalid.";
 }

@@ -29,6 +29,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHangfireServices(builder.Configuration);
 builder.Services.AddHttpClient();
 builder.Services.AddIdentityServices(builder.Configuration);
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 builder.Services.AddSwagger();
 
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
@@ -61,7 +63,8 @@ if (app.Environment.IsDevelopment())
     app.UseHangfireDashboard();
 }
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
