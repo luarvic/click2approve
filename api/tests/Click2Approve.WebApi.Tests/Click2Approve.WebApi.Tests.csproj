@@ -27,6 +27,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-2m69-gcr7-jv3q" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Click2Approve.WebApi\Click2Approve.WebApi.csproj" />
     <ProjectReference Include="..\..\src\Click2Approve.Application\Click2Approve.Application.csproj" />
     <ProjectReference Include="..\..\src\Click2Approve.Domain\Click2Approve.Domain.csproj" />

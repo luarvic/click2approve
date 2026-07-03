@@ -8,7 +8,7 @@ namespace Click2Approve.Infrastructure.Persistence;
 /// <summary>
 /// Represents an entity framework database context.
 /// </summary>
-public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>(options), IApiDbContext
+public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>(options), IUnitOfWork
 {
     public DbSet<ApprovalRequest> ApprovalRequests { get; set; }
     public DbSet<ApprovalRequestTask> ApprovalRequestTasks { get; set; }

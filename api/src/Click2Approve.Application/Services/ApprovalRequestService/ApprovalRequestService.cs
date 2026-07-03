@@ -7,19 +7,25 @@ using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Application.Services.ApprovalRequestService;
 using Click2Approve.Application.Services.AuditLogService;
 using Click2Approve.Application.Services.EmailService;
-using Microsoft.EntityFrameworkCore;
 
 namespace Click2Approve.Application.Services.ApprovalRequestService;
 
 /// <summary>
 /// Implements a service that manages approval requests and approval request tasks.
 /// </summary>
-public class ApprovalRequestService(IApiDbContext db,
+public class ApprovalRequestService(
+    IApprovalRequestRepository approvalRequestRepository,
+    IApprovalRequestTaskRepository approvalRequestTaskRepository,
+    IUserFileRepository userFileRepository,
+    IUnitOfWork unitOfWork,
     IAuditLogService auditLogService,
     IEmailService emailService,
     IConfiguration configuration) : IApprovalRequestService
 {
-    private readonly IApiDbContext _db = db;
+    private readonly IApprovalRequestRepository _approvalRequestRepository = approvalRequestRepository;
+    private readonly IApprovalRequestTaskRepository _approvalRequestTaskRepository = approvalRequestTaskRepository;
+    private readonly IUserFileRepository _userFileRepository = userFileRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IAuditLogService _auditLogService = auditLogService;
     private readonly IEmailService _emailService = emailService;
     private readonly IConfiguration _configuration = configuration;
@@ -32,14 +38,12 @@ public class ApprovalRequestService(IApiDbContext db,
         await CheckLimitations(user, payload, cancellationToken);
 
         // Collect required data.
-        var userFiles = await _db.UserFiles
-            .Where(f => payload.UserFileIds.Contains(f.Id) && f.Owner == user)
-            .ToListAsync(cancellationToken);
+        var userFiles = await _userFileRepository.ListByOwnerAndIdsAsync(user, payload.UserFileIds, cancellationToken);
         var normalizedEmails = payload.Emails.Select(e => e.ToUpper()).ToList();
         var utcNow = DateTime.UtcNow;
 
         // Add request.
-        var newApprovalRequest = await _db.ApprovalRequests.AddAsync(new ApprovalRequest
+        var newApprovalRequest = await _approvalRequestRepository.AddAsync(new ApprovalRequest
         {
             UserFiles = userFiles,
             Approvers = normalizedEmails,
@@ -54,20 +58,20 @@ public class ApprovalRequestService(IApiDbContext db,
         // Add tasks.
         foreach (var approver in normalizedEmails)
         {
-            await _db.ApprovalRequestTasks.AddAsync(new ApprovalRequestTask
+            await _approvalRequestTaskRepository.AddAsync(new ApprovalRequestTask
             {
-                ApprovalRequest = newApprovalRequest.Entity,
+                ApprovalRequest = newApprovalRequest,
                 Approver = approver,
                 Status = ApprovalStatus.Submitted
             }, cancellationToken);
         }
-        await _db.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         // Add audit log entry.
         await _auditLogService.LogAsync(user.NormalizedEmail!,
             utcNow,
             "Submitted approval request",
-            newApprovalRequest.Entity.ToString(),
+            newApprovalRequest.ToString(),
             cancellationToken
         );
 
@@ -87,8 +91,8 @@ public class ApprovalRequestService(IApiDbContext db,
                 Body = EmailHelpers.BuildHtmlEmail(
                     sentHeadingTemplate,
                     string.Format(sentMessageTemplate,
-                        newApprovalRequest.Entity.Author.ToLower(),
-                        string.Join(", ", newApprovalRequest.Entity.UserFiles.Select(f => f.Name))),
+                        newApprovalRequest.Author.ToLower(),
+                        string.Join(", ", newApprovalRequest.UserFiles.Select(f => f.Name))),
                     sentLink,
                     sentLinkText)
             }, cancellationToken);
@@ -100,13 +104,10 @@ public class ApprovalRequestService(IApiDbContext db,
     /// </summary>
     public async Task DeleteApprovalRequestAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
-        var approvalRequest = await _db.ApprovalRequests
-            .Include(r => r.Tasks)
-            .Include(r => r.UserFiles)
-            .FirstAsync(r => r.Id == id && r.Author == user.NormalizedEmail, cancellationToken);
+        var approvalRequest = await _approvalRequestRepository.GetForDeleteAsync(user, id, cancellationToken);
         var approvalRequestJson = approvalRequest.ToString();
-        _db.ApprovalRequests.Remove(approvalRequest);
-        await _db.SaveChangesAsync(cancellationToken);
+        _approvalRequestRepository.Remove(approvalRequest);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         // Add audit log entry.
         await _auditLogService.LogAsync(user.NormalizedEmail!,
@@ -145,11 +146,7 @@ public class ApprovalRequestService(IApiDbContext db,
     /// </summary>
     public async Task<List<ApprovalRequest>> ListApprovalRequestsAsync(AppUser user, CancellationToken cancellationToken)
     {
-        return await _db.ApprovalRequests
-            .Include(r => r.UserFiles)
-            .Include(r => r.Tasks)
-            .Where(r => r.Author == user.NormalizedEmail)
-            .ToListAsync(cancellationToken);
+        return await _approvalRequestRepository.ListByAuthorAsync(user, cancellationToken);
     }
 
     /// <summary>
@@ -157,11 +154,7 @@ public class ApprovalRequestService(IApiDbContext db,
     /// </summary>
     public async Task<List<ApprovalRequestTask>> ListTasksAsync(AppUser user, ApprovalStatus[] statuses, CancellationToken cancellationToken)
     {
-        return await _db.ApprovalRequestTasks
-            .Include(t => t.ApprovalRequest)
-            .Include(t => t.ApprovalRequest.UserFiles)
-            .Where(t => statuses.Contains(t.Status) && t.Approver == user.NormalizedEmail)
-            .ToListAsync(cancellationToken);
+        return await _approvalRequestTaskRepository.ListByApproverAsync(user, statuses, cancellationToken);
     }
 
     /// <summary>
@@ -169,11 +162,7 @@ public class ApprovalRequestService(IApiDbContext db,
     /// </summary>
     public async Task CompleteTaskAsync(AppUser user, ApprovalRequestTaskCompleteDto payload, CancellationToken cancellationToken)
     {
-        var approvalRequestTask = await _db.ApprovalRequestTasks
-            .Include(t => t.ApprovalRequest)
-            .Include(t => t.ApprovalRequest.UserFiles)
-            .Include(t => t.ApprovalRequest.Tasks)
-            .FirstAsync(t => t.Id == payload.Id && t.Approver == user.NormalizedEmail, cancellationToken);
+        var approvalRequestTask = await _approvalRequestTaskRepository.GetForCompletionAsync(user, payload.Id, cancellationToken);
         if (approvalRequestTask.Status != ApprovalStatus.Submitted)
         {
             throw new TaskAlreadyCompletedException();
@@ -236,9 +225,7 @@ public class ApprovalRequestService(IApiDbContext db,
     /// </summary>
     public async Task<long> CountUncompletedTasksAsync(AppUser user, CancellationToken cancellationToken)
     {
-        return await _db.ApprovalRequestTasks
-            .Where(t => t.Approver == user.NormalizedEmail && t.Status == ApprovalStatus.Submitted)
-            .CountAsync(cancellationToken);
+        return await _approvalRequestTaskRepository.CountUncompletedByApproverAsync(user, cancellationToken);
     }
 
     /// <summary>
@@ -252,9 +239,11 @@ public class ApprovalRequestService(IApiDbContext db,
         {
             var utcTodayStart = DateTime.UtcNow.Date;
             var utcTomorrowStart = utcTodayStart.AddDays(1);
-            var approvalRequestCount = await _db.ApprovalRequests.CountAsync(r => r.Author == user.NormalizedEmail
-                && r.Submitted >= utcTodayStart
-                && r.Submitted < utcTomorrowStart, cancellationToken);
+            var approvalRequestCount = await _approvalRequestRepository.CountSubmittedByAuthorAsync(
+                user,
+                utcTodayStart,
+                utcTomorrowStart,
+                cancellationToken);
             if (approvalRequestCount >= maxApprovalRequestsPerDay)
             {
                 throw new ApprovalRequestLimitExceededException(maxApprovalRequestsPerDay);
