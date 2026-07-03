@@ -1,4 +1,4 @@
-using Click2Approve.WebApi.Helpers;
+using Click2Approve.Application.Helpers;
 
 namespace Click2Approve.WebApi.Tests.HelpersTests;
 

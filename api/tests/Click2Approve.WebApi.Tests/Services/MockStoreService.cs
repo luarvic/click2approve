@@ -1,7 +1,7 @@
-using Click2Approve.WebApi.Services.StoreService;
+using Click2Approve.Application.Services.StoreService;
 using Microsoft.Extensions.Configuration;
 
-namespace Click2Approve.WebApi.Services;
+namespace Click2Approve.WebApi.Tests.Services;
 
 /// <summary>
 /// Mocks a service that manages binary files.

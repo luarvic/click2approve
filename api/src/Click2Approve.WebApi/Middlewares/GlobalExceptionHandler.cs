@@ -1,5 +1,5 @@
 using System.Net.Mime;
-using Click2Approve.WebApi.Exceptions;
+using Click2Approve.Domain.Exceptions;
 using Click2Approve.WebApi.Models.Auxiliary;
 using Microsoft.AspNetCore.Diagnostics;
 

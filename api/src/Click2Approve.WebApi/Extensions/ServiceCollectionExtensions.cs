@@ -1,9 +1,10 @@
 using System.Net;
 using System.Net.Mail;
 using Azure.Core;
-using Click2Approve.WebApi.Models;
-using Click2Approve.WebApi.Persistence;
-using Click2Approve.WebApi.Services.EmailService;
+using Click2Approve.Domain.Models;
+using Click2Approve.Infrastructure.Persistence;
+using Click2Approve.Application.Services.EmailService;
+using Click2Approve.Infrastructure.Services.EmailService;
 using FluentEmail.Core.Interfaces;
 using FluentEmail.Smtp;
 using Hangfire;

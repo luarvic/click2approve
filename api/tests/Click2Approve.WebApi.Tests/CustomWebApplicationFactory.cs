@@ -1,7 +1,7 @@
 using System.Data.Common;
-using Click2Approve.WebApi.Persistence;
-using Click2Approve.WebApi.Services;
-using Click2Approve.WebApi.Services.StoreService;
+using Click2Approve.Infrastructure.Persistence;
+using Click2Approve.Application.Services.StoreService;
+using Click2Approve.WebApi.Tests.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;

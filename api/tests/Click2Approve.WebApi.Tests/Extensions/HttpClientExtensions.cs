@@ -2,8 +2,8 @@ using System.Net.Http.Json;
 using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
-using Click2Approve.WebApi.Models;
-using Click2Approve.WebApi.Models.DTOs;
+using Click2Approve.Domain.Models;
+using Click2Approve.Application.Models.DTOs;
 using Click2Approve.WebApi.Tests.Helpers;
 using Click2Approve.WebApi.Tests.Models;
 

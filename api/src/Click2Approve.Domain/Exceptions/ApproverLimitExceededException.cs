@@ -1,0 +1,6 @@
+namespace Click2Approve.Domain.Exceptions;
+
+public class ApproverLimitExceededException(int maxApprovers) : BaseException(string.Format(DefaultMessage, maxApprovers))
+{
+    private const string DefaultMessage = "The maximum number of approvers ({0}) has been exceeded.";
+}

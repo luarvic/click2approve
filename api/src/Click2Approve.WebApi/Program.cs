@@ -1,12 +1,14 @@
 using System.Text.Json.Serialization;
+using Click2Approve.Application.Persistence;
 using Click2Approve.WebApi.Extensions;
 using Click2Approve.WebApi.Middlewares;
-using Click2Approve.WebApi.Models;
-using Click2Approve.WebApi.Persistence;
-using Click2Approve.WebApi.Services.ApprovalRequestService;
-using Click2Approve.WebApi.Services.AuditLogService;
-using Click2Approve.WebApi.Services.StoreService;
-using Click2Approve.WebApi.Services.UserFileService;
+using Click2Approve.Domain.Models;
+using Click2Approve.Infrastructure.Persistence;
+using Click2Approve.Application.Services.ApprovalRequestService;
+using Click2Approve.Application.Services.AuditLogService;
+using Click2Approve.Application.Services.StoreService;
+using Click2Approve.Application.Services.UserFileService;
+using Click2Approve.Infrastructure.Services.StoreService;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,6 +25,7 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
     var connectionString = builder.Configuration.GetConnectionString("Default");
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 });
+builder.Services.AddScoped<IApiDbContext>(serviceProvider => serviceProvider.GetRequiredService<ApiDbContext>());
 // Use AddEmailServices() instead of AddAzureEmailServices() to switch to the SmtpEmailService implementation.
 builder.Services.AddAzureEmailServices(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();

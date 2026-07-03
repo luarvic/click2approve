@@ -1,0 +1,83 @@
+using Click2Approve.Application.Services.StoreService;
+using Click2Approve.Domain.Exceptions;
+
+namespace Click2Approve.Infrastructure.Services.StoreService;
+
+/// <summary>
+/// Implements a service that manages binary files.
+/// </summary>
+public class StoreService(IConfiguration configuration, IHostEnvironment hostEnvironment, ILogger<StoreService> logger) : IStoreService
+{
+    private readonly ILogger<StoreService> _logger = logger;
+    private readonly string _rootPath = ResolveRootPath(configuration["FileStorage:RootPath"], hostEnvironment.ContentRootPath);
+
+    /// <summary>
+    /// Creates a file in the file system out of bytes.
+    /// </summary>
+    public async Task AddFileAsync(string path, byte[] bytes, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var fullPath = Path.Combine(_rootPath, path);
+            var directory = Path.GetDirectoryName(fullPath);
+            if (directory != null && !Path.Exists(Path.GetDirectoryName(fullPath)))
+            {
+                Directory.CreateDirectory(directory);
+            }
+            using var fileStream = new FileStream(fullPath, FileMode.CreateNew, FileAccess.Write);
+            await fileStream.WriteAsync(bytes, cancellationToken);
+        }
+        catch (Exception e)
+        {
+            throw new FileCreateException(path, e);
+        }
+    }
+
+    /// <summary>
+    /// Deletes a file from the file system.
+    /// </summary>
+    public void DeleteFile(string path)
+    {
+        try
+        {
+            var fullPath = Path.Combine(_rootPath, path);
+            var directory = Path.GetDirectoryName(fullPath);
+            if (directory != null && Path.Exists(Path.GetDirectoryName(fullPath)))
+            {
+                Directory.Delete(directory, true);
+            }
+        }
+        catch (Exception e)
+        {
+            throw new FileDeleteException(path, e);
+        }
+    }
+
+    /// <summary>
+    /// Returns bytes out of the file.
+    /// </summary>
+    public async Task<byte[]> GetFileAsync(string path, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var fullPath = Path.Combine(_rootPath, path);
+            return await File.ReadAllBytesAsync(fullPath, cancellationToken);
+        }
+        catch (Exception e)
+        {
+            throw new FileReadException(path, e);
+        }
+    }
+
+    private static string ResolveRootPath(string? configuredRootPath, string contentRootPath)
+    {
+        if (string.IsNullOrWhiteSpace(configuredRootPath))
+        {
+            throw new FileStorageException();
+        }
+
+        return Path.IsPathRooted(configuredRootPath)
+            ? configuredRootPath
+            : Path.GetFullPath(Path.Combine(contentRootPath, configuredRootPath));
+    }
+}
