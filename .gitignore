@@ -1,5 +1,40 @@
-# Ignore the .DS_Store file created by macOS in directories
+# OS files
 .DS_Store
+Thumbs.db
 
-# Ignore the filestorage directory where uploaded files are stored during development
-filestorage
+# Editor and IDE files
+.idea/
+.vscode/
+.vs/
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.swp
+
+# .NET build output
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+[Ll]og/
+[Ll]ogs/
+artifacts/
+[Tt]est[Rr]esult*/
+
+# Node build output
+node_modules/
+build/
+dist/
+coverage/
+
+# Local environment and logs
+.env
+.env.*
+!.env.example
+*.log
+*.tmp
+
+# Development runtime storage
+filestorage/
