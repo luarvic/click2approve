@@ -1,142 +1,176 @@
 ![Main build status](https://github.com/luarvic/click2approve/actions/workflows/main-build.yml/badge.svg)
 
-# Table of Contents
+# click2approve
 
-1. [Product overview.](#product-overview)
-2. [Demo.](#demo)
-3. [How to run locally.](#how-to-run-locally)
-4. [How to host on-premises.](#how-to-host-on-premises)
-5. [Architecture and design decisions.](#architecture-and-design-decisions)
-6. [License and trademark.](#license-and-trademark)
+`click2approve` is a free, open-source document approval system. It provides a
+responsive web UI for uploading files, sending approval requests, collecting
+review decisions, and tracking request history.
 
-# Product Overview
+## Table of Contents
 
-`click2approve` is a free, open-source, cross-platform document approval system with a responsive user interface that allows you to:
+1. [Features](#features)
+2. [Demo](#demo)
+3. [Quick Start](#quick-start)
+4. [Local Development](#local-development)
+5. [On-Premises Hosting](#on-premises-hosting)
+6. [Architecture](#architecture)
+7. [License and Trademark](#license-and-trademark)
 
-- Upload documents.
-- Send documents for approval by specifying a list of approvers' email addresses.
-- Notify requesting and approving parties via email.
-- Keep track of approval requests.
+## Features
 
-# Demo
+- Upload and manage files.
+- Send documents for approval by entering approver email addresses.
+- Review incoming approval requests.
+- Track sent requests, inbox items, and archived approvals.
+- Notify requesters and approvers by email when email delivery is enabled.
+- Run the complete stack locally with Docker Compose.
 
-Please visit [click2approve.com](https://click2approve.com/) to see how it works.
+## Demo
 
-> ⭐ If you find this project useful, please give the repository a star to support ongoing development and visibility.
+Visit [click2approve.com](https://click2approve.com/) to see the application in
+use.
 
-# How to Run Locally
+If you find this project useful, please star the repository to support ongoing
+development and visibility.
 
-## Prerequisites
+## Quick Start
 
-- You have installed the latest version of [Docker Desktop](https://docs.docker.com/get-docker/).
-- You have installed a [Git client](https://git-scm.com/downloads).
+### Prerequisites
 
-## Getting Started
+- [Docker Desktop](https://docs.docker.com/get-docker/)
+- [Git](https://git-scm.com/downloads)
 
-### 1. Clone the Repository
-
-Run in a terminal:
-
-```bash
-git clone git@github.com:luarvic/click2approve.git
-```
-
-### 2. Open `click2approve` Directory
-
-Run in a terminal:
+### Run the Application
 
 ```bash
+git clone https://github.com/luarvic/click2approve.git
 cd click2approve
-```
-
-### 3. Build and Run Docker Images
-
-Run in a terminal:
-
-```bash
-docker compose build --no-cache
+docker compose build
 docker compose up -d
 ```
 
-Wait until you see:
+Open [http://localhost:3333/](http://localhost:3333/) in a browser.
 
-```
- ✔ Network click2approve_default Created
- ✔ Container click2approve-db-1  Created
- ✔ Container click2approve-api-1 Created
- ✔ Container click2approve-ui-1  Created
-```
+The Docker Compose setup starts:
 
-### 4. Verify Running Docker Containers
+| Service | Container | Port | Purpose |
+| --- | --- | --- | --- |
+| `ui` | `click2approve-ui-1` | `3333` | React single-page application served by Nginx |
+| `api` | `click2approve-api-1` | `5555` | ASP.NET Core Web API |
+| `db` | `click2approve-db-1` | `3306` | MySQL database |
 
-Run in a terminal:
+### Useful Docker Commands
 
 ```bash
-docker ps -a
+docker compose ps
+docker compose logs -f api
+docker compose down
 ```
 
-Make sure all of the following containers are up and running:
+Use `docker compose down -v` only when you also want to delete the local MySQL
+volume.
 
-- `click2approve-api-1`.
-- `click2approve-db-1`.
-- `click2approve-ui-1`.
+## Local Development
 
-(Find more details about those containers below in [Architecture and design decisions](#architecture-and-design-decisions).)
+The Docker setup is the fastest way to run the complete application. For code
+changes, you can also run and validate the UI and API directly.
 
-### 5. Open the Web Page
+### API
 
-In the web browser open [http://localhost:3333/](http://localhost:3333/).
+The API is an ASP.NET Core application targeting .NET 10. The solution file is
+located at `api/Click2Approve.Api.sln`.
 
-You should see a page with the `click2approve` title.
+```bash
+cd api
+dotnet restore Click2Approve.Api.sln
+dotnet build Click2Approve.Api.sln
+dotnet test Click2Approve.Api.sln
+```
 
-Welcome to the `click2approve` service! 🎉🎉🎉
+The API reads its local development settings from
+`api/src/Click2Approve.WebApi/appsettings.Development.json`. The Docker profile
+uses `appsettings.Docker.json`, which points the API at the Compose `db` service
+and disables email delivery by default.
 
-# How to Host On-Premises
+### UI
 
-The same Docker-based setup can be used as a foundation: run the containers on your own servers, place the UI and API behind your internal load balancer or reverse proxy, and persist the database volume on managed storage. The steps above cover a local run, but the approach is identical for an on-prem deployment with your environment-specific networking, DNS, and TLS configuration.
+The UI is a React 18 and TypeScript application in `ui`.
 
-For production on-prem, consider using a dedicated VM or Kubernetes node pool, configuring externalized secrets for database credentials and email settings, and enabling regular backups for the database volume. These details depend on your infrastructure, so adapt them to your internal standards.
+```bash
+cd ui
+npm ci
+npm run build
+npm test -- --run
+```
 
-# Architecture and Design Decisions
+For interactive UI development:
 
-The application consists of the following microservices:
+```bash
+npm run dev
+```
 
-- Client-side UI (`React TypeScript v18.2`).
-- Server-side API (`ASP.NET Core v10.0`).
-- Relational database (`MySQL 8.4.0`).
+## On-Premises Hosting
 
-All microservices are containerized with [Docker](https://docs.docker.com/).
+The Docker Compose setup can be used as a starting point for an on-premises
+deployment. Run the UI, API, and database containers on your own infrastructure,
+place the UI and API behind your reverse proxy or load balancer, and persist the
+database and uploaded-file storage on managed volumes.
 
-## Client-side UI
+For production, configure environment-specific secrets and settings instead of
+using the sample credentials in `docker-compose.yaml`. At minimum, review:
 
-It provides a graphical interface, allowing users to interact with the application via a web browser.
+- MySQL credentials and database storage.
+- API connection strings.
+- Email provider settings.
+- Public UI base URL and allowed origins.
+- TLS termination and DNS.
+- Backup and restore procedures for the database and uploaded files.
+
+## Architecture
+
+The application consists of three containerized services:
+
+- Client-side UI: React TypeScript 18.2.
+- Server-side API: ASP.NET Core 10.
+- Relational database: MySQL 8.4.
+
+### Client-Side UI
+
+The UI provides the browser-based experience for uploading files, submitting
+approval requests, reviewing tasks, and viewing request state.
 
 It is written in [TypeScript](https://www.typescriptlang.org/) and uses:
 
-- [React](https://react.dev/) library;
-- [Material UI](https://mui.com/material-ui/) CSS framework;
-- [MobX](https://mobx.js.org/react-integration.html) state management framework.
+- [React](https://react.dev/)
+- [Material UI](https://mui.com/material-ui/)
+- [MobX](https://mobx.js.org/react-integration.html)
+- [Vite](https://vite.dev/)
 
-The build transforms the TypeScript code into a JavaScript single-page application (SPA). The `ui` container hosts [Nginx](https://www.nginx.com/) web server that returns the SPA to the users. The SPA handles HTTP requests coming from the users and interacts with the `Server-side API` microservice.
+The production container builds the TypeScript source into a single-page
+application and serves it with [Nginx](https://www.nginx.com/).
 
-## Server-side API
+### Server-Side API
 
-It provides HTTP endpoints that implement business logic.
+The API exposes the HTTP endpoints used by the UI and implements the approval
+workflow, identity, file, and notification behavior.
 
-It is written in [C#](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp/) and uses:
+It is written in [C#](https://learn.microsoft.com/en-us/dotnet/csharp/) and
+uses:
 
-- [ASP.NET Core](https://dotnet.microsoft.com/en-us/apps/aspnet) framework.
-- [Entity Framework](https://learn.microsoft.com/en-us/ef/).
-- [ASP.NET Identity](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity) framework.
+- [ASP.NET Core](https://dotnet.microsoft.com/en-us/apps/aspnet)
+- [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
+- [ASP.NET Core Identity](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity)
+- [Hangfire](https://www.hangfire.io/)
 
-The build compiles the C# code into a self-hosted web API application that handles HTTP requests coming from the UI.
-The application interacts with the relational database and the filesystem to manage user data.
+The API stores relational data in MySQL and uses filesystem storage for uploaded
+files.
 
-## Relational Database
+### Relational Database
 
-It provides the relational data storage required for system operation.
+MySQL stores user accounts, approval requests, approval tasks, file metadata,
+and other application data required by the API.
 
-# License and Trademark
+## License and Trademark
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE).
 
