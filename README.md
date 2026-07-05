@@ -87,6 +87,23 @@ dotnet build Click2Approve.Api.sln
 dotnet test Click2Approve.Api.sln
 ```
 
+To run the API locally from source, start a local MySQL database first from the
+repository root:
+
+```bash
+docker compose up -d db
+```
+
+Then run the Web API project:
+
+```bash
+dotnet run --project api/src/Click2Approve.WebApi/Click2Approve.WebApi.csproj
+```
+
+The development profile listens on
+[http://localhost:5555/](http://localhost:5555/). Swagger is available at
+[http://localhost:5555/swagger](http://localhost:5555/swagger).
+
 The API reads its local development settings from
 `api/src/Click2Approve.WebApi/appsettings.Development.json`. The Docker profile
 uses `appsettings.Docker.json`, which points the API at the Compose `db` service
