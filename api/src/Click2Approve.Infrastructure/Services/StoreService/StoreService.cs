@@ -29,7 +29,7 @@ public class StoreService(IConfiguration configuration, IHostEnvironment hostEnv
         }
         catch (Exception e)
         {
-            throw new FileCreateException(path, e);
+            throw new InfrastructureException($"Failed to create file at path: {path}.", e);
         }
     }
 
@@ -49,7 +49,7 @@ public class StoreService(IConfiguration configuration, IHostEnvironment hostEnv
         }
         catch (Exception e)
         {
-            throw new FileDeleteException(path, e);
+            throw new InfrastructureException($"Failed to delete file at path: {path}.", e);
         }
     }
 
@@ -65,7 +65,7 @@ public class StoreService(IConfiguration configuration, IHostEnvironment hostEnv
         }
         catch (Exception e)
         {
-            throw new FileReadException(path, e);
+            throw new InfrastructureException($"Failed to read file at path: {path}.", e);
         }
     }
 
@@ -73,7 +73,7 @@ public class StoreService(IConfiguration configuration, IHostEnvironment hostEnv
     {
         if (string.IsNullOrWhiteSpace(configuredRootPath))
         {
-            throw new FileStorageException();
+            throw new InfrastructureException("File storage configuration is invalid.");
         }
 
         return Path.IsPathRooted(configuredRootPath)

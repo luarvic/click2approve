@@ -174,7 +174,7 @@ public class ApprovalRequestService(
         var approvalRequestTask = await _approvalRequestTaskRepository.GetForCompletionAsync(user, payload.Id, cancellationToken);
         if (approvalRequestTask.Status != ApprovalStatus.Submitted)
         {
-            throw new TaskAlreadyCompletedException();
+            throw new BusinessRuleException("The task has already been completed.");
         }
 
         // Complete approval request task.
@@ -255,7 +255,8 @@ public class ApprovalRequestService(
                 cancellationToken);
             if (approvalRequestCount >= maxApprovalRequestsPerDay)
             {
-                throw new ApprovalRequestLimitExceededException(maxApprovalRequestsPerDay);
+                throw new LimitExceededException(
+                    $"The maximum number of approval requests per day ({maxApprovalRequestsPerDay}) has been exceeded.");
             }
         }
 
@@ -265,7 +266,8 @@ public class ApprovalRequestService(
             var approverCount = payload.Emails.Count;
             if (approverCount > maxApproversPerRequest)
             {
-                throw new ApproverLimitExceededException(maxApproversPerRequest);
+                throw new LimitExceededException(
+                    $"The maximum number of approvers ({maxApproversPerRequest}) has been exceeded.");
             }
         }
     }

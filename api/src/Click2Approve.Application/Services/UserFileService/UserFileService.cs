@@ -142,14 +142,14 @@ public class UserFileService(
             var fileCount = await _userFileRepository.CountByOwnerAsync(user, cancellationToken);
             if (fileCount + files.Count > maxFiles)
             {
-                throw new FileLimitExceededException(maxFiles);
+                throw new LimitExceededException($"The maximum number of files ({maxFiles}) has been exceeded.");
             }
         }
 
         var maxFileSizeBytes = _configuration.GetValue<int>("Limitations:MaxFileSizeBytes");
         if (files.Any(file => file.Length > maxFileSizeBytes))
         {
-            throw new FileSizeLimitExceededException(maxFileSizeBytes);
+            throw new LimitExceededException($"The maximum file size ({maxFileSizeBytes} bytes) has been exceeded.");
         }
     }
 

@@ -18,6 +18,6 @@ public class RequestTenantContext : ITenantContext
 
     public Task<long> GetRequiredTenantIdAsync(AppUser user, CancellationToken cancellationToken)
     {
-        return Task.FromResult(_tenantId ?? throw new TenantRequiredException());
+        return Task.FromResult(_tenantId ?? throw new BusinessRuleException("A current tenant is required."));
     }
 }

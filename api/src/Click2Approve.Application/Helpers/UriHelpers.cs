@@ -14,16 +14,10 @@ public static class UriHelpers
     public static Uri GetDerivedEmailConfirmationLink(Uri confirmationLink, Uri? uiBaseUri)
     {
         uiBaseUri ??= new Uri("");
-        var userId = HttpUtility.ParseQueryString(confirmationLink.Query).Get("userId");
-        var code = HttpUtility.ParseQueryString(confirmationLink.Query).Get("code");
-        if (userId == null)
-        {
-            throw new ArgumentException("Missing query parameter", userId);
-        }
-        if (code == null)
-        {
-            throw new ArgumentException("Missing query parameter", code);
-        }
+        var userId = HttpUtility.ParseQueryString(confirmationLink.Query).Get("userId")
+            ?? throw new ArgumentException("Confirmation link is missing the userId query parameter.", nameof(confirmationLink));
+        var code = HttpUtility.ParseQueryString(confirmationLink.Query).Get("code")
+            ?? throw new ArgumentException("Confirmation link is missing the code query parameter.", nameof(confirmationLink));
         return uiBaseUri
             .AppendPathSegment("confirmEmail")
             .SetQueryParam("userId", userId)
