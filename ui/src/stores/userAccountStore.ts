@@ -71,6 +71,7 @@ export class UserAccountStore {
   signOut = () => {
     deleteTokens();
     stores.tenantStore.clear();
+    stores.tenantUserStore.clear();
     runInAction(() => {
       this.currentUser = null;
     });

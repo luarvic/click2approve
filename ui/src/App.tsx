@@ -28,6 +28,7 @@ import SignUpPage from "./pages/identity/SignUpPage";
 import HomePage from "./pages/other/HomePage";
 import InformationPage from "./pages/other/InformationPage";
 import NotFoundPage from "./pages/other/NotFoundPage";
+import TenantUsersPage from "./pages/other/TenantUsersPage";
 import TenantWelcomePage from "./pages/other/TenantWelcomePage";
 import UserSettingsPage from "./pages/other/UserSettingsPage";
 import { stores } from "./stores/stores";
@@ -74,6 +75,7 @@ const App = () => {
                 <Route path="/confirmEmail" element={<ConfirmEmailPage />} />
                 <Route path="/information" element={<InformationPage />} />
                 <Route path="/tenantWelcome" element={<TenantWelcomePage />} />
+                <Route path="/tenantUsers" element={<TenantUsersPage />} />
                 <Route path="/userSettings" element={<UserSettingsPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Route>

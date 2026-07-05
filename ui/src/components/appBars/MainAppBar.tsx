@@ -94,6 +94,7 @@ const MainAppBar = () => {
                 stores.userFileStore.clearUserFiles();
                 stores.approvalRequestStore.clearApprovalRequests();
                 stores.approvalRequestTaskStore.clearTasks();
+                stores.tenantUserStore.clear();
                 await stores.userFileStore.loadUserFiles();
                 await stores.approvalRequestStore.loadApprovalRequests();
                 await stores.approvalRequestTaskStore.loadNumberOfUncompletedTasks();

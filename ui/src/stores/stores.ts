@@ -6,6 +6,7 @@ import { UserFileStore } from "./userFileStore";
 import { UserSettingsStore } from "./userSettingsStore";
 import { ProductStore } from "./productStore";
 import { TenantStore } from "./tenantStore";
+import { TenantUserStore } from "./tenantUserStore";
 
 class Stores {
   commonStore: CommonStore;
@@ -16,6 +17,7 @@ class Stores {
   userSettingsStore: UserSettingsStore;
   productStore: ProductStore;
   tenantStore: TenantStore;
+  tenantUserStore: TenantUserStore;
 
   constructor(
     commonStore: CommonStore,
@@ -25,7 +27,8 @@ class Stores {
     approvalRequestTaskStore: ApprovalRequestTaskStore,
     userSettingsStore: UserSettingsStore,
     productStore: ProductStore,
-    tenantStore: TenantStore
+    tenantStore: TenantStore,
+    tenantUserStore: TenantUserStore
   ) {
     this.commonStore = commonStore;
     this.userAccountStore = userAccountStore;
@@ -35,6 +38,7 @@ class Stores {
     this.userSettingsStore = userSettingsStore;
     this.productStore = productStore;
     this.tenantStore = tenantStore;
+    this.tenantUserStore = tenantUserStore;
   }
 }
 
@@ -46,5 +50,6 @@ export const stores = new Stores(
   new ApprovalRequestTaskStore(),
   new UserSettingsStore(),
   new ProductStore(),
-  new TenantStore()
+  new TenantStore(),
+  new TenantUserStore()
 );

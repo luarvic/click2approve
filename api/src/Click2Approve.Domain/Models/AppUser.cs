@@ -7,4 +7,5 @@ namespace Click2Approve.Domain.Models;
 /// </summary>
 public class AppUser : IdentityUser
 {
+    public bool HasLoggedIn { get; set; }
 }

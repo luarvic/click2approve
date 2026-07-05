@@ -1,4 +1,10 @@
-import { HelpOutline, Home, Logout, Settings } from "@mui/icons-material";
+import {
+  HelpOutline,
+  Home,
+  Logout,
+  ManageAccounts,
+  Settings,
+} from "@mui/icons-material";
 import {
   Box,
   Divider,
@@ -12,12 +18,17 @@ import {
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import { DEFAULT_PATH, UI_BASE_URI } from "../../data/constants";
+import { TenantUserRole } from "../../models/tenant";
 import { stores } from "../../stores/stores";
 
 const UserSettingsDrawer = () => {
   const navigate = useNavigate();
 
   const listItemIconSx = { minWidth: 35 };
+  const currentTenant = stores.tenantStore.currentTenant;
+  const tenantUserManagerIsVisible =
+    stores.productStore.tenantsAreEnabled &&
+    currentTenant?.role === TenantUserRole.Admin;
 
   return (
     <Drawer
@@ -47,6 +58,16 @@ const UserSettingsDrawer = () => {
               <ListItemText primary="Home" />
             </ListItemButton>
           </ListItem>
+          {tenantUserManagerIsVisible && (
+            <ListItem key="tenantUsers" disablePadding>
+              <ListItemButton onClick={() => navigate("/tenantUsers")}>
+                <ListItemIcon sx={listItemIconSx}>
+                  <ManageAccounts />
+                </ListItemIcon>
+                <ListItemText primary="Tenant users" />
+              </ListItemButton>
+            </ListItem>
+          )}
           <ListItem key="help" disablePadding>
             <ListItemButton component="a" href={UI_BASE_URI}>
               <ListItemIcon sx={listItemIconSx}>

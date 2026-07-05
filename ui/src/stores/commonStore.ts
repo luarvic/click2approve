@@ -50,6 +50,13 @@ export class CommonStore {
     );
   };
 
+  isLoadingByPrefix = (loaderPrefix: string): boolean => {
+    this.loadingCounter;
+    return Object.entries(this.loadingCounter).some(
+      ([loader, counter]) => loader.startsWith(loaderPrefix) && counter > 0
+    );
+  };
+
   setCurrentTab = (tab: Tab): void => {
     runInAction(() => {
       this.currentTab = tab;
