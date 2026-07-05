@@ -11,6 +11,7 @@ export class CommonStore {
   taskReviewDialogIsOpen: boolean;
   userFileDeleteDialogIsOpen: boolean;
   userSettingsDrawerIsOpen: boolean;
+  tenantCreateDialogIsOpen: boolean;
 
   constructor(
     currentTab: Tab = Tab.Files,
@@ -20,7 +21,8 @@ export class CommonStore {
     approvalRequestDeleteDialogIsOpen: boolean = false,
     taskReviewDialogIsOpen: boolean = false,
     userFileDeleteDialogIsOpen: boolean = false,
-    userSettingsDrawerIsOpen: boolean = false
+    userSettingsDrawerIsOpen: boolean = false,
+    tenantCreateDialogIsOpen: boolean = false
   ) {
     this.currentTab = currentTab;
     this.loadingCounter = loadingCounter;
@@ -30,6 +32,7 @@ export class CommonStore {
     this.taskReviewDialogIsOpen = taskReviewDialogIsOpen;
     this.userFileDeleteDialogIsOpen = userFileDeleteDialogIsOpen;
     this.userSettingsDrawerIsOpen = userSettingsDrawerIsOpen;
+    this.tenantCreateDialogIsOpen = tenantCreateDialogIsOpen;
     makeAutoObservable(this);
   }
 
@@ -86,6 +89,12 @@ export class CommonStore {
   setUserSettingsDrawerIsOpen = (isOpen: boolean) => {
     runInAction(() => {
       this.userSettingsDrawerIsOpen = isOpen;
+    });
+  };
+
+  setTenantCreateDialogIsOpen = (isOpen: boolean) => {
+    runInAction(() => {
+      this.tenantCreateDialogIsOpen = isOpen;
     });
   };
 }

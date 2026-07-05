@@ -3,6 +3,7 @@ import { IAuthResponse } from "../models/authResponse";
 
 const STORAGE_ITEM_KEY: string = "tokens";
 const COLOR_MODE_KEY: string = "colorMode";
+const CURRENT_TENANT_ID_KEY: string = "currentTenantId";
 
 export const writeTokens = (data: IAuthResponse) => {
   localStorage.setItem(STORAGE_ITEM_KEY, JSON.stringify(data));
@@ -28,4 +29,17 @@ export const writeColorMode = (colorMode: PaletteMode) => {
 export const readColorMode = (): PaletteMode => {
   const colorMode = localStorage.getItem(COLOR_MODE_KEY);
   return colorMode ? (colorMode as PaletteMode) : "light";
+};
+
+export const writeCurrentTenantId = (tenantId: number) => {
+  localStorage.setItem(CURRENT_TENANT_ID_KEY, tenantId.toString());
+};
+
+export const readCurrentTenantId = (): number | null => {
+  const value = localStorage.getItem(CURRENT_TENANT_ID_KEY);
+  return value ? Number(value) : null;
+};
+
+export const deleteCurrentTenantId = () => {
+  localStorage.removeItem(CURRENT_TENANT_ID_KEY);
 };

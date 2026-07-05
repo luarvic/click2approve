@@ -7,8 +7,11 @@ using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.Application.Services.ApprovalRequestService;
 using Click2Approve.Application.Services.AuditLogService;
 using Click2Approve.Application.Services.StoreService;
+using Click2Approve.Application.Services.TenantContext;
+using Click2Approve.Application.Services.TenantService;
 using Click2Approve.Application.Services.UserFileService;
 using Click2Approve.Infrastructure.Services.StoreService;
+using Click2Approve.WebApi.Services.TenantContext;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,7 +28,6 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
     var connectionString = builder.Configuration.GetConnectionString("Default");
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 });
-builder.Services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApiDbContext>());
 // Use AddEmailServices() instead of AddAzureEmailServices() to switch to the SmtpEmailService implementation.
 builder.Services.AddAzureEmailServices(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
@@ -36,14 +38,20 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddSwagger();
 
-builder.Services.AddScoped<IAuditLogService, AuditLogService>();
-builder.Services.AddScoped<IUserFileService, UserFileService>();
 builder.Services.AddScoped<IApprovalRequestService, ApprovalRequestService>();
-builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
-builder.Services.AddScoped<IUserFileRepository, UserFileRepository>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<IStoreService, StoreService>();
+builder.Services.AddScoped<ITenantService, TenantService>();
+builder.Services.AddScoped<IUserFileService, UserFileService>();
+
 builder.Services.AddScoped<IApprovalRequestRepository, ApprovalRequestRepository>();
 builder.Services.AddScoped<IApprovalRequestTaskRepository, ApprovalRequestTaskRepository>();
-builder.Services.AddScoped<IStoreService, StoreService>();
+builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+builder.Services.AddScoped<ITenantRepository, TenantRepository>();
+builder.Services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApiDbContext>());
+builder.Services.AddScoped<IUserFileRepository, UserFileRepository>();
+
+builder.Services.AddScoped<ITenantContext, RequestTenantContext>();
 
 var app = builder.Build();
 
@@ -73,6 +81,7 @@ if (app.Environment.IsDevelopment())
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseAuthentication();
+app.UseMiddleware<DefaultTenantResolutionMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 app.MapGroup("/api/account").MapIdentityApi<AppUser>();

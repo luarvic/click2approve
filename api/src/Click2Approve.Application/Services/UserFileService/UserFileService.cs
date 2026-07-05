@@ -5,6 +5,7 @@ using Click2Approve.Domain.Models;
 using Click2Approve.Application.Services.ApprovalRequestService;
 using Click2Approve.Application.Services.AuditLogService;
 using Click2Approve.Application.Services.StoreService;
+using Click2Approve.Application.Services.TenantContext;
 using Click2Approve.Application.Services.UserFileService;
 
 namespace Click2Approve.Application.Services.UserFileService;
@@ -18,6 +19,7 @@ public class UserFileService(
     IConfiguration configuration,
     IApprovalRequestRepository approvalRequestRepository,
     IUserFileRepository userFileRepository,
+    ITenantContext tenantContext,
     IUnitOfWork unitOfWork,
     IStoreService storeService,
     ILogger<UserFileService> logger) : IUserFileService
@@ -27,6 +29,7 @@ public class UserFileService(
     private readonly IConfiguration _configuration = configuration;
     private readonly IApprovalRequestRepository _approvalRequestRepository = approvalRequestRepository;
     private readonly IUserFileRepository _userFileRepository = userFileRepository;
+    private readonly ITenantContext _tenantContext = tenantContext;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IStoreService _storeService = storeService;
     private readonly ILogger<UserFileService> _logger = logger;
@@ -37,6 +40,7 @@ public class UserFileService(
     public async Task<IList<UserFile>> UploadAsync(AppUser user, IFormFileCollection files, CancellationToken cancellationToken)
     {
         await CheckLimitations(user, files, cancellationToken);
+        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
 
         // A collection of uploaded files to return.
         var userFiles = new List<UserFile>();
@@ -48,7 +52,9 @@ public class UserFileService(
                 Name = Path.GetFileName(file.FileName),
                 Type = Path.GetExtension(file.FileName),
                 Created = DateTime.UtcNow,
+                OwnerId = user.Id,
                 Owner = user,
+                TenantId = tenantId,
                 Size = file.Length
             };
             var savedUserFile = await _userFileRepository.AddAsync(userFile, cancellationToken);
@@ -63,7 +69,7 @@ public class UserFileService(
             await _storeService.AddFileAsync(GetFilePath(user.Id, id, Path.GetFileName(file.FileName)), bytes, cancellationToken);
 
             // Add audit log entry.
-            await _auditLogService.LogAsync(user.NormalizedEmail!,
+            await _auditLogService.LogAsync(user,
                 DateTime.UtcNow,
                 "Uploaded user file",
                 savedUserFile.ToString(),
@@ -83,7 +89,7 @@ public class UserFileService(
         return
         (
             userFile.Name,
-            await _storeService.GetFileAsync(GetFilePath(userFile.Owner.Id, userFile.Id.ToString(), userFile.Name), cancellationToken)
+            await _storeService.GetFileAsync(GetFilePath(userFile.OwnerId, userFile.Id.ToString(), userFile.Name), cancellationToken)
         );
     }
 
@@ -102,7 +108,7 @@ public class UserFileService(
     public async Task DeleteAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
         // Delete related approval requests first.
-        var approvalRequests = await _approvalRequestRepository.ListByUserFileIdAsync(id, cancellationToken);
+        var approvalRequests = await _approvalRequestRepository.ListByUserFileIdAsync(user, id, cancellationToken);
         foreach (var approvalRequest in approvalRequests)
         {
             await _approvalRequestService.DeleteApprovalRequestAsync(user, approvalRequest.Id, cancellationToken);
@@ -116,7 +122,7 @@ public class UserFileService(
         _storeService.DeleteFile(GetFilePath(user.Id, userFile.Id.ToString(), userFile.Name));
 
         // Add audit log entry.
-        await _auditLogService.LogAsync(user.NormalizedEmail!,
+        await _auditLogService.LogAsync(user,
             DateTime.UtcNow,
             "Deleted user file",
             userFileJson,

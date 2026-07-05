@@ -7,6 +7,7 @@ using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Application.Services.ApprovalRequestService;
 using Click2Approve.Application.Services.AuditLogService;
 using Click2Approve.Application.Services.EmailService;
+using Click2Approve.Application.Services.TenantContext;
 
 namespace Click2Approve.Application.Services.ApprovalRequestService;
 
@@ -16,18 +17,22 @@ namespace Click2Approve.Application.Services.ApprovalRequestService;
 public class ApprovalRequestService(
     IApprovalRequestRepository approvalRequestRepository,
     IApprovalRequestTaskRepository approvalRequestTaskRepository,
+    ITenantRepository tenantRepository,
     IUserFileRepository userFileRepository,
     IUnitOfWork unitOfWork,
     IAuditLogService auditLogService,
     IEmailService emailService,
+    ITenantContext tenantContext,
     IConfiguration configuration) : IApprovalRequestService
 {
     private readonly IApprovalRequestRepository _approvalRequestRepository = approvalRequestRepository;
     private readonly IApprovalRequestTaskRepository _approvalRequestTaskRepository = approvalRequestTaskRepository;
+    private readonly ITenantRepository _tenantRepository = tenantRepository;
     private readonly IUserFileRepository _userFileRepository = userFileRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IAuditLogService _auditLogService = auditLogService;
     private readonly IEmailService _emailService = emailService;
+    private readonly ITenantContext _tenantContext = tenantContext;
     private readonly IConfiguration _configuration = configuration;
 
     /// <summary>
@@ -41,6 +46,7 @@ public class ApprovalRequestService(
         var userFiles = await _userFileRepository.ListByOwnerAndIdsAsync(user, payload.UserFileIds, cancellationToken);
         var normalizedEmails = payload.Emails.Select(e => e.ToUpper()).ToList();
         var utcNow = DateTime.UtcNow;
+        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
 
         // Add request.
         var newApprovalRequest = await _approvalRequestRepository.AddAsync(new ApprovalRequest
@@ -51,6 +57,7 @@ public class ApprovalRequestService(
             Submitted = utcNow,
             Comment = payload.Comment,
             Status = ApprovalStatus.Submitted,
+            TenantId = tenantId,
             Author = user.NormalizedEmail!,
             Tasks = []
         }, cancellationToken);
@@ -58,17 +65,19 @@ public class ApprovalRequestService(
         // Add tasks.
         foreach (var approver in normalizedEmails)
         {
+            var approverTenant = await _tenantRepository.GetDefaultForUserEmailAsync(approver, cancellationToken);
             await _approvalRequestTaskRepository.AddAsync(new ApprovalRequestTask
             {
                 ApprovalRequest = newApprovalRequest,
                 Approver = approver,
+                TenantId = approverTenant?.Id ?? tenantId,
                 Status = ApprovalStatus.Submitted
             }, cancellationToken);
         }
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         // Add audit log entry.
-        await _auditLogService.LogAsync(user.NormalizedEmail!,
+        await _auditLogService.LogAsync(user,
             utcNow,
             "Submitted approval request",
             newApprovalRequest.ToString(),
@@ -110,7 +119,7 @@ public class ApprovalRequestService(
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         // Add audit log entry.
-        await _auditLogService.LogAsync(user.NormalizedEmail!,
+        await _auditLogService.LogAsync(user,
             DateTime.UtcNow,
             "Deleted approval request",
             approvalRequestJson,
@@ -192,7 +201,7 @@ public class ApprovalRequestService(
         }
 
         // Add audit log entry.
-        await _auditLogService.LogAsync(user.NormalizedEmail!,
+        await _auditLogService.LogAsync(user,
             DateTime.UtcNow,
             "Completed task",
             approvalRequestTask.ToString(),

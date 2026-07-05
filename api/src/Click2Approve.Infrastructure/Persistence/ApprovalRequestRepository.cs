@@ -1,4 +1,5 @@
 using Click2Approve.Application.Persistence;
+using Click2Approve.Application.Services.TenantContext;
 using Click2Approve.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,9 +8,10 @@ namespace Click2Approve.Infrastructure.Persistence;
 /// <summary>
 /// Provides EF Core persistence operations for approval requests.
 /// </summary>
-public class ApprovalRequestRepository(ApiDbContext db) : IApprovalRequestRepository
+public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantContext) : IApprovalRequestRepository
 {
     private readonly ApiDbContext _db = db;
+    private readonly ITenantContext _tenantContext = tenantContext;
 
     public async Task<ApprovalRequest> AddAsync(ApprovalRequest approvalRequest, CancellationToken cancellationToken)
     {
@@ -17,33 +19,38 @@ public class ApprovalRequestRepository(ApiDbContext db) : IApprovalRequestReposi
         return entry.Entity;
     }
 
-    public Task<ApprovalRequest> GetForDeleteAsync(AppUser user, long id, CancellationToken cancellationToken)
+    public async Task<ApprovalRequest> GetForDeleteAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
-        return _db.ApprovalRequests
-            .Include(r => r.Tasks)
-            .Include(r => r.UserFiles)
-            .FirstAsync(r => r.Id == id && r.Author == user.NormalizedEmail, cancellationToken);
-    }
-
-    public async Task<IList<ApprovalRequest>> ListByUserFileIdAsync(long userFileId, CancellationToken cancellationToken)
-    {
+        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await _db.ApprovalRequests
-            .Where(r => r.UserFiles.Any(f => f.Id == userFileId))
+            .Include(r => r.Tasks)
+            .Include(r => r.UserFiles)
+            .FirstAsync(r => r.TenantId == tenantId && r.Id == id && r.Author == user.NormalizedEmail, cancellationToken);
+    }
+
+    public async Task<IList<ApprovalRequest>> ListByUserFileIdAsync(AppUser user, long userFileId, CancellationToken cancellationToken)
+    {
+        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await _db.ApprovalRequests
+            .Where(r => r.TenantId == tenantId && r.UserFiles.Any(f => f.Id == userFileId))
             .ToListAsync(cancellationToken);
     }
 
-    public Task<List<ApprovalRequest>> ListByAuthorAsync(AppUser user, CancellationToken cancellationToken)
+    public async Task<List<ApprovalRequest>> ListByAuthorAsync(AppUser user, CancellationToken cancellationToken)
     {
-        return _db.ApprovalRequests
+        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await _db.ApprovalRequests
             .Include(r => r.UserFiles)
             .Include(r => r.Tasks)
-            .Where(r => r.Author == user.NormalizedEmail)
+            .Where(r => r.TenantId == tenantId && r.Author == user.NormalizedEmail)
             .ToListAsync(cancellationToken);
     }
 
-    public Task<int> CountSubmittedByAuthorAsync(AppUser user, DateTime utcStart, DateTime utcEnd, CancellationToken cancellationToken)
+    public async Task<int> CountSubmittedByAuthorAsync(AppUser user, DateTime utcStart, DateTime utcEnd, CancellationToken cancellationToken)
     {
-        return _db.ApprovalRequests.CountAsync(r => r.Author == user.NormalizedEmail
+        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await _db.ApprovalRequests.CountAsync(r => r.TenantId == tenantId
+            && r.Author == user.NormalizedEmail
             && r.Submitted >= utcStart
             && r.Submitted < utcEnd, cancellationToken);
     }

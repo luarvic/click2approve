@@ -9,4 +9,6 @@ public class AuditLogEntry : DbEntity
     public required DateTime When { get; set; }
     public required string What { get; set; }
     public required string Data { get; set; }
+    public long TenantId { get; set; }
+    public Tenant? Tenant { get; set; }
 }

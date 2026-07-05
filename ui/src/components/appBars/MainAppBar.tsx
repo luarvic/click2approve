@@ -5,6 +5,8 @@ import {
   Button,
   IconButton,
   Link,
+  MenuItem,
+  Select,
   Toolbar,
   Typography
 } from "@mui/material";
@@ -15,6 +17,7 @@ import { stores } from "../../stores/stores";
 
 const MainAppBar = () => {
   const navigate = useNavigate();
+  const roleLabels = ["User", "Manager", "Admin"];
 
   return (
     <AppBar position="static" color="transparent" elevation={0}>
@@ -74,6 +77,33 @@ const MainAppBar = () => {
             </Typography>
           </Link>
         </Box>
+        {stores.productStore.tenantsAreEnabled &&
+          stores.userAccountStore.currentUser &&
+          stores.tenantStore.tenants.length > 0 && (
+            <Select
+              size="small"
+              value={stores.tenantStore.currentTenantId ?? ""}
+              onChange={async (event) => {
+                stores.tenantStore.setCurrentTenantId(Number(event.target.value));
+                stores.userFileStore.clearUserFiles();
+                stores.approvalRequestStore.clearApprovalRequests();
+                stores.approvalRequestTaskStore.clearTasks();
+                await stores.userFileStore.loadUserFiles();
+                await stores.approvalRequestStore.loadApprovalRequests();
+                await stores.approvalRequestTaskStore.loadNumberOfUncompletedTasks();
+                await stores.approvalRequestTaskStore.loadTasks(
+                  stores.commonStore.currentTab
+                );
+              }}
+              sx={{ minWidth: 220, mr: 1 }}
+            >
+              {stores.tenantStore.tenants.map((tenant) => (
+                <MenuItem key={tenant.id} value={tenant.id}>
+                  {tenant.businessName} · {roleLabels[tenant.role]}
+                </MenuItem>
+              ))}
+            </Select>
+          )}
         {!stores.userAccountStore.currentUser ? (
           <Button
             variant="outlined"

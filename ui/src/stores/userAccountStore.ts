@@ -10,6 +10,7 @@ import {
 import { deleteTokens, readTokens } from "../lib/session";
 import { ICredentials } from "../models/credentials";
 import { IUserAccount } from "../models/userAccount";
+import { stores } from "./stores";
 
 export class UserAccountStore {
   currentUser: IUserAccount | null | undefined; // undefined means we don't know yet if it's authenticated or anonymous user
@@ -57,6 +58,9 @@ export class UserAccountStore {
         runInAction(() => {
           this.currentUser = currentUser;
         });
+        if (stores.productStore.tenantsAreEnabled) {
+          await stores.tenantStore.load();
+        }
         return true;
       }
     }
@@ -66,6 +70,7 @@ export class UserAccountStore {
 
   signOut = () => {
     deleteTokens();
+    stores.tenantStore.clear();
     runInAction(() => {
       this.currentUser = null;
     });

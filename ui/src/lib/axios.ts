@@ -18,6 +18,12 @@ axiosInstance.interceptors.request.use(async (config) => {
   if (tokens) {
     config.headers.Authorization = `Bearer ${tokens.accessToken}`;
   }
+  if (
+    stores.productStore.tenantsAreEnabled &&
+    stores.tenantStore.currentTenantId
+  ) {
+    config.headers["X-Tenant-Id"] = stores.tenantStore.currentTenantId;
+  }
   return config;
 });
 axiosInstance.interceptors.response.use(

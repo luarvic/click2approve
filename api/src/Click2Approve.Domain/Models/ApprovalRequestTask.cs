@@ -7,6 +7,8 @@ public class ApprovalRequestTask : DbEntity
 {
     public required ApprovalRequest ApprovalRequest { get; set; }
     public required string Approver { get; set; }
+    public long TenantId { get; set; }
+    public Tenant? Tenant { get; set; }
     public ApprovalStatus Status { get; set; }
     public DateTime? Completed { get; set; }
     public string? Comment { get; set; }
