@@ -21,8 +21,8 @@ const MainAppBar = () => {
 
   return (
     <AppBar position="static" color="transparent" elevation={0}>
-      <Toolbar disableGutters sx={{ pl: 2, pr: 2 }}>
-        <Box sx={{ flexGrow: 1 }}>
+      <Toolbar disableGutters sx={{ minHeight: 64, pl: 2, pr: 2 }}>
+        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
           <Link
             component="button"
             variant="body2"
@@ -50,28 +50,34 @@ const MainAppBar = () => {
                 display: "block",
                 width: 36,
                 height: 36,
-                color: "inherit",
                 mr: 0.5,
               }}
             >
-              <g transform="rotate(45 12 12)">
-                <rect x="7.5" y="7.5"
-                  width="13" height="13"
-                  rx="3"
-                  fill="#22C55E" />
-              </g>
-              <g transform="rotate(45 12 12)">
-                <rect x="3" y="3"
-                  width="13" height="13"
-                  rx="3"
-                  fill="#FFFFFF"
-                  stroke="#22C55E"
-                  strokeWidth="0.8" />
-              </g>
+              <rect
+                x="3.5"
+                y="3.5"
+                width="12"
+                height="12"
+                rx="3"
+                fill="#FFFFFF"
+                stroke="#22C55E"
+                strokeWidth="2"
+              />
+              <path
+                d="M8 8L18.5 13.5L14 14.5L16.75 19.5L14.25 20.75L11.5 15.75L8.5 19.25V8.75C8.5 8.25 8.3 8.05 8 8Z"
+                fill="#111827"
+                stroke="#FFFFFF"
+                strokeLinejoin="round"
+                strokeWidth="0.8"
+              />
             </Box>
             <Typography
               variant="h6"
-              sx={{ color: "inherit", textDecoration: "none" }}
+              sx={{
+                color: "inherit",
+                textDecoration: "none",
+                whiteSpace: "nowrap",
+              }}
             >
               click2approve®
             </Typography>
@@ -95,7 +101,12 @@ const MainAppBar = () => {
                   stores.commonStore.currentTab
                 );
               }}
-              sx={{ minWidth: 220, mr: 1 }}
+              sx={{
+                flexShrink: 1,
+                maxWidth: { xs: 170, sm: 220 },
+                minWidth: { xs: 120, sm: 180 },
+                mr: 1,
+              }}
             >
               {stores.tenantStore.tenants.map((tenant) => (
                 <MenuItem key={tenant.id} value={tenant.id}>

@@ -27,12 +27,7 @@ describe("<App />", () => {
     const wrapper = render(<App />);
     expect(wrapper).toBeTruthy();
 
-    // Get by h6
     const heading = await screen.findByRole("heading", { level: 6 });
     expect(heading.textContent).toBe("click2approve®");
-
-    // Get by text using the React testing library
-    const text = screen.getByText(/click2approve/i);
-    expect(text.textContent).toBeTruthy();
   });
 });
