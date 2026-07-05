@@ -66,7 +66,7 @@ const MainAppBar = () => {
                   rx="3"
                   fill="#FFFFFF"
                   stroke="#22C55E"
-                  stroke-width="0.8" />
+                  strokeWidth="0.8" />
               </g>
             </Box>
             <Typography

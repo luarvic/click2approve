@@ -47,7 +47,13 @@ const App = () => {
   ) : (
     <ThemeProvider theme={stores.userSettingsStore.theme}>
       <CssBaseline>
-        <BrowserRouter basename="ui">
+        <BrowserRouter
+          basename="ui"
+          future={{
+            v7_relativeSplatPath: true,
+            v7_startTransition: true,
+          }}
+        >
           <Routes>
             <Route element={<MainLayout />}>
               <Route index element={<HomePage />} />

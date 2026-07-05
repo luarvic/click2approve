@@ -1,6 +1,15 @@
 import { render, screen } from "@testing-library/react";
-import { beforeAll, describe, expect, test } from "vitest";
+import { beforeAll, describe, expect, test, vi } from "vitest";
 import App from "../App";
+
+vi.mock("../lib/controllers/product", () => ({
+  productInfo: vi.fn().mockResolvedValue({
+    edition: "OpenSource",
+    capabilities: {
+      tenants: false,
+    },
+  }),
+}));
 
 describe("<App />", () => {
   beforeAll(() => {
@@ -14,13 +23,13 @@ describe("<App />", () => {
     });
   });
 
-  test("App mounts properly", () => {
+  test("App mounts properly", async () => {
     const wrapper = render(<App />);
     expect(wrapper).toBeTruthy();
 
     // Get by h6
-    const h6 = wrapper.container.querySelector("h6");
-    expect(h6?.textContent).toBe("click2approve®");
+    const heading = await screen.findByRole("heading", { level: 6 });
+    expect(heading.textContent).toBe("click2approve®");
 
     // Get by text using the React testing library
     const text = screen.getByText(/click2approve/i);

@@ -101,10 +101,11 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
         {
             // Log in.
             var loginData = await _client.LogInAsync(testDataEntry.Credentials, CancellationToken.None);
+            var normalizedEmail = testDataEntry.Credentials.Email.ToUpperInvariant();
 
             // Take files owned by user.
             var filesOwnedByUser = _db.UserFiles
-                .Where(x => x.Owner.NormalizedEmail!.Equals(testDataEntry.Credentials.Email.ToUpper()))
+                .Where(x => x.Owner != null && x.Owner.NormalizedEmail == normalizedEmail)
                 .ToList();
 
             foreach (var file in filesOwnedByUser)
@@ -125,10 +126,11 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
         {
             // Log in.
             var loginData = await _client.LogInAsync(testDataEntry.Credentials, CancellationToken.None);
+            var normalizedEmail = testDataEntry.Credentials.Email.ToUpperInvariant();
 
             // Take files owned by other users.
             var filesOwnedByOtherUsers = _db.UserFiles
-                .Where(x => !x.Owner.NormalizedEmail!.Equals(testDataEntry.Credentials.Email.ToUpper()))
+                .Where(x => x.Owner != null && x.Owner.NormalizedEmail != normalizedEmail)
                 .ToList();
 
             foreach (var file in filesOwnedByOtherUsers)
@@ -144,8 +146,9 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
         // Let's prepare an approval request.
         var requester = testData.First();
         var approver = testData.First(x => x.Credentials.Email != requester.Credentials.Email);
+        var requesterNormalizedEmail = requester.Credentials.Email.ToUpperInvariant();
         var filesOwnedByRequester = _db.UserFiles
-            .Where(x => x.Owner.NormalizedEmail!.Equals(requester.Credentials.Email.ToUpper()))
+            .Where(x => x.Owner != null && x.Owner.NormalizedEmail == requesterNormalizedEmail)
             .ToList();
         var payload = new ApprovalRequestSubmitDto
         {
@@ -171,10 +174,11 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
         {
             // Log in.
             var loginData = await _client.LogInAsync(testDataEntry.Credentials, CancellationToken.None);
+            var normalizedEmail = testDataEntry.Credentials.Email.ToUpperInvariant();
 
             // Take files owned by user.
             var filesOwnedByUser = _db.UserFiles
-                .Where(x => x.Owner.NormalizedEmail!.Equals(testDataEntry.Credentials.Email.ToUpper()))
+                .Where(x => x.Owner != null && x.Owner.NormalizedEmail == normalizedEmail)
                 .ToList();
 
             // Delete files.
@@ -185,7 +189,7 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
             }
 
             Assert.Empty(_db.UserFiles
-                .Where(x => x.Owner.NormalizedEmail!.Equals(testDataEntry.Credentials.Email.ToUpper()))
+                .Where(x => x.Owner != null && x.Owner.NormalizedEmail == normalizedEmail)
                 .ToList());
         }
     }
