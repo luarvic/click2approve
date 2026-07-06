@@ -3,7 +3,6 @@ import { Box, IconButton, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
 import {
   MENU_ANCHOR_ORIGIN,
-  MENU_SLOT_PROPS,
   MENU_TRANSFORM_ORIGIN,
 } from "../../data/constants";
 import { ITenantUser } from "../../models/tenantUser";
@@ -43,7 +42,6 @@ const TenantUserActionsMenu: React.FC<ITenantUserActionsMenuProps> = ({
         onClose={handleClose}
         anchorOrigin={MENU_ANCHOR_ORIGIN}
         transformOrigin={MENU_TRANSFORM_ORIGIN}
-        slotProps={MENU_SLOT_PROPS}
       >
         <MenuItem
           onClick={() => {

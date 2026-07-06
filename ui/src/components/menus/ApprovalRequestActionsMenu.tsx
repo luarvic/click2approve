@@ -3,7 +3,6 @@ import { Box, IconButton, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
 import {
   MENU_ANCHOR_ORIGIN,
-  MENU_SLOT_PROPS,
   MENU_TRANSFORM_ORIGIN,
 } from "../../data/constants";
 import { IApprovalRequest } from "../../models/approvalRequest";
@@ -56,7 +55,6 @@ const ApprovalRequestActionsMenu: React.FC<
         }}
         anchorOrigin={MENU_ANCHOR_ORIGIN}
         transformOrigin={MENU_TRANSFORM_ORIGIN}
-        slotProps={MENU_SLOT_PROPS}
       >
         <MenuItem onClick={handleView}>Track</MenuItem>
         <MenuItem onClick={handleDelete}>Delete</MenuItem>
