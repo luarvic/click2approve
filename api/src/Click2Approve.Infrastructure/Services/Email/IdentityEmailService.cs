@@ -2,10 +2,10 @@ using System.Web;
 using Click2Approve.Application.Helpers;
 using Click2Approve.Domain.Models;
 using Click2Approve.Application.Models.Auxiliary;
-using Click2Approve.Application.Services.EmailService;
+using Click2Approve.Application.Services.Email;
 using Microsoft.AspNetCore.Identity;
 
-namespace Click2Approve.Infrastructure.Services.EmailService;
+namespace Click2Approve.Infrastructure.Services.Email;
 
 /// <summary>
 /// Implements IEmailSender interface of Identity framework.

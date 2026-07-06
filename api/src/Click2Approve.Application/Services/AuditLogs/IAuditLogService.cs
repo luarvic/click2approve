@@ -1,4 +1,4 @@
-namespace Click2Approve.Application.Services.AuditLogService;
+namespace Click2Approve.Application.Services.AuditLogs;
 
 using Click2Approve.Domain.Models;
 

@@ -37,4 +37,5 @@ coverage/
 *.tmp
 
 # Development runtime storage
-filestorage/
+/filestorage/
+/api/src/Click2Approve.WebApi/filestorage/

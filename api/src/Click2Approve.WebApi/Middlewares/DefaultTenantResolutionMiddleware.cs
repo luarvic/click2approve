@@ -1,4 +1,4 @@
-using Click2Approve.Application.Services.TenantService;
+using Click2Approve.Application.Services.Tenants;
 using Click2Approve.Application.Services.TenantContext;
 using Click2Approve.Domain.Models;
 using Microsoft.AspNetCore.Identity;

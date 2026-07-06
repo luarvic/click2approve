@@ -2,13 +2,13 @@ using Click2Approve.Domain.Exceptions;
 using Click2Approve.Application.Extensions;
 using Click2Approve.Application.Persistence;
 using Click2Approve.Domain.Models;
-using Click2Approve.Application.Services.ApprovalRequestService;
-using Click2Approve.Application.Services.AuditLogService;
-using Click2Approve.Application.Services.StoreService;
+using Click2Approve.Application.Services.ApprovalRequests;
+using Click2Approve.Application.Services.AuditLogs;
+using Click2Approve.Application.Services.FileStorage;
 using Click2Approve.Application.Services.TenantContext;
-using Click2Approve.Application.Services.UserFileService;
+using Click2Approve.Application.Services.UserFiles;
 
-namespace Click2Approve.Application.Services.UserFileService;
+namespace Click2Approve.Application.Services.UserFiles;
 
 /// <summary>
 /// Implements a service that manages user files.
@@ -21,7 +21,7 @@ public class UserFileService(
     IUserFileRepository userFileRepository,
     ITenantContext tenantContext,
     IUnitOfWork unitOfWork,
-    IStoreService storeService,
+    IFileStorage fileStorage,
     ILogger<UserFileService> logger) : IUserFileService
 {
     private readonly IAuditLogService _auditLogService = auditLogService;
@@ -31,7 +31,7 @@ public class UserFileService(
     private readonly IUserFileRepository _userFileRepository = userFileRepository;
     private readonly ITenantContext _tenantContext = tenantContext;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly IStoreService _storeService = storeService;
+    private readonly IFileStorage _fileStorage = fileStorage;
     private readonly ILogger<UserFileService> _logger = logger;
 
     /// <summary>
@@ -66,7 +66,7 @@ public class UserFileService(
 
             // Save the file.
             var bytes = await file.ToBytesAsync(cancellationToken);
-            await _storeService.AddFileAsync(GetFilePath(user.Id, id, Path.GetFileName(file.FileName)), bytes, cancellationToken);
+            await _fileStorage.SaveAsync(GetFilePath(user.Id, id, Path.GetFileName(file.FileName)), bytes, cancellationToken);
 
             // Add audit log entry.
             await _auditLogService.LogAsync(user,
@@ -89,7 +89,7 @@ public class UserFileService(
         return
         (
             userFile.Name,
-            await _storeService.GetFileAsync(GetFilePath(userFile.OwnerId, userFile.Id.ToString(), userFile.Name), cancellationToken)
+            await _fileStorage.ReadAsync(GetFilePath(userFile.OwnerId, userFile.Id.ToString(), userFile.Name), cancellationToken)
         );
     }
 
@@ -119,7 +119,7 @@ public class UserFileService(
         var userFileJson = userFile.ToString();
         _userFileRepository.Remove(userFile);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        _storeService.DeleteFile(GetFilePath(user.Id, userFile.Id.ToString(), userFile.Name));
+        await _fileStorage.DeleteAsync(GetFilePath(user.Id, userFile.Id.ToString(), userFile.Name), cancellationToken);
 
         // Add audit log entry.
         await _auditLogService.LogAsync(user,

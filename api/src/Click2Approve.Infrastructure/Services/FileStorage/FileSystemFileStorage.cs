@@ -1,29 +1,29 @@
-using Click2Approve.Application.Services.StoreService;
+using Click2Approve.Application.Services.FileStorage;
 using Click2Approve.Domain.Exceptions;
 
-namespace Click2Approve.Infrastructure.Services.StoreService;
+namespace Click2Approve.Infrastructure.Services.FileStorage;
 
 /// <summary>
-/// Implements a service that manages binary files.
+/// Stores binary files on the local file system.
 /// </summary>
-public class StoreService(IConfiguration configuration, IHostEnvironment hostEnvironment, ILogger<StoreService> logger) : IStoreService
+public class FileSystemFileStorage(IConfiguration configuration, IHostEnvironment hostEnvironment) : IFileStorage
 {
-    private readonly ILogger<StoreService> _logger = logger;
     private readonly string _rootPath = ResolveRootPath(configuration["FileStorage:RootPath"], hostEnvironment.ContentRootPath);
 
     /// <summary>
-    /// Creates a file in the file system out of bytes.
+    /// Saves bytes to a file.
     /// </summary>
-    public async Task AddFileAsync(string path, byte[] bytes, CancellationToken cancellationToken)
+    public async Task SaveAsync(string path, byte[] bytes, CancellationToken cancellationToken)
     {
         try
         {
             var fullPath = Path.Combine(_rootPath, path);
             var directory = Path.GetDirectoryName(fullPath);
-            if (directory != null && !Path.Exists(Path.GetDirectoryName(fullPath)))
+            if (directory is not null && !Path.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
             }
+
             using var fileStream = new FileStream(fullPath, FileMode.CreateNew, FileAccess.Write);
             await fileStream.WriteAsync(bytes, cancellationToken);
         }
@@ -34,29 +34,31 @@ public class StoreService(IConfiguration configuration, IHostEnvironment hostEnv
     }
 
     /// <summary>
-    /// Deletes a file from the file system.
+    /// Deletes a file.
     /// </summary>
-    public void DeleteFile(string path)
+    public Task DeleteAsync(string path, CancellationToken cancellationToken)
     {
         try
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var fullPath = Path.Combine(_rootPath, path);
-            var directory = Path.GetDirectoryName(fullPath);
-            if (directory != null && Path.Exists(Path.GetDirectoryName(fullPath)))
+            if (File.Exists(fullPath))
             {
-                Directory.Delete(directory, true);
+                File.Delete(fullPath);
             }
         }
         catch (Exception e)
         {
             throw new InfrastructureException($"Failed to delete file at path: {path}.", e);
         }
+
+        return Task.CompletedTask;
     }
 
     /// <summary>
-    /// Returns bytes out of the file.
+    /// Reads bytes from a file.
     /// </summary>
-    public async Task<byte[]> GetFileAsync(string path, CancellationToken cancellationToken)
+    public async Task<byte[]> ReadAsync(string path, CancellationToken cancellationToken)
     {
         try
         {

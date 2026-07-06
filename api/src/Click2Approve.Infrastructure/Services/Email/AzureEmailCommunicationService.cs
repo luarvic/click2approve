@@ -1,10 +1,10 @@
 using Azure;
 using Azure.Communication.Email;
-using Click2Approve.Application.Services.EmailService;
+using Click2Approve.Application.Services.Email;
 using Hangfire;
 using EmailMessage = Click2Approve.Application.Models.Auxiliary.EmailMessage;
 
-namespace Click2Approve.Infrastructure.Services.EmailService;
+namespace Click2Approve.Infrastructure.Services.Email;
 
 /// <summary>
 /// Represents an implementation of the IEmailService interface that uses Azure's email communication services to send emails.

@@ -1,7 +1,7 @@
 using Click2Approve.Domain.Models;
 using Microsoft.AspNetCore.Http;
 
-namespace Click2Approve.Application.Services.UserFileService;
+namespace Click2Approve.Application.Services.UserFiles;
 
 /// <summary>
 /// Defines a contract for a service that manages user files.

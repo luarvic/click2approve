@@ -1,9 +1,9 @@
-using Click2Approve.Application.Services.AuditLogService;
+using Click2Approve.Application.Services.AuditLogs;
 using Click2Approve.Application.Persistence;
 using Click2Approve.Application.Services.TenantContext;
 using Click2Approve.Domain.Models;
 
-namespace Click2Approve.Application.Services.AuditLogService;
+namespace Click2Approve.Application.Services.AuditLogs;
 
 /// <summary>
 /// Adds an audit log entry.

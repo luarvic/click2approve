@@ -1,7 +1,7 @@
 using Click2Approve.Domain.Models;
 using Click2Approve.Application.Models.DTOs;
 
-namespace Click2Approve.Application.Services.ApprovalRequestService;
+namespace Click2Approve.Application.Services.ApprovalRequests;
 
 /// <summary>
 /// Defines a contract for a service that manages approval requests and approval request tasks.

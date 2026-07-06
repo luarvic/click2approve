@@ -1,7 +1,7 @@
 using Click2Approve.Application.Models.Auxiliary;
-using Click2Approve.Application.Services.EmailService;
+using Click2Approve.Application.Services.Email;
 
-namespace Click2Approve.Infrastructure.Services.EmailService;
+namespace Click2Approve.Infrastructure.Services.Email;
 
 /// <summary>
 /// Implements a service that manages email.

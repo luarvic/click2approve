@@ -4,12 +4,11 @@ using Click2Approve.Application.Persistence;
 using Click2Approve.Domain.Models;
 using Click2Approve.Application.Models.Auxiliary;
 using Click2Approve.Application.Models.DTOs;
-using Click2Approve.Application.Services.ApprovalRequestService;
-using Click2Approve.Application.Services.AuditLogService;
-using Click2Approve.Application.Services.EmailService;
+using Click2Approve.Application.Services.AuditLogs;
+using Click2Approve.Application.Services.Email;
 using Click2Approve.Application.Services.TenantContext;
 
-namespace Click2Approve.Application.Services.ApprovalRequestService;
+namespace Click2Approve.Application.Services.ApprovalRequests;
 
 /// <summary>
 /// Implements a service that manages approval requests and approval request tasks.

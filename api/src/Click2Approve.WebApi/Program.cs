@@ -4,13 +4,13 @@ using Click2Approve.WebApi.Extensions;
 using Click2Approve.WebApi.Middlewares;
 using Click2Approve.Domain.Models;
 using Click2Approve.Infrastructure.Persistence;
-using Click2Approve.Application.Services.ApprovalRequestService;
-using Click2Approve.Application.Services.AuditLogService;
-using Click2Approve.Application.Services.StoreService;
+using Click2Approve.Application.Services.ApprovalRequests;
+using Click2Approve.Application.Services.AuditLogs;
+using Click2Approve.Application.Services.FileStorage;
 using Click2Approve.Application.Services.TenantContext;
-using Click2Approve.Application.Services.TenantService;
-using Click2Approve.Application.Services.UserFileService;
-using Click2Approve.Infrastructure.Services.StoreService;
+using Click2Approve.Application.Services.Tenants;
+using Click2Approve.Application.Services.UserFiles;
+using Click2Approve.Infrastructure.Services.FileStorage;
 using Click2Approve.WebApi.Services.TenantContext;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
@@ -40,7 +40,7 @@ builder.Services.AddSwagger();
 
 builder.Services.AddScoped<IApprovalRequestService, ApprovalRequestService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
-builder.Services.AddScoped<IStoreService, StoreService>();
+builder.Services.AddScoped<IFileStorage, FileSystemFileStorage>();
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<IUserFileService, UserFileService>();
 

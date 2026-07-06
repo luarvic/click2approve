@@ -1,6 +1,6 @@
 using Click2Approve.Domain.Models;
 
-namespace Click2Approve.Application.Services.TenantService;
+namespace Click2Approve.Application.Services.Tenants;
 
 /// <summary>
 /// Defines tenant business operations.
