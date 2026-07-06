@@ -169,6 +169,11 @@ export const MAIN_MENU_BUTTON_SX = (
   mr: 1,
   display: mainMenuDrawerIsOpen ? "none" : "inline-flex",
 });
+export const APP_BAR_BRAND_CONTAINER_SX: SxProps<Theme> = {
+  flex: { xs: "0 0 auto", sm: "1 1 auto" },
+  minWidth: 0,
+  overflow: "hidden",
+};
 export const APP_BAR_BRAND_LINK_SX: SxProps<Theme> = {
   display: "flex",
   alignItems: "center",
@@ -185,6 +190,14 @@ export const APP_BAR_LOGO_SX: SxProps<Theme> = {
   height: 36,
   mr: 0.5,
 };
+export const APP_BAR_BRAND_TITLE_SX: SxProps<Theme> = {
+  display: { xs: "none", sm: "block" },
+  color: "inherit",
+  overflow: "hidden",
+  textDecoration: "none",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
 export const ELLIPSIS_TEXT_SX: SxProps<Theme> = {
   color: "inherit",
   overflow: "hidden",
@@ -193,11 +206,11 @@ export const ELLIPSIS_TEXT_SX: SxProps<Theme> = {
   whiteSpace: "nowrap",
 };
 export const TENANT_PICKER_SX: SxProps<Theme> = {
-  flex: "0 1 auto",
-  maxWidth: { xs: 140, sm: 220 },
+  flex: { xs: "1 1 auto", sm: "0 1 auto" },
+  maxWidth: { xs: "none", sm: 220 },
   minWidth: 0,
   mr: 1,
-  width: { xs: "30vw", sm: 220 },
+  width: { xs: "auto", sm: 220 },
   "& .MuiSelect-select": {
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -248,6 +261,7 @@ export const DRAWER_COMPOSE_BUTTON_SX: SxProps<Theme> = {
   justifyContent: "center",
   borderColor: "divider",
   borderRadius: 1,
+  my: 1,
   px: 2,
   py: 1.25,
   textTransform: "none",

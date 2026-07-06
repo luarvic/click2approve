@@ -16,13 +16,13 @@ import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
+  APP_BAR_BRAND_CONTAINER_SX,
   APP_BAR_BRAND_LINK_SX,
+  APP_BAR_BRAND_TITLE_SX,
   APP_BAR_LOGO_SX,
   APP_BAR_SX,
   APP_BAR_TOOLBAR_SX,
   DEFAULT_PATH,
-  ELLIPSIS_TEXT_SX,
-  HIDDEN_FLEX_CHILD_SX,
   MAIN_MENU_BUTTON_SX,
   NOTIFICATION_POPOVER_ANCHOR_ORIGIN,
   NOTIFICATION_POPOVER_TEXT_SX,
@@ -95,7 +95,7 @@ const MainAppBar = () => {
             <Menu />
           </IconButton>
         )}
-        <Box sx={HIDDEN_FLEX_CHILD_SX}>
+        <Box sx={APP_BAR_BRAND_CONTAINER_SX}>
           <Link
             component="button"
             variant="body2"
@@ -115,7 +115,7 @@ const MainAppBar = () => {
             />
             <Typography
               variant="h6"
-              sx={ELLIPSIS_TEXT_SX}
+              sx={APP_BAR_BRAND_TITLE_SX}
             >
               Click2approve
             </Typography>
