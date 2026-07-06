@@ -8,7 +8,12 @@ import {
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
-import { DATA_GRID_DEFAULT_PAGE_SIZE } from "../../data/constants";
+import {
+  DATA_GRID_CONTAINER_SX,
+  DATA_GRID_DEFAULT_PAGE_SIZE,
+  DATA_GRID_SX,
+  TENANT_USERS_GRID_COLUMN_SIZING,
+} from "../../data/constants";
 import { TenantUserRole } from "../../models/tenant";
 import {
   ITenantUser,
@@ -92,39 +97,33 @@ const TenantUsersGrid = () => {
     {
       field: "email",
       headerName: "Email",
-      flex: 3,
-      minWidth: 220,
+      ...TENANT_USERS_GRID_COLUMN_SIZING.email,
     },
     {
       field: "firstName",
       headerName: "First name",
-      flex: 2,
-      minWidth: 130,
+      ...TENANT_USERS_GRID_COLUMN_SIZING.firstName,
     },
     {
       field: "lastName",
       headerName: "Last name",
-      flex: 2,
-      minWidth: 130,
+      ...TENANT_USERS_GRID_COLUMN_SIZING.lastName,
     },
     {
       field: "position",
       headerName: "Position",
-      flex: 2,
-      minWidth: 150,
+      ...TENANT_USERS_GRID_COLUMN_SIZING.position,
     },
     {
       field: "role",
       headerName: "Role",
-      flex: 1,
-      minWidth: 110,
+      ...TENANT_USERS_GRID_COLUMN_SIZING.role,
       valueFormatter: (value) => roleLabels[value as TenantUserRole],
     },
     {
       field: "status",
       headerName: "Status",
-      flex: 1,
-      minWidth: 120,
+      ...TENANT_USERS_GRID_COLUMN_SIZING.status,
       renderCell: (params) => {
         const status = params.value as TenantUserStatus;
         return (
@@ -142,8 +141,7 @@ const TenantUsersGrid = () => {
       headerName: "Action",
       headerAlign: "right",
       align: "right",
-      flex: 1,
-      minWidth: 90,
+      ...TENANT_USERS_GRID_COLUMN_SIZING.action,
       sortable: false,
       filterable: false,
       renderCell: (params) => (
@@ -157,7 +155,7 @@ const TenantUsersGrid = () => {
   ];
 
   return (
-    <Box sx={{ width: "100%", overflow: "hidden" }}>
+    <Box sx={DATA_GRID_CONTAINER_SX}>
       <DataGrid
         rows={stores.tenantUserStore.tenantUsers}
         columns={columns}
@@ -176,10 +174,7 @@ const TenantUsersGrid = () => {
           noRowsOverlay: NoRowsOverlay,
           loadingOverlay: LinearProgress as GridSlots["loadingOverlay"],
         }}
-        sx={{
-          border: "none",
-          "--DataGrid-overlayHeight": "300px",
-        }}
+        sx={DATA_GRID_SX}
         autoHeight
         loading={
           stores.commonStore.isLoading(`get_${tenantUsersLoaderPrefix}`) ||

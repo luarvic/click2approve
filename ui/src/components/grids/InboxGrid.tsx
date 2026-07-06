@@ -13,7 +13,10 @@ import {
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import {
+  APPROVAL_GRID_COLUMN_FLEX,
   DATA_GRID_DEFAULT_PAGE_SIZE,
+  DATA_GRID_CONTAINER_SX,
+  DATA_GRID_SX,
   MAX_SIZE_WHEN_DISPLAY,
 } from "../../data/constants";
 import { ApprovalStatus } from "../../models/approvalStatus";
@@ -60,7 +63,7 @@ const InboxGrid = () => {
     {
       field: "files",
       headerName: "Files to review",
-      flex: 5,
+      flex: APPROVAL_GRID_COLUMN_FLEX.content,
       valueGetter: (_value, row) =>
         row.approvalRequest.userFiles
           .map((userFile: IUserFile) => userFile.name)
@@ -77,14 +80,14 @@ const InboxGrid = () => {
     {
       field: "received",
       headerName: "Received",
-      flex: 3,
+      flex: APPROVAL_GRID_COLUMN_FLEX.metadata,
       valueGetter: (_value, row) =>
         getHumanReadableRelativeDate(row.approvalRequest.submittedDate),
     },
     {
       field: "status",
       headerName: "Status",
-      flex: 3,
+      flex: APPROVAL_GRID_COLUMN_FLEX.metadata,
       renderCell: (params) => {
         const label =
           params.row.status === ApprovalStatus.Submitted
@@ -106,7 +109,7 @@ const InboxGrid = () => {
     {
       field: "reviewBy",
       headerName: "Review by",
-      flex: 3,
+      flex: APPROVAL_GRID_COLUMN_FLEX.metadata,
       valueGetter: (_value, row) =>
         row.approvalRequest.approveByDate
           ? getLocaleDateTimeString(row.approvalRequest.approveByDate as Date)
@@ -115,7 +118,7 @@ const InboxGrid = () => {
     {
       field: "requester",
       headerName: "Requester",
-      flex: 5,
+      flex: APPROVAL_GRID_COLUMN_FLEX.content,
       valueGetter: (_value, row) =>
         (row.approvalRequest.author as string).toLowerCase(),
     },
@@ -124,7 +127,7 @@ const InboxGrid = () => {
       headerName: "Action",
       headerAlign: "right",
       align: "right",
-      flex: 2,
+      flex: APPROVAL_GRID_COLUMN_FLEX.action,
       renderCell: (params) => {
         return <TaskActionsMenu task={params.row} />;
       },
@@ -132,7 +135,7 @@ const InboxGrid = () => {
   ];
 
   return (
-    <Box sx={{ width: "100%", overflow: "hidden" }}>
+    <Box sx={DATA_GRID_CONTAINER_SX}>
       <DataGrid
         rows={stores.approvalRequestTaskStore.tasks}
         columns={columns}
@@ -156,10 +159,7 @@ const InboxGrid = () => {
           noRowsOverlay: NoRowsOverlay,
           loadingOverlay: LinearProgress as GridSlots["loadingOverlay"],
         }}
-        sx={{
-          border: "none",
-          "--DataGrid-overlayHeight": "300px",
-        }}
+        sx={DATA_GRID_SX}
         autoHeight
         loading={
           stores.commonStore.isLoading("get_api/task/listUncompleted") ||

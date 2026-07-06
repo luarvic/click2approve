@@ -2,6 +2,7 @@ import { Add } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, useRef } from "react";
+import { FILE_INPUT_STYLE } from "../../data/constants";
 import { stores } from "../../stores/stores";
 
 const UploadButton = () => {
@@ -36,7 +37,7 @@ const UploadButton = () => {
         multiple
         onChange={handleUpload}
         ref={hiddenFileInput}
-        style={{ display: "none" }}
+        style={FILE_INPUT_STYLE}
       />
     </>
   );

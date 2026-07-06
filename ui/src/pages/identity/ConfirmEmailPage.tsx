@@ -2,6 +2,7 @@ import { Backdrop, Box, CircularProgress } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { BACKDROP_LOADING_SX } from "../../data/constants";
 import { confirmEmail } from "../../lib/controllers/auth";
 
 const ConfirmEmailPage = () => {
@@ -34,7 +35,7 @@ const ConfirmEmailPage = () => {
     <>
       <Box>{message}</Box>
       <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.modal + 1 }}
+        sx={BACKDROP_LOADING_SX}
         open={isLoading}
       >
         <CircularProgress color="inherit" />

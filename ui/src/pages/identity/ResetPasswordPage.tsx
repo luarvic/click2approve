@@ -17,7 +17,14 @@ import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { DEFAULT_PATH, PASSWORD_VALIDATOR_ERROR } from "../../data/constants";
+import {
+  AUTH_FORM_CONTAINER_SX,
+  AUTH_CONTAINER_MAX_WIDTH,
+  AUTH_FORM_SX,
+  DEFAULT_PATH,
+  FORM_SUBMIT_BUTTON_SX,
+  PASSWORD_VALIDATOR_ERROR,
+} from "../../data/constants";
 import { Credentials } from "../../models/credentials";
 import { stores } from "../../stores/stores";
 import { validatePassword } from "../../utils/validators";
@@ -94,19 +101,12 @@ const ResetPasswordPage = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
+    <Container component="main" maxWidth={AUTH_CONTAINER_MAX_WIDTH}>
+      <Box sx={AUTH_FORM_CONTAINER_SX}>
         <Typography component="h1" variant="h5">
           Reset password
         </Typography>
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+        <Box component="form" onSubmit={handleSubmit} noValidate sx={AUTH_FORM_SX}>
           <FormControl margin="normal" fullWidth variant="outlined" required>
             <InputLabel error={passwordError}>Password</InputLabel>
             <OutlinedInput
@@ -170,7 +170,7 @@ const ResetPasswordPage = () => {
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 2, mb: 2 }}
+            sx={FORM_SUBMIT_BUTTON_SX}
           >
             Reset
           </LoadingButton>

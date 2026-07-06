@@ -1,9 +1,15 @@
-import { Box, Stack, SxProps } from "@mui/material";
+import { Box, Stack } from "@mui/material";
+import type { SxProps } from "@mui/material";
+import type { Theme } from "@mui/material/styles";
+import {
+  LIST_ITEM_SPACING,
+  LIST_OVERFLOW_HIDDEN_SX,
+} from "../../data/constants";
 
 interface IApproversListProps {
   approvers: string[];
   direction: "row" | "row-reverse" | "column" | "column-reverse" | undefined;
-  sx?: SxProps;
+  sx?: SxProps<Theme>;
 }
 
 const ApproversList: React.FC<IApproversListProps> = ({
@@ -13,11 +19,11 @@ const ApproversList: React.FC<IApproversListProps> = ({
 }) => {
   return (
     <Stack
-      spacing={1}
+      spacing={LIST_ITEM_SPACING}
       direction={direction}
       justifyContent="flex-start"
       alignItems="flex-start"
-      sx={{ ...sx, overflow: "hidden" }}
+      sx={[LIST_OVERFLOW_HIDDEN_SX, ...(Array.isArray(sx) ? sx : [sx])]}
     >
       {approvers.map((approver, index) => (
         <Box key={index}>{approver.toLowerCase()}</Box>

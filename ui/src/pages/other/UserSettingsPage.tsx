@@ -8,6 +8,10 @@ import {
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { Navigate } from "react-router-dom";
+import {
+  AUTH_FORM_SX,
+  USER_SETTINGS_CONTAINER_SX,
+} from "../../data/constants";
 import { stores } from "../../stores/stores";
 
 const UserSettingsPage = () => {
@@ -20,16 +24,11 @@ const UserSettingsPage = () => {
   };
 
   return stores.userAccountStore.currentUser ? (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <Box sx={USER_SETTINGS_CONTAINER_SX}>
       <Typography component="h1" variant="h5">
         User settings
       </Typography>
-      <Box component="form" noValidate sx={{ mt: 1 }}>
+      <Box component="form" noValidate sx={AUTH_FORM_SX}>
         <FormGroup>
           <FormControlLabel
             control={

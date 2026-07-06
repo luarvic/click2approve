@@ -18,7 +18,14 @@ import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { DEFAULT_PATH } from "../../data/constants";
+import {
+  AUTH_FORM_CONTAINER_SX,
+  AUTH_CONTAINER_MAX_WIDTH,
+  DEFAULT_PATH,
+  FORM_SUBMIT_BUTTON_SX,
+  TEXT_ALIGN_CENTER_SX,
+  TEXT_ALIGN_RIGHT_SX,
+} from "../../data/constants";
 import { Credentials } from "../../models/credentials";
 import { stores } from "../../stores/stores";
 import { validateEmail } from "../../utils/validators";
@@ -64,15 +71,8 @@ const SignInPage = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
+    <Container component="main" maxWidth={AUTH_CONTAINER_MAX_WIDTH}>
+      <Box sx={AUTH_FORM_CONTAINER_SX}>
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
@@ -120,7 +120,7 @@ const SignInPage = () => {
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 2, mb: 2 }}
+            sx={FORM_SUBMIT_BUTTON_SX}
           >
             Sign in
           </LoadingButton>
@@ -135,7 +135,7 @@ const SignInPage = () => {
                 Forgot password
               </Link>
             </Grid>
-            <Grid item xs={4} sx={{ textAlign: "center" }}>
+            <Grid item xs={4} sx={TEXT_ALIGN_CENTER_SX}>
               <Link
                 component="button"
                 type="button"
@@ -145,7 +145,7 @@ const SignInPage = () => {
                 Resend confirmation
               </Link>
             </Grid>
-            <Grid item xs={4} sx={{ textAlign: "right" }}>
+            <Grid item xs={4} sx={TEXT_ALIGN_RIGHT_SX}>
               <Link
                 component="button"
                 type="button"

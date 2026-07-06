@@ -27,6 +27,11 @@ import { Dayjs } from "dayjs";
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, useRef, useState } from "react";
 import { toast } from "react-toastify";
+import {
+  COMMENT_TEXT_FIELD_ROWS,
+  DIALOG_BOTTOM_SPACING_SX,
+  FILE_INPUT_STYLE,
+} from "../../data/constants";
 import { approvalRequestSubmit } from "../../lib/controllers/approvalRequest";
 import { stores } from "../../stores/stores";
 import { validateEmails } from "../../utils/validators";
@@ -137,7 +142,7 @@ const ApprovalRequestSubmitDialog = () => {
     >
       <DialogTitle>New approval request</DialogTitle>
       <DialogContent>
-        <Box sx={{ mb: 1 }}>
+        <Box sx={DIALOG_BOTTOM_SPACING_SX}>
           <Button startIcon={<AttachFile />} onClick={handleUploadClick}>
             Add files
           </Button>
@@ -146,11 +151,11 @@ const ApprovalRequestSubmitDialog = () => {
             multiple
             onChange={handleFilesChange}
             ref={fileInput}
-            style={{ display: "none" }}
+            style={FILE_INPUT_STYLE}
           />
         </Box>
         {files.length > 0 ? (
-          <List dense disablePadding sx={{ mb: 1 }}>
+          <List dense disablePadding sx={DIALOG_BOTTOM_SPACING_SX}>
             {files.map((file, index) => (
               <ListItem
                 key={`${file.name}-${file.lastModified}-${index}`}
@@ -222,7 +227,7 @@ const ApprovalRequestSubmitDialog = () => {
           label="Comment"
           variant="standard"
           multiline
-          rows={4}
+          rows={COMMENT_TEXT_FIELD_ROWS}
         />
       </DialogContent>
       <DialogActions>

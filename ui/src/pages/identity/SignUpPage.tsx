@@ -19,8 +19,11 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
+  AUTH_FORM_CONTAINER_SX,
+  AUTH_CONTAINER_MAX_WIDTH,
   DEFAULT_PATH,
   EMAIL_SERVICE_IS_ENABLED,
+  FORM_SUBMIT_BUTTON_SX,
   PASSWORD_VALIDATOR_ERROR,
 } from "../../data/constants";
 import { Credentials } from "../../models/credentials";
@@ -96,15 +99,8 @@ const SignUpPage = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
+    <Container component="main" maxWidth={AUTH_CONTAINER_MAX_WIDTH}>
+      <Box sx={AUTH_FORM_CONTAINER_SX}>
         <Typography component="h1" variant="h5">
           Sign up
         </Typography>
@@ -184,7 +180,7 @@ const SignUpPage = () => {
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 2, mb: 2 }}
+            sx={FORM_SUBMIT_BUTTON_SX}
           >
             Sign up
           </LoadingButton>

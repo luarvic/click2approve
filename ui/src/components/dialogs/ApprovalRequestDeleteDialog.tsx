@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
+import { DIALOG_SECTION_SX } from "../../data/constants";
 import { approvalRequestDelete } from "../../lib/controllers/approvalRequest";
 import { stores } from "../../stores/stores";
 import { getLocaleDateTimeString } from "../../utils/helpers";
@@ -57,7 +58,7 @@ const ApprovalRequestDeleteDialog = () => {
             stores.approvalRequestStore.currentApprovalRequest?.userFiles
           }
           direction="column"
-          sx={{ my: 1 }}
+          sx={DIALOG_SECTION_SX}
         />
         {stores.approvalRequestStore.currentApprovalRequest?.approveBy && (
           <DialogContentText>
@@ -69,13 +70,13 @@ const ApprovalRequestDeleteDialog = () => {
         )}
         <CommentPaper
           text={stores.approvalRequestStore.currentApprovalRequest?.comment}
-          sx={{ my: 1 }}
+          sx={DIALOG_SECTION_SX}
         />
         <DialogContentText>from the following contact(s):</DialogContentText>
         {stores.approvalRequestStore.currentApprovalRequest && (
           <ApprovalSteps
             approvalRequest={stores.approvalRequestStore.currentApprovalRequest}
-            sx={{ my: 1 }}
+            sx={DIALOG_SECTION_SX}
           />
         )}
       </DialogContent>

@@ -26,11 +26,19 @@ import {
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { UI_BASE_URI } from "../../data/constants";
+import {
+  DRAWER_COMPOSE_ACTION_CONTAINER_SX,
+  DRAWER_COMPOSE_BUTTON_SX,
+  LIST_ITEM_ICON_SX,
+  LIST_SECTION_HEADER_SX,
+  MAIN_MENU_DRAWER_NAV_SX,
+  MAIN_MENU_DRAWER_TOOLBAR_SX,
+  PERSISTENT_DRAWER_SX,
+  TEMPORARY_DRAWER_SX,
+  UI_BASE_URI,
+} from "../../data/constants";
 import { TenantUserRole } from "../../models/tenant";
 import { stores } from "../../stores/stores";
-
-export const MAIN_MENU_DRAWER_WIDTH = 240;
 
 const MainMenuDrawer = () => {
   const location = useLocation();
@@ -39,7 +47,6 @@ const MainMenuDrawer = () => {
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const initializedDesktopDrawer = useRef(false);
 
-  const listItemIconSx = { minWidth: 35 };
   const currentTenant = stores.tenantStore.currentTenant;
   const currentUser = stores.userAccountStore.currentUser;
   const tenantUserManagerIsVisible =
@@ -64,21 +71,11 @@ const MainMenuDrawer = () => {
     }
   };
 
-  const sectionHeaderSx = {
-    bgcolor: "transparent",
-    color: "text.secondary",
-    fontWeight: 600,
-    lineHeight: 1,
-    px: 2,
-    pt: 2,
-    pb: 1,
-  };
-
   const drawerContent = (
     <Box>
       <Toolbar
         disableGutters
-        sx={{ justifyContent: "flex-end", minHeight: 64, px: 1 }}
+        sx={MAIN_MENU_DRAWER_TOOLBAR_SX}
       >
         <IconButton
           aria-label="Collapse menu"
@@ -90,12 +87,12 @@ const MainMenuDrawer = () => {
       <Divider />
       <List
         subheader={
-          <ListSubheader component="div" sx={sectionHeaderSx}>
+          <ListSubheader component="div" sx={LIST_SECTION_HEADER_SX}>
             Approvals
           </ListSubheader>
         }
       >
-        <Box sx={{ px: 2, pb: 1 }}>
+        <Box sx={DRAWER_COMPOSE_ACTION_CONTAINER_SX}>
           <Button
             fullWidth
             variant="outlined"
@@ -106,18 +103,7 @@ const MainMenuDrawer = () => {
               stores.commonStore.setApprovalRequestSubmitDialogIsOpen(true);
               closeTemporaryDrawer();
             }}
-            sx={{
-              justifyContent: "flex-start",
-              borderColor: "divider",
-              borderRadius: 1,
-              px: 2,
-              py: 1.25,
-              textTransform: "none",
-              "&:hover": {
-                borderColor: "text.secondary",
-                bgcolor: "action.hover",
-              },
-            }}
+            sx={DRAWER_COMPOSE_BUTTON_SX}
           >
             Compose
           </Button>
@@ -130,7 +116,7 @@ const MainMenuDrawer = () => {
               closeTemporaryDrawer();
             }}
           >
-            <ListItemIcon sx={listItemIconSx}>
+            <ListItemIcon sx={LIST_ITEM_ICON_SX}>
               <Inbox />
             </ListItemIcon>
             <ListItemText primary="Incoming" />
@@ -144,7 +130,7 @@ const MainMenuDrawer = () => {
               closeTemporaryDrawer();
             }}
           >
-            <ListItemIcon sx={listItemIconSx}>
+            <ListItemIcon sx={LIST_ITEM_ICON_SX}>
               <Outbox />
             </ListItemIcon>
             <ListItemText primary="Outgoing" />
@@ -153,14 +139,14 @@ const MainMenuDrawer = () => {
       </List>
       <List
         subheader={
-          <ListSubheader component="div" sx={sectionHeaderSx}>
+          <ListSubheader component="div" sx={LIST_SECTION_HEADER_SX}>
             Access
           </ListSubheader>
         }
       >
         <ListItem key="organizations" disablePadding>
           <ListItemButton disabled>
-            <ListItemIcon sx={listItemIconSx}>
+            <ListItemIcon sx={LIST_ITEM_ICON_SX}>
               <Business />
             </ListItemIcon>
             <ListItemText primary="Organizations" />
@@ -175,7 +161,7 @@ const MainMenuDrawer = () => {
                 closeTemporaryDrawer();
               }}
             >
-              <ListItemIcon sx={listItemIconSx}>
+              <ListItemIcon sx={LIST_ITEM_ICON_SX}>
                 <ManageAccounts />
               </ListItemIcon>
               <ListItemText primary="Employees" />
@@ -185,7 +171,7 @@ const MainMenuDrawer = () => {
       </List>
       <List
         subheader={
-          <ListSubheader component="div" sx={sectionHeaderSx}>
+          <ListSubheader component="div" sx={LIST_SECTION_HEADER_SX}>
             Docs
           </ListSubheader>
         }
@@ -196,7 +182,7 @@ const MainMenuDrawer = () => {
             href={UI_BASE_URI}
             onClick={closeTemporaryDrawer}
           >
-            <ListItemIcon sx={listItemIconSx}>
+            <ListItemIcon sx={LIST_ITEM_ICON_SX}>
               <HelpOutline />
             </ListItemIcon>
             <ListItemText primary="Help" />
@@ -213,45 +199,21 @@ const MainMenuDrawer = () => {
   return (
     <Box
       component="nav"
-      sx={{
-        width: {
-          md: stores.commonStore.mainMenuDrawerIsOpen
-            ? MAIN_MENU_DRAWER_WIDTH
-            : 0,
-        },
-        flexShrink: { md: 0 },
-        transition: (theme) =>
-          theme.transitions.create("width", {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-          }),
-      }}
+      sx={MAIN_MENU_DRAWER_NAV_SX(stores.commonStore.mainMenuDrawerIsOpen)}
     >
       <Drawer
         variant="temporary"
         open={stores.commonStore.mainMenuDrawerIsOpen}
         onClose={() => stores.commonStore.setMainMenuDrawerIsOpen(false)}
         ModalProps={{ keepMounted: true }}
-        sx={{
-          display: { xs: "block", md: "none" },
-          "& .MuiDrawer-paper": {
-            boxSizing: "border-box",
-            width: MAIN_MENU_DRAWER_WIDTH,
-          },
-        }}
+        sx={TEMPORARY_DRAWER_SX}
       >
         {drawerContent}
       </Drawer>
       <Drawer
         variant="persistent"
         open={stores.commonStore.mainMenuDrawerIsOpen}
-        sx={{
-          display: { xs: "none", md: "block" },
-          "& .MuiDrawer-paper": {
-            boxSizing: "border-box",
-            width: MAIN_MENU_DRAWER_WIDTH,
-          },
-        }}
+        sx={PERSISTENT_DRAWER_SX}
       >
         {drawerContent}
       </Drawer>

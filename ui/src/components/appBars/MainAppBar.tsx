@@ -16,11 +16,21 @@ import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
+  APP_BAR_BRAND_LINK_SX,
+  APP_BAR_LOGO_SX,
+  APP_BAR_SX,
+  APP_BAR_TOOLBAR_SX,
   DEFAULT_PATH,
+  ELLIPSIS_TEXT_SX,
+  HIDDEN_FLEX_CHILD_SX,
+  MAIN_MENU_BUTTON_SX,
+  NOTIFICATION_POPOVER_ANCHOR_ORIGIN,
+  NOTIFICATION_POPOVER_TEXT_SX,
+  NOTIFICATION_POPOVER_TRANSFORM_ORIGIN,
+  TENANT_PICKER_SX,
   UNCOMPLETED_TASKS_REFRESH_MS,
 } from "../../data/constants";
 import { stores } from "../../stores/stores";
-import { MAIN_MENU_DRAWER_WIDTH } from "../drawers/MainMenuDrawer";
 
 const baseUrl = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
@@ -69,30 +79,9 @@ const MainAppBar = () => {
       position="fixed"
       color="transparent"
       elevation={0}
-      sx={{
-        bgcolor: "background.default",
-        borderBottom: 1,
-        borderColor: "divider",
-        ml: {
-          md: mainMenuDrawerIsVisible ? `${MAIN_MENU_DRAWER_WIDTH}px` : 0,
-        },
-        width: {
-          md: mainMenuDrawerIsVisible
-            ? `calc(100% - ${MAIN_MENU_DRAWER_WIDTH}px)`
-            : "100%",
-        },
-        zIndex: (theme) =>
-          profileDrawerIsOpen
-            ? theme.zIndex.drawer - 1
-            : theme.zIndex.drawer + 1,
-        transition: (theme) =>
-          theme.transitions.create(["margin", "width"], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-          }),
-      }}
+      sx={APP_BAR_SX(mainMenuDrawerIsVisible, profileDrawerIsOpen)}
     >
-      <Toolbar disableGutters sx={{ minHeight: 64, pl: 2, pr: 2 }}>
+      <Toolbar disableGutters sx={APP_BAR_TOOLBAR_SX}>
         {currentUser && (
           <IconButton
             color="inherit"
@@ -101,27 +90,16 @@ const MainAppBar = () => {
             onClick={() =>
               stores.commonStore.setMainMenuDrawerIsOpen(!mainMenuDrawerIsOpen)
             }
-            sx={{
-              mr: 1,
-              display: mainMenuDrawerIsOpen ? "none" : "inline-flex",
-            }}
+            sx={MAIN_MENU_BUTTON_SX(mainMenuDrawerIsOpen)}
           >
             <Menu />
           </IconButton>
         )}
-        <Box sx={{ flex: "1 1 auto", minWidth: 0, overflow: "hidden" }}>
+        <Box sx={HIDDEN_FLEX_CHILD_SX}>
           <Link
             component="button"
             variant="body2"
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              color: "inherit",
-              maxWidth: "100%",
-              minWidth: 0,
-              textDecoration: "none",
-              width: "fit-content",
-            }}
+            sx={APP_BAR_BRAND_LINK_SX}
             onClick={() => {
               navigate(
                 currentUser ? DEFAULT_PATH : "/"
@@ -133,23 +111,11 @@ const MainAppBar = () => {
               src={logoSrc}
               alt=""
               aria-hidden="true"
-              sx={{
-                display: "block",
-                flexShrink: 0,
-                width: 36,
-                height: 36,
-                mr: 0.5,
-              }}
+              sx={APP_BAR_LOGO_SX}
             />
             <Typography
               variant="h6"
-              sx={{
-                color: "inherit",
-                overflow: "hidden",
-                textDecoration: "none",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
+              sx={ELLIPSIS_TEXT_SX}
             >
               Click2approve
             </Typography>
@@ -172,18 +138,7 @@ const MainAppBar = () => {
                 await stores.approvalRequestTaskStore.loadIncomingTasks();
               }
             }}
-            sx={{
-              flex: "0 1 auto",
-              maxWidth: { xs: 140, sm: 220 },
-              minWidth: 0,
-              mr: 1,
-              width: { xs: "30vw", sm: 220 },
-              "& .MuiSelect-select": {
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              },
-            }}
+            sx={TENANT_PICKER_SX}
           >
             {stores.tenantStore.tenants.map((tenant) => (
               <MenuItem key={tenant.id} value={tenant.id}>
@@ -215,16 +170,10 @@ const MainAppBar = () => {
               open={Boolean(notificationAnchor)}
               anchorEl={notificationAnchor}
               onClose={() => setNotificationAnchor(null)}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "right",
-              }}
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
+              anchorOrigin={NOTIFICATION_POPOVER_ANCHOR_ORIGIN}
+              transformOrigin={NOTIFICATION_POPOVER_TRANSFORM_ORIGIN}
             >
-              <Typography sx={{ p: 2, maxWidth: 280 }}>
+              <Typography sx={NOTIFICATION_POPOVER_TEXT_SX}>
                 {numberOfUncompletedTasks === 1
                   ? "You have 1 incoming request that needs to be reviewed."
                   : `You have ${numberOfUncompletedTasks} incoming requests that need to be reviewed.`}

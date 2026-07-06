@@ -14,6 +14,11 @@ import {
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
+import {
+  COMMENT_TEXT_FIELD_ROWS,
+  DIALOG_FIELD_HELPER_TEXT_SX,
+  DIALOG_SECTION_SX,
+} from "../../data/constants";
 import { taskComplete } from "../../lib/controllers/approvalRequestTask";
 import { ApprovalStatus } from "../../models/approvalStatus";
 import { stores } from "../../stores/stores";
@@ -88,7 +93,7 @@ const UncompletedTaskReviewDialog = () => {
               .userFiles
           }
           direction="column"
-          sx={{ my: 1 }}
+          sx={DIALOG_SECTION_SX}
         />
         {stores.approvalRequestTaskStore.currentTask?.approvalRequest
           .approveBy && (
@@ -104,7 +109,7 @@ const UncompletedTaskReviewDialog = () => {
           text={
             stores.approvalRequestTaskStore.currentTask?.approvalRequest.comment
           }
-          sx={{ my: 1 }}
+          sx={DIALOG_SECTION_SX}
         />
         <FormControl key="decision" error={decisionError}>
           <RadioGroup
@@ -124,7 +129,7 @@ const UncompletedTaskReviewDialog = () => {
             />
           </RadioGroup>
           {decisionError && (
-            <FormHelperText sx={{ mx: 0 }}>
+            <FormHelperText sx={DIALOG_FIELD_HELPER_TEXT_SX}>
               You should either approve or reject
             </FormHelperText>
           )}
@@ -139,7 +144,7 @@ const UncompletedTaskReviewDialog = () => {
           autoFocus
           variant="standard"
           multiline
-          rows={4}
+          rows={COMMENT_TEXT_FIELD_ROWS}
         />
       </DialogContent>
       <DialogActions>

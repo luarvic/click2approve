@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
+import { DIALOG_SECTION_SX } from "../../data/constants";
 import { fileDelete } from "../../lib/controllers/userFile";
 import { stores } from "../../stores/stores";
 import UserFilesList from "../lists/UserFilesList";
@@ -50,7 +51,7 @@ const UserFileDeleteDialog = () => {
           <UserFilesList
             userFiles={[stores.userFileStore.currentUserFile]}
             direction="column"
-            sx={{ my: 1 }}
+            sx={DIALOG_SECTION_SX}
           />
         )}
       </DialogContent>

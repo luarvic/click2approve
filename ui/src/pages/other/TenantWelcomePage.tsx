@@ -1,6 +1,10 @@
 import { Box, Button, Typography } from "@mui/material";
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import {
+  PAGE_TITLE_SX,
+  TENANT_WELCOME_CONTAINER_SX,
+} from "../../data/constants";
 import { writeCurrentTenantId } from "../../lib/session";
 
 const TenantWelcomePage = () => {
@@ -16,8 +20,8 @@ const TenantWelcomePage = () => {
   }, [tenantId]);
 
   return (
-    <Box sx={{ p: 3, maxWidth: 560 }}>
-      <Typography variant="h5" sx={{ mb: 2 }}>
+    <Box sx={TENANT_WELCOME_CONTAINER_SX}>
+      <Typography variant="h5" sx={PAGE_TITLE_SX}>
         Welcome to {tenantName}
       </Typography>
       <Button variant="contained" onClick={() => navigate("/signIn")}>

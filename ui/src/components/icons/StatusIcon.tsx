@@ -1,6 +1,7 @@
 import { Check, Close, Loop, QuestionMark } from "@mui/icons-material";
 import { Tooltip } from "@mui/material";
 import React from "react";
+import { ICON_VERTICAL_ALIGN_SX } from "../../data/constants";
 import { ApprovalStatus } from "../../models/approvalStatus";
 
 interface IStatusIconProps {
@@ -11,14 +12,14 @@ const StatusIcon: React.FC<IStatusIconProps> = ({ status }) => {
   const renderStatus = () => {
     switch (status) {
       case 0:
-        return <Loop sx={{ verticalAlign: "middle" }} color="disabled" />;
+        return <Loop sx={ICON_VERTICAL_ALIGN_SX} color="disabled" />;
       case 1:
-        return <Check sx={{ verticalAlign: "middle" }} color="success" />;
+        return <Check sx={ICON_VERTICAL_ALIGN_SX} color="success" />;
       case 2:
-        return <Close sx={{ verticalAlign: "middle" }} color="error" />;
+        return <Close sx={ICON_VERTICAL_ALIGN_SX} color="error" />;
       default:
         return (
-          <QuestionMark sx={{ verticalAlign: "middle" }} color="disabled" />
+          <QuestionMark sx={ICON_VERTICAL_ALIGN_SX} color="disabled" />
         );
     }
   };

@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
+import { DIALOG_SECTION_SX } from "../../data/constants";
 import { ApprovalStatus } from "../../models/approvalStatus";
 import { stores } from "../../stores/stores";
 import { getLocaleDateTimeString } from "../../utils/helpers";
@@ -54,7 +55,7 @@ const CompletedTaskViewDialog = () => {
               .userFiles
           }
           direction="column"
-          sx={{ my: 1 }}
+          sx={DIALOG_SECTION_SX}
         />
         {stores.approvalRequestTaskStore.currentTask?.approvalRequest
           .approveBy && (
@@ -70,7 +71,7 @@ const CompletedTaskViewDialog = () => {
           text={
             stores.approvalRequestTaskStore.currentTask?.approvalRequest.comment
           }
-          sx={{ my: 1 }}
+          sx={DIALOG_SECTION_SX}
         />
         <DialogContentText>
           On{" "}
@@ -106,7 +107,7 @@ const CompletedTaskViewDialog = () => {
         </FormControl>
         <CommentPaper
           text={stores.approvalRequestTaskStore.currentTask?.comment}
-          sx={{ my: 1 }}
+          sx={DIALOG_SECTION_SX}
         />
       </DialogContent>
       <DialogActions>

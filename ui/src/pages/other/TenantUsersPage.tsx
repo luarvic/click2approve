@@ -2,6 +2,7 @@ import { Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { Navigate } from "react-router-dom";
 import TenantUsersGrid from "../../components/grids/TenantUsersGrid";
+import { PAGE_TITLE_SX } from "../../data/constants";
 import { TenantUserRole } from "../../models/tenant";
 import { stores } from "../../stores/stores";
 
@@ -21,7 +22,7 @@ const TenantUsersPage = () => {
 
   return (
     <>
-      <Typography component="h1" variant="h5" sx={{ mb: 2 }}>
+      <Typography component="h1" variant="h5" sx={PAGE_TITLE_SX}>
         Employees
       </Typography>
       <TenantUsersGrid />

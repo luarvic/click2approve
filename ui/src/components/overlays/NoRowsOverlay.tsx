@@ -1,5 +1,12 @@
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import {
+  AUTH_FORM_SX,
+  NO_ROWS_OVERLAY_COLORS,
+  NO_ROWS_OVERLAY_SVG_HEIGHT,
+  NO_ROWS_OVERLAY_SVG_WIDTH,
+  SVG_NO_SHRINK_STYLE,
+} from "../../data/constants";
 
 const NoRowsOverlay = () => {
   const StyledGridOverlay = styled("div")(({ theme }) => ({
@@ -9,28 +16,46 @@ const NoRowsOverlay = () => {
     justifyContent: "center",
     height: "100%",
     "& .ant-empty-img-1": {
-      fill: theme.palette.mode === "light" ? "#aeb8c2" : "#262626",
+      fill:
+        theme.palette.mode === "light"
+          ? NO_ROWS_OVERLAY_COLORS.image1.light
+          : NO_ROWS_OVERLAY_COLORS.image1.dark,
     },
     "& .ant-empty-img-2": {
-      fill: theme.palette.mode === "light" ? "#f5f5f7" : "#595959",
+      fill:
+        theme.palette.mode === "light"
+          ? NO_ROWS_OVERLAY_COLORS.image2.light
+          : NO_ROWS_OVERLAY_COLORS.image2.dark,
     },
     "& .ant-empty-img-3": {
-      fill: theme.palette.mode === "light" ? "#dce0e6" : "#434343",
+      fill:
+        theme.palette.mode === "light"
+          ? NO_ROWS_OVERLAY_COLORS.image3.light
+          : NO_ROWS_OVERLAY_COLORS.image3.dark,
     },
     "& .ant-empty-img-4": {
-      fill: theme.palette.mode === "light" ? "#fff" : "#1c1c1c",
+      fill:
+        theme.palette.mode === "light"
+          ? NO_ROWS_OVERLAY_COLORS.image4.light
+          : NO_ROWS_OVERLAY_COLORS.image4.dark,
     },
     "& .ant-empty-img-5": {
-      fillOpacity: theme.palette.mode === "light" ? "0.8" : "0.08",
-      fill: theme.palette.mode === "light" ? "#f5f5f5" : "#fff",
+      fillOpacity:
+        theme.palette.mode === "light"
+          ? NO_ROWS_OVERLAY_COLORS.image5FillOpacity.light
+          : NO_ROWS_OVERLAY_COLORS.image5FillOpacity.dark,
+      fill:
+        theme.palette.mode === "light"
+          ? NO_ROWS_OVERLAY_COLORS.image5.light
+          : NO_ROWS_OVERLAY_COLORS.image5.dark,
     },
   }));
   return (
     <StyledGridOverlay>
       <svg
-        style={{ flexShrink: 0 }}
-        width="240"
-        height="200"
+        style={SVG_NO_SHRINK_STYLE}
+        width={NO_ROWS_OVERLAY_SVG_WIDTH}
+        height={NO_ROWS_OVERLAY_SVG_HEIGHT}
         viewBox="0 0 184 152"
         aria-hidden
         focusable="false"
@@ -67,7 +92,7 @@ const NoRowsOverlay = () => {
           </g>
         </g>
       </svg>
-      <Box sx={{ mt: 1 }}>No Rows</Box>
+      <Box sx={AUTH_FORM_SX}>No Rows</Box>
     </StyledGridOverlay>
   );
 };

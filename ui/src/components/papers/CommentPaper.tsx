@@ -1,17 +1,26 @@
-import { Box, Paper, SxProps } from "@mui/material";
+import { Box, Paper } from "@mui/material";
+import type { SxProps } from "@mui/material";
+import type { Theme } from "@mui/material/styles";
+import {
+  COMMENT_PAPER_SX,
+  COMMENT_TEXT_SX,
+} from "../../data/constants";
 
 interface ICommentProps {
   text?: string;
-  sx?: SxProps;
+  sx?: SxProps<Theme>;
 }
 
 const CommentPaper: React.FC<ICommentProps> = ({ text, sx }) => {
   return (
     <Box>
       {text && (
-        <Paper sx={{ p: 1, mb: 1, ...sx }} variant="outlined">
+        <Paper
+          sx={[COMMENT_PAPER_SX, ...(Array.isArray(sx) ? sx : [sx])]}
+          variant="outlined"
+        >
           {(text.split(/\r?\n/) as string[]).map((line, index) => (
-            <Box key={index} sx={{ fontStyle: "italic" }}>
+            <Box key={index} sx={COMMENT_TEXT_SX}>
               {line}
             </Box>
           ))}

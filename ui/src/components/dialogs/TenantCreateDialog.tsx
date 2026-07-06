@@ -9,6 +9,11 @@ import {
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
+import {
+  DIALOG_FORM_STACK_SPACING,
+  DIALOG_TOP_SPACING_SX,
+  TENANT_DIALOG_MAX_WIDTH,
+} from "../../data/constants";
 import { stores } from "../../stores/stores";
 
 const TenantCreateDialog = () => {
@@ -26,11 +31,11 @@ const TenantCreateDialog = () => {
       open={stores.commonStore.tenantCreateDialogIsOpen}
       onClose={close}
       fullWidth
-      maxWidth="sm"
+      maxWidth={TENANT_DIALOG_MAX_WIDTH}
     >
       <DialogTitle>Create tenant</DialogTitle>
       <DialogContent>
-        <Stack spacing={2} sx={{ pt: 1 }}>
+        <Stack spacing={DIALOG_FORM_STACK_SPACING} sx={DIALOG_TOP_SPACING_SX}>
           <TextField
             label="Business name"
             required

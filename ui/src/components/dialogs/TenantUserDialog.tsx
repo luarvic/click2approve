@@ -12,7 +12,12 @@ import {
   TextField,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { EMAIL_VALIDATION_REGEX } from "../../data/constants";
+import {
+  DIALOG_FORM_STACK_SPACING,
+  DIALOG_TOP_SPACING_SX,
+  EMAIL_VALIDATION_REGEX,
+  TENANT_DIALOG_MAX_WIDTH,
+} from "../../data/constants";
 import { TenantUserRole } from "../../models/tenant";
 import {
   ITenantUser,
@@ -87,10 +92,15 @@ const TenantUserDialog: React.FC<ITenantUserDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth={TENANT_DIALOG_MAX_WIDTH}
+    >
       <DialogTitle>{isEdit ? "Edit employee" : "Add employee"}</DialogTitle>
       <DialogContent>
-        <Stack spacing={2} sx={{ pt: 1 }}>
+        <Stack spacing={DIALOG_FORM_STACK_SPACING} sx={DIALOG_TOP_SPACING_SX}>
           <TextField
             label="Email"
             value={email}

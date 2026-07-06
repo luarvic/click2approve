@@ -4,8 +4,10 @@ import {
   StepContent,
   StepLabel,
   Stepper,
-  SxProps,
 } from "@mui/material";
+import type { SxProps } from "@mui/material";
+import type { Theme } from "@mui/material/styles";
+import { DIALOG_SECTION_SX } from "../../data/constants";
 import { IApprovalRequest } from "../../models/approvalRequest";
 import { ApprovalStatus } from "../../models/approvalStatus";
 import { getLocaleDateTimeString } from "../../utils/helpers";
@@ -13,7 +15,7 @@ import CommentPaper from "../papers/CommentPaper";
 
 interface IApprovalStepsProps {
   approvalRequest: IApprovalRequest;
-  sx?: SxProps;
+  sx?: SxProps<Theme>;
 }
 
 const ApprovalSteps: React.FC<IApprovalStepsProps> = ({
@@ -35,7 +37,7 @@ const ApprovalSteps: React.FC<IApprovalStepsProps> = ({
         {task.completedDate && (
           <StepContent>
             {`on ${getLocaleDateTimeString(task.completedDate)}`}
-            <CommentPaper text={task.comment} sx={{ my: 1 }} />
+            <CommentPaper text={task.comment} sx={DIALOG_SECTION_SX} />
           </StepContent>
         )}
       </Step>
@@ -51,7 +53,7 @@ const ApprovalSteps: React.FC<IApprovalStepsProps> = ({
   );
 
   return (
-    <Box sx={{ ...sx }}>
+    <Box sx={sx}>
       <Stepper orientation="vertical" activeStep={completedTasks.length}>
         {steps}
       </Stepper>

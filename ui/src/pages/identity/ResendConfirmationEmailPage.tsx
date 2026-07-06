@@ -11,6 +11,11 @@ import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import {
+  AUTH_CONTAINER_MAX_WIDTH,
+  AUTH_FORM_CONTAINER_SX,
+  FORM_SUBMIT_BUTTON_SX,
+} from "../../data/constants";
 import { stores } from "../../stores/stores";
 import { validateEmail } from "../../utils/validators";
 
@@ -43,15 +48,8 @@ const ResendConfirmationEmailPage = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
+    <Container component="main" maxWidth={AUTH_CONTAINER_MAX_WIDTH}>
+      <Box sx={AUTH_FORM_CONTAINER_SX}>
         <Typography component="h1" variant="h5">
           Email confirmation
         </Typography>
@@ -74,7 +72,7 @@ const ResendConfirmationEmailPage = () => {
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 2, mb: 2 }}
+            sx={FORM_SUBMIT_BUTTON_SX}
           >
             Send email confirmation link
           </LoadingButton>

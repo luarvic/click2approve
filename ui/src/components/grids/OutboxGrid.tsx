@@ -16,7 +16,10 @@ import {
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import {
+  APPROVAL_GRID_COLUMN_FLEX,
   DATA_GRID_DEFAULT_PAGE_SIZE,
+  DATA_GRID_CONTAINER_SX,
+  DATA_GRID_SX,
   MAX_SIZE_WHEN_DISPLAY,
 } from "../../data/constants";
 import { ApprovalStatus } from "../../models/approvalStatus";
@@ -79,7 +82,7 @@ const OutboxGrid = () => {
     {
       field: "files",
       headerName: "Outgoing files",
-      flex: 5,
+      flex: APPROVAL_GRID_COLUMN_FLEX.content,
       valueGetter: (_value, row) =>
         row.userFiles.map((userFile: IUserFile) => userFile.name).join(", "),
       renderCell: (params) => {
@@ -91,7 +94,7 @@ const OutboxGrid = () => {
     {
       field: "status",
       headerName: "Status",
-      flex: 3,
+      flex: APPROVAL_GRID_COLUMN_FLEX.metadata,
       renderCell: (params) => {
         const label = ApprovalStatus[params.row.status];
         return (
@@ -107,20 +110,20 @@ const OutboxGrid = () => {
     {
       field: "submittedDate",
       headerName: "Submitted",
-      flex: 3,
+      flex: APPROVAL_GRID_COLUMN_FLEX.metadata,
       valueFormatter: (value) => getHumanReadableRelativeDate(value),
     },
     {
       field: "approveByDate",
       headerName: "Review by",
-      flex: 3,
+      flex: APPROVAL_GRID_COLUMN_FLEX.metadata,
       valueFormatter: (value) =>
         value && getLocaleDateTimeString(value as Date),
     },
     {
       field: "approvers",
       headerName: "Approvers",
-      flex: 5,
+      flex: APPROVAL_GRID_COLUMN_FLEX.content,
       valueGetter: (value: string[]) =>
         value.map((approver) => approver.toLowerCase()).join(", "),
       renderCell: (params) => {
@@ -134,7 +137,7 @@ const OutboxGrid = () => {
       headerName: "Action",
       headerAlign: "right",
       align: "right",
-      flex: 2,
+      flex: APPROVAL_GRID_COLUMN_FLEX.action,
       renderCell: (params) => {
         return <ApprovalRequestActionsMenu approvalRequest={params.row} />;
       },
@@ -142,7 +145,7 @@ const OutboxGrid = () => {
   ];
 
   return (
-    <Box sx={{ width: "100%", overflow: "hidden" }}>
+    <Box sx={DATA_GRID_CONTAINER_SX}>
       <DataGrid
         rows={stores.approvalRequestStore.approvalRequests}
         columns={columns}
@@ -170,10 +173,7 @@ const OutboxGrid = () => {
           noRowsOverlay: NoRowsOverlay,
           loadingOverlay: LinearProgress as GridSlots["loadingOverlay"],
         }}
-        sx={{
-          border: "none",
-          "--DataGrid-overlayHeight": "300px",
-        }}
+        sx={DATA_GRID_SX}
         autoHeight
         loading={
           stores.commonStore.isLoading("get_api/request/list") ||
