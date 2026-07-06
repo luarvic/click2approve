@@ -15,7 +15,7 @@ export class CommonStore {
   tenantCreateDialogIsOpen: boolean;
 
   constructor(
-    currentTab: Tab = Tab.Files,
+    currentTab: Tab = Tab.Inbox,
     loadingCounter: Dictionary<number> = {},
     approvalRequestSubmitDialogIsOpen: boolean = false,
     approvalRequestViewDialogIsOpen: boolean = false,

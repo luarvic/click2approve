@@ -51,7 +51,9 @@ const TaskActionsMenu: React.FC<ITaskActionsMenuProps> = ({ task }) => {
         transformOrigin={MENU_TRANSFORM_ORIGIN}
         slotProps={MENU_SLOT_PROPS}
       >
-        <MenuItem onClick={handleReview}>Review</MenuItem>
+        <MenuItem onClick={handleReview}>
+          {task.completed ? "View" : "Review"}
+        </MenuItem>
       </Menu>
     </Box>
   );

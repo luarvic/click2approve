@@ -1,5 +1,7 @@
+import { Add } from "@mui/icons-material";
 import {
   Box,
+  Button,
   Chip,
   LinearProgress,
   useMediaQuery,
@@ -25,8 +27,8 @@ import {
   getHumanReadableRelativeDate,
   getLocaleDateTimeString,
 } from "../../utils/helpers";
-import GridToolbarButtons from "../buttons/GridToolbarButtons";
 import ApprovalRequestDeleteDialog from "../dialogs/ApprovalRequestDeleteDialog";
+import ApprovalRequestSubmitDialog from "../dialogs/ApprovalRequestSubmitDialog";
 import ApprovalRequestViewDialog from "../dialogs/ApprovalRequestViewDialog";
 import ApproversList from "../lists/ApproversList";
 import UserFilesList from "../lists/UserFilesList";
@@ -56,7 +58,14 @@ const SentGrid = () => {
   const customToolbar = () => {
     return (
       <GridToolbarContainer>
-        <GridToolbarButtons />
+        <Button
+          startIcon={<Add />}
+          onClick={() =>
+            stores.commonStore.setApprovalRequestSubmitDialogIsOpen(true)
+          }
+        >
+          New request
+        </Button>
       </GridToolbarContainer>
     );
   };
@@ -149,6 +158,7 @@ const SentGrid = () => {
           },
         }}
         pageSizeOptions={[DATA_GRID_DEFAULT_PAGE_SIZE]}
+        disableColumnFilter
         disableRowSelectionOnClick
         slots={{
           toolbar: customToolbar,
@@ -165,6 +175,7 @@ const SentGrid = () => {
           stores.commonStore.isLoading("delete_api/request")
         }
       />
+      <ApprovalRequestSubmitDialog />
       <ApprovalRequestViewDialog />
       <ApprovalRequestDeleteDialog />
     </Box>

@@ -1,17 +1,17 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { Navigate } from "react-router-dom";
 import SentGrid from "../../components/grids/SentGrid";
-import NavigationTabs from "../../components/tabs/NavigationTabs";
+import { PAGE_CONTAINER_SX } from "../../data/constants";
 import { stores } from "../../stores/stores";
 
 const SentPage = () => {
   return stores.userAccountStore.currentUser ? (
-    <Box>
-      <NavigationTabs />
-      <Box sx={{ p: 2 }}>
-        <SentGrid />
-      </Box>
+    <Box sx={PAGE_CONTAINER_SX}>
+      <Typography component="h1" variant="h5" sx={{ mb: 2 }}>
+        Outgoing
+      </Typography>
+      <SentGrid />
     </Box>
   ) : (
     <Navigate to="/signIn" />

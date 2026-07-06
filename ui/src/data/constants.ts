@@ -1,4 +1,5 @@
-import { PopoverOrigin } from "@mui/material";
+import { PopoverOrigin, SxProps } from "@mui/material";
+import { Theme } from "@mui/material/styles";
 import passwordValidator from "password-validator";
 
 // API
@@ -38,6 +39,9 @@ export const DISPLAY_DEPENDING_ON_SIZE = {
 export const GRID_TOOLBAR_BUTTON_SLOT_PROPS = {
   button: { sx: { display: DISPLAY_DEPENDING_ON_SIZE } },
 };
+
+// Layout
+export const PAGE_CONTAINER_SX: SxProps<Theme> = { p: 2 };
 
 // Menus
 export const MENU_ANCHOR_ORIGIN: PopoverOrigin = {
@@ -103,4 +107,4 @@ export const ACCOUNT_LOCK_OUT_TIME_IN_MINUTES = 5;
 export const UNKNOWN_ERROR_MESSAGE = "Unknown error occurred.";
 
 // Navigation
-export const DEFAULT_PATH = "/files";
+export const DEFAULT_PATH = "/inbox";

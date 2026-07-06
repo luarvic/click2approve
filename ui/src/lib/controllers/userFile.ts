@@ -3,7 +3,9 @@ import { IUserFile } from "../../models/userFile";
 import { getUserFriendlyApiErrorMessage } from "../../utils/helpers";
 import axios from "../axios";
 
-export const fileUpload = async (files: FileList): Promise<IUserFile[]> => {
+export const fileUpload = async (
+  files: FileList | File[]
+): Promise<IUserFile[]> => {
   try {
     const formData = new FormData();
     Array.from(files).forEach((file) => {

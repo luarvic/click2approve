@@ -94,7 +94,13 @@ const MainMenuDrawer = () => {
         }
       >
         <ListItem key="incoming" disablePadding>
-          <ListItemButton disabled>
+          <ListItemButton
+            selected={location.pathname === "/inbox"}
+            onClick={() => {
+              navigate("/inbox");
+              closeTemporaryDrawer();
+            }}
+          >
             <ListItemIcon sx={listItemIconSx}>
               <Inbox />
             </ListItemIcon>
@@ -102,7 +108,13 @@ const MainMenuDrawer = () => {
           </ListItemButton>
         </ListItem>
         <ListItem key="outgoing" disablePadding>
-          <ListItemButton disabled>
+          <ListItemButton
+            selected={location.pathname === "/sent"}
+            onClick={() => {
+              navigate("/sent");
+              closeTemporaryDrawer();
+            }}
+          >
             <ListItemIcon sx={listItemIconSx}>
               <Outbox />
             </ListItemIcon>

@@ -15,8 +15,6 @@ import {
 } from "./data/constants";
 import MainLayout from "./layouts/MainLayout";
 import WrapperLayout from "./layouts/WrapperLayout";
-import ArchivePage from "./pages/approval/ArchivePage";
-import FilesPage from "./pages/approval/FilesPage";
 import InboxPage from "./pages/approval/InboxPage";
 import SentPage from "./pages/approval/SentPage";
 import ConfirmEmailPage from "./pages/identity/ConfirmEmailPage";
@@ -58,9 +56,7 @@ const App = () => {
           <Routes>
             <Route element={<MainLayout />}>
               <Route index element={<HomePage />} />
-              <Route path="/files" element={<FilesPage />} />
               <Route path="/inbox" element={<InboxPage />} />
-              <Route path="/archive" element={<ArchivePage />} />
               <Route path="/sent" element={<SentPage />} />
               <Route path="/signIn" element={<SignInPage />} />
               <Route path="/signUp" element={<SignUpPage />} />

@@ -23,7 +23,6 @@ export class ApprovalRequestTaskStore {
     this.registry = registry;
     this.currentTask = currentTask;
     this.numberOfUncompletedTasks = numberOfUncompletedTasks;
-    this.numberOfUncompletedTasks = numberOfUncompletedTasks;
     makeAutoObservable(this);
   }
 
@@ -32,12 +31,22 @@ export class ApprovalRequestTaskStore {
   }
 
   loadTasks = async (tab: Tab) => {
-    let tasks: IApprovalRequestTask[] = [];
     if (tab === Tab.Inbox) {
-      tasks = await taskListUncompleted();
-    } else if (tab === Tab.Archive) {
-      tasks = await taskListCompleted();
+      await this.loadIncomingTasks();
     }
+  };
+
+  loadIncomingTasks = async (): Promise<IApprovalRequestTask[]> => {
+    const [uncompletedTasks, completedTasks] = await Promise.all([
+      taskListUncompleted(),
+      taskListCompleted(),
+    ]);
+    const tasks = [...uncompletedTasks, ...completedTasks];
+    this.setTasks(tasks);
+    return tasks;
+  };
+
+  private setTasks = (tasks: IApprovalRequestTask[]) => {
     tasks.forEach((task) => {
       task.approvalRequest.submittedDate = new Date(
         task.approvalRequest.submitted + "Z"

@@ -1,18 +1,24 @@
 import { AccountCircle, Menu, Notifications } from "@mui/icons-material";
 import {
   AppBar,
+  Badge,
   Box,
   Button,
   IconButton,
   Link,
   MenuItem,
+  Popover,
   Select,
   Toolbar,
   Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { DEFAULT_PATH } from "../../data/constants";
+import {
+  DEFAULT_PATH,
+  UNCOMPLETED_TASKS_REFRESH_MS,
+} from "../../data/constants";
 import { stores } from "../../stores/stores";
 import { MAIN_MENU_DRAWER_WIDTH } from "../drawers/MainMenuDrawer";
 
@@ -23,14 +29,35 @@ const logoSrc = `${baseUrl}logo.svg`;
 
 const MainAppBar = () => {
   const navigate = useNavigate();
+  const [notificationAnchor, setNotificationAnchor] =
+    useState<HTMLElement | null>(null);
+  const currentUser = stores.userAccountStore.currentUser;
   const mainMenuDrawerIsOpen = stores.commonStore.mainMenuDrawerIsOpen;
   const profileDrawerIsOpen = stores.commonStore.profileDrawerIsOpen;
   const mainMenuDrawerIsVisible =
-    Boolean(stores.userAccountStore.currentUser) && mainMenuDrawerIsOpen;
+    Boolean(currentUser) && mainMenuDrawerIsOpen;
   const tenantPickerIsVisible =
     stores.productStore.tenantsAreEnabled &&
-    Boolean(stores.userAccountStore.currentUser) &&
+    Boolean(currentUser) &&
     stores.tenantStore.tenants.length > 0;
+  const numberOfUncompletedTasks =
+    stores.approvalRequestTaskStore.numberOfUncompletedTasks;
+
+  useEffect(() => {
+    if (!currentUser) {
+      return;
+    }
+
+    stores.approvalRequestTaskStore.loadNumberOfUncompletedTasks();
+    if (UNCOMPLETED_TASKS_REFRESH_MS <= 0) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      stores.approvalRequestTaskStore.loadNumberOfUncompletedTasks();
+    }, UNCOMPLETED_TASKS_REFRESH_MS);
+    return () => window.clearInterval(intervalId);
+  }, [currentUser]);
 
   return (
     <AppBar
@@ -61,7 +88,7 @@ const MainAppBar = () => {
       }}
     >
       <Toolbar disableGutters sx={{ minHeight: 64, pl: 2, pr: 2 }}>
-        {stores.userAccountStore.currentUser && (
+        {currentUser && (
           <IconButton
             color="inherit"
             edge="start"
@@ -92,7 +119,7 @@ const MainAppBar = () => {
             }}
             onClick={() => {
               navigate(
-                stores.userAccountStore.currentUser ? DEFAULT_PATH : "/"
+                currentUser ? DEFAULT_PATH : "/"
               );
             }}
           >
@@ -160,7 +187,7 @@ const MainAppBar = () => {
             ))}
           </Select>
         )}
-        {!stores.userAccountStore.currentUser ? (
+        {!currentUser ? (
           <Button
             variant="outlined"
             color="inherit"
@@ -170,9 +197,34 @@ const MainAppBar = () => {
           </Button>
         ) : (
           <>
-            <IconButton color="inherit" aria-label="Notifications">
-              <Notifications />
+            <IconButton
+              color="inherit"
+              aria-label="Notifications"
+              onClick={(event) => setNotificationAnchor(event.currentTarget)}
+            >
+              <Badge badgeContent={numberOfUncompletedTasks} color="error">
+                <Notifications />
+              </Badge>
             </IconButton>
+            <Popover
+              open={Boolean(notificationAnchor)}
+              anchorEl={notificationAnchor}
+              onClose={() => setNotificationAnchor(null)}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "right",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+            >
+              <Typography sx={{ p: 2, maxWidth: 280 }}>
+                {numberOfUncompletedTasks === 1
+                  ? "You have 1 incoming request that needs to be reviewed."
+                  : `You have ${numberOfUncompletedTasks} incoming requests that need to be reviewed.`}
+              </Typography>
+            </Popover>
             <IconButton
               color="inherit"
               aria-label="Open profile"

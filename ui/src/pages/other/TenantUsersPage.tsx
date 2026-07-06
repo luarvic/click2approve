@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { Navigate } from "react-router-dom";
 import TenantUsersGrid from "../../components/grids/TenantUsersGrid";
@@ -20,12 +20,12 @@ const TenantUsersPage = () => {
   }
 
   return (
-    <Box sx={{ p: 2 }}>
+    <>
       <Typography component="h1" variant="h5" sx={{ mb: 2 }}>
         Employees
       </Typography>
       <TenantUsersGrid />
-    </Box>
+    </>
   );
 };
 

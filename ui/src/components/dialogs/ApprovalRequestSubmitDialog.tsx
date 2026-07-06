@@ -1,5 +1,10 @@
 import {
+  AttachFile,
+  Close,
+} from "@mui/icons-material";
+import {
   Autocomplete,
+  Box,
   Button,
   Chip,
   Dialog,
@@ -7,6 +12,10 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
   TextField,
 } from "@mui/material";
 import {
@@ -16,17 +25,38 @@ import {
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
 import { observer } from "mobx-react-lite";
-import { useState } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { approvalRequestSubmit } from "../../lib/controllers/approvalRequest";
 import { stores } from "../../stores/stores";
 import { validateEmails } from "../../utils/validators";
-import UserFilesList from "../lists/UserFilesList";
 
 const ApprovalRequestSubmitDialog = () => {
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [approvers, setApprovers] = useState<string[]>([]);
   const [approveBy, setApproveBy] = useState<Dayjs | null>(null);
   const [approversError, setApproversError] = useState(false);
+  const [filesError, setFilesError] = useState(false);
+
+  const handleUploadClick = () => {
+    fileInput.current?.click();
+  };
+
+  const handleFilesChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(event.currentTarget.files ?? []);
+    if (selectedFiles.length === 0) {
+      return;
+    }
+
+    setFiles((currentFiles) => [...currentFiles, ...selectedFiles]);
+    setFilesError(false);
+    event.currentTarget.value = "";
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setFiles((currentFiles) => currentFiles.filter((_, i) => i !== index));
+  };
 
   const handleApproversChange = (
     _event: React.SyntheticEvent<Element, Event>,
@@ -51,9 +81,11 @@ const ApprovalRequestSubmitDialog = () => {
   };
 
   const cleanUp = () => {
+    setFiles([]);
     setApprovers([]);
     setApproveBy(null);
     setApproversError(false);
+    setFilesError(false);
   };
 
   const handleClose = () => {
@@ -72,12 +104,21 @@ const ApprovalRequestSubmitDialog = () => {
           event.preventDefault();
           const data = new FormData(event.currentTarget);
           const comment = data.get("comment");
-          if (!validateEmails(approvers)) {
+          if (files.length === 0) {
+            setFilesError(true);
+            toast.error("Add one or more files.");
+          } else if (!validateEmails(approvers)) {
             setApproversError(true);
             toast.error("Invalid input.");
           } else {
+            const uploadedFiles = await stores.userFileStore.addUserFiles(files);
+            if (uploadedFiles.length !== files.length) {
+              toast.error("One or more files could not be uploaded.");
+              return;
+            }
+
             const didSubmit = await approvalRequestSubmit(
-              stores.userFileStore.getSelectedUserFiles(),
+              uploadedFiles,
               approvers.map((a) => a.toLowerCase().trim()),
               approveBy ? approveBy.toDate() : null,
               comment?.toString()
@@ -86,21 +127,53 @@ const ApprovalRequestSubmitDialog = () => {
               stores.commonStore.setApprovalRequestSubmitDialogIsOpen(false);
               toast.success("The request was successfully sent");
               cleanUp();
+              stores.approvalRequestStore.clearApprovalRequests();
+              stores.approvalRequestStore.loadApprovalRequests();
+              stores.approvalRequestTaskStore.loadNumberOfUncompletedTasks();
             }
           }
         },
       }}
     >
-      <DialogTitle>Send file(s)</DialogTitle>
+      <DialogTitle>New approval request</DialogTitle>
       <DialogContent dividers>
-        <DialogContentText>
-          You are about to send the following file(s) for review:
-        </DialogContentText>
-        <UserFilesList
-          userFiles={stores.userFileStore.getSelectedUserFiles()}
-          direction="column"
-          sx={{ my: 1 }}
-        />
+        <Box sx={{ mb: 1 }}>
+          <Button startIcon={<AttachFile />} onClick={handleUploadClick}>
+            Add files
+          </Button>
+          <input
+            type="file"
+            multiple
+            onChange={handleFilesChange}
+            ref={fileInput}
+            style={{ display: "none" }}
+          />
+        </Box>
+        {files.length > 0 ? (
+          <List dense disablePadding sx={{ mb: 1 }}>
+            {files.map((file, index) => (
+              <ListItem
+                key={`${file.name}-${file.lastModified}-${index}`}
+                disableGutters
+                secondaryAction={
+                  <IconButton
+                    edge="end"
+                    aria-label={`Remove ${file.name}`}
+                    onClick={() => handleRemoveFile(index)}
+                  >
+                    <Close />
+                  </IconButton>
+                }
+              >
+                <ListItemText primary={file.name} secondary={file.type} />
+              </ListItem>
+            ))}
+          </List>
+        ) : (
+          <DialogContentText color={filesError ? "error" : "text.secondary"}>
+            Add one or more files for review.
+          </DialogContentText>
+        )}
         <Autocomplete
           multiple
           options={[]}
@@ -119,7 +192,7 @@ const ApprovalRequestSubmitDialog = () => {
               margin="normal"
               error={approversError}
               helperText={
-                approversError && "Specify one ore more valid email addresses"
+                approversError && "Specify one or more valid email addresses"
               }
             />
           )}

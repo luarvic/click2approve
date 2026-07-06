@@ -16,7 +16,6 @@ import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { taskComplete } from "../../lib/controllers/approvalRequestTask";
 import { ApprovalStatus } from "../../models/approvalStatus";
-import { Tab } from "../../models/tab";
 import { stores } from "../../stores/stores";
 import { getLocaleDateTimeString } from "../../utils/helpers";
 import UserFilesList from "../lists/UserFilesList";
@@ -64,7 +63,7 @@ const UncompletedTaskReviewDialog = () => {
                 stores.commonStore.setTaskReviewDialogIsOpen(false);
                 cleanUp();
                 stores.approvalRequestTaskStore.clearTasks();
-                stores.approvalRequestTaskStore.loadTasks(Tab.Inbox);
+                stores.approvalRequestTaskStore.loadIncomingTasks();
                 stores.approvalRequestTaskStore.loadNumberOfUncompletedTasks();
               }
             }

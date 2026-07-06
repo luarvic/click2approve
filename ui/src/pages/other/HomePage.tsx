@@ -1,8 +1,8 @@
 import { observer } from "mobx-react-lite";
-import FilesPage from "../approval/FilesPage";
+import InboxPage from "../approval/InboxPage";
 
 const HomePage = () => {
-  return <FilesPage />;
+  return <InboxPage />;
 };
 
 export default observer(HomePage);

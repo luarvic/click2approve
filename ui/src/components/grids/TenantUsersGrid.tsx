@@ -17,7 +17,6 @@ import {
   TenantUserStatus,
 } from "../../models/tenantUser";
 import { stores } from "../../stores/stores";
-import GridToolbarButtons from "../buttons/GridToolbarButtons";
 import TenantUserDialog from "../dialogs/TenantUserDialog";
 import TenantUserActionsMenu from "../menus/TenantUserActionsMenu";
 import NoRowsOverlay from "../overlays/NoRowsOverlay";
@@ -85,7 +84,6 @@ const TenantUsersGrid = () => {
         <Button startIcon={<Add />} onClick={openCreateDialog}>
           Add employee
         </Button>
-        <GridToolbarButtons />
       </GridToolbarContainer>
     );
   };
@@ -171,6 +169,7 @@ const TenantUsersGrid = () => {
           },
         }}
         pageSizeOptions={[DATA_GRID_DEFAULT_PAGE_SIZE]}
+        disableColumnFilter
         disableRowSelectionOnClick
         slots={{
           toolbar: customToolbar,

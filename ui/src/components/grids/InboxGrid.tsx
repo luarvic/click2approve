@@ -1,9 +1,14 @@
-import { Box, LinearProgress, useMediaQuery, useTheme } from "@mui/material";
+import {
+  Box,
+  Chip,
+  LinearProgress,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import {
   DataGrid,
   GridColDef,
   GridSlots,
-  GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
@@ -11,6 +16,7 @@ import {
   DATA_GRID_DEFAULT_PAGE_SIZE,
   MAX_SIZE_WHEN_DISPLAY,
 } from "../../data/constants";
+import { ApprovalStatus } from "../../models/approvalStatus";
 import { Tab } from "../../models/tab";
 import { IUserFile } from "../../models/userFile";
 import { stores } from "../../stores/stores";
@@ -18,7 +24,7 @@ import {
   getHumanReadableRelativeDate,
   getLocaleDateTimeString,
 } from "../../utils/helpers";
-import GridToolbarButtons from "../buttons/GridToolbarButtons";
+import CompletedTaskViewDialog from "../dialogs/CompletedTaskViewDialog";
 import UncompletedTaskReviewDialog from "../dialogs/UncompletedTaskReviewDialog";
 import UserFilesList from "../lists/UserFilesList";
 import TaskActionsMenu from "../menus/TaskActionsMenu";
@@ -27,19 +33,22 @@ import NoRowsOverlay from "../overlays/NoRowsOverlay";
 const InboxGrid = () => {
   const theme = useTheme();
 
+  const getStatusChipColor = (status: ApprovalStatus) => {
+    switch (status) {
+      case ApprovalStatus.Approved:
+        return "success" as const;
+      case ApprovalStatus.Rejected:
+        return "error" as const;
+      default:
+        return "default" as const;
+    }
+  };
+
   useEffect(() => {
     stores.commonStore.setCurrentTab(Tab.Inbox);
     stores.approvalRequestTaskStore.clearTasks();
-    stores.approvalRequestTaskStore.loadTasks(Tab.Inbox);
+    stores.approvalRequestTaskStore.loadIncomingTasks();
   }, []);
-
-  const customToolbar = () => {
-    return (
-      <GridToolbarContainer>
-        <GridToolbarButtons />
-      </GridToolbarContainer>
-    );
-  };
 
   const columns: GridColDef[] = [
     {
@@ -65,6 +74,28 @@ const InboxGrid = () => {
       flex: 3,
       valueGetter: (_value, row) =>
         getHumanReadableRelativeDate(row.approvalRequest.submittedDate),
+    },
+    {
+      field: "status",
+      headerName: "Status",
+      flex: 3,
+      renderCell: (params) => {
+        const label =
+          params.row.status === ApprovalStatus.Submitted
+            ? "Pending"
+            : ApprovalStatus[params.row.status];
+        return (
+          <Chip
+            label={label}
+            size="small"
+            color={getStatusChipColor(params.row.status)}
+          />
+        );
+      },
+      valueGetter: (_value, row) =>
+        row.status === ApprovalStatus.Submitted
+          ? "Pending"
+          : ApprovalStatus[row.status],
     },
     {
       field: "reviewBy",
@@ -101,6 +132,7 @@ const InboxGrid = () => {
         columns={columns}
         columnVisibilityModel={{
           received: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
+          status: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
           reviewBy: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
           requester: useMediaQuery(theme.breakpoints.up(MAX_SIZE_WHEN_DISPLAY)),
         }}
@@ -112,9 +144,9 @@ const InboxGrid = () => {
           },
         }}
         pageSizeOptions={[DATA_GRID_DEFAULT_PAGE_SIZE]}
+        disableColumnFilter
         disableRowSelectionOnClick
         slots={{
-          toolbar: customToolbar,
           noRowsOverlay: NoRowsOverlay,
           loadingOverlay: LinearProgress as GridSlots["loadingOverlay"],
         }}
@@ -125,10 +157,15 @@ const InboxGrid = () => {
         autoHeight
         loading={
           stores.commonStore.isLoading("get_api/task/listUncompleted") ||
+          stores.commonStore.isLoading("get_api/task/listCompleted") ||
           stores.commonStore.isLoading("post_api/task/complete")
         }
       />
-      <UncompletedTaskReviewDialog />
+      {stores.approvalRequestTaskStore.currentTask?.completed ? (
+        <CompletedTaskViewDialog />
+      ) : (
+        <UncompletedTaskReviewDialog />
+      )}
     </Box>
   );
 };

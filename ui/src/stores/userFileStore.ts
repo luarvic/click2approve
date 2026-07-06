@@ -31,7 +31,7 @@ export class UserFileStore {
     });
   };
 
-  addUserFiles = async (files: FileList) => {
+  addUserFiles = async (files: FileList | File[]): Promise<IUserFile[]> => {
     const userFiles = await fileUpload(files);
     userFiles.forEach(async (userFile) => {
       userFile.createdDate = new Date(userFile.created);
@@ -39,6 +39,7 @@ export class UserFileStore {
         this.registry.set(userFile.id, userFile);
       });
     });
+    return userFiles;
   };
 
   clearUserFiles = () => {
