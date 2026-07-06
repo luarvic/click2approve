@@ -1,21 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="0 0 24 24"
-     width="24" height="24"
-     fill="none"
-     role="img"
-     aria-label="click2approve®">
-    <g transform="rotate(45 12 12)">
-      <rect x="7.5" y="7.5"
-        width="13" height="13"
-        rx="3"
-        fill="#22C55E" />
-    </g>
-    <g transform="rotate(45 12 12)">
-      <rect x="3" y="3"
-        width="13" height="13"
-        rx="3"
-        fill="#FFFFFF"
-        stroke="#22C55E"
-        stroke-width="0.8" />
-    </g>
+  viewBox="0 0 24 24"
+  width="24"
+  height="24"
+  fill="none"
+  role="img"
+  aria-label="click2approve">
+  <rect
+    x="3.5"
+    y="3.5"
+    width="12"
+    height="12"
+    rx="3"
+    fill="#FFFFFF"
+    stroke="#22C55E"
+    stroke-width="2" />
+  <path
+    d="M8 8L18.5 13.5L14 14.5L16.75 19.5L14.25 20.75L11.5 15.75L8.5 19.25V8.75C8.5 8.25 8.3 8.05 8 8Z"
+    fill="#111827"
+    stroke="#FFFFFF"
+    stroke-linejoin="round"
+    stroke-width="0.8" />
 </svg>

@@ -83,7 +83,7 @@ const TenantUsersGrid = () => {
     return (
       <GridToolbarContainer>
         <Button startIcon={<Add />} onClick={openCreateDialog}>
-          Add user
+          Add employee
         </Button>
         <GridToolbarButtons />
       </GridToolbarContainer>

@@ -88,7 +88,7 @@ const TenantUserDialog: React.FC<ITenantUserDialogProps> = ({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>{isEdit ? "Edit tenant user" : "Add tenant user"}</DialogTitle>
+      <DialogTitle>{isEdit ? "Edit employee" : "Add employee"}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ pt: 1 }}>
           <TextField

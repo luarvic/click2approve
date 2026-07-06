@@ -22,7 +22,7 @@ const TenantUsersPage = () => {
   return (
     <Box sx={{ p: 2 }}>
       <Typography component="h1" variant="h5" sx={{ mb: 2 }}>
-        Tenant users
+        Employees
       </Typography>
       <TenantUsersGrid />
     </Box>

@@ -10,7 +10,8 @@ export class CommonStore {
   approvalRequestDeleteDialogIsOpen: boolean;
   taskReviewDialogIsOpen: boolean;
   userFileDeleteDialogIsOpen: boolean;
-  userSettingsDrawerIsOpen: boolean;
+  mainMenuDrawerIsOpen: boolean;
+  profileDrawerIsOpen: boolean;
   tenantCreateDialogIsOpen: boolean;
 
   constructor(
@@ -21,7 +22,8 @@ export class CommonStore {
     approvalRequestDeleteDialogIsOpen: boolean = false,
     taskReviewDialogIsOpen: boolean = false,
     userFileDeleteDialogIsOpen: boolean = false,
-    userSettingsDrawerIsOpen: boolean = false,
+    mainMenuDrawerIsOpen: boolean = false,
+    profileDrawerIsOpen: boolean = false,
     tenantCreateDialogIsOpen: boolean = false
   ) {
     this.currentTab = currentTab;
@@ -31,7 +33,8 @@ export class CommonStore {
     this.approvalRequestDeleteDialogIsOpen = approvalRequestDeleteDialogIsOpen;
     this.taskReviewDialogIsOpen = taskReviewDialogIsOpen;
     this.userFileDeleteDialogIsOpen = userFileDeleteDialogIsOpen;
-    this.userSettingsDrawerIsOpen = userSettingsDrawerIsOpen;
+    this.mainMenuDrawerIsOpen = mainMenuDrawerIsOpen;
+    this.profileDrawerIsOpen = profileDrawerIsOpen;
     this.tenantCreateDialogIsOpen = tenantCreateDialogIsOpen;
     makeAutoObservable(this);
   }
@@ -93,9 +96,15 @@ export class CommonStore {
     });
   };
 
-  setUserSettingsDrawerIsOpen = (isOpen: boolean) => {
+  setMainMenuDrawerIsOpen = (isOpen: boolean) => {
     runInAction(() => {
-      this.userSettingsDrawerIsOpen = isOpen;
+      this.mainMenuDrawerIsOpen = isOpen;
+    });
+  };
+
+  setProfileDrawerIsOpen = (isOpen: boolean) => {
+    runInAction(() => {
+      this.profileDrawerIsOpen = isOpen;
     });
   };
 
