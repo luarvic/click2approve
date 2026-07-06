@@ -28,6 +28,6 @@ describe("<App />", () => {
     expect(wrapper).toBeTruthy();
 
     const heading = await screen.findByRole("heading", { level: 6 });
-    expect(heading.textContent).toBe("click2approve");
+    expect(heading.textContent).toBe("Click2approve");
   });
 });

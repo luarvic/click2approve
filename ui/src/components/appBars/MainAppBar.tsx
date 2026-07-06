@@ -151,7 +151,7 @@ const MainAppBar = () => {
                 whiteSpace: "nowrap",
               }}
             >
-              click2approve
+              Click2approve
             </Typography>
           </Link>
         </Box>
