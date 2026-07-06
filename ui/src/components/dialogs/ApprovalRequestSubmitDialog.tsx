@@ -136,7 +136,7 @@ const ApprovalRequestSubmitDialog = () => {
       }}
     >
       <DialogTitle>New approval request</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent>
         <Box sx={{ mb: 1 }}>
           <Button startIcon={<AttachFile />} onClick={handleUploadClick}>
             Add files

@@ -72,7 +72,7 @@ const UncompletedTaskReviewDialog = () => {
       }}
     >
       <DialogTitle>Review the file(s)</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent>
         <DialogContentText>
           {stores.approvalRequestTaskStore.currentTask?.approvalRequest.author.toLowerCase()}{" "}
           on{" "}

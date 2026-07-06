@@ -139,7 +139,7 @@ const TenantUserDialog: React.FC<ITenantUserDialogProps> = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" onClick={handleSubmit}>
+        <Button onClick={handleSubmit}>
           Save
         </Button>
       </DialogActions>

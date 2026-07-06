@@ -1,5 +1,5 @@
-import LoadingButton from "@mui/lab/LoadingButton";
 import {
+  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -29,7 +29,7 @@ const TenantCreateDialog = () => {
       maxWidth="sm"
     >
       <DialogTitle>Create tenant</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent>
         <Stack spacing={2} sx={{ pt: 1 }}>
           <TextField
             label="Business name"
@@ -65,9 +65,8 @@ const TenantCreateDialog = () => {
         </Stack>
       </DialogContent>
       <DialogActions>
-        <LoadingButton onClick={close}>Cancel</LoadingButton>
-        <LoadingButton
-          variant="contained"
+        <Button onClick={close}>Cancel</Button>
+        <Button
           disabled={!businessName.trim()}
           onClick={async () => {
             const created = await stores.tenantStore.create({
@@ -90,7 +89,7 @@ const TenantCreateDialog = () => {
           }}
         >
           Create
-        </LoadingButton>
+        </Button>
       </DialogActions>
     </Dialog>
   );

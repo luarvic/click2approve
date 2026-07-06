@@ -44,7 +44,7 @@ const ApprovalRequestDeleteDialog = () => {
       }}
     >
       <DialogTitle>Delete approval request</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent>
         <DialogContentText>
           On{" "}
           {getLocaleDateTimeString(
@@ -81,7 +81,7 @@ const ApprovalRequestDeleteDialog = () => {
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button type="submit" color="error">
+        <Button type="submit">
           Delete
         </Button>
       </DialogActions>

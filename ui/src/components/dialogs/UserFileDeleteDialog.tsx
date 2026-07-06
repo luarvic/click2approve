@@ -41,7 +41,7 @@ const UserFileDeleteDialog = () => {
       }}
     >
       <DialogTitle>Delete file</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent>
         <DialogContentText>
           Are you sure you want to delete the following file together with all
           related approval requests? This cannot be undone.
@@ -56,7 +56,7 @@ const UserFileDeleteDialog = () => {
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button type="submit" color="error">
+        <Button type="submit">
           Delete
         </Button>
       </DialogActions>

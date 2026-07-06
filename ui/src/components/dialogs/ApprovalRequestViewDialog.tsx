@@ -26,7 +26,7 @@ const ApprovalRequestViewDialog = () => {
       fullWidth
     >
       <DialogTitle>Track approval request</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent>
         <DialogContentText>
           On{" "}
           {getLocaleDateTimeString(
