@@ -17,7 +17,6 @@ import {
   MAX_SIZE_WHEN_DISPLAY,
 } from "../../data/constants";
 import { ApprovalStatus } from "../../models/approvalStatus";
-import { Tab } from "../../models/tab";
 import { IUserFile } from "../../models/userFile";
 import { stores } from "../../stores/stores";
 import {
@@ -45,7 +44,6 @@ const InboxGrid = () => {
   };
 
   useEffect(() => {
-    stores.commonStore.setCurrentTab(Tab.Inbox);
     stores.approvalRequestTaskStore.clearTasks();
     stores.approvalRequestTaskStore.loadIncomingTasks();
   }, []);

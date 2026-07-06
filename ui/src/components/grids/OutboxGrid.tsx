@@ -20,7 +20,6 @@ import {
   MAX_SIZE_WHEN_DISPLAY,
 } from "../../data/constants";
 import { ApprovalStatus } from "../../models/approvalStatus";
-import { Tab } from "../../models/tab";
 import { IUserFile } from "../../models/userFile";
 import { stores } from "../../stores/stores";
 import {
@@ -35,7 +34,7 @@ import UserFilesList from "../lists/UserFilesList";
 import ApprovalRequestActionsMenu from "../menus/ApprovalRequestActionsMenu";
 import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
-const SentGrid = () => {
+const OutboxGrid = () => {
   const theme = useTheme();
 
   const getStatusChipColor = (status: ApprovalStatus) => {
@@ -50,7 +49,6 @@ const SentGrid = () => {
   };
 
   useEffect(() => {
-    stores.commonStore.setCurrentTab(Tab.Sent);
     stores.approvalRequestStore.clearApprovalRequests();
     stores.approvalRequestStore.loadApprovalRequests();
   }, []);
@@ -73,7 +71,7 @@ const SentGrid = () => {
   const columns: GridColDef[] = [
     {
       field: "files",
-      headerName: "Sent files",
+      headerName: "Outgoing files",
       flex: 5,
       valueGetter: (_value, row) =>
         row.userFiles.map((userFile: IUserFile) => userFile.name).join(", "),
@@ -101,7 +99,7 @@ const SentGrid = () => {
     },
     {
       field: "submittedDate",
-      headerName: "Sent",
+      headerName: "Submitted",
       flex: 3,
       valueFormatter: (value) => getHumanReadableRelativeDate(value),
     },
@@ -182,4 +180,4 @@ const SentGrid = () => {
   );
 };
 
-export default observer(SentGrid);
+export default observer(OutboxGrid);

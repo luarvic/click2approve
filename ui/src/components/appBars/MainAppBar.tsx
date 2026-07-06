@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   DEFAULT_PATH,
   UNCOMPLETED_TASKS_REFRESH_MS,
@@ -28,6 +28,7 @@ const baseUrl = import.meta.env.BASE_URL.endsWith("/")
 const logoSrc = `${baseUrl}logo.svg`;
 
 const MainAppBar = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const [notificationAnchor, setNotificationAnchor] =
     useState<HTMLElement | null>(null);
@@ -163,9 +164,9 @@ const MainAppBar = () => {
               await stores.userFileStore.loadUserFiles();
               await stores.approvalRequestStore.loadApprovalRequests();
               await stores.approvalRequestTaskStore.loadNumberOfUncompletedTasks();
-              await stores.approvalRequestTaskStore.loadTasks(
-                stores.commonStore.currentTab
-              );
+              if (location.pathname === "/inbox") {
+                await stores.approvalRequestTaskStore.loadIncomingTasks();
+              }
             }}
             sx={{
               flex: "0 1 auto",

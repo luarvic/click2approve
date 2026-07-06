@@ -109,9 +109,9 @@ const MainMenuDrawer = () => {
         </ListItem>
         <ListItem key="outgoing" disablePadding>
           <ListItemButton
-            selected={location.pathname === "/sent"}
+            selected={location.pathname === "/outbox"}
             onClick={() => {
-              navigate("/sent");
+              navigate("/outbox");
               closeTemporaryDrawer();
             }}
           >

@@ -5,7 +5,6 @@ import {
   taskListUncompleted,
 } from "../lib/controllers/approvalRequestTask";
 import { IApprovalRequestTask } from "../models/approvalRequestTask";
-import { Tab } from "../models/tab";
 
 export class ApprovalRequestTaskStore {
   registry: Map<number, IApprovalRequestTask>;
@@ -29,12 +28,6 @@ export class ApprovalRequestTaskStore {
   get tasks(): IApprovalRequestTask[] {
     return Array.from(this.registry.values()).sort((a, b) => b.id - a.id);
   }
-
-  loadTasks = async (tab: Tab) => {
-    if (tab === Tab.Inbox) {
-      await this.loadIncomingTasks();
-    }
-  };
 
   loadIncomingTasks = async (): Promise<IApprovalRequestTask[]> => {
     const [uncompletedTasks, completedTasks] = await Promise.all([

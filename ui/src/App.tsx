@@ -16,7 +16,7 @@ import {
 import MainLayout from "./layouts/MainLayout";
 import WrapperLayout from "./layouts/WrapperLayout";
 import InboxPage from "./pages/approval/InboxPage";
-import SentPage from "./pages/approval/SentPage";
+import OutboxPage from "./pages/approval/OutboxPage";
 import ConfirmEmailPage from "./pages/identity/ConfirmEmailPage";
 import ForgotPasswordPage from "./pages/identity/ForgotPasswordPage";
 import ResendConfirmationEmailPage from "./pages/identity/ResendConfirmationEmailPage";
@@ -57,7 +57,7 @@ const App = () => {
             <Route element={<MainLayout />}>
               <Route index element={<HomePage />} />
               <Route path="/inbox" element={<InboxPage />} />
-              <Route path="/sent" element={<SentPage />} />
+              <Route path="/outbox" element={<OutboxPage />} />
               <Route path="/signIn" element={<SignInPage />} />
               <Route path="/signUp" element={<SignUpPage />} />
               <Route path="/forgotPassword" element={<ForgotPasswordPage />} />

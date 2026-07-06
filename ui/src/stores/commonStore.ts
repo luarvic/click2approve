@@ -1,9 +1,7 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { Dictionary } from "../models/dictionary";
-import { Tab } from "../models/tab";
 
 export class CommonStore {
-  currentTab: Tab;
   loadingCounter: Dictionary<number>;
   approvalRequestSubmitDialogIsOpen: boolean;
   approvalRequestViewDialogIsOpen: boolean;
@@ -15,7 +13,6 @@ export class CommonStore {
   tenantCreateDialogIsOpen: boolean;
 
   constructor(
-    currentTab: Tab = Tab.Inbox,
     loadingCounter: Dictionary<number> = {},
     approvalRequestSubmitDialogIsOpen: boolean = false,
     approvalRequestViewDialogIsOpen: boolean = false,
@@ -26,7 +23,6 @@ export class CommonStore {
     profileDrawerIsOpen: boolean = false,
     tenantCreateDialogIsOpen: boolean = false
   ) {
-    this.currentTab = currentTab;
     this.loadingCounter = loadingCounter;
     this.approvalRequestSubmitDialogIsOpen = approvalRequestSubmitDialogIsOpen;
     this.approvalRequestViewDialogIsOpen = approvalRequestViewDialogIsOpen;
@@ -58,12 +54,6 @@ export class CommonStore {
     return Object.entries(this.loadingCounter).some(
       ([loader, counter]) => loader.startsWith(loaderPrefix) && counter > 0
     );
-  };
-
-  setCurrentTab = (tab: Tab): void => {
-    runInAction(() => {
-      this.currentTab = tab;
-    });
   };
 
   setApprovalRequestSubmitDialogIsOpen = (isOpen: boolean) => {
