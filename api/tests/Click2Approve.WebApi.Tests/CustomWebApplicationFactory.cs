@@ -1,6 +1,6 @@
 using System.Data.Common;
 using Click2Approve.Infrastructure.Persistence;
-using Click2Approve.Application.Services.StoreService;
+using Click2Approve.Application.Services.FileStorage;
 using Click2Approve.WebApi.Tests.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -43,9 +43,9 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
                 options.UseSqlite(connection);
             });
 
-            // Replace StoreService with MockStoreService.
-            services.RemoveAll<IStoreService>();
-            services.AddSingleton<IStoreService, MockStoreService>();
+            // Replace file storage with in-memory test storage.
+            services.RemoveAll<IFileStorage>();
+            services.AddSingleton<IFileStorage, MockFileStorage>();
         });
     }
 }

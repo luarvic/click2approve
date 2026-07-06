@@ -1,4 +1,4 @@
-using Click2Approve.Application.Services.StoreService;
+using Click2Approve.Application.Services.FileStorage;
 using Microsoft.Extensions.Configuration;
 
 namespace Click2Approve.WebApi.Tests.Services;
@@ -6,12 +6,12 @@ namespace Click2Approve.WebApi.Tests.Services;
 /// <summary>
 /// Mocks a service that manages binary files.
 /// </summary>
-public class MockStoreService(IConfiguration configuration) : IStoreService
+public class MockFileStorage(IConfiguration configuration) : IFileStorage
 {
     private readonly Dictionary<string, byte[]> _files = [];
     private readonly string _rootPath = configuration["FileStorage:RootPath"] ?? throw new Exception("File storage root path is not defined.");
 
-    public Task AddFileAsync(string path, byte[] bytes, CancellationToken cancellationToken)
+    public Task SaveAsync(string path, byte[] bytes, CancellationToken cancellationToken)
     {
         try
         {
@@ -25,12 +25,14 @@ public class MockStoreService(IConfiguration configuration) : IStoreService
         }
     }
 
-    public void DeleteFile(string path)
+    public Task DeleteAsync(string path, CancellationToken cancellationToken)
     {
         try
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var fullPath = Path.Combine(_rootPath, path);
             _files.Remove(fullPath);
+            return Task.CompletedTask;
         }
         catch (Exception e)
         {
@@ -38,7 +40,7 @@ public class MockStoreService(IConfiguration configuration) : IStoreService
         }
     }
 
-    public Task<byte[]> GetFileAsync(string path, CancellationToken cancellationToken)
+    public Task<byte[]> ReadAsync(string path, CancellationToken cancellationToken)
     {
         try
         {
