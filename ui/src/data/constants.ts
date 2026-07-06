@@ -1,7 +1,7 @@
 import type { PopoverOrigin, SxProps } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
-import type { CSSProperties } from "react";
 import passwordValidator from "password-validator";
+import type { CSSProperties } from "react";
 
 // API
 export const API_BASE_URI = import.meta.env.VITE_API_BASE_URI;
@@ -255,19 +255,18 @@ export const PERSISTENT_DRAWER_SX: SxProps<Theme> = {
 };
 export const DRAWER_COMPOSE_ACTION_CONTAINER_SX: SxProps<Theme> = {
   px: 2,
-  pb: 1,
 };
 export const DRAWER_COMPOSE_BUTTON_SX: SxProps<Theme> = {
   justifyContent: "center",
-  borderColor: "divider",
+  border: 0,
   borderRadius: 1,
   my: 1,
+  bgcolor: (theme) => theme.palette.primary.main + "14",
   px: 2,
   py: 1.25,
-  textTransform: "none",
   "&:hover": {
-    borderColor: "text.secondary",
-    bgcolor: "action.hover",
+    border: 0,
+    bgcolor: (theme) => theme.palette.primary.main + "1F",
   },
 };
 export const PROFILE_DRAWER_CONTENT_SX: SxProps<Theme> = { minWidth: 280 };
