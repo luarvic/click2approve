@@ -88,7 +88,7 @@ const MainMenuDrawer = () => {
       <List
         subheader={
           <ListSubheader component="div" sx={LIST_SECTION_HEADER_SX}>
-            Approvals
+            Approval Requests
           </ListSubheader>
         }
       >

@@ -9,7 +9,7 @@ const InboxPage = () => {
   return stores.userAccountStore.currentUser ? (
     <Box sx={PAGE_CONTAINER_SX}>
       <Typography component="h1" variant="h5" sx={PAGE_TITLE_SX}>
-        Incoming
+        Incoming Requests
       </Typography>
       <InboxGrid />
     </Box>
