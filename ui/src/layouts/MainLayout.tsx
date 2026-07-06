@@ -2,6 +2,7 @@ import { Box, Toolbar } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { Outlet } from "react-router-dom";
 import MainAppBar from "../components/appBars/MainAppBar";
+import ApprovalRequestSubmitDialog from "../components/dialogs/ApprovalRequestSubmitDialog";
 import TenantCreateDialog from "../components/dialogs/TenantCreateDialog";
 import MainMenuDrawer, {
   MAIN_MENU_DRAWER_WIDTH,
@@ -32,6 +33,7 @@ const MainLayout = () => {
         <Toolbar sx={{ minHeight: 64 }} />
         <ProfileDrawer />
         <TenantCreateDialog />
+        <ApprovalRequestSubmitDialog />
         <Outlet />
       </Box>
     </>

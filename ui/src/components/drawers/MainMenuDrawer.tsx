@@ -1,6 +1,7 @@
 import {
   Business,
   ChevronLeft,
+  Create,
   HelpOutline,
   Inbox,
   ManageAccounts,
@@ -8,6 +9,7 @@ import {
 } from "@mui/icons-material";
 import {
   Box,
+  Button,
   Divider,
   Drawer,
   IconButton,
@@ -93,6 +95,33 @@ const MainMenuDrawer = () => {
           </ListSubheader>
         }
       >
+        <Box sx={{ px: 2, pb: 1 }}>
+          <Button
+            fullWidth
+            variant="outlined"
+            color="inherit"
+            size="large"
+            startIcon={<Create />}
+            onClick={() => {
+              stores.commonStore.setApprovalRequestSubmitDialogIsOpen(true);
+              closeTemporaryDrawer();
+            }}
+            sx={{
+              justifyContent: "flex-start",
+              borderColor: "divider",
+              borderRadius: 1,
+              px: 2,
+              py: 1.25,
+              textTransform: "none",
+              "&:hover": {
+                borderColor: "text.secondary",
+                bgcolor: "action.hover",
+              },
+            }}
+          >
+            Compose
+          </Button>
+        </Box>
         <ListItem key="incoming" disablePadding>
           <ListItemButton
             selected={location.pathname === "/inbox"}

@@ -27,7 +27,6 @@ import {
   getLocaleDateTimeString,
 } from "../../utils/helpers";
 import ApprovalRequestDeleteDialog from "../dialogs/ApprovalRequestDeleteDialog";
-import ApprovalRequestSubmitDialog from "../dialogs/ApprovalRequestSubmitDialog";
 import ApprovalRequestViewDialog from "../dialogs/ApprovalRequestViewDialog";
 import ApproversList from "../lists/ApproversList";
 import UserFilesList from "../lists/UserFilesList";
@@ -181,7 +180,6 @@ const OutboxGrid = () => {
           stores.commonStore.isLoading("delete_api/request")
         }
       />
-      <ApprovalRequestSubmitDialog />
       <ApprovalRequestViewDialog />
       <ApprovalRequestDeleteDialog />
     </Box>
