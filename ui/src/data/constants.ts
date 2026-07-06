@@ -245,7 +245,7 @@ export const DRAWER_COMPOSE_ACTION_CONTAINER_SX: SxProps<Theme> = {
   pb: 1,
 };
 export const DRAWER_COMPOSE_BUTTON_SX: SxProps<Theme> = {
-  justifyContent: "flex-start",
+  justifyContent: "center",
   borderColor: "divider",
   borderRadius: 1,
   px: 2,

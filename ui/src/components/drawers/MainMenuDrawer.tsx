@@ -96,7 +96,6 @@ const MainMenuDrawer = () => {
           <Button
             fullWidth
             variant="outlined"
-            color="inherit"
             size="large"
             startIcon={<Create />}
             onClick={() => {
