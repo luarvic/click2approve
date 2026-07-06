@@ -36,6 +36,10 @@ import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
 const OutboxGrid = () => {
   const theme = useTheme();
+  const tenantScopeIsReady =
+    !stores.productStore.tenantsAreEnabled ||
+    (stores.tenantStore.hasLoaded &&
+      stores.tenantStore.currentTenantId !== null);
 
   const getStatusChipColor = (status: ApprovalStatus) => {
     switch (status) {
@@ -49,9 +53,13 @@ const OutboxGrid = () => {
   };
 
   useEffect(() => {
+    if (!tenantScopeIsReady) {
+      return;
+    }
+
     stores.approvalRequestStore.clearApprovalRequests();
     stores.approvalRequestStore.loadApprovalRequests();
-  }, []);
+  }, [tenantScopeIsReady]);
 
   const customToolbar = () => {
     return (

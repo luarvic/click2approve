@@ -55,12 +55,12 @@ export class UserAccountStore {
     if (tokens) {
       const currentUser = await accountManageInfo();
       if (currentUser) {
-        runInAction(() => {
-          this.currentUser = currentUser;
-        });
         if (stores.productStore.tenantsAreEnabled) {
           await stores.tenantStore.load();
         }
+        runInAction(() => {
+          this.currentUser = currentUser;
+        });
         return true;
       }
     }

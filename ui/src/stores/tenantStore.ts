@@ -10,10 +10,16 @@ import { ITenant, ITenantCreate } from "../models/tenant";
 export class TenantStore {
   tenants: ITenant[];
   currentTenantId: number | null;
+  hasLoaded: boolean;
 
-  constructor(tenants: ITenant[] = [], currentTenantId: number | null = readCurrentTenantId()) {
+  constructor(
+    tenants: ITenant[] = [],
+    currentTenantId: number | null = readCurrentTenantId(),
+    hasLoaded: boolean = false
+  ) {
     this.tenants = tenants;
     this.currentTenantId = currentTenantId;
+    this.hasLoaded = hasLoaded;
     makeAutoObservable(this);
   }
 
@@ -29,6 +35,7 @@ export class TenantStore {
     runInAction(() => {
       this.tenants = tenants;
       this.currentTenantId = currentTenant?.id ?? null;
+      this.hasLoaded = true;
     });
     if (currentTenant) {
       writeCurrentTenantId(currentTenant.id);
@@ -46,6 +53,7 @@ export class TenantStore {
     runInAction(() => {
       this.tenants = [...this.tenants, tenant];
       this.currentTenantId = tenant.id;
+      this.hasLoaded = true;
     });
     writeCurrentTenantId(tenant.id);
     return true;
@@ -63,6 +71,7 @@ export class TenantStore {
     runInAction(() => {
       this.tenants = [];
       this.currentTenantId = null;
+      this.hasLoaded = false;
     });
   };
 }

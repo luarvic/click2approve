@@ -31,6 +31,10 @@ import NoRowsOverlay from "../overlays/NoRowsOverlay";
 
 const InboxGrid = () => {
   const theme = useTheme();
+  const tenantScopeIsReady =
+    !stores.productStore.tenantsAreEnabled ||
+    (stores.tenantStore.hasLoaded &&
+      stores.tenantStore.currentTenantId !== null);
 
   const getStatusChipColor = (status: ApprovalStatus) => {
     switch (status) {
@@ -44,9 +48,13 @@ const InboxGrid = () => {
   };
 
   useEffect(() => {
+    if (!tenantScopeIsReady) {
+      return;
+    }
+
     stores.approvalRequestTaskStore.clearTasks();
     stores.approvalRequestTaskStore.loadIncomingTasks();
-  }, []);
+  }, [tenantScopeIsReady]);
 
   const columns: GridColDef[] = [
     {

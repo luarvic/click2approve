@@ -41,11 +41,15 @@ const MainAppBar = () => {
     stores.productStore.tenantsAreEnabled &&
     Boolean(currentUser) &&
     stores.tenantStore.tenants.length > 0;
+  const tenantScopeIsReady =
+    !stores.productStore.tenantsAreEnabled ||
+    (stores.tenantStore.hasLoaded &&
+      stores.tenantStore.currentTenantId !== null);
   const numberOfUncompletedTasks =
     stores.approvalRequestTaskStore.numberOfUncompletedTasks;
 
   useEffect(() => {
-    if (!currentUser) {
+    if (!currentUser || !tenantScopeIsReady) {
       return;
     }
 
@@ -58,7 +62,7 @@ const MainAppBar = () => {
       stores.approvalRequestTaskStore.loadNumberOfUncompletedTasks();
     }, UNCOMPLETED_TASKS_REFRESH_MS);
     return () => window.clearInterval(intervalId);
-  }, [currentUser]);
+  }, [currentUser, tenantScopeIsReady]);
 
   return (
     <AppBar
