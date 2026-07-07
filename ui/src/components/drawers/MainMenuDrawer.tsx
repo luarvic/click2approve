@@ -17,8 +17,8 @@ import {
   ListItem,
   ListItemButton,
   ListItemIcon,
-  ListSubheader,
   ListItemText,
+  ListSubheader,
   Toolbar,
   useMediaQuery,
   useTheme,
@@ -27,6 +27,7 @@ import { observer } from "mobx-react-lite";
 import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
+  DEFAULT_PATH,
   DRAWER_COMPOSE_ACTION_CONTAINER_SX,
   DRAWER_COMPOSE_BUTTON_SX,
   LIST_ITEM_ICON_SX,
@@ -52,6 +53,8 @@ const MainMenuDrawer = () => {
   const tenantUserManagerIsVisible =
     stores.productStore.tenantsAreEnabled &&
     currentTenant?.role === TenantUserRole.Admin;
+  const inboxIsSelected =
+    location.pathname === "/" || location.pathname === DEFAULT_PATH;
 
   useEffect(() => {
     if (!currentUser) {
@@ -109,7 +112,7 @@ const MainMenuDrawer = () => {
         </Box>
         <ListItem key="incoming" disablePadding>
           <ListItemButton
-            selected={location.pathname === "/inbox"}
+            selected={inboxIsSelected}
             onClick={() => {
               navigate("/inbox");
               closeTemporaryDrawer();

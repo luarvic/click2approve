@@ -258,15 +258,17 @@ export const DRAWER_COMPOSE_ACTION_CONTAINER_SX: SxProps<Theme> = {
 };
 export const DRAWER_COMPOSE_BUTTON_SX: SxProps<Theme> = {
   justifyContent: "center",
-  border: 0,
+  border: 1,
+  borderColor: "primary.main",
   borderRadius: 1,
   my: 1,
-  bgcolor: (theme) => theme.palette.primary.main + "14",
+  bgcolor: "transparent",
   px: 2,
   py: 1.25,
   "&:hover": {
-    border: 0,
-    bgcolor: (theme) => theme.palette.primary.main + "1F",
+    border: 1,
+    borderColor: "primary.main",
+    bgcolor: "transparent",
   },
 };
 export const PROFILE_DRAWER_CONTENT_SX: SxProps<Theme> = { minWidth: 280 };
