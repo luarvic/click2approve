@@ -305,6 +305,15 @@ export const TENANT_USERS_GRID_COLUMN_SIZING = {
   status: { flex: 1, minWidth: 120 },
   action: { flex: 1, minWidth: 90 },
 };
+export const TENANTS_GRID_COLUMN_SIZING = {
+  businessName: { flex: 3, minWidth: 220 },
+  email: { flex: 2, minWidth: 180 },
+  phone: { flex: 2, minWidth: 140 },
+  websiteUrl: { flex: 2, minWidth: 180 },
+  role: { flex: 1, minWidth: 110 },
+  isOwner: { flex: 1, minWidth: 110 },
+  action: { flex: 1, minWidth: 90 },
+};
 export const COMMENT_TEXT_FIELD_ROWS = 4;
 export const TENANT_DIALOG_MAX_WIDTH = "sm";
 

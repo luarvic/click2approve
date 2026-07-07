@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import { ITenant, ITenantCreate } from "../../models/tenant";
+import { ITenant, ITenantCreate, ITenantUpdate } from "../../models/tenant";
 import { getUserFriendlyApiErrorMessage } from "../../utils/helpers";
 import axios from "../axios";
 
@@ -22,5 +22,28 @@ export const tenantCreate = async (
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
     return null;
+  }
+};
+
+export const tenantUpdate = async (
+  tenantId: number,
+  payload: ITenantUpdate
+): Promise<ITenant | null> => {
+  try {
+    const { data } = await axios.put<ITenant>(`api/tenants/${tenantId}`, payload);
+    return data;
+  } catch (e) {
+    toast.error(getUserFriendlyApiErrorMessage(e));
+    return null;
+  }
+};
+
+export const tenantDelete = async (tenantId: number): Promise<boolean> => {
+  try {
+    await axios.delete(`api/tenants/${tenantId}`);
+    return true;
+  } catch (e) {
+    toast.error(getUserFriendlyApiErrorMessage(e));
+    return false;
   }
 };

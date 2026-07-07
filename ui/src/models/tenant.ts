@@ -4,9 +4,15 @@ export enum TenantUserRole {
   Admin = 2,
 }
 
+export enum TenantType {
+  Personal = 0,
+  Business = 1,
+}
+
 export interface ITenant {
   id: number;
   businessName: string;
+  type: TenantType;
   email?: string;
   phone?: string;
   address?: string;
@@ -18,6 +24,15 @@ export interface ITenant {
 }
 
 export interface ITenantCreate {
+  businessName: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  websiteUrl?: string;
+  logo?: string;
+}
+
+export interface ITenantUpdate {
   businessName: string;
   email?: string;
   phone?: string;

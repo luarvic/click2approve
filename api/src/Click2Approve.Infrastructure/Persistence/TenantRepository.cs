@@ -28,7 +28,7 @@ public class TenantRepository(ApiDbContext db) : ITenantRepository
     {
         return Db.Tenants
             .Include(t => t.Owner)
-            .Where(t => t.Owner == user)
+            .Where(t => t.Owner == user && t.Type == TenantType.Personal)
             .OrderBy(t => t.Id)
             .FirstOrDefaultAsync(cancellationToken);
     }
@@ -37,7 +37,7 @@ public class TenantRepository(ApiDbContext db) : ITenantRepository
     {
         return Db.Tenants
             .Include(t => t.Owner)
-            .Where(t => t.Owner.NormalizedEmail == normalizedEmail)
+            .Where(t => t.Owner.NormalizedEmail == normalizedEmail && t.Type == TenantType.Personal)
             .OrderBy(t => t.Id)
             .FirstOrDefaultAsync(cancellationToken);
     }

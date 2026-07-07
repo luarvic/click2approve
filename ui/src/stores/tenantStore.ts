@@ -1,11 +1,16 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { tenantCreate, tenantList } from "../lib/controllers/tenant";
+import {
+  tenantCreate,
+  tenantDelete,
+  tenantList,
+  tenantUpdate,
+} from "../lib/controllers/tenant";
 import {
   deleteCurrentTenantId,
   readCurrentTenantId,
   writeCurrentTenantId,
 } from "../lib/session";
-import { ITenant, ITenantCreate } from "../models/tenant";
+import { ITenant, ITenantCreate, ITenantUpdate } from "../models/tenant";
 
 export class TenantStore {
   tenants: ITenant[];
@@ -56,6 +61,50 @@ export class TenantStore {
       this.hasLoaded = true;
     });
     writeCurrentTenantId(tenant.id);
+    return true;
+  };
+
+  update = async (
+    tenantId: number,
+    payload: ITenantUpdate
+  ): Promise<boolean> => {
+    const tenant = await tenantUpdate(tenantId, payload);
+    if (!tenant) {
+      return false;
+    }
+
+    runInAction(() => {
+      this.tenants = this.tenants.map((existingTenant) =>
+        existingTenant.id === tenant.id ? tenant : existingTenant
+      );
+      this.hasLoaded = true;
+    });
+    return true;
+  };
+
+  delete = async (tenantId: number): Promise<boolean> => {
+    const deleted = await tenantDelete(tenantId);
+    if (!deleted) {
+      return false;
+    }
+
+    let currentTenantId: number | null = null;
+    runInAction(() => {
+      this.tenants = this.tenants.filter((tenant) => tenant.id !== tenantId);
+      currentTenantId =
+        this.currentTenantId === tenantId
+          ? this.tenants[0]?.id ?? null
+          : this.currentTenantId;
+      this.currentTenantId = currentTenantId;
+      this.hasLoaded = true;
+    });
+
+    if (currentTenantId) {
+      writeCurrentTenantId(currentTenantId);
+    } else {
+      deleteCurrentTenantId();
+    }
+
     return true;
   };
 

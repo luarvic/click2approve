@@ -38,7 +38,7 @@ import {
   TEMPORARY_DRAWER_SX,
   UI_BASE_URI,
 } from "../../data/constants";
-import { TenantUserRole } from "../../models/tenant";
+import { TenantType, TenantUserRole } from "../../models/tenant";
 import { stores } from "../../stores/stores";
 
 const MainMenuDrawer = () => {
@@ -50,8 +50,10 @@ const MainMenuDrawer = () => {
 
   const currentTenant = stores.tenantStore.currentTenant;
   const currentUser = stores.userAccountStore.currentUser;
+  const organizationsIsVisible = stores.productStore.tenantsAreEnabled;
   const tenantUserManagerIsVisible =
     stores.productStore.tenantsAreEnabled &&
+    currentTenant?.type === TenantType.Business &&
     currentTenant?.role === TenantUserRole.Admin;
   const inboxIsSelected =
     location.pathname === "/" || location.pathname === DEFAULT_PATH;
@@ -146,14 +148,22 @@ const MainMenuDrawer = () => {
           </ListSubheader>
         }
       >
-        <ListItem key="organizations" disablePadding>
-          <ListItemButton disabled>
-            <ListItemIcon sx={LIST_ITEM_ICON_SX}>
-              <Business />
-            </ListItemIcon>
-            <ListItemText primary="Organizations" />
-          </ListItemButton>
-        </ListItem>
+        {organizationsIsVisible && (
+          <ListItem key="organizations" disablePadding>
+            <ListItemButton
+              selected={location.pathname === "/tenants"}
+              onClick={() => {
+                navigate("/tenants");
+                closeTemporaryDrawer();
+              }}
+            >
+              <ListItemIcon sx={LIST_ITEM_ICON_SX}>
+                <Business />
+              </ListItemIcon>
+              <ListItemText primary="Organizations" />
+            </ListItemButton>
+          </ListItem>
+        )}
         {tenantUserManagerIsVisible && (
           <ListItem key="tenantUsers" disablePadding>
             <ListItemButton
