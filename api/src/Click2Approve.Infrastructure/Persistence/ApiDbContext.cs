@@ -25,6 +25,10 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasMaxLength(255);
 
         modelBuilder.Entity<Tenant>()
+            .Property(t => t.Type)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<Tenant>()
             .Property(t => t.Email)
             .HasMaxLength(320);
 

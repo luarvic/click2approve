@@ -24,6 +24,7 @@ public class TenantService(
         var tenant = await _tenantRepository.AddAsync(new Tenant
         {
             BusinessName = GetDefaultBusinessName(user),
+            Type = TenantType.Personal,
             Email = user.Email,
             Owner = user
         }, cancellationToken);
@@ -39,8 +40,6 @@ public class TenantService(
 
     protected static string GetDefaultBusinessName(AppUser user)
     {
-        var email = user.Email ?? user.UserName ?? user.Id;
-        var atIndex = email.IndexOf('@', StringComparison.Ordinal);
-        return atIndex > 0 ? email[..atIndex] : email;
+        return "Personal";
     }
 }

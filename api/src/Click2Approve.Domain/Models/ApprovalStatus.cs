@@ -5,7 +5,7 @@ namespace Click2Approve.Domain.Models;
 /// </summary>
 public enum ApprovalStatus
 {
-    Submitted,
-    Approved,
-    Rejected
+    Submitted = 0,
+    Approved = 1,
+    Rejected = 2
 }

@@ -6,6 +6,7 @@ namespace Click2Approve.Domain.Models;
 public class Tenant : DbEntity
 {
     public required string BusinessName { get; set; }
+    public required TenantType Type { get; set; }
     public string? Email { get; set; }
     public string? Phone { get; set; }
     public string? Address { get; set; }
