@@ -7,5 +7,5 @@ using Click2Approve.Domain.Models;
 /// </summary>
 public interface IAuditLogService
 {
-    Task LogAsync(AppUser user, DateTime when, string what, string jsonData, CancellationToken cancellationToken);
+    Task LogAsync(AppUser user, DateTime occurredAt, string what, string jsonData, CancellationToken cancellationToken);
 }

@@ -5,14 +5,19 @@ namespace Click2Approve.Domain.Models;
 /// </summary>
 public class ApprovalRequest : DbEntity
 {
-    public required DateTime Submitted { get; set; }
-    public required string Author { get; set; }
+    public required string Title { get; set; }
+    public required DateTime CreatedAt { get; set; }
+    public required string AuthorUserId { get; set; }
+    public AppUser AuthorUser { get; set; } = null!;
+    public required string AuthorEmail { get; set; }
     public long TenantId { get; set; }
     public Tenant? Tenant { get; set; }
-    public required ApprovalStatus Status { get; set; }
+    public required ApprovalRequestStatus Status { get; set; }
     public required List<UserFile> UserFiles { get; set; }
-    public required List<string> Approvers { get; set; }
+    public required List<ApprovalRequestStep> Steps { get; set; }
     public DateTime? ApproveBy { get; set; }
     public required string? Comment { get; set; }
+    public long? ClonedFromApprovalRequestId { get; set; }
+    public ApprovalRequest? ClonedFromApprovalRequest { get; set; }
     public required List<ApprovalRequestTask> Tasks { get; set; }
 }

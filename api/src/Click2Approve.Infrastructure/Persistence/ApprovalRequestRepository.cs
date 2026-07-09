@@ -24,11 +24,26 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await _db.ApprovalRequests
             .Include(r => r.Tasks)
+            .Include(r => r.Steps)
+                .ThenInclude(s => s.Approvers)
             .Include(r => r.UserFiles)
-            .FirstAsync(r => r.TenantId == tenantId && r.Id == id && r.Author == user.NormalizedEmail, cancellationToken);
+            .FirstAsync(r => r.TenantId == tenantId && r.Id == id && r.AuthorUserId == user.Id, cancellationToken);
     }
 
-    public async Task<IList<ApprovalRequest>> ListByUserFileIdAsync(AppUser user, long userFileId, CancellationToken cancellationToken)
+    public async Task<ApprovalRequest> GetForUpdateAsync(AppUser user, long id, CancellationToken cancellationToken)
+    {
+        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await _db.ApprovalRequests
+            .Include(r => r.UserFiles)
+            .Include(r => r.Tasks)
+            .Include(r => r.Steps)
+                .ThenInclude(s => s.Approvers)
+            .Include(r => r.Steps)
+                .ThenInclude(s => s.Tasks)
+            .FirstAsync(r => r.TenantId == tenantId && r.Id == id && r.AuthorUserId == user.Id, cancellationToken);
+    }
+
+    public async Task<IList<ApprovalRequest>> ListAsync(AppUser user, long userFileId, CancellationToken cancellationToken)
     {
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await _db.ApprovalRequests
@@ -36,23 +51,27 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<ApprovalRequest>> ListByAuthorAsync(AppUser user, CancellationToken cancellationToken)
+    public async Task<List<ApprovalRequest>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await _db.ApprovalRequests
             .Include(r => r.UserFiles)
             .Include(r => r.Tasks)
-            .Where(r => r.TenantId == tenantId && r.Author == user.NormalizedEmail)
+            .Include(r => r.Steps)
+                .ThenInclude(s => s.Approvers)
+            .Include(r => r.Steps)
+                .ThenInclude(s => s.Tasks)
+            .Where(r => r.TenantId == tenantId && r.AuthorUserId == user.Id)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<int> CountSubmittedByAuthorAsync(AppUser user, DateTime utcStart, DateTime utcEnd, CancellationToken cancellationToken)
+    public async Task<int> CountAsync(AppUser user, DateTime start, DateTime end, CancellationToken cancellationToken)
     {
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await _db.ApprovalRequests.CountAsync(r => r.TenantId == tenantId
-            && r.Author == user.NormalizedEmail
-            && r.Submitted >= utcStart
-            && r.Submitted < utcEnd, cancellationToken);
+            && r.AuthorUserId == user.Id
+            && r.CreatedAt >= start
+            && r.CreatedAt < end, cancellationToken);
     }
 
     public void Remove(ApprovalRequest approvalRequest)

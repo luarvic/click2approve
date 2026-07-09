@@ -8,7 +8,9 @@ namespace Click2Approve.Application.Persistence;
 public interface IApprovalRequestTaskRepository
 {
     Task<ApprovalRequestTask> AddAsync(ApprovalRequestTask approvalRequestTask, CancellationToken cancellationToken);
-    Task<List<ApprovalRequestTask>> ListByApproverAsync(AppUser user, ApprovalStatus[] statuses, CancellationToken cancellationToken);
+    Task<int> ClaimEmailTasksAsync(AppUser user, long personalTenantId, CancellationToken cancellationToken);
+    Task<List<ApprovalRequestTask>> ListAsync(AppUser user, ApprovalRequestTaskStatus[] statuses, CancellationToken cancellationToken);
     Task<ApprovalRequestTask> GetForCompletionAsync(AppUser user, long id, CancellationToken cancellationToken);
-    Task<long> CountUncompletedByApproverAsync(AppUser user, CancellationToken cancellationToken);
+    Task<long> CountUncompletedAsync(AppUser user, CancellationToken cancellationToken);
+    void Remove(ApprovalRequestTask approvalRequestTask);
 }

@@ -38,6 +38,7 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddSwagger();
 
+builder.Services.AddScoped<IApprovalRecipientResolver, EmailOnlyApprovalRecipientResolver>();
 builder.Services.AddScoped<IApprovalRequestService, ApprovalRequestService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IFileStorage, FileSystemFileStorage>();
@@ -81,6 +82,7 @@ if (app.Environment.IsDevelopment())
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseAuthentication();
+app.UseMiddleware<InitialTenantSetupMiddleware>();
 app.UseMiddleware<DefaultTenantResolutionMiddleware>();
 app.UseAuthorization();
 app.MapControllers();

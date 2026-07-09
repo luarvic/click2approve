@@ -7,6 +7,7 @@ namespace Click2Approve.Application.Services.Tenants;
 /// </summary>
 public interface ITenantService
 {
-    Task<Tenant> CreateDefaultForUserAsync(AppUser user, CancellationToken cancellationToken);
-    Task<Tenant> GetRequiredDefaultForUserAsync(AppUser user, CancellationToken cancellationToken);
+    Task<Tenant> CreateDefaultAsync(AppUser user, CancellationToken cancellationToken);
+    Task<Tenant> GetRequiredDefaultAsync(AppUser user, CancellationToken cancellationToken);
+    Task InitializeUserAsync(AppUser user, CancellationToken cancellationToken);
 }

@@ -17,14 +17,14 @@ public class TenantRepository(ApiDbContext db) : ITenantRepository
         return entry.Entity;
     }
 
-    public virtual Task<Tenant?> GetByIdAsync(long id, CancellationToken cancellationToken)
+    public virtual Task<Tenant?> GetAsync(long id, CancellationToken cancellationToken)
     {
         return Db.Tenants
             .Include(t => t.Owner)
             .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 
-    public virtual Task<Tenant?> GetDefaultForUserAsync(AppUser user, CancellationToken cancellationToken)
+    public virtual Task<Tenant?> GetPersonalAsync(AppUser user, CancellationToken cancellationToken)
     {
         return Db.Tenants
             .Include(t => t.Owner)
@@ -33,7 +33,7 @@ public class TenantRepository(ApiDbContext db) : ITenantRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public virtual Task<Tenant?> GetDefaultForUserEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
+    public virtual Task<Tenant?> GetPersonalAsync(string normalizedEmail, CancellationToken cancellationToken)
     {
         return Db.Tenants
             .Include(t => t.Owner)
@@ -42,7 +42,7 @@ public class TenantRepository(ApiDbContext db) : ITenantRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public virtual Task<List<Tenant>> ListForUserAsync(AppUser user, CancellationToken cancellationToken)
+    public virtual Task<List<Tenant>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
         return Db.Tenants
             .Include(t => t.Owner)

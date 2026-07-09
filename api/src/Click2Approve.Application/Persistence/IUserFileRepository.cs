@@ -10,8 +10,8 @@ public interface IUserFileRepository
     Task<UserFile> AddAsync(UserFile userFile, CancellationToken cancellationToken);
     Task<UserFile> GetForDownloadAsync(AppUser user, long id, CancellationToken cancellationToken);
     Task<UserFile> GetForDeleteAsync(AppUser user, long id, CancellationToken cancellationToken);
-    Task<IList<UserFile>> ListByOwnerAsync(AppUser user, CancellationToken cancellationToken);
-    Task<List<UserFile>> ListByOwnerAndIdsAsync(AppUser user, IReadOnlyCollection<long> ids, CancellationToken cancellationToken);
-    Task<int> CountByOwnerAsync(AppUser user, CancellationToken cancellationToken);
+    Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken);
+    Task<List<UserFile>> ListAsync(AppUser user, IReadOnlyCollection<long> ids, CancellationToken cancellationToken);
+    Task<int> CountAsync(AppUser user, CancellationToken cancellationToken);
     void Remove(UserFile userFile);
 }

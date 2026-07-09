@@ -25,7 +25,10 @@ public class ProductController(IConfiguration configuration) : ControllerBase
             Edition = edition,
             Capabilities = new ProductCapabilitiesDto
             {
-                Tenants = _configuration.GetValue<bool>("Product:Capabilities:Tenants")
+                Tenants = _configuration.GetValue<bool>("Product:Capabilities:Tenants"),
+                EmployeeApprovers = _configuration.GetValue<bool>("Product:Capabilities:EmployeeApprovers"),
+                TeamApprovers = _configuration.GetValue<bool>("Product:Capabilities:TeamApprovers"),
+                ApprovalStepTemplates = _configuration.GetValue<bool>("Product:Capabilities:ApprovalStepTemplates")
             }
         });
     }

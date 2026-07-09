@@ -3,9 +3,11 @@ namespace Click2Approve.Domain.Models;
 /// <summary>
 /// Represents available approval request statuses.
 /// </summary>
-public enum ApprovalStatus
+public enum ApprovalRequestStatus
 {
-    Submitted = 0,
-    Approved = 1,
-    Rejected = 2
+    Draft = 0,
+    Submitted = 1,
+    Approved = 2,
+    Rejected = 3,
+    Cancelled = 4
 }

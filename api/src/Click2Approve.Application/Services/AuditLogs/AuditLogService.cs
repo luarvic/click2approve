@@ -1,4 +1,3 @@
-using Click2Approve.Application.Services.AuditLogs;
 using Click2Approve.Application.Persistence;
 using Click2Approve.Application.Services.TenantContext;
 using Click2Approve.Domain.Models;
@@ -17,14 +16,14 @@ public class AuditLogService(
     private readonly ITenantContext _tenantContext = tenantContext;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    public async Task LogAsync(AppUser user, DateTime when, string what, string jsonData, CancellationToken cancellationToken)
+    public async Task LogAsync(AppUser user, DateTime occurredAt, string what, string jsonData, CancellationToken cancellationToken)
     {
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         await _auditLogRepository.AddAsync(new AuditLogEntry
         {
             TenantId = tenantId,
             Who = user.NormalizedEmail!,
-            When = when,
+            OccurredAt = occurredAt,
             What = what,
             Data = jsonData
         }, cancellationToken);

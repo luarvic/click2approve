@@ -1,3 +1,4 @@
+using Click2Approve.Application.Helpers;
 using Click2Approve.Application.Persistence;
 using Click2Approve.Domain.Models;
 
@@ -8,14 +9,16 @@ namespace Click2Approve.Application.Services.Tenants;
 /// </summary>
 public class TenantService(
     ITenantRepository tenantRepository,
+    IApprovalRequestTaskRepository approvalRequestTaskRepository,
     IUnitOfWork unitOfWork) : ITenantService
 {
     private readonly ITenantRepository _tenantRepository = tenantRepository;
+    private readonly IApprovalRequestTaskRepository _approvalRequestTaskRepository = approvalRequestTaskRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    public virtual async Task<Tenant> CreateDefaultForUserAsync(AppUser user, CancellationToken cancellationToken)
+    public virtual async Task<Tenant> CreateDefaultAsync(AppUser user, CancellationToken cancellationToken)
     {
-        var existingTenant = await _tenantRepository.GetDefaultForUserAsync(user, cancellationToken);
+        var existingTenant = await _tenantRepository.GetPersonalAsync(user, cancellationToken);
         if (existingTenant is not null)
         {
             return existingTenant;
@@ -25,21 +28,36 @@ public class TenantService(
         {
             BusinessName = GetDefaultBusinessName(user),
             Type = TenantType.Personal,
-            Email = user.Email,
+            Email = EmailHelpers.NormalizeEmailAddress(user.Email),
             Owner = user
         }, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return tenant;
     }
 
-    public virtual async Task<Tenant> GetRequiredDefaultForUserAsync(AppUser user, CancellationToken cancellationToken)
+    public virtual async Task<Tenant> GetRequiredDefaultAsync(AppUser user, CancellationToken cancellationToken)
     {
-        return await _tenantRepository.GetDefaultForUserAsync(user, cancellationToken)
-            ?? await CreateDefaultForUserAsync(user, cancellationToken);
+        return await _tenantRepository.GetPersonalAsync(user, cancellationToken)
+            ?? await CreateDefaultAsync(user, cancellationToken);
+    }
+
+    public virtual async Task InitializeUserAsync(AppUser user, CancellationToken cancellationToken)
+    {
+        var tenant = await GetRequiredDefaultAsync(user, cancellationToken);
+        await ClaimEmailTasksAsync(user, tenant.Id, cancellationToken);
     }
 
     protected static string GetDefaultBusinessName(AppUser user)
     {
         return "Personal";
+    }
+
+    private async Task ClaimEmailTasksAsync(AppUser user, long personalTenantId, CancellationToken cancellationToken)
+    {
+        var updatedTaskCount = await _approvalRequestTaskRepository.ClaimEmailTasksAsync(user, personalTenantId, cancellationToken);
+        if (updatedTaskCount > 0)
+        {
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
     }
 }

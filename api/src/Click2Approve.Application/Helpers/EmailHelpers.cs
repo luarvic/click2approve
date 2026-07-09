@@ -1,3 +1,5 @@
+using Click2Approve.Domain.Exceptions;
+
 namespace Click2Approve.Application.Helpers;
 
 /// <summary>
@@ -5,6 +7,38 @@ namespace Click2Approve.Application.Helpers;
 /// </summary>
 public static class EmailHelpers
 {
+    /// <summary>
+    /// Normalizes an email address by trimming whitespace and converting it to lower invariant casing.
+    /// </summary>
+    public static string NormalizeEmailAddress(
+        string? email,
+        string requiredMessage = "Email is required.")
+    {
+        var normalizedEmail = email?.Trim();
+        if (string.IsNullOrWhiteSpace(normalizedEmail))
+        {
+            throw new BusinessRuleException(requiredMessage);
+        }
+
+        return normalizedEmail.ToLowerInvariant();
+    }
+
+    /// <summary>
+    /// Normalizes an email address for identity-key comparisons.
+    /// </summary>
+    public static string NormalizeIdentityEmailKey(
+        string? email,
+        string requiredMessage = "Email is required.")
+    {
+        var normalizedEmail = email?.Trim();
+        if (string.IsNullOrWhiteSpace(normalizedEmail))
+        {
+            throw new BusinessRuleException(requiredMessage);
+        }
+
+        return normalizedEmail.ToUpperInvariant();
+    }
+
     /// <summary>
     /// Builds an HTML email body with the given heading, message and link.
     /// </summary>

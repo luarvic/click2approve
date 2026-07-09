@@ -8,6 +8,6 @@ namespace Click2Approve.Application.Models.DTOs;
 public class ApprovalRequestTaskCompleteDto
 {
     public required long Id { get; set; }
-    public required ApprovalStatus Status { get; set; }
+    public required ApprovalRequestTaskStatus Status { get; set; }
     public string? Comment { get; set; }
 }

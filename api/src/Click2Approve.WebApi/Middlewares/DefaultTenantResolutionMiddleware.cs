@@ -22,7 +22,7 @@ public class DefaultTenantResolutionMiddleware(RequestDelegate next)
         {
             var user = await userManager.GetUserAsync(context.User)
                 ?? throw new UnauthorizedAccessException("User not found.");
-            var tenant = await tenantService.GetRequiredDefaultForUserAsync(user, context.RequestAborted);
+            var tenant = await tenantService.GetRequiredDefaultAsync(user, context.RequestAborted);
             tenantContext.SetTenantId(tenant.Id);
         }
 

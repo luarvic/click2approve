@@ -54,6 +54,28 @@ public class ApprovalRequestController(
     }
 
     /// <summary>
+    /// Cancels an approval request.
+    /// </summary>
+    [HttpPost("{id:long}/cancel")]
+    public async Task<IActionResult> CancelAsync(long id, CancellationToken cancellationToken)
+    {
+        var user = await _userManager.GetAppUserAsync(User);
+        await _approvalRequestService.CancelApprovalRequestAsync(user, id, cancellationToken);
+        return Ok();
+    }
+
+    /// <summary>
+    /// Updates mutable approval request steps.
+    /// </summary>
+    [HttpPut("{id:long}/steps")]
+    public async Task<IActionResult> UpdateStepsAsync(long id, [FromBody] ApprovalRequestStepsUpdateDto payload, CancellationToken cancellationToken)
+    {
+        var user = await _userManager.GetAppUserAsync(User);
+        await _approvalRequestService.UpdateApprovalRequestStepsAsync(user, id, payload, cancellationToken);
+        return Ok();
+    }
+
+    /// <summary>
     /// Lists approval requests.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>

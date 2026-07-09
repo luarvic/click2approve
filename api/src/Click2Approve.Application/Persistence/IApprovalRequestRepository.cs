@@ -9,8 +9,9 @@ public interface IApprovalRequestRepository
 {
     Task<ApprovalRequest> AddAsync(ApprovalRequest approvalRequest, CancellationToken cancellationToken);
     Task<ApprovalRequest> GetForDeleteAsync(AppUser user, long id, CancellationToken cancellationToken);
-    Task<IList<ApprovalRequest>> ListByUserFileIdAsync(AppUser user, long userFileId, CancellationToken cancellationToken);
-    Task<List<ApprovalRequest>> ListByAuthorAsync(AppUser user, CancellationToken cancellationToken);
-    Task<int> CountSubmittedByAuthorAsync(AppUser user, DateTime utcStart, DateTime utcEnd, CancellationToken cancellationToken);
+    Task<ApprovalRequest> GetForUpdateAsync(AppUser user, long id, CancellationToken cancellationToken);
+    Task<IList<ApprovalRequest>> ListAsync(AppUser user, long userFileId, CancellationToken cancellationToken);
+    Task<List<ApprovalRequest>> ListAsync(AppUser user, CancellationToken cancellationToken);
+    Task<int> CountAsync(AppUser user, DateTime start, DateTime end, CancellationToken cancellationToken);
     void Remove(ApprovalRequest approvalRequest);
 }

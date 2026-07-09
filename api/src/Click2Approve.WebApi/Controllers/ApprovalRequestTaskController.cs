@@ -49,20 +49,7 @@ public class ApprovalRequestTaskController(
     public async Task<ActionResult<List<ApprovalRequestTask>>> ListUncompletedAsync(CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        var approvalRequests = await _approvalRequestService.ListTasksAsync(user, [ApprovalStatus.Submitted], cancellationToken);
-        return Ok(approvalRequests);
-    }
-
-    /// <summary>
-    /// Lists completed approval request tasks.
-    /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The list of approval request tasks.</returns>
-    [HttpGet("listCompleted")]
-    public async Task<ActionResult<List<ApprovalRequestTask>>> ListCompletedAsync(CancellationToken cancellationToken)
-    {
-        var user = await _userManager.GetAppUserAsync(User);
-        var approvalRequests = await _approvalRequestService.ListTasksAsync(user, [ApprovalStatus.Approved, ApprovalStatus.Rejected], cancellationToken);
+        var approvalRequests = await _approvalRequestService.ListTasksAsync(user, [ApprovalRequestTaskStatus.Pending], cancellationToken);
         return Ok(approvalRequests);
     }
 

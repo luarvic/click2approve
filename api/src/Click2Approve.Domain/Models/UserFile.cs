@@ -7,7 +7,7 @@ public class UserFile : DbEntity
 {
     public required string Name { get; set; }
     public required string Type { get; set; }
-    public required DateTime Created { get; set; }
+    public required DateTime CreatedAt { get; set; }
     public required string OwnerId { get; set; }
     public AppUser? Owner { get; set; }
     public long TenantId { get; set; }

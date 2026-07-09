@@ -1,5 +1,6 @@
 using System.Net;
 using Click2Approve.Application.Models.DTOs;
+using Click2Approve.Domain.Models;
 using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.WebApi.Tests.Extensions;
 using Click2Approve.WebApi.Tests.Helpers;
@@ -44,7 +45,6 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
     [Fact]
     public async Task AllEndpoints_WhenRequestedWithBearerToken_ShouldWorkProperly()
     {
-        // Arrange test data.
         var testData = new List<UserFileControllerTestDataEntry>
         {
             new()
@@ -66,26 +66,21 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
             },
         };
 
-        // Register users.
         foreach (var testDataEntry in testData)
         {
             await _client.RegisterAsync(testDataEntry.Credentials, CancellationToken.None);
         }
 
-        // 1. Uploading files works correctly.
         foreach (var testDataEntry in testData)
         {
-            // Log in.
             var loginData = await _client.LogInAsync(testDataEntry.Credentials, CancellationToken.None);
 
             var uploadedFiles = await _client.UploadTextFilesAsync(loginData.AccessToken, testDataEntry.FilesToUpload, CancellationToken.None);
             Assert.Equal(testDataEntry.FilesToUpload.Count, uploadedFiles.Count);
         }
 
-        // 2. Owners can list their files.
         foreach (var testDataEntry in testData)
         {
-            // Log in.
             var loginData = await _client.LogInAsync(testDataEntry.Credentials, CancellationToken.None);
 
             var userFiles = await _client.ListFilesAsync(loginData.AccessToken, CancellationToken.None);
@@ -96,14 +91,11 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
             }
         }
 
-        // 3. Owners can download their files.
         foreach (var testDataEntry in testData)
         {
-            // Log in.
             var loginData = await _client.LogInAsync(testDataEntry.Credentials, CancellationToken.None);
             var normalizedEmail = testDataEntry.Credentials.Email.ToUpperInvariant();
 
-            // Take files owned by user.
             var filesOwnedByUser = _db.UserFiles
                 .Where(x => x.Owner != null && x.Owner.NormalizedEmail == normalizedEmail)
                 .ToList();
@@ -121,14 +113,11 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
             }
         }
 
-        // 4. Users cannot download and delete files owned by other users.
         foreach (var testDataEntry in testData)
         {
-            // Log in.
             var loginData = await _client.LogInAsync(testDataEntry.Credentials, CancellationToken.None);
             var normalizedEmail = testDataEntry.Credentials.Email.ToUpperInvariant();
 
-            // Take files owned by other users.
             var filesOwnedByOtherUsers = _db.UserFiles
                 .Where(x => x.Owner != null && x.Owner.NormalizedEmail != normalizedEmail)
                 .ToList();
@@ -142,8 +131,6 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
             }
         }
 
-        // 5. Approvers can download files that were sent to them.
-        // Let's prepare an approval request.
         var requester = testData.First();
         var approver = testData.First(x => x.Credentials.Email != requester.Credentials.Email);
         var requesterNormalizedEmail = requester.Credentials.Email.ToUpperInvariant();
@@ -152,39 +139,48 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
             .ToList();
         var payload = new ApprovalRequestSubmitDto
         {
+            Title = "File access approval",
             UserFileIds = filesOwnedByRequester.Select(x => x.Id).ToList(),
-            Emails = [approver.Credentials.Email]
+            Steps =
+            [
+                new ApprovalRequestStepSubmitDto
+                {
+                    Sequence = 1,
+                    Mode = ApprovalStepMode.Any,
+                    Approvers =
+                    [
+                        new ApprovalRequestApproverSubmitDto
+                        {
+                            Type = ApprovalRecipientType.Email,
+                            Email = approver.Credentials.Email,
+                            CanViewRequest = true
+                        }
+                    ]
+                }
+            ]
         };
 
-        // Log in with requester and submit the request.
         var requesterLoginData = await _client.LogInAsync(requester.Credentials, CancellationToken.None);
         await _client.SubmitApprovalRequestAsync(requesterLoginData.AccessToken, payload, CancellationToken.None);
 
-        // Log in with approver and download the files owned by requester.
         var approverLoginData = await _client.LogInAsync(approver.Credentials, CancellationToken.None);
         foreach (var file in filesOwnedByRequester)
         {
-            // Downloading should not throw.
             await _client.DownloadFileAsync(approverLoginData.AccessToken, file.Id, CancellationToken.None);
             await _client.DownloadBase64Async(approverLoginData.AccessToken, file.Id, CancellationToken.None);
         }
 
-        // 6. Owners can delete their files.
         foreach (var testDataEntry in testData)
         {
-            // Log in.
             var loginData = await _client.LogInAsync(testDataEntry.Credentials, CancellationToken.None);
             var normalizedEmail = testDataEntry.Credentials.Email.ToUpperInvariant();
 
-            // Take files owned by user.
             var filesOwnedByUser = _db.UserFiles
                 .Where(x => x.Owner != null && x.Owner.NormalizedEmail == normalizedEmail)
                 .ToList();
 
-            // Delete files.
             foreach (var file in filesOwnedByUser)
             {
-                var originalFile = testDataEntry.FilesToUpload.Single(f => f.Key == file.Name);
                 await _client.DeleteFileAsync(loginData.AccessToken, file.Id, CancellationToken.None);
             }
 

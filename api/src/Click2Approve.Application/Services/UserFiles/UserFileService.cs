@@ -51,7 +51,7 @@ public class UserFileService(
             {
                 Name = Path.GetFileName(file.FileName),
                 Type = Path.GetExtension(file.FileName),
-                Created = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
                 OwnerId = user.Id,
                 Owner = user,
                 TenantId = tenantId,
@@ -98,7 +98,7 @@ public class UserFileService(
     /// </summary>
     public async Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
-        var userFiles = await _userFileRepository.ListByOwnerAsync(user, cancellationToken);
+        var userFiles = await _userFileRepository.ListAsync(user, cancellationToken);
         return userFiles;
     }
 
@@ -108,7 +108,7 @@ public class UserFileService(
     public async Task DeleteAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
         // Delete related approval requests first.
-        var approvalRequests = await _approvalRequestRepository.ListByUserFileIdAsync(user, id, cancellationToken);
+        var approvalRequests = await _approvalRequestRepository.ListAsync(user, id, cancellationToken);
         foreach (var approvalRequest in approvalRequests)
         {
             await _approvalRequestService.DeleteApprovalRequestAsync(user, approvalRequest.Id, cancellationToken);
@@ -139,7 +139,7 @@ public class UserFileService(
         var maxFiles = _configuration.GetValue<int>("Limitations:MaxFiles");
         if (maxFiles > 0)
         {
-            var fileCount = await _userFileRepository.CountByOwnerAsync(user, cancellationToken);
+            var fileCount = await _userFileRepository.CountAsync(user, cancellationToken);
             if (fileCount + files.Count > maxFiles)
             {
                 throw new LimitExceededException($"The maximum number of files ({maxFiles}) has been exceeded.");

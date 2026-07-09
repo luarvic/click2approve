@@ -33,7 +33,7 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
             .FirstAsync(f => f.TenantId == tenantId && f.Id == id && f.OwnerId == user.Id, cancellationToken);
     }
 
-    public async Task<IList<UserFile>> ListByOwnerAsync(AppUser user, CancellationToken cancellationToken)
+    public async Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await _db.UserFiles
@@ -41,7 +41,7 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<UserFile>> ListByOwnerAndIdsAsync(AppUser user, IReadOnlyCollection<long> ids, CancellationToken cancellationToken)
+    public async Task<List<UserFile>> ListAsync(AppUser user, IReadOnlyCollection<long> ids, CancellationToken cancellationToken)
     {
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await _db.UserFiles
@@ -49,7 +49,7 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<int> CountByOwnerAsync(AppUser user, CancellationToken cancellationToken)
+    public async Task<int> CountAsync(AppUser user, CancellationToken cancellationToken)
     {
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await _db.UserFiles.CountAsync(f => f.TenantId == tenantId && f.OwnerId == user.Id, cancellationToken);
@@ -68,7 +68,7 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
             .FirstAsync(f => f.Id == id
                 && ((f.TenantId == tenantId && f.OwnerId == user.Id)
                     || f.ApprovalRequests.Any(r => r.Tasks.Any(t => t.TenantId == tenantId
-                        && t.Approver == user.NormalizedEmail))),
+                        && t.ApproverUserId == user.Id))),
                 cancellationToken);
     }
 }
