@@ -1,8 +1,8 @@
 ![Main build status](https://github.com/luarvic/click2approve/actions/workflows/main-build.yml/badge.svg)
 
-# Click2approve
+# Click2Approve
 
-`Click2approve` is a free, open-source document approval system. It provides a
+`Click2Approve` is a free, open-source document approval system. It provides a
 responsive web UI for uploading files, sending approval requests, collecting
 review decisions, and tracking request history.
 
@@ -27,7 +27,7 @@ review decisions, and tracking request history.
 
 ## Demo
 
-Visit [Click2approve.com](https://click2approve.com/) to see the application in
+Visit [Click2Approve.com](https://click2approve.com/) to see the application in
 use.
 
 If you find this project useful, please star the repository to support ongoing

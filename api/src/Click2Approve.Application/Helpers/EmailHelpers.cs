@@ -51,7 +51,7 @@ public static class EmailHelpers
             $"<p style=\"margin: 0 0 1em;\">{message}</p>",
             $"<p style=\"margin: 0 0 1em;\"><a href=\"{link}\">{linkText}</a></p>",
             "<p style=\"margin: 0 0 0.25em;\">Thanks,</p>",
-            "<p style=\"margin: 0;\">The click2approve team</p>",
+            "<p style=\"margin: 0;\">The Click2Approve team</p>",
             "</div>"
         );
     }
