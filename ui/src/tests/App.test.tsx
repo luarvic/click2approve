@@ -1,9 +1,9 @@
+import App from "@/app/App";
 import { render, screen } from "@testing-library/react";
 import { beforeAll, describe, expect, test, vi } from "vitest";
-import App from "../App";
 
-vi.mock("../lib/controllers/product", () => ({
-  productInfo: vi.fn().mockResolvedValue({
+vi.mock("@/features/product/api/productApi", () => ({
+  getProductInfo: vi.fn().mockResolvedValue({
     edition: "OpenSource",
     capabilities: {
       tenants: false,
@@ -28,6 +28,6 @@ describe("<App />", () => {
     expect(wrapper).toBeTruthy();
 
     const heading = await screen.findByRole("heading", { level: 6 });
-    expect(heading.textContent).toBe("Click2approve");
+    expect(heading.textContent).toBe("Click2Approve");
   });
 });

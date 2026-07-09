@@ -1,16 +1,14 @@
+import { stores } from "@/app/stores";
+import ApprovalRequestStepsDialog from "@/features/approvalRequests/components/ApprovalRequestStepsDialog";
+import ApprovalRequestSubmitDialog from "@/features/approvalRequests/components/ApprovalRequestSubmitDialog";
+import TenantCreateDialog from "@/features/tenants/components/TenantCreateDialog";
+import MainAppBar from "@/shared/components/layout/MainAppBar";
+import MainMenuDrawer from "@/shared/components/layout/MainMenuDrawer";
+import ProfileDrawer from "@/shared/components/layout/ProfileDrawer";
+import { Shell } from "@/shared/constants/constants";
 import { Box, Toolbar } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { Outlet } from "react-router-dom";
-import MainAppBar from "../components/appBars/MainAppBar";
-import ApprovalRequestSubmitDialog from "../components/dialogs/ApprovalRequestSubmitDialog";
-import TenantCreateDialog from "../components/dialogs/TenantCreateDialog";
-import MainMenuDrawer from "../components/drawers/MainMenuDrawer";
-import ProfileDrawer from "../components/drawers/ProfileDrawer";
-import {
-  APP_BAR_SPACER_SX,
-  MAIN_CONTENT_SX,
-} from "../data/constants";
-import { stores } from "../stores/stores";
 
 const MainLayout = () => {
   const drawerIsVisible =
@@ -21,14 +19,12 @@ const MainLayout = () => {
     <>
       <MainAppBar />
       <MainMenuDrawer />
-      <Box
-        component="main"
-        sx={MAIN_CONTENT_SX(drawerIsVisible)}
-      >
-        <Toolbar sx={APP_BAR_SPACER_SX} />
+      <Box component="main" sx={Shell.mainContentSx(drawerIsVisible)}>
+        <Toolbar sx={Shell.appBarSpacerSx} />
         <ProfileDrawer />
         <TenantCreateDialog />
         <ApprovalRequestSubmitDialog />
+        <ApprovalRequestStepsDialog />
         <Outlet />
       </Box>
     </>
