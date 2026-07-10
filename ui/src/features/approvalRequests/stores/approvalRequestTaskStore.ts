@@ -7,6 +7,10 @@ export class ApprovalRequestTaskStore {
   registry: Map<number, ApprovalRequestTask>;
   currentTask: ApprovalRequestTask | null;
   numberOfUncompletedTasks: number;
+  // Incremented to invalidate older count requests so only the latest response updates the store.
+  private countRequestVersion = 0;
+  // Incremented to invalidate older list requests so only the latest response updates the store.
+  private listRequestVersion = 0;
 
   constructor(
     registry: Map<number, ApprovalRequestTask> = new Map<
@@ -27,7 +31,11 @@ export class ApprovalRequestTaskStore {
   }
 
   loadIncoming = async (): Promise<ApprovalRequestTask[]> => {
+    const requestVersion = ++this.listRequestVersion;
     const tasks = await approvalRequestTaskApi.listUncompletedApprovalRequestTasks();
+    if (requestVersion !== this.listRequestVersion) {
+      return [];
+    }
     this.setTasks(tasks);
     return tasks;
   };
@@ -39,14 +47,22 @@ export class ApprovalRequestTaskStore {
       if (task.completedAt) {
         task.completedAtDate = new Date(task.completedAt + "Z");
       }
-      runInAction(() => {
-        this.registry.set(task.id, task);
-      });
+    });
+    const registry = new Map(tasks.map((task) => [task.id, task]));
+    runInAction(() => {
+      this.registry = registry;
+      this.currentTask = this.currentTask
+        ? registry.get(this.currentTask.id) ?? null
+        : null;
     });
   };
 
   loadUncompletedCount = async () => {
+    const requestVersion = ++this.countRequestVersion;
     const numberOfUncompletedTasks = await approvalRequestTaskApi.countUncompletedApprovalRequestTasks();
+    if (requestVersion !== this.countRequestVersion) {
+      return;
+    }
     runInAction(() => {
       this.numberOfUncompletedTasks = numberOfUncompletedTasks;
     });
@@ -54,7 +70,17 @@ export class ApprovalRequestTaskStore {
 
   clear = () => {
     runInAction(() => {
-      this.registry.clear();
+      this.listRequestVersion += 1;
+      this.registry = new Map();
+    });
+  };
+
+  reset = () => {
+    this.clear();
+    runInAction(() => {
+      this.countRequestVersion += 1;
+      this.currentTask = null;
+      this.numberOfUncompletedTasks = 0;
     });
   };
 

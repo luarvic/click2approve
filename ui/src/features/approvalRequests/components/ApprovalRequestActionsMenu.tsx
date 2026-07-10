@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { Menus } from "@/shared/constants/constants";

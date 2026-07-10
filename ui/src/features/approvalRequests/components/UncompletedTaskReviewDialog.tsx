@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import { completeApprovalRequestTask } from "@/features/approvalRequests/api/approvalRequestTaskApi";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import UserFilesList from "@/features/userFiles/components/UserFilesList";

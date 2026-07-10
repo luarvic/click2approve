@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import { AuthForms } from "@/shared/constants/constants";
 import { validateEmail } from "@/shared/utils/validators";
 import LoadingButton from "@mui/lab/LoadingButton";

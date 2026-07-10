@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { Menus } from "@/shared/constants/constants";
 import { MoreHoriz } from "@mui/icons-material";

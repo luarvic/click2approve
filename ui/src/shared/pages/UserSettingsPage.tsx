@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import { AuthForms, Pages } from "@/shared/constants/constants";
 import {
   Box,

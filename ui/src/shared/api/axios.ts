@@ -1,5 +1,5 @@
-import { stores } from "@/app/stores";
 import { refreshAuthSession } from "@/features/identity/api/authApi";
+import { getRequestContext } from "@/shared/api/requestContext";
 import { Api } from "@/shared/constants/constants";
 import { readTokens } from "@/shared/session/session";
 import { getLoaderName } from "@/shared/utils/helpers";
@@ -32,8 +32,8 @@ const shouldSendAuthentication = (url: string | undefined): boolean => {
 
 axiosInstance.defaults.baseURL = Api.baseUri;
 axiosInstance.interceptors.request.use(async (config) => {
-  config.url &&
-    stores.commonStore.updateLoadingCounter(getLoaderName(config), 1);
+  const context = getRequestContext();
+  config.url && context.onLoadingChange(getLoaderName(config), 1);
   const tokens = readTokens();
   const sendAuthentication = shouldSendAuthentication(config.url);
   if (tokens && sendAuthentication) {
@@ -41,26 +41,28 @@ axiosInstance.interceptors.request.use(async (config) => {
   }
   if (
     sendAuthentication &&
-    stores.productStore.tenantsAreEnabled &&
-    stores.tenantStore.currentTenantId
+    context.tenantsAreEnabled() &&
+    context.getCurrentTenantId()
   ) {
-    config.headers["X-Tenant-Id"] = stores.tenantStore.currentTenantId;
+    config.headers["X-Tenant-Id"] = context.getCurrentTenantId();
   }
   return config;
 });
 axiosInstance.interceptors.response.use(
   async (response) => {
+    const context = getRequestContext();
     response.config.url &&
-      stores.commonStore.updateLoadingCounter(
+      context.onLoadingChange(
         getLoaderName(response.config),
         -1,
       );
     return response;
   },
   async (error) => {
+    const context = getRequestContext();
     const originalRequest = error.config;
     if (originalRequest?.url) {
-      stores.commonStore.updateLoadingCounter(
+      context.onLoadingChange(
         getLoaderName(originalRequest),
         -1,
       );
@@ -83,7 +85,7 @@ axiosInstance.interceptors.response.use(
             originalRequest.headers.Authorization = `Bearer ${newTokens.accessToken}`;
             return axiosInstance(originalRequest);
           }
-          stores.userAccountStore.signOut();
+          context.onUnauthorized();
         }
       }
     }

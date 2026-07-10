@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
 import ApprovalStepApproverRow from "@/features/approvalWorkflow/components/ApprovalStepApproverRow";
 import {

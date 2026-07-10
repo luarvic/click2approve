@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import TenantsGrid from "@/features/tenants/components/TenantsGrid";
 import { Pages } from "@/shared/constants/constants";
 import { Typography } from "@mui/material";

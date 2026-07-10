@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import { cancelApprovalRequest } from "@/features/approvalRequests/api/approvalRequestApi";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import ApprovalSteps from "@/features/approvalWorkflow/components/ApprovalSteps";

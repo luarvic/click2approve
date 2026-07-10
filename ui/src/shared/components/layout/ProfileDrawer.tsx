@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import { Lists, Shell } from "@/shared/constants/constants";
 import { Logout, Settings } from "@mui/icons-material";
 import {

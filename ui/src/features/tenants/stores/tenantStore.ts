@@ -11,6 +11,8 @@ export class TenantStore {
   tenants: Tenant[];
   currentTenantId: number | null;
   hasLoaded: boolean;
+  // Incremented to invalidate older async requests so only the latest response updates the store.
+  private requestVersion = 0;
 
   constructor(
     tenants: Tenant[] = [],
@@ -28,7 +30,11 @@ export class TenantStore {
   }
 
   load = async (): Promise<void> => {
+    const requestVersion = ++this.requestVersion;
     const tenants = await tenantApi.listTenants();
+    if (requestVersion !== this.requestVersion) {
+      return;
+    }
     const cachedTenantId = readCurrentTenantId();
     const currentTenant =
       tenants.find((tenant) => tenant.id === cachedTenantId) ?? tenants[0] ?? null;
@@ -45,8 +51,9 @@ export class TenantStore {
   };
 
   create = async (payload: CreateTenantRequest): Promise<Tenant | null> => {
+    const requestVersion = this.requestVersion;
     const tenant = await tenantApi.createTenant(payload);
-    if (!tenant) {
+    if (!tenant || requestVersion !== this.requestVersion) {
       return null;
     }
 
@@ -63,8 +70,9 @@ export class TenantStore {
     payload: CreateTenantRequest,
     logo: File
   ): Promise<Tenant | null> => {
+    const requestVersion = this.requestVersion;
     const tenant = await tenantApi.createTenantWithLogo(payload, logo);
-    if (!tenant) {
+    if (!tenant || requestVersion !== this.requestVersion) {
       return null;
     }
 
@@ -81,8 +89,9 @@ export class TenantStore {
     tenantId: number,
     payload: UpdateTenantRequest
   ): Promise<Tenant | null> => {
+    const requestVersion = this.requestVersion;
     const tenant = await tenantApi.updateTenant(tenantId, payload);
-    if (!tenant) {
+    if (!tenant || requestVersion !== this.requestVersion) {
       return null;
     }
 
@@ -96,8 +105,9 @@ export class TenantStore {
   };
 
   uploadLogo = async (tenantId: number, logo: File): Promise<boolean> => {
+    const requestVersion = this.requestVersion;
     const tenant = await tenantApi.uploadTenantLogo(tenantId, logo);
-    if (!tenant) {
+    if (!tenant || requestVersion !== this.requestVersion) {
       return false;
     }
 
@@ -106,8 +116,9 @@ export class TenantStore {
   };
 
   deleteLogo = async (tenantId: number): Promise<boolean> => {
+    const requestVersion = this.requestVersion;
     const tenant = await tenantApi.deleteTenantLogo(tenantId);
-    if (!tenant) {
+    if (!tenant || requestVersion !== this.requestVersion) {
       return false;
     }
 
@@ -116,8 +127,9 @@ export class TenantStore {
   };
 
   delete = async (tenantId: number): Promise<boolean> => {
+    const requestVersion = this.requestVersion;
     const deleted = await tenantApi.deleteTenant(tenantId);
-    if (!deleted) {
+    if (!deleted || requestVersion !== this.requestVersion) {
       return false;
     }
 
@@ -151,6 +163,7 @@ export class TenantStore {
   clear = (): void => {
     deleteCurrentTenantId();
     runInAction(() => {
+      this.requestVersion += 1;
       this.tenants = [];
       this.currentTenantId = null;
       this.hasLoaded = false;

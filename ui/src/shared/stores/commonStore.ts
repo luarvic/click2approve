@@ -3,6 +3,7 @@ import { makeAutoObservable, runInAction } from "mobx";
 
 export class CommonStore {
   loadingCounter: Dictionary<number>;
+  loadingPrefixCounter: Dictionary<number>;
   approvalRequestSubmitDialogIsOpen: boolean;
   approvalRequestStepsDialogIsOpen: boolean;
   approvalRequestViewDialogIsOpen: boolean;
@@ -21,9 +22,11 @@ export class CommonStore {
     taskReviewDialogIsOpen: boolean = false,
     mainMenuDrawerIsOpen: boolean = false,
     profileDrawerIsOpen: boolean = false,
-    tenantCreateDialogIsOpen: boolean = false
+    tenantCreateDialogIsOpen: boolean = false,
+    loadingPrefixCounter: Dictionary<number> = {},
   ) {
     this.loadingCounter = loadingCounter;
+    this.loadingPrefixCounter = loadingPrefixCounter;
     this.approvalRequestSubmitDialogIsOpen = approvalRequestSubmitDialogIsOpen;
     this.approvalRequestStepsDialogIsOpen = approvalRequestStepsDialogIsOpen;
     this.approvalRequestViewDialogIsOpen = approvalRequestViewDialogIsOpen;
@@ -37,23 +40,19 @@ export class CommonStore {
 
   updateLoadingCounter = (loader: string, delta: number): void => {
     runInAction(() => {
-      this.loadingCounter[loader] = this.loadingCounter[loader] ?? 0;
-      this.loadingCounter[loader] += delta;
+      this.updateCounter(this.loadingCounter, loader, delta);
+      this.getLoaderPrefixes(loader).forEach((prefix) =>
+        this.updateCounter(this.loadingPrefixCounter, prefix, delta),
+      );
     });
   };
 
   isLoading = (loader: string): boolean => {
-    this.loadingCounter;
-    return (
-      !isNaN(this.loadingCounter[loader]) && this.loadingCounter[loader] > 0
-    );
+    return (this.loadingCounter[loader] ?? 0) > 0;
   };
 
   isLoadingByPrefix = (loaderPrefix: string): boolean => {
-    this.loadingCounter;
-    return Object.entries(this.loadingCounter).some(
-      ([loader, counter]) => loader.startsWith(loaderPrefix) && counter > 0
-    );
+    return (this.loadingPrefixCounter[loaderPrefix] ?? 0) > 0;
   };
 
   setApprovalRequestSubmitDialogIsOpen = (isOpen: boolean) => {
@@ -102,5 +101,44 @@ export class CommonStore {
     runInAction(() => {
       this.tenantCreateDialogIsOpen = isOpen;
     });
+  };
+
+  clearSessionState = (): void => {
+    runInAction(() => {
+      this.approvalRequestSubmitDialogIsOpen = false;
+      this.approvalRequestStepsDialogIsOpen = false;
+      this.approvalRequestViewDialogIsOpen = false;
+      this.approvalRequestDeleteDialogIsOpen = false;
+      this.taskReviewDialogIsOpen = false;
+      this.mainMenuDrawerIsOpen = false;
+      this.profileDrawerIsOpen = false;
+      this.tenantCreateDialogIsOpen = false;
+    });
+  };
+
+  private getLoaderPrefixes = (loader: string): string[] => {
+    const prefixes: string[] = [];
+    for (
+      let index = loader.indexOf("/");
+      index >= 0;
+      index = loader.indexOf("/", index + 1)
+    ) {
+      prefixes.push(loader.substring(0, index + 1));
+    }
+    return prefixes;
+  };
+
+  private updateCounter = (
+    counters: Dictionary<number>,
+    key: string,
+    delta: number,
+  ): void => {
+    const nextCounter = (counters[key] ?? 0) + delta;
+    if (nextCounter > 0) {
+      counters[key] = nextCounter;
+      return;
+    }
+
+    delete counters[key];
   };
 }

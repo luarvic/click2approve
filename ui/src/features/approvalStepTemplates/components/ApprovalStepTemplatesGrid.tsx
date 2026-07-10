@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import ApprovalStepTemplateActionsMenu from "@/features/approvalStepTemplates/components/ApprovalStepTemplateActionsMenu";
 import ApprovalStepTemplateDialog from "@/features/approvalStepTemplates/components/ApprovalStepTemplateDialog";
 import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";

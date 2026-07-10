@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import { Menus, Routes, Shell, Tasks } from "@/shared/constants/constants";
 import { AccountCircle, Menu, Notifications } from "@mui/icons-material";
 import {
@@ -117,15 +117,10 @@ const MainAppBar = () => {
             size="small"
             value={stores.tenantStore.currentTenantId ?? ""}
             onChange={async (event) => {
-              stores.tenantStore.setCurrentId(Number(event.target.value));
-              stores.approvalRequestStore.clear();
-              stores.approvalRequestTaskStore.clear();
-              stores.employeeStore.clear();
-              await stores.approvalRequestStore.load();
-              await stores.approvalRequestTaskStore.loadUncompletedCount();
-              if (location.pathname === "/inbox") {
-                await stores.approvalRequestTaskStore.loadIncoming();
-              }
+              await stores.switchTenant(
+                Number(event.target.value),
+                location.pathname === "/inbox",
+              );
             }}
             sx={Shell.tenantPickerSx}
           >

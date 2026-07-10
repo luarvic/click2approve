@@ -6,6 +6,8 @@ export class ApprovalRequestStore {
   registry: Map<number, ApprovalRequest>;
   currentApprovalRequest: ApprovalRequest | null;
   requestToClone: ApprovalRequest | null;
+  // Incremented to invalidate older async requests so only the latest response updates the store.
+  private requestVersion = 0;
 
   constructor(
     registry: Map<number, ApprovalRequest> = new Map<
@@ -26,18 +28,40 @@ export class ApprovalRequestStore {
   }
 
   load = async () => {
+    const requestVersion = ++this.requestVersion;
     const approvalRequests = await approvalRequestApi.listApprovalRequests();
-    approvalRequests.forEach((approvalRequest) => {
-      normalizeApprovalRequestDates(approvalRequest);
-      runInAction(() => {
-        this.registry.set(approvalRequest.id, approvalRequest);
-      });
+    // Ignore this response if a newer load or clear operation has invalidated it.
+    if (requestVersion !== this.requestVersion) {
+      return;
+    }
+
+    approvalRequests.forEach(normalizeApprovalRequestDates);
+    const registry = new Map(
+      approvalRequests.map((approvalRequest) => [approvalRequest.id, approvalRequest]),
+    );
+    runInAction(() => {
+      this.registry = registry;
+      this.currentApprovalRequest = this.currentApprovalRequest
+        ? registry.get(this.currentApprovalRequest.id) ?? null
+        : null;
+      this.requestToClone = this.requestToClone
+        ? registry.get(this.requestToClone.id) ?? null
+        : null;
     });
   };
 
   clear = () => {
     runInAction(() => {
-      this.registry.clear();
+      this.requestVersion += 1;
+      this.registry = new Map();
+    });
+  };
+
+  reset = () => {
+    this.clear();
+    runInAction(() => {
+      this.currentApprovalRequest = null;
+      this.requestToClone = null;
     });
   };
 

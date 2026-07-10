@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import ApprovalRequestActionsMenu from "@/features/approvalRequests/components/ApprovalRequestActionsMenu";
 import ApprovalRequestDeleteDialog from "@/features/approvalRequests/components/ApprovalRequestDeleteDialog";
 import ApprovalRequestViewDialog from "@/features/approvalRequests/components/ApprovalRequestViewDialog";

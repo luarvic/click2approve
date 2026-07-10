@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import { deleteApprovalRequest } from "@/features/approvalRequests/api/approvalRequestApi";
 import ApprovalSteps from "@/features/approvalWorkflow/components/ApprovalSteps";
 import UserFilesList from "@/features/userFiles/components/UserFilesList";

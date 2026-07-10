@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import EmployeesGrid from "@/features/employees/components/EmployeesGrid";
 import { TenantType } from "@/features/tenants/models/tenant";
 import { Pages } from "@/shared/constants/constants";

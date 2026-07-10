@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import EmployeeActionsMenu from "@/features/employees/components/EmployeeActionsMenu";
 import EmployeeDialog from "@/features/employees/components/EmployeeDialog";
 import {

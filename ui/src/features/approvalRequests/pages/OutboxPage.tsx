@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import OutboxGrid from "@/features/approvalRequests/components/OutboxGrid";
 import { Pages } from "@/shared/constants/constants";
 import { Box, Typography } from "@mui/material";

@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import { updateApprovalRequestSteps } from "@/features/approvalRequests/api/approvalRequestApi";
 import {
   ApprovalRequest,

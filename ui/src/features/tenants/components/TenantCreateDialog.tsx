@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import TenantLogoPicker from "@/features/tenants/components/TenantLogoPicker";
 import { Dialogs } from "@/shared/constants/constants";
 import {

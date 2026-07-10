@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import ApprovalRequestStepsDialog from "@/features/approvalRequests/components/ApprovalRequestStepsDialog";
 import ApprovalRequestSubmitDialog from "@/features/approvalRequests/components/ApprovalRequestSubmitDialog";
 import TenantCreateDialog from "@/features/tenants/components/TenantCreateDialog";

@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import InboxPage from "@/features/approvalRequests/pages/InboxPage";
 import OutboxPage from "@/features/approvalRequests/pages/OutboxPage";
 import ApprovalStepTemplatesPage from "@/features/approvalStepTemplates/pages/ApprovalStepTemplatesPage";

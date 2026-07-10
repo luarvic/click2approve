@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import { TenantType } from "@/features/tenants/models/tenant";
 import { Api, Lists, Routes, Shell } from "@/shared/constants/constants";
 import {

@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import { submitApprovalRequest } from "@/features/approvalRequests/api/approvalRequestApi";
 import ApprovalRequestFilesList from "@/features/approvalRequests/components/ApprovalRequestFilesList";
 import ApprovalStepApproverRow from "@/features/approvalWorkflow/components/ApprovalStepApproverRow";

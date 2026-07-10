@@ -7,6 +7,8 @@ import { makeAutoObservable, runInAction } from "mobx";
 
 export class ApprovalStepTemplateStore {
   templates: ApprovalStepTemplate[];
+  // Incremented to invalidate older async requests so only the latest response updates the store.
+  private requestVersion = 0;
 
   constructor(templates: ApprovalStepTemplate[] = []) {
     this.templates = templates;
@@ -14,7 +16,11 @@ export class ApprovalStepTemplateStore {
   }
 
   load = async (tenantId: number): Promise<void> => {
+    const requestVersion = ++this.requestVersion;
     const templates = await approvalStepTemplateApi.listApprovalStepTemplates(tenantId);
+    if (requestVersion !== this.requestVersion) {
+      return;
+    }
     runInAction(() => {
       this.templates = templates;
     });
@@ -24,8 +30,9 @@ export class ApprovalStepTemplateStore {
     tenantId: number,
     payload: UpsertApprovalStepTemplateRequest
   ): Promise<boolean> => {
+    const requestVersion = this.requestVersion;
     const template = await approvalStepTemplateApi.createApprovalStepTemplate(tenantId, payload);
-    if (!template) {
+    if (!template || requestVersion !== this.requestVersion) {
       return false;
     }
 
@@ -40,12 +47,13 @@ export class ApprovalStepTemplateStore {
     templateId: number,
     payload: UpsertApprovalStepTemplateRequest
   ): Promise<boolean> => {
+    const requestVersion = this.requestVersion;
     const template = await approvalStepTemplateApi.updateApprovalStepTemplate(
       tenantId,
       templateId,
       payload
     );
-    if (!template) {
+    if (!template || requestVersion !== this.requestVersion) {
       return false;
     }
 
@@ -58,7 +66,11 @@ export class ApprovalStepTemplateStore {
   };
 
   delete = async (tenantId: number, templateId: number): Promise<boolean> => {
+    const requestVersion = this.requestVersion;
     if (!(await approvalStepTemplateApi.deleteApprovalStepTemplate(tenantId, templateId))) {
+      return false;
+    }
+    if (requestVersion !== this.requestVersion) {
       return false;
     }
 
@@ -72,6 +84,7 @@ export class ApprovalStepTemplateStore {
 
   clear = (): void => {
     runInAction(() => {
+      this.requestVersion += 1;
       this.templates = [];
     });
   };

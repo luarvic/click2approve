@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import TenantActionsMenu from "@/features/tenants/components/TenantActionsMenu";
 import TenantDialog from "@/features/tenants/components/TenantDialog";
 import {
@@ -48,13 +48,7 @@ const TenantsGrid = () => {
   };
 
   const refreshTenantScopedStores = async () => {
-    stores.approvalRequestStore.clear();
-    stores.approvalRequestTaskStore.clear();
-    stores.employeeStore.clear();
-    if (stores.tenantStore.currentTenantId) {
-      await stores.approvalRequestStore.load();
-      await stores.approvalRequestTaskStore.loadUncompletedCount();
-    }
+    await stores.refreshTenantScope();
   };
 
   const handleDelete = async (tenant: Tenant) => {

@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import TeamActionsMenu from "@/features/teams/components/TeamActionsMenu";
 import TeamDialog from "@/features/teams/components/TeamDialog";
 import { Team, UpsertTeamRequest } from "@/features/teams/models/team";

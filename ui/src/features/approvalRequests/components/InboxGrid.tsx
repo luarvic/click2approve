@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import TaskActionsMenu from "@/features/approvalRequests/components/TaskActionsMenu";
 import UncompletedTaskReviewDialog from "@/features/approvalRequests/components/UncompletedTaskReviewDialog";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";

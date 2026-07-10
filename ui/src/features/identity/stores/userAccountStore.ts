@@ -1,4 +1,3 @@
-import { stores } from "@/app/stores";
 import {
   getUserAccountManageInfo,
   loginUser,
@@ -14,11 +13,21 @@ import { makeAutoObservable, runInAction } from "mobx";
 
 export class UserAccountStore {
   currentUser: UserAccount | null | undefined; // undefined means we don't know yet if it's authenticated or anonymous user
+  private clearSession: () => void = () => undefined;
+  private initializeSession: () => Promise<void> = async () => undefined;
 
   constructor(currentUser: UserAccount | undefined = undefined) {
     this.currentUser = currentUser;
     makeAutoObservable(this);
   }
+
+  configureSessionLifecycle = (
+    initializeSession: () => Promise<void>,
+    clearSession: () => void,
+  ): void => {
+    this.initializeSession = initializeSession;
+    this.clearSession = clearSession;
+  };
 
   signUp = async (credentials: CredentialsData): Promise<boolean> => {
     return await registerUser(credentials);
@@ -55,9 +64,7 @@ export class UserAccountStore {
     if (tokens) {
       const currentUser = await getUserAccountManageInfo();
       if (currentUser) {
-        if (stores.productStore.tenantsAreEnabled) {
-          await stores.tenantStore.load();
-        }
+        await this.initializeSession();
         runInAction(() => {
           this.currentUser = currentUser;
         });
@@ -70,8 +77,7 @@ export class UserAccountStore {
 
   signOut = () => {
     deleteTokens();
-    stores.tenantStore.clear();
-    stores.employeeStore.clear();
+    this.clearSession();
     runInAction(() => {
       this.currentUser = null;
     });

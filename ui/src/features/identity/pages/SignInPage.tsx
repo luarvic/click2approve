@@ -1,4 +1,4 @@
-import { stores } from "@/app/stores";
+import { stores } from "@/app/rootStore";
 import { Credentials } from "@/features/identity/models/credentials";
 import { AuthForms, Routes, Text } from "@/shared/constants/constants";
 import { validateEmail } from "@/shared/utils/validators";
