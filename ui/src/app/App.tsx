@@ -15,7 +15,7 @@ import TenantWelcomePage from "@/features/tenants/pages/TenantWelcomePage";
 import MainLayout from "@/layouts/MainLayout";
 import WrapperLayout from "@/layouts/WrapperLayout";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
-import { Toasts } from "@/shared/constants/constants";
+import { Routes as AppRoutes, Toasts } from "@/shared/constants/constants";
 import HomePage from "@/shared/pages/HomePage";
 import InformationPage from "@/shared/pages/InformationPage";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
@@ -54,7 +54,7 @@ const App = () => {
           <Routes>
             <Route element={<MainLayout />}>
               <Route index element={<HomePage />} />
-              <Route path="/inbox" element={<InboxPage />} />
+              <Route path={AppRoutes.inboxPath} element={<InboxPage />} />
               <Route path="/outbox" element={<OutboxPage />} />
               <Route path="/signIn" element={<SignInPage />} />
               <Route path="/signUp" element={<SignUpPage />} />

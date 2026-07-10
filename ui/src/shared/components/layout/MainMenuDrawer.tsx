@@ -53,7 +53,7 @@ const MainMenuDrawer = () => {
     currentTenant?.type === TenantType.Business &&
     currentTenant?.role !== undefined;
   const inboxIsSelected =
-    location.pathname === "/" || location.pathname === Routes.defaultPath;
+    location.pathname === "/" || location.pathname === Routes.inboxPath;
 
   useEffect(() => {
     if (!currentUser) {
@@ -110,7 +110,7 @@ const MainMenuDrawer = () => {
           <ListItemButton
             selected={inboxIsSelected}
             onClick={() => {
-              navigate("/inbox");
+              navigate(Routes.inboxPath);
               closeTemporaryDrawer();
             }}
           >

@@ -51,6 +51,8 @@ const MainAppBar = () => {
       stores.tenantStore.currentTenantId !== null);
   const signInButtonIsVisible =
     !currentUser && !authRoutePaths.has(location.pathname);
+  const inboxIsOpen =
+    location.pathname === "/" || location.pathname === Routes.inboxPath;
   const numberOfUncompletedTasks =
     stores.approvalRequestTaskStore.numberOfUncompletedTasks;
 
@@ -66,9 +68,12 @@ const MainAppBar = () => {
 
     const intervalId = window.setInterval(() => {
       stores.approvalRequestTaskStore.loadUncompletedCount();
+      if (inboxIsOpen) {
+        stores.approvalRequestTaskStore.loadIncoming();
+      }
     }, Tasks.uncompletedRefreshMs);
     return () => window.clearInterval(intervalId);
-  }, [currentUser, tenantScopeIsReady]);
+  }, [currentUser, inboxIsOpen, tenantScopeIsReady]);
 
   return (
     <AppBar
@@ -119,7 +124,7 @@ const MainAppBar = () => {
             onChange={async (event) => {
               await stores.switchTenant(
                 Number(event.target.value),
-                location.pathname === "/inbox",
+                location.pathname === Routes.inboxPath,
               );
             }}
             sx={Shell.tenantPickerSx}

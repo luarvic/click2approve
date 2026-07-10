@@ -451,6 +451,9 @@ export const Errors = {
   unknownMessage: "Unknown error occurred.",
 } as const;
 
+const inboxPath = "/inbox";
+
 export const Routes = {
-  defaultPath: "/inbox",
+  defaultPath: inboxPath,
+  inboxPath,
 } as const;
