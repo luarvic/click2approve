@@ -19,7 +19,7 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const roleLabels = ["User", "Manager", "Admin"];
 const statusLabels = ["Pending", "Active"];
@@ -62,6 +62,20 @@ const EmployeesGrid = () => {
   const employeesLoaderPrefix = tenantId ? `api/tenants/${tenantId}/users` : "";
   const canModifyEmployees =
     stores.tenantStore.currentTenant?.role === EmployeeRole.Admin;
+  const teams = stores.teamStore.teams;
+  const selectedTeamIds = useMemo(
+    () =>
+      currentEmployee
+        ? teams
+          .filter((team) =>
+            team.members.some(
+              (member) => member.id === currentEmployee.id,
+            ),
+          )
+          .map((team) => team.id)
+        : [],
+    [currentEmployee, teams],
+  );
 
   useEffect(() => {
     stores.employeeStore.clear();
@@ -234,18 +248,8 @@ const EmployeesGrid = () => {
         <EmployeeDialog
           open={dialogIsOpen}
           employee={currentEmployee}
-          teams={stores.teamStore.teams}
-          selectedTeamIds={
-            currentEmployee
-              ? stores.teamStore.teams
-                .filter((team) =>
-                  team.members.some(
-                    (member) => member.id === currentEmployee.id,
-                  ),
-                )
-                .map((team) => team.id)
-              : []
-          }
+          teams={teams}
+          selectedTeamIds={selectedTeamIds}
           onClose={() => setDialogIsOpen(false)}
           onSubmit={handleSubmit}
         />
