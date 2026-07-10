@@ -32,7 +32,7 @@ export class ApprovalRequestTaskStore {
 
   loadIncoming = async (): Promise<ApprovalRequestTask[]> => {
     const requestVersion = ++this.listRequestVersion;
-    const tasks = await approvalRequestTaskApi.listUncompletedApprovalRequestTasks();
+    const tasks = await approvalRequestTaskApi.listApprovalRequestTasks();
     if (requestVersion !== this.listRequestVersion) {
       return [];
     }

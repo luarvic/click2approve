@@ -13,7 +13,7 @@ public interface IApprovalRequestService
     Task CancelApprovalRequestAsync(AppUser user, long id, CancellationToken cancellationToken);
     Task UpdateApprovalRequestStepsAsync(AppUser user, long id, ApprovalRequestStepsUpdateDto payload, CancellationToken cancellationToken);
     Task<List<ApprovalRequest>> ListApprovalRequestsAsync(AppUser user, CancellationToken cancellationToken);
-    Task<List<ApprovalRequestTask>> ListTasksAsync(AppUser user, ApprovalRequestTaskStatus[] statuses, CancellationToken cancellationToken);
+    Task<List<ApprovalRequestTask>> ListTasksAsync(AppUser user, CancellationToken cancellationToken);
     Task CompleteTaskAsync(AppUser user, ApprovalRequestTaskCompleteDto payload, CancellationToken cancellationToken);
     Task<long> CountUncompletedTasksAsync(AppUser user, CancellationToken cancellationToken);
 }

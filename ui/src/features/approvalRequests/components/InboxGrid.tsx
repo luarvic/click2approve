@@ -101,7 +101,7 @@ const InboxGrid = () => {
         sx={DataGrids.sx}
         autoHeight
         loading={
-          stores.commonStore.isLoading("get_api/task/listUncompleted") ||
+          stores.commonStore.isLoading("get_api/task/list") ||
           stores.commonStore.isLoading("post_api/task/complete")
         }
       />

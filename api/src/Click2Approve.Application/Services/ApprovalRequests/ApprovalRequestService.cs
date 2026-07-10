@@ -225,9 +225,9 @@ public class ApprovalRequestService(
     /// <summary>
     /// Lists the approval request tasks.
     /// </summary>
-    public async Task<List<ApprovalRequestTask>> ListTasksAsync(AppUser user, ApprovalRequestTaskStatus[] statuses, CancellationToken cancellationToken)
+    public async Task<List<ApprovalRequestTask>> ListTasksAsync(AppUser user, CancellationToken cancellationToken)
     {
-        var tasks = await _approvalRequestTaskRepository.ListAsync(user, statuses, cancellationToken);
+        var tasks = await _approvalRequestTaskRepository.ListAsync(user, cancellationToken);
         foreach (var task in tasks.Where(t => !t.CanViewRequest))
         {
             RedactApprovalRequestDetails(task.ApprovalRequest);

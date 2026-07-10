@@ -3,7 +3,10 @@ import * as approvalRequestApi from "@/features/approvalRequests/api/approvalReq
 import * as approvalRequestTaskApi from "@/features/approvalRequests/api/approvalRequestTaskApi";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
+import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
+import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { ApprovalRequestStore } from "@/features/approvalRequests/stores/approvalRequestStore";
+import { ApprovalRequestTaskStore } from "@/features/approvalRequests/stores/approvalRequestTaskStore";
 import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
 import * as employeeApi from "@/features/employees/api/employeeApi";
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
@@ -20,7 +23,7 @@ vi.mock("@/features/approvalRequests/api/approvalRequestApi", () => ({
 
 vi.mock("@/features/approvalRequests/api/approvalRequestTaskApi", () => ({
   countUncompletedApprovalRequestTasks: vi.fn(),
-  listUncompletedApprovalRequestTasks: vi.fn(),
+  listApprovalRequestTasks: vi.fn(),
 }));
 
 vi.mock("@/features/employees/api/employeeApi", () => ({
@@ -54,6 +57,22 @@ const approvalRequest = (id: number): ApprovalRequest => ({
   authorEmail: "user@example.com",
   status: ApprovalRequestStatus.Submitted,
   tasks: [],
+});
+
+const approvalRequestTask = (
+  id: number,
+  status: ApprovalRequestTaskStatus,
+): ApprovalRequestTask => ({
+  id,
+  title: `Task ${id}`,
+  approvalRequest: approvalRequest(id),
+  approvalRequestId: id,
+  approvalRequestStepId: id,
+  approverEmail: "approver@example.com",
+  canViewRequest: true,
+  status,
+  createdAt: "2026-01-01T00:00:00",
+  createdAtDate: new Date(),
 });
 
 describe("store architecture", () => {
@@ -117,6 +136,25 @@ describe("store architecture", () => {
     await store.load();
 
     expect(store.approvalRequests.map(({ id }) => id)).toEqual([2]);
+  });
+
+  test("incoming tasks retain every status returned by the API", async () => {
+    vi.mocked(approvalRequestTaskApi.listApprovalRequestTasks).mockResolvedValue([
+      approvalRequestTask(1, ApprovalRequestTaskStatus.Pending),
+      approvalRequestTask(2, ApprovalRequestTaskStatus.Approved),
+      approvalRequestTask(3, ApprovalRequestTaskStatus.Rejected),
+      approvalRequestTask(4, ApprovalRequestTaskStatus.Skipped),
+    ]);
+    const store = new ApprovalRequestTaskStore();
+
+    await store.loadIncoming();
+
+    expect(store.tasks.map(({ status }) => status)).toEqual([
+      ApprovalRequestTaskStatus.Skipped,
+      ApprovalRequestTaskStatus.Rejected,
+      ApprovalRequestTaskStatus.Approved,
+      ApprovalRequestTaskStatus.Pending,
+    ]);
   });
 
   test("signing out clears all session-scoped stores", () => {

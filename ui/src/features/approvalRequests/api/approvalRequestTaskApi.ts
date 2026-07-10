@@ -22,13 +22,11 @@ export const completeApprovalRequestTask = async (
   }
 };
 
-export const listUncompletedApprovalRequestTasks = async (): Promise<
+export const listApprovalRequestTasks = async (): Promise<
   ApprovalRequestTask[]
 > => {
   try {
-    const { data } = await axios.get<ApprovalRequestTask[]>(
-      "api/task/listUncompleted"
-    );
+    const { data } = await axios.get<ApprovalRequestTask[]>("api/task/list");
     return data;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));

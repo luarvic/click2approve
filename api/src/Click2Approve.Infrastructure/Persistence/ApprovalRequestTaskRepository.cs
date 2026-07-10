@@ -39,7 +39,7 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
         return tasks.Count;
     }
 
-    public async Task<List<ApprovalRequestTask>> ListAsync(AppUser user, ApprovalRequestTaskStatus[] statuses, CancellationToken cancellationToken)
+    public async Task<List<ApprovalRequestTask>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await _db.ApprovalRequestTasks
@@ -50,8 +50,7 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
                 .ThenInclude(s => s.Approvers)
             .Include(t => t.ApprovalRequest.Steps)
                 .ThenInclude(s => s.Tasks)
-            .Where(t => statuses.Contains(t.Status)
-                && t.ApproverUserId == user.Id
+            .Where(t => t.ApproverUserId == user.Id
                 && t.TenantId == tenantId)
             .ToListAsync(cancellationToken);
     }
