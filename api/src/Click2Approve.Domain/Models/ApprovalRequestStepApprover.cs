@@ -13,4 +13,5 @@ public class ApprovalRequestStepApprover : DbEntity
     public long? TeamId { get; set; }
     public string? DisplayName { get; set; }
     public required bool CanViewRequest { get; set; }
+    public List<ApprovalRequestTask> Tasks { get; set; } = [];
 }

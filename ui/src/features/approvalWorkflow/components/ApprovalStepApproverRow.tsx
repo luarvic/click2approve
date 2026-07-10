@@ -72,6 +72,7 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
         disabled={disabled}
         onChange={(event) =>
           onChange({
+            id: approver.id,
             type: Number(event.target.value) as ApprovalRecipientType,
             canViewRequest: approver.canViewRequest,
           })

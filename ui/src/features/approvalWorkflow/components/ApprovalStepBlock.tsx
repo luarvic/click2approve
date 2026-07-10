@@ -46,7 +46,7 @@ const getApproverTasks = (
 
 const getApproverStatusLabel = (tasks: ApprovalRequestTask[]) => {
   if (tasks.length === 0) {
-    return "Waiting";
+    return "Not started";
   }
   if (
     tasks.some((task) => task.status === ApprovalRequestTaskStatus.Rejected)

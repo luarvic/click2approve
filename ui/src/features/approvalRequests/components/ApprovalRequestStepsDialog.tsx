@@ -416,17 +416,14 @@ const ApprovalRequestStepsDialog = () => {
                       stepTasks,
                       approver.id,
                     );
-                    const existingCurrentApprover =
-                      isCurrent && Boolean(approver.id);
                     const touched = approverTasks.some(
                       (task) =>
                         task.status !== ApprovalRequestTaskStatus.Pending,
                     );
-                    const disabled = isPassed || existingCurrentApprover;
+                    const disabled = isPassed || (isCurrent && touched);
                     const removeDisabled =
                       isPassed ||
                       (isCurrent && touched) ||
-                      (!isCurrent && disabled) ||
                       step.approvers.length === 1;
 
                     return (

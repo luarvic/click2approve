@@ -455,6 +455,7 @@ public class ApprovalRequestService(
                 Title = approvalRequest.Title,
                 ApprovalRequest = approvalRequest,
                 ApprovalRequestStep = step,
+                ApprovalRequestStepApprover = configuredApprover,
                 ApproverEmail = resolution.ApproverEmail,
                 ApproverUserId = resolution.ApproverUserId,
                 ApproverDisplayName = resolution.DisplayName,
@@ -491,6 +492,8 @@ public class ApprovalRequestService(
             .Where(a => a.Id.HasValue)
             .Select(a => a.Id!.Value)
             .ToHashSet();
+        var newTasks = new List<ApprovalRequestTask>();
+        var removedTasks = new List<ApprovalRequestTask>();
 
         foreach (var approverDto in currentStepDto.Approvers.Where(a => a.Id.HasValue))
         {
@@ -499,13 +502,27 @@ public class ApprovalRequestService(
                 throw new BusinessRuleException("The current approval step contains an invalid approver.");
             }
 
-            EnsureApproverIsUnchanged(existingApprover, approverDto, "Existing approvers in the current step cannot be modified.");
+            if (ApproverIsUnchanged(existingApprover, approverDto))
+            {
+                continue;
+            }
+
+            var tasks = await GetApproverTasksAsync(approvalRequest, currentStep, existingApprover, cancellationToken);
+            if (tasks.Any(t => t.Status != ApprovalRequestTaskStatus.Pending))
+            {
+                throw new BusinessRuleException("Approvers that have already reviewed the current step cannot be modified.");
+            }
+
+            RemoveTasks(approvalRequest, currentStep, tasks);
+            removedTasks.AddRange(tasks);
+            UpdateApprover(existingApprover, approverDto);
+            var createdTasks = await CreateTasksForApproverAsync(approvalRequest, currentStep, existingApprover, cancellationToken);
+            newTasks.AddRange(createdTasks);
         }
 
         var removedApprovers = currentStep.Approvers
             .Where(a => !submittedApproverIds.Contains(a.Id))
             .ToList();
-        var removedTasks = new List<ApprovalRequestTask>();
         foreach (var removedApprover in removedApprovers)
         {
             var tasks = await GetApproverTasksAsync(approvalRequest, currentStep, removedApprover, cancellationToken);
@@ -515,17 +532,10 @@ public class ApprovalRequestService(
             }
 
             removedTasks.AddRange(tasks);
-            foreach (var task in tasks)
-            {
-                _approvalRequestTaskRepository.Remove(task);
-                approvalRequest.Tasks.Remove(task);
-                currentStep.Tasks.Remove(task);
-            }
-
+            RemoveTasks(approvalRequest, currentStep, tasks);
             currentStep.Approvers.Remove(removedApprover);
         }
 
-        var newTasks = new List<ApprovalRequestTask>();
         foreach (var approverDto in currentStepDto.Approvers.Where(a => !a.Id.HasValue))
         {
             var approver = BuildApprover(approverDto);
@@ -535,6 +545,19 @@ public class ApprovalRequestService(
         }
 
         return new CurrentStepTaskUpdates(newTasks, removedTasks);
+    }
+
+    private void RemoveTasks(
+        ApprovalRequest approvalRequest,
+        ApprovalRequestStep currentStep,
+        IEnumerable<ApprovalRequestTask> tasks)
+    {
+        foreach (var task in tasks)
+        {
+            _approvalRequestTaskRepository.Remove(task);
+            approvalRequest.Tasks.Remove(task);
+            currentStep.Tasks.Remove(task);
+        }
     }
 
     private static void EnsureStepIsUnchanged(
@@ -560,15 +583,34 @@ public class ApprovalRequestService(
         ApprovalRequestApproverUpdateDto approverDto,
         string message)
     {
-        if (approver.Type != approverDto.Type
-            || !string.Equals(approver.Email, approverDto.Email, StringComparison.Ordinal)
-            || approver.EmployeeId != approverDto.EmployeeId
-            || approver.TeamId != approverDto.TeamId
-            || !string.Equals(approver.DisplayName, approverDto.DisplayName, StringComparison.Ordinal)
-            || approver.CanViewRequest != approverDto.CanViewRequest)
+        if (!ApproverIsUnchanged(approver, approverDto))
         {
             throw new BusinessRuleException(message);
         }
+    }
+
+    private static bool ApproverIsUnchanged(
+        ApprovalRequestStepApprover approver,
+        ApprovalRequestApproverUpdateDto approverDto)
+    {
+        return approver.Type == approverDto.Type
+            && string.Equals(approver.Email, approverDto.Email, StringComparison.Ordinal)
+            && approver.EmployeeId == approverDto.EmployeeId
+            && approver.TeamId == approverDto.TeamId
+            && string.Equals(approver.DisplayName, approverDto.DisplayName, StringComparison.Ordinal)
+            && approver.CanViewRequest == approverDto.CanViewRequest;
+    }
+
+    private static void UpdateApprover(
+        ApprovalRequestStepApprover approver,
+        ApprovalRequestApproverUpdateDto approverDto)
+    {
+        approver.Type = approverDto.Type;
+        approver.Email = approverDto.Email;
+        approver.EmployeeId = approverDto.EmployeeId;
+        approver.TeamId = approverDto.TeamId;
+        approver.DisplayName = approverDto.DisplayName;
+        approver.CanViewRequest = approverDto.CanViewRequest;
     }
 
     private static bool StepHasPassed(ApprovalRequestStep step)
@@ -583,6 +625,15 @@ public class ApprovalRequestService(
         ApprovalRequestStepApprover approver,
         CancellationToken cancellationToken)
     {
+        var linkedTasks = step.Tasks
+            .Where(task => task.ApprovalRequestStepApproverId == approver.Id
+                || task.ApprovalRequestStepApprover == approver)
+            .ToList();
+        if (linkedTasks.Count > 0)
+        {
+            return linkedTasks;
+        }
+
         var resolutions = await _approvalRecipientResolver.ResolveAsync(approvalRequest, step, approver, cancellationToken);
         return [.. step.Tasks.Where(task => resolutions.Any(resolution => MatchesResolution(task, resolution)))];
     }

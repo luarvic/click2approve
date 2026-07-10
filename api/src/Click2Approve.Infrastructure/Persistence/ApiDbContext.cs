@@ -153,6 +153,12 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<ApprovalRequestTask>()
+            .HasOne(t => t.ApprovalRequestStepApprover)
+            .WithMany(a => a.Tasks)
+            .HasForeignKey(t => t.ApprovalRequestStepApproverId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
             .HasOne(t => t.Tenant)
             .WithMany(t => t.ApprovalRequestTasks)
             .HasForeignKey(t => t.TenantId)

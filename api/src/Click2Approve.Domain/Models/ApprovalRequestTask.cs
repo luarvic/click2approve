@@ -10,6 +10,8 @@ public class ApprovalRequestTask : DbEntity
     public ApprovalRequest ApprovalRequest { get; set; } = null!;
     public long ApprovalRequestStepId { get; set; }
     public ApprovalRequestStep ApprovalRequestStep { get; set; } = null!;
+    public long? ApprovalRequestStepApproverId { get; set; }
+    public ApprovalRequestStepApprover? ApprovalRequestStepApprover { get; set; }
     public string? ApproverUserId { get; set; }
     public AppUser? ApproverUser { get; set; }
     public required string ApproverEmail { get; set; }
