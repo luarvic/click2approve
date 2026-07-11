@@ -65,13 +65,13 @@ public class ApprovalRequestController(
     }
 
     /// <summary>
-    /// Updates mutable approval request steps.
+    /// Updates currently mutable properties of an approval request.
     /// </summary>
     [HttpPut("{id:long}/steps")]
-    public async Task<IActionResult> UpdateStepsAsync(long id, [FromBody] ApprovalRequestStepsUpdateDto payload, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateAsync(long id, [FromBody] ApprovalRequestUpdateDto payload, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        await _approvalRequestService.UpdateApprovalRequestStepsAsync(user, id, payload, cancellationToken);
+        await _approvalRequestService.UpdateApprovalRequestAsync(user, id, payload, cancellationToken);
         return Ok();
     }
 
@@ -81,7 +81,7 @@ public class ApprovalRequestController(
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The list of approval requests.</returns>
     [HttpGet("list")]
-    public async Task<ActionResult<List<ApprovalRequest>>> ListAsync(CancellationToken cancellationToken)
+    public async Task<ActionResult<List<ApprovalRequestDto>>> ListAsync(CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
         var approvalRequests = await _approvalRequestService.ListApprovalRequestsAsync(user, cancellationToken);

@@ -1,9 +1,9 @@
 namespace Click2Approve.Application.Models.DTOs;
 
 /// <summary>
-/// Represents mutable approval request steps that have not passed yet.
+/// Represents the currently mutable properties of an existing approval request.
 /// </summary>
-public class ApprovalRequestStepsUpdateDto
+public class ApprovalRequestUpdateDto
 {
     public required List<ApprovalRequestStepUpdateDto> Steps { get; set; }
 }

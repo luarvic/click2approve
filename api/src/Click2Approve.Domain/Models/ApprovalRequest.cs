@@ -15,9 +15,7 @@ public class ApprovalRequest : DbEntity
     public required ApprovalRequestStatus Status { get; set; }
     public required List<UserFile> UserFiles { get; set; }
     public required List<ApprovalRequestStep> Steps { get; set; }
-    public DateTime? ApproveBy { get; set; }
-    public required string? Comment { get; set; }
-    public long? ClonedFromApprovalRequestId { get; set; }
-    public ApprovalRequest? ClonedFromApprovalRequest { get; set; }
+    public DateTime? CompletedAt { get; set; }
+    public required string? Description { get; set; }
     public required List<ApprovalRequestTask> Tasks { get; set; }
 }

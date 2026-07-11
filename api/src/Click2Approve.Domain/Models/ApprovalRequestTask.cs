@@ -22,5 +22,6 @@ public class ApprovalRequestTask : DbEntity
     public ApprovalRequestTaskStatus Status { get; set; }
     public required DateTime CreatedAt { get; set; }
     public DateTime? CompletedAt { get; set; }
+    public string? Description { get; set; }
     public string? Comment { get; set; }
 }

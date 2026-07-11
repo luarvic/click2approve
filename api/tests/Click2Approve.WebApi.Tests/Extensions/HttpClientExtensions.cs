@@ -220,4 +220,21 @@ public static class HttpClientExtensions
             cancellationToken
             );
     }
+
+    /// <summary>
+    /// Lists approval requests submitted by the current user.
+    /// </summary>
+    public static async Task<List<ApprovalRequestDto>> ListApprovalRequestsAsync(this HttpClient httpClient,
+        string accessToken,
+        CancellationToken cancellationToken)
+    {
+        return await httpClient.SendAsync<List<ApprovalRequestDto>>(HttpMethod.Get,
+            "api/request/list",
+            new Dictionary<string, string> {
+                {"Authorization", $"Bearer {accessToken}"}
+            },
+            null,
+            null,
+            cancellationToken);
+    }
 }

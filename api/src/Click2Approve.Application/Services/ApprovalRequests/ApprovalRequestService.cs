@@ -62,15 +62,13 @@ public class ApprovalRequestService(
             Title = title,
             UserFiles = userFiles,
             Steps = steps,
-            ApproveBy = payload.ApproveBy,
             CreatedAt = now,
-            Comment = payload.Comment,
-            Status = ApprovalRequestStatus.Submitted,
+            Description = payload.Description,
+            Status = ApprovalRequestStatus.Pending,
             TenantId = tenantId,
             AuthorUserId = user.Id,
             AuthorUser = user,
             AuthorEmail = user.NormalizedEmail!,
-            ClonedFromApprovalRequestId = payload.ClonedFromApprovalRequestId,
             Tasks = []
         }, cancellationToken);
 
@@ -116,18 +114,20 @@ public class ApprovalRequestService(
     public async Task CancelApprovalRequestAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
         var approvalRequest = await _approvalRequestRepository.GetForUpdateAsync(user, id, cancellationToken);
-        if (approvalRequest.Status is ApprovalRequestStatus.Approved or ApprovalRequestStatus.Rejected or ApprovalRequestStatus.Cancelled)
+        if (approvalRequest.Status is ApprovalRequestStatus.Approved or ApprovalRequestStatus.Rejected or ApprovalRequestStatus.Canceled)
         {
             throw new BusinessRuleException("The approval request cannot be cancelled.");
         }
 
-        approvalRequest.Status = ApprovalRequestStatus.Cancelled;
+        var now = DateTime.UtcNow;
+        approvalRequest.Status = ApprovalRequestStatus.Canceled;
+        approvalRequest.CompletedAt = now;
         var notifiedTasks = approvalRequest.Tasks.ToList();
-        SkipPendingTasks(approvalRequest.Tasks);
+        SkipPendingTasks(approvalRequest.Tasks, now);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         await _auditLogService.LogAsync(user,
-            DateTime.UtcNow,
+            now,
             "Cancelled approval request",
             approvalRequest.ToString(),
             cancellationToken
@@ -137,14 +137,14 @@ public class ApprovalRequestService(
     }
 
     /// <summary>
-    /// Updates steps that have not passed yet.
+    /// Updates currently mutable approval request properties.
     /// </summary>
-    public async Task UpdateApprovalRequestStepsAsync(AppUser user, long id, ApprovalRequestStepsUpdateDto payload, CancellationToken cancellationToken)
+    public async Task UpdateApprovalRequestAsync(AppUser user, long id, ApprovalRequestUpdateDto payload, CancellationToken cancellationToken)
     {
         var approvalRequest = await _approvalRequestRepository.GetForUpdateAsync(user, id, cancellationToken);
-        if (approvalRequest.Status != ApprovalRequestStatus.Submitted)
+        if (approvalRequest.Status != ApprovalRequestStatus.Pending)
         {
-            throw new BusinessRuleException("Only submitted approval requests can be modified.");
+            throw new BusinessRuleException("Only pending approval requests can be modified.");
         }
 
         var orderedStepDtos = payload.Steps
@@ -217,9 +217,10 @@ public class ApprovalRequestService(
     /// <summary>
     /// Lists the approval requests of the user.
     /// </summary>
-    public async Task<List<ApprovalRequest>> ListApprovalRequestsAsync(AppUser user, CancellationToken cancellationToken)
+    public async Task<List<ApprovalRequestDto>> ListApprovalRequestsAsync(AppUser user, CancellationToken cancellationToken)
     {
-        return await _approvalRequestRepository.ListAsync(user, cancellationToken);
+        var approvalRequests = await _approvalRequestRepository.ListAsync(user, cancellationToken);
+        return [.. approvalRequests.Select(MapResponse)];
     }
 
     /// <summary>
@@ -248,21 +249,23 @@ public class ApprovalRequestService(
         }
 
         // Complete approval request task.
+        var now = DateTime.UtcNow;
         approvalRequestTask.Status = payload.Status;
         approvalRequestTask.Comment = payload.Comment;
-        approvalRequestTask.CompletedAt = DateTime.UtcNow;
+        approvalRequestTask.CompletedAt = now;
 
         // Calculate and update approval request status.
-        if (approvalRequestTask.ApprovalRequest.Status == ApprovalRequestStatus.Submitted)
+        if (approvalRequestTask.ApprovalRequest.Status == ApprovalRequestStatus.Pending)
         {
             switch (payload.Status)
             {
                 case ApprovalRequestTaskStatus.Rejected:
                     approvalRequestTask.ApprovalRequest.Status = ApprovalRequestStatus.Rejected;
-                    SkipPendingTasks(approvalRequestTask.ApprovalRequest.Tasks.Where(t => t.Id != approvalRequestTask.Id));
+                    approvalRequestTask.ApprovalRequest.CompletedAt = now;
+                    SkipPendingTasks(approvalRequestTask.ApprovalRequest.Tasks.Where(t => t.Id != approvalRequestTask.Id), now);
                     break;
                 case ApprovalRequestTaskStatus.Approved:
-                    await AdvanceWorkflowAsync(approvalRequestTask, cancellationToken);
+                    await AdvanceWorkflowAsync(approvalRequestTask, now, cancellationToken);
                     break;
                 default:
                     throw new BusinessRuleException("A task can only be approved or rejected.");
@@ -271,7 +274,7 @@ public class ApprovalRequestService(
 
         // Add audit log entry.
         await _auditLogService.LogAsync(user,
-            DateTime.UtcNow,
+            now,
             "Completed task",
             approvalRequestTask.ToString(),
             cancellationToken
@@ -350,11 +353,86 @@ public class ApprovalRequestService(
         approvalRequest.AuthorUserId = string.Empty;
         approvalRequest.AuthorUser = null!;
         approvalRequest.AuthorEmail = string.Empty;
-        approvalRequest.Comment = null;
-        approvalRequest.ClonedFromApprovalRequestId = null;
-        approvalRequest.ClonedFromApprovalRequest = null;
+        approvalRequest.Description = null;
         approvalRequest.Steps = [];
         approvalRequest.Tasks = [];
+    }
+
+    private static ApprovalRequestDto MapResponse(ApprovalRequest approvalRequest)
+    {
+        return new ApprovalRequestDto
+        {
+            Id = approvalRequest.Id,
+            Title = approvalRequest.Title,
+            UserFiles = [.. approvalRequest.UserFiles.Select(MapResponse)],
+            Steps = [.. approvalRequest.Steps.Select(MapResponse)],
+            Description = approvalRequest.Description,
+            CreatedAt = approvalRequest.CreatedAt,
+            CompletedAt = approvalRequest.CompletedAt,
+            AuthorUserId = approvalRequest.AuthorUserId,
+            AuthorEmail = approvalRequest.AuthorEmail,
+            Status = approvalRequest.Status,
+            Tasks = [.. approvalRequest.Tasks.Select(MapResponse)]
+        };
+    }
+
+    private static ApprovalRequestStepDto MapResponse(ApprovalRequestStep step)
+    {
+        return new ApprovalRequestStepDto
+        {
+            Id = step.Id,
+            Sequence = step.Sequence,
+            Mode = step.Mode,
+            Approvers = step.Approvers.Select(MapResponse).ToList(),
+            Tasks = step.Tasks.Select(MapResponse).ToList()
+        };
+    }
+
+    private static ApprovalRequestApproverDto MapResponse(ApprovalRequestStepApprover approver)
+    {
+        return new ApprovalRequestApproverDto
+        {
+            Id = approver.Id,
+            Type = approver.Type,
+            Email = approver.Email,
+            EmployeeId = approver.EmployeeId,
+            TeamId = approver.TeamId,
+            DisplayName = approver.DisplayName,
+            CanViewRequest = approver.CanViewRequest
+        };
+    }
+
+    private static ApprovalRequestTaskDto MapResponse(ApprovalRequestTask task)
+    {
+        return new ApprovalRequestTaskDto
+        {
+            Id = task.Id,
+            Title = task.Title,
+            ApprovalRequestId = task.ApprovalRequestId,
+            ApprovalRequestStepId = task.ApprovalRequestStepId,
+            ApprovalRequestStepApproverId = task.ApprovalRequestStepApproverId,
+            ApproverUserId = task.ApproverUserId,
+            ApproverEmail = task.ApproverEmail,
+            ApproverDisplayName = task.ApproverDisplayName,
+            CanViewRequest = task.CanViewRequest,
+            Status = task.Status,
+            CreatedAt = task.CreatedAt,
+            CompletedAt = task.CompletedAt,
+            Description = task.Description,
+            Comment = task.Comment
+        };
+    }
+
+    private static UserFileDto MapResponse(UserFile userFile)
+    {
+        return new UserFileDto
+        {
+            Id = userFile.Id,
+            Name = userFile.Name,
+            Type = userFile.Type,
+            CreatedAt = userFile.CreatedAt,
+            Size = userFile.Size
+        };
     }
 
     private static List<ApprovalRequestStep> BuildSteps(List<ApprovalRequestStepSubmitDto> stepDtos)
@@ -453,6 +531,7 @@ public class ApprovalRequestService(
             var task = await _approvalRequestTaskRepository.AddAsync(new ApprovalRequestTask
             {
                 Title = approvalRequest.Title,
+                Description = approvalRequest.Description,
                 ApprovalRequest = approvalRequest,
                 ApprovalRequestStep = step,
                 ApprovalRequestStepApprover = configuredApprover,
@@ -645,7 +724,7 @@ public class ApprovalRequestService(
             && string.Equals(task.ApproverUserId, resolution.ApproverUserId, StringComparison.Ordinal);
     }
 
-    private async Task AdvanceWorkflowAsync(ApprovalRequestTask approvalRequestTask, CancellationToken cancellationToken)
+    private async Task AdvanceWorkflowAsync(ApprovalRequestTask approvalRequestTask, DateTime now, CancellationToken cancellationToken)
     {
         var approvalRequest = approvalRequestTask.ApprovalRequest;
         var currentStep = approvalRequestTask.ApprovalRequestStep;
@@ -666,7 +745,7 @@ public class ApprovalRequestService(
 
         if (currentStep.Mode == ApprovalStepMode.Any)
         {
-            SkipPendingTasks(currentStepTasks.Where(t => t.Id != approvalRequestTask.Id));
+            SkipPendingTasks(currentStepTasks.Where(t => t.Id != approvalRequestTask.Id), now);
         }
 
         var nextStep = approvalRequest.Steps
@@ -677,7 +756,8 @@ public class ApprovalRequestService(
         if (nextStep is null)
         {
             approvalRequest.Status = ApprovalRequestStatus.Approved;
-            SkipPendingTasks(approvalRequest.Tasks);
+            approvalRequest.CompletedAt = approvalRequestTask.CompletedAt;
+            SkipPendingTasks(approvalRequest.Tasks, now);
             return;
         }
 
@@ -685,11 +765,12 @@ public class ApprovalRequestService(
         await NotifyApproversAsync(nextStep.Tasks, ApprovalRequestApproverNotification.Sent, cancellationToken);
     }
 
-    private static void SkipPendingTasks(IEnumerable<ApprovalRequestTask> tasks)
+    private static void SkipPendingTasks(IEnumerable<ApprovalRequestTask> tasks, DateTime completedAt)
     {
         foreach (var task in tasks.Where(t => t.Status == ApprovalRequestTaskStatus.Pending))
         {
             task.Status = ApprovalRequestTaskStatus.Skipped;
+            task.CompletedAt = completedAt;
         }
     }
 

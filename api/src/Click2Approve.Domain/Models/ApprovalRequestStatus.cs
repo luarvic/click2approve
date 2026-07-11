@@ -6,8 +6,8 @@ namespace Click2Approve.Domain.Models;
 public enum ApprovalRequestStatus
 {
     Draft = 0,
-    Submitted = 1,
+    Pending = 1,
     Approved = 2,
     Rejected = 3,
-    Cancelled = 4
+    Canceled = 4
 }

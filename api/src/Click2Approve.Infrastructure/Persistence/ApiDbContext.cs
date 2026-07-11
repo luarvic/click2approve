@@ -82,12 +82,6 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasForeignKey(r => r.TenantId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<ApprovalRequest>()
-            .HasOne(r => r.ClonedFromApprovalRequest)
-            .WithMany()
-            .HasForeignKey(r => r.ClonedFromApprovalRequestId)
-            .OnDelete(DeleteBehavior.SetNull);
-
         modelBuilder.Entity<ApprovalRequestStep>()
             .Property(s => s.Mode)
             .HasConversion<int>();

@@ -12,5 +12,5 @@ public class ApprovalRequestApproverSubmitDto
     public long? EmployeeId { get; set; }
     public long? TeamId { get; set; }
     public string? DisplayName { get; set; }
-    public bool CanViewRequest { get; set; } = true;
+    public bool CanViewRequest { get; set; }
 }
