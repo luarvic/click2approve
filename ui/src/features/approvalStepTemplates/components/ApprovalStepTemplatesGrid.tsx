@@ -1,9 +1,8 @@
 import { stores } from "@/app/rootStore";
-import ApprovalStepTemplateActionsMenu from "@/features/approvalStepTemplates/components/ApprovalStepTemplateActionsMenu";
-import ApprovalStepTemplateDialog from "@/features/approvalStepTemplates/components/ApprovalStepTemplateDialog";
 import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
-import { DataGrids } from "@/shared/constants/constants";
+import { DataGrids, Routes } from "@/shared/constants/constants";
+import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { Add } from "@mui/icons-material";
 import { Box, Button, LinearProgress } from "@mui/material";
 import {
@@ -13,16 +12,25 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-const ApprovalStepTemplatesGrid = () => {
-  const [dialogIsOpen, setDialogIsOpen] = useState(false);
-  const [currentTemplate, setCurrentTemplate] =
-    useState<ApprovalStepTemplate | null>(null);
+interface ApprovalStepTemplatesGridProps {
+  currentTemplateId?: number;
+}
+
+const ApprovalStepTemplatesGrid: React.FC<ApprovalStepTemplatesGridProps> = ({
+  currentTemplateId,
+}) => {
+  const navigate = useNavigate();
   const tenantId = stores.tenantStore.currentTenantId;
   const loaderPrefix = tenantId
     ? `api/tenants/${tenantId}/approvalStepTemplates`
     : "";
+  const { paginationModel, setPaginationModel } = useGridPaginationForRow(
+    stores.approvalStepTemplateStore.templates,
+    currentTemplateId,
+  );
 
   useEffect(() => {
     stores.approvalStepTemplateStore.clear();
@@ -31,28 +39,17 @@ const ApprovalStepTemplatesGrid = () => {
     }
   }, [tenantId]);
 
-  const handleDelete = async (template: ApprovalStepTemplate) => {
-    if (!tenantId || !window.confirm(`Delete ${template.name}?`)) {
-      return;
-    }
-
-    await stores.approvalStepTemplateStore.delete(tenantId, template.id);
-  };
-
-  const openCreateDialog = () => {
-    setCurrentTemplate(null);
-    setDialogIsOpen(true);
-  };
-
-  const openEditDialog = (template: ApprovalStepTemplate) => {
-    setCurrentTemplate(template);
-    setDialogIsOpen(true);
-  };
-
   const customToolbar = () => {
     return (
       <GridToolbarContainer>
-        <Button startIcon={<Add />} onClick={openCreateDialog}>
+        <Button
+          startIcon={<Add />}
+          onClick={() =>
+            navigate(
+              Routes.tenantPath(tenantId!, "/approvalStepTemplates/new"),
+            )
+          }
+        >
           New template
         </Button>
       </GridToolbarContainer>
@@ -65,22 +62,6 @@ const ApprovalStepTemplatesGrid = () => {
       headerName: "Name",
       ...DataGrids.teamsColumnSizing.name,
     },
-    {
-      field: "action",
-      headerName: "Action",
-      headerAlign: "right",
-      align: "right",
-      ...DataGrids.teamsColumnSizing.action,
-      sortable: false,
-      filterable: false,
-      renderCell: (params) => (
-        <ApprovalStepTemplateActionsMenu
-          template={params.row as ApprovalStepTemplate}
-          onEdit={openEditDialog}
-          onDelete={handleDelete}
-        />
-      ),
-    },
   ];
 
   return (
@@ -88,13 +69,17 @@ const ApprovalStepTemplatesGrid = () => {
       <DataGrid
         rows={stores.approvalStepTemplateStore.templates}
         columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: DataGrids.defaultPageSize,
-            },
-          },
-        }}
+        rowSelectionModel={
+          currentTemplateId === undefined ? [] : [currentTemplateId]
+        }
+        onRowClick={(params) =>
+          navigate(Routes.tenantPath(
+            tenantId!,
+            `/approvalStepTemplates/${(params.row as ApprovalStepTemplate).id}`,
+          ))
+        }
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
         pageSizeOptions={[DataGrids.defaultPageSize]}
         disableColumnFilter
         disableRowSelectionOnClick
@@ -111,11 +96,6 @@ const ApprovalStepTemplatesGrid = () => {
           stores.commonStore.isLoadingByPrefix(`put_${loaderPrefix}/`) ||
           stores.commonStore.isLoadingByPrefix(`delete_${loaderPrefix}/`)
         }
-      />
-      <ApprovalStepTemplateDialog
-        open={dialogIsOpen}
-        template={currentTemplate}
-        onClose={() => setDialogIsOpen(false)}
       />
     </Box>
   );

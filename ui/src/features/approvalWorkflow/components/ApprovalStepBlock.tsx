@@ -1,3 +1,4 @@
+import ApprovalRequestComment from "@/features/approvalRequests/components/ApprovalRequestComment";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import {
@@ -5,10 +6,10 @@ import {
   ApprovalStep,
   ApprovalStepMode,
 } from "@/features/approvalWorkflow/models/approvalStep";
-import CommentPaper from "@/shared/components/papers/CommentPaper";
-import { Dialogs, Flex, StackSpacing } from "@/shared/constants/constants";
+import { Flex, StackSpacing } from "@/shared/constants/constants";
 import { getLocaleDateTimeString } from "@/shared/utils/helpers";
-import { Box, Chip, Divider, Stack, Typography } from "@mui/material";
+import { Email, Groups, Person } from "@mui/icons-material";
+import { Chip, Divider, Stack, Typography } from "@mui/material";
 
 interface ApprovalStepBlockProps {
   step: ApprovalStep;
@@ -16,78 +17,65 @@ interface ApprovalStepBlockProps {
 }
 
 const approvalStepBlockSx = {
-  border: "1px solid",
-  borderColor: "divider",
-  borderRadius: 1,
-  p: 1.5,
+  px: 1.5,
+  py: 1,
 };
 
 const approvalStepHeaderSx = { mb: 1 };
-const approvalTaskDetailsSx = { mt: 0.75 };
 
-const getApproverTasks = (
-  tasks: ApprovalRequestTask[],
-  approverId: number | undefined,
-) => {
-  if (!approverId) {
-    return [];
-  }
-  return tasks
-    .filter(Boolean)
-    .filter(
-      (task) =>
-        (
-          task as ApprovalRequestTask & {
-            approvalRequestStepApproverId?: number;
-          }
-        ).approvalRequestStepApproverId === approverId,
-    );
-};
-
-const getApproverStatusLabel = (tasks: ApprovalRequestTask[]) => {
+const getStepStatus = (step: ApprovalStep, tasks: ApprovalRequestTask[]) => {
   if (tasks.length === 0) {
     return "Not started";
   }
-  if (
-    tasks.some((task) => task.status === ApprovalRequestTaskStatus.Rejected)
-  ) {
-    return "Rejected";
+  if (step.mode === ApprovalStepMode.All) {
+    if (tasks.some((task) => task.status === ApprovalRequestTaskStatus.Rejected)) {
+      return "Rejected";
+    }
+    if (tasks.every((task) => task.status === ApprovalRequestTaskStatus.Approved)) {
+      return "Approved";
+    }
+  } else {
+    if (tasks.some((task) => task.status === ApprovalRequestTaskStatus.Approved)) {
+      return "Approved";
+    }
+    if (tasks.some((task) => task.status === ApprovalRequestTaskStatus.Rejected)) {
+      return "Rejected";
+    }
   }
-  if (
-    tasks.some((task) => task.status === ApprovalRequestTaskStatus.Approved)
-  ) {
-    return "Approved";
-  }
-  if (
-    tasks.every((task) => task.status === ApprovalRequestTaskStatus.Skipped)
-  ) {
+  if (tasks.every((task) => task.status === ApprovalRequestTaskStatus.Skipped)) {
     return "Skipped";
   }
   return "Pending";
 };
 
-const getApproverStatusColor = (tasks: ApprovalRequestTask[]) => {
-  if (
-    tasks.some((task) => task.status === ApprovalRequestTaskStatus.Rejected)
-  ) {
-    return "error" as const;
+const getTaskCompletionLabel = (status: ApprovalRequestTaskStatus) => {
+  switch (status) {
+    case ApprovalRequestTaskStatus.Approved:
+      return "Approved at";
+    case ApprovalRequestTaskStatus.Rejected:
+      return "Rejected at";
+    case ApprovalRequestTaskStatus.Skipped:
+      return "Skipped at";
+    default:
+      return "Completed at";
   }
-  if (
-    tasks.some((task) => task.status === ApprovalRequestTaskStatus.Approved)
-  ) {
-    return "success" as const;
-  }
-  if (
-    tasks.every((task) => task.status === ApprovalRequestTaskStatus.Skipped)
-  ) {
-    return "default" as const;
-  }
-  return "warning" as const;
 };
 
-const getApproverLabel = (
-  approver: ApprovalStep["approvers"][number],
-) => {
+const getStepStatusColor = (step: ApprovalStep, tasks: ApprovalRequestTask[]) => {
+  const status = getStepStatus(step, tasks);
+  switch (status) {
+    case "Approved":
+      return "success" as const;
+    case "Rejected":
+      return "error" as const;
+    case "Skipped":
+      return "default" as const;
+    default:
+      return "warning" as const;
+  }
+};
+
+const getApproverLabel = (approver: ApprovalStep["approvers"][number]) => {
   if (approver.displayName) {
     return approver.displayName;
   }
@@ -100,12 +88,33 @@ const getApproverLabel = (
   return approver.email?.toLowerCase() ?? "Approver";
 };
 
+const getTaskApproverLabel = (task: ApprovalRequestTask) =>
+  task.approverDisplayName || task.approverEmail.toLowerCase();
+
+const getApproverIcon = (type: ApprovalRecipientType) => {
+  switch (type) {
+    case ApprovalRecipientType.Employee:
+      return <Person color="action" fontSize="small" />;
+    case ApprovalRecipientType.Team:
+      return <Groups color="action" fontSize="small" />;
+    default:
+      return <Email color="action" fontSize="small" />;
+  }
+};
+
+const getTaskApproverIcon = (step: ApprovalStep, task: ApprovalRequestTask) => {
+  const approver = step.approvers.find(
+    (item) => item.id === task.approvalRequestStepApproverId,
+  );
+  return getApproverIcon(approver?.type ?? ApprovalRecipientType.Email);
+};
+
 const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
   step,
   tasks,
 }) => {
   return (
-    <Box sx={approvalStepBlockSx}>
+    <Stack spacing={StackSpacing.default} sx={approvalStepBlockSx}>
       <Stack
         direction="row"
         spacing={StackSpacing.default}
@@ -116,49 +125,56 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
           Step {step.sequence}
         </Typography>
         <Chip
-          label={
-            step.mode === ApprovalStepMode.All ? "All required" : "Any one"
-          }
+          label={getStepStatus(step, tasks)}
           size="small"
-          variant="outlined"
+          color={getStepStatusColor(step, tasks)}
         />
       </Stack>
-      <Stack divider={<Divider flexItem />} spacing={StackSpacing.default}>
-        {(step.approvers ?? []).filter(Boolean).map((approver, index) => {
-          const approverTasks = getApproverTasks(tasks, approver.id);
-          return (
-            <Box key={approver.id ?? index}>
-              <Stack
-                direction={{ xs: "column", sm: "row" }}
-                spacing={StackSpacing.default}
-                alignItems={{ xs: "flex-start", sm: "center" }}
-              >
-                <Typography variant="body2" sx={Flex.growSx}>
-                  {getApproverLabel(approver)}
+      {tasks.length > 0
+        ? tasks.map((task) => (
+          <Stack key={task.id} spacing={StackSpacing.default}>
+            <Stack
+              direction="row"
+              spacing={StackSpacing.tight}
+              alignItems="center"
+            >
+              {getTaskApproverIcon(step, task)}
+              <Typography variant="body2">
+                {getTaskApproverLabel(task)}
+              </Typography>
+            </Stack>
+            <Stack
+              direction="row"
+              spacing={StackSpacing.default}
+              divider={<Divider orientation="vertical" flexItem />}
+            >
+              <Typography variant="caption" color="text.secondary">
+                Created at {getLocaleDateTimeString(task.createdAtDate)}
+              </Typography>
+              {task.completedAtDate && (
+                <Typography variant="caption" color="text.secondary">
+                  {getTaskCompletionLabel(task.status)} {getLocaleDateTimeString(task.completedAtDate)}
                 </Typography>
-                <Chip
-                  label={getApproverStatusLabel(approverTasks)}
-                  color={getApproverStatusColor(approverTasks)}
-                  size="small"
-                />
-              </Stack>
-              {approverTasks.map((task) => (
-                <Box key={task.id} sx={approvalTaskDetailsSx}>
-                  <Typography variant="caption" color="text.secondary">
-                    {task.approverDisplayName ??
-                      task.approverEmail.toLowerCase()}
-                    {task.completedAtDate
-                      ? ` on ${getLocaleDateTimeString(task.completedAtDate)}`
-                      : ""}
-                  </Typography>
-                  <CommentPaper text={task.comment} sx={Dialogs.sectionSx} />
-                </Box>
-              ))}
-            </Box>
-          );
-        })}
-      </Stack>
-    </Box>
+              )}
+            </Stack>
+            <ApprovalRequestComment text={task.comment} label="Comment" />
+          </Stack>
+        ))
+        : (step.approvers ?? []).filter(Boolean).map((approver, index) => (
+          <Stack key={approver.id ?? index} spacing={StackSpacing.default}>
+            <Stack
+              direction="row"
+              spacing={StackSpacing.tight}
+              alignItems="center"
+            >
+              {getApproverIcon(approver.type)}
+              <Typography variant="body2">
+                {getApproverLabel(approver)}
+              </Typography>
+            </Stack>
+          </Stack>
+        ))}
+    </Stack>
   );
 };
 

@@ -12,18 +12,14 @@ export const submitApprovalRequest = async (
   title: string,
   files: UserFile[],
   steps: ApprovalStep[],
-  approveBy: Date | null,
-  comment: string | undefined,
-  clonedFromApprovalRequestId?: number
+  description: string | undefined,
 ): Promise<boolean> => {
   try {
     const payload: SubmitApprovalRequestRequest = {
       title,
       userFileIds: files.map((userFile) => userFile.id),
       steps,
-      approveBy: approveBy,
-      comment: comment,
-      clonedFromApprovalRequestId,
+      description,
     };
     await axios.post("api/request", payload);
     return true;
@@ -43,9 +39,9 @@ export const cancelApprovalRequest = async (id: number): Promise<boolean> => {
   }
 };
 
-export const updateApprovalRequestSteps = async (
+export const updateApprovalRequest = async (
   id: number,
-  steps: ApprovalStep[]
+  steps: ApprovalStep[],
 ): Promise<boolean> => {
   try {
     await axios.put(`api/request/${id}/steps`, { steps });

@@ -17,5 +17,6 @@ export interface ApprovalRequestTask {
   createdAtDate: Date;
   completedAt?: string;
   completedAtDate?: Date;
+  description?: string;
   comment?: string;
 }

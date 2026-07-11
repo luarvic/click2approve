@@ -48,6 +48,8 @@ export class RootStore {
       async () => {
         if (this.productStore.tenantsAreEnabled) {
           await this.tenantStore.load();
+        } else {
+          await this.tenantStore.loadCurrent();
         }
       },
       this.clearSession,

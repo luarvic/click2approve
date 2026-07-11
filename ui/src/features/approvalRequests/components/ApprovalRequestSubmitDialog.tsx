@@ -1,90 +1,51 @@
 import { stores } from "@/app/rootStore";
 import { submitApprovalRequest } from "@/features/approvalRequests/api/approvalRequestApi";
 import ApprovalRequestFilesList from "@/features/approvalRequests/components/ApprovalRequestFilesList";
-import ApprovalStepApproverRow from "@/features/approvalWorkflow/components/ApprovalStepApproverRow";
+import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
+import {
+  createEditableSteps,
+  createEmptyApprover,
+  createEmptyStep,
+  EditableApprovalStep,
+  toApprovalStepSubmissions,
+} from "@/features/approvalWorkflow/models/editableApprovalStep";
 import {
   ApprovalRecipientType,
-  ApprovalStep,
   ApprovalStepApprover,
-  ApprovalStepMode,
 } from "@/features/approvalWorkflow/models/approvalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
 import { uploadUserFiles } from "@/features/userFiles/api/userFileApi";
 import { UserFile } from "@/features/userFiles/models/userFile";
-import { Dialogs, Files, StackSpacing } from "@/shared/constants/constants";
+import { Dialogs, Files, Pages } from "@/shared/constants/constants";
 import { validateEmails } from "@/shared/utils/validators";
+import { Add, AttachFile } from "@mui/icons-material";
 import {
-  Add,
-  AttachFile,
-  ContentCopy,
-  DeleteOutline,
-  KeyboardArrowDown,
-  KeyboardArrowUp,
-  Save,
-} from "@mui/icons-material";
-import {
-  Autocomplete,
   Box,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
   Stack,
-  Switch,
   TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  Tooltip,
   Typography,
 } from "@mui/material";
-import {
-  LocalizationProvider,
-  MobileDateTimePicker,
-} from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs, { Dayjs } from "dayjs";
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
-const emptyApprover = (): ApprovalStepApprover => ({
-  type: ApprovalRecipientType.Email,
-  email: "",
-  canViewRequest: true,
-});
+interface ApprovalRequestSubmitPageProps {
+  initialTemplateId?: number;
+  onClose: (currentApprovalRequestId?: number) => void;
+}
 
-const emptyStep = (sequence: number): ApprovalStep => ({
-  sequence,
-  mode: ApprovalStepMode.Any,
-  approvers: [emptyApprover()],
-});
-
-const cloneSteps = (steps: ApprovalStep[]) =>
-  steps.map((step, index) => ({
-    sequence: index + 1,
-    mode: step.mode,
-    approvers: step.approvers.map((approver) => ({
-      type: approver.type,
-      email: approver.email,
-      employeeId: approver.employeeId,
-      teamId: approver.teamId,
-      displayName: approver.displayName,
-      canViewRequest: approver.canViewRequest,
-    })),
-  }));
-
-const ApprovalRequestSubmitDialog = () => {
+const ApprovalRequestSubmitPage: React.FC<ApprovalRequestSubmitPageProps> = ({
+  initialTemplateId,
+  onClose,
+}) => {
   const fileInput = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState("");
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [existingFiles, setExistingFiles] = useState<UserFile[]>([]);
-  const [steps, setSteps] = useState<ApprovalStep[]>([emptyStep(1)]);
-  const [approveBy, setApproveBy] = useState<Dayjs | null>(null);
-  const [comment, setComment] = useState("");
-  const [includeCloneLink, setIncludeCloneLink] = useState(true);
-  const [templateName, setTemplateName] = useState("");
+  const [steps, setSteps] = useState<EditableApprovalStep[]>([]);
+  const [description, setDescription] = useState("");
+  const initialTemplateHasBeenApplied = useRef(false);
 
   const tenantId = stores.tenantStore.currentTenantId;
   const businessTenantIsSelected =
@@ -98,24 +59,13 @@ const ApprovalRequestSubmitDialog = () => {
     stores.productStore.approvalStepTemplatesAreEnabled &&
     tenantId !== null;
   const requestToClone = stores.approvalRequestStore.requestToClone;
-  const dialogIsOpen = stores.commonStore.approvalRequestSubmitDialogIsOpen;
 
   useEffect(() => {
-    if (!dialogIsOpen) {
-      return;
-    }
-
     if (requestToClone) {
       setTitle(requestToClone.title);
       setExistingFiles(requestToClone.userFiles);
-      setSteps(cloneSteps(requestToClone.steps));
-      setApproveBy(
-        requestToClone.approveByDate
-          ? dayjs(requestToClone.approveByDate)
-          : null,
-      );
-      setComment(requestToClone.comment ?? "");
-      setIncludeCloneLink(true);
+      setSteps(createEditableSteps(requestToClone.steps));
+      setDescription(requestToClone.description ?? "");
     }
 
     if (tenantId && businessTenantIsSelected) {
@@ -126,17 +76,29 @@ const ApprovalRequestSubmitDialog = () => {
         stores.teamStore.load(tenantId);
       }
       if (canUseTemplates) {
-        stores.approvalStepTemplateStore.load(tenantId);
+        void stores.approvalStepTemplateStore.load(tenantId).then(() => {
+          if (initialTemplateHasBeenApplied.current || !initialTemplateId) {
+            return;
+          }
+
+          const template = stores.approvalStepTemplateStore.templates.find(
+            (item) => item.id === initialTemplateId,
+          );
+          if (template) {
+            setSteps(createEditableSteps(template.steps));
+          }
+          initialTemplateHasBeenApplied.current = true;
+        });
       }
     }
   }, [
-    dialogIsOpen,
     requestToClone,
     tenantId,
     businessTenantIsSelected,
     canUseEmployees,
     canUseTeams,
     canUseTemplates,
+    initialTemplateId,
   ]);
 
   const handleUploadClick = () => {
@@ -153,22 +115,19 @@ const ApprovalRequestSubmitDialog = () => {
     setTitle("");
     setNewFiles([]);
     setExistingFiles([]);
-    setSteps([emptyStep(1)]);
-    setApproveBy(null);
-    setComment("");
-    setTemplateName("");
-    setIncludeCloneLink(true);
+    setSteps([]);
+    setDescription("");
     stores.approvalRequestStore.setRequestToClone(null);
   };
 
   const handleClose = () => {
-    stores.commonStore.setApprovalRequestSubmitDialogIsOpen(false);
     cleanUp();
+    onClose();
   };
 
   const updateStep = (
     stepIndex: number,
-    updater: (step: ApprovalStep) => ApprovalStep,
+    updater: (step: EditableApprovalStep) => EditableApprovalStep,
   ) => {
     setSteps((current) =>
       current.map((step, index) =>
@@ -178,7 +137,10 @@ const ApprovalRequestSubmitDialog = () => {
   };
 
   const addStep = () => {
-    setSteps((current) => [...current, emptyStep(current.length + 1)]);
+    setSteps((current) => [
+      ...current,
+      createEmptyStep(current.length + 1, false),
+    ]);
   };
 
   const removeStep = (stepIndex: number) => {
@@ -208,7 +170,7 @@ const ApprovalRequestSubmitDialog = () => {
   const addApprover = (stepIndex: number) => {
     updateStep(stepIndex, (step) => ({
       ...step,
-      approvers: [...step.approvers, emptyApprover()],
+      approvers: [...step.approvers, createEmptyApprover()],
     }));
   };
 
@@ -228,51 +190,33 @@ const ApprovalRequestSubmitDialog = () => {
   const removeApprover = (stepIndex: number, approverIndex: number) => {
     updateStep(stepIndex, (step) => ({
       ...step,
-      approvers:
-        step.approvers.length === 1
-          ? step.approvers
-          : step.approvers.filter((_, index) => index !== approverIndex),
+      approvers: step.approvers.filter((_, index) => index !== approverIndex),
     }));
   };
 
-  const handleSaveTemplate = async () => {
-    if (!canUseTemplates || tenantId === null) {
-      return;
-    }
-    if (!templateName.trim()) {
-      toast.error("Template name is required.");
-      return;
-    }
-    if (!validateSteps()) {
-      return;
-    }
-
-    const didSave = await stores.approvalStepTemplateStore.create(tenantId, {
-      name: templateName.trim(),
-      steps,
-    });
-    if (didSave) {
-      toast.success("Template saved.");
-      setTemplateName("");
-    }
-  };
-
   const validateSteps = () => {
+    if (steps.length === 0) {
+      toast.error("Add one or more approval steps.");
+      return false;
+    }
+
     const emails = steps.flatMap((step) =>
       step.approvers
         .filter((approver) => approver.type === ApprovalRecipientType.Email)
         .map((approver) => approver.email ?? ""),
     );
-    const hasMissingRecipient = steps.some((step) =>
-      step.approvers.some((approver) => {
-        if (approver.type === ApprovalRecipientType.Email) {
-          return !approver.email?.trim();
-        }
-        if (approver.type === ApprovalRecipientType.Employee) {
-          return !approver.employeeId;
-        }
-        return !approver.teamId;
-      }),
+    const hasMissingRecipient = steps.some(
+      (step) =>
+        step.approvers.length === 0 ||
+        step.approvers.some((approver) => {
+          if (approver.type === ApprovalRecipientType.Email) {
+            return !approver.email?.trim();
+          }
+          if (approver.type === ApprovalRecipientType.Employee) {
+            return !approver.employeeId;
+          }
+          return !approver.teamId;
+        }),
     );
 
     if (hasMissingRecipient || (emails.length > 0 && !validateEmails(emails))) {
@@ -306,59 +250,46 @@ const ApprovalRequestSubmitDialog = () => {
     const didSubmit = await submitApprovalRequest(
       trimmedTitle,
       [...existingFiles, ...uploadedFiles],
-      steps,
-      approveBy ? approveBy.toDate() : null,
-      comment,
-      includeCloneLink ? requestToClone?.id : undefined,
+      toApprovalStepSubmissions(steps),
+      description,
     );
     if (didSubmit) {
-      stores.commonStore.setApprovalRequestSubmitDialogIsOpen(false);
       toast.success("The request was successfully sent");
       cleanUp();
       stores.approvalRequestStore.clear();
-      stores.approvalRequestStore.load();
+      await stores.approvalRequestStore.load();
+      const createdRequest = stores.approvalRequestStore.approvalRequests[0];
+      stores.approvalRequestStore.setCurrent(createdRequest ?? null);
       stores.approvalRequestTaskStore.loadUncompletedCount();
+      onClose(createdRequest?.id);
     }
   };
 
   return (
-    <Dialog
-      open={stores.commonStore.approvalRequestSubmitDialogIsOpen}
-      onClose={handleClose}
-      fullWidth
-      maxWidth="md"
-      PaperProps={{ component: "form", onSubmit: handleSubmit }}
-    >
-      <DialogTitle>
+    <>
+      <Typography component="h1" variant="h5" sx={Pages.titleSx}>
         {requestToClone ? "Clone approval request" : "New approval request"}
-      </DialogTitle>
-      <DialogContent>
-        {requestToClone && (
-          <Stack
-            direction="row"
-            spacing={StackSpacing.default}
-            alignItems="center"
-            sx={Dialogs.textBottomSpacingSx}
-          >
-            <ContentCopy fontSize="small" />
-            <Typography variant="body2">
-              Link to "{requestToClone.title}"
-            </Typography>
-            <Switch
-              checked={includeCloneLink}
-              onChange={(_, checked) => setIncludeCloneLink(checked)}
-            />
-          </Stack>
-        )}
+      </Typography>
+      <Box component="form" onSubmit={handleSubmit}>
+        <Stack spacing={Dialogs.formStackSpacing}>
         <TextField
           autoFocus
           margin="normal"
           fullWidth
           label="Title"
-          variant="standard"
           required
           value={title}
           onChange={(event) => setTitle(event.target.value)}
+        />
+        <ApprovalRequestFilesList
+          existingFiles={existingFiles}
+          newFiles={newFiles}
+          onRemoveExisting={(index) =>
+            setExistingFiles((files) => files.filter((_, i) => i !== index))
+          }
+          onRemoveNew={(index) =>
+            setNewFiles((files) => files.filter((_, i) => i !== index))
+          }
         />
         <Box sx={Dialogs.bottomSpacingSx}>
           <Button startIcon={<AttachFile />} onClick={handleUploadClick}>
@@ -372,171 +303,51 @@ const ApprovalRequestSubmitDialog = () => {
             style={Files.inputStyle}
           />
         </Box>
-        <ApprovalRequestFilesList
-          existingFiles={existingFiles}
-          newFiles={newFiles}
-          onRemoveExisting={(index) =>
-            setExistingFiles((files) => files.filter((_, i) => i !== index))
-          }
-          onRemoveNew={(index) =>
-            setNewFiles((files) => files.filter((_, i) => i !== index))
-          }
-        />
-        {canUseTemplates && (
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={StackSpacing.default}
-            sx={Dialogs.textBottomSpacingSx}
-          >
-            <Autocomplete
-              fullWidth
-              options={stores.approvalStepTemplateStore.templates}
-              getOptionLabel={(option) => option.name}
-              renderInput={(params) => (
-                <TextField {...params} label="Populate from template" />
-              )}
-              onChange={(_, value) => {
-                if (value) {
-                  setSteps(cloneSteps(value.steps));
-                }
-              }}
-            />
-            <TextField
-              label="Template name"
-              value={templateName}
-              onChange={(event) => setTemplateName(event.target.value)}
-            />
-            <Button startIcon={<Save />} onClick={handleSaveTemplate}>
-              Save
-            </Button>
-          </Stack>
-        )}
-        <Stack spacing={Dialogs.stepStackSpacing}>
-          {steps.map((step, stepIndex) => (
-            <Box key={step.sequence} sx={Dialogs.approvalStepSx}>
-              <Stack
-                direction={{ xs: "column", sm: "row" }}
-                spacing={Dialogs.stepHeaderSpacing}
-                alignItems={{ xs: "stretch", sm: "center" }}
-                sx={Dialogs.stepHeaderSx}
-              >
-                <Typography variant="subtitle1" sx={Dialogs.stepTitleSx}>
-                  Step {step.sequence}
-                </Typography>
-                <ToggleButtonGroup
-                  exclusive
-                  size="small"
-                  value={step.mode}
-                  onChange={(_, value) => {
-                    if (value !== null) {
-                      updateStep(stepIndex, (current) => ({
-                        ...current,
-                        mode: value,
-                      }));
-                    }
-                  }}
-                >
-                  <ToggleButton value={ApprovalStepMode.Any}>Any</ToggleButton>
-                  <ToggleButton value={ApprovalStepMode.All}>All</ToggleButton>
-                </ToggleButtonGroup>
-                <Stack direction="row" spacing={Dialogs.stepActionSpacing}>
-                  <Tooltip title="Move step up">
-                    <span>
-                      <IconButton
-                        disabled={stepIndex === 0}
-                        onClick={() => moveStep(stepIndex, -1)}
-                      >
-                        <KeyboardArrowUp />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                  <Tooltip title="Move step down">
-                    <span>
-                      <IconButton
-                        disabled={stepIndex === steps.length - 1}
-                        onClick={() => moveStep(stepIndex, 1)}
-                      >
-                        <KeyboardArrowDown />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                </Stack>
-                <Tooltip title="Remove step">
-                  <span>
-                    <IconButton
-                      aria-label={`Remove step ${step.sequence}`}
-                      disabled={steps.length === 1}
-                      onClick={() => removeStep(stepIndex)}
-                    >
-                      <DeleteOutline />
-                    </IconButton>
-                  </span>
-                </Tooltip>
-              </Stack>
-              <Stack spacing={Dialogs.approverStackSpacing}>
-                {step.approvers.map((approver, approverIndex) => (
-                  <ApprovalStepApproverRow
-                    key={approverIndex}
-                    approver={approver}
-                    canUseEmployees={canUseEmployees}
-                    canUseTeams={canUseTeams}
-                    employees={stores.employeeStore.employees}
-                    teams={stores.teamStore.teams}
-                    onChange={(nextApprover) =>
-                      updateApprover(stepIndex, approverIndex, nextApprover)
-                    }
-                    onRemove={() => removeApprover(stepIndex, approverIndex)}
-                  />
-                ))}
-              </Stack>
-              <Button
-                startIcon={<Add />}
-                onClick={() => addApprover(stepIndex)}
-              >
-                Add approver
-              </Button>
-            </Box>
-          ))}
-        </Stack>
-        <Button
-          startIcon={<Add />}
-          onClick={addStep}
-          sx={Dialogs.addStepButtonSx}
-        >
-          Add step
-        </Button>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <MobileDateTimePicker
-            slotProps={{
-              textField: {
-                fullWidth: true,
-                variant: "standard",
-                required: false,
-                margin: "normal",
-              },
-            }}
-            label="Review by"
-            value={approveBy}
-            onChange={(newValue) => setApproveBy(newValue)}
-          />
-        </LocalizationProvider>
         <TextField
           margin="normal"
           fullWidth
-          label="Comment"
-          variant="standard"
+          label="Description"
           multiline
           rows={Dialogs.commentTextFieldRows}
-          value={comment}
-          onChange={(event) => setComment(event.target.value)}
+          value={description}
+          onChange={(event) => setDescription(event.target.value)}
         />
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button type="submit">Submit</Button>
-      </DialogActions>
-    </Dialog>
+        <ApprovalStepEditor
+          steps={steps}
+          canUseEmployees={canUseEmployees}
+          canUseTeams={canUseTeams}
+          employees={stores.employeeStore.employees}
+          teams={stores.teamStore.teams}
+          onAddApprover={addApprover}
+          onAddStep={addStep}
+          onMoveStep={moveStep}
+          onRemoveApprover={removeApprover}
+          onRemoveStep={removeStep}
+          onUpdateApprover={updateApprover}
+          onUpdateStep={updateStep}
+          showAddStep={false}
+        />
+        <Box sx={Dialogs.textBottomSpacingSx}>
+          <Button startIcon={<Add />} onClick={addStep}>
+            Add step
+          </Button>
+        </Box>
+        </Stack>
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={Dialogs.stepHeaderSpacing}
+          sx={Dialogs.addStepButtonSx}
+        >
+          <Button variant="outlined" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="outlined">
+            Submit
+          </Button>
+        </Stack>
+      </Box>
+    </>
   );
 };
 
-export default observer(ApprovalRequestSubmitDialog);
+export default observer(ApprovalRequestSubmitPage);

@@ -1,17 +1,17 @@
 import { stores } from "@/app/rootStore";
-import TenantActionsMenu from "@/features/tenants/components/TenantActionsMenu";
-import TenantDialog from "@/features/tenants/components/TenantDialog";
-import {
-  CreateTenantRequest,
-  EmployeeRole,
-  Tenant,
-  TenantType,
-  UpdateTenantRequest,
-} from "@/features/tenants/models/tenant";
+import { EmployeeRole, Tenant, TenantType } from "@/features/tenants/models/tenant";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids } from "@/shared/constants/constants";
+import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { Add } from "@mui/icons-material";
-import { Box, Button, Chip, LinearProgress } from "@mui/material";
+import {
+  Box,
+  Button,
+  Chip,
+  LinearProgress,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -19,16 +19,26 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const roleLabels = ["User", "Manager", "Admin"];
 
-const TenantsGrid = () => {
-  const [dialogIsOpen, setDialogIsOpen] = useState(false);
-  const [currentTenant, setCurrentTenant] = useState<Tenant | null>(null);
+interface TenantsGridProps {
+  currentTenantId?: number;
+}
+
+const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantId }) => {
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const isSmallDisplay = useMediaQuery(theme.breakpoints.down("sm"));
   const tenantsLoaderPrefix = "api/tenants";
   const businessTenants = stores.tenantStore.tenants.filter(
     (tenant) => tenant.type === TenantType.Business,
+  );
+  const { paginationModel, setPaginationModel } = useGridPaginationForRow(
+    businessTenants,
+    currentTenantId,
   );
 
   useEffect(() => {
@@ -37,49 +47,10 @@ const TenantsGrid = () => {
     }
   }, []);
 
-  const openCreateDialog = () => {
-    setCurrentTenant(null);
-    setDialogIsOpen(true);
-  };
-
-  const openEditDialog = (tenant: Tenant) => {
-    setCurrentTenant(tenant);
-    setDialogIsOpen(true);
-  };
-
-  const refreshTenantScopedStores = async () => {
-    await stores.refreshTenantScope();
-  };
-
-  const handleDelete = async (tenant: Tenant) => {
-    if (!window.confirm(`Delete ${tenant.businessName}?`)) {
-      return;
-    }
-
-    const deleted = await stores.tenantStore.delete(tenant.id);
-    if (deleted) {
-      await refreshTenantScopedStores();
-    }
-  };
-
-  const handleSubmit = async (
-    payload: CreateTenantRequest | UpdateTenantRequest,
-    tenantId?: number,
-  ): Promise<Tenant | null> => {
-    const tenant = tenantId
-      ? await stores.tenantStore.update(tenantId, payload as UpdateTenantRequest)
-      : await stores.tenantStore.create(payload as CreateTenantRequest);
-    if (tenant && !tenantId) {
-      await refreshTenantScopedStores();
-    }
-
-    return tenant;
-  };
-
   const customToolbar = () => {
     return (
       <GridToolbarContainer>
-        <Button startIcon={<Add />} onClick={openCreateDialog}>
+        <Button startIcon={<Add />} onClick={() => navigate("/tenants/new")}>
           New organization
         </Button>
       </GridToolbarContainer>
@@ -89,23 +60,8 @@ const TenantsGrid = () => {
   const columns: GridColDef[] = [
     {
       field: "businessName",
-      headerName: "Organization",
+      headerName: "Name",
       ...DataGrids.tenantsColumnSizing.businessName,
-    },
-    {
-      field: "email",
-      headerName: "Email",
-      ...DataGrids.tenantsColumnSizing.email,
-    },
-    {
-      field: "phone",
-      headerName: "Phone",
-      ...DataGrids.tenantsColumnSizing.phone,
-    },
-    {
-      field: "websiteUrl",
-      headerName: "Website",
-      ...DataGrids.tenantsColumnSizing.websiteUrl,
     },
     {
       field: "role",
@@ -122,29 +78,6 @@ const TenantsGrid = () => {
           <Chip label="Owner" size="small" color="primary" />
         ) : null,
     },
-    {
-      field: "action",
-      headerName: "Action",
-      headerAlign: "right",
-      align: "right",
-      ...DataGrids.tenantsColumnSizing.action,
-      sortable: false,
-      filterable: false,
-      renderCell: (params) => {
-        const tenant = params.row as Tenant;
-        if (tenant.role !== EmployeeRole.Admin && !tenant.isOwner) {
-          return null;
-        }
-
-        return (
-          <TenantActionsMenu
-            tenant={tenant}
-            onEdit={openEditDialog}
-            onDelete={handleDelete}
-          />
-        );
-      },
-    },
   ];
 
   return (
@@ -152,13 +85,14 @@ const TenantsGrid = () => {
       <DataGrid
         rows={businessTenants}
         columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: DataGrids.defaultPageSize,
-            },
-          },
+        rowSelectionModel={currentTenantId === undefined ? [] : [currentTenantId]}
+        onRowClick={(params) => navigate(`/tenants/${(params.row as Tenant).id}`)}
+        columnVisibilityModel={{
+          role: !isSmallDisplay,
+          isOwner: !isSmallDisplay,
         }}
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
         pageSizeOptions={[DataGrids.defaultPageSize]}
         disableColumnFilter
         disableRowSelectionOnClick
@@ -175,14 +109,6 @@ const TenantsGrid = () => {
           stores.commonStore.isLoadingByPrefix(`put_${tenantsLoaderPrefix}/`) ||
           stores.commonStore.isLoadingByPrefix(`delete_${tenantsLoaderPrefix}/`)
         }
-      />
-      <TenantDialog
-        open={dialogIsOpen}
-        tenant={currentTenant}
-        onClose={() => setDialogIsOpen(false)}
-        onSubmit={handleSubmit}
-        onLogoUpload={stores.tenantStore.uploadLogo}
-        onLogoDelete={stores.tenantStore.deleteLogo}
       />
     </Box>
   );

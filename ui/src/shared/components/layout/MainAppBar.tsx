@@ -46,13 +46,15 @@ const MainAppBar = () => {
     Boolean(currentUser) &&
     stores.tenantStore.tenants.length > 0;
   const tenantScopeIsReady =
-    !stores.productStore.tenantsAreEnabled ||
-    (stores.tenantStore.hasLoaded &&
-      stores.tenantStore.currentTenantId !== null);
+    stores.tenantStore.hasLoaded && stores.tenantStore.currentTenantId !== null;
   const signInButtonIsVisible =
     !currentUser && !authRoutePaths.has(location.pathname);
+  const currentTenantId = stores.tenantStore.currentTenantId;
+  const inboxPath = currentTenantId
+    ? Routes.tenantPath(currentTenantId, Routes.inboxPath)
+    : "/";
   const inboxIsOpen =
-    location.pathname === "/" || location.pathname === Routes.inboxPath;
+    location.pathname === "/" || location.pathname === inboxPath;
   const numberOfUncompletedTasks =
     stores.approvalRequestTaskStore.numberOfUncompletedTasks;
 
@@ -102,7 +104,7 @@ const MainAppBar = () => {
             variant="body2"
             sx={Shell.appBarBrandLinkSx}
             onClick={() => {
-              navigate(currentUser ? Routes.defaultPath : "/");
+              navigate(currentUser ? inboxPath : "/");
             }}
           >
             <Box
@@ -112,7 +114,10 @@ const MainAppBar = () => {
               aria-hidden="true"
               sx={Shell.appBarLogoSx}
             />
-            <Typography variant="h6" sx={Shell.appBarBrandTitleSx}>
+            <Typography
+              variant="h6"
+              sx={Shell.appBarBrandTitleSx(!currentUser)}
+            >
               Click2Approve
             </Typography>
           </Link>
@@ -122,10 +127,9 @@ const MainAppBar = () => {
             size="small"
             value={stores.tenantStore.currentTenantId ?? ""}
             onChange={async (event) => {
-              await stores.switchTenant(
-                Number(event.target.value),
-                location.pathname === Routes.inboxPath,
-              );
+              const tenantId = Number(event.target.value);
+              await stores.switchTenant(tenantId, location.pathname === inboxPath);
+              navigate(Routes.tenantPath(tenantId, Routes.inboxPath));
             }}
             sx={Shell.tenantPickerSx}
           >

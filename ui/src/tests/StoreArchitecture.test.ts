@@ -55,7 +55,7 @@ const approvalRequest = (id: number): ApprovalRequest => ({
   createdAtDate: new Date(),
   authorUserId: "user-id",
   authorEmail: "user@example.com",
-  status: ApprovalRequestStatus.Submitted,
+  status: ApprovalRequestStatus.Pending,
   tasks: [],
 });
 

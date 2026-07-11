@@ -231,11 +231,15 @@ export const Shell = {
   mainMenuDrawerWidth,
   mainContentSx: (drawerIsVisible: boolean): SxProps<Theme> => ({
     ml: drawerIsVisible ? { md: `${mainMenuDrawerWidth}px` } : 0,
+    minWidth: 0,
     transition: (theme) =>
-      theme.transitions.create("margin", {
+      theme.transitions.create(["margin", "width"], {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
       }),
+    width: {
+      md: drawerIsVisible ? `calc(100% - ${mainMenuDrawerWidth}px)` : "100%",
+    },
   }),
   appBarSx: (
     mainMenuDrawerIsVisible: boolean,
@@ -293,14 +297,14 @@ export const Shell = {
     height: 36,
     mr: 0.5,
   } as SxProps<Theme>,
-  appBarBrandTitleSx: {
-    display: { xs: "none", sm: "block" },
+  appBarBrandTitleSx: (isUnauthenticated: boolean): SxProps<Theme> => ({
+    display: isUnauthenticated ? "block" : { xs: "none", sm: "block" },
     color: "inherit",
     overflow: "hidden",
     textDecoration: "none",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
-  } as SxProps<Theme>,
+  }),
   tenantPickerSx: {
     flex: { xs: "1 1 auto", sm: "0 1 auto" },
     maxWidth: { xs: "none", sm: 220 },
@@ -381,11 +385,13 @@ export const DataGrids = {
     "& .MuiDataGrid-cell": {
       alignItems: "center",
     },
+    "& .MuiDataGrid-row": {
+      cursor: "pointer",
+    },
   } as SxProps<Theme>,
   approvalColumnFlex: {
     content: 5,
     metadata: 3,
-    action: 2,
   },
   tenantUsersColumnSizing: {
     email: { flex: 3, minWidth: 220 },
@@ -394,21 +400,15 @@ export const DataGrids = {
     position: { flex: 2, minWidth: 150 },
     role: { flex: 1, minWidth: 110 },
     status: { flex: 1, minWidth: 120 },
-    action: { flex: 1, minWidth: 90 },
   },
   teamsColumnSizing: {
     name: { flex: 3, minWidth: 220 },
     members: { flex: 5, minWidth: 260 },
-    action: { flex: 1, minWidth: 90 },
   },
   tenantsColumnSizing: {
     businessName: { flex: 3, minWidth: 220 },
-    email: { flex: 2, minWidth: 180 },
-    phone: { flex: 2, minWidth: 140 },
-    websiteUrl: { flex: 2, minWidth: 180 },
     role: { flex: 1, minWidth: 110 },
     isOwner: { flex: 1, minWidth: 110 },
-    action: { flex: 1, minWidth: 90 },
   },
 } as const;
 
@@ -453,7 +453,11 @@ export const Errors = {
 
 const inboxPath = "/inbox";
 
+const tenantPath = (tenantId: number, path: string): string =>
+  `/tenants/${tenantId}${path}`;
+
 export const Routes = {
-  defaultPath: inboxPath,
+  defaultPath: "/",
   inboxPath,
+  tenantPath,
 } as const;

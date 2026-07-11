@@ -82,8 +82,8 @@ export const normalizeApprovalRequestDates = (
   approvalRequest: ApprovalRequest
 ) => {
   approvalRequest.createdAtDate = new Date(approvalRequest.createdAt + "Z");
-  if (approvalRequest.approveBy) {
-    approvalRequest.approveByDate = new Date(approvalRequest.approveBy + "Z");
+  if (approvalRequest.completedAt) {
+    approvalRequest.completedAtDate = new Date(approvalRequest.completedAt + "Z");
   }
   approvalRequest.tasks?.forEach(normalizeTaskDate);
   approvalRequest.steps?.forEach((step) => {

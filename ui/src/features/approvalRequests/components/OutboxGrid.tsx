@@ -1,10 +1,9 @@
 import { stores } from "@/app/rootStore";
-import ApprovalRequestActionsMenu from "@/features/approvalRequests/components/ApprovalRequestActionsMenu";
-import ApprovalRequestDeleteDialog from "@/features/approvalRequests/components/ApprovalRequestDeleteDialog";
-import ApprovalRequestViewDialog from "@/features/approvalRequests/components/ApprovalRequestViewDialog";
+import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
-import { DataGrids } from "@/shared/constants/constants";
+import { DataGrids, Routes } from "@/shared/constants/constants";
+import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { getHumanReadableRelativeDate } from "@/shared/utils/helpers";
 import { Add } from "@mui/icons-material";
 import { Box, Button, Chip, LinearProgress } from "@mui/material";
@@ -16,12 +15,22 @@ import {
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-const OutboxGrid = () => {
+interface OutboxGridProps {
+  currentApprovalRequestId?: number;
+}
+
+const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestId }) => {
+  const navigate = useNavigate();
   const tenantScopeIsReady =
     !stores.productStore.tenantsAreEnabled ||
     (stores.tenantStore.hasLoaded &&
       stores.tenantStore.currentTenantId !== null);
+  const { paginationModel, setPaginationModel } = useGridPaginationForRow(
+    stores.approvalRequestStore.approvalRequests,
+    currentApprovalRequestId,
+  );
 
   const getStatusChipColor = (status: ApprovalRequestStatus) => {
     switch (status) {
@@ -48,9 +57,14 @@ const OutboxGrid = () => {
       <GridToolbarContainer>
         <Button
           startIcon={<Add />}
-          onClick={() =>
-            stores.commonStore.setApprovalRequestSubmitDialogIsOpen(true)
-          }
+          onClick={() => {
+            const tenantId = stores.tenantStore.currentTenantId;
+            navigate(
+              tenantId
+                ? Routes.tenantPath(tenantId, "/outbox/new")
+                : "/",
+            );
+          }}
         >
           New request
         </Button>
@@ -87,16 +101,6 @@ const OutboxGrid = () => {
       flex: DataGrids.approvalColumnFlex.metadata,
       valueFormatter: (value) => getHumanReadableRelativeDate(value),
     },
-    {
-      field: "actions",
-      headerName: "Actions",
-      headerAlign: "right",
-      align: "right",
-      flex: DataGrids.approvalColumnFlex.action,
-      renderCell: (params) => {
-        return <ApprovalRequestActionsMenu approvalRequest={params.row} />;
-      },
-    },
   ];
 
   return (
@@ -104,13 +108,20 @@ const OutboxGrid = () => {
       <DataGrid
         rows={stores.approvalRequestStore.approvalRequests}
         columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: DataGrids.defaultPageSize,
-            },
-          },
+        rowSelectionModel={
+          currentApprovalRequestId === undefined
+            ? stores.approvalRequestStore.currentApprovalRequest
+              ? [stores.approvalRequestStore.currentApprovalRequest.id]
+              : []
+            : [currentApprovalRequestId]
+        }
+        onRowClick={(params) => {
+          const tenantId = stores.tenantStore.currentTenantId;
+          const path = `/outbox/${(params.row as ApprovalRequest).id}`;
+          navigate(tenantId ? Routes.tenantPath(tenantId, path) : "/");
         }}
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
         pageSizeOptions={[DataGrids.defaultPageSize]}
         disableColumnFilter
         disableRowSelectionOnClick
@@ -126,8 +137,6 @@ const OutboxGrid = () => {
           stores.commonStore.isLoading("delete_api/request")
         }
       />
-      <ApprovalRequestViewDialog />
-      <ApprovalRequestDeleteDialog />
     </Box>
   );
 };

@@ -23,28 +23,28 @@ export class TeamStore {
     });
   };
 
-  create = async (tenantId: number, payload: UpsertTeamRequest): Promise<boolean> => {
+  create = async (tenantId: number, payload: UpsertTeamRequest): Promise<Team | null> => {
     const requestVersion = this.requestVersion;
     const team = await teamApi.createTeam(tenantId, payload);
     if (!team || requestVersion !== this.requestVersion) {
-      return false;
+      return null;
     }
 
     runInAction(() => {
       this.teams = [...this.teams, team];
     });
-    return true;
+    return team;
   };
 
   update = async (
     tenantId: number,
     teamId: number,
     payload: UpsertTeamRequest
-  ): Promise<boolean> => {
+  ): Promise<Team | null> => {
     const requestVersion = this.requestVersion;
     const team = await teamApi.updateTeam(tenantId, teamId, payload);
     if (!team || requestVersion !== this.requestVersion) {
-      return false;
+      return null;
     }
 
     runInAction(() => {
@@ -52,7 +52,7 @@ export class TeamStore {
         item.id === team.id ? team : item
       );
     });
-    return true;
+    return team;
   };
 
   delete = async (tenantId: number, teamId: number): Promise<boolean> => {

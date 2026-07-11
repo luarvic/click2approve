@@ -8,15 +8,14 @@ export interface ApprovalRequest {
   title: string;
   userFiles: UserFile[];
   steps: ApprovalStep[];
-  approveBy?: string;
-  approveByDate?: Date;
-  comment?: string;
+  description?: string;
   createdAt: string;
   createdAtDate: Date;
+  completedAt?: string;
+  completedAtDate?: Date;
   authorUserId: string;
   authorEmail: string;
   status: ApprovalRequestStatus;
-  clonedFromApprovalRequestId?: number;
   tasks: ApprovalRequestTask[];
 }
 
@@ -24,7 +23,5 @@ export interface SubmitApprovalRequestRequest {
   title: string;
   userFileIds: number[];
   steps: ApprovalStep[];
-  approveBy: Date | null;
-  comment?: string;
-  clonedFromApprovalRequestId?: number;
+  description?: string;
 }

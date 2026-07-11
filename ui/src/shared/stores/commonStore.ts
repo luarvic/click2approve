@@ -5,10 +5,10 @@ export class CommonStore {
   loadingCounter: Dictionary<number>;
   loadingPrefixCounter: Dictionary<number>;
   approvalRequestSubmitDialogIsOpen: boolean;
-  approvalRequestStepsDialogIsOpen: boolean;
+  approvalRequestTrackDialogIsOpen: boolean;
   approvalRequestViewDialogIsOpen: boolean;
   approvalRequestDeleteDialogIsOpen: boolean;
-  taskReviewDialogIsOpen: boolean;
+  taskViewDialogIsOpen: boolean;
   mainMenuDrawerIsOpen: boolean;
   profileDrawerIsOpen: boolean;
   tenantCreateDialogIsOpen: boolean;
@@ -16,10 +16,10 @@ export class CommonStore {
   constructor(
     loadingCounter: Dictionary<number> = {},
     approvalRequestSubmitDialogIsOpen: boolean = false,
-    approvalRequestStepsDialogIsOpen: boolean = false,
+    approvalRequestTrackDialogIsOpen: boolean = false,
     approvalRequestViewDialogIsOpen: boolean = false,
     approvalRequestDeleteDialogIsOpen: boolean = false,
-    taskReviewDialogIsOpen: boolean = false,
+    taskViewDialogIsOpen: boolean = false,
     mainMenuDrawerIsOpen: boolean = false,
     profileDrawerIsOpen: boolean = false,
     tenantCreateDialogIsOpen: boolean = false,
@@ -28,10 +28,10 @@ export class CommonStore {
     this.loadingCounter = loadingCounter;
     this.loadingPrefixCounter = loadingPrefixCounter;
     this.approvalRequestSubmitDialogIsOpen = approvalRequestSubmitDialogIsOpen;
-    this.approvalRequestStepsDialogIsOpen = approvalRequestStepsDialogIsOpen;
+    this.approvalRequestTrackDialogIsOpen = approvalRequestTrackDialogIsOpen;
     this.approvalRequestViewDialogIsOpen = approvalRequestViewDialogIsOpen;
     this.approvalRequestDeleteDialogIsOpen = approvalRequestDeleteDialogIsOpen;
-    this.taskReviewDialogIsOpen = taskReviewDialogIsOpen;
+    this.taskViewDialogIsOpen = taskViewDialogIsOpen;
     this.mainMenuDrawerIsOpen = mainMenuDrawerIsOpen;
     this.profileDrawerIsOpen = profileDrawerIsOpen;
     this.tenantCreateDialogIsOpen = tenantCreateDialogIsOpen;
@@ -61,9 +61,9 @@ export class CommonStore {
     });
   };
 
-  setApprovalRequestStepsDialogIsOpen = (isOpen: boolean) => {
+  setApprovalRequestTrackDialogIsOpen = (isOpen: boolean) => {
     runInAction(() => {
-      this.approvalRequestStepsDialogIsOpen = isOpen;
+      this.approvalRequestTrackDialogIsOpen = isOpen;
     });
   };
 
@@ -79,9 +79,9 @@ export class CommonStore {
     });
   };
 
-  setTaskReviewDialogIsOpen = (isOpen: boolean) => {
+  setTaskViewDialogIsOpen = (isOpen: boolean) => {
     runInAction(() => {
-      this.taskReviewDialogIsOpen = isOpen;
+      this.taskViewDialogIsOpen = isOpen;
     });
   };
 
@@ -106,10 +106,10 @@ export class CommonStore {
   clearSessionState = (): void => {
     runInAction(() => {
       this.approvalRequestSubmitDialogIsOpen = false;
-      this.approvalRequestStepsDialogIsOpen = false;
+      this.approvalRequestTrackDialogIsOpen = false;
       this.approvalRequestViewDialogIsOpen = false;
       this.approvalRequestDeleteDialogIsOpen = false;
-      this.taskReviewDialogIsOpen = false;
+      this.taskViewDialogIsOpen = false;
       this.mainMenuDrawerIsOpen = false;
       this.profileDrawerIsOpen = false;
       this.tenantCreateDialogIsOpen = false;

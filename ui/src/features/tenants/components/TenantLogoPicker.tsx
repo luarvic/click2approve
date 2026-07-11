@@ -14,6 +14,7 @@ import type { Theme } from "@mui/material/styles";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 
 interface TenantLogoPickerProps {
+  disabled?: boolean;
   logoUrl?: string;
   selectedFile: File | null;
   onSelect: (file: File | null) => void;
@@ -50,6 +51,7 @@ const logoPickerChangeButtonSx: SxProps<Theme> = {
 const TenantLogoPicker: React.FC<TenantLogoPickerProps> = ({
   logoUrl,
   selectedFile,
+  disabled,
   onSelect,
   onRemove,
 }) => {
@@ -115,6 +117,7 @@ const TenantLogoPicker: React.FC<TenantLogoPickerProps> = ({
         <Tooltip title="Change logo">
           <IconButton
             aria-label="Change logo"
+            disabled={disabled}
             size="small"
             onClick={() => fileInput.current?.click()}
             sx={logoPickerChangeButtonSx}
@@ -137,7 +140,7 @@ const TenantLogoPicker: React.FC<TenantLogoPickerProps> = ({
             <span>
               <IconButton
                 aria-label="Remove logo"
-                disabled={!logoUrl && !selectedFile}
+                disabled={disabled || (!logoUrl && !selectedFile)}
                 onClick={onRemove}
                 size="small"
               >

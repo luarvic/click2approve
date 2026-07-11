@@ -1,0 +1,30 @@
+import { stores } from "@/app/rootStore";
+import ApprovalRequestSubmitPageContent from "@/features/approvalRequests/components/ApprovalRequestSubmitDialog";
+import { Routes } from "@/shared/constants/constants";
+import { observer } from "mobx-react-lite";
+import { useLocation, useNavigate } from "react-router-dom";
+
+const ApprovalRequestSubmitPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const initialTemplateId = (
+    location.state as { templateId?: number } | null
+  )?.templateId;
+  const tenantId = stores.tenantStore.currentTenantId;
+  const outboxPath = tenantId ? Routes.tenantPath(tenantId, "/outbox") : "/";
+
+  return (
+    <ApprovalRequestSubmitPageContent
+      initialTemplateId={initialTemplateId}
+      onClose={(currentApprovalRequestId) =>
+        navigate(outboxPath, {
+          state: currentApprovalRequestId
+            ? { currentApprovalRequestId }
+            : undefined,
+        })
+      }
+    />
+  );
+};
+
+export default observer(ApprovalRequestSubmitPage);

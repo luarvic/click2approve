@@ -3,15 +3,21 @@ import InboxGrid from "@/features/approvalRequests/components/InboxGrid";
 import { Pages } from "@/shared/constants/constants";
 import { Box, Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
+
+interface InboxLocationState {
+  currentTaskId?: number;
+}
 
 const InboxPage = () => {
+  const location = useLocation();
+  const { currentTaskId } = (location.state as InboxLocationState | null) ?? {};
   return stores.userAccountStore.currentUser ? (
     <Box sx={Pages.containerSx}>
       <Typography component="h1" variant="h5" sx={Pages.titleSx}>
         Incoming Requests
       </Typography>
-      <InboxGrid />
+      <InboxGrid currentTaskId={currentTaskId} />
     </Box>
   ) : (
     <Navigate to="/signIn" />

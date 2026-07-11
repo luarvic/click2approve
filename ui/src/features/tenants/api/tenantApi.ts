@@ -3,6 +3,16 @@ import axios from "@/shared/api/axios";
 import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
 import { toast } from "react-toastify";
 
+export const getCurrentTenantId = async (): Promise<number | null> => {
+  try {
+    const { data } = await axios.get<{ id: number }>("api/tenant/current");
+    return data.id;
+  } catch (e) {
+    toast.error(getUserFriendlyApiErrorMessage(e));
+    return null;
+  }
+};
+
 export const listTenants = async (): Promise<Tenant[]> => {
   try {
     const { data } = await axios.get<Tenant[]>("api/tenants");

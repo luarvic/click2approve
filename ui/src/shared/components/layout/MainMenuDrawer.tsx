@@ -9,8 +9,8 @@ import {
   Groups,
   HelpOutline,
   Inbox,
-  ManageAccounts,
   Outbox,
+  Person,
 } from "@mui/icons-material";
 import {
   Box,
@@ -52,8 +52,18 @@ const MainMenuDrawer = () => {
     stores.productStore.approvalStepTemplatesAreEnabled &&
     currentTenant?.type === TenantType.Business &&
     currentTenant?.role !== undefined;
+  const currentTenantId = stores.tenantStore.currentTenantId;
+  const tenantPath = (path: string) =>
+    currentTenantId ? Routes.tenantPath(currentTenantId, path) : "/";
+  const inboxPath = tenantPath(Routes.inboxPath);
+  const outboxPath = tenantPath("/outbox");
+  const templatesPath = tenantPath("/approvalStepTemplates");
+  const teamsPath = tenantPath("/teams");
+  const employeesPath = tenantPath("/employees");
   const inboxIsSelected =
-    location.pathname === "/" || location.pathname === Routes.inboxPath;
+    location.pathname === "/" ||
+    location.pathname.startsWith(inboxPath);
+  const outboxIsSelected = location.pathname.startsWith(outboxPath);
 
   useEffect(() => {
     if (!currentUser) {
@@ -98,7 +108,7 @@ const MainMenuDrawer = () => {
             size="large"
             startIcon={<Create />}
             onClick={() => {
-              stores.commonStore.setApprovalRequestSubmitDialogIsOpen(true);
+              navigate(`${outboxPath}/new`);
               closeTemporaryDrawer();
             }}
             sx={Shell.drawerComposeButtonSx}
@@ -110,7 +120,7 @@ const MainMenuDrawer = () => {
           <ListItemButton
             selected={inboxIsSelected}
             onClick={() => {
-              navigate(Routes.inboxPath);
+              navigate(inboxPath);
               closeTemporaryDrawer();
             }}
           >
@@ -122,9 +132,9 @@ const MainMenuDrawer = () => {
         </ListItem>
         <ListItem key="outgoing" disablePadding>
           <ListItemButton
-            selected={location.pathname === "/outbox"}
+            selected={outboxIsSelected}
             onClick={() => {
-              navigate("/outbox");
+              navigate(outboxPath);
               closeTemporaryDrawer();
             }}
           >
@@ -137,9 +147,9 @@ const MainMenuDrawer = () => {
         {templatesIsVisible && (
           <ListItem key="approvalStepTemplates" disablePadding>
             <ListItemButton
-              selected={location.pathname === "/approvalStepTemplates"}
+              selected={location.pathname.startsWith(templatesPath)}
               onClick={() => {
-                navigate("/approvalStepTemplates");
+                navigate(templatesPath);
                 closeTemporaryDrawer();
               }}
             >
@@ -177,9 +187,9 @@ const MainMenuDrawer = () => {
         {teamsManagerIsVisible && (
           <ListItem key="teams" disablePadding>
             <ListItemButton
-              selected={location.pathname === "/teams"}
+              selected={location.pathname === teamsPath}
               onClick={() => {
-                navigate("/teams");
+                navigate(teamsPath);
                 closeTemporaryDrawer();
               }}
             >
@@ -193,14 +203,14 @@ const MainMenuDrawer = () => {
         {employeeManagerIsVisible && (
           <ListItem key="employees" disablePadding>
             <ListItemButton
-              selected={location.pathname === "/employees"}
+              selected={location.pathname === employeesPath}
               onClick={() => {
-                navigate("/employees");
+                navigate(employeesPath);
                 closeTemporaryDrawer();
               }}
             >
               <ListItemIcon sx={Lists.itemIconSx}>
-                <ManageAccounts />
+                <Person />
               </ListItemIcon>
               <ListItemText primary="Employees" />
             </ListItemButton>
@@ -241,7 +251,7 @@ const MainMenuDrawer = () => {
     >
       <Drawer
         variant="temporary"
-        open={stores.commonStore.mainMenuDrawerIsOpen}
+        open={!isDesktop && stores.commonStore.mainMenuDrawerIsOpen}
         onClose={() => stores.commonStore.setMainMenuDrawerIsOpen(false)}
         ModalProps={{ keepMounted: true }}
         sx={Shell.temporaryDrawerSx}
@@ -250,7 +260,7 @@ const MainMenuDrawer = () => {
       </Drawer>
       <Drawer
         variant="persistent"
-        open={stores.commonStore.mainMenuDrawerIsOpen}
+        open={isDesktop && stores.commonStore.mainMenuDrawerIsOpen}
         sx={Shell.persistentDrawerSx}
       >
         {drawerContent}

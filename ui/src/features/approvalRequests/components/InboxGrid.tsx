@@ -1,20 +1,30 @@
 import { stores } from "@/app/rootStore";
-import TaskActionsMenu from "@/features/approvalRequests/components/TaskActionsMenu";
-import UncompletedTaskReviewDialog from "@/features/approvalRequests/components/UncompletedTaskReviewDialog";
+import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
-import { DataGrids } from "@/shared/constants/constants";
+import { DataGrids, Routes } from "@/shared/constants/constants";
+import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { getHumanReadableRelativeDate } from "@/shared/utils/helpers";
 import { Box, Chip, LinearProgress } from "@mui/material";
 import { DataGrid, GridColDef, GridSlots } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-const InboxGrid = () => {
+interface InboxGridProps {
+  currentTaskId?: number;
+}
+
+const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskId }) => {
+  const navigate = useNavigate();
   const tenantScopeIsReady =
     !stores.productStore.tenantsAreEnabled ||
     (stores.tenantStore.hasLoaded &&
       stores.tenantStore.currentTenantId !== null);
+  const { paginationModel, setPaginationModel } = useGridPaginationForRow(
+    stores.approvalRequestTaskStore.tasks,
+    currentTaskId,
+  );
 
   const getStatusChipColor = (status: ApprovalRequestTaskStatus) => {
     switch (status) {
@@ -67,16 +77,6 @@ const InboxGrid = () => {
       flex: DataGrids.approvalColumnFlex.metadata,
       valueFormatter: (value) => getHumanReadableRelativeDate(value),
     },
-    {
-      field: "actions",
-      headerName: "Actions",
-      headerAlign: "right",
-      align: "right",
-      flex: DataGrids.approvalColumnFlex.action,
-      renderCell: (params) => {
-        return <TaskActionsMenu task={params.row} />;
-      },
-    },
   ];
 
   return (
@@ -84,13 +84,14 @@ const InboxGrid = () => {
       <DataGrid
         rows={stores.approvalRequestTaskStore.tasks}
         columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: DataGrids.defaultPageSize,
-            },
-          },
+        rowSelectionModel={currentTaskId === undefined ? [] : [currentTaskId]}
+        onRowClick={(params) => {
+          const tenantId = stores.tenantStore.currentTenantId;
+          const path = `/inbox/${(params.row as ApprovalRequestTask).id}`;
+          navigate(tenantId ? Routes.tenantPath(tenantId, path) : "/");
         }}
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
         pageSizeOptions={[DataGrids.defaultPageSize]}
         disableColumnFilter
         disableRowSelectionOnClick
@@ -105,7 +106,6 @@ const InboxGrid = () => {
           stores.commonStore.isLoading("post_api/task/complete")
         }
       />
-      <UncompletedTaskReviewDialog />
     </Box>
   );
 };

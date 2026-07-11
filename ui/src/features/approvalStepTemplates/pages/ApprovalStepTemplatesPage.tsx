@@ -4,10 +4,17 @@ import { TenantType } from "@/features/tenants/models/tenant";
 import { Pages } from "@/shared/constants/constants";
 import { Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
+
+interface ApprovalStepTemplatesLocationState {
+  currentTemplateId?: number;
+}
 
 const ApprovalStepTemplatesPage = () => {
+  const location = useLocation();
   const currentTenant = stores.tenantStore.currentTenant;
+  const { currentTemplateId } =
+    (location.state as ApprovalStepTemplatesLocationState | null) ?? {};
   const canViewTemplates =
     stores.productStore.approvalStepTemplatesAreEnabled &&
     currentTenant?.type === TenantType.Business &&
@@ -26,7 +33,7 @@ const ApprovalStepTemplatesPage = () => {
       <Typography component="h1" variant="h5" sx={Pages.titleSx}>
         Templates
       </Typography>
-      <ApprovalStepTemplatesGrid />
+      <ApprovalStepTemplatesGrid currentTemplateId={currentTemplateId} />
     </>
   );
 };

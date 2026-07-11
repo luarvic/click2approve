@@ -5,35 +5,34 @@ import {
 } from "@/features/employees/models/employee";
 import { Team } from "@/features/teams/models/team";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
-import { Dialogs, Validation } from "@/shared/constants/constants";
+import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
+import { Dialogs, Pages, Validation } from "@/shared/constants/constants";
 import {
   Autocomplete,
   Button,
   Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   FormControl,
   InputLabel,
   MenuItem,
   Select,
   Stack,
   TextField,
+  Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
 interface EmployeeDialogProps {
-  open: boolean;
+  canEdit: boolean;
   employee: Employee | null;
   teams: Team[];
   selectedTeamIds: number[];
-  onClose: () => void;
+  onClose: (currentEmployeeId?: number) => void;
+  onDelete: (employeeId: number) => Promise<boolean>;
   onSubmit: (
     payload: CreateEmployeeRequest | UpdateEmployeeRequest,
     teamIds: number[],
     employeeId?: number,
-  ) => Promise<boolean>;
+  ) => Promise<Employee | null>;
 }
 
 const roleOptions = [
@@ -43,11 +42,12 @@ const roleOptions = [
 ];
 
 const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
-  open,
   employee,
   teams,
   selectedTeamIds,
+  canEdit,
   onClose,
+  onDelete,
   onSubmit,
 }) => {
   const [email, setEmail] = useState("");
@@ -57,15 +57,12 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
   const [role, setRole] = useState(EmployeeRole.User);
   const [selectedTeams, setSelectedTeams] = useState<Team[]>([]);
   const [emailTouched, setEmailTouched] = useState(false);
-  const isEdit = employee !== null;
+  const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
+  const isNew = employee === null;
   const emailHasError =
-    !isEdit && emailTouched && !Validation.emailRegex.test(email);
+    isNew && emailTouched && !Validation.emailRegex.test(email);
 
   useEffect(() => {
-    if (!open) {
-      return;
-    }
-
     setEmail(employee?.email ?? "");
     setFirstName(employee?.firstName ?? "");
     setLastName(employee?.lastName ?? "");
@@ -73,10 +70,10 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
     setRole(employee?.role ?? EmployeeRole.User);
     setSelectedTeams(teams.filter((team) => selectedTeamIds.includes(team.id)));
     setEmailTouched(false);
-  }, [open, employee, teams, selectedTeamIds]);
+  }, [employee, teams, selectedTeamIds]);
 
   const handleSubmit = async () => {
-    if (!isEdit && !Validation.emailRegex.test(email)) {
+    if (isNew && !Validation.emailRegex.test(email)) {
       setEmailTouched(true);
       return;
     }
@@ -87,7 +84,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
       position: position.trim() || undefined,
       role,
     };
-    const saved = isEdit
+    const savedEmployee = !isNew
       ? await onSubmit(
         payload,
         selectedTeams.map((team) => team.id),
@@ -98,92 +95,116 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
         selectedTeams.map((team) => team.id),
       );
 
-    if (saved) {
-      onClose();
+    if (savedEmployee) {
+      onClose(savedEmployee.id);
     }
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth={Dialogs.tenantMaxWidth}
-    >
-      <DialogTitle>{isEdit ? "Edit employee" : "Add employee"}</DialogTitle>
-      <DialogContent>
-        <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.topSpacingSx}>
-          <TextField
-            label="Email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            onBlur={() => setEmailTouched(true)}
-            disabled={isEdit}
-            error={emailHasError}
-            helperText={emailHasError ? "Enter a valid email address." : " "}
-            fullWidth
-            required
-          />
-          <TextField
-            label="First name"
-            value={firstName}
-            onChange={(event) => setFirstName(event.target.value)}
-            fullWidth
-          />
-          <TextField
-            label="Last name"
-            value={lastName}
-            onChange={(event) => setLastName(event.target.value)}
-            fullWidth
-          />
-          <TextField
-            label="Position"
-            value={position}
-            onChange={(event) => setPosition(event.target.value)}
-            fullWidth
-          />
-          <FormControl fullWidth>
-            <InputLabel id="tenant-user-role-label">Role</InputLabel>
-            <Select
-              labelId="tenant-user-role-label"
-              label="Role"
-              value={role}
-              onChange={(event) => setRole(Number(event.target.value))}
-            >
-              {roleOptions.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Autocomplete
-            multiple
-            options={teams}
-            value={selectedTeams}
-            getOptionLabel={(option) => option.name}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            onChange={(_, value) => setSelectedTeams(value)}
-            renderTags={(value, getTagProps) =>
-              value.map((option, index) => (
-                <Chip label={option.name} {...getTagProps({ index })} />
-              ))
-            }
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Teams"
-                helperText="Assign this employee to teams."
-              />
-            )}
-          />
-        </Stack>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSubmit}>Save</Button>
-      </DialogActions>
-    </Dialog>
+    <>
+      <Typography component="h1" variant="h5" sx={Pages.titleSx}>
+        {isNew ? "New employee" : "Employee"}
+      </Typography>
+      <Stack spacing={Dialogs.formStackSpacing}>
+        <TextField
+          label="Email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          onBlur={() => setEmailTouched(true)}
+          disabled={!isNew}
+          error={emailHasError}
+          helperText={emailHasError ? "Enter a valid email address." : " "}
+          fullWidth
+          required
+        />
+        <TextField
+          label="First name"
+          value={firstName}
+          onChange={(event) => setFirstName(event.target.value)}
+          fullWidth
+          disabled={!isNew && !canEdit}
+        />
+        <TextField
+          label="Last name"
+          value={lastName}
+          onChange={(event) => setLastName(event.target.value)}
+          fullWidth
+          disabled={!isNew && !canEdit}
+        />
+        <TextField
+          label="Position"
+          value={position}
+          onChange={(event) => setPosition(event.target.value)}
+          fullWidth
+          disabled={!isNew && !canEdit}
+        />
+        <FormControl fullWidth>
+          <InputLabel id="tenant-user-role-label">Role</InputLabel>
+          <Select
+            labelId="tenant-user-role-label"
+            label="Role"
+            value={role}
+            onChange={(event) => setRole(Number(event.target.value))}
+            disabled={!isNew && !canEdit}
+          >
+            {roleOptions.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <Autocomplete
+          multiple
+          options={teams}
+          value={selectedTeams}
+          getOptionLabel={(option) => option.name}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(_, value) => setSelectedTeams(value)}
+          disabled={!isNew && !canEdit}
+          renderTags={(value, getTagProps) =>
+            value.map((option, index) => (
+              <Chip label={option.name} {...getTagProps({ index })} />
+            ))
+          }
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Teams"
+              helperText="Assign this employee to teams."
+            />
+          )}
+        />
+      </Stack>
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={Dialogs.stepHeaderSpacing}
+        sx={Dialogs.addStepButtonSx}
+      >
+        <Button variant="outlined" onClick={() => onClose(employee?.id)}>
+          Cancel
+        </Button>
+        {!isNew && canEdit && (
+          <Button color="error" variant="outlined" onClick={() => setDeleteDialogIsOpen(true)}>
+            Delete
+          </Button>
+        )}
+        {(isNew || canEdit) && (
+          <Button variant="outlined" onClick={handleSubmit}>
+            Save
+          </Button>
+        )}
+      </Stack>
+      {employee && (
+        <DeleteConfirmationDialog
+          entityName={employee.email}
+          open={deleteDialogIsOpen}
+          title="Delete employee"
+          onClose={() => setDeleteDialogIsOpen(false)}
+          onDelete={() => onDelete(employee.id)}
+        />
+      )}
+    </>
   );
 };
 

@@ -4,9 +4,15 @@ import { TenantType } from "@/features/tenants/models/tenant";
 import { Pages } from "@/shared/constants/constants";
 import { Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
+
+interface TeamsLocationState {
+  currentTeamId?: number;
+}
 
 const TeamsPage = () => {
+  const location = useLocation();
+  const { currentTeamId } = (location.state as TeamsLocationState | null) ?? {};
   const currentTenant = stores.tenantStore.currentTenant;
   const canManageTeams =
     stores.productStore.teamApproversAreEnabled &&
@@ -26,7 +32,7 @@ const TeamsPage = () => {
       <Typography component="h1" variant="h5" sx={Pages.titleSx}>
         Teams
       </Typography>
-      <TeamsGrid />
+      <TeamsGrid currentTeamId={currentTeamId} />
     </>
   );
 };

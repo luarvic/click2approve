@@ -1,75 +1,41 @@
 import { stores } from "@/app/rootStore";
 import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
-import ApprovalStepApproverRow from "@/features/approvalWorkflow/components/ApprovalStepApproverRow";
+import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
 import {
   ApprovalRecipientType,
-  ApprovalStep,
   ApprovalStepApprover,
-  ApprovalStepMode,
 } from "@/features/approvalWorkflow/models/approvalStep";
+import {
+  createEditableSteps,
+  createEmptyApprover,
+  createEmptyStep,
+  EditableApprovalStep,
+  toApprovalStepSubmissions,
+} from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
-import { Dialogs } from "@/shared/constants/constants";
+import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
+import { Dialogs, Pages } from "@/shared/constants/constants";
 import { validateEmails } from "@/shared/utils/validators";
-import {
-  Add,
-  DeleteOutline,
-  KeyboardArrowDown,
-  KeyboardArrowUp,
-} from "@mui/icons-material";
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  Stack,
-  TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  Tooltip,
-} from "@mui/material";
+import { Button, Stack, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
-interface ApprovalStepTemplateDialogProps {
-  open: boolean;
+interface ApprovalStepTemplateEditorProps {
   template: ApprovalStepTemplate | null;
-  onClose: () => void;
+  onClose: (currentTemplateId?: number) => void;
+  onDelete: (templateId: number) => Promise<boolean>;
 }
 
-const emptyApprover = (): ApprovalStepApprover => ({
-  type: ApprovalRecipientType.Email,
-  email: "",
-  canViewRequest: true,
-});
-
-const emptyStep = (sequence: number): ApprovalStep => ({
-  sequence,
-  mode: ApprovalStepMode.Any,
-  approvers: [emptyApprover()],
-});
-
-const cloneSteps = (steps: ApprovalStep[]) =>
-  steps.map((step, index) => ({
-    sequence: index + 1,
-    mode: step.mode,
-    approvers: step.approvers.map((approver) => ({
-      type: approver.type,
-      email: approver.email,
-      employeeId: approver.employeeId,
-      teamId: approver.teamId,
-      displayName: approver.displayName,
-      canViewRequest: approver.canViewRequest,
-    })),
-  }));
-
-const ApprovalStepTemplateDialog: React.FC<
-  ApprovalStepTemplateDialogProps
-> = ({ open, template, onClose }) => {
+const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
+  template,
+  onClose,
+  onDelete,
+}) => {
   const [name, setName] = useState("");
-  const [steps, setSteps] = useState<ApprovalStep[]>([emptyStep(1)]);
+  const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
+  const [steps, setSteps] = useState<EditableApprovalStep[]>([
+    createEmptyStep(1),
+  ]);
   const tenantId = stores.tenantStore.currentTenantId;
   const businessTenantIsSelected =
     stores.tenantStore.currentTenant?.type === TenantType.Business;
@@ -79,12 +45,10 @@ const ApprovalStepTemplateDialog: React.FC<
     businessTenantIsSelected && stores.productStore.teamApproversAreEnabled;
 
   useEffect(() => {
-    if (!open) {
-      return;
-    }
-
     setName(template?.name ?? "");
-    setSteps(template ? cloneSteps(template.steps) : [emptyStep(1)]);
+    setSteps(
+      template ? createEditableSteps(template.steps) : [createEmptyStep(1)],
+    );
     if (tenantId && businessTenantIsSelected) {
       if (canUseEmployees) {
         stores.employeeStore.load(tenantId);
@@ -94,7 +58,6 @@ const ApprovalStepTemplateDialog: React.FC<
       }
     }
   }, [
-    open,
     template,
     tenantId,
     businessTenantIsSelected,
@@ -104,7 +67,7 @@ const ApprovalStepTemplateDialog: React.FC<
 
   const updateStep = (
     stepIndex: number,
-    updater: (step: ApprovalStep) => ApprovalStep,
+    updater: (step: EditableApprovalStep) => EditableApprovalStep,
   ) => {
     setSteps((current) =>
       current.map((step, index) =>
@@ -114,7 +77,10 @@ const ApprovalStepTemplateDialog: React.FC<
   };
 
   const addStep = () => {
-    setSteps((current) => [...current, emptyStep(current.length + 1)]);
+    setSteps((current) => [
+      ...current,
+      createEmptyStep(current.length + 1),
+    ]);
   };
 
   const removeStep = (stepIndex: number) => {
@@ -195,143 +161,94 @@ const ApprovalStepTemplateDialog: React.FC<
     const saved = template
       ? await stores.approvalStepTemplateStore.update(tenantId, template.id, {
         name: name.trim(),
-        steps,
+        steps: toApprovalStepSubmissions(steps),
       })
       : await stores.approvalStepTemplateStore.create(tenantId, {
         name: name.trim(),
-        steps,
+        steps: toApprovalStepSubmissions(steps),
       });
     if (saved) {
-      onClose();
+      onClose(saved.id);
     }
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle>{template ? "Edit template" : "New template"}</DialogTitle>
-      <DialogContent>
-        <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.topSpacingSx}>
-          <TextField
-            label="Name"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            fullWidth
-            required
-          />
-          <Stack spacing={Dialogs.stepStackSpacing}>
-            {steps.map((step, stepIndex) => (
-              <Box key={step.sequence} sx={Dialogs.approvalStepSx}>
-                <Stack
-                  direction={{ xs: "column", sm: "row" }}
-                  spacing={Dialogs.stepHeaderSpacing}
-                  alignItems={{ xs: "stretch", sm: "center" }}
-                  sx={Dialogs.stepHeaderSx}
-                >
-                  <Box sx={Dialogs.stepTitleSx}>Step {step.sequence}</Box>
-                  <ToggleButtonGroup
-                    exclusive
-                    size="small"
-                    value={step.mode}
-                    onChange={(_, value) => {
-                      if (value !== null) {
-                        updateStep(stepIndex, (current) => ({
-                          ...current,
-                          mode: value,
-                        }));
-                      }
-                    }}
-                  >
-                    <ToggleButton value={ApprovalStepMode.Any}>
-                      Any
-                    </ToggleButton>
-                    <ToggleButton value={ApprovalStepMode.All}>
-                      All
-                    </ToggleButton>
-                  </ToggleButtonGroup>
-                  <Stack direction="row" spacing={Dialogs.stepActionSpacing}>
-                    <Tooltip title="Move step up">
-                      <span>
-                        <IconButton
-                          disabled={stepIndex === 0}
-                          onClick={() => moveStep(stepIndex, -1)}
-                        >
-                          <KeyboardArrowUp />
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                    <Tooltip title="Move step down">
-                      <span>
-                        <IconButton
-                          disabled={stepIndex === steps.length - 1}
-                          onClick={() => moveStep(stepIndex, 1)}
-                        >
-                          <KeyboardArrowDown />
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                  </Stack>
-                  <Tooltip title="Remove step">
-                    <span>
-                      <IconButton
-                        disabled={steps.length === 1}
-                        onClick={() => removeStep(stepIndex)}
-                      >
-                        <DeleteOutline />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                </Stack>
-                <Stack spacing={Dialogs.approverStackSpacing}>
-                  {step.approvers.map((approver, approverIndex) => (
-                    <ApprovalStepApproverRow
-                      key={approverIndex}
-                      approver={approver}
-                      canUseEmployees={canUseEmployees}
-                      canUseTeams={canUseTeams}
-                      employees={stores.employeeStore.employees}
-                      teams={stores.teamStore.teams}
-                      onChange={(nextApprover) =>
-                        updateApprover(stepIndex, approverIndex, nextApprover)
-                      }
-                      onRemove={() =>
-                        updateStep(stepIndex, (current) => ({
-                          ...current,
-                          approvers:
-                            current.approvers.length === 1
-                              ? current.approvers
-                              : current.approvers.filter(
-                                (_, index) => index !== approverIndex,
-                              ),
-                        }))
-                      }
-                    />
-                  ))}
-                </Stack>
-                <Button
-                  startIcon={<Add />}
-                  onClick={() =>
-                    updateStep(stepIndex, (current) => ({
-                      ...current,
-                      approvers: [...current.approvers, emptyApprover()],
-                    }))
-                  }
-                >
-                  Add approver
-                </Button>
-              </Box>
-            ))}
-          </Stack>
-          <Button startIcon={<Add />} onClick={addStep}>
-            Add step
+    <>
+      <Typography component="h1" variant="h5" sx={Pages.titleSx}>
+        {template ? "Template" : "New template"}
+      </Typography>
+      <Stack spacing={Dialogs.formStackSpacing}>
+        <TextField
+          label="Name"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          fullWidth
+          required
+        />
+        <ApprovalStepEditor
+          steps={steps}
+          canUseEmployees={canUseEmployees}
+          canUseTeams={canUseTeams}
+          employees={stores.employeeStore.employees}
+          teams={stores.teamStore.teams}
+          onAddApprover={(stepIndex) =>
+            updateStep(stepIndex, (current) => ({
+              ...current,
+              approvers: [...current.approvers, createEmptyApprover()],
+            }))
+          }
+          onAddStep={addStep}
+          onMoveStep={moveStep}
+          onRemoveApprover={(stepIndex, approverIndex) =>
+            updateStep(stepIndex, (current) => ({
+              ...current,
+              approvers:
+                current.approvers.length === 1
+                  ? current.approvers
+                  : current.approvers.filter(
+                    (_, index) => index !== approverIndex,
+                  ),
+            }))
+          }
+          onRemoveStep={removeStep}
+          onUpdateApprover={updateApprover}
+          onUpdateStep={updateStep}
+        />
+      </Stack>
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={Dialogs.stepHeaderSpacing}
+        sx={Dialogs.addStepButtonSx}
+      >
+        <Button variant="outlined" onClick={() => onClose(template?.id)}>
+          Cancel
+        </Button>
+        {template && (
+          <Button
+            color="error"
+            variant="outlined"
+            onClick={() => setDeleteDialogIsOpen(true)}
+          >
+            Delete
           </Button>
-        </Stack>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSubmit}>Save</Button>
-      </DialogActions>
-    </Dialog>
+        )}
+        <Button variant="outlined" onClick={handleSubmit}>
+          Save
+        </Button>
+      </Stack>
+      {template && (
+        <DeleteConfirmationDialog
+          cancelFirst
+          cancelLabel="Cancel"
+          entityName={template.name}
+          open={deleteDialogIsOpen}
+          title="Delete template"
+          onClose={() => setDeleteDialogIsOpen(false)}
+          onDelete={() => onDelete(template.id)}
+        />
+      )}
+    </>
   );
 };
 
-export default ApprovalStepTemplateDialog;
+export default ApprovalStepTemplateEditor;

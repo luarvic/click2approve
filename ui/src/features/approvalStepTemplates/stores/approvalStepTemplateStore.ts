@@ -29,24 +29,24 @@ export class ApprovalStepTemplateStore {
   create = async (
     tenantId: number,
     payload: UpsertApprovalStepTemplateRequest
-  ): Promise<boolean> => {
+  ): Promise<ApprovalStepTemplate | null> => {
     const requestVersion = this.requestVersion;
     const template = await approvalStepTemplateApi.createApprovalStepTemplate(tenantId, payload);
     if (!template || requestVersion !== this.requestVersion) {
-      return false;
+      return null;
     }
 
     runInAction(() => {
       this.templates = [...this.templates, template];
     });
-    return true;
+    return template;
   };
 
   update = async (
     tenantId: number,
     templateId: number,
     payload: UpsertApprovalStepTemplateRequest
-  ): Promise<boolean> => {
+  ): Promise<ApprovalStepTemplate | null> => {
     const requestVersion = this.requestVersion;
     const template = await approvalStepTemplateApi.updateApprovalStepTemplate(
       tenantId,
@@ -54,7 +54,7 @@ export class ApprovalStepTemplateStore {
       payload
     );
     if (!template || requestVersion !== this.requestVersion) {
-      return false;
+      return null;
     }
 
     runInAction(() => {
@@ -62,7 +62,7 @@ export class ApprovalStepTemplateStore {
         item.id === template.id ? template : item
       );
     });
-    return true;
+    return template;
   };
 
   delete = async (tenantId: number, templateId: number): Promise<boolean> => {

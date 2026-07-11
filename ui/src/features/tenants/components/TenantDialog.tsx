@@ -1,21 +1,21 @@
 import TenantLogoPicker from "@/features/tenants/components/TenantLogoPicker";
 import { CreateTenantRequest, Tenant, UpdateTenantRequest } from "@/features/tenants/models/tenant";
-import { Dialogs } from "@/shared/constants/constants";
+import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
+import { Dialogs, Pages } from "@/shared/constants/constants";
 import {
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Stack,
   TextField,
+  Typography,
 } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 
 interface TenantDialogProps {
-  open: boolean;
+  canDelete: boolean;
+  canEdit: boolean;
   tenant?: Tenant | null;
-  onClose: () => void;
+  onClose: (currentTenantId?: number) => void;
+  onDelete: (tenantId: number) => Promise<boolean>;
   onSubmit: (
     payload: CreateTenantRequest | UpdateTenantRequest,
     tenantId?: number,
@@ -25,9 +25,11 @@ interface TenantDialogProps {
 }
 
 const TenantDialog: React.FC<TenantDialogProps> = ({
-  open,
   tenant,
+  canDelete,
+  canEdit,
   onClose,
+  onDelete,
   onSubmit,
   onLogoUpload,
   onLogoDelete,
@@ -39,6 +41,8 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoWasRemoved, setLogoWasRemoved] = useState(false);
+  const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
+  const isNew = !tenant;
 
   const reset = useCallback(() => {
     setBusinessName(tenant?.businessName ?? "");
@@ -51,10 +55,8 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
   }, [tenant]);
 
   useEffect(() => {
-    if (open) {
-      reset();
-    }
-  }, [open, reset]);
+    reset();
+  }, [reset]);
 
   const handleSubmit = async () => {
     const savedTenant = await onSubmit(
@@ -86,7 +88,7 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
       }
     }
 
-    onClose();
+    onClose(savedTenant.id);
   };
 
   const handleLogoSelect = (file: File | null) => {
@@ -100,58 +102,87 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth={Dialogs.tenantMaxWidth}
-    >
-      <DialogTitle>
-        {tenant ? "Edit organization" : "New organization"}
-      </DialogTitle>
-      <DialogContent>
-        <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.topSpacingSx}>
-          <TextField
-            label="Business name"
-            required
-            value={businessName}
-            onChange={(event) => setBusinessName(event.target.value)}
-          />
-          <TextField
-            label="Email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
-          <TextField
-            label="Phone"
-            value={phone}
-            onChange={(event) => setPhone(event.target.value)}
-          />
-          <TextField
-            label="Address"
-            value={address}
-            onChange={(event) => setAddress(event.target.value)}
-          />
-          <TextField
-            label="Website URL"
-            value={websiteUrl}
-            onChange={(event) => setWebsiteUrl(event.target.value)}
-          />
-          <TenantLogoPicker
-            logoUrl={logoWasRemoved ? undefined : tenant?.logo}
-            selectedFile={logoFile}
-            onSelect={handleLogoSelect}
-            onRemove={handleLogoRemove}
-          />
-        </Stack>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button disabled={!businessName.trim()} onClick={handleSubmit}>
-          {tenant ? "Save" : "Create"}
+    <>
+      <Typography component="h1" variant="h5" sx={Pages.titleSx}>
+        {isNew ? "New organization" : "Organization"}
+      </Typography>
+      <Stack spacing={Dialogs.formStackSpacing}>
+        <TextField
+          label="Business name"
+          required
+          value={businessName}
+          onChange={(event) => setBusinessName(event.target.value)}
+          disabled={!isNew && !canEdit}
+        />
+        <TextField
+          label="Email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          disabled={!isNew && !canEdit}
+        />
+        <TextField
+          label="Phone"
+          value={phone}
+          onChange={(event) => setPhone(event.target.value)}
+          disabled={!isNew && !canEdit}
+        />
+        <TextField
+          label="Address"
+          value={address}
+          onChange={(event) => setAddress(event.target.value)}
+          disabled={!isNew && !canEdit}
+        />
+        <TextField
+          label="Website URL"
+          value={websiteUrl}
+          onChange={(event) => setWebsiteUrl(event.target.value)}
+          disabled={!isNew && !canEdit}
+        />
+        <TenantLogoPicker
+          logoUrl={logoWasRemoved ? undefined : tenant?.logo}
+          selectedFile={logoFile}
+          onSelect={handleLogoSelect}
+          onRemove={handleLogoRemove}
+          disabled={!isNew && !canEdit}
+        />
+      </Stack>
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={Dialogs.stepHeaderSpacing}
+        sx={Dialogs.addStepButtonSx}
+      >
+        <Button variant="outlined" onClick={() => onClose(tenant?.id)}>
+          Cancel
         </Button>
-      </DialogActions>
-    </Dialog>
+        {!isNew && canDelete && (
+          <Button
+            color="error"
+            variant="outlined"
+            onClick={() => setDeleteDialogIsOpen(true)}
+          >
+            Delete
+          </Button>
+        )}
+        {(isNew || canEdit) && (
+          <Button
+            variant="outlined"
+            disabled={!businessName.trim()}
+            onClick={handleSubmit}
+          >
+            Save
+          </Button>
+        )}
+      </Stack>
+      {tenant && (
+        <DeleteConfirmationDialog
+          entityName={tenant.businessName}
+          open={deleteDialogIsOpen}
+          title="Delete organization"
+          onClose={() => setDeleteDialogIsOpen(false)}
+          onDelete={() => onDelete(tenant.id)}
+        />
+      )}
+    </>
   );
 };
 

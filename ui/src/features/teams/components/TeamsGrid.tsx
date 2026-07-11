@@ -1,10 +1,9 @@
 import { stores } from "@/app/rootStore";
-import TeamActionsMenu from "@/features/teams/components/TeamActionsMenu";
-import TeamDialog from "@/features/teams/components/TeamDialog";
-import { Team, UpsertTeamRequest } from "@/features/teams/models/team";
+import { Team } from "@/features/teams/models/team";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
-import { DataGrids } from "@/shared/constants/constants";
+import { DataGrids, Routes } from "@/shared/constants/constants";
+import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { Add } from "@mui/icons-material";
 import { Box, Button, LinearProgress } from "@mui/material";
 import {
@@ -14,16 +13,25 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-const TeamsGrid = () => {
-  const [dialogIsOpen, setDialogIsOpen] = useState(false);
-  const [currentTeam, setCurrentTeam] = useState<Team | null>(null);
+interface TeamsGridProps {
+  currentTeamId?: number;
+}
+
+const TeamsGrid: React.FC<TeamsGridProps> = ({ currentTeamId }) => {
+  const navigate = useNavigate();
   const tenantId = stores.tenantStore.currentTenantId;
   const teamsLoaderPrefix = tenantId ? `api/tenants/${tenantId}/teams` : "";
   const employeesLoaderPrefix = tenantId ? `api/tenants/${tenantId}/users` : "";
   const canModifyTeams =
-    stores.tenantStore.currentTenant?.role === EmployeeRole.Admin;
+    stores.tenantStore.currentTenant?.role === EmployeeRole.Admin ||
+    stores.tenantStore.currentTenant?.isOwner === true;
+  const { paginationModel, setPaginationModel } = useGridPaginationForRow(
+    stores.teamStore.teams,
+    currentTeamId,
+  );
 
   useEffect(() => {
     stores.teamStore.clear();
@@ -34,41 +42,13 @@ const TeamsGrid = () => {
     }
   }, [tenantId]);
 
-  const openCreateDialog = () => {
-    setCurrentTeam(null);
-    setDialogIsOpen(true);
-  };
-
-  const openEditDialog = (team: Team) => {
-    setCurrentTeam(team);
-    setDialogIsOpen(true);
-  };
-
-  const handleDelete = async (team: Team) => {
-    if (!tenantId || !window.confirm(`Delete ${team.name}?`)) {
-      return;
-    }
-
-    await stores.teamStore.delete(tenantId, team.id);
-  };
-
-  const handleSubmit = async (
-    payload: UpsertTeamRequest,
-    teamId?: number,
-  ): Promise<boolean> => {
-    if (!tenantId) {
-      return false;
-    }
-
-    return teamId
-      ? await stores.teamStore.update(tenantId, teamId, payload)
-      : await stores.teamStore.create(tenantId, payload);
-  };
-
   const customToolbar = () => {
     return (
       <GridToolbarContainer>
-        <Button startIcon={<Add />} onClick={openCreateDialog}>
+        <Button
+          startIcon={<Add />}
+          onClick={() => navigate(Routes.tenantPath(tenantId!, "/teams/new"))}
+        >
           New team
         </Button>
       </GridToolbarContainer>
@@ -81,26 +61,6 @@ const TeamsGrid = () => {
       headerName: "Name",
       ...DataGrids.teamsColumnSizing.name,
     },
-    ...(canModifyTeams
-      ? [
-        {
-          field: "action",
-          headerName: "Action",
-          headerAlign: "right",
-          align: "right",
-          ...DataGrids.teamsColumnSizing.action,
-          sortable: false,
-          filterable: false,
-          renderCell: (params) => (
-            <TeamActionsMenu
-              team={params.row as Team}
-              onEdit={openEditDialog}
-              onDelete={handleDelete}
-            />
-          ),
-        } as GridColDef,
-      ]
-      : []),
   ];
 
   return (
@@ -108,13 +68,12 @@ const TeamsGrid = () => {
       <DataGrid
         rows={stores.teamStore.teams}
         columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: DataGrids.defaultPageSize,
-            },
-          },
-        }}
+        rowSelectionModel={currentTeamId === undefined ? [] : [currentTeamId]}
+        onRowClick={(params) =>
+          navigate(Routes.tenantPath(tenantId!, `/teams/${(params.row as Team).id}`))
+        }
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
         pageSizeOptions={[DataGrids.defaultPageSize]}
         disableColumnFilter
         disableRowSelectionOnClick
@@ -133,15 +92,6 @@ const TeamsGrid = () => {
           stores.commonStore.isLoadingByPrefix(`delete_${teamsLoaderPrefix}/`)
         }
       />
-      {canModifyTeams && (
-        <TeamDialog
-          open={dialogIsOpen}
-          team={currentTeam}
-          employees={stores.employeeStore.employees}
-          onClose={() => setDialogIsOpen(false)}
-          onSubmit={handleSubmit}
-        />
-      )}
     </Box>
   );
 };

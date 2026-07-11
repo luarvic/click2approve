@@ -29,6 +29,24 @@ export class TenantStore {
     return this.tenants.find((tenant) => tenant.id === this.currentTenantId) ?? null;
   }
 
+  loadCurrent = async (): Promise<void> => {
+    const requestVersion = ++this.requestVersion;
+    const tenantId = await tenantApi.getCurrentTenantId();
+    if (requestVersion !== this.requestVersion) {
+      return;
+    }
+    runInAction(() => {
+      this.tenants = [];
+      this.currentTenantId = tenantId;
+      this.hasLoaded = true;
+    });
+    if (tenantId) {
+      writeCurrentTenantId(tenantId);
+    } else {
+      deleteCurrentTenantId();
+    }
+  };
+
   load = async (): Promise<void> => {
     const requestVersion = ++this.requestVersion;
     const tenants = await tenantApi.listTenants();

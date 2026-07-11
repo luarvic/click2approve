@@ -2,12 +2,13 @@ import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequ
 import { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
 import { StackSpacing } from "@/shared/constants/constants";
 import type { SxProps } from "@mui/material";
-import { Stack } from "@mui/material";
+import { Divider, Stack } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import ApprovalStepBlock from "./ApprovalStepBlock";
 
 interface ApprovalStepsProps {
   approvalRequest: ApprovalRequest;
+  showDividers?: boolean;
   sx?: SxProps<Theme>;
 }
 
@@ -32,6 +33,7 @@ const getStepTasks = (
 
 const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
   approvalRequest,
+  showDividers = false,
   sx,
 }) => {
   const steps = (approvalRequest.steps ?? [])
@@ -39,7 +41,11 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
     .sort((a, b) => a.sequence - b.sequence);
 
   return (
-    <Stack spacing={StackSpacing.relaxed} sx={sx}>
+    <Stack
+      spacing={StackSpacing.relaxed}
+      divider={showDividers ? <Divider flexItem /> : undefined}
+      sx={sx}
+    >
       {steps.map((step) => (
         <ApprovalStepBlock
           key={step.id ?? step.sequence}

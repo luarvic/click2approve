@@ -3,13 +3,14 @@ import { Box, Typography } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 
 interface CommentProps {
+  children?: React.ReactNode;
   text?: string;
   label?: string;
   sx?: SxProps<Theme>;
 }
 
-const CommentPaper: React.FC<CommentProps> = ({ text, label, sx }) => {
-  if (!text?.trim()) {
+const CommentPaper: React.FC<CommentProps> = ({ children, text, label, sx }) => {
+  if (!text?.trim() && !children) {
     return null;
   }
 
@@ -31,11 +32,12 @@ const CommentPaper: React.FC<CommentProps> = ({ text, label, sx }) => {
           {label}
         </Typography>
       )}
-      {text.split(/\r?\n/).map((line, index) => (
-        <Typography key={index} variant="body2">
-          {line}
-        </Typography>
-      ))}
+      {children ??
+        text?.split(/\r?\n/).map((line, index) => (
+          <Typography key={index} variant="body2">
+            {line}
+          </Typography>
+        ))}
     </Box>
   );
 };
