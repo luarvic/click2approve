@@ -112,6 +112,7 @@ export const Dialogs = {
   topSpacingSx: { pt: 1 } as SxProps<Theme>,
   textBottomSpacingSx: { mb: 2 } as SxProps<Theme>,
   contentStackSx: { mt: 1 } as SxProps<Theme>,
+  tabContentSx: { mt: 3 } as SxProps<Theme>,
   addStepButtonSx: { mt: 2 } as SxProps<Theme>,
   formStackSpacing: 2,
   stepStackSpacing: 2,

@@ -13,7 +13,7 @@ const OutboxPage = () => {
   const location = useLocation();
   const { currentApprovalRequestId } = (location.state as OutboxLocationState | null) ?? {};
   return stores.userAccountStore.currentUser ? (
-    <Box sx={Pages.containerSx}>
+    <Box>
       <Typography component="h1" variant="h5" sx={Pages.titleSx}>
         Outgoing Requests
       </Typography>

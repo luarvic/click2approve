@@ -11,6 +11,11 @@ interface UserFilesListProps {
   sx?: SxProps<Theme>;
 }
 
+const userFileLinkSx: SxProps<Theme> = {
+  alignSelf: "stretch",
+  textAlign: "left",
+};
+
 const UserFilesList: React.FC<UserFilesListProps> = ({
   userFiles,
   direction,
@@ -33,6 +38,7 @@ const UserFilesList: React.FC<UserFilesListProps> = ({
               event.preventDefault();
               downloadUserFile(userFile);
             }}
+            sx={userFileLinkSx}
           >
             {userFile.name}
           </Link>

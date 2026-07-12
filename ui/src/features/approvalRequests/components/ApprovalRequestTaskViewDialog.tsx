@@ -1,6 +1,7 @@
 import { stores } from "@/app/rootStore";
 import { completeApprovalRequestTask } from "@/features/approvalRequests/api/approvalRequestTaskApi";
 import ApprovalRequestFilesBox from "@/features/approvalRequests/components/ApprovalRequestFilesBox";
+import ApprovalRequestLog from "@/features/approvalRequests/components/ApprovalRequestLog";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { Dialogs, Pages } from "@/shared/constants/constants";
 import {
@@ -11,24 +12,23 @@ import {
   Radio,
   RadioGroup,
   Stack,
+  Tab,
+  Tabs,
   TextField,
   Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
-import ApprovalRequestLogDialog from "./ApprovalRequestLogDialog";
 
 interface ApprovalRequestTaskEditorProps {
   onClose: (currentTaskId?: number) => void;
 }
 
-const taskDescriptionSx = { whiteSpace: "pre-wrap" } as const;
-
 const ApprovalRequestTaskEditor: React.FC<ApprovalRequestTaskEditorProps> = ({ onClose }) => {
   const [decisionError, setDecisionError] = useState(false);
   const [decision, setDecision] = useState("");
   const [comment, setComment] = useState("");
-  const [logIsOpen, setLogIsOpen] = useState(false);
+  const [selectedTab, setSelectedTab] = useState("task");
   const currentTask = stores.approvalRequestTaskStore.currentTask;
   const canViewRequest = currentTask?.canViewRequest !== false;
   const isCompleted = Boolean(currentTask?.completedAt);
@@ -42,6 +42,7 @@ const ApprovalRequestTaskEditor: React.FC<ApprovalRequestTaskEditorProps> = ({ o
           : "",
     );
     setComment(currentTask?.comment ?? "");
+    setSelectedTab("task");
   }, [currentTask]);
 
   const cleanUp = () => {
@@ -84,70 +85,88 @@ const ApprovalRequestTaskEditor: React.FC<ApprovalRequestTaskEditorProps> = ({ o
       <Typography component="h1" variant="h5" sx={Pages.titleSx}>
         Approval request task
       </Typography>
-      <Stack spacing={Dialogs.formStackSpacing}>
-        <Typography>{currentTask?.title ?? ""}</Typography>
-        <ApprovalRequestFilesBox userFiles={currentTask?.approvalRequest.userFiles} />
-        <Typography sx={taskDescriptionSx}>
-          {currentTask?.description ?? ""}
-        </Typography>
-        <FormControl key="decision" error={decisionError}>
-          <RadioGroup
-            row
-            name="decision"
-            value={decision}
-            onChange={(event) => {
-              setDecision(event.target.value);
-              setDecisionError(false);
-            }}
-          >
-            <FormControlLabel
-              value="approve"
-              control={<Radio />}
-              label="Approve"
-              disabled={isCompleted}
-            />
-            <FormControlLabel
-              value="reject"
-              control={<Radio />}
-              label="Reject"
-              disabled={isCompleted}
-            />
-          </RadioGroup>
-          {decisionError && (
-            <FormHelperText sx={Dialogs.fieldHelperTextSx}>
-              You should either approve or reject
-            </FormHelperText>
-          )}
-        </FormControl>
-        <TextField
-          key="comment"
-          id="comment"
-          name="comment"
-          margin="normal"
-          fullWidth
-          label="Comment"
-          autoFocus
-          multiline
-          rows={Dialogs.commentTextFieldRows}
-          value={comment}
-          onChange={(event) => setComment(event.target.value)}
-          disabled={isCompleted}
-        />
-      </Stack>
+      {canViewRequest && (
+        <Tabs
+          value={selectedTab}
+          onChange={(_, value: string) => setSelectedTab(value)}
+          aria-label="Approval request task sections"
+        >
+          <Tab label="Task" value="task" />
+          <Tab label="Log" value="log" />
+        </Tabs>
+      )}
+      {selectedTab === "task" && (
+        <Stack
+          spacing={Dialogs.formStackSpacing}
+          sx={canViewRequest ? Dialogs.tabContentSx : undefined}
+        >
+          <TextField
+            fullWidth
+            label="Title"
+            value={currentTask?.title ?? ""}
+            disabled
+          />
+          <ApprovalRequestFilesBox userFiles={currentTask?.approvalRequest.userFiles} />
+          <TextField
+            fullWidth
+            label="Description"
+            multiline
+            rows={Dialogs.commentTextFieldRows}
+            value={currentTask?.description ?? ""}
+            disabled
+          />
+          <FormControl key="decision" error={decisionError}>
+            <RadioGroup
+              row
+              name="decision"
+              value={decision}
+              onChange={(event) => {
+                setDecision(event.target.value);
+                setDecisionError(false);
+              }}
+            >
+              <FormControlLabel
+                value="approve"
+                control={<Radio />}
+                label="Approve"
+                disabled={isCompleted}
+              />
+              <FormControlLabel
+                value="reject"
+                control={<Radio />}
+                label="Reject"
+                disabled={isCompleted}
+              />
+            </RadioGroup>
+            {decisionError && (
+              <FormHelperText sx={Dialogs.fieldHelperTextSx}>
+                You should either approve or reject
+              </FormHelperText>
+            )}
+          </FormControl>
+          <TextField
+            key="comment"
+            id="comment"
+            name="comment"
+            margin="normal"
+            fullWidth
+            label="Comment"
+            autoFocus
+            multiline
+            rows={Dialogs.commentTextFieldRows}
+            value={comment}
+            onChange={(event) => setComment(event.target.value)}
+            disabled={isCompleted}
+          />
+        </Stack>
+      )}
+      {selectedTab === "log" && canViewRequest && (
+        <ApprovalRequestLog approvalRequest={currentTask?.approvalRequest} />
+      )}
       <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
         <Button variant="outlined" onClick={handleClose}>Cancel</Button>
-        {canViewRequest && (
-          <Button variant="outlined" onClick={() => setLogIsOpen(true)}>
-            Log
-          </Button>
-        )}
         {!isCompleted && <Button variant="outlined" onClick={handleSubmit}>Save</Button>}
       </Stack>
-      <ApprovalRequestLogDialog
-        approvalRequest={currentTask?.approvalRequest}
-        open={logIsOpen}
-        onClose={() => setLogIsOpen(false)}
-      />
     </>
   );
 };

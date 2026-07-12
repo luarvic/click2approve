@@ -13,7 +13,7 @@ const InboxPage = () => {
   const location = useLocation();
   const { currentTaskId } = (location.state as InboxLocationState | null) ?? {};
   return stores.userAccountStore.currentUser ? (
-    <Box sx={Pages.containerSx}>
+    <Box>
       <Typography component="h1" variant="h5" sx={Pages.titleSx}>
         Incoming Requests
       </Typography>

@@ -1,7 +1,7 @@
 import { stores } from "@/app/rootStore";
 import { cancelApprovalRequest, deleteApprovalRequest, updateApprovalRequest } from "@/features/approvalRequests/api/approvalRequestApi";
 import ApprovalRequestFilesBox from "@/features/approvalRequests/components/ApprovalRequestFilesBox";
-import ApprovalRequestLogDialog from "@/features/approvalRequests/components/ApprovalRequestLogDialog";
+import ApprovalRequestLog from "@/features/approvalRequests/components/ApprovalRequestLog";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
@@ -27,6 +27,8 @@ import type { SxProps } from "@mui/material";
 import {
   Button,
   Stack,
+  Tab,
+  Tabs,
   TextField,
   Typography,
 } from "@mui/material";
@@ -124,7 +126,7 @@ const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({ onClose, 
   const canUseTeams =
     businessTenantIsSelected && stores.productStore.teamApproversAreEnabled;
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
-  const [logIsOpen, setLogIsOpen] = useState(false);
+  const [selectedTab, setSelectedTab] = useState("request");
 
   useEffect(() => {
     setSteps(
@@ -134,6 +136,7 @@ const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({ onClose, 
           .sort((a, b) => a.sequence - b.sequence),
       ),
     );
+    setSelectedTab("request");
     if (tenantId && businessTenantIsSelected) {
       if (canUseEmployees) {
         stores.employeeStore.load(tenantId);
@@ -284,108 +287,116 @@ const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({ onClose, 
       <Typography component="h1" variant="h5" sx={Pages.titleSx}>
         Approval request
       </Typography>
-      <Stack spacing={Dialogs.formStackSpacing}>
-        <TextField
-          margin="normal"
-          fullWidth
-          label="Title"
-          value={approvalRequest?.title ?? ""}
-          disabled
-        />
-        <ApprovalRequestFilesBox userFiles={approvalRequest?.userFiles} />
-        <TextField
-          margin="normal"
-          fullWidth
-          label="Description"
-          multiline
-          rows={Dialogs.commentTextFieldRows}
-          value={approvalRequest?.description ?? ""}
-          disabled
-        />
-        <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.contentStackSx}>
-          <ApprovalStepEditor
-            steps={steps}
-            canUseEmployees={canUseEmployees}
-            canUseTeams={canUseTeams}
-            employees={stores.employeeStore.employees}
-            teams={stores.teamStore.teams}
-            getStepState={(step, stepIndex) => {
-              const persistedStep = approvalRequest?.steps.find(
-                (item) => item.id === step.id,
-              );
-              const stepTasks =
-                approvalRequest && persistedStep
-                  ? getStepTasks(approvalRequest, persistedStep)
-                  : [];
-              const isPassed = Boolean(
-                persistedStep && stepHasPassed(stepTasks),
-              );
-              const isCurrent = Boolean(
-                lockInfo?.currentStepId && step.id === lockInfo.currentStepId,
-              );
-              const stepOrderLocked =
-                Boolean(step.id && lockInfo?.lockedStepIds.has(step.id)) ||
-                isCurrent;
-              const canMoveUp =
-                stepIndex > 0 &&
-                !stepOrderLocked &&
-                !isLockedTarget(steps[stepIndex - 1], lockInfo);
-              const canMoveDown =
-                stepIndex < steps.length - 1 &&
-                !stepOrderLocked &&
-                !isLockedTarget(steps[stepIndex + 1], lockInfo);
-
-              return {
-                canAddApprover: !isPassed,
-                canMoveDown,
-                canMoveUp,
-                canRemove: steps.length > 1 && !isPassed && !isCurrent,
-                disabled: isPassed || isCurrent,
-                isCurrent,
-                isPassed,
-                sx: getApprovalStepSx(isPassed),
-              };
-            }}
-            getApproverState={(step, _, approver) => {
-              const persistedStep = approvalRequest?.steps.find(
-                (item) => item.id === step.id,
-              );
-              const stepTasks =
-                approvalRequest && persistedStep
-                  ? getStepTasks(approvalRequest, persistedStep)
-                  : [];
-              const touched = getApproverTasks(stepTasks, approver.id).some(
-                (task) => task.status !== ApprovalRequestTaskStatus.Pending,
-              );
-              const isPassed = Boolean(
-                persistedStep && stepHasPassed(stepTasks),
-              );
-              const isCurrent = Boolean(
-                lockInfo?.currentStepId && step.id === lockInfo.currentStepId,
-              );
-              const disabled = isPassed || (isCurrent && touched);
-
-              return {
-                disabled,
-                muted: isPassed || touched,
-                removeDisabled: disabled,
-              };
-            }}
-            onAddApprover={addApprover}
-            onAddStep={addStep}
-            onMoveStep={moveStep}
-            onRemoveApprover={removeApprover}
-            onRemoveStep={removeStep}
-            onUpdateApprover={updateApprover}
-            onUpdateStep={updateStep}
+      <Tabs
+        value={selectedTab}
+        onChange={(_, value: string) => setSelectedTab(value)}
+        aria-label="Approval request sections"
+      >
+        <Tab label="Request" value="request" />
+        <Tab label="Log" value="log" />
+      </Tabs>
+      {selectedTab === "request" && (
+        <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Title"
+            value={approvalRequest?.title ?? ""}
+            disabled
           />
+          <ApprovalRequestFilesBox userFiles={approvalRequest?.userFiles} />
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Description"
+            multiline
+            rows={Dialogs.commentTextFieldRows}
+            value={approvalRequest?.description ?? ""}
+            disabled
+          />
+          <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.contentStackSx}>
+            <ApprovalStepEditor
+              steps={steps}
+              canUseEmployees={canUseEmployees}
+              canUseTeams={canUseTeams}
+              employees={stores.employeeStore.employees}
+              teams={stores.teamStore.teams}
+              getStepState={(step, stepIndex) => {
+                const persistedStep = approvalRequest?.steps.find(
+                  (item) => item.id === step.id,
+                );
+                const stepTasks =
+                  approvalRequest && persistedStep
+                    ? getStepTasks(approvalRequest, persistedStep)
+                    : [];
+                const isPassed = Boolean(
+                  persistedStep && stepHasPassed(stepTasks),
+                );
+                const isCurrent = Boolean(
+                  lockInfo?.currentStepId && step.id === lockInfo.currentStepId,
+                );
+                const stepOrderLocked =
+                  Boolean(step.id && lockInfo?.lockedStepIds.has(step.id)) ||
+                  isCurrent;
+                const canMoveUp =
+                  stepIndex > 0 &&
+                  !stepOrderLocked &&
+                  !isLockedTarget(steps[stepIndex - 1], lockInfo);
+                const canMoveDown =
+                  stepIndex < steps.length - 1 &&
+                  !stepOrderLocked &&
+                  !isLockedTarget(steps[stepIndex + 1], lockInfo);
+
+                return {
+                  canAddApprover: !isPassed,
+                  canMoveDown,
+                  canMoveUp,
+                  canRemove: steps.length > 1 && !isPassed && !isCurrent,
+                  disabled: isPassed || isCurrent,
+                  isCurrent,
+                  isPassed,
+                  sx: getApprovalStepSx(isPassed),
+                };
+              }}
+              getApproverState={(step, _, approver) => {
+                const persistedStep = approvalRequest?.steps.find(
+                  (item) => item.id === step.id,
+                );
+                const stepTasks =
+                  approvalRequest && persistedStep
+                    ? getStepTasks(approvalRequest, persistedStep)
+                    : [];
+                const touched = getApproverTasks(stepTasks, approver.id).some(
+                  (task) => task.status !== ApprovalRequestTaskStatus.Pending,
+                );
+                const isPassed = Boolean(
+                  persistedStep && stepHasPassed(stepTasks),
+                );
+                const isCurrent = Boolean(
+                  lockInfo?.currentStepId && step.id === lockInfo.currentStepId,
+                );
+                const disabled = isPassed || (isCurrent && touched);
+
+                return {
+                  disabled,
+                  muted: isPassed || touched,
+                  removeDisabled: disabled,
+                };
+              }}
+              onAddApprover={addApprover}
+              onAddStep={addStep}
+              onMoveStep={moveStep}
+              onRemoveApprover={removeApprover}
+              onRemoveStep={removeStep}
+              onUpdateApprover={updateApprover}
+              onUpdateStep={updateStep}
+            />
+          </Stack>
         </Stack>
-      </Stack>
+      )}
+      {selectedTab === "log" && <ApprovalRequestLog approvalRequest={approvalRequest} />}
       <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
         <Button variant="outlined" onClick={handleClose}>Cancel</Button>
-        <Button variant="outlined" onClick={() => setLogIsOpen(true)}>
-          Log
-        </Button>
         <Button variant="outlined" onClick={handleClone}>Clone</Button>
         {approvalRequest?.status === ApprovalRequestStatus.Pending && (
           <Button
@@ -431,11 +442,6 @@ const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({ onClose, 
           }}
         />
       )}
-      <ApprovalRequestLogDialog
-        approvalRequest={approvalRequest}
-        open={logIsOpen}
-        onClose={() => setLogIsOpen(false)}
-      />
     </>
   );
 };
