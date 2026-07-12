@@ -6,4 +6,5 @@ public class ProductCapabilitiesDto
     public bool EmployeeApprovers { get; set; }
     public bool TeamApprovers { get; set; }
     public bool ApprovalStepTemplates { get; set; }
+    public bool ApprovalRequestSharing { get; set; }
 }

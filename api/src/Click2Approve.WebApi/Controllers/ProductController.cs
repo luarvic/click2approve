@@ -28,7 +28,8 @@ public class ProductController(IConfiguration configuration) : ControllerBase
                 Tenants = _configuration.GetValue<bool>("Product:Capabilities:Tenants"),
                 EmployeeApprovers = _configuration.GetValue<bool>("Product:Capabilities:EmployeeApprovers"),
                 TeamApprovers = _configuration.GetValue<bool>("Product:Capabilities:TeamApprovers"),
-                ApprovalStepTemplates = _configuration.GetValue<bool>("Product:Capabilities:ApprovalStepTemplates")
+                ApprovalStepTemplates = _configuration.GetValue<bool>("Product:Capabilities:ApprovalStepTemplates"),
+                ApprovalRequestSharing = _configuration.GetValue<bool>("Product:Capabilities:ApprovalRequestSharing")
             }
         });
     }

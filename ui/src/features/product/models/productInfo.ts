@@ -8,4 +8,5 @@ export interface ProductCapabilities {
   employeeApprovers: boolean;
   teamApprovers: boolean;
   approvalStepTemplates: boolean;
+  approvalRequestSharing: boolean;
 }
