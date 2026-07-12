@@ -19,8 +19,8 @@ interface ApprovalRequestLogEntry {
   date: Date;
   details: string;
   id: string;
-  party: string;
-  partyType: string;
+  actor: string;
+  actorType: string;
 }
 
 const approvalRequestLogRecordsSx: SxProps<Theme> = {
@@ -107,8 +107,8 @@ const getLogEntries = (approvalRequest: ApprovalRequest): ApprovalRequestLogEntr
     date: approvalRequest.createdAtDate,
     details: approvalRequest.description ?? "",
     id: "request-created",
-    party: approvalRequest.authorEmail.toLowerCase(),
-    partyType: "User",
+    actor: approvalRequest.createdByEmail.toLowerCase(),
+    actorType: "User",
   };
   const taskEntries = getTasks(approvalRequest).map((task) => {
     const approver = getTaskApprover(approvalRequest, task);
@@ -117,11 +117,11 @@ const getLogEntries = (approvalRequest: ApprovalRequest): ApprovalRequestLogEntr
       date: task.completedAtDate ?? task.createdAtDate,
       details: task.comment ?? "",
       id: `task-${task.id}`,
-      party:
+      actor:
         task.approverDisplayName ??
         approver?.displayName ??
         task.approverEmail.toLowerCase(),
-      partyType: getPartyType(
+      actorType: getPartyType(
         approver?.type ??
         (task.approverDisplayName
           ? ApprovalRecipientType.Employee
@@ -138,8 +138,8 @@ const getLogEntries = (approvalRequest: ApprovalRequest): ApprovalRequestLogEntr
 const getRecordRows = (entry: ApprovalRequestLogEntry) => [
   { label: "Timestamp", value: getLocaleDateTimeString(entry.date) },
   { label: "Event", value: entry.action },
-  { label: "Actor type", value: entry.partyType },
-  { label: "Actor", value: entry.party },
+  { label: "Actor type", value: entry.actorType },
+  { label: "Actor", value: entry.actor },
   { label: "Details", value: entry.details },
 ];
 

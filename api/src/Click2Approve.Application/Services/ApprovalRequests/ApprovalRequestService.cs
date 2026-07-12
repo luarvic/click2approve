@@ -66,9 +66,9 @@ public class ApprovalRequestService(
             Description = payload.Description,
             Status = ApprovalRequestStatus.Pending,
             TenantId = tenantId,
-            AuthorUserId = user.Id,
-            AuthorUser = user,
-            AuthorEmail = user.NormalizedEmail!,
+            CreatedByUserId = user.Id,
+            CreatedByUser = user,
+            CreatedByEmail = user.NormalizedEmail!,
             Tasks = []
         }, cancellationToken);
 
@@ -289,7 +289,7 @@ public class ApprovalRequestService(
 
         await _emailService.SendAsync(new EmailMessage
         {
-            ToAddress = approvalRequestTask.ApprovalRequest.AuthorEmail.ToLower(),
+            ToAddress = approvalRequestTask.ApprovalRequest.CreatedByEmail.ToLower(),
             Subject = reviewedSubject,
             Body = EmailHelpers.BuildHtmlEmail(
                 reviewedHeadingTemplate,
@@ -350,9 +350,9 @@ public class ApprovalRequestService(
     private static void RedactApprovalRequestDetails(ApprovalRequest approvalRequest)
     {
         approvalRequest.Title = string.Empty;
-        approvalRequest.AuthorUserId = string.Empty;
-        approvalRequest.AuthorUser = null!;
-        approvalRequest.AuthorEmail = string.Empty;
+        approvalRequest.CreatedByUserId = string.Empty;
+        approvalRequest.CreatedByUser = null!;
+        approvalRequest.CreatedByEmail = string.Empty;
         approvalRequest.Description = null;
         approvalRequest.Steps = [];
         approvalRequest.Tasks = [];
@@ -369,8 +369,8 @@ public class ApprovalRequestService(
             Description = approvalRequest.Description,
             CreatedAt = approvalRequest.CreatedAt,
             CompletedAt = approvalRequest.CompletedAt,
-            AuthorUserId = approvalRequest.AuthorUserId,
-            AuthorEmail = approvalRequest.AuthorEmail,
+            CreatedByUserId = approvalRequest.CreatedByUserId,
+            CreatedByEmail = approvalRequest.CreatedByEmail,
             Status = approvalRequest.Status,
             Tasks = [.. approvalRequest.Tasks.Select(MapResponse)]
         };
@@ -800,7 +800,7 @@ public class ApprovalRequestService(
                 Body = EmailHelpers.BuildHtmlEmail(
                     template.Heading,
                     string.Format(template.Message,
-                        approvalRequest.AuthorEmail.ToLower(),
+                        approvalRequest.CreatedByEmail.ToLower(),
                         string.Join(", ", approvalRequest.UserFiles.Select(f => f.Name))),
                     link,
                     template.LinkText)

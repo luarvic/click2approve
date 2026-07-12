@@ -7,9 +7,9 @@ public class ApprovalRequest : DbEntity
 {
     public required string Title { get; set; }
     public required DateTime CreatedAt { get; set; }
-    public required string AuthorUserId { get; set; }
-    public AppUser AuthorUser { get; set; } = null!;
-    public required string AuthorEmail { get; set; }
+    public required string CreatedByUserId { get; set; }
+    public AppUser CreatedByUser { get; set; } = null!;
+    public required string CreatedByEmail { get; set; }
     public long TenantId { get; set; }
     public Tenant? Tenant { get; set; }
     public required ApprovalRequestStatus Status { get; set; }

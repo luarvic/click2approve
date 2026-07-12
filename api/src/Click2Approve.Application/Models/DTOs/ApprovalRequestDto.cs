@@ -14,8 +14,8 @@ public class ApprovalRequestDto
     public string? Description { get; init; }
     public DateTime CreatedAt { get; init; }
     public DateTime? CompletedAt { get; init; }
-    public required string AuthorUserId { get; init; }
-    public required string AuthorEmail { get; init; }
+    public required string CreatedByUserId { get; init; }
+    public required string CreatedByEmail { get; init; }
     public ApprovalRequestStatus Status { get; init; }
     public required List<ApprovalRequestTaskDto> Tasks { get; init; }
 }

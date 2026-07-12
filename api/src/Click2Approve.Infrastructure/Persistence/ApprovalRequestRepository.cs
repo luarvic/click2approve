@@ -27,7 +27,7 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
             .Include(r => r.Steps)
                 .ThenInclude(s => s.Approvers)
             .Include(r => r.UserFiles)
-            .FirstAsync(r => r.TenantId == tenantId && r.Id == id && r.AuthorUserId == user.Id, cancellationToken);
+            .FirstAsync(r => r.TenantId == tenantId && r.Id == id && r.CreatedByUserId == user.Id, cancellationToken);
     }
 
     public async Task<ApprovalRequest> GetForUpdateAsync(AppUser user, long id, CancellationToken cancellationToken)
@@ -40,7 +40,7 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
                 .ThenInclude(s => s.Approvers)
             .Include(r => r.Steps)
                 .ThenInclude(s => s.Tasks)
-            .FirstAsync(r => r.TenantId == tenantId && r.Id == id && r.AuthorUserId == user.Id, cancellationToken);
+            .FirstAsync(r => r.TenantId == tenantId && r.Id == id && r.CreatedByUserId == user.Id, cancellationToken);
     }
 
     public async Task<IList<ApprovalRequest>> ListAsync(AppUser user, long userFileId, CancellationToken cancellationToken)
@@ -61,7 +61,7 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
                 .ThenInclude(s => s.Approvers)
             .Include(r => r.Steps)
                 .ThenInclude(s => s.Tasks)
-            .Where(r => r.TenantId == tenantId && r.AuthorUserId == user.Id)
+            .Where(r => r.TenantId == tenantId && r.CreatedByUserId == user.Id)
             .ToListAsync(cancellationToken);
     }
 
@@ -69,7 +69,7 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
     {
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await _db.ApprovalRequests.CountAsync(r => r.TenantId == tenantId
-            && r.AuthorUserId == user.Id
+            && r.CreatedByUserId == user.Id
             && r.CreatedAt >= start
             && r.CreatedAt < end, cancellationToken);
     }

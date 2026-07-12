@@ -13,8 +13,8 @@ export interface ApprovalRequest {
   createdAtDate: Date;
   completedAt?: string;
   completedAtDate?: Date;
-  authorUserId: string;
-  authorEmail: string;
+  createdByUserId: string;
+  createdByEmail: string;
   status: ApprovalRequestStatus;
   tasks: ApprovalRequestTask[];
 }

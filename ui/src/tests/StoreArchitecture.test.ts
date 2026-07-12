@@ -53,8 +53,8 @@ const approvalRequest = (id: number): ApprovalRequest => ({
   steps: [],
   createdAt: "2026-01-01T00:00:00",
   createdAtDate: new Date(),
-  authorUserId: "user-id",
-  authorEmail: "user@example.com",
+  createdByUserId: "user-id",
+  createdByEmail: "user@example.com",
   status: ApprovalRequestStatus.Pending,
   tasks: [],
 });

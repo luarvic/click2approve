@@ -64,16 +64,16 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequest>()
-            .Property(r => r.AuthorEmail)
+            .Property(r => r.CreatedByEmail)
             .HasMaxLength(320);
 
         modelBuilder.Entity<ApprovalRequest>()
-            .HasIndex(r => new { r.TenantId, r.AuthorUserId, r.CreatedAt });
+            .HasIndex(r => new { r.TenantId, r.CreatedByUserId, r.CreatedAt });
 
         modelBuilder.Entity<ApprovalRequest>()
-            .HasOne(r => r.AuthorUser)
+            .HasOne(r => r.CreatedByUser)
             .WithMany()
-            .HasForeignKey(r => r.AuthorUserId)
+            .HasForeignKey(r => r.CreatedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequest>()
