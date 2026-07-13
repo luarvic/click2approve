@@ -12,11 +12,13 @@ const ApprovalRequestEditorPage = () => {
   const parsedApprovalRequestId = Number(approvalRequestId);
   const tenantId = stores.tenantStore.currentTenantId;
   const outboxPath = tenantId ? Routes.tenantPath(tenantId, "/outbox") : "/";
-  const approvalRequest = stores.approvalRequestStore.approvalRequests.find((item) => item.id === parsedApprovalRequestId);
+  const approvalRequest = stores.approvalRequestStore.getDetail(parsedApprovalRequestId);
 
   useEffect(() => {
-    stores.approvalRequestStore.load();
-  }, []);
+    if (Number.isInteger(parsedApprovalRequestId)) {
+      void stores.approvalRequestStore.loadDetails(parsedApprovalRequestId);
+    }
+  }, [parsedApprovalRequestId]);
 
   useEffect(() => {
     stores.approvalRequestStore.setCurrent(approvalRequest ?? null);

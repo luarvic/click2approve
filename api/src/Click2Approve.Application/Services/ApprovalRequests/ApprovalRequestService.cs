@@ -218,24 +218,37 @@ public class ApprovalRequestService(
     /// <summary>
     /// Lists the approval requests of the user.
     /// </summary>
-    public async Task<List<ApprovalRequestDto>> ListApprovalRequestsAsync(AppUser user, CancellationToken cancellationToken)
+    public async Task<List<ApprovalRequestListItemDto>> ListApprovalRequestsAsync(AppUser user, CancellationToken cancellationToken)
     {
         var approvalRequests = await _approvalRequestRepository.ListAsync(user, cancellationToken);
-        return [.. approvalRequests.Select(MapResponse)];
+        return [.. approvalRequests.Select(MapListItem)];
+    }
+
+    /// <summary>
+    /// Gets an approval request with all data required by its editor.
+    /// </summary>
+    public async Task<ApprovalRequestDto> GetApprovalRequestAsync(AppUser user, long id, CancellationToken cancellationToken)
+    {
+        var approvalRequest = await _approvalRequestRepository.GetAsync(user, id, cancellationToken);
+        return MapResponse(approvalRequest);
     }
 
     /// <summary>
     /// Lists the approval request tasks.
     /// </summary>
-    public async Task<List<ApprovalRequestTask>> ListTasksAsync(AppUser user, CancellationToken cancellationToken)
+    public async Task<List<ApprovalRequestTaskListItemDto>> ListTasksAsync(AppUser user, CancellationToken cancellationToken)
     {
         var tasks = await _approvalRequestTaskRepository.ListAsync(user, cancellationToken);
-        foreach (var task in tasks.Where(t => !t.CanViewRequest))
-        {
-            RedactApprovalRequestDetails(task.ApprovalRequest);
-        }
+        return [.. tasks.Select(MapListItem)];
+    }
 
-        return tasks;
+    /// <summary>
+    /// Gets a task with the request data the approver is authorized to view.
+    /// </summary>
+    public async Task<ApprovalRequestTaskDetailDto> GetTaskAsync(AppUser user, long id, CancellationToken cancellationToken)
+    {
+        var task = await _approvalRequestTaskRepository.GetAsync(user, id, cancellationToken);
+        return MapDetailResponse(task);
     }
 
     /// <summary>
@@ -348,16 +361,23 @@ public class ApprovalRequestService(
 
     }
 
-    private static void RedactApprovalRequestDetails(ApprovalRequest approvalRequest)
+    private static ApprovalRequestListItemDto MapListItem(ApprovalRequest approvalRequest) => new()
     {
-        approvalRequest.Title = string.Empty;
-        approvalRequest.CreatedByUserId = string.Empty;
-        approvalRequest.CreatedByUser = null!;
-        approvalRequest.CreatedByEmail = string.Empty;
-        approvalRequest.Description = null;
-        approvalRequest.Steps = [];
-        approvalRequest.Tasks = [];
-    }
+        Id = approvalRequest.Id,
+        Title = approvalRequest.Title,
+        Status = approvalRequest.Status,
+        CreatedAt = approvalRequest.CreatedAt,
+        CompletedAt = approvalRequest.CompletedAt
+    };
+
+    private static ApprovalRequestTaskListItemDto MapListItem(ApprovalRequestTask task) => new()
+    {
+        Id = task.Id,
+        Title = task.Title,
+        Status = task.Status,
+        CreatedAt = task.CreatedAt,
+        CompletedAt = task.CompletedAt
+    };
 
     private static ApprovalRequestDto MapResponse(ApprovalRequest approvalRequest)
     {
@@ -423,6 +443,25 @@ public class ApprovalRequestService(
             Comment = task.Comment
         };
     }
+
+    private static ApprovalRequestTaskDetailDto MapDetailResponse(ApprovalRequestTask task) => new()
+    {
+        Id = task.Id,
+        Title = task.Title,
+        ApprovalRequestId = task.ApprovalRequestId,
+        ApprovalRequestStepId = task.ApprovalRequestStepId,
+        ApprovalRequestStepApproverId = task.ApprovalRequestStepApproverId,
+        ApproverUserId = task.ApproverUserId,
+        ApproverEmail = task.ApproverEmail,
+        ApproverDisplayName = task.ApproverDisplayName,
+        CanViewRequest = task.CanViewRequest,
+        Status = task.Status,
+        CreatedAt = task.CreatedAt,
+        CompletedAt = task.CompletedAt,
+        Description = task.Description,
+        Comment = task.Comment,
+        ApprovalRequest = task.CanViewRequest ? MapResponse(task.ApprovalRequest) : null
+    };
 
     private static UserFileDto MapResponse(UserFile userFile)
     {

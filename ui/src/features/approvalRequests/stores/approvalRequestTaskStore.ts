@@ -1,63 +1,95 @@
 import * as approvalRequestTaskApi from "@/features/approvalRequests/api/approvalRequestTaskApi";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
+import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
 import { normalizeApprovalRequestDates } from "@/features/approvalRequests/stores/approvalRequestStore";
+import { parseUtcDateTime } from "@/shared/utils/helpers";
 import { makeAutoObservable, runInAction } from "mobx";
 
 export class ApprovalRequestTaskStore {
-  registry: Map<number, ApprovalRequestTask>;
+  registry: Map<number, ApprovalRequestTaskListItem>;
+  details: Map<number, ApprovalRequestTask>;
   currentTask: ApprovalRequestTask | null;
   numberOfUncompletedTasks: number;
-  // Incremented to invalidate older count requests so only the latest response updates the store.
+  private detailRequests = new Map<number, Promise<ApprovalRequestTask | null>>();
+  private listRequest: Promise<void> | null = null;
   private countRequestVersion = 0;
-  // Incremented to invalidate older list requests so only the latest response updates the store.
   private listRequestVersion = 0;
 
   constructor(
-    registry: Map<number, ApprovalRequestTask> = new Map<
-      number,
-      ApprovalRequestTask
-    >(),
+    registry: Map<number, ApprovalRequestTaskListItem> = new Map(),
     currentTask: ApprovalRequestTask | null = null,
-    numberOfUncompletedTasks: number = 0
+    numberOfUncompletedTasks: number = 0,
   ) {
     this.registry = registry;
+    this.details = new Map();
     this.currentTask = currentTask;
     this.numberOfUncompletedTasks = numberOfUncompletedTasks;
     makeAutoObservable(this);
   }
 
-  get tasks(): ApprovalRequestTask[] {
+  get tasks(): ApprovalRequestTaskListItem[] {
     return Array.from(this.registry.values()).sort((a, b) => b.id - a.id);
   }
 
-  loadIncoming = async (): Promise<ApprovalRequestTask[]> => {
-    const requestVersion = ++this.listRequestVersion;
-    const tasks = await approvalRequestTaskApi.listApprovalRequestTasks();
-    if (requestVersion !== this.listRequestVersion) {
-      return [];
+  getDetail = (id: number): ApprovalRequestTask | null => this.details.get(id) ?? null;
+
+  loadIncoming = (): Promise<void> => {
+    if (this.listRequest) {
+      return this.listRequest;
     }
-    this.setTasks(tasks);
-    return tasks;
-  };
 
-  private setTasks = (tasks: ApprovalRequestTask[]) => {
-    tasks.forEach((task) => {
-      normalizeApprovalRequestDates(task.approvalRequest);
-      task.createdAtDate = new Date(task.createdAt + "Z");
-      if (task.completedAt) {
-        task.completedAtDate = new Date(task.completedAt + "Z");
+    const requestVersion = ++this.listRequestVersion;
+    const request = approvalRequestTaskApi.listApprovalRequestTasks().then((tasks) => {
+      if (requestVersion !== this.listRequestVersion) {
+        return;
       }
+      tasks.forEach(normalizeTaskDates);
+      runInAction(() => {
+        this.registry = new Map(tasks.map((task) => [task.id, task]));
+      });
+    }).finally(() => {
+      this.listRequest = null;
     });
-    const registry = new Map(tasks.map((task) => [task.id, task]));
-    runInAction(() => {
-      this.registry = registry;
-      this.currentTask = this.currentTask
-        ? registry.get(this.currentTask.id) ?? null
-        : null;
-    });
+    this.listRequest = request;
+    return request;
   };
 
-  loadUncompletedCount = async () => {
+  loadDetails = (id: number, refresh = false): Promise<ApprovalRequestTask | null> => {
+    if (!refresh) {
+      const detail = this.details.get(id);
+      if (detail) {
+        return Promise.resolve(detail);
+      }
+    }
+
+    const inFlight = this.detailRequests.get(id);
+    if (inFlight) {
+      return inFlight;
+    }
+
+    const request = approvalRequestTaskApi.getApprovalRequestTask(id).then((task) => {
+      if (task) {
+        normalizeTaskDates(task);
+        if (task.approvalRequest) {
+          normalizeApprovalRequestDates(task.approvalRequest);
+        }
+        runInAction(() => {
+          this.details.set(task.id, task);
+          if (this.currentTask?.id === task.id) {
+            this.currentTask = task;
+          }
+        });
+      }
+      return task;
+    }).finally(() => {
+      this.detailRequests.delete(id);
+    });
+
+    this.detailRequests.set(id, request);
+    return request;
+  };
+
+  loadUncompletedCount = async (): Promise<void> => {
     const requestVersion = ++this.countRequestVersion;
     const numberOfUncompletedTasks = await approvalRequestTaskApi.countUncompletedApprovalRequestTasks();
     if (requestVersion !== this.countRequestVersion) {
@@ -68,14 +100,17 @@ export class ApprovalRequestTaskStore {
     });
   };
 
-  clear = () => {
+  clear = (): void => {
     runInAction(() => {
       this.listRequestVersion += 1;
       this.registry = new Map();
+      this.details = new Map();
+      this.detailRequests.clear();
+      this.listRequest = null;
     });
   };
 
-  reset = () => {
+  reset = (): void => {
     this.clear();
     runInAction(() => {
       this.countRequestVersion += 1;
@@ -84,9 +119,21 @@ export class ApprovalRequestTaskStore {
     });
   };
 
-  setCurrent = (task: ApprovalRequestTask | null) => {
+  setCurrent = (task: ApprovalRequestTask | null): void => {
     runInAction(() => {
       this.currentTask = task;
     });
   };
 }
+
+const normalizeTaskDates = (
+  task: Pick<ApprovalRequestTask, "createdAt" | "completedAt"> & {
+    createdAtDate?: Date;
+    completedAtDate?: Date;
+  },
+) => {
+  task.createdAtDate = parseUtcDateTime(task.createdAt);
+  if (task.completedAt) {
+    task.completedAtDate = parseUtcDateTime(task.completedAt);
+  }
+};

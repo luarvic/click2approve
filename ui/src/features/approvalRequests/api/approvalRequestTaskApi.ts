@@ -1,4 +1,5 @@
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
+import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import axios from "@/shared/api/axios";
 import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
@@ -23,14 +24,26 @@ export const completeApprovalRequestTask = async (
 };
 
 export const listApprovalRequestTasks = async (): Promise<
-  ApprovalRequestTask[]
+  ApprovalRequestTaskListItem[]
 > => {
   try {
-    const { data } = await axios.get<ApprovalRequestTask[]>("api/task/list");
+    const { data } = await axios.get<ApprovalRequestTaskListItem[]>("api/task/list");
     return data;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
     return [];
+  }
+};
+
+export const getApprovalRequestTask = async (
+  id: number,
+): Promise<ApprovalRequestTask | null> => {
+  try {
+    const { data } = await axios.get<ApprovalRequestTask>(`api/task/${id}`);
+    return data;
+  } catch (e) {
+    toast.error(getUserFriendlyApiErrorMessage(e));
+    return null;
   }
 };
 

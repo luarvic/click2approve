@@ -2,6 +2,7 @@ import {
   ApprovalRequest,
   SubmitApprovalRequestRequest,
 } from "@/features/approvalRequests/models/approvalRequest";
+import { ApprovalRequestListItem } from "@/features/approvalRequests/models/approvalRequestListItem";
 import {
   ApprovalRequestShareList,
   UpsertApprovalRequestShare,
@@ -66,13 +67,25 @@ export const deleteApprovalRequest = async (id: number): Promise<boolean> => {
   }
 };
 
-export const listApprovalRequests = async (): Promise<ApprovalRequest[]> => {
+export const listApprovalRequests = async (): Promise<ApprovalRequestListItem[]> => {
   try {
-    const { data } = await axios.get<ApprovalRequest[]>("api/request/list");
+    const { data } = await axios.get<ApprovalRequestListItem[]>("api/request/list");
     return data;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
     return [];
+  }
+};
+
+export const getApprovalRequest = async (
+  id: number,
+): Promise<ApprovalRequest | null> => {
+  try {
+    const { data } = await axios.get<ApprovalRequest>(`api/request/${id}`);
+    return data;
+  } catch (e) {
+    toast.error(getUserFriendlyApiErrorMessage(e));
+    return null;
   }
 };
 

@@ -41,16 +41,26 @@ public class ApprovalRequestTaskController(
     }
 
     /// <summary>
-    /// Lists incoming approval request tasks.
+    /// Lists incoming approval request task summaries.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The list of approval request tasks.</returns>
+    /// <returns>The list of approval request task summaries.</returns>
     [HttpGet("list")]
-    public async Task<ActionResult<List<ApprovalRequestTask>>> ListAsync(CancellationToken cancellationToken)
+    public async Task<ActionResult<List<ApprovalRequestTaskListItemDto>>> ListAsync(CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
         var tasks = await _approvalRequestService.ListTasksAsync(user, cancellationToken);
         return Ok(tasks);
+    }
+
+    /// <summary>
+    /// Gets an approval request task with the request data the approver can view.
+    /// </summary>
+    [HttpGet("{id:long}")]
+    public async Task<ActionResult<ApprovalRequestTaskDetailDto>> GetAsync(long id, CancellationToken cancellationToken)
+    {
+        var user = await _userManager.GetAppUserAsync(User);
+        return Ok(await _approvalRequestService.GetTaskAsync(user, id, cancellationToken));
     }
 
     /// <summary>

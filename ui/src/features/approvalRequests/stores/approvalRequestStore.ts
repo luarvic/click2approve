@@ -1,63 +1,106 @@
 import * as approvalRequestApi from "@/features/approvalRequests/api/approvalRequestApi";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
+import { ApprovalRequestListItem } from "@/features/approvalRequests/models/approvalRequestListItem";
+import { parseUtcDateTime } from "@/shared/utils/helpers";
 import { makeAutoObservable, runInAction } from "mobx";
 
 export class ApprovalRequestStore {
-  registry: Map<number, ApprovalRequest>;
+  registry: Map<number, ApprovalRequestListItem>;
+  details: Map<number, ApprovalRequest>;
   currentApprovalRequest: ApprovalRequest | null;
   requestToClone: ApprovalRequest | null;
-  // Incremented to invalidate older async requests so only the latest response updates the store.
+  private detailRequests = new Map<number, Promise<ApprovalRequest | null>>();
+  private listRequest: Promise<void> | null = null;
   private requestVersion = 0;
 
   constructor(
-    registry: Map<number, ApprovalRequest> = new Map<
-      number,
-      ApprovalRequest
-    >(),
+    registry: Map<number, ApprovalRequestListItem> = new Map(),
     currentApprovalRequest: ApprovalRequest | null = null,
-    requestToClone: ApprovalRequest | null = null
+    requestToClone: ApprovalRequest | null = null,
   ) {
     this.registry = registry;
+    this.details = new Map();
     this.currentApprovalRequest = currentApprovalRequest;
     this.requestToClone = requestToClone;
     makeAutoObservable(this);
   }
 
-  get approvalRequests(): ApprovalRequest[] {
+  get approvalRequests(): ApprovalRequestListItem[] {
     return Array.from(this.registry.values()).sort((a, b) => b.id - a.id);
   }
 
-  load = async () => {
-    const requestVersion = ++this.requestVersion;
-    const approvalRequests = await approvalRequestApi.listApprovalRequests();
-    // Ignore this response if a newer load or clear operation has invalidated it.
-    if (requestVersion !== this.requestVersion) {
-      return;
+  getDetail = (id: number): ApprovalRequest | null => this.details.get(id) ?? null;
+
+  load = (): Promise<void> => {
+    if (this.listRequest) {
+      return this.listRequest;
     }
 
-    approvalRequests.forEach(normalizeApprovalRequestDates);
-    const registry = new Map(
-      approvalRequests.map((approvalRequest) => [approvalRequest.id, approvalRequest]),
-    );
-    runInAction(() => {
-      this.registry = registry;
-      this.currentApprovalRequest = this.currentApprovalRequest
-        ? registry.get(this.currentApprovalRequest.id) ?? null
-        : null;
-      this.requestToClone = this.requestToClone
-        ? registry.get(this.requestToClone.id) ?? null
-        : null;
+    const requestVersion = ++this.requestVersion;
+    const request = approvalRequestApi.listApprovalRequests().then((approvalRequests) => {
+      if (requestVersion !== this.requestVersion) {
+        return;
+      }
+
+      approvalRequests.forEach(normalizeApprovalRequestDates);
+      runInAction(() => {
+        this.registry = new Map(
+          approvalRequests.map((approvalRequest) => [approvalRequest.id, approvalRequest]),
+        );
+      });
+    }).finally(() => {
+      this.listRequest = null;
     });
+    this.listRequest = request;
+    return request;
   };
 
-  clear = () => {
+  loadDetails = (id: number, refresh = false): Promise<ApprovalRequest | null> => {
+    if (!refresh) {
+      const detail = this.details.get(id);
+      if (detail) {
+        return Promise.resolve(detail);
+      }
+    }
+
+    const inFlight = this.detailRequests.get(id);
+    if (inFlight) {
+      return inFlight;
+    }
+
+    const request = approvalRequestApi.getApprovalRequest(id).then((approvalRequest) => {
+      if (approvalRequest) {
+        normalizeApprovalRequestDates(approvalRequest);
+        runInAction(() => {
+          this.details.set(approvalRequest.id, approvalRequest);
+          if (this.currentApprovalRequest?.id === approvalRequest.id) {
+            this.currentApprovalRequest = approvalRequest;
+          }
+          if (this.requestToClone?.id === approvalRequest.id) {
+            this.requestToClone = approvalRequest;
+          }
+        });
+      }
+      return approvalRequest;
+    }).finally(() => {
+      this.detailRequests.delete(id);
+    });
+
+    this.detailRequests.set(id, request);
+    return request;
+  };
+
+  clear = (): void => {
     runInAction(() => {
       this.requestVersion += 1;
       this.registry = new Map();
+      this.details = new Map();
+      this.detailRequests.clear();
+      this.listRequest = null;
     });
   };
 
-  reset = () => {
+  reset = (): void => {
     this.clear();
     runInAction(() => {
       this.currentApprovalRequest = null;
@@ -65,13 +108,13 @@ export class ApprovalRequestStore {
     });
   };
 
-  setCurrent = (approvalRequest: ApprovalRequest | null) => {
+  setCurrent = (approvalRequest: ApprovalRequest | null): void => {
     runInAction(() => {
       this.currentApprovalRequest = approvalRequest;
     });
   };
 
-  setRequestToClone = (approvalRequest: ApprovalRequest | null) => {
+  setRequestToClone = (approvalRequest: ApprovalRequest | null): void => {
     runInAction(() => {
       this.requestToClone = approvalRequest;
     });
@@ -79,11 +122,16 @@ export class ApprovalRequestStore {
 }
 
 export const normalizeApprovalRequestDates = (
-  approvalRequest: ApprovalRequest
+  approvalRequest: Pick<ApprovalRequest, "createdAt" | "completedAt"> & {
+    createdAtDate?: Date;
+    completedAtDate?: Date;
+    tasks?: ApprovalRequest["tasks"];
+    steps?: ApprovalRequest["steps"];
+  },
 ) => {
-  approvalRequest.createdAtDate = new Date(approvalRequest.createdAt + "Z");
+  approvalRequest.createdAtDate = parseUtcDateTime(approvalRequest.createdAt);
   if (approvalRequest.completedAt) {
-    approvalRequest.completedAtDate = new Date(approvalRequest.completedAt + "Z");
+    approvalRequest.completedAtDate = parseUtcDateTime(approvalRequest.completedAt);
   }
   approvalRequest.tasks?.forEach(normalizeTaskDate);
   approvalRequest.steps?.forEach((step) => {
@@ -100,16 +148,16 @@ const normalizeTaskDate = (
       completedAtDate?: Date;
     }
     | null
-    | undefined
+    | undefined,
 ) => {
   if (!task) {
     return;
   }
 
   if (task.createdAt) {
-    task.createdAtDate = new Date(task.createdAt + "Z");
+    task.createdAtDate = parseUtcDateTime(task.createdAt);
   }
   if (task.completedAt) {
-    task.completedAtDate = new Date(task.completedAt + "Z");
+    task.completedAtDate = parseUtcDateTime(task.completedAt);
   }
 };

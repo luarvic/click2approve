@@ -1,21 +1,14 @@
 import { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
 import { UserFile } from "@/features/userFiles/models/userFile";
-import { ApprovalRequestStatus } from "./approvalRequestStatus";
+import { ApprovalRequestListItem } from "./approvalRequestListItem";
 import { ApprovalRequestTask } from "./approvalRequestTask";
 
-export interface ApprovalRequest {
-  id: number;
-  title: string;
+export interface ApprovalRequest extends ApprovalRequestListItem {
   userFiles: UserFile[];
   steps: ApprovalStep[];
   description?: string;
-  createdAt: string;
-  createdAtDate: Date;
-  completedAt?: string;
-  completedAtDate?: Date;
   createdByUserId: string;
   createdByEmail: string;
-  status: ApprovalRequestStatus;
   tasks: ApprovalRequestTask[];
 }
 

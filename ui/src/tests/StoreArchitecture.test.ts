@@ -18,11 +18,13 @@ import { autorun, runInAction } from "mobx";
 import { describe, expect, test, vi } from "vitest";
 
 vi.mock("@/features/approvalRequests/api/approvalRequestApi", () => ({
+  getApprovalRequest: vi.fn(),
   listApprovalRequests: vi.fn(),
 }));
 
 vi.mock("@/features/approvalRequests/api/approvalRequestTaskApi", () => ({
   countUncompletedApprovalRequestTasks: vi.fn(),
+  getApprovalRequestTask: vi.fn(),
   listApprovalRequestTasks: vi.fn(),
 }));
 
@@ -138,6 +140,20 @@ describe("store architecture", () => {
     expect(store.approvalRequests.map(({ id }) => id)).toEqual([2]);
   });
 
+  test("concurrent approval request detail loads share one API request", async () => {
+    vi.mocked(approvalRequestApi.getApprovalRequest).mockResolvedValue(approvalRequest(1));
+    const store = new ApprovalRequestStore();
+
+    const [first, second] = await Promise.all([
+      store.loadDetails(1),
+      store.loadDetails(1),
+    ]);
+
+    expect(approvalRequestApi.getApprovalRequest).toHaveBeenCalledOnce();
+    expect(first).toBe(second);
+    expect(store.getDetail(1)).toEqual(first);
+  });
+
   test("incoming tasks retain every status returned by the API", async () => {
     vi.mocked(approvalRequestTaskApi.listApprovalRequestTasks).mockResolvedValue([
       approvalRequestTask(1, ApprovalRequestTaskStatus.Pending),
@@ -155,6 +171,21 @@ describe("store architecture", () => {
       ApprovalRequestTaskStatus.Approved,
       ApprovalRequestTaskStatus.Pending,
     ]);
+  });
+
+  test("concurrent task detail loads share one API request", async () => {
+    const task = approvalRequestTask(1, ApprovalRequestTaskStatus.Pending);
+    vi.mocked(approvalRequestTaskApi.getApprovalRequestTask).mockResolvedValue(task);
+    const store = new ApprovalRequestTaskStore();
+
+    const [first, second] = await Promise.all([
+      store.loadDetails(1),
+      store.loadDetails(1),
+    ]);
+
+    expect(approvalRequestTaskApi.getApprovalRequestTask).toHaveBeenCalledOnce();
+    expect(first).toBe(second);
+    expect(store.getDetail(1)).toEqual(first);
   });
 
   test("signing out clears all session-scoped stores", () => {

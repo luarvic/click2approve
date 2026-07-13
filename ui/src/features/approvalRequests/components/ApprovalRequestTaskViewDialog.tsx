@@ -74,7 +74,6 @@ const ApprovalRequestTaskEditor: React.FC<ApprovalRequestTaskEditorProps> = ({ o
     if (didComplete) {
       cleanUp();
       stores.approvalRequestTaskStore.clear();
-      stores.approvalRequestTaskStore.loadIncoming();
       stores.approvalRequestTaskStore.loadUncompletedCount();
       onClose(currentTask.id);
     }
@@ -106,7 +105,7 @@ const ApprovalRequestTaskEditor: React.FC<ApprovalRequestTaskEditorProps> = ({ o
             value={currentTask?.title ?? ""}
             disabled
           />
-          <ApprovalRequestFilesBox userFiles={currentTask?.approvalRequest.userFiles} />
+          <ApprovalRequestFilesBox userFiles={currentTask?.approvalRequest?.userFiles} />
           <TextField
             fullWidth
             label="Description"

@@ -17,6 +17,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
     [InlineData("PUT", "api/request/1/steps")]
     [InlineData("DELETE", "api/request")]
     [InlineData("GET", "api/request/list")]
+    [InlineData("GET", "api/request/1")]
     public async Task Requests_WithoutBearerToken_ShouldReturnUnauthorized(string httpMethod, string url)
     {
         var client = _applicationFactory.CreateClient();
@@ -68,7 +69,10 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
 
         var approvalRequests = await client.ListApprovalRequestsAsync(requesterLogin.AccessToken, CancellationToken.None);
 
-        var approvalRequest = Assert.Single(approvalRequests);
+        var approvalRequest = await client.GetApprovalRequestAsync(
+            requesterLogin.AccessToken,
+            Assert.Single(approvalRequests).Id,
+            CancellationToken.None);
         Assert.Single(approvalRequest.Tasks);
         Assert.Single(Assert.Single(approvalRequest.Steps).Tasks);
     }
@@ -112,7 +116,11 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         });
         Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
 
-        var submittedRequest = Assert.Single(await requesterClient.ListApprovalRequestsAsync(requesterLogin.AccessToken, CancellationToken.None));
+        var submittedRequestSummary = Assert.Single(await requesterClient.ListApprovalRequestsAsync(requesterLogin.AccessToken, CancellationToken.None));
+        var submittedRequest = await requesterClient.GetApprovalRequestAsync(
+            requesterLogin.AccessToken,
+            submittedRequestSummary.Id,
+            CancellationToken.None);
         var task = Assert.Single(submittedRequest.Tasks);
 
         var approverClient = _applicationFactory.CreateClient();
@@ -128,7 +136,11 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         });
         Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
 
-        var completedRequest = Assert.Single(await requesterClient.ListApprovalRequestsAsync(requesterLogin.AccessToken, CancellationToken.None));
+        var completedRequestSummary = Assert.Single(await requesterClient.ListApprovalRequestsAsync(requesterLogin.AccessToken, CancellationToken.None));
+        var completedRequest = await requesterClient.GetApprovalRequestAsync(
+            requesterLogin.AccessToken,
+            completedRequestSummary.Id,
+            CancellationToken.None);
         var completedTask = Assert.Single(completedRequest.Tasks);
         Assert.Equal("Original task title", completedTask.Title);
         Assert.Equal("Original task description", completedTask.Description);

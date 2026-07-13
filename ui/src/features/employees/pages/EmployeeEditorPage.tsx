@@ -30,7 +30,7 @@ const EmployeeEditorPage = () => {
       const saved = await stores.teamStore.update(tenantId, team.id, { name: team.name, employeeIds: selected.has(team.id) ? [...memberIds, employeeIdToSync] : memberIds.filter((id) => id !== employeeIdToSync) });
       if (!saved) return false;
     }
-    await stores.teamStore.load(tenantId);
+    await stores.teamStore.load(tenantId, true);
     return true;
   };
 

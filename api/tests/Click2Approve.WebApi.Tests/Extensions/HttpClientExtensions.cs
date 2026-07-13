@@ -224,12 +224,30 @@ public static class HttpClientExtensions
     /// <summary>
     /// Lists approval requests submitted by the current user.
     /// </summary>
-    public static async Task<List<ApprovalRequestDto>> ListApprovalRequestsAsync(this HttpClient httpClient,
+    public static async Task<List<ApprovalRequestListItemDto>> ListApprovalRequestsAsync(this HttpClient httpClient,
         string accessToken,
         CancellationToken cancellationToken)
     {
-        return await httpClient.SendAsync<List<ApprovalRequestDto>>(HttpMethod.Get,
+        return await httpClient.SendAsync<List<ApprovalRequestListItemDto>>(HttpMethod.Get,
             "api/request/list",
+            new Dictionary<string, string> {
+                {"Authorization", $"Bearer {accessToken}"}
+            },
+            null,
+            null,
+            cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets an approval request with the data required by its editor.
+    /// </summary>
+    public static async Task<ApprovalRequestDto> GetApprovalRequestAsync(this HttpClient httpClient,
+        string accessToken,
+        long id,
+        CancellationToken cancellationToken)
+    {
+        return await httpClient.SendAsync<ApprovalRequestDto>(HttpMethod.Get,
+            $"api/request/{id}",
             new Dictionary<string, string> {
                 {"Authorization", $"Bearer {accessToken}"}
             },

@@ -306,7 +306,6 @@ const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({ onClose, 
       );
     if (sharesSaved) {
       stores.approvalRequestStore.clear();
-      stores.approvalRequestStore.load();
       stores.approvalRequestTaskStore.loadUncompletedCount();
       toast.success("Approval request updated.");
       onClose(approvalRequest.id);
@@ -468,7 +467,6 @@ const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({ onClose, 
             onClick={async () => {
               if (await cancelApprovalRequest(approvalRequest.id)) {
                 stores.approvalRequestStore.clear();
-                await stores.approvalRequestStore.load();
                 onClose(approvalRequest.id);
               }
             }}
@@ -499,7 +497,6 @@ const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({ onClose, 
             const deleted = await deleteApprovalRequest(approvalRequest.id);
             if (deleted) {
               stores.approvalRequestStore.clear();
-              stores.approvalRequestStore.load();
               onClose();
             }
             return deleted;

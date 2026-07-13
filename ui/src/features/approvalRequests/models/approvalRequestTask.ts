@@ -1,10 +1,8 @@
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
-import { ApprovalRequestTaskStatus } from "./approvalRequestTaskStatus";
+import { ApprovalRequestTaskListItem } from "./approvalRequestTaskListItem";
 
-export interface ApprovalRequestTask {
-  id: number;
-  title: string;
-  approvalRequest: ApprovalRequest;
+export interface ApprovalRequestTask extends ApprovalRequestTaskListItem {
+  approvalRequest?: ApprovalRequest;
   approvalRequestId: number;
   approvalRequestStepId: number;
   approvalRequestStepApproverId?: number;
@@ -12,11 +10,6 @@ export interface ApprovalRequestTask {
   approverEmail: string;
   approverDisplayName?: string;
   canViewRequest: boolean;
-  status: ApprovalRequestTaskStatus;
-  createdAt: string;
-  createdAtDate: Date;
-  completedAt?: string;
-  completedAtDate?: Date;
   description?: string;
   comment?: string;
 }

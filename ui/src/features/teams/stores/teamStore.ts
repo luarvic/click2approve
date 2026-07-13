@@ -4,7 +4,9 @@ import { makeAutoObservable, runInAction } from "mobx";
 
 export class TeamStore {
   teams: Team[];
-  // Incremented to invalidate older async requests so only the latest response updates the store.
+  private loadedTenantId: number | null = null;
+  private loadRequest: Promise<void> | null = null;
+  private loadingTenantId: number | null = null;
   private requestVersion = 0;
 
   constructor(teams: Team[] = []) {
@@ -12,15 +14,32 @@ export class TeamStore {
     makeAutoObservable(this);
   }
 
-  load = async (tenantId: number): Promise<void> => {
-    const requestVersion = ++this.requestVersion;
-    const teams = await teamApi.listTeams(tenantId);
-    if (requestVersion !== this.requestVersion) {
-      return;
+  load = (tenantId: number, refresh = false): Promise<void> => {
+    if (!refresh && this.loadedTenantId === tenantId) {
+      return Promise.resolve();
     }
-    runInAction(() => {
-      this.teams = teams;
+    if (this.loadRequest && this.loadingTenantId === tenantId) {
+      return this.loadRequest;
+    }
+
+    const requestVersion = ++this.requestVersion;
+    const request = teamApi.listTeams(tenantId).then((teams) => {
+      if (requestVersion !== this.requestVersion) {
+        return;
+      }
+      runInAction(() => {
+        this.teams = teams;
+        this.loadedTenantId = tenantId;
+      });
+    }).finally(() => {
+      if (this.loadRequest === request) {
+        this.loadRequest = null;
+        this.loadingTenantId = null;
+      }
     });
+    this.loadRequest = request;
+    this.loadingTenantId = tenantId;
+    return request;
   };
 
   create = async (tenantId: number, payload: UpsertTeamRequest): Promise<Team | null> => {
@@ -74,6 +93,9 @@ export class TeamStore {
     runInAction(() => {
       this.requestVersion += 1;
       this.teams = [];
+      this.loadedTenantId = null;
+      this.loadRequest = null;
+      this.loadingTenantId = null;
     });
   };
 }

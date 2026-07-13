@@ -289,8 +289,10 @@ const ApprovalRequestSubmitPage: React.FC<ApprovalRequestSubmitPageProps> = ({
       toast.success("The request was successfully sent");
       cleanUp();
       stores.approvalRequestStore.clear();
-      await stores.approvalRequestStore.load();
-      const createdRequest = stores.approvalRequestStore.approvalRequests[0];
+      const [, createdRequest] = await Promise.all([
+        stores.approvalRequestStore.load(),
+        stores.approvalRequestStore.loadDetails(approvalRequestId),
+      ]);
       stores.approvalRequestStore.setCurrent(createdRequest ?? null);
       stores.approvalRequestTaskStore.loadUncompletedCount();
       onClose(createdRequest?.id);

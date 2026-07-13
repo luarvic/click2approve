@@ -8,7 +8,9 @@ import { makeAutoObservable, runInAction } from "mobx";
 
 export class EmployeeStore {
   employees: Employee[];
-  // Incremented to invalidate older async requests so only the latest response updates the store.
+  private loadedTenantId: number | null = null;
+  private loadRequest: Promise<void> | null = null;
+  private loadingTenantId: number | null = null;
   private requestVersion = 0;
 
   constructor(employees: Employee[] = []) {
@@ -16,15 +18,32 @@ export class EmployeeStore {
     makeAutoObservable(this);
   }
 
-  load = async (tenantId: number): Promise<void> => {
-    const requestVersion = ++this.requestVersion;
-    const employees = await employeeApi.listEmployees(tenantId);
-    if (requestVersion !== this.requestVersion) {
-      return;
+  load = (tenantId: number, refresh = false): Promise<void> => {
+    if (!refresh && this.loadedTenantId === tenantId) {
+      return Promise.resolve();
     }
-    runInAction(() => {
-      this.employees = employees;
+    if (this.loadRequest && this.loadingTenantId === tenantId) {
+      return this.loadRequest;
+    }
+
+    const requestVersion = ++this.requestVersion;
+    const request = employeeApi.listEmployees(tenantId).then((employees) => {
+      if (requestVersion !== this.requestVersion) {
+        return;
+      }
+      runInAction(() => {
+        this.employees = employees;
+        this.loadedTenantId = tenantId;
+      });
+    }).finally(() => {
+      if (this.loadRequest === request) {
+        this.loadRequest = null;
+        this.loadingTenantId = null;
+      }
     });
+    this.loadRequest = request;
+    this.loadingTenantId = tenantId;
+    return request;
   };
 
   create = async (
@@ -83,6 +102,9 @@ export class EmployeeStore {
     runInAction(() => {
       this.requestVersion += 1;
       this.employees = [];
+      this.loadedTenantId = null;
+      this.loadRequest = null;
+      this.loadingTenantId = null;
     });
   };
 }

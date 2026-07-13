@@ -12,6 +12,11 @@ export const getLocaleDateTimeString = (date: Date | undefined): string => {
     : "";
 };
 
+export const parseUtcDateTime = (value: string): Date => {
+  const hasOffset = /(?:Z|[+-]\d{2}:\d{2})$/i.test(value);
+  return new Date(hasOffset ? value : `${value}Z`);
+};
+
 export const getUserFriendlyApiErrorMessage = (error: any): string => {
   try {
     if (!(error instanceof AxiosError)) {

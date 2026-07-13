@@ -1,5 +1,5 @@
 import { stores } from "@/app/rootStore";
-import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
+import { ApprovalRequestListItem } from "@/features/approvalRequests/models/approvalRequestListItem";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
@@ -48,8 +48,7 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestId }) => 
       return;
     }
 
-    stores.approvalRequestStore.clear();
-    stores.approvalRequestStore.load();
+    void stores.approvalRequestStore.load();
   }, [tenantScopeIsReady]);
 
   const customToolbar = () => {
@@ -117,7 +116,7 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestId }) => 
         }
         onRowClick={(params) => {
           const tenantId = stores.tenantStore.currentTenantId;
-          const path = `/outbox/${(params.row as ApprovalRequest).id}`;
+          const path = `/outbox/${(params.row as ApprovalRequestListItem).id}`;
           navigate(tenantId ? Routes.tenantPath(tenantId, path) : "/");
         }}
         paginationModel={paginationModel}

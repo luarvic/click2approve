@@ -10,6 +10,7 @@ public interface IApprovalRequestTaskRepository
     Task<ApprovalRequestTask> AddAsync(ApprovalRequestTask approvalRequestTask, CancellationToken cancellationToken);
     Task<int> ClaimEmailTasksAsync(AppUser user, long personalTenantId, CancellationToken cancellationToken);
     Task<List<ApprovalRequestTask>> ListAsync(AppUser user, CancellationToken cancellationToken);
+    Task<ApprovalRequestTask> GetAsync(AppUser user, long id, CancellationToken cancellationToken);
     Task<ApprovalRequestTask> GetForCompletionAsync(AppUser user, long id, CancellationToken cancellationToken);
     Task<long> CountUncompletedAsync(AppUser user, CancellationToken cancellationToken);
     void Remove(ApprovalRequestTask approvalRequestTask);

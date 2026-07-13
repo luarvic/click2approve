@@ -1,5 +1,5 @@
 import { stores } from "@/app/rootStore";
-import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
+import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
@@ -44,8 +44,7 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskId }) => {
       return;
     }
 
-    stores.approvalRequestTaskStore.clear();
-    stores.approvalRequestTaskStore.loadIncoming();
+    void stores.approvalRequestTaskStore.loadIncoming();
   }, [tenantScopeIsReady]);
 
   const columns: GridColDef[] = [
@@ -87,7 +86,7 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskId }) => {
         rowSelectionModel={currentTaskId === undefined ? [] : [currentTaskId]}
         onRowClick={(params) => {
           const tenantId = stores.tenantStore.currentTenantId;
-          const path = `/inbox/${(params.row as ApprovalRequestTask).id}`;
+          const path = `/inbox/${(params.row as ApprovalRequestTaskListItem).id}`;
           navigate(tenantId ? Routes.tenantPath(tenantId, path) : "/");
         }}
         paginationModel={paginationModel}
