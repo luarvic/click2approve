@@ -81,7 +81,9 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
           onChange={(event) => setName(event.target.value)}
           onBlur={() => setNameTouched(true)}
           error={nameHasError}
-          helperText={nameHasError ? "Team name is required." : " "}
+          helperText={
+            nameHasError ? "Team name is required." : undefined
+          }
           fullWidth
           required
           disabled={!isNew && !canEdit}

@@ -116,7 +116,6 @@ const ApprovalRequestStartPage = () => {
           }
           sx={continueButtonSx}
           type="submit"
-          variant="outlined"
         >
           Continue
         </Button>

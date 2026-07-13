@@ -310,7 +310,6 @@ const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({ onClose, 
             fullWidth
             label="Description"
             multiline
-            rows={Dialogs.commentTextFieldRows}
             value={approvalRequest?.description ?? ""}
             disabled
           />

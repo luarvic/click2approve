@@ -100,6 +100,7 @@ const SignUpPage = () => {
         <Box component="form" onSubmit={handleSubmit} noValidate>
           <TextField
             margin="normal"
+            variant={AuthForms.inputVariant}
             required
             fullWidth
             id="email"
@@ -110,7 +111,12 @@ const SignUpPage = () => {
             helperText={emailError && "Invalid email address"}
             onChange={() => setEmailError(false)}
           />
-          <FormControl margin="normal" fullWidth variant="outlined" required>
+          <FormControl
+            margin="normal"
+            fullWidth
+            variant={AuthForms.inputVariant}
+            required
+          >
             <InputLabel error={passwordError}>Password</InputLabel>
             <OutlinedInput
               id="password"
@@ -135,7 +141,12 @@ const SignUpPage = () => {
               {passwordError && Validation.passwordValidatorError}
             </FormHelperText>
           </FormControl>
-          <FormControl margin="normal" fullWidth variant="outlined" required>
+          <FormControl
+            margin="normal"
+            fullWidth
+            variant={AuthForms.inputVariant}
+            required
+          >
             <InputLabel error={passwordConfirmationError}>
               Password confirmation
             </InputLabel>

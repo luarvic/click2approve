@@ -90,7 +90,12 @@ export const AuthForms = {
   } as SxProps<Theme>,
   maxWidth: "xs",
   formSx: { mt: 1 } as SxProps<Theme>,
+  inputVariant: "outlined",
   submitButtonSx: { mt: 2, mb: 2 } as SxProps<Theme>,
+} as const;
+
+export const InputFields = {
+  variant: "standard",
 } as const;
 
 export const Text = {
@@ -133,7 +138,6 @@ export const Dialogs = {
     borderRadius: 1,
     p: 2,
   } as SxProps<Theme>,
-  commentTextFieldRows: 4,
   tenantMaxWidth: "sm",
 } as const;
 

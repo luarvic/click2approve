@@ -113,7 +113,9 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
           onBlur={() => setEmailTouched(true)}
           disabled={!isNew}
           error={emailHasError}
-          helperText={emailHasError ? "Enter a valid email address." : " "}
+          helperText={
+            emailHasError ? "Enter a valid email address." : undefined
+          }
           fullWidth
           required
         />

@@ -177,7 +177,6 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                   select
                   fullWidth
                   label="Completion rule"
-                  variant="standard"
                   value={step.mode}
                   disabled={disabled}
                   onChange={(event) =>

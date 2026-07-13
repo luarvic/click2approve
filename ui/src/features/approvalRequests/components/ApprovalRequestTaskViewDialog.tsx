@@ -111,7 +111,6 @@ const ApprovalRequestTaskEditor: React.FC<ApprovalRequestTaskEditorProps> = ({ o
             fullWidth
             label="Description"
             multiline
-            rows={Dialogs.commentTextFieldRows}
             value={currentTask?.description ?? ""}
             disabled
           />
@@ -153,7 +152,6 @@ const ApprovalRequestTaskEditor: React.FC<ApprovalRequestTaskEditorProps> = ({ o
             label="Comment"
             autoFocus
             multiline
-            rows={Dialogs.commentTextFieldRows}
             value={comment}
             onChange={(event) => setComment(event.target.value)}
             disabled={isCompleted}

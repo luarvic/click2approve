@@ -105,7 +105,12 @@ const ResetPasswordPage = () => {
           noValidate
           sx={AuthForms.formSx}
         >
-          <FormControl margin="normal" fullWidth variant="outlined" required>
+          <FormControl
+            margin="normal"
+            fullWidth
+            variant={AuthForms.inputVariant}
+            required
+          >
             <InputLabel error={passwordError}>Password</InputLabel>
             <OutlinedInput
               id="password"
@@ -130,7 +135,12 @@ const ResetPasswordPage = () => {
               {passwordError && Validation.passwordValidatorError}
             </FormHelperText>
           </FormControl>
-          <FormControl margin="normal" fullWidth variant="outlined" required>
+          <FormControl
+            margin="normal"
+            fullWidth
+            variant={AuthForms.inputVariant}
+            required
+          >
             <InputLabel error={passwordConfirmationError}>
               Password confirmation
             </InputLabel>

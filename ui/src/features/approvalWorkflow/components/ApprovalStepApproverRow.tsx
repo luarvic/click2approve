@@ -82,7 +82,6 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
         <TextField
           select
           label="Type"
-          variant="standard"
           value={approver.type}
           disabled={disabled}
           onChange={(event) =>
@@ -104,7 +103,6 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
           <TextField
             fullWidth
             label="Email"
-            variant="standard"
             value={approver.email ?? ""}
             disabled={disabled}
             onChange={(event) =>
@@ -123,7 +121,7 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
             }
             disabled={disabled}
             renderInput={(params) => (
-              <TextField {...params} label="Employee" variant="standard" />
+              <TextField {...params} label="Employee" />
             )}
             onChange={(_, value) =>
               onChange({
@@ -143,7 +141,7 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
             value={teams.find((team) => team.id === approver.teamId) ?? null}
             disabled={disabled}
             renderInput={(params) => (
-              <TextField {...params} label="Team" variant="standard" />
+              <TextField {...params} label="Team" />
             )}
             onChange={(_, value) =>
               onChange({

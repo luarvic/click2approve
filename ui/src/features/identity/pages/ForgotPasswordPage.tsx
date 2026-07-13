@@ -49,6 +49,7 @@ const ForgotPasswordPage = () => {
         <Box component="form" onSubmit={handleSubmit} noValidate>
           <TextField
             margin="normal"
+            variant={AuthForms.inputVariant}
             required
             fullWidth
             id="email"
