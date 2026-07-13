@@ -64,6 +64,9 @@ const MainMenuDrawer = () => {
     location.pathname === "/" ||
     location.pathname.startsWith(inboxPath);
   const outboxIsSelected = location.pathname.startsWith(outboxPath);
+  const organizationsIsSelected = /^\/tenants(?:\/[^/]+)?$/.test(
+    location.pathname
+  );
 
   useEffect(() => {
     if (!currentUser) {
@@ -171,7 +174,7 @@ const MainMenuDrawer = () => {
         {organizationsIsVisible && (
           <ListItem key="organizations" disablePadding>
             <ListItemButton
-              selected={location.pathname === "/tenants"}
+              selected={organizationsIsSelected}
               onClick={() => {
                 navigate("/tenants");
                 closeTemporaryDrawer();
@@ -187,7 +190,7 @@ const MainMenuDrawer = () => {
         {teamsManagerIsVisible && (
           <ListItem key="teams" disablePadding>
             <ListItemButton
-              selected={location.pathname === teamsPath}
+              selected={location.pathname.startsWith(teamsPath)}
               onClick={() => {
                 navigate(teamsPath);
                 closeTemporaryDrawer();
@@ -203,7 +206,7 @@ const MainMenuDrawer = () => {
         {employeeManagerIsVisible && (
           <ListItem key="employees" disablePadding>
             <ListItemButton
-              selected={location.pathname === employeesPath}
+              selected={location.pathname.startsWith(employeesPath)}
               onClick={() => {
                 navigate(employeesPath);
                 closeTemporaryDrawer();

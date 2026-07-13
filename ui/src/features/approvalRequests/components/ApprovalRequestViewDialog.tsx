@@ -1,7 +1,15 @@
 import { stores } from "@/app/rootStore";
-import { cancelApprovalRequest, deleteApprovalRequest, updateApprovalRequest } from "@/features/approvalRequests/api/approvalRequestApi";
+import {
+  cancelApprovalRequest,
+  deleteApprovalRequest,
+  replaceApprovalRequestShares,
+  updateApprovalRequest,
+} from "@/features/approvalRequests/api/approvalRequestApi";
 import ApprovalRequestFilesBox from "@/features/approvalRequests/components/ApprovalRequestFilesBox";
 import ApprovalRequestLog from "@/features/approvalRequests/components/ApprovalRequestLog";
+import ApprovalRequestSharing, {
+  EditableApprovalRequestShare,
+} from "@/features/approvalRequests/components/ApprovalRequestSharing";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
@@ -34,7 +42,7 @@ import {
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 const getApprovalStepSx = (isPassed: boolean): SxProps<Theme> => ({
@@ -117,6 +125,8 @@ interface ApprovalRequestEditorProps {
 const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({ onClose, onClone }) => {
   const approvalRequest = stores.approvalRequestStore.currentApprovalRequest;
   const [steps, setSteps] = useState<EditableApprovalStep[]>([]);
+  const [shares, setShares] = useState<EditableApprovalRequestShare[] | null>(null);
+  const [canManageShares, setCanManageShares] = useState<boolean | null>(null);
 
   const tenantId = stores.tenantStore.currentTenantId;
   const businessTenantIsSelected =
@@ -125,6 +135,11 @@ const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({ onClose, 
     businessTenantIsSelected && stores.productStore.employeeApproversAreEnabled;
   const canUseTeams =
     businessTenantIsSelected && stores.productStore.teamApproversAreEnabled;
+  const canUseApprovalRequestSharing =
+    businessTenantIsSelected &&
+    stores.productStore.approvalRequestSharingIsEnabled;
+  const sharingIsAvailable =
+    canUseApprovalRequestSharing && approvalRequest !== null;
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState("request");
 
@@ -137,11 +152,13 @@ const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({ onClose, 
       ),
     );
     setSelectedTab("request");
+    setShares(null);
+    setCanManageShares(null);
     if (tenantId && businessTenantIsSelected) {
-      if (canUseEmployees) {
+      if (canUseEmployees || canUseApprovalRequestSharing) {
         stores.employeeStore.load(tenantId);
       }
-      if (canUseTeams) {
+      if (canUseTeams || canUseApprovalRequestSharing) {
         stores.teamStore.load(tenantId);
       }
     }
@@ -151,6 +168,7 @@ const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({ onClose, 
     businessTenantIsSelected,
     canUseEmployees,
     canUseTeams,
+    canUseApprovalRequestSharing,
   ]);
 
   const handleClose = () => {
@@ -258,19 +276,53 @@ const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({ onClose, 
       return;
     }
 
+    const sharesAreValid = !shares?.some(
+      (share) => !share.employeeId && !share.teamId,
+    );
+    if (!sharesAreValid) {
+      toast.error("Select an employee or team for every access entry.");
+      return;
+    }
+
     if (
-      await updateApprovalRequest(
+      !await updateApprovalRequest(
         approvalRequest.id,
         toApprovalStepUpdates(steps),
       )
     ) {
+      return;
+    }
+
+    const sharesSaved =
+      shares === null ||
+      !canManageShares ||
+      await replaceApprovalRequestShares(
+        approvalRequest.id,
+        shares.map(({ employeeId, permission, teamId }) => ({
+          employeeId,
+          permission,
+          teamId,
+        })),
+      );
+    if (sharesSaved) {
       stores.approvalRequestStore.clear();
       stores.approvalRequestStore.load();
       stores.approvalRequestTaskStore.loadUncompletedCount();
-      toast.success("Approval steps updated.");
+      toast.success("Approval request updated.");
       onClose(approvalRequest.id);
     }
   };
+
+  const handleSharesChange = useCallback(
+    (value: EditableApprovalRequestShare[]) => {
+      setShares(value);
+    },
+    [],
+  );
+
+  const handleCanManageSharesChange = useCallback((value: boolean) => {
+    setCanManageShares(value);
+  }, []);
 
   const handleClone = () => {
     if (!approvalRequest) {
@@ -293,6 +345,7 @@ const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({ onClose, 
         aria-label="Approval request sections"
       >
         <Tab label="Request" value="request" />
+        {sharingIsAvailable && <Tab label="Sharing" value="sharing" />}
         <Tab label="Log" value="log" />
       </Tabs>
       {selectedTab === "request" && (
@@ -394,6 +447,18 @@ const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({ onClose, 
         </Stack>
       )}
       {selectedTab === "log" && <ApprovalRequestLog approvalRequest={approvalRequest} />}
+      {selectedTab === "sharing" && approvalRequest && (
+        <ApprovalRequestSharing
+          approvalRequestId={approvalRequest.id}
+          employees={stores.employeeStore.employees.filter(
+            (employee) => employee.userId !== approvalRequest.createdByUserId,
+          )}
+          shares={shares ?? []}
+          teams={stores.teamStore.teams}
+          onCanManageChange={handleCanManageSharesChange}
+          onSharesChange={handleSharesChange}
+        />
+      )}
       <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
         <Button variant="outlined" onClick={handleClose}>Cancel</Button>
         <Button variant="outlined" onClick={handleClone}>Clone</Button>

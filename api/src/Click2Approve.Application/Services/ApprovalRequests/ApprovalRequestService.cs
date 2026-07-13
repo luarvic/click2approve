@@ -37,7 +37,7 @@ public class ApprovalRequestService(
     /// <summary>
     /// Creates a new approval request.
     /// </summary>
-    public async Task SubmitApprovalRequestAsync(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
+    public async Task<long> SubmitApprovalRequestAsync(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
     {
         var title = (payload.Title ?? string.Empty).Trim();
         if (title.Length == 0)
@@ -84,6 +84,7 @@ public class ApprovalRequestService(
         );
 
         await NotifyApproversAsync(newApprovalRequest.Tasks, ApprovalRequestApproverNotification.Sent, cancellationToken);
+        return newApprovalRequest.Id;
     }
 
     /// <summary>

@@ -26,6 +26,10 @@ export class ProductStore {
     return this.productInfo?.capabilities.approvalStepTemplates === true;
   }
 
+  get approvalRequestSharingIsEnabled(): boolean {
+    return this.productInfo?.capabilities.approvalRequestSharing === true;
+  }
+
   load = async (): Promise<void> => {
     const info = await productApi.getProductInfo();
     runInAction(() => {

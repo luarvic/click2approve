@@ -36,8 +36,7 @@ public class ApprovalRequestController(
     public async Task<IActionResult> SubmitAsync([FromBody] ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        await _approvalRequestService.SubmitApprovalRequestAsync(user, payload, cancellationToken);
-        return Ok();
+        return Ok(await _approvalRequestService.SubmitApprovalRequestAsync(user, payload, cancellationToken));
     }
 
     /// <summary>

@@ -2,6 +2,10 @@ import {
   ApprovalRequest,
   SubmitApprovalRequestRequest,
 } from "@/features/approvalRequests/models/approvalRequest";
+import {
+  ApprovalRequestShareList,
+  UpsertApprovalRequestShare,
+} from "@/features/approvalRequests/models/approvalRequestShare";
 import { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import axios from "@/shared/api/axios";
@@ -13,7 +17,7 @@ export const submitApprovalRequest = async (
   files: UserFile[],
   steps: ApprovalStep[],
   description: string | undefined,
-): Promise<boolean> => {
+): Promise<number | null> => {
   try {
     const payload: SubmitApprovalRequestRequest = {
       title,
@@ -21,11 +25,11 @@ export const submitApprovalRequest = async (
       steps,
       description,
     };
-    await axios.post("api/request", payload);
-    return true;
+    const { data } = await axios.post<number>("api/request", payload);
+    return data;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
-    return false;
+    return null;
   }
 };
 
@@ -69,5 +73,32 @@ export const listApprovalRequests = async (): Promise<ApprovalRequest[]> => {
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
     return [];
+  }
+};
+
+export const listApprovalRequestShares = async (
+  approvalRequestId: number,
+): Promise<ApprovalRequestShareList | null> => {
+  try {
+    const { data } = await axios.get<ApprovalRequestShareList>(
+      `api/request/${approvalRequestId}/shares`,
+    );
+    return data;
+  } catch (e) {
+    toast.error(getUserFriendlyApiErrorMessage(e));
+    return null;
+  }
+};
+
+export const replaceApprovalRequestShares = async (
+  approvalRequestId: number,
+  shares: UpsertApprovalRequestShare[],
+): Promise<boolean> => {
+  try {
+    await axios.put(`api/request/${approvalRequestId}/shares`, shares);
+    return true;
+  } catch (e) {
+    toast.error(getUserFriendlyApiErrorMessage(e));
+    return false;
   }
 };

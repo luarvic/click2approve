@@ -1,6 +1,12 @@
 import { stores } from "@/app/rootStore";
-import { submitApprovalRequest } from "@/features/approvalRequests/api/approvalRequestApi";
+import {
+  replaceApprovalRequestShares,
+  submitApprovalRequest,
+} from "@/features/approvalRequests/api/approvalRequestApi";
 import ApprovalRequestFilesList from "@/features/approvalRequests/components/ApprovalRequestFilesList";
+import ApprovalRequestSharing, {
+  EditableApprovalRequestShare,
+} from "@/features/approvalRequests/components/ApprovalRequestSharing";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
 import {
   ApprovalRecipientType,
@@ -23,6 +29,8 @@ import {
   Box,
   Button,
   Stack,
+  Tab,
+  Tabs,
   TextField,
   Typography,
 } from "@mui/material";
@@ -44,7 +52,9 @@ const ApprovalRequestSubmitPage: React.FC<ApprovalRequestSubmitPageProps> = ({
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [existingFiles, setExistingFiles] = useState<UserFile[]>([]);
   const [steps, setSteps] = useState<EditableApprovalStep[]>([]);
+  const [shares, setShares] = useState<EditableApprovalRequestShare[]>([]);
   const [description, setDescription] = useState("");
+  const [selectedTab, setSelectedTab] = useState("request");
   const initialTemplateHasBeenApplied = useRef(false);
 
   const tenantId = stores.tenantStore.currentTenantId;
@@ -58,6 +68,9 @@ const ApprovalRequestSubmitPage: React.FC<ApprovalRequestSubmitPageProps> = ({
     businessTenantIsSelected &&
     stores.productStore.approvalStepTemplatesAreEnabled &&
     tenantId !== null;
+  const canUseApprovalRequestSharing =
+    businessTenantIsSelected &&
+    stores.productStore.approvalRequestSharingIsEnabled;
   const requestToClone = stores.approvalRequestStore.requestToClone;
 
   useEffect(() => {
@@ -69,10 +82,10 @@ const ApprovalRequestSubmitPage: React.FC<ApprovalRequestSubmitPageProps> = ({
     }
 
     if (tenantId && businessTenantIsSelected) {
-      if (canUseEmployees) {
+      if (canUseEmployees || canUseApprovalRequestSharing) {
         stores.employeeStore.load(tenantId);
       }
-      if (canUseTeams) {
+      if (canUseTeams || canUseApprovalRequestSharing) {
         stores.teamStore.load(tenantId);
       }
       if (canUseTemplates) {
@@ -98,6 +111,7 @@ const ApprovalRequestSubmitPage: React.FC<ApprovalRequestSubmitPageProps> = ({
     canUseEmployees,
     canUseTeams,
     canUseTemplates,
+    canUseApprovalRequestSharing,
     initialTemplateId,
   ]);
 
@@ -116,6 +130,7 @@ const ApprovalRequestSubmitPage: React.FC<ApprovalRequestSubmitPageProps> = ({
     setNewFiles([]);
     setExistingFiles([]);
     setSteps([]);
+    setShares([]);
     setDescription("");
     stores.approvalRequestStore.setRequestToClone(null);
   };
@@ -240,6 +255,10 @@ const ApprovalRequestSubmitPage: React.FC<ApprovalRequestSubmitPageProps> = ({
     if (!validateSteps()) {
       return;
     }
+    if (shares.some((share) => !share.employeeId && !share.teamId)) {
+      toast.error("Select an employee or team for every access entry.");
+      return;
+    }
 
     const uploadedFiles = await uploadUserFiles(newFiles);
     if (uploadedFiles.length !== newFiles.length) {
@@ -247,13 +266,26 @@ const ApprovalRequestSubmitPage: React.FC<ApprovalRequestSubmitPageProps> = ({
       return;
     }
 
-    const didSubmit = await submitApprovalRequest(
+    const approvalRequestId = await submitApprovalRequest(
       trimmedTitle,
       [...existingFiles, ...uploadedFiles],
       toApprovalStepSubmissions(steps),
       description,
     );
-    if (didSubmit) {
+    if (approvalRequestId) {
+      if (
+        shares.length > 0 &&
+        !await replaceApprovalRequestShares(
+          approvalRequestId,
+          shares.map(({ employeeId, permission, teamId }) => ({
+            employeeId,
+            permission,
+            teamId,
+          })),
+        )
+      ) {
+        return;
+      }
       toast.success("The request was successfully sent");
       cleanUp();
       stores.approvalRequestStore.clear();
@@ -271,67 +303,85 @@ const ApprovalRequestSubmitPage: React.FC<ApprovalRequestSubmitPageProps> = ({
         {requestToClone ? "Clone approval request" : "New approval request"}
       </Typography>
       <Box component="form" onSubmit={handleSubmit}>
-        <Stack spacing={Dialogs.formStackSpacing}>
-          <TextField
-            autoFocus
-            margin="normal"
-            fullWidth
-            label="Title"
-            required
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-          />
-          <ApprovalRequestFilesList
-            existingFiles={existingFiles}
-            newFiles={newFiles}
-            onRemoveExisting={(index) =>
-              setExistingFiles((files) => files.filter((_, i) => i !== index))
-            }
-            onRemoveNew={(index) =>
-              setNewFiles((files) => files.filter((_, i) => i !== index))
-            }
-          />
-          <Box sx={Dialogs.bottomSpacingSx}>
-            <Button startIcon={<AttachFile />} onClick={handleUploadClick}>
-              Add files
-            </Button>
-            <input
-              type="file"
-              multiple
-              onChange={handleFilesChange}
-              ref={fileInput}
-              style={Files.inputStyle}
+        <Tabs
+          value={selectedTab}
+          onChange={(_, value: string) => setSelectedTab(value)}
+          aria-label="New approval request sections"
+        >
+          <Tab label="Request" value="request" />
+          {canUseApprovalRequestSharing && <Tab label="Sharing" value="sharing" />}
+        </Tabs>
+        {selectedTab === "request" && (
+          <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
+            <TextField
+              autoFocus
+              margin="normal"
+              fullWidth
+              label="Title"
+              required
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
             />
-          </Box>
-          <TextField
-            margin="normal"
-            fullWidth
-            label="Description"
-            multiline
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-          />
-          <ApprovalStepEditor
-            steps={steps}
-            canUseEmployees={canUseEmployees}
-            canUseTeams={canUseTeams}
+            <ApprovalRequestFilesList
+              existingFiles={existingFiles}
+              newFiles={newFiles}
+              onRemoveExisting={(index) =>
+                setExistingFiles((files) => files.filter((_, i) => i !== index))
+              }
+              onRemoveNew={(index) =>
+                setNewFiles((files) => files.filter((_, i) => i !== index))
+              }
+            />
+            <Box sx={Dialogs.bottomSpacingSx}>
+              <Button startIcon={<AttachFile />} onClick={handleUploadClick}>
+                Add files
+              </Button>
+              <input
+                type="file"
+                multiple
+                onChange={handleFilesChange}
+                ref={fileInput}
+                style={Files.inputStyle}
+              />
+            </Box>
+            <TextField
+              margin="normal"
+              fullWidth
+              label="Description"
+              multiline
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+            />
+            <ApprovalStepEditor
+              steps={steps}
+              canUseEmployees={canUseEmployees}
+              canUseTeams={canUseTeams}
+              employees={stores.employeeStore.employees}
+              teams={stores.teamStore.teams}
+              onAddApprover={addApprover}
+              onAddStep={addStep}
+              onMoveStep={moveStep}
+              onRemoveApprover={removeApprover}
+              onRemoveStep={removeStep}
+              onUpdateApprover={updateApprover}
+              onUpdateStep={updateStep}
+              showAddStep={false}
+            />
+            <Box sx={Dialogs.textBottomSpacingSx}>
+              <Button startIcon={<Add />} onClick={addStep}>
+                Add step
+              </Button>
+            </Box>
+          </Stack>
+        )}
+        {selectedTab === "sharing" && canUseApprovalRequestSharing && (
+          <ApprovalRequestSharing
             employees={stores.employeeStore.employees}
+            shares={shares}
             teams={stores.teamStore.teams}
-            onAddApprover={addApprover}
-            onAddStep={addStep}
-            onMoveStep={moveStep}
-            onRemoveApprover={removeApprover}
-            onRemoveStep={removeStep}
-            onUpdateApprover={updateApprover}
-            onUpdateStep={updateStep}
-            showAddStep={false}
+            onSharesChange={setShares}
           />
-          <Box sx={Dialogs.textBottomSpacingSx}>
-            <Button startIcon={<Add />} onClick={addStep}>
-              Add step
-            </Button>
-          </Box>
-        </Stack>
+        )}
         <Stack
           direction={{ xs: "column", sm: "row" }}
           spacing={Dialogs.stepHeaderSpacing}
