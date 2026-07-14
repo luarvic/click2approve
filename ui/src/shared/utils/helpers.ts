@@ -12,6 +12,11 @@ export const getLocaleDateTimeString = (date: Date | undefined): string => {
     : "";
 };
 
+export const getEmailInitials = (email: string): string => {
+  const localPart = email.split("@")[0]?.trim();
+  return (localPart || email).slice(0, 2).toUpperCase();
+};
+
 export const parseUtcDateTime = (value: string): Date => {
   const hasOffset = /(?:Z|[+-]\d{2}:\d{2})$/i.test(value);
   return new Date(hasOffset ? value : `${value}Z`);

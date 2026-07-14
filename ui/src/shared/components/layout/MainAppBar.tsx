@@ -1,8 +1,10 @@
 import { stores } from "@/app/rootStore";
 import { Routes, Shell } from "@/shared/constants/constants";
-import { AccountCircle, Menu } from "@mui/icons-material";
+import { getEmailInitials } from "@/shared/utils/helpers";
+import { Menu } from "@mui/icons-material";
 import {
   AppBar,
+  Avatar,
   Box,
   IconButton,
   Link,
@@ -104,7 +106,9 @@ const MainAppBar = () => {
               aria-label="Open profile"
               onClick={() => stores.commonStore.setProfileDrawerIsOpen(true)}
             >
-              <AccountCircle />
+              <Avatar sx={Shell.profileAvatarSx}>
+                {getEmailInitials(currentUser.email)}
+              </Avatar>
             </IconButton>
           </>
         )}

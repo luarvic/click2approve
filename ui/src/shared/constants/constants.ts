@@ -342,6 +342,14 @@ export const Shell = {
       whiteSpace: "nowrap",
     },
   } as SxProps<Theme>,
+  profileAvatarSx: {
+    bgcolor: "action.active",
+    color: "background.paper",
+    fontSize: "0.875rem",
+    fontWeight: 600,
+    height: 32,
+    width: 32,
+  } as SxProps<Theme>,
   mainMenuDrawerNavSx: (drawerIsOpen: boolean): SxProps<Theme> => ({
     width: {
       md: drawerIsOpen ? mainMenuDrawerWidth : 0,
