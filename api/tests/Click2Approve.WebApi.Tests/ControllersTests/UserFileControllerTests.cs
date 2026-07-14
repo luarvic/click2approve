@@ -5,6 +5,7 @@ using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.WebApi.Tests.Extensions;
 using Click2Approve.WebApi.Tests.Helpers;
 using Click2Approve.WebApi.Tests.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Click2Approve.WebApi.Tests.ControllersTests;
@@ -25,6 +26,8 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
     [InlineData("GET", "api/file/list")]
     [InlineData("GET", "api/file/download")]
     [InlineData("GET", "api/file/downloadBase64")]
+    [InlineData("GET", "api/file/downloadBase64ForApprovalRequest")]
+    [InlineData("GET", "api/file/downloadBase64ForApprovalRequestTask")]
     [InlineData("DELETE", "api/file")]
     public async Task AllEndpoints_WhenRequestedWithoutBearerToken_ShouldReturnUnauthorized(string httpMethod, string url)
     {
@@ -39,8 +42,9 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
     ///     2. Owners can list their files.
     ///     3. Owners can download their files.
     ///     4. Users cannot download and delete files owned by other users.
-    ///     5. Approvers can download files that were sent to them.
-    ///     6. Owners can delete their files.
+    ///     5. Approvers can download files attached to their task only through the task endpoint.
+    ///     6. Approvers cannot download files added to the request after their task was issued.
+    ///     7. Owners can delete their files.
     /// </summary>
     [Fact]
     public async Task AllEndpoints_WhenRequestedWithBearerToken_ShouldWorkProperly()
@@ -137,10 +141,12 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
         var filesOwnedByRequester = _db.UserFiles
             .Where(x => x.Owner != null && x.Owner.NormalizedEmail == requesterNormalizedEmail)
             .ToList();
+        var taskFile = filesOwnedByRequester.First();
+        var laterRequestFile = filesOwnedByRequester.Single(file => file.Id != taskFile.Id);
         var payload = new ApprovalRequestSubmitDto
         {
             Title = "File access approval",
-            UserFileIds = filesOwnedByRequester.Select(x => x.Id).ToList(),
+            UserFileIds = [taskFile.Id],
             Steps =
             [
                 new ApprovalRequestStepSubmitDto
@@ -153,7 +159,7 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
                         {
                             Type = ApprovalRecipientType.Email,
                             Email = approver.Credentials.Email,
-                            CanViewRequest = true
+                            CanViewRequest = false
                         }
                     ]
                 }
@@ -163,12 +169,37 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
         var requesterLoginData = await _client.LogInAsync(requester.Credentials, CancellationToken.None);
         await _client.SubmitApprovalRequestAsync(requesterLoginData.AccessToken, payload, CancellationToken.None);
 
+        var approvalRequest = _db.ApprovalRequests
+            .Include(request => request.UserFiles)
+            .Include(request => request.Tasks)
+            .Single(request => request.UserFiles.Any(file => file.Id == taskFile.Id));
+        approvalRequest.UserFiles.Add(laterRequestFile);
+        await _db.SaveChangesAsync();
+
+        await _client.DownloadApprovalRequestBase64Async(
+            requesterLoginData.AccessToken,
+            taskFile.Id,
+            approvalRequest.Id,
+            CancellationToken.None);
+
         var approverLoginData = await _client.LogInAsync(approver.Credentials, CancellationToken.None);
-        foreach (var file in filesOwnedByRequester)
-        {
-            await _client.DownloadFileAsync(approverLoginData.AccessToken, file.Id, CancellationToken.None);
-            await _client.DownloadBase64Async(approverLoginData.AccessToken, file.Id, CancellationToken.None);
-        }
+        await Assert.ThrowsAsync<Exception>(() =>
+            _client.DownloadFileAsync(approverLoginData.AccessToken, taskFile.Id, CancellationToken.None));
+        await Assert.ThrowsAsync<Exception>(() =>
+            _client.DownloadBase64Async(approverLoginData.AccessToken, taskFile.Id, CancellationToken.None));
+        await _client.DownloadApprovalRequestTaskBase64Async(
+            approverLoginData.AccessToken,
+            taskFile.Id,
+            Assert.Single(approvalRequest.Tasks).Id,
+            CancellationToken.None);
+        await Assert.ThrowsAsync<Exception>(() =>
+            _client.DownloadApprovalRequestTaskBase64Async(
+                approverLoginData.AccessToken,
+                laterRequestFile.Id,
+                Assert.Single(approvalRequest.Tasks).Id,
+                CancellationToken.None));
+        await Assert.ThrowsAsync<Exception>(() =>
+            _client.DownloadBase64Async(approverLoginData.AccessToken, laterRequestFile.Id, CancellationToken.None));
 
         foreach (var testDataEntry in testData)
         {

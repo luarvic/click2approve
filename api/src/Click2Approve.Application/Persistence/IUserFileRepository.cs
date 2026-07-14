@@ -9,6 +9,8 @@ public interface IUserFileRepository
 {
     Task<UserFile> AddAsync(UserFile userFile, CancellationToken cancellationToken);
     Task<UserFile> GetForDownloadAsync(AppUser user, long id, CancellationToken cancellationToken);
+    Task<UserFile> GetForApprovalRequestDownloadAsync(AppUser user, long id, long approvalRequestId, CancellationToken cancellationToken);
+    Task<UserFile> GetForApprovalRequestTaskDownloadAsync(AppUser user, long id, long approvalRequestTaskId, CancellationToken cancellationToken);
     Task<UserFile> GetForDeleteAsync(AppUser user, long id, CancellationToken cancellationToken);
     Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken);
     Task<List<UserFile>> ListAsync(AppUser user, IReadOnlyCollection<long> ids, CancellationToken cancellationToken);

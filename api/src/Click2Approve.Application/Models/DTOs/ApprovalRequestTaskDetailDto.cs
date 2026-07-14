@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Click2Approve.Application.Models.DTOs;
 
 /// <summary>
@@ -5,5 +7,16 @@ namespace Click2Approve.Application.Models.DTOs;
 /// </summary>
 public class ApprovalRequestTaskDetailDto : ApprovalRequestTaskDto
 {
+    public ApprovalRequestTaskDetailDto()
+    {
+    }
+
+    [SetsRequiredMembers]
+    public ApprovalRequestTaskDetailDto(ApprovalRequestTaskDto source) : base(source)
+    {
+        UserFiles = [];
+    }
+
+    public required List<UserFileDto> UserFiles { get; init; }
     public ApprovalRequestDto? ApprovalRequest { get; init; }
 }

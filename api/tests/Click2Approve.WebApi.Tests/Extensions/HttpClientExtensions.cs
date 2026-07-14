@@ -178,6 +178,48 @@ public static class HttpClientExtensions
     }
 
     /// <summary>
+    /// Downloads a base64 representation of a file attached to an approval request task.
+    /// </summary>
+    public static async Task<string> DownloadApprovalRequestTaskBase64Async(this HttpClient httpClient,
+        string accessToken,
+        long id,
+        long approvalRequestTaskId,
+        CancellationToken cancellationToken)
+    {
+        return await httpClient.SendAsync<string>(HttpMethod.Get,
+            "api/file/downloadBase64ForApprovalRequestTask",
+            new Dictionary<string, string> { { "Authorization", $"Bearer {accessToken}" } },
+            new Dictionary<string, string>
+            {
+                { "id", id.ToString() },
+                { "approvalRequestTaskId", approvalRequestTaskId.ToString() }
+            },
+            null,
+            cancellationToken);
+    }
+
+    /// <summary>
+    /// Downloads a base64 representation of a file attached to an approval request.
+    /// </summary>
+    public static async Task<string> DownloadApprovalRequestBase64Async(this HttpClient httpClient,
+        string accessToken,
+        long id,
+        long approvalRequestId,
+        CancellationToken cancellationToken)
+    {
+        return await httpClient.SendAsync<string>(HttpMethod.Get,
+            "api/file/downloadBase64ForApprovalRequest",
+            new Dictionary<string, string> { { "Authorization", $"Bearer {accessToken}" } },
+            new Dictionary<string, string>
+            {
+                { "id", id.ToString() },
+                { "approvalRequestId", approvalRequestId.ToString() }
+            },
+            null,
+            cancellationToken);
+    }
+
+    /// <summary>
     /// Deletes a file by sending DELETE request to api/file endpoint.
     /// </summary>
     public static async Task<string> DeleteFileAsync(this HttpClient httpClient,

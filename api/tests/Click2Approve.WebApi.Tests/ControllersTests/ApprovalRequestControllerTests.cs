@@ -59,7 +59,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                         {
                             Type = ApprovalRecipientType.Email,
                             Email = approver.Email,
-                            CanViewRequest = true
+                            CanViewRequest = false
                         }
                     ]
                 }
@@ -75,6 +75,17 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
             CancellationToken.None);
         Assert.Single(approvalRequest.Tasks);
         Assert.Single(Assert.Single(approvalRequest.Steps).Tasks);
+
+        var approverClient = _applicationFactory.CreateClient();
+        var approverLogin = await approverClient.LogInAsync(approver, CancellationToken.None);
+        approverClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", approverLogin.AccessToken);
+        var taskResponse = await approverClient.GetAsync($"api/task/{Assert.Single(approvalRequest.Tasks).Id}");
+        Assert.True(taskResponse.IsSuccessStatusCode, await taskResponse.Content.ReadAsStringAsync());
+        var task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
+        Assert.NotNull(task);
+        Assert.Null(task.ApprovalRequest);
+        Assert.Collection(task.UserFiles,
+            file => Assert.Equal("request.txt", file.Name));
     }
 
     [Fact]

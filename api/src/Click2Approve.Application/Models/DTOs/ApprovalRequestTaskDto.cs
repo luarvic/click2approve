@@ -1,4 +1,4 @@
-using Click2Approve.Domain.Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Click2Approve.Application.Models.DTOs;
 
@@ -7,6 +7,29 @@ namespace Click2Approve.Application.Models.DTOs;
 /// </summary>
 public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
 {
+    public ApprovalRequestTaskDto()
+    {
+    }
+
+    [SetsRequiredMembers]
+    protected ApprovalRequestTaskDto(ApprovalRequestTaskDto source)
+    {
+        Id = source.Id;
+        Title = source.Title;
+        Status = source.Status;
+        CreatedAt = source.CreatedAt;
+        CompletedAt = source.CompletedAt;
+        ApprovalRequestId = source.ApprovalRequestId;
+        ApprovalRequestStepId = source.ApprovalRequestStepId;
+        ApprovalRequestStepApproverId = source.ApprovalRequestStepApproverId;
+        ApproverUserId = source.ApproverUserId;
+        ApproverEmail = source.ApproverEmail;
+        ApproverDisplayName = source.ApproverDisplayName;
+        CanViewRequest = source.CanViewRequest;
+        Description = source.Description;
+        Comment = source.Comment;
+    }
+
     public long ApprovalRequestId { get; init; }
     public long ApprovalRequestStepId { get; init; }
     public long? ApprovalRequestStepApproverId { get; init; }

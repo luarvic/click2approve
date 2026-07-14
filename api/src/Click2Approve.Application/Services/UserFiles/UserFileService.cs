@@ -86,6 +86,29 @@ public class UserFileService(
     public async Task<(string Filename, byte[] Bytes)> DownloadAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
         var userFile = await _userFileRepository.GetForDownloadAsync(user, id, cancellationToken);
+        return await ReadAsync(userFile, cancellationToken);
+    }
+
+    /// <summary>
+    /// Downloads a file attached to an approval request the user can access.
+    /// </summary>
+    public async Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestFileAsync(AppUser user, long id, long approvalRequestId, CancellationToken cancellationToken)
+    {
+        var userFile = await _userFileRepository.GetForApprovalRequestDownloadAsync(user, id, approvalRequestId, cancellationToken);
+        return await ReadAsync(userFile, cancellationToken);
+    }
+
+    /// <summary>
+    /// Downloads a file attached to an approval request task the user can access.
+    /// </summary>
+    public async Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestTaskFileAsync(AppUser user, long id, long approvalRequestTaskId, CancellationToken cancellationToken)
+    {
+        var userFile = await _userFileRepository.GetForApprovalRequestTaskDownloadAsync(user, id, approvalRequestTaskId, cancellationToken);
+        return await ReadAsync(userFile, cancellationToken);
+    }
+
+    private async Task<(string Filename, byte[] Bytes)> ReadAsync(UserFile userFile, CancellationToken cancellationToken)
+    {
         return
         (
             userFile.Name,

@@ -24,4 +24,5 @@ public class ApprovalRequestTask : DbEntity
     public DateTime? CompletedAt { get; set; }
     public string? Description { get; set; }
     public string? Comment { get; set; }
+    public List<UserFile> UserFiles { get; set; } = [];
 }

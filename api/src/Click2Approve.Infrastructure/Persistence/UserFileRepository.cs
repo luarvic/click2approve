@@ -10,12 +10,12 @@ namespace Click2Approve.Infrastructure.Persistence;
 /// </summary>
 public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) : IUserFileRepository
 {
-    private readonly ApiDbContext _db = db;
-    private readonly ITenantContext _tenantContext = tenantContext;
+    protected readonly ApiDbContext Db = db;
+    protected readonly ITenantContext TenantContext = tenantContext;
 
     public async Task<UserFile> AddAsync(UserFile userFile, CancellationToken cancellationToken)
     {
-        var entry = await _db.UserFiles.AddAsync(userFile, cancellationToken);
+        var entry = await Db.UserFiles.AddAsync(userFile, cancellationToken);
         return entry.Entity;
     }
 
@@ -26,49 +26,67 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
 
     public async Task<UserFile> GetForDeleteAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
-        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await _db.UserFiles
+        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await Db.UserFiles
             .Include(f => f.ApprovalRequests)
             .ThenInclude(r => r.Tasks)
             .FirstAsync(f => f.TenantId == tenantId && f.Id == id && f.OwnerId == user.Id, cancellationToken);
     }
 
+    public virtual async Task<UserFile> GetForApprovalRequestDownloadAsync(AppUser user, long id, long approvalRequestId, CancellationToken cancellationToken)
+    {
+        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await Db.UserFiles
+            .Include(file => file.Owner)
+            .FirstAsync(file => file.Id == id
+                && file.ApprovalRequests.Any(request => request.Id == approvalRequestId
+                    && request.TenantId == tenantId
+                    && request.CreatedByUserId == user.Id), cancellationToken);
+    }
+
+    public virtual async Task<UserFile> GetForApprovalRequestTaskDownloadAsync(AppUser user, long id, long approvalRequestTaskId, CancellationToken cancellationToken)
+    {
+        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await Db.UserFiles
+            .Include(file => file.Owner)
+            .FirstAsync(file => file.Id == id
+                && file.ApprovalRequestTasks.Any(task => task.Id == approvalRequestTaskId
+                    && task.TenantId == tenantId
+                    && task.ApproverUserId == user.Id), cancellationToken);
+    }
+
     public async Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
-        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await _db.UserFiles
+        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await Db.UserFiles
             .Where(f => f.TenantId == tenantId && f.OwnerId == user.Id)
             .ToListAsync(cancellationToken);
     }
 
     public async Task<List<UserFile>> ListAsync(AppUser user, IReadOnlyCollection<long> ids, CancellationToken cancellationToken)
     {
-        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await _db.UserFiles
+        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await Db.UserFiles
             .Where(f => f.TenantId == tenantId && ids.Contains(f.Id) && f.OwnerId == user.Id)
             .ToListAsync(cancellationToken);
     }
 
     public async Task<int> CountAsync(AppUser user, CancellationToken cancellationToken)
     {
-        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await _db.UserFiles.CountAsync(f => f.TenantId == tenantId && f.OwnerId == user.Id, cancellationToken);
+        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await Db.UserFiles.CountAsync(f => f.TenantId == tenantId && f.OwnerId == user.Id, cancellationToken);
     }
 
     public void Remove(UserFile userFile)
     {
-        _db.UserFiles.Remove(userFile);
+        Db.UserFiles.Remove(userFile);
     }
 
     private async Task<UserFile> GetForDownloadCoreAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
-        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await _db.UserFiles
+        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await Db.UserFiles
             .Include(f => f.Owner)
-            .FirstAsync(f => f.Id == id
-                && ((f.TenantId == tenantId && f.OwnerId == user.Id)
-                    || f.ApprovalRequests.Any(r => r.Tasks.Any(t => t.TenantId == tenantId
-                        && t.ApproverUserId == user.Id))),
-                cancellationToken);
+            .FirstAsync(f => f.Id == id && f.TenantId == tenantId && f.OwnerId == user.Id, cancellationToken);
     }
 }

@@ -309,7 +309,7 @@ public class ApprovalRequestService(
                 reviewedHeadingTemplate,
                 string.Format(reviewedMessageTemplate,
                     user.Email!.ToLower(),
-                    string.Join(", ", approvalRequestTask.ApprovalRequest.UserFiles.Select(f => f.Name))),
+                    string.Join(", ", approvalRequestTask.UserFiles.Select(f => f.Name))),
                 reviewedLink,
                 reviewedLinkText)
         }, cancellationToken);
@@ -397,6 +397,24 @@ public class ApprovalRequestService(
         };
     }
 
+    private static ApprovalRequestDto MapTaskRequestResponse(ApprovalRequest approvalRequest)
+    {
+        return new ApprovalRequestDto
+        {
+            Id = approvalRequest.Id,
+            Title = approvalRequest.Title,
+            UserFiles = [],
+            Steps = [],
+            Description = approvalRequest.Description,
+            CreatedAt = approvalRequest.CreatedAt,
+            CompletedAt = approvalRequest.CompletedAt,
+            CreatedByUserId = approvalRequest.CreatedByUserId,
+            CreatedByEmail = approvalRequest.CreatedByEmail,
+            Status = approvalRequest.Status,
+            Tasks = []
+        };
+    }
+
     private static ApprovalRequestStepDto MapResponse(ApprovalRequestStep step)
     {
         return new ApprovalRequestStepDto
@@ -444,23 +462,10 @@ public class ApprovalRequestService(
         };
     }
 
-    private static ApprovalRequestTaskDetailDto MapDetailResponse(ApprovalRequestTask task) => new()
+    private static ApprovalRequestTaskDetailDto MapDetailResponse(ApprovalRequestTask task) => new(MapResponse(task))
     {
-        Id = task.Id,
-        Title = task.Title,
-        ApprovalRequestId = task.ApprovalRequestId,
-        ApprovalRequestStepId = task.ApprovalRequestStepId,
-        ApprovalRequestStepApproverId = task.ApprovalRequestStepApproverId,
-        ApproverUserId = task.ApproverUserId,
-        ApproverEmail = task.ApproverEmail,
-        ApproverDisplayName = task.ApproverDisplayName,
-        CanViewRequest = task.CanViewRequest,
-        Status = task.Status,
-        CreatedAt = task.CreatedAt,
-        CompletedAt = task.CompletedAt,
-        Description = task.Description,
-        Comment = task.Comment,
-        ApprovalRequest = task.CanViewRequest ? MapResponse(task.ApprovalRequest) : null
+        UserFiles = [.. task.UserFiles.Select(MapResponse)],
+        ApprovalRequest = task.CanViewRequest ? MapTaskRequestResponse(task.ApprovalRequest) : null
     };
 
     private static UserFileDto MapResponse(UserFile userFile)
@@ -581,7 +586,8 @@ public class ApprovalRequestService(
                 CanViewRequest = resolution.CanViewRequest,
                 TenantId = resolution.TenantId,
                 Status = ApprovalRequestTaskStatus.Pending,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                UserFiles = [.. approvalRequest.UserFiles]
             }, cancellationToken);
             approvalRequest.Tasks.Add(task);
             step.Tasks.Add(task);

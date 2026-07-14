@@ -10,65 +10,53 @@ namespace Click2Approve.Infrastructure.Persistence;
 /// </summary>
 public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantContext) : IApprovalRequestRepository
 {
-    private readonly ApiDbContext _db = db;
-    private readonly ITenantContext _tenantContext = tenantContext;
+    protected readonly ApiDbContext Db = db;
+    protected readonly ITenantContext TenantContext = tenantContext;
 
-    public async Task<ApprovalRequest> AddAsync(ApprovalRequest approvalRequest, CancellationToken cancellationToken)
+    public virtual async Task<ApprovalRequest> AddAsync(ApprovalRequest approvalRequest, CancellationToken cancellationToken)
     {
-        var entry = await _db.ApprovalRequests.AddAsync(approvalRequest, cancellationToken);
+        var entry = await Db.ApprovalRequests.AddAsync(approvalRequest, cancellationToken);
         return entry.Entity;
     }
 
-    public async Task<ApprovalRequest> GetForDeleteAsync(AppUser user, long id, CancellationToken cancellationToken)
+    public virtual async Task<ApprovalRequest> GetForDeleteAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
-        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await _db.ApprovalRequests
-            .Include(r => r.Tasks)
-            .Include(r => r.Steps)
-                .ThenInclude(s => s.Approvers)
-            .Include(r => r.UserFiles)
+        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await IncludeDetails(Db.ApprovalRequests)
             .FirstAsync(r => r.TenantId == tenantId && r.Id == id && r.CreatedByUserId == user.Id, cancellationToken);
     }
 
-    public async Task<ApprovalRequest> GetForUpdateAsync(AppUser user, long id, CancellationToken cancellationToken)
+    public virtual async Task<ApprovalRequest> GetForUpdateAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
-        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await _db.ApprovalRequests
-            .Include(r => r.UserFiles)
-            .Include(r => r.Tasks)
-            .Include(r => r.Steps)
-                .ThenInclude(s => s.Approvers)
-            .Include(r => r.Steps)
-                .ThenInclude(s => s.Tasks)
+        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await IncludeDetails(Db.ApprovalRequests)
             .FirstAsync(r => r.TenantId == tenantId && r.Id == id && r.CreatedByUserId == user.Id, cancellationToken);
     }
 
-    public async Task<ApprovalRequest> GetAsync(AppUser user, long id, CancellationToken cancellationToken)
+    public virtual async Task<ApprovalRequest> GetAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
-        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await _db.ApprovalRequests
+        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await IncludeDetails(Db.ApprovalRequests)
             .AsNoTracking()
-            .Include(r => r.UserFiles)
-            .Include(r => r.Tasks)
-            .Include(r => r.Steps)
-                .ThenInclude(s => s.Approvers)
-            .Include(r => r.Steps)
-                .ThenInclude(s => s.Tasks)
-            .FirstAsync(r => r.TenantId == tenantId && r.Id == id && r.CreatedByUserId == user.Id, cancellationToken);
+            .FirstAsync(r => r.Id == id
+                && ((r.TenantId == tenantId && r.CreatedByUserId == user.Id)
+                    || r.Tasks.Any(task => task.ApproverUserId == user.Id
+                    && task.TenantId == tenantId
+                    && task.CanViewRequest)), cancellationToken);
     }
 
     public async Task<IList<ApprovalRequest>> ListAsync(AppUser user, long userFileId, CancellationToken cancellationToken)
     {
-        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await _db.ApprovalRequests
+        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await Db.ApprovalRequests
             .Where(r => r.TenantId == tenantId && r.UserFiles.Any(f => f.Id == userFileId))
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<ApprovalRequest>> ListAsync(AppUser user, CancellationToken cancellationToken)
+    public virtual async Task<List<ApprovalRequest>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
-        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await _db.ApprovalRequests
+        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await Db.ApprovalRequests
             .AsNoTracking()
             .Where(r => r.TenantId == tenantId && r.CreatedByUserId == user.Id)
             .ToListAsync(cancellationToken);
@@ -76,8 +64,8 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
 
     public async Task<int> CountAsync(AppUser user, DateTime start, DateTime end, CancellationToken cancellationToken)
     {
-        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await _db.ApprovalRequests.CountAsync(r => r.TenantId == tenantId
+        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await Db.ApprovalRequests.CountAsync(r => r.TenantId == tenantId
             && r.CreatedByUserId == user.Id
             && r.CreatedAt >= start
             && r.CreatedAt < end, cancellationToken);
@@ -85,6 +73,14 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
 
     public void Remove(ApprovalRequest approvalRequest)
     {
-        _db.ApprovalRequests.Remove(approvalRequest);
+        Db.ApprovalRequests.Remove(approvalRequest);
     }
+
+    protected static IQueryable<ApprovalRequest> IncludeDetails(IQueryable<ApprovalRequest> requests) => requests
+        .Include(request => request.UserFiles)
+        .Include(request => request.Tasks)
+        .Include(request => request.Steps)
+            .ThenInclude(step => step.Approvers)
+        .Include(request => request.Steps)
+            .ThenInclude(step => step.Tasks);
 }
