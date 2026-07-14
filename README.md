@@ -195,4 +195,3 @@ Click2Approve is a registered trademark of Rostislav Semenov in the United
 States. The MIT License applies to the software, but does not grant permission
 to use the Click2Approve name, logo, or trademarks except as required to
 identify this software.
-
