@@ -1,6 +1,6 @@
 import { stores } from "@/app/rootStore";
 import { TenantType } from "@/features/tenants/models/tenant";
-import { Api, Lists, Routes, Shell } from "@/shared/constants/constants";
+import { Api, Lists, Refresh, Routes, Shell } from "@/shared/constants/constants";
 import {
   Business,
   ChevronLeft,
@@ -53,6 +53,8 @@ const MainMenuDrawer = () => {
     currentTenant?.type === TenantType.Business &&
     currentTenant?.role !== undefined;
   const currentTenantId = stores.tenantStore.currentTenantId;
+  const tenantScopeIsReady =
+    stores.tenantStore.hasLoaded && currentTenantId !== null;
   const tenantPath = (path: string) =>
     currentTenantId ? Routes.tenantPath(currentTenantId, path) : "/";
   const inboxPath = tenantPath(Routes.inboxPath);
@@ -64,6 +66,8 @@ const MainMenuDrawer = () => {
     location.pathname === "/" ||
     location.pathname.startsWith(inboxPath);
   const outboxIsSelected = location.pathname.startsWith(outboxPath);
+  const numberOfUncompletedTasks =
+    stores.approvalRequestTaskStore.numberOfUncompletedTasks;
   const organizationsIsSelected = /^\/tenants(?:\/[^/]+)?$/.test(
     location.pathname
   );
@@ -79,6 +83,22 @@ const MainMenuDrawer = () => {
       initializedDesktopDrawer.current = true;
     }
   }, [currentUser, isDesktop]);
+
+  useEffect(() => {
+    if (!currentUser || !tenantScopeIsReady) {
+      return;
+    }
+
+    stores.approvalRequestTaskStore.loadUncompletedCount();
+    if (Refresh.uncompletedTasksMs <= 0) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      stores.approvalRequestTaskStore.loadUncompletedCount();
+    }, Refresh.uncompletedTasksMs);
+    return () => window.clearInterval(intervalId);
+  }, [currentUser, tenantScopeIsReady]);
 
   const closeTemporaryDrawer = () => {
     if (!isDesktop) {
@@ -130,7 +150,16 @@ const MainMenuDrawer = () => {
             <ListItemIcon sx={Lists.itemIconSx}>
               <Inbox />
             </ListItemIcon>
-            <ListItemText primary="Incoming" />
+            <ListItemText
+              primary={
+                numberOfUncompletedTasks > 0
+                  ? `Inbox (${numberOfUncompletedTasks})`
+                  : "Inbox"
+              }
+              primaryTypographyProps={{
+                fontWeight: numberOfUncompletedTasks > 0 ? "bold" : undefined,
+              }}
+            />
           </ListItemButton>
         </ListItem>
         <ListItem key="outgoing" disablePadding>
@@ -144,7 +173,7 @@ const MainMenuDrawer = () => {
             <ListItemIcon sx={Lists.itemIconSx}>
               <Outbox />
             </ListItemIcon>
-            <ListItemText primary="Outgoing" />
+            <ListItemText primary="Outbox" />
           </ListItemButton>
         </ListItem>
         {templatesIsVisible && (

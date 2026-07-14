@@ -5,6 +5,7 @@ import { beforeAll, describe, expect, test, vi } from "vitest";
 vi.mock("@/features/product/api/productApi", () => ({
   getProductInfo: vi.fn().mockResolvedValue({
     edition: "OpenSource",
+    requiresConfirmedEmail: false,
     capabilities: {
       tenants: false,
     },

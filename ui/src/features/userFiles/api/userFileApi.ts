@@ -36,3 +36,33 @@ export const downloadUserFileBase64 = async (
     return null;
   }
 };
+
+export const downloadApprovalRequestFileBase64 = async (
+  id: number,
+  approvalRequestId: number,
+): Promise<string | null> => {
+  try {
+    const { data } = await axios.get(
+      `api/file/downloadBase64ForApprovalRequest?id=${id}&approvalRequestId=${approvalRequestId}`,
+    );
+    return data;
+  } catch (e) {
+    toast.error(getUserFriendlyApiErrorMessage(e));
+    return null;
+  }
+};
+
+export const downloadApprovalRequestTaskFileBase64 = async (
+  id: number,
+  approvalRequestTaskId: number,
+): Promise<string | null> => {
+  try {
+    const { data } = await axios.get(
+      `api/file/downloadBase64ForApprovalRequestTask?id=${id}&approvalRequestTaskId=${approvalRequestTaskId}`,
+    );
+    return data;
+  } catch (e) {
+    toast.error(getUserFriendlyApiErrorMessage(e));
+    return null;
+  }
+};

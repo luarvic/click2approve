@@ -3,10 +3,13 @@ import type { Theme } from "@mui/material/styles";
 import passwordValidator from "password-validator";
 import type { CSSProperties } from "react";
 
-const uncompletedTasksRefreshSecondsDefault = 30;
+const refreshSecondsDefault = 30;
+const gridRefreshSeconds = Number(
+  import.meta.env.VITE_GRID_REFRESH_SECONDS ?? String(refreshSecondsDefault),
+);
 const uncompletedTasksRefreshSeconds = Number(
   import.meta.env.VITE_UNCOMPLETED_TASKS_REFRESH_SECONDS ??
-  String(uncompletedTasksRefreshSecondsDefault),
+  String(refreshSecondsDefault),
 );
 const appBarHeight = 64;
 const mainMenuDrawerWidth = 240;
@@ -29,18 +32,19 @@ export const Api = {
   baseUri: import.meta.env.VITE_API_BASE_URI,
   uiBaseUri: import.meta.env.VITE_UI_BASE_URI,
   timeoutMs: 10000,
-  emailServiceIsEnabled:
-    import.meta.env.VITE_EMAIL_SERVICE_IS_ENABLED === "true",
 } as const;
 
-export const Tasks = {
-  uncompletedRefreshSeconds:
-    Number.isFinite(uncompletedTasksRefreshSeconds) &&
-      uncompletedTasksRefreshSeconds > 0
-      ? uncompletedTasksRefreshSeconds
-      : uncompletedTasksRefreshSecondsDefault,
-  get uncompletedRefreshMs() {
-    return this.uncompletedRefreshSeconds * 1000;
+const toRefreshSeconds = (value: number): number =>
+  Number.isFinite(value) && value >= 0 ? value : refreshSecondsDefault;
+
+export const Refresh = {
+  gridSeconds: toRefreshSeconds(gridRefreshSeconds),
+  uncompletedTasksSeconds: toRefreshSeconds(uncompletedTasksRefreshSeconds),
+  get gridMs() {
+    return this.gridSeconds * 1000;
+  },
+  get uncompletedTasksMs() {
+    return this.uncompletedTasksSeconds * 1000;
   },
 } as const;
 
@@ -67,14 +71,17 @@ export const GridToolbar = {
 export const Pages = {
   containerSx: { p: 2 } as SxProps<Theme>,
   titleSx: { mb: 2 } as SxProps<Theme>,
-  tenantWelcomeContainerSx: {
-    p: 3,
-    maxWidth: 560,
-  } as SxProps<Theme>,
   userSettingsContainerSx: {
     display: "flex",
     flexDirection: "column",
   } as SxProps<Theme>,
+  centeredMessageContainerSx: {
+    mt: 8,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  } as SxProps<Theme>,
+  centeredMessageMaxWidth: "xs",
   backdropLoadingSx: {
     color: "#fff",
     zIndex: (theme) => theme.zIndex.modal + 1,
@@ -92,6 +99,19 @@ export const AuthForms = {
   formSx: { mt: 1 } as SxProps<Theme>,
   inputVariant: "outlined",
   submitButtonSx: { mt: 2, mb: 2 } as SxProps<Theme>,
+} as const;
+
+export const Information = {
+  emailVerificationTitle: "Verify your email address",
+  emailVerificationMessage:
+    "We have sent a verification link to your email address. Click the link to continue.",
+  emailVerificationResultTitle: "Email address verification",
+  emailVerificationSuccessMessage:
+    "Your email address has been verified. {link} to continue.",
+  emailVerificationFailureMessage:
+    "Your email address verification failed. Try again or {link}.",
+  passwordResetTitle: "Password reset",
+  passwordResetMessage: "A reset password link was sent to your email address.",
 } as const;
 
 export const InputFields = {
@@ -322,10 +342,6 @@ export const Shell = {
       whiteSpace: "nowrap",
     },
   } as SxProps<Theme>,
-  notificationPopoverTextSx: {
-    p: 2,
-    maxWidth: 280,
-  } as SxProps<Theme>,
   mainMenuDrawerNavSx: (drawerIsOpen: boolean): SxProps<Theme> => ({
     width: {
       md: drawerIsOpen ? mainMenuDrawerWidth : 0,
@@ -425,14 +441,6 @@ export const Menus = {
   transformOrigin: {
     horizontal: 40,
     vertical: "top",
-  } as PopoverOrigin,
-  notificationPopoverAnchorOrigin: {
-    vertical: "bottom",
-    horizontal: "right",
-  } as PopoverOrigin,
-  notificationPopoverTransformOrigin: {
-    vertical: "top",
-    horizontal: "right",
   } as PopoverOrigin,
 } as const;
 

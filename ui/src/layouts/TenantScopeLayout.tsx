@@ -24,10 +24,6 @@ const TenantScopeLayout = () => {
     }
   }, [parsedTenantId, tenantScopeIsAvailable]);
 
-  if (!stores.userAccountStore.currentUser) {
-    return <Navigate to="/signIn" />;
-  }
-
   if (!stores.tenantStore.hasLoaded) {
     return <LoadingOverlay />;
   }

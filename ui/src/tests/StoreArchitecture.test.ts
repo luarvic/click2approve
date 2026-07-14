@@ -68,6 +68,7 @@ const approvalRequestTask = (
   id,
   title: `Task ${id}`,
   approvalRequest: approvalRequest(id),
+  userFiles: [],
   approvalRequestId: id,
   approvalRequestStepId: id,
   approverEmail: "approver@example.com",
@@ -154,6 +155,21 @@ describe("store architecture", () => {
     expect(store.getDetail(1)).toEqual(first);
   });
 
+  test("sequential approval request detail loads fetch the latest record", async () => {
+    vi.mocked(approvalRequestApi.getApprovalRequest)
+      .mockClear()
+      .mockResolvedValueOnce(approvalRequest(1))
+      .mockResolvedValueOnce({ ...approvalRequest(1), title: "Updated request" });
+    const store = new ApprovalRequestStore();
+
+    await store.loadDetails(1);
+    const latest = await store.loadDetails(1);
+
+    expect(approvalRequestApi.getApprovalRequest).toHaveBeenCalledTimes(2);
+    expect(latest?.title).toBe("Updated request");
+    expect(store.getDetail(1)?.title).toBe("Updated request");
+  });
+
   test("incoming tasks retain every status returned by the API", async () => {
     vi.mocked(approvalRequestTaskApi.listApprovalRequestTasks).mockResolvedValue([
       approvalRequestTask(1, ApprovalRequestTaskStatus.Pending),
@@ -186,6 +202,21 @@ describe("store architecture", () => {
     expect(approvalRequestTaskApi.getApprovalRequestTask).toHaveBeenCalledOnce();
     expect(first).toBe(second);
     expect(store.getDetail(1)).toEqual(first);
+  });
+
+  test("sequential task detail loads fetch the latest record", async () => {
+    vi.mocked(approvalRequestTaskApi.getApprovalRequestTask)
+      .mockClear()
+      .mockResolvedValueOnce(approvalRequestTask(1, ApprovalRequestTaskStatus.Pending))
+      .mockResolvedValueOnce(approvalRequestTask(1, ApprovalRequestTaskStatus.Approved));
+    const store = new ApprovalRequestTaskStore();
+
+    await store.loadDetails(1);
+    const latest = await store.loadDetails(1);
+
+    expect(approvalRequestTaskApi.getApprovalRequestTask).toHaveBeenCalledTimes(2);
+    expect(latest?.status).toBe(ApprovalRequestTaskStatus.Approved);
+    expect(store.getDetail(1)?.status).toBe(ApprovalRequestTaskStatus.Approved);
   });
 
   test("signing out clears all session-scoped stores", () => {

@@ -1,5 +1,6 @@
 import { stores } from "@/app/rootStore";
 import { AuthForms, Pages } from "@/shared/constants/constants";
+import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import {
   Box,
   FormControlLabel,
@@ -9,9 +10,9 @@ import {
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { Navigate } from "react-router-dom";
 
 const UserSettingsPage = () => {
+  usePageTitle("User settings");
   const handleColorModeChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -20,7 +21,7 @@ const UserSettingsPage = () => {
     );
   };
 
-  return stores.userAccountStore.currentUser ? (
+  return (
     <Box sx={Pages.userSettingsContainerSx}>
       <Typography component="h1" variant="h5">
         User settings
@@ -39,8 +40,6 @@ const UserSettingsPage = () => {
         </FormGroup>
       </Box>
     </Box>
-  ) : (
-    <Navigate to="/signIn" />
   );
 };
 

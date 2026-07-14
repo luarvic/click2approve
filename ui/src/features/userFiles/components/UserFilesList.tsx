@@ -9,6 +9,7 @@ interface UserFilesListProps {
   userFiles?: UserFile[];
   direction: "row" | "row-reverse" | "column" | "column-reverse" | undefined;
   sx?: SxProps<Theme>;
+  onDownload?: (userFile: UserFile) => void;
 }
 
 const userFileLinkSx: SxProps<Theme> = {
@@ -20,6 +21,7 @@ const UserFilesList: React.FC<UserFilesListProps> = ({
   userFiles,
   direction,
   sx,
+  onDownload,
 }) => {
   return (
     <Stack
@@ -36,7 +38,11 @@ const UserFilesList: React.FC<UserFilesListProps> = ({
             component="button"
             onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
               event.preventDefault();
-              downloadUserFile(userFile);
+              if (onDownload) {
+                onDownload(userFile);
+              } else {
+                downloadUserFile(userFile);
+              }
             }}
             sx={userFileLinkSx}
           >

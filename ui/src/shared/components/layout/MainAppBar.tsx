@@ -1,21 +1,17 @@
 import { stores } from "@/app/rootStore";
-import { Menus, Routes, Shell, Tasks } from "@/shared/constants/constants";
-import { AccountCircle, Menu, Notifications } from "@mui/icons-material";
+import { Routes, Shell } from "@/shared/constants/constants";
+import { AccountCircle, Menu } from "@mui/icons-material";
 import {
   AppBar,
-  Badge,
   Box,
-  Button,
   IconButton,
   Link,
   MenuItem,
-  Popover,
   Select,
   Toolbar,
   Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const baseUrl = import.meta.env.BASE_URL.endsWith("/")
@@ -23,20 +19,9 @@ const baseUrl = import.meta.env.BASE_URL.endsWith("/")
   : `${import.meta.env.BASE_URL}/`;
 const logoSrc = `${baseUrl}logo.svg`;
 
-const authRoutePaths = new Set([
-  "/confirmEmail",
-  "/forgotPassword",
-  "/resendConfirmationEmail",
-  "/resetPassword",
-  "/signIn",
-  "/signUp",
-]);
-
 const MainAppBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [notificationAnchor, setNotificationAnchor] =
-    useState<HTMLElement | null>(null);
   const currentUser = stores.userAccountStore.currentUser;
   const mainMenuDrawerIsOpen = stores.commonStore.mainMenuDrawerIsOpen;
   const profileDrawerIsOpen = stores.commonStore.profileDrawerIsOpen;
@@ -45,38 +30,10 @@ const MainAppBar = () => {
     stores.productStore.tenantsAreEnabled &&
     Boolean(currentUser) &&
     stores.tenantStore.tenants.length > 0;
-  const tenantScopeIsReady =
-    stores.tenantStore.hasLoaded && stores.tenantStore.currentTenantId !== null;
-  const signInButtonIsVisible =
-    !currentUser && !authRoutePaths.has(location.pathname);
   const currentTenantId = stores.tenantStore.currentTenantId;
   const inboxPath = currentTenantId
     ? Routes.tenantPath(currentTenantId, Routes.inboxPath)
     : "/";
-  const inboxIsOpen =
-    location.pathname === "/" || location.pathname === inboxPath;
-  const numberOfUncompletedTasks =
-    stores.approvalRequestTaskStore.numberOfUncompletedTasks;
-
-  useEffect(() => {
-    if (!currentUser || !tenantScopeIsReady) {
-      return;
-    }
-
-    stores.approvalRequestTaskStore.loadUncompletedCount();
-    if (Tasks.uncompletedRefreshMs <= 0) {
-      return;
-    }
-
-    const intervalId = window.setInterval(() => {
-      stores.approvalRequestTaskStore.loadUncompletedCount();
-      if (inboxIsOpen) {
-        stores.approvalRequestTaskStore.loadIncoming();
-      }
-    }, Tasks.uncompletedRefreshMs);
-    return () => window.clearInterval(intervalId);
-  }, [currentUser, inboxIsOpen, tenantScopeIsReady]);
-
   return (
     <AppBar
       position="fixed"
@@ -140,37 +97,8 @@ const MainAppBar = () => {
             ))}
           </Select>
         )}
-        {signInButtonIsVisible ? (
-          <Button
-            variant="outlined"
-            onClick={() => navigate("/signIn")}
-          >
-            Sign in
-          </Button>
-        ) : currentUser ? (
+        {currentUser && (
           <>
-            <IconButton
-              color="inherit"
-              aria-label="Notifications"
-              onClick={(event) => setNotificationAnchor(event.currentTarget)}
-            >
-              <Badge badgeContent={numberOfUncompletedTasks} color="error">
-                <Notifications />
-              </Badge>
-            </IconButton>
-            <Popover
-              open={Boolean(notificationAnchor)}
-              anchorEl={notificationAnchor}
-              onClose={() => setNotificationAnchor(null)}
-              anchorOrigin={Menus.notificationPopoverAnchorOrigin}
-              transformOrigin={Menus.notificationPopoverTransformOrigin}
-            >
-              <Typography sx={Shell.notificationPopoverTextSx}>
-                {numberOfUncompletedTasks === 1
-                  ? "You have 1 incoming request that needs to be reviewed."
-                  : `You have ${numberOfUncompletedTasks} incoming requests that need to be reviewed.`}
-              </Typography>
-            </Popover>
             <IconButton
               color="inherit"
               aria-label="Open profile"
@@ -179,7 +107,7 @@ const MainAppBar = () => {
               <AccountCircle />
             </IconButton>
           </>
-        ) : null}
+        )}
       </Toolbar>
     </AppBar>
   );

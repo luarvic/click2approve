@@ -5,10 +5,6 @@ import { observer } from "mobx-react-lite";
 import { Navigate } from "react-router-dom";
 
 const TenantHomeRedirect = () => {
-  if (!stores.userAccountStore.currentUser) {
-    return <Navigate to="/signIn" replace />;
-  }
-
   if (!stores.tenantStore.hasLoaded) {
     return <LoadingOverlay />;
   }
