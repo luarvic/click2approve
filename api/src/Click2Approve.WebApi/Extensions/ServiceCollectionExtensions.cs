@@ -37,7 +37,7 @@ public static class ServiceCollectionExtensions
             {
                 options.User.RequireUniqueEmail = true;
                 options.Password.RequiredLength = configuration.GetValue<int>("Identity:Password:RequiredLength");
-                options.SignIn.RequireConfirmedEmail = configuration.GetValue<bool>("Email:IsEnabled");
+                options.SignIn.RequireConfirmedEmail = configuration.GetValue<bool>("Identity:RequireConfirmedEmail");
                 options.Lockout.MaxFailedAccessAttempts = configuration.GetValue<int>("Identity:Lockout:MaxFailedAccessAttempts");
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(configuration.GetValue<int>("Identity:Lockout:LockoutTimeSpanInMinutes"));
                 options.Lockout.AllowedForNewUsers = configuration.GetValue<bool>("Identity:Lockout:AllowedForNewUsers");
@@ -69,7 +69,7 @@ public static class ServiceCollectionExtensions
         var emailServiceIsEnabled = emailSettings.GetValue<bool>("IsEnabled");
         if (!emailServiceIsEnabled)
         {
-            services.AddTransient<IEmailService, EmailServiceStub>();
+            services.AddSingleton<IEmailService, EmailServiceStub>();
         }
         else
         {

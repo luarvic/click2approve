@@ -23,6 +23,7 @@ public class ProductController(IConfiguration configuration) : ControllerBase
         return Ok(new ProductInfoDto
         {
             Edition = edition,
+            RequiresConfirmedEmail = _configuration.GetValue<bool>("Identity:RequireConfirmedEmail"),
             Capabilities = new ProductCapabilitiesDto
             {
                 Tenants = _configuration.GetValue<bool>("Product:Capabilities:Tenants"),
