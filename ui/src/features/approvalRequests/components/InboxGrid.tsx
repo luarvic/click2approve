@@ -82,6 +82,7 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskId }) => {
         rows={stores.approvalRequestTaskStore.tasks}
         columns={columns}
         rowSelectionModel={currentTaskId === undefined ? [] : [currentTaskId]}
+        hideFooterSelectedRowCount
         onRowClick={(params) => {
           const tenantId = stores.tenantStore.currentTenantId;
           const path = `/inbox/${(params.row as ApprovalRequestTaskListItem).id}`;

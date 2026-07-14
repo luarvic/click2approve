@@ -125,6 +125,7 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeId }) => {
         rows={stores.employeeStore.employees}
         columns={columns}
         rowSelectionModel={currentEmployeeId === undefined ? [] : [currentEmployeeId]}
+        hideFooterSelectedRowCount
         onRowClick={(params) =>
           navigate(
             Routes.tenantPath(tenantId!, `/employees/${(params.row as Employee).id}`),

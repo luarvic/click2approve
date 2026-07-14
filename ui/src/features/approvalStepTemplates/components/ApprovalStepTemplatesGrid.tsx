@@ -76,6 +76,7 @@ const ApprovalStepTemplatesGrid: React.FC<ApprovalStepTemplatesGridProps> = ({
         rowSelectionModel={
           currentTemplateId === undefined ? [] : [currentTemplateId]
         }
+        hideFooterSelectedRowCount
         onRowClick={(params) =>
           navigate(Routes.tenantPath(
             tenantId!,

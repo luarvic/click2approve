@@ -75,6 +75,7 @@ const TeamsGrid: React.FC<TeamsGridProps> = ({ currentTeamId }) => {
         rows={stores.teamStore.teams}
         columns={columns}
         rowSelectionModel={currentTeamId === undefined ? [] : [currentTeamId]}
+        hideFooterSelectedRowCount
         onRowClick={(params) =>
           navigate(Routes.tenantPath(tenantId!, `/teams/${(params.row as Team).id}`))
         }

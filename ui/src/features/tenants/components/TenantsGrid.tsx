@@ -82,6 +82,7 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantId }) => {
         rows={businessTenants}
         columns={columns}
         rowSelectionModel={currentTenantId === undefined ? [] : [currentTenantId]}
+        hideFooterSelectedRowCount
         onRowClick={(params) => navigate(`/tenants/${(params.row as Tenant).id}`)}
         columnVisibilityModel={{
           role: !isSmallDisplay,

@@ -112,6 +112,7 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestId }) => 
               : []
             : [currentApprovalRequestId]
         }
+        hideFooterSelectedRowCount
         onRowClick={(params) => {
           const tenantId = stores.tenantStore.currentTenantId;
           const path = `/outbox/${(params.row as ApprovalRequestListItem).id}`;
