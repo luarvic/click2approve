@@ -4,6 +4,7 @@ import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approv
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
+import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { getHumanReadableRelativeDate } from "@/shared/utils/helpers";
 import { Add } from "@mui/icons-material";
 import { Box, Button, Chip, LinearProgress } from "@mui/material";
@@ -14,7 +15,6 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface OutboxGridProps {
@@ -43,13 +43,11 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestId }) => 
     }
   };
 
-  useEffect(() => {
-    if (!tenantScopeIsReady) {
-      return;
+  useGridRefresh(() => {
+    if (tenantScopeIsReady) {
+      return stores.approvalRequestStore.load();
     }
-
-    void stores.approvalRequestStore.load();
-  }, [tenantScopeIsReady]);
+  }, tenantScopeIsReady);
 
   const customToolbar = () => {
     return (

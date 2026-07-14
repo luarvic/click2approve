@@ -4,12 +4,14 @@ import { UpsertTeamRequest } from "@/features/teams/models/team";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
+import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { observer } from "mobx-react-lite";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 
 const TeamEditorPage = () => {
   const navigate = useNavigate();
   const { teamId } = useParams<{ teamId: string }>();
+  usePageTitle(teamId === undefined ? "New team" : "Edit team");
   const tenantId = stores.tenantStore.currentTenantId;
   const teamsPath = tenantId ? Routes.tenantPath(tenantId, "/teams") : "/";
   const isNewTeam = teamId === undefined;
@@ -17,7 +19,6 @@ const TeamEditorPage = () => {
   const team = stores.teamStore.teams.find((item) => item.id === parsedTeamId);
   const canEdit = stores.tenantStore.currentTenant?.role === EmployeeRole.Admin || stores.tenantStore.currentTenant?.isOwner === true;
 
-  if (!stores.userAccountStore.currentUser) return <Navigate to="/signIn" />;
   if (!tenantId) return <Navigate to={teamsPath} />;
   if (!isNewTeam && !team) return <LoadingOverlay />;
 

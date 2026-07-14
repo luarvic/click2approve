@@ -1,6 +1,7 @@
 import { stores } from "@/app/rootStore";
 import { Credentials } from "@/features/identity/models/credentials";
 import { AuthForms, Routes, Validation } from "@/shared/constants/constants";
+import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { validatePassword } from "@/shared/utils/validators";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -23,6 +24,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const ResetPasswordPage = () => {
+  usePageTitle("Reset password");
   const [showPassword, setShowPassword] = React.useState(false);
   const [showPasswordConfirmation, setShowPasswordConfirmation] =
     React.useState(false);

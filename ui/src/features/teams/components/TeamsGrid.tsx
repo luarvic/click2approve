@@ -4,6 +4,7 @@ import { EmployeeRole } from "@/features/tenants/models/tenant";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
+import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { Add } from "@mui/icons-material";
 import { Box, Button, LinearProgress } from "@mui/material";
 import {
@@ -36,11 +37,16 @@ const TeamsGrid: React.FC<TeamsGridProps> = ({ currentTeamId }) => {
   useEffect(() => {
     stores.teamStore.clear();
     stores.employeeStore.clear();
-    if (tenantId) {
-      stores.teamStore.load(tenantId);
-      stores.employeeStore.load(tenantId);
-    }
   }, [tenantId]);
+
+  useGridRefresh(() => {
+    if (tenantId) {
+      return Promise.all([
+        stores.teamStore.load(tenantId, true),
+        stores.employeeStore.load(tenantId, true),
+      ]).then(() => undefined);
+    }
+  }, tenantId);
 
   const customToolbar = () => {
     return (

@@ -2,6 +2,7 @@ import { stores } from "@/app/rootStore";
 import {
   cancelApprovalRequest,
   deleteApprovalRequest,
+  listApprovalRequestShares,
   replaceApprovalRequestShares,
   updateApprovalRequest,
 } from "@/features/approvalRequests/api/approvalRequestApi";
@@ -11,6 +12,7 @@ import ApprovalRequestSharing, {
   EditableApprovalRequestShare,
 } from "@/features/approvalRequests/components/ApprovalRequestSharing";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
+import { ApprovalRequestShare } from "@/features/approvalRequests/models/approvalRequestShare";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
@@ -117,6 +119,16 @@ const isLockedTarget = (
   lockInfo: ReturnType<typeof getLockInfo> | null,
 ) => Boolean(step.id && lockInfo?.lockedStepIds.has(step.id));
 
+const toEditableShare = (
+  share: ApprovalRequestShare,
+): EditableApprovalRequestShare => ({
+  key: crypto.randomUUID(),
+  employeeId: share.employeeId,
+  teamId: share.teamId,
+  targetType: share.employeeId ? "employee" : "team",
+  permission: share.permission,
+});
+
 interface ApprovalRequestEditorProps {
   onClose: (currentApprovalRequestId?: number) => void;
   onClone: () => void;
@@ -170,6 +182,25 @@ const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({ onClose, 
     canUseTeams,
     canUseApprovalRequestSharing,
   ]);
+
+  useEffect(() => {
+    let active = true;
+    if (selectedTab !== "sharing" || !approvalRequest?.id || shares !== null) {
+      return;
+    }
+
+    const load = async () => {
+      const loadedShares = await listApprovalRequestShares(approvalRequest.id);
+      if (active && loadedShares) {
+        setCanManageShares(loadedShares.canManage);
+        setShares(loadedShares.shares.map(toEditableShare));
+      }
+    };
+    void load();
+    return () => {
+      active = false;
+    };
+  }, [approvalRequest?.id, selectedTab, shares]);
 
   const handleClose = () => {
     onClose(approvalRequest?.id);
@@ -319,10 +350,6 @@ const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({ onClose, 
     [],
   );
 
-  const handleCanManageSharesChange = useCallback((value: boolean) => {
-    setCanManageShares(value);
-  }, []);
-
   const handleClone = () => {
     if (!approvalRequest) {
       return;
@@ -356,7 +383,10 @@ const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({ onClose, 
             value={approvalRequest?.title ?? ""}
             disabled
           />
-          <ApprovalRequestFilesBox userFiles={approvalRequest?.userFiles} />
+          <ApprovalRequestFilesBox
+            userFiles={approvalRequest?.userFiles}
+            approvalRequestId={approvalRequest?.id}
+          />
           <TextField
             margin="normal"
             fullWidth
@@ -448,13 +478,12 @@ const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({ onClose, 
       {selectedTab === "log" && <ApprovalRequestLog approvalRequest={approvalRequest} />}
       {selectedTab === "sharing" && approvalRequest && (
         <ApprovalRequestSharing
-          approvalRequestId={approvalRequest.id}
+          canManage={canManageShares ?? false}
           employees={stores.employeeStore.employees.filter(
             (employee) => employee.userId !== approvalRequest.createdByUserId,
           )}
           shares={shares ?? []}
           teams={stores.teamStore.teams}
-          onCanManageChange={handleCanManageSharesChange}
           onSharesChange={handleSharesChange}
         />
       )}

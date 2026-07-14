@@ -27,7 +27,6 @@ export const confirmUserEmail = async (
     await axios.get(`api/account/confirmEmail?userId=${userId}&code=${code}`);
     return true;
   } catch {
-    toast.error("Email confirmation failed.");
     return false;
   }
 };

@@ -1,5 +1,6 @@
 export interface ProductInfo {
   edition: string;
+  requiresConfirmedEmail: boolean;
   capabilities: ProductCapabilities;
 }
 

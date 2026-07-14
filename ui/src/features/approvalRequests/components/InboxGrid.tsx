@@ -4,11 +4,11 @@ import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/ap
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
+import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { getHumanReadableRelativeDate } from "@/shared/utils/helpers";
 import { Box, Chip, LinearProgress } from "@mui/material";
 import { DataGrid, GridColDef, GridSlots } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface InboxGridProps {
@@ -39,13 +39,11 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskId }) => {
     }
   };
 
-  useEffect(() => {
-    if (!tenantScopeIsReady) {
-      return;
+  useGridRefresh(() => {
+    if (tenantScopeIsReady) {
+      return stores.approvalRequestTaskStore.loadIncoming();
     }
-
-    void stores.approvalRequestTaskStore.loadIncoming();
-  }, [tenantScopeIsReady]);
+  }, tenantScopeIsReady);
 
   const columns: GridColDef[] = [
     {

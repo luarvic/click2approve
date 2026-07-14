@@ -3,6 +3,7 @@ import ApprovalStepTemplateEditor from "@/features/approvalStepTemplates/compone
 import { TenantType } from "@/features/tenants/models/tenant";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
+import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
@@ -10,6 +11,7 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 const ApprovalStepTemplateEditorPage = () => {
   const navigate = useNavigate();
   const { templateId } = useParams<{ templateId: string }>();
+  usePageTitle(templateId === undefined ? "New template" : "Edit template");
   const [hasLoadedTemplates, setHasLoadedTemplates] = useState(false);
   const currentTenant = stores.tenantStore.currentTenant;
   const tenantId = stores.tenantStore.currentTenantId;
@@ -40,10 +42,6 @@ const ApprovalStepTemplateEditorPage = () => {
       setHasLoadedTemplates(true);
     });
   }, [isNewTemplate, tenantId]);
-
-  if (!stores.userAccountStore.currentUser) {
-    return <Navigate to="/signIn" />;
-  }
 
   if (!stores.tenantStore.hasLoaded) {
     return <LoadingOverlay />;

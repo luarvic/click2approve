@@ -1,14 +1,29 @@
 import { confirmUserEmail } from "@/features/identity/api/authApi";
-import { Pages } from "@/shared/constants/constants";
-import { Backdrop, Box, CircularProgress } from "@mui/material";
+import { Information, Pages } from "@/shared/constants/constants";
+import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import InformationPage from "@/shared/pages/InformationPage";
+import { Backdrop, CircularProgress, Link } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { type ReactNode, useEffect, useState } from "react";
+import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-dom";
+
+const renderMessageWithLink = (message: string, link: ReactNode) => {
+  const [beforeLink, afterLink] = message.split("{link}");
+
+  return (
+    <>
+      {beforeLink}
+      {link}
+      {afterLink}
+    </>
+  );
+};
 
 const ConfirmEmailPage = () => {
+  usePageTitle(Information.emailVerificationResultTitle);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [message, setMessage] = useState<string>("");
+  const [message, setMessage] = useState<ReactNode>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -20,9 +35,23 @@ const ConfirmEmailPage = () => {
       confirmUserEmail(userId, code)
         .then((result) => {
           if (result) {
-            setMessage("Email confirmation succeeded. Sign in to continue.");
+            setMessage(
+              renderMessageWithLink(
+                Information.emailVerificationSuccessMessage,
+                <Link component={RouterLink} to="/signIn">
+                  Sign in
+                </Link>,
+              ),
+            );
           } else {
-            setMessage("Email confirmation failed.");
+            setMessage(
+              renderMessageWithLink(
+                Information.emailVerificationFailureMessage,
+                <Link component={RouterLink} to="/resendConfirmationEmail">
+                  request a new verification email
+                </Link>,
+              ),
+            );
           }
         })
         .finally(() => setIsLoading(false));
@@ -33,7 +62,10 @@ const ConfirmEmailPage = () => {
 
   return (
     <>
-      <Box>{message}</Box>
+      <InformationPage
+        title={Information.emailVerificationResultTitle}
+        message={message}
+      />
       <Backdrop sx={Pages.backdropLoadingSx} open={isLoading}>
         <CircularProgress color="inherit" />
       </Backdrop>

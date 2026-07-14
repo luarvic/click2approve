@@ -3,6 +3,7 @@ import { EmployeeRole, Tenant, TenantType } from "@/features/tenants/models/tena
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
+import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { Add } from "@mui/icons-material";
 import {
   Box,
@@ -19,7 +20,6 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const roleLabels = ["User", "Manager", "Admin"];
@@ -41,11 +41,7 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantId }) => {
     currentTenantId,
   );
 
-  useEffect(() => {
-    if (!stores.tenantStore.hasLoaded) {
-      stores.tenantStore.load();
-    }
-  }, []);
+  useGridRefresh(() => stores.tenantStore.load(), "tenants");
 
   const customToolbar = () => {
     return (

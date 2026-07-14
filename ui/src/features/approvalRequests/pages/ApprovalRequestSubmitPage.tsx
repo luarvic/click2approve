@@ -1,10 +1,12 @@
 import { stores } from "@/app/rootStore";
 import ApprovalRequestSubmitPageContent from "@/features/approvalRequests/components/ApprovalRequestSubmitDialog";
 import { Routes } from "@/shared/constants/constants";
+import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { observer } from "mobx-react-lite";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const ApprovalRequestSubmitPage = () => {
+  usePageTitle("Compose approval request");
   const navigate = useNavigate();
   const location = useLocation();
   const initialTemplateId = (

@@ -1,5 +1,6 @@
 import { stores } from "@/app/rootStore";
-import { AuthForms } from "@/shared/constants/constants";
+import { AuthForms, Information } from "@/shared/constants/constants";
+import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { validateEmail } from "@/shared/utils/validators";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
@@ -16,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const ForgotPasswordPage = () => {
+  usePageTitle("Forgot password");
   const [emailError, setEmailError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -33,7 +35,10 @@ const ForgotPasswordPage = () => {
         await stores.userAccountStore.sendResetPasswordLink(email.toString())
       ) {
         navigate("/information", {
-          state: { message: "A reset password link was sent to your email." },
+          state: {
+            title: Information.passwordResetTitle,
+            message: Information.passwordResetMessage,
+          },
         });
       }
       setIsLoading(false);

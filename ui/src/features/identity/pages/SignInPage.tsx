@@ -1,6 +1,7 @@
 import { stores } from "@/app/rootStore";
 import { Credentials } from "@/features/identity/models/credentials";
 import { AuthForms, Routes, Text } from "@/shared/constants/constants";
+import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { validateEmail } from "@/shared/utils/validators";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -24,6 +25,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const SignInPage = () => {
+  usePageTitle("Sign in");
   const [showPassword, setShowPassword] = React.useState(false);
   const [emailError, setEmailError] = useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<boolean>(false);

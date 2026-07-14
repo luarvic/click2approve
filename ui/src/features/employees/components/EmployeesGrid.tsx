@@ -4,6 +4,7 @@ import { EmployeeRole } from "@/features/tenants/models/tenant";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
+import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { Add } from "@mui/icons-material";
 import {
   Box,
@@ -47,11 +48,16 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeId }) => {
   useEffect(() => {
     stores.employeeStore.clear();
     stores.teamStore.clear();
-    if (tenantId) {
-      stores.employeeStore.load(tenantId);
-      stores.teamStore.load(tenantId);
-    }
   }, [tenantId]);
+
+  useGridRefresh(() => {
+    if (tenantId) {
+      return Promise.all([
+        stores.employeeStore.load(tenantId, true),
+        stores.teamStore.load(tenantId, true),
+      ]).then(() => undefined);
+    }
+  }, tenantId);
 
   const customToolbar = () => {
     return (

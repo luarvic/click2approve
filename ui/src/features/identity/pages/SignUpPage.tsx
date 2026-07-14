@@ -1,6 +1,12 @@
 import { stores } from "@/app/rootStore";
 import { Credentials } from "@/features/identity/models/credentials";
-import { Api, AuthForms, Routes, Validation } from "@/shared/constants/constants";
+import {
+  AuthForms,
+  Information,
+  Routes,
+  Validation,
+} from "@/shared/constants/constants";
+import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { validateEmail, validatePassword } from "@/shared/utils/validators";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -24,6 +30,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const SignUpPage = () => {
+  usePageTitle("Sign up");
   const [showPassword, setShowPassword] = React.useState(false);
   const [showPasswordConfirmation, setShowPasswordConfirmation] =
     React.useState(false);
@@ -74,11 +81,11 @@ const SignUpPage = () => {
       );
       setIsLoading(true);
       if (await stores.userAccountStore.signUp(credentials)) {
-        if (Api.emailServiceIsEnabled) {
+        if (stores.productStore.requiresConfirmedEmail) {
           navigate("/information", {
             state: {
-              message:
-                "A confirmation link was sent to your email. Confirm your email address to continue.",
+              title: Information.emailVerificationTitle,
+              message: Information.emailVerificationMessage,
             },
           });
         } else {

@@ -1,5 +1,6 @@
 import { stores } from "@/app/rootStore";
-import { AuthForms } from "@/shared/constants/constants";
+import { AuthForms, Information } from "@/shared/constants/constants";
+import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { validateEmail } from "@/shared/utils/validators";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
@@ -16,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const ResendConfirmationEmailPage = () => {
+  usePageTitle("Resend confirmation email");
   const [emailError, setEmailError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -34,8 +36,8 @@ const ResendConfirmationEmailPage = () => {
       ) {
         navigate("/information", {
           state: {
-            message:
-              "A confirmation link was sent to your email. Confirm your email address to continue.",
+            title: Information.emailVerificationTitle,
+            message: Information.emailVerificationMessage,
           },
         });
       }

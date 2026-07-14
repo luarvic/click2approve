@@ -2,6 +2,7 @@ import { stores } from "@/app/rootStore";
 import { TenantType } from "@/features/tenants/models/tenant";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Dialogs, Pages, Routes } from "@/shared/constants/constants";
+import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import type { SxProps } from "@mui/material";
 import {
   Button,
@@ -24,6 +25,7 @@ const continueButtonSx: SxProps<Theme> = { alignSelf: "flex-start" };
 type RequestType = "custom" | "template";
 
 const ApprovalRequestStartPage = () => {
+  usePageTitle("Start a new approval request");
   const navigate = useNavigate();
   const tenantId = stores.tenantStore.currentTenantId;
   const composePath = tenantId
@@ -116,6 +118,7 @@ const ApprovalRequestStartPage = () => {
           }
           sx={continueButtonSx}
           type="submit"
+          variant="outlined"
         >
           Continue
         </Button>

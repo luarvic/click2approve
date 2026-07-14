@@ -30,6 +30,10 @@ export class ProductStore {
     return this.productInfo?.capabilities.approvalRequestSharing === true;
   }
 
+  get requiresConfirmedEmail(): boolean {
+    return this.productInfo?.requiresConfirmedEmail === true;
+  }
+
   load = async (): Promise<void> => {
     const info = await productApi.getProductInfo();
     runInAction(() => {

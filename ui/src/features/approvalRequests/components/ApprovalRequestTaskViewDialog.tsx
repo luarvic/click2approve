@@ -1,8 +1,11 @@
 import { stores } from "@/app/rootStore";
+import { getApprovalRequest } from "@/features/approvalRequests/api/approvalRequestApi";
 import { completeApprovalRequestTask } from "@/features/approvalRequests/api/approvalRequestTaskApi";
 import ApprovalRequestFilesBox from "@/features/approvalRequests/components/ApprovalRequestFilesBox";
 import ApprovalRequestLog from "@/features/approvalRequests/components/ApprovalRequestLog";
+import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
+import { normalizeApprovalRequestDates } from "@/features/approvalRequests/stores/approvalRequestStore";
 import { Dialogs, Pages } from "@/shared/constants/constants";
 import {
   Button,
@@ -28,6 +31,7 @@ const ApprovalRequestTaskEditor: React.FC<ApprovalRequestTaskEditorProps> = ({ o
   const [decisionError, setDecisionError] = useState(false);
   const [decision, setDecision] = useState("");
   const [comment, setComment] = useState("");
+  const [logApprovalRequest, setLogApprovalRequest] = useState<ApprovalRequest | null>(null);
   const [selectedTab, setSelectedTab] = useState("task");
   const currentTask = stores.approvalRequestTaskStore.currentTask;
   const canViewRequest = currentTask?.canViewRequest !== false;
@@ -42,8 +46,28 @@ const ApprovalRequestTaskEditor: React.FC<ApprovalRequestTaskEditorProps> = ({ o
           : "",
     );
     setComment(currentTask?.comment ?? "");
+    setLogApprovalRequest(null);
     setSelectedTab("task");
   }, [currentTask]);
+
+  useEffect(() => {
+    let active = true;
+    if (selectedTab !== "log" || !currentTask?.approvalRequestId || logApprovalRequest) {
+      return;
+    }
+
+    const load = async () => {
+      const approvalRequest = await getApprovalRequest(currentTask.approvalRequestId);
+      if (active && approvalRequest) {
+        normalizeApprovalRequestDates(approvalRequest);
+        setLogApprovalRequest(approvalRequest);
+      }
+    };
+    load();
+    return () => {
+      active = false;
+    };
+  }, [currentTask?.approvalRequestId, logApprovalRequest, selectedTab]);
 
   const cleanUp = () => {
     setDecisionError(false);
@@ -105,7 +129,10 @@ const ApprovalRequestTaskEditor: React.FC<ApprovalRequestTaskEditorProps> = ({ o
             value={currentTask?.title ?? ""}
             disabled
           />
-          <ApprovalRequestFilesBox userFiles={currentTask?.approvalRequest?.userFiles} />
+          <ApprovalRequestFilesBox
+            userFiles={currentTask?.userFiles}
+            approvalRequestTaskId={currentTask?.id}
+          />
           <TextField
             fullWidth
             label="Description"
@@ -158,7 +185,7 @@ const ApprovalRequestTaskEditor: React.FC<ApprovalRequestTaskEditorProps> = ({ o
         </Stack>
       )}
       {selectedTab === "log" && canViewRequest && (
-        <ApprovalRequestLog approvalRequest={currentTask?.approvalRequest} />
+        <ApprovalRequestLog approvalRequest={logApprovalRequest} />
       )}
       <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
         <Button variant="outlined" onClick={handleClose}>Cancel</Button>

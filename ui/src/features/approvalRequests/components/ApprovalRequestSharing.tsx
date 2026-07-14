@@ -1,8 +1,4 @@
 import {
-  listApprovalRequestShares,
-} from "@/features/approvalRequests/api/approvalRequestApi";
-import {
-  ApprovalRequestShare,
   ApprovalRequestSharePermission,
   UpsertApprovalRequestShare,
 } from "@/features/approvalRequests/models/approvalRequestShare";
@@ -21,15 +17,13 @@ import {
   Tooltip,
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
-import { useEffect, useState } from "react";
 
 interface ApprovalRequestSharingProps {
-  approvalRequestId?: number;
+  canManage?: boolean;
   employees: Employee[];
   shares: EditableApprovalRequestShare[];
   teams: { id: number; name: string }[];
   onSharesChange: (shares: EditableApprovalRequestShare[]) => void;
-  onCanManageChange?: (canManage: boolean) => void;
 }
 
 export type EditableApprovalRequestShare = UpsertApprovalRequestShare & {
@@ -62,46 +56,13 @@ const createShare = (): EditableApprovalRequestShare => ({
   permission: ApprovalRequestSharePermission.ReadOnly,
 });
 
-const toEditableShare = (
-  share: ApprovalRequestShare,
-): EditableApprovalRequestShare => ({
-  key: crypto.randomUUID(),
-  employeeId: share.employeeId,
-  teamId: share.teamId,
-  targetType: share.employeeId ? "employee" : "team",
-  permission: share.permission,
-});
-
 const ApprovalRequestSharing: React.FC<ApprovalRequestSharingProps> = ({
-  approvalRequestId,
+  canManage = true,
   employees,
   shares,
   teams,
   onSharesChange,
-  onCanManageChange,
 }) => {
-  const [canManage, setCanManage] = useState(approvalRequestId === undefined);
-
-  useEffect(() => {
-    let active = true;
-    if (!approvalRequestId) {
-      return;
-    }
-
-    const load = async () => {
-      const loadedShares = await listApprovalRequestShares(approvalRequestId);
-      if (active && loadedShares) {
-        setCanManage(loadedShares.canManage);
-        onCanManageChange?.(loadedShares.canManage);
-        onSharesChange(loadedShares.shares.map(toEditableShare));
-      }
-    };
-    load();
-    return () => {
-      active = false;
-    };
-  }, [approvalRequestId, onCanManageChange, onSharesChange]);
-
   const updateShare = (
     key: string,
     update: (share: EditableApprovalRequestShare) => EditableApprovalRequestShare,

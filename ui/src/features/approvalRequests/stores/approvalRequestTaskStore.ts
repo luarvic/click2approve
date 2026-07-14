@@ -54,14 +54,7 @@ export class ApprovalRequestTaskStore {
     return request;
   };
 
-  loadDetails = (id: number, refresh = false): Promise<ApprovalRequestTask | null> => {
-    if (!refresh) {
-      const detail = this.details.get(id);
-      if (detail) {
-        return Promise.resolve(detail);
-      }
-    }
-
+  loadDetails = (id: number): Promise<ApprovalRequestTask | null> => {
     const inFlight = this.detailRequests.get(id);
     if (inFlight) {
       return inFlight;

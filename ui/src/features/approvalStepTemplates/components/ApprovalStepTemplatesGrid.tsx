@@ -3,6 +3,7 @@ import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/ap
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
+import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { Add } from "@mui/icons-material";
 import { Box, Button, LinearProgress } from "@mui/material";
 import {
@@ -34,10 +35,13 @@ const ApprovalStepTemplatesGrid: React.FC<ApprovalStepTemplatesGridProps> = ({
 
   useEffect(() => {
     stores.approvalStepTemplateStore.clear();
-    if (tenantId) {
-      stores.approvalStepTemplateStore.load(tenantId);
-    }
   }, [tenantId]);
+
+  useGridRefresh(() => {
+    if (tenantId) {
+      return stores.approvalStepTemplateStore.load(tenantId);
+    }
+  }, tenantId);
 
   const customToolbar = () => {
     return (

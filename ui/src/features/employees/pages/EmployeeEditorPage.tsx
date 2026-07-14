@@ -3,12 +3,14 @@ import EmployeeEditor from "@/features/employees/components/EmployeeDialog";
 import { CreateEmployeeRequest, UpdateEmployeeRequest } from "@/features/employees/models/employee";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import { Routes } from "@/shared/constants/constants";
+import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { observer } from "mobx-react-lite";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 
 const EmployeeEditorPage = () => {
   const navigate = useNavigate();
   const { employeeId } = useParams<{ employeeId: string }>();
+  usePageTitle(employeeId === undefined ? "New employee" : "Edit employee");
   const tenantId = stores.tenantStore.currentTenantId;
   const employeesPath = tenantId
     ? Routes.tenantPath(tenantId, "/employees")
@@ -19,7 +21,6 @@ const EmployeeEditorPage = () => {
   const canEdit = stores.tenantStore.currentTenant?.role === EmployeeRole.Admin || stores.tenantStore.currentTenant?.isOwner === true;
   const selectedTeamIds = employee ? stores.teamStore.teams.filter((team) => team.members.some((member) => member.id === employee.id)).map((team) => team.id) : [];
 
-  if (!stores.userAccountStore.currentUser) return <Navigate to="/signIn" />;
   if (!tenantId || (!isNewEmployee && !employee)) return <Navigate to={employeesPath} />;
 
   const syncTeams = async (employeeIdToSync: number, teamIds: number[]) => {
