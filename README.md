@@ -1,4 +1,4 @@
-![Prod build status](https://github.com/luarvic/click2approve/actions/workflows/prod-build.yml/badge.svg)
+![Main build status](https://github.com/luarvic/click2approve/actions/workflows/main-build.yml/badge.svg)
 
 # Table of Contents
 
