@@ -13,7 +13,11 @@ interface InboxLocationState {
 const InboxPage = () => {
   const numberOfUncompletedTasks =
     stores.approvalRequestTaskStore.numberOfUncompletedTasks;
-  usePageTitle(`Inbox (${numberOfUncompletedTasks})`);
+  const pageTitle =
+    numberOfUncompletedTasks > 0
+      ? `Inbox (${numberOfUncompletedTasks})`
+      : "Inbox";
+  usePageTitle(pageTitle);
   const location = useLocation();
   const { currentTaskId } = (location.state as InboxLocationState | null) ?? {};
   return (
