@@ -18,12 +18,27 @@ review decisions, and tracking request history.
 
 ## Features
 
-- Upload and manage files.
-- Send documents for approval by entering approver email addresses.
-- Review incoming approval requests.
-- Track sent requests, inbox items, and archived approvals.
-- Notify requesters and approvers by email when email delivery is enabled.
-- Run the complete stack locally with Docker Compose.
+- Sign up, sign in, confirm email addresses, reset passwords, and use
+  authenticated browser sessions through the built-in account API.
+- Upload, list, download, preview, and delete files stored in filesystem-backed
+  user file storage.
+- Compose approval requests with one or more files, a title, description, and
+  email-based approvers.
+- Build multi-step approval workflows with serial or parallel approver steps.
+- Track sent approval requests in the outbox, inspect request details and audit
+  history, edit pending approver steps, cancel pending requests, and delete
+  requests.
+- Review incoming approval tasks in the inbox, open task details, preview
+  attached files, approve or reject with comments, and see the uncompleted task
+  count.
+- Maintain a user profile with display name, avatar, dark-mode preference, and
+  email notification preferences.
+- Notify requesters and approvers by email when email delivery is enabled,
+  including account, task, cancellation, deletion, and review notifications.
+- Expose product edition and capability metadata so the shared UI can hide or
+  block commercial-only features when it is connected to the open-source API.
+- Run the complete React, ASP.NET Core, and MySQL stack locally with Docker
+  Compose.
 
 ## Demo
 
