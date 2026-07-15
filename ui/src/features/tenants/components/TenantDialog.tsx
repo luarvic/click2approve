@@ -107,6 +107,13 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
         {isNew ? "New organization" : "Organization"}
       </Typography>
       <Stack spacing={Dialogs.formStackSpacing}>
+        <TenantLogoPicker
+          logoUrl={logoWasRemoved ? undefined : tenant?.logo}
+          selectedFile={logoFile}
+          onSelect={handleLogoSelect}
+          onRemove={handleLogoRemove}
+          disabled={!isNew && !canEdit}
+        />
         <TextField
           label="Business name"
           required
@@ -136,13 +143,6 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
           label="Website URL"
           value={websiteUrl}
           onChange={(event) => setWebsiteUrl(event.target.value)}
-          disabled={!isNew && !canEdit}
-        />
-        <TenantLogoPicker
-          logoUrl={logoWasRemoved ? undefined : tenant?.logo}
-          selectedFile={logoFile}
-          onSelect={handleLogoSelect}
-          onRemove={handleLogoRemove}
           disabled={!isNew && !canEdit}
         />
       </Stack>

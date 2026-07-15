@@ -47,7 +47,7 @@ export class TenantStore {
     }
   };
 
-  load = async (): Promise<void> => {
+  load = async (defaultTenantId?: number): Promise<void> => {
     const requestVersion = ++this.requestVersion;
     const tenants = await tenantApi.listTenants();
     if (requestVersion !== this.requestVersion) {
@@ -55,7 +55,10 @@ export class TenantStore {
     }
     const cachedTenantId = readCurrentTenantId();
     const currentTenant =
-      tenants.find((tenant) => tenant.id === cachedTenantId) ?? tenants[0] ?? null;
+      tenants.find((tenant) => tenant.id === defaultTenantId) ??
+      tenants.find((tenant) => tenant.id === cachedTenantId) ??
+      tenants[0] ??
+      null;
     runInAction(() => {
       this.tenants = tenants;
       this.currentTenantId = currentTenant?.id ?? null;

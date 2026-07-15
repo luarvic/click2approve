@@ -1,3 +1,4 @@
+using Click2Approve.Application.Helpers;
 using Click2Approve.Application.Services.Tenants;
 using Click2Approve.Domain.Models;
 using Microsoft.AspNetCore.Identity;
@@ -29,6 +30,7 @@ public abstract class InitialTenantSetupMiddlewareBase(RequestDelegate next)
         {
             await tenantService.InitializeUserAsync(user, context.RequestAborted);
             await afterTenantSetupAsync(user, context.RequestAborted);
+            UserProfileNameHelpers.ApplyMissingNamesFromEmail(user);
 
             user.HasLoggedIn = true;
             var result = await userManager.UpdateAsync(user);

@@ -1,7 +1,9 @@
 import { stores } from "@/app/rootStore";
+import { getPublicApiUrl } from "@/shared/api/userProfileApi";
 import { Lists, Shell } from "@/shared/constants/constants";
 import { Logout, Settings } from "@mui/icons-material";
 import {
+  Avatar,
   Box,
   Drawer,
   List,
@@ -16,6 +18,10 @@ import { useNavigate } from "react-router-dom";
 
 const ProfileDrawer = () => {
   const navigate = useNavigate();
+  const profile = stores.userProfileStore.profile;
+  const displayName =
+    stores.userProfileStore.displayName ??
+    stores.userAccountStore.currentUser?.email.toLowerCase();
 
   return (
     <Drawer
@@ -35,12 +41,18 @@ const ProfileDrawer = () => {
           }
         >
           <ListItem key="manageAccount" disablePadding>
-            <ListItemButton onClick={() => navigate("/userSettings")}>
+            <ListItemButton onClick={() => navigate("/userProfile")}>
               <ListItemIcon sx={Lists.itemIconSx}>
-                <Settings />
+                <Avatar
+                  src={getPublicApiUrl(profile?.avatar)}
+                  sx={Shell.profileDrawerAvatarSx}
+                >
+                  <Settings fontSize="small" />
+                </Avatar>
               </ListItemIcon>
               <ListItemText
-                primary={stores.userAccountStore.currentUser?.email.toLowerCase()}
+                primary={displayName}
+                secondary={stores.userAccountStore.currentUser?.email.toLowerCase()}
               />
             </ListItemButton>
           </ListItem>

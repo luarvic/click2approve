@@ -29,7 +29,7 @@ import TenantHomeRedirect from "@/shared/components/routing/TenantHomeRedirect";
 import { Toasts } from "@/shared/constants/constants";
 import InformationPage from "@/shared/pages/InformationPage";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
-import UserSettingsPage from "@/shared/pages/UserSettingsPage";
+import UserProfilePage from "@/shared/pages/UserProfilePage";
 import "@fontsource/sora/400.css";
 import "@fontsource/sora/500.css";
 import "@fontsource/sora/600.css";
@@ -66,7 +66,7 @@ const App = () => {
     stores.productStore.productInfo === null ? (
     <LoadingOverlay />
   ) : (
-    <ThemeProvider theme={stores.userSettingsStore.theme}>
+    <ThemeProvider theme={stores.userPreferencesStore.theme}>
       <CssBaseline>
         <BrowserRouter
           basename="ui"
@@ -90,7 +90,7 @@ const App = () => {
                 <Route path="/information" element={<InformationPage />} />
                 <Route path="*" element={<NotFoundPage />} />
                 <Route element={<RouteGuard />}>
-                  <Route path="/userSettings" element={<UserSettingsPage />} />
+                  <Route path="/userProfile" element={<UserProfilePage />} />
                   <Route
                     element={
                       <RouteGuard
@@ -143,7 +143,7 @@ const App = () => {
           closeButton={Toasts.closeButton}
           draggable={Toasts.draggable}
           stacked
-          theme={stores.userSettingsStore.theme.palette.mode}
+          theme={stores.userPreferencesStore.theme.palette.mode}
         />
       </CssBaseline>
     </ThemeProvider>

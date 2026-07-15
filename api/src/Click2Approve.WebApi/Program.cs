@@ -7,10 +7,14 @@ using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.Application.Services.ApprovalRequests;
 using Click2Approve.Application.Services.AuditLogs;
 using Click2Approve.Application.Services.FileStorage;
+using Click2Approve.Application.Services.Notifications;
 using Click2Approve.Application.Services.TenantContext;
 using Click2Approve.Application.Services.Tenants;
+using Click2Approve.Application.Services.UserProfiles;
 using Click2Approve.Application.Services.UserFiles;
 using Click2Approve.Infrastructure.Services.FileStorage;
+using Click2Approve.Infrastructure.Services.Notifications;
+using Click2Approve.Infrastructure.Services.UserProfiles;
 using Click2Approve.WebApi.Services.TenantContext;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +46,9 @@ builder.Services.AddScoped<IApprovalRecipientResolver, EmailOnlyApprovalRecipien
 builder.Services.AddScoped<IApprovalRequestService, ApprovalRequestService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IFileStorage, FileSystemFileStorage>();
+builder.Services.AddScoped<IUserNotificationPreferenceService, UserNotificationPreferenceService>();
+builder.Services.AddScoped<IUserProfileAccessService, DefaultUserProfileAccessService>();
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<IUserFileService, UserFileService>();
 

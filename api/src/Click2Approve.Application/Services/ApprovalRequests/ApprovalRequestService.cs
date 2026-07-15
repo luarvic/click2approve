@@ -6,6 +6,7 @@ using Click2Approve.Application.Models.Auxiliary;
 using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Application.Services.AuditLogs;
 using Click2Approve.Application.Services.Email;
+using Click2Approve.Application.Services.Notifications;
 using Click2Approve.Application.Services.TenantContext;
 
 namespace Click2Approve.Application.Services.ApprovalRequests;
@@ -20,6 +21,7 @@ public class ApprovalRequestService(
     IUnitOfWork unitOfWork,
     IAuditLogService auditLogService,
     IEmailService emailService,
+    IUserNotificationPreferenceService notificationPreferenceService,
     IApprovalRecipientResolver approvalRecipientResolver,
     ITenantContext tenantContext,
     IConfiguration configuration) : IApprovalRequestService
@@ -30,6 +32,7 @@ public class ApprovalRequestService(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IAuditLogService _auditLogService = auditLogService;
     private readonly IEmailService _emailService = emailService;
+    private readonly IUserNotificationPreferenceService _notificationPreferenceService = notificationPreferenceService;
     private readonly IApprovalRecipientResolver _approvalRecipientResolver = approvalRecipientResolver;
     private readonly ITenantContext _tenantContext = tenantContext;
     private readonly IConfiguration _configuration = configuration;
@@ -301,18 +304,25 @@ public class ApprovalRequestService(
         var reviewedSubject = _configuration["Email:Templates:ApprovalRequestReviewedSubject"]!;
         var reviewedLink = $"{_configuration["UI:BaseUrl"]}/sent";
 
-        await _emailService.SendAsync(new EmailMessage
+        if (await _notificationPreferenceService.IsEnabledAsync(
+            approvalRequestTask.ApprovalRequest.CreatedByUserId,
+            NotificationType.ApprovalRequestReviewed,
+            NotificationChannel.Email,
+            cancellationToken))
         {
-            ToAddress = approvalRequestTask.ApprovalRequest.CreatedByEmail.ToLower(),
-            Subject = reviewedSubject,
-            Body = EmailHelpers.BuildHtmlEmail(
-                reviewedHeadingTemplate,
-                string.Format(reviewedMessageTemplate,
-                    user.Email!.ToLower(),
-                    string.Join(", ", approvalRequestTask.UserFiles.Select(f => f.Name))),
-                reviewedLink,
-                reviewedLinkText)
-        }, cancellationToken);
+            await _emailService.SendAsync(new EmailMessage
+            {
+                ToAddress = approvalRequestTask.ApprovalRequest.CreatedByEmail.ToLower(),
+                Subject = reviewedSubject,
+                Body = EmailHelpers.BuildHtmlEmail(
+                    reviewedHeadingTemplate,
+                    string.Format(reviewedMessageTemplate,
+                        user.Email!.ToLower(),
+                        string.Join(", ", approvalRequestTask.UserFiles.Select(f => f.Name))),
+                    reviewedLink,
+                    reviewedLinkText)
+            }, cancellationToken);
+        }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
@@ -836,12 +846,29 @@ public class ApprovalRequestService(
         approvalRequest ??= taskList.First().ApprovalRequest;
         var link = $"{_configuration["UI:BaseUrl"]}/inbox";
 
-        foreach (var email in taskList.Select(t => t.ApproverEmail).Distinct(StringComparer.OrdinalIgnoreCase))
+        var notificationType = GetNotificationType(notification);
+        var recipients = taskList
+            .GroupBy(t => t.ApproverEmail, StringComparer.OrdinalIgnoreCase)
+            .Select(group => new
+            {
+                Email = group.Key,
+                UserId = group.Select(t => t.ApproverUserId).FirstOrDefault(id => !string.IsNullOrWhiteSpace(id))
+            });
+
+        foreach (var recipient in recipients)
         {
+            if (!await _notificationPreferenceService.IsEnabledAsync(
+                recipient.UserId,
+                notificationType,
+                NotificationChannel.Email,
+                cancellationToken))
+            {
+                continue;
+            }
 
             await _emailService.SendAsync(new EmailMessage
             {
-                ToAddress = email.ToLower(),
+                ToAddress = recipient.Email.ToLower(),
                 Subject = template.Subject,
                 Body = EmailHelpers.BuildHtmlEmail(
                     template.Heading,
@@ -852,6 +879,17 @@ public class ApprovalRequestService(
                     template.LinkText)
             }, cancellationToken);
         }
+    }
+
+    private static NotificationType GetNotificationType(ApprovalRequestApproverNotification notification)
+    {
+        return notification switch
+        {
+            ApprovalRequestApproverNotification.Cancelled => NotificationType.ApprovalRequestCancelled,
+            ApprovalRequestApproverNotification.Deleted => NotificationType.ApprovalRequestDeleted,
+            ApprovalRequestApproverNotification.Removed => NotificationType.ApprovalRequestTaskRemoved,
+            _ => NotificationType.ApprovalRequestTaskCreated
+        };
     }
 
     private ApproverNotificationTemplate GetApproverNotificationTemplate(ApprovalRequestApproverNotification notification)

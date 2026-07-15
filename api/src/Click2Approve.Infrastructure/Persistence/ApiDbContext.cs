@@ -17,6 +17,7 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
     public DbSet<AuditLogEntry> AuditLogEntries { get; set; }
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<UserFile> UserFiles { get; set; }
+    public DbSet<UserNotificationPreference> UserNotificationPreferences { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,6 +48,20 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .WithMany()
             .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<AppUser>()
+            .Property(u => u.FirstName)
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<AppUser>()
+            .Property(u => u.LastName)
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<AppUser>()
+            .HasOne<Tenant>()
+            .WithMany()
+            .HasForeignKey(u => u.DefaultTenantId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<Tenant>()
             .HasIndex(t => t.BusinessName);
@@ -181,5 +196,23 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .WithMany(t => t.UserFiles)
             .HasForeignKey(f => f.TenantId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserNotificationPreference>()
+            .Property(preference => preference.Type)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<UserNotificationPreference>()
+            .Property(preference => preference.Channel)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<UserNotificationPreference>()
+            .HasOne(preference => preference.User)
+            .WithMany(user => user.NotificationPreferences)
+            .HasForeignKey(preference => preference.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserNotificationPreference>()
+            .HasIndex(preference => new { preference.UserId, preference.Type, preference.Channel })
+            .IsUnique();
     }
 }

@@ -71,7 +71,7 @@ export const GridToolbar = {
 export const Pages = {
   containerSx: { p: 2 } as SxProps<Theme>,
   titleSx: { mb: 2 } as SxProps<Theme>,
-  userSettingsContainerSx: {
+  userProfileContainerSx: {
     display: "flex",
     flexDirection: "column",
   } as SxProps<Theme>,
@@ -349,6 +349,10 @@ export const Shell = {
     fontWeight: 600,
     height: 32,
     width: 32,
+  } as SxProps<Theme>,
+  profileDrawerAvatarSx: {
+    height: 24,
+    width: 24,
   } as SxProps<Theme>,
   mainMenuDrawerNavSx: (drawerIsOpen: boolean): SxProps<Theme> => ({
     width: {

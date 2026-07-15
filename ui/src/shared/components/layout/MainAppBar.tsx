@@ -1,4 +1,5 @@
 import { stores } from "@/app/rootStore";
+import { getPublicApiUrl } from "@/shared/api/userProfileApi";
 import { Routes, Shell } from "@/shared/constants/constants";
 import { getEmailInitials } from "@/shared/utils/helpers";
 import { Menu } from "@mui/icons-material";
@@ -25,6 +26,7 @@ const MainAppBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const currentUser = stores.userAccountStore.currentUser;
+  const profile = stores.userProfileStore.profile;
   const mainMenuDrawerIsOpen = stores.commonStore.mainMenuDrawerIsOpen;
   const profileDrawerIsOpen = stores.commonStore.profileDrawerIsOpen;
   const mainMenuDrawerIsVisible = Boolean(currentUser) && mainMenuDrawerIsOpen;
@@ -106,7 +108,10 @@ const MainAppBar = () => {
               aria-label="Open profile"
               onClick={() => stores.commonStore.setProfileDrawerIsOpen(true)}
             >
-              <Avatar sx={Shell.profileAvatarSx}>
+              <Avatar
+                src={getPublicApiUrl(profile?.avatar)}
+                sx={Shell.profileAvatarSx}
+              >
                 {getEmailInitials(currentUser.email)}
               </Avatar>
             </IconButton>

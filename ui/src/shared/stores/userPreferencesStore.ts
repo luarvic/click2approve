@@ -17,12 +17,10 @@ const createAppTheme = (colorMode: PaletteMode) =>
     },
   });
 
-export class UserSettingsStore {
+export class UserPreferencesStore {
   theme: Theme;
 
-  constructor(
-    theme: Theme = createAppTheme(readColorMode()),
-  ) {
+  constructor(theme: Theme = createAppTheme(readColorMode())) {
     this.theme = theme;
     makeAutoObservable(this);
   }

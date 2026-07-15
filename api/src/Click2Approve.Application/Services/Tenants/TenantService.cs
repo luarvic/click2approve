@@ -32,6 +32,9 @@ public class TenantService(
             Owner = user
         }, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        user.DefaultTenantId ??= tenant.Id;
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
         return tenant;
     }
 
@@ -44,6 +47,12 @@ public class TenantService(
     public virtual async Task InitializeUserAsync(AppUser user, CancellationToken cancellationToken)
     {
         var tenant = await GetRequiredDefaultAsync(user, cancellationToken);
+        if (user.DefaultTenantId is null)
+        {
+            user.DefaultTenantId = tenant.Id;
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+
         await ClaimEmailTasksAsync(user, tenant.Id, cancellationToken);
     }
 
