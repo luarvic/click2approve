@@ -41,6 +41,34 @@
         "$msCompile"
       ],
       "group": "test"
+    },
+    {
+      "label": "run-ui",
+      "type": "shell",
+      "command": "npm",
+      "args": [
+        "run",
+        "dev"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/ui"
+      },
+      "isBackground": true,
+      "group": "test"
+    },
+    {
+      "label": "test-ui",
+      "type": "shell",
+      "command": "npm",
+      "args": [
+        "test",
+        "--",
+        "--run"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/ui"
+      },
+      "group": "test"
     }
   ]
 }
