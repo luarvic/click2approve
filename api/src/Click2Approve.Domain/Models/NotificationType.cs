@@ -6,8 +6,6 @@ namespace Click2Approve.Domain.Models;
 public enum NotificationType
 {
     ApprovalRequestTaskCreated = 0,
-    ApprovalRequestTaskRemoved = 1,
     ApprovalRequestCancelled = 2,
-    ApprovalRequestDeleted = 3,
     ApprovalRequestReviewed = 4
 }

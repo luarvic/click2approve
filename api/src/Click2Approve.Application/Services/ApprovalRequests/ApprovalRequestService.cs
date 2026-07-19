@@ -1,10 +1,10 @@
+using System.Text.Json;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Application.Helpers;
 using Click2Approve.Application.Persistence;
 using Click2Approve.Domain.Models;
 using Click2Approve.Application.Models.Auxiliary;
 using Click2Approve.Application.Models.DTOs;
-using Click2Approve.Application.Services.AuditLogs;
 using Click2Approve.Application.Services.Email;
 using Click2Approve.Application.Services.Notifications;
 using Click2Approve.Application.Services.TenantContext;
@@ -19,10 +19,10 @@ public class ApprovalRequestService(
     IApprovalRequestTaskRepository approvalRequestTaskRepository,
     IUserFileRepository userFileRepository,
     IUnitOfWork unitOfWork,
-    IAuditLogService auditLogService,
     IEmailService emailService,
     IUserNotificationPreferenceService notificationPreferenceService,
     IApprovalRecipientResolver approvalRecipientResolver,
+    IApprovalLogActorResolver approvalLogActorResolver,
     ITenantContext tenantContext,
     IConfiguration configuration) : IApprovalRequestService
 {
@@ -30,12 +30,19 @@ public class ApprovalRequestService(
     private readonly IApprovalRequestTaskRepository _approvalRequestTaskRepository = approvalRequestTaskRepository;
     private readonly IUserFileRepository _userFileRepository = userFileRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly IAuditLogService _auditLogService = auditLogService;
     private readonly IEmailService _emailService = emailService;
     private readonly IUserNotificationPreferenceService _notificationPreferenceService = notificationPreferenceService;
     private readonly IApprovalRecipientResolver _approvalRecipientResolver = approvalRecipientResolver;
+    private readonly IApprovalLogActorResolver _approvalLogActorResolver = approvalLogActorResolver;
     private readonly ITenantContext _tenantContext = tenantContext;
     private readonly IConfiguration _configuration = configuration;
+    private static readonly JsonSerializerOptions LogDetailsJsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly ApprovalLogActor SystemActor = new(
+        Type: ApprovalLogActorType.System,
+        UserId: null,
+        EmployeeId: null,
+        Email: "system",
+        DisplayName: "System");
 
     /// <summary>
     /// Creates a new approval request.
@@ -58,6 +65,7 @@ public class ApprovalRequestService(
 
         var now = DateTime.UtcNow;
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        var actor = await _approvalLogActorResolver.ResolveAsync(user, tenantId, cancellationToken);
         var steps = BuildSteps(payload.Steps);
 
         var newApprovalRequest = await _approvalRequestRepository.AddAsync(new ApprovalRequest
@@ -71,45 +79,18 @@ public class ApprovalRequestService(
             TenantId = tenantId,
             CreatedByUserId = user.Id,
             CreatedByUser = user,
+            CreatedByEmployeeId = actor.EmployeeId,
             CreatedByEmail = user.NormalizedEmail!,
             Tasks = []
         }, cancellationToken);
 
-        await CreateTasksForStepAsync(newApprovalRequest, steps.MinBy(s => s.Sequence)!, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        AddRequestSubmittedLog(newApprovalRequest, actor, now);
 
-        // Add audit log entry.
-        await _auditLogService.LogAsync(user,
-            now,
-            "Submitted approval request",
-            newApprovalRequest.ToString(),
-            cancellationToken
-        );
+        await CreateTasksForStepAsync(newApprovalRequest, steps.MinBy(s => s.Sequence)!, now, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         await NotifyApproversAsync(newApprovalRequest.Tasks, ApprovalRequestApproverNotification.Sent, cancellationToken);
         return newApprovalRequest.Id;
-    }
-
-    /// <summary>
-    /// Deletes the approval request.
-    /// </summary>
-    public async Task DeleteApprovalRequestAsync(AppUser user, long id, CancellationToken cancellationToken)
-    {
-        var approvalRequest = await _approvalRequestRepository.GetForDeleteAsync(user, id, cancellationToken);
-        var approvalRequestJson = approvalRequest.ToString();
-        var notifiedTasks = approvalRequest.Tasks.ToList();
-        _approvalRequestRepository.Remove(approvalRequest);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        // Add audit log entry.
-        await _auditLogService.LogAsync(user,
-            DateTime.UtcNow,
-            "Deleted approval request",
-            approvalRequestJson,
-            cancellationToken
-        );
-
-        await NotifyApproversAsync(notifiedTasks, ApprovalRequestApproverNotification.Deleted, cancellationToken, approvalRequest);
     }
 
     /// <summary>
@@ -124,98 +105,14 @@ public class ApprovalRequestService(
         }
 
         var now = DateTime.UtcNow;
+        var previousStatus = approvalRequest.Status;
         approvalRequest.Status = ApprovalRequestStatus.Canceled;
-        approvalRequest.CompletedAt = now;
         var notifiedTasks = approvalRequest.Tasks.ToList();
+        AddRequestStatusLog(approvalRequest, now, previousStatus, ApprovalRequestStatus.Canceled);
         SkipPendingTasks(approvalRequest.Tasks, now);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        await _auditLogService.LogAsync(user,
-            now,
-            "Cancelled approval request",
-            approvalRequest.ToString(),
-            cancellationToken
-        );
-
         await NotifyApproversAsync(notifiedTasks, ApprovalRequestApproverNotification.Cancelled, cancellationToken);
-    }
-
-    /// <summary>
-    /// Updates currently mutable approval request properties.
-    /// </summary>
-    public async Task UpdateApprovalRequestAsync(AppUser user, long id, ApprovalRequestUpdateDto payload, CancellationToken cancellationToken)
-    {
-        var approvalRequest = await _approvalRequestRepository.GetForUpdateAsync(user, id, cancellationToken);
-        if (approvalRequest.Status != ApprovalRequestStatus.Pending)
-        {
-            throw new BusinessRuleException("Only pending approval requests can be modified.");
-        }
-
-        var orderedStepDtos = payload.Steps
-            .OrderBy(s => s.Sequence)
-            .Select((step, index) => new SequencedStepDto(step, index + 1))
-            .ToList();
-
-        if (orderedStepDtos.Count == 0)
-        {
-            throw new BusinessRuleException("Specify one or more approval steps.");
-        }
-
-        var passedSteps = approvalRequest.Steps
-            .Where(StepHasPassed)
-            .OrderBy(s => s.Sequence)
-            .ToList();
-        var currentStep = approvalRequest.Steps
-            .Where(s => s.Tasks.Any(t => t.Status == ApprovalRequestTaskStatus.Pending))
-            .OrderBy(s => s.Sequence)
-            .FirstOrDefault();
-        var lockedSteps = passedSteps.Concat(currentStep is null ? [] : [currentStep]).ToList();
-        var lockedBoundarySequence = lockedSteps.Count == 0 ? 0 : lockedSteps.Max(s => s.Sequence);
-
-        foreach (var lockedStep in lockedSteps)
-        {
-            var stepDto = orderedStepDtos.FirstOrDefault(s => s.Step.Id == lockedStep.Id)
-                ?? throw new BusinessRuleException("Steps that have already started cannot be removed.");
-
-            if (stepDto.Sequence != lockedStep.Sequence)
-            {
-                throw new BusinessRuleException("Steps that have already started cannot be reordered.");
-            }
-        }
-
-        foreach (var passedStep in passedSteps)
-        {
-            var stepDto = orderedStepDtos.First(s => s.Step.Id == passedStep.Id).Step;
-            EnsureStepIsUnchanged(passedStep, stepDto, "Steps that have already passed cannot be modified.");
-        }
-
-        var newTasks = new List<ApprovalRequestTask>();
-        var removedTasks = new List<ApprovalRequestTask>();
-        if (currentStep is not null)
-        {
-            var currentStepDto = orderedStepDtos.First(s => s.Step.Id == currentStep.Id).Step;
-            var taskUpdates = await UpdateCurrentStepApproversAsync(approvalRequest, currentStep, currentStepDto, cancellationToken);
-            newTasks.AddRange(taskUpdates.CreatedTasks);
-            removedTasks.AddRange(taskUpdates.RemovedTasks);
-        }
-
-        var mutableSteps = approvalRequest.Steps
-            .Where(s => s.Sequence > lockedBoundarySequence)
-            .ToList();
-        foreach (var step in mutableSteps)
-        {
-            approvalRequest.Steps.Remove(step);
-        }
-
-        var replacementSteps = orderedStepDtos
-            .Where(s => s.Sequence > lockedBoundarySequence)
-            .Select(s => BuildStep(s.Step, s.Sequence))
-            .ToList();
-        approvalRequest.Steps.AddRange(replacementSteps);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        await NotifyApproversAsync(newTasks, ApprovalRequestApproverNotification.Sent, cancellationToken);
-        await NotifyApproversAsync(removedTasks, ApprovalRequestApproverNotification.Removed, cancellationToken, approvalRequest);
     }
 
     /// <summary>
@@ -265,37 +162,30 @@ public class ApprovalRequestService(
             throw new BusinessRuleException("The task has already been completed.");
         }
 
-        // Complete approval request task.
         var now = DateTime.UtcNow;
+        var actor = await ResolveActorAsync(user, approvalRequestTask.TenantId, cancellationToken);
+        var previousTaskStatus = approvalRequestTask.Status;
         approvalRequestTask.Status = payload.Status;
         approvalRequestTask.Comment = payload.Comment;
-        approvalRequestTask.CompletedAt = now;
+        AddTaskStatusLog(approvalRequestTask, actor, now, previousTaskStatus, payload.Status, payload.Comment);
 
-        // Calculate and update approval request status.
         if (approvalRequestTask.ApprovalRequest.Status == ApprovalRequestStatus.Pending)
         {
             switch (payload.Status)
             {
                 case ApprovalRequestTaskStatus.Rejected:
+                    var previousRequestStatus = approvalRequestTask.ApprovalRequest.Status;
                     approvalRequestTask.ApprovalRequest.Status = ApprovalRequestStatus.Rejected;
-                    approvalRequestTask.ApprovalRequest.CompletedAt = now;
+                    AddRequestStatusLog(approvalRequestTask.ApprovalRequest, now, previousRequestStatus, ApprovalRequestStatus.Rejected);
                     SkipPendingTasks(approvalRequestTask.ApprovalRequest.Tasks.Where(t => t.Id != approvalRequestTask.Id), now);
                     break;
                 case ApprovalRequestTaskStatus.Approved:
-                    await AdvanceWorkflowAsync(approvalRequestTask, now, cancellationToken);
+                    await AdvanceWorkflowAsync(approvalRequestTask, actor, now, cancellationToken);
                     break;
                 default:
                     throw new BusinessRuleException("A task can only be approved or rejected.");
             }
         }
-
-        // Add audit log entry.
-        await _auditLogService.LogAsync(user,
-            now,
-            "Completed task",
-            approvalRequestTask.ToString(),
-            cancellationToken
-        );
 
         // Notify requester via email.
         var reviewedHeadingTemplate = _configuration["Email:Templates:ApprovalRequestReviewedHeading"]!;
@@ -318,7 +208,7 @@ public class ApprovalRequestService(
                     reviewedHeadingTemplate,
                     string.Format(reviewedMessageTemplate,
                         user.Email!.ToLower(),
-                        string.Join(", ", approvalRequestTask.UserFiles.Select(f => f.Name))),
+                        string.Join(", ", approvalRequestTask.ApprovalRequest.UserFiles.Select(f => f.Name))),
                     reviewedLink,
                     reviewedLinkText)
             }, cancellationToken);
@@ -376,8 +266,7 @@ public class ApprovalRequestService(
         Id = approvalRequest.Id,
         Title = approvalRequest.Title,
         Status = approvalRequest.Status,
-        CreatedAt = approvalRequest.CreatedAt,
-        CompletedAt = approvalRequest.CompletedAt
+        CreatedAt = approvalRequest.CreatedAt
     };
 
     private static ApprovalRequestTaskListItemDto MapListItem(ApprovalRequestTask task) => new()
@@ -385,8 +274,7 @@ public class ApprovalRequestService(
         Id = task.Id,
         Title = task.Title,
         Status = task.Status,
-        CreatedAt = task.CreatedAt,
-        CompletedAt = task.CompletedAt
+        CreatedAt = task.CreatedAt
     };
 
     private static ApprovalRequestDto MapResponse(ApprovalRequest approvalRequest)
@@ -399,11 +287,12 @@ public class ApprovalRequestService(
             Steps = [.. approvalRequest.Steps.Select(MapResponse)],
             Description = approvalRequest.Description,
             CreatedAt = approvalRequest.CreatedAt,
-            CompletedAt = approvalRequest.CompletedAt,
             CreatedByUserId = approvalRequest.CreatedByUserId,
             CreatedByEmail = approvalRequest.CreatedByEmail,
             Status = approvalRequest.Status,
-            Tasks = [.. approvalRequest.Tasks.Select(MapResponse)]
+            Tasks = [.. approvalRequest.Tasks.Select(MapResponse)],
+            LogEntries = [.. approvalRequest.LogEntries.Select(MapResponse)],
+            TaskLogEntries = [.. approvalRequest.Tasks.SelectMany(task => task.LogEntries).Select(MapResponse)]
         };
     }
 
@@ -413,15 +302,16 @@ public class ApprovalRequestService(
         {
             Id = approvalRequest.Id,
             Title = approvalRequest.Title,
-            UserFiles = [],
+            UserFiles = [.. approvalRequest.UserFiles.Select(MapResponse)],
             Steps = [],
             Description = approvalRequest.Description,
             CreatedAt = approvalRequest.CreatedAt,
-            CompletedAt = approvalRequest.CompletedAt,
             CreatedByUserId = approvalRequest.CreatedByUserId,
             CreatedByEmail = approvalRequest.CreatedByEmail,
             Status = approvalRequest.Status,
-            Tasks = []
+            Tasks = [.. approvalRequest.Tasks.Select(MapResponse)],
+            LogEntries = [.. approvalRequest.LogEntries.Select(MapResponse)],
+            TaskLogEntries = [.. approvalRequest.Tasks.SelectMany(task => task.LogEntries).Select(MapResponse)]
         };
     }
 
@@ -462,20 +352,51 @@ public class ApprovalRequestService(
             ApprovalRequestStepApproverId = task.ApprovalRequestStepApproverId,
             ApproverUserId = task.ApproverUserId,
             ApproverEmail = task.ApproverEmail,
-            ApproverDisplayName = task.ApproverDisplayName,
             CanViewRequest = task.CanViewRequest,
             Status = task.Status,
             CreatedAt = task.CreatedAt,
-            CompletedAt = task.CompletedAt,
             Description = task.Description,
-            Comment = task.Comment
+            Comment = task.Comment,
+            LogEntries = [.. task.LogEntries.Select(MapResponse)]
         };
     }
 
     private static ApprovalRequestTaskDetailDto MapDetailResponse(ApprovalRequestTask task) => new(MapResponse(task))
     {
-        UserFiles = [.. task.UserFiles.Select(MapResponse)],
+        UserFiles = [.. task.ApprovalRequest.UserFiles.Select(MapResponse)],
         ApprovalRequest = task.CanViewRequest ? MapTaskRequestResponse(task.ApprovalRequest) : null
+    };
+
+    private static ApprovalRequestLogEntryDto MapResponse(ApprovalRequestLogEntry logEntry) => new()
+    {
+        Id = logEntry.Id,
+        Timestamp = logEntry.Timestamp,
+        ActorType = logEntry.ActorType,
+        ActorUserId = logEntry.ActorUserId,
+        ActorEmployeeId = logEntry.ActorEmployeeId,
+        ActorEmail = logEntry.ActorEmail,
+        ActorDisplayName = logEntry.ActorDisplayName,
+        EventType = logEntry.EventType,
+        Details = logEntry.Details
+    };
+
+    private static ApprovalRequestTaskLogEntryDto MapResponse(ApprovalRequestTaskLogEntry logEntry) => new()
+    {
+        Id = logEntry.Id,
+        ApprovalRequestTaskId = logEntry.ApprovalRequestTaskId,
+        Timestamp = logEntry.Timestamp,
+        ActorType = logEntry.ActorType,
+        ActorUserId = logEntry.ActorUserId,
+        ActorEmployeeId = logEntry.ActorEmployeeId,
+        ActorEmail = logEntry.ActorEmail,
+        ActorDisplayName = logEntry.ActorDisplayName,
+        OnBehalfOfActorType = logEntry.OnBehalfOfActorType,
+        OnBehalfOfUserId = logEntry.OnBehalfOfUserId,
+        OnBehalfOfEmployeeId = logEntry.OnBehalfOfEmployeeId,
+        OnBehalfOfEmail = logEntry.OnBehalfOfEmail,
+        OnBehalfOfDisplayName = logEntry.OnBehalfOfDisplayName,
+        EventType = logEntry.EventType,
+        Details = logEntry.Details
     };
 
     private static UserFileDto MapResponse(UserFile userFile)
@@ -527,23 +448,6 @@ public class ApprovalRequestService(
         };
     }
 
-    private static ApprovalRequestStep BuildStep(ApprovalRequestStepUpdateDto stepDto, int sequence)
-    {
-        if (stepDto.Approvers.Count == 0)
-        {
-            throw new BusinessRuleException("Each approval step must have one or more approvers.");
-        }
-
-        return new ApprovalRequestStep
-        {
-            Sequence = sequence,
-            Mode = stepDto.Mode,
-            Approvers = [.. stepDto.Approvers.Select(BuildApprover)],
-            ApprovalRequest = null!,
-            Tasks = []
-        };
-    }
-
     private static ApprovalRequestStepApprover BuildApprover(ApprovalRequestApproverSubmitDto approver)
     {
         return new ApprovalRequestStepApprover
@@ -560,11 +464,12 @@ public class ApprovalRequestService(
     private async Task CreateTasksForStepAsync(
         ApprovalRequest approvalRequest,
         ApprovalRequestStep step,
+        DateTime timestamp,
         CancellationToken cancellationToken)
     {
         foreach (var configuredApprover in step.Approvers)
         {
-            await CreateTasksForApproverAsync(approvalRequest, step, configuredApprover, cancellationToken);
+            await CreateTasksForApproverAsync(approvalRequest, step, configuredApprover, timestamp, cancellationToken);
         }
     }
 
@@ -572,6 +477,7 @@ public class ApprovalRequestService(
         ApprovalRequest approvalRequest,
         ApprovalRequestStep step,
         ApprovalRequestStepApprover configuredApprover,
+        DateTime timestamp,
         CancellationToken cancellationToken)
     {
         var tasks = new List<ApprovalRequestTask>();
@@ -592,13 +498,13 @@ public class ApprovalRequestService(
                 ApprovalRequestStepApprover = configuredApprover,
                 ApproverEmail = resolution.ApproverEmail,
                 ApproverUserId = resolution.ApproverUserId,
-                ApproverDisplayName = resolution.DisplayName,
+                ApproverEmployeeId = resolution.ApproverEmployeeId,
                 CanViewRequest = resolution.CanViewRequest,
                 TenantId = resolution.TenantId,
                 Status = ApprovalRequestTaskStatus.Pending,
-                CreatedAt = DateTime.UtcNow,
-                UserFiles = [.. approvalRequest.UserFiles]
+                CreatedAt = timestamp
             }, cancellationToken);
+            AddTaskSubmittedLog(task, timestamp);
             approvalRequest.Tasks.Add(task);
             step.Tasks.Add(task);
             tasks.Add(task);
@@ -607,180 +513,11 @@ public class ApprovalRequestService(
         return tasks;
     }
 
-    private async Task<CurrentStepTaskUpdates> UpdateCurrentStepApproversAsync(
-        ApprovalRequest approvalRequest,
-        ApprovalRequestStep currentStep,
-        ApprovalRequestStepUpdateDto currentStepDto,
+    private async Task AdvanceWorkflowAsync(
+        ApprovalRequestTask approvalRequestTask,
+        ApprovalLogActor actor,
+        DateTime now,
         CancellationToken cancellationToken)
-    {
-        if (currentStep.Mode != currentStepDto.Mode)
-        {
-            throw new BusinessRuleException("The current approval step cannot be modified.");
-        }
-        if (currentStepDto.Approvers.Count == 0)
-        {
-            throw new BusinessRuleException("Each approval step must have one or more approvers.");
-        }
-
-        var currentApproversById = currentStep.Approvers.ToDictionary(a => a.Id);
-        var submittedApproverIds = currentStepDto.Approvers
-            .Where(a => a.Id.HasValue)
-            .Select(a => a.Id!.Value)
-            .ToHashSet();
-        var newTasks = new List<ApprovalRequestTask>();
-        var removedTasks = new List<ApprovalRequestTask>();
-
-        foreach (var approverDto in currentStepDto.Approvers.Where(a => a.Id.HasValue))
-        {
-            if (!currentApproversById.TryGetValue(approverDto.Id!.Value, out var existingApprover))
-            {
-                throw new BusinessRuleException("The current approval step contains an invalid approver.");
-            }
-
-            if (ApproverIsUnchanged(existingApprover, approverDto))
-            {
-                continue;
-            }
-
-            var tasks = await GetApproverTasksAsync(approvalRequest, currentStep, existingApprover, cancellationToken);
-            if (tasks.Any(t => t.Status != ApprovalRequestTaskStatus.Pending))
-            {
-                throw new BusinessRuleException("Approvers that have already reviewed the current step cannot be modified.");
-            }
-
-            RemoveTasks(approvalRequest, currentStep, tasks);
-            removedTasks.AddRange(tasks);
-            UpdateApprover(existingApprover, approverDto);
-            var createdTasks = await CreateTasksForApproverAsync(approvalRequest, currentStep, existingApprover, cancellationToken);
-            newTasks.AddRange(createdTasks);
-        }
-
-        var removedApprovers = currentStep.Approvers
-            .Where(a => !submittedApproverIds.Contains(a.Id))
-            .ToList();
-        foreach (var removedApprover in removedApprovers)
-        {
-            var tasks = await GetApproverTasksAsync(approvalRequest, currentStep, removedApprover, cancellationToken);
-            if (tasks.Any(t => t.Status != ApprovalRequestTaskStatus.Pending))
-            {
-                throw new BusinessRuleException("Approvers that have already reviewed the current step cannot be removed.");
-            }
-
-            removedTasks.AddRange(tasks);
-            RemoveTasks(approvalRequest, currentStep, tasks);
-            currentStep.Approvers.Remove(removedApprover);
-        }
-
-        foreach (var approverDto in currentStepDto.Approvers.Where(a => !a.Id.HasValue))
-        {
-            var approver = BuildApprover(approverDto);
-            currentStep.Approvers.Add(approver);
-            var createdTasks = await CreateTasksForApproverAsync(approvalRequest, currentStep, approver, cancellationToken);
-            newTasks.AddRange(createdTasks);
-        }
-
-        return new CurrentStepTaskUpdates(newTasks, removedTasks);
-    }
-
-    private void RemoveTasks(
-        ApprovalRequest approvalRequest,
-        ApprovalRequestStep currentStep,
-        IEnumerable<ApprovalRequestTask> tasks)
-    {
-        foreach (var task in tasks)
-        {
-            _approvalRequestTaskRepository.Remove(task);
-            approvalRequest.Tasks.Remove(task);
-            currentStep.Tasks.Remove(task);
-        }
-    }
-
-    private static void EnsureStepIsUnchanged(
-        ApprovalRequestStep step,
-        ApprovalRequestStepUpdateDto stepDto,
-        string message)
-    {
-        if (step.Mode != stepDto.Mode || step.Approvers.Count != stepDto.Approvers.Count)
-        {
-            throw new BusinessRuleException(message);
-        }
-
-        foreach (var approver in step.Approvers)
-        {
-            var approverDto = stepDto.Approvers.FirstOrDefault(a => a.Id == approver.Id)
-                ?? throw new BusinessRuleException(message);
-            EnsureApproverIsUnchanged(approver, approverDto, message);
-        }
-    }
-
-    private static void EnsureApproverIsUnchanged(
-        ApprovalRequestStepApprover approver,
-        ApprovalRequestApproverUpdateDto approverDto,
-        string message)
-    {
-        if (!ApproverIsUnchanged(approver, approverDto))
-        {
-            throw new BusinessRuleException(message);
-        }
-    }
-
-    private static bool ApproverIsUnchanged(
-        ApprovalRequestStepApprover approver,
-        ApprovalRequestApproverUpdateDto approverDto)
-    {
-        return approver.Type == approverDto.Type
-            && string.Equals(approver.Email, approverDto.Email, StringComparison.Ordinal)
-            && approver.EmployeeId == approverDto.EmployeeId
-            && approver.TeamId == approverDto.TeamId
-            && string.Equals(approver.DisplayName, approverDto.DisplayName, StringComparison.Ordinal)
-            && approver.CanViewRequest == approverDto.CanViewRequest;
-    }
-
-    private static void UpdateApprover(
-        ApprovalRequestStepApprover approver,
-        ApprovalRequestApproverUpdateDto approverDto)
-    {
-        approver.Type = approverDto.Type;
-        approver.Email = approverDto.Email;
-        approver.EmployeeId = approverDto.EmployeeId;
-        approver.TeamId = approverDto.TeamId;
-        approver.DisplayName = approverDto.DisplayName;
-        approver.CanViewRequest = approverDto.CanViewRequest;
-    }
-
-    private static bool StepHasPassed(ApprovalRequestStep step)
-    {
-        return step.Tasks.Count > 0
-            && step.Tasks.All(t => t.Status is ApprovalRequestTaskStatus.Approved or ApprovalRequestTaskStatus.Skipped);
-    }
-
-    private async Task<List<ApprovalRequestTask>> GetApproverTasksAsync(
-        ApprovalRequest approvalRequest,
-        ApprovalRequestStep step,
-        ApprovalRequestStepApprover approver,
-        CancellationToken cancellationToken)
-    {
-        var linkedTasks = step.Tasks
-            .Where(task => task.ApprovalRequestStepApproverId == approver.Id
-                || task.ApprovalRequestStepApprover == approver)
-            .ToList();
-        if (linkedTasks.Count > 0)
-        {
-            return linkedTasks;
-        }
-
-        var resolutions = await _approvalRecipientResolver.ResolveAsync(approvalRequest, step, approver, cancellationToken);
-        return [.. step.Tasks.Where(task => resolutions.Any(resolution => MatchesResolution(task, resolution)))];
-    }
-
-    private static bool MatchesResolution(ApprovalRequestTask task, ApprovalRecipientResolution resolution)
-    {
-        return task.TenantId == resolution.TenantId
-            && string.Equals(task.ApproverEmail, resolution.ApproverEmail, StringComparison.Ordinal)
-            && string.Equals(task.ApproverUserId, resolution.ApproverUserId, StringComparison.Ordinal);
-    }
-
-    private async Task AdvanceWorkflowAsync(ApprovalRequestTask approvalRequestTask, DateTime now, CancellationToken cancellationToken)
     {
         var approvalRequest = approvalRequestTask.ApprovalRequest;
         var currentStep = approvalRequestTask.ApprovalRequestStep;
@@ -811,22 +548,24 @@ public class ApprovalRequestService(
 
         if (nextStep is null)
         {
+            var previousStatus = approvalRequest.Status;
             approvalRequest.Status = ApprovalRequestStatus.Approved;
-            approvalRequest.CompletedAt = approvalRequestTask.CompletedAt;
+            AddRequestStatusLog(approvalRequest, now, previousStatus, ApprovalRequestStatus.Approved);
             SkipPendingTasks(approvalRequest.Tasks, now);
             return;
         }
 
-        await CreateTasksForStepAsync(approvalRequest, nextStep, cancellationToken);
+        await CreateTasksForStepAsync(approvalRequest, nextStep, now, cancellationToken);
         await NotifyApproversAsync(nextStep.Tasks, ApprovalRequestApproverNotification.Sent, cancellationToken);
     }
 
-    private static void SkipPendingTasks(IEnumerable<ApprovalRequestTask> tasks, DateTime completedAt)
+    private static void SkipPendingTasks(IEnumerable<ApprovalRequestTask> tasks, DateTime timestamp)
     {
         foreach (var task in tasks.Where(t => t.Status == ApprovalRequestTaskStatus.Pending))
         {
+            var previousStatus = task.Status;
             task.Status = ApprovalRequestTaskStatus.Skipped;
-            task.CompletedAt = completedAt;
+            AddTaskStatusLog(task, SystemActor, timestamp, previousStatus, ApprovalRequestTaskStatus.Skipped, task.Comment);
         }
     }
 
@@ -886,8 +625,6 @@ public class ApprovalRequestService(
         return notification switch
         {
             ApprovalRequestApproverNotification.Cancelled => NotificationType.ApprovalRequestCancelled,
-            ApprovalRequestApproverNotification.Deleted => NotificationType.ApprovalRequestDeleted,
-            ApprovalRequestApproverNotification.Removed => NotificationType.ApprovalRequestTaskRemoved,
             _ => NotificationType.ApprovalRequestTaskCreated
         };
     }
@@ -897,8 +634,6 @@ public class ApprovalRequestService(
         var templateName = notification switch
         {
             ApprovalRequestApproverNotification.Cancelled => "ApprovalRequestCancelled",
-            ApprovalRequestApproverNotification.Deleted => "ApprovalRequestDeleted",
-            ApprovalRequestApproverNotification.Removed => "ApprovalRequestTaskRemoved",
             _ => "ApprovalRequestSent"
         };
 
@@ -909,11 +644,139 @@ public class ApprovalRequestService(
             _configuration[$"Email:Templates:{templateName}Subject"]!);
     }
 
-    private sealed record SequencedStepDto(ApprovalRequestStepUpdateDto Step, int Sequence);
+    private Task<ApprovalLogActor> ResolveActorAsync(AppUser user, long tenantId, CancellationToken cancellationToken)
+    {
+        return _approvalLogActorResolver.ResolveAsync(user, tenantId, cancellationToken);
+    }
 
-    private sealed record CurrentStepTaskUpdates(
-        List<ApprovalRequestTask> CreatedTasks,
-        List<ApprovalRequestTask> RemovedTasks);
+    private static void AddRequestSubmittedLog(
+        ApprovalRequest approvalRequest,
+        ApprovalLogActor actor,
+        DateTime timestamp)
+    {
+        AddRequestLog(
+            approvalRequest,
+            actor,
+            timestamp,
+            ApprovalRequestLogEventType.Submitted,
+            new ApprovalRequestSubmittedDetails(approvalRequest.Status));
+    }
+
+    private static void AddRequestStatusLog(
+        ApprovalRequest approvalRequest,
+        DateTime timestamp,
+        ApprovalRequestStatus? previousStatus,
+        ApprovalRequestStatus status)
+    {
+        AddRequestLog(
+            approvalRequest,
+            SystemActor,
+            timestamp,
+            ApprovalRequestLogEventType.StatusChanged,
+            new ApprovalRequestStatusChangedDetails(previousStatus, status));
+    }
+
+    private static void AddTaskSubmittedLog(ApprovalRequestTask task, DateTime timestamp)
+    {
+        AddTaskLog(
+            task,
+            SystemActor,
+            null,
+            timestamp,
+            ApprovalRequestTaskLogEventType.Submitted,
+            new ApprovalRequestTaskSubmittedDetails(task.Status));
+    }
+
+    private static void AddTaskStatusLog(
+        ApprovalRequestTask task,
+        ApprovalLogActor actor,
+        DateTime timestamp,
+        ApprovalRequestTaskStatus? previousStatus,
+        ApprovalRequestTaskStatus status,
+        string? comment)
+    {
+        AddTaskLog(
+            task,
+            actor,
+            GetOnBehalfOfActor(task, actor),
+            timestamp,
+            ApprovalRequestTaskLogEventType.StatusChanged,
+            new ApprovalRequestTaskStatusChangedDetails(previousStatus, status, comment));
+    }
+
+    private static void AddTaskLog<TDetails>(
+        ApprovalRequestTask task,
+        ApprovalLogActor actor,
+        ApprovalLogActor? onBehalfOfActor,
+        DateTime timestamp,
+        ApprovalRequestTaskLogEventType eventType,
+        TDetails details)
+    {
+        task.LogEntries.Add(new ApprovalRequestTaskLogEntry
+        {
+            ApprovalRequestTaskId = task.Id,
+            ApprovalRequestTask = task,
+            Timestamp = timestamp,
+            ActorType = actor.Type,
+            ActorUserId = actor.UserId,
+            ActorEmployeeId = actor.EmployeeId,
+            ActorEmail = actor.Email,
+            ActorDisplayName = actor.DisplayName,
+            OnBehalfOfActorType = onBehalfOfActor?.Type,
+            OnBehalfOfUserId = onBehalfOfActor?.UserId,
+            OnBehalfOfEmployeeId = onBehalfOfActor?.EmployeeId,
+            OnBehalfOfEmail = onBehalfOfActor?.Email,
+            OnBehalfOfDisplayName = onBehalfOfActor?.DisplayName,
+            EventType = eventType,
+            Details = SerializeDetails(details),
+            TenantId = task.TenantId
+        });
+    }
+
+    private static void AddRequestLog<TDetails>(
+        ApprovalRequest approvalRequest,
+        ApprovalLogActor actor,
+        DateTime timestamp,
+        ApprovalRequestLogEventType eventType,
+        TDetails details)
+    {
+        approvalRequest.LogEntries.Add(new ApprovalRequestLogEntry
+        {
+            ApprovalRequestId = approvalRequest.Id,
+            ApprovalRequest = approvalRequest,
+            Timestamp = timestamp,
+            ActorType = actor.Type,
+            ActorUserId = actor.UserId,
+            ActorEmployeeId = actor.EmployeeId,
+            ActorEmail = actor.Email,
+            ActorDisplayName = actor.DisplayName,
+            EventType = eventType,
+            Details = SerializeDetails(details),
+            TenantId = approvalRequest.TenantId
+        });
+    }
+
+    private static ApprovalLogActor? GetOnBehalfOfActor(ApprovalRequestTask task, ApprovalLogActor actor)
+    {
+        if (actor.Type != ApprovalLogActorType.Employee
+            || task.ApproverEmployeeId is null
+            || task.ApproverEmployeeId == actor.EmployeeId)
+        {
+            return null;
+        }
+
+        return new ApprovalLogActor(
+            Type: ApprovalLogActorType.Employee,
+            UserId: task.ApproverUserId,
+            EmployeeId: task.ApproverEmployeeId,
+            Email: task.ApproverEmail,
+            DisplayName: task.ApprovalRequestStepApprover?.DisplayName);
+    }
+
+    private static string SerializeDetails<TDetails>(TDetails details)
+    {
+        return JsonSerializer.Serialize(details, LogDetailsJsonOptions);
+    }
 
     private sealed record ApproverNotificationTemplate(
         string Heading,
@@ -924,8 +787,6 @@ public class ApprovalRequestService(
     private enum ApprovalRequestApproverNotification
     {
         Sent,
-        Deleted,
-        Cancelled,
-        Removed
+        Cancelled
     }
 }

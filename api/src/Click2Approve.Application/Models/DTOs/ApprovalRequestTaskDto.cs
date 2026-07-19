@@ -18,16 +18,15 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
         Title = source.Title;
         Status = source.Status;
         CreatedAt = source.CreatedAt;
-        CompletedAt = source.CompletedAt;
         ApprovalRequestId = source.ApprovalRequestId;
         ApprovalRequestStepId = source.ApprovalRequestStepId;
         ApprovalRequestStepApproverId = source.ApprovalRequestStepApproverId;
         ApproverUserId = source.ApproverUserId;
         ApproverEmail = source.ApproverEmail;
-        ApproverDisplayName = source.ApproverDisplayName;
         CanViewRequest = source.CanViewRequest;
         Description = source.Description;
         Comment = source.Comment;
+        LogEntries = source.LogEntries;
     }
 
     public long ApprovalRequestId { get; init; }
@@ -35,8 +34,8 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
     public long? ApprovalRequestStepApproverId { get; init; }
     public string? ApproverUserId { get; init; }
     public required string ApproverEmail { get; init; }
-    public string? ApproverDisplayName { get; init; }
     public bool CanViewRequest { get; init; }
     public string? Description { get; init; }
     public string? Comment { get; init; }
+    public required List<ApprovalRequestTaskLogEntryDto> LogEntries { get; init; }
 }

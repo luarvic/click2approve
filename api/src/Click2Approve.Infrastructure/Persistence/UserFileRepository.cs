@@ -50,9 +50,9 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
         return await Db.UserFiles
             .Include(file => file.Owner)
             .FirstAsync(file => file.Id == id
-                && file.ApprovalRequestTasks.Any(task => task.Id == approvalRequestTaskId
+                && file.ApprovalRequests.Any(request => request.Tasks.Any(task => task.Id == approvalRequestTaskId
                     && task.TenantId == tenantId
-                    && task.ApproverUserId == user.Id), cancellationToken);
+                    && task.ApproverUserId == user.Id)), cancellationToken);
     }
 
     public async Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken)

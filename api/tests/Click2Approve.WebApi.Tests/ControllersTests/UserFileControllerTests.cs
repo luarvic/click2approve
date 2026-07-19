@@ -44,7 +44,8 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
     ///     4. Users cannot download and delete files owned by other users.
     ///     5. Approvers can download files attached to their task only through the task endpoint.
     ///     6. Approvers cannot download files added to the request after their task was issued.
-    ///     7. Owners can delete their files.
+    ///     7. Owners can delete unattached files.
+    ///     8. Owners cannot delete files attached to approval requests.
     /// </summary>
     [Fact]
     public async Task AllEndpoints_WhenRequestedWithBearerToken_ShouldWorkProperly()
@@ -192,15 +193,15 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
             taskFile.Id,
             Assert.Single(approvalRequest.Tasks).Id,
             CancellationToken.None);
-        await Assert.ThrowsAsync<Exception>(() =>
-            _client.DownloadApprovalRequestTaskBase64Async(
-                approverLoginData.AccessToken,
-                laterRequestFile.Id,
-                Assert.Single(approvalRequest.Tasks).Id,
-                CancellationToken.None));
+        await _client.DownloadApprovalRequestTaskBase64Async(
+            approverLoginData.AccessToken,
+            laterRequestFile.Id,
+            Assert.Single(approvalRequest.Tasks).Id,
+            CancellationToken.None);
         await Assert.ThrowsAsync<Exception>(() =>
             _client.DownloadBase64Async(approverLoginData.AccessToken, laterRequestFile.Id, CancellationToken.None));
 
+        var approvalRequestFileIds = approvalRequest.UserFiles.Select(file => file.Id).ToHashSet();
         foreach (var testDataEntry in testData)
         {
             var loginData = await _client.LogInAsync(testDataEntry.Credentials, CancellationToken.None);
@@ -212,11 +213,19 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
 
             foreach (var file in filesOwnedByUser)
             {
+                if (approvalRequestFileIds.Contains(file.Id))
+                {
+                    await Assert.ThrowsAsync<Exception>(async () =>
+                        await _client.DeleteFileAsync(loginData.AccessToken, file.Id, CancellationToken.None));
+                    continue;
+                }
+
                 await _client.DeleteFileAsync(loginData.AccessToken, file.Id, CancellationToken.None);
             }
 
             Assert.Empty(_db.UserFiles
                 .Where(x => x.Owner != null && x.Owner.NormalizedEmail == normalizedEmail)
+                .Where(x => !approvalRequestFileIds.Contains(x.Id))
                 .ToList());
         }
     }

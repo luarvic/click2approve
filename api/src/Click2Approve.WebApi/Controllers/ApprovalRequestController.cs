@@ -40,19 +40,6 @@ public class ApprovalRequestController(
     }
 
     /// <summary>
-    /// Deletes an approval request.
-    /// </summary>
-    /// <param name="id">The ID of the approval request to delete.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    [HttpDelete()]
-    public async Task<IActionResult> DeleteAsync(long id, CancellationToken cancellationToken)
-    {
-        var user = await _userManager.GetAppUserAsync(User);
-        await _approvalRequestService.DeleteApprovalRequestAsync(user, id, cancellationToken);
-        return Ok();
-    }
-
-    /// <summary>
     /// Cancels an approval request.
     /// </summary>
     [HttpPost("{id:long}/cancel")]
@@ -60,17 +47,6 @@ public class ApprovalRequestController(
     {
         var user = await _userManager.GetAppUserAsync(User);
         await _approvalRequestService.CancelApprovalRequestAsync(user, id, cancellationToken);
-        return Ok();
-    }
-
-    /// <summary>
-    /// Updates currently mutable properties of an approval request.
-    /// </summary>
-    [HttpPut("{id:long}/steps")]
-    public async Task<IActionResult> UpdateAsync(long id, [FromBody] ApprovalRequestUpdateDto payload, CancellationToken cancellationToken)
-    {
-        var user = await _userManager.GetAppUserAsync(User);
-        await _approvalRequestService.UpdateApprovalRequestAsync(user, id, payload, cancellationToken);
         return Ok();
     }
 

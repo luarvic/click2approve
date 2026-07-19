@@ -14,8 +14,6 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
 
     [Theory]
     [InlineData("POST", "api/request")]
-    [InlineData("PUT", "api/request/1/steps")]
-    [InlineData("DELETE", "api/request")]
     [InlineData("GET", "api/request/list")]
     [InlineData("GET", "api/request/1")]
     public async Task Requests_WithoutBearerToken_ShouldReturnUnauthorized(string httpMethod, string url)

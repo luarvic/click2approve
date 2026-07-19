@@ -19,13 +19,6 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
         return entry.Entity;
     }
 
-    public virtual async Task<ApprovalRequest> GetForDeleteAsync(AppUser user, long id, CancellationToken cancellationToken)
-    {
-        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await IncludeDetails(Db.ApprovalRequests)
-            .FirstAsync(r => r.TenantId == tenantId && r.Id == id && r.CreatedByUserId == user.Id, cancellationToken);
-    }
-
     public virtual async Task<ApprovalRequest> GetForUpdateAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
@@ -71,14 +64,11 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
             && r.CreatedAt < end, cancellationToken);
     }
 
-    public void Remove(ApprovalRequest approvalRequest)
-    {
-        Db.ApprovalRequests.Remove(approvalRequest);
-    }
-
     protected static IQueryable<ApprovalRequest> IncludeDetails(IQueryable<ApprovalRequest> requests) => requests
         .Include(request => request.UserFiles)
+        .Include(request => request.LogEntries)
         .Include(request => request.Tasks)
+            .ThenInclude(task => task.LogEntries)
         .Include(request => request.Steps)
             .ThenInclude(step => step.Approvers)
         .Include(request => request.Steps)

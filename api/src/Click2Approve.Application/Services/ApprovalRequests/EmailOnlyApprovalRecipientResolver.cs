@@ -31,6 +31,7 @@ public class EmailOnlyApprovalRecipientResolver(ITenantRepository tenantReposito
             new ApprovalRecipientResolution(
                 email,
                 approverTenant?.Owner.Id,
+                ApproverEmployeeId: null,
                 approverTenant?.Id ?? approvalRequest.TenantId,
                 approver.DisplayName,
                 approver.CanViewRequest)

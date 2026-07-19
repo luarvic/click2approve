@@ -16,5 +16,6 @@ public class Tenant : DbEntity
     public List<UserFile> UserFiles { get; set; } = [];
     public List<ApprovalRequest> ApprovalRequests { get; set; } = [];
     public List<ApprovalRequestTask> ApprovalRequestTasks { get; set; } = [];
-    public List<AuditLogEntry> AuditLogEntries { get; set; } = [];
+    public List<ApprovalRequestLogEntry> ApprovalRequestLogEntries { get; set; } = [];
+    public List<ApprovalRequestTaskLogEntry> ApprovalRequestTaskLogEntries { get; set; } = [];
 }

@@ -83,9 +83,7 @@ public class UserNotificationPreferenceService(ApiDbContext db) : IUserNotificat
         return
         [
             NotificationType.ApprovalRequestTaskCreated,
-            NotificationType.ApprovalRequestTaskRemoved,
             NotificationType.ApprovalRequestCancelled,
-            NotificationType.ApprovalRequestDeleted,
             NotificationType.ApprovalRequestReviewed
         ];
     }

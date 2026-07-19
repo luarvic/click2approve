@@ -2,8 +2,6 @@ using Click2Approve.Domain.Exceptions;
 using Click2Approve.Application.Extensions;
 using Click2Approve.Application.Persistence;
 using Click2Approve.Domain.Models;
-using Click2Approve.Application.Services.ApprovalRequests;
-using Click2Approve.Application.Services.AuditLogs;
 using Click2Approve.Application.Services.FileStorage;
 using Click2Approve.Application.Services.TenantContext;
 using Click2Approve.Application.Services.UserFiles;
@@ -14,8 +12,6 @@ namespace Click2Approve.Application.Services.UserFiles;
 /// Implements a service that manages user files.
 /// </summary>
 public class UserFileService(
-    IAuditLogService auditLogService,
-    IApprovalRequestService approvalRequestService,
     IConfiguration configuration,
     IApprovalRequestRepository approvalRequestRepository,
     IUserFileRepository userFileRepository,
@@ -24,8 +20,6 @@ public class UserFileService(
     IFileStorage fileStorage,
     ILogger<UserFileService> logger) : IUserFileService
 {
-    private readonly IAuditLogService _auditLogService = auditLogService;
-    private readonly IApprovalRequestService _approvalRequestService = approvalRequestService;
     private readonly IConfiguration _configuration = configuration;
     private readonly IApprovalRequestRepository _approvalRequestRepository = approvalRequestRepository;
     private readonly IUserFileRepository _userFileRepository = userFileRepository;
@@ -67,14 +61,6 @@ public class UserFileService(
             // Save the file.
             var bytes = await file.ToBytesAsync(cancellationToken);
             await _fileStorage.SaveAsync(GetFilePath(user.Id, id, Path.GetFileName(file.FileName)), bytes, cancellationToken);
-
-            // Add audit log entry.
-            await _auditLogService.LogAsync(user,
-                DateTime.UtcNow,
-                "Uploaded user file",
-                savedUserFile.ToString(),
-                cancellationToken
-            );
         }
 
         return userFiles;
@@ -132,25 +118,16 @@ public class UserFileService(
     {
         // Delete related approval requests first.
         var approvalRequests = await _approvalRequestRepository.ListAsync(user, id, cancellationToken);
-        foreach (var approvalRequest in approvalRequests)
+        if (approvalRequests.Count > 0)
         {
-            await _approvalRequestService.DeleteApprovalRequestAsync(user, approvalRequest.Id, cancellationToken);
+            throw new BusinessRuleException("Files attached to approval requests cannot be deleted.");
         }
 
         // Delete the file.
         var userFile = await _userFileRepository.GetForDeleteAsync(user, id, cancellationToken);
-        var userFileJson = userFile.ToString();
         _userFileRepository.Remove(userFile);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         await _fileStorage.DeleteAsync(GetFilePath(user.Id, userFile.Id.ToString(), userFile.Name), cancellationToken);
-
-        // Add audit log entry.
-        await _auditLogService.LogAsync(user,
-            DateTime.UtcNow,
-            "Deleted user file",
-            userFileJson,
-            cancellationToken
-        );
     }
 
     /// <summary>

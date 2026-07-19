@@ -133,10 +133,17 @@ public class UserProfileService(
         }
 
         var extension = Path.GetExtension(avatar.FileName).ToLowerInvariant();
-        if (!GetAllowedAvatarExtensions().Contains(extension) || !avatar.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+        if (!GetAllowedAvatarExtensions().Contains(extension) || !HasImageContentType(avatar))
         {
             throw new BusinessRuleException("Avatar must be an image file.");
         }
+    }
+
+    private static bool HasImageContentType(IFormFile avatar)
+    {
+        return string.IsNullOrWhiteSpace(avatar.ContentType)
+            || string.Equals(avatar.ContentType, "application/octet-stream", StringComparison.OrdinalIgnoreCase)
+            || avatar.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string GetAvatarPath(string userId, string extension)

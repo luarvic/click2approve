@@ -14,15 +14,14 @@ public class ApprovalRequestTask : DbEntity
     public ApprovalRequestStepApprover? ApprovalRequestStepApprover { get; set; }
     public string? ApproverUserId { get; set; }
     public AppUser? ApproverUser { get; set; }
+    public long? ApproverEmployeeId { get; set; }
     public required string ApproverEmail { get; set; }
-    public string? ApproverDisplayName { get; set; }
     public required bool CanViewRequest { get; set; }
     public long TenantId { get; set; }
     public Tenant? Tenant { get; set; }
     public ApprovalRequestTaskStatus Status { get; set; }
     public required DateTime CreatedAt { get; set; }
-    public DateTime? CompletedAt { get; set; }
     public string? Description { get; set; }
     public string? Comment { get; set; }
-    public List<UserFile> UserFiles { get; set; } = [];
+    public List<ApprovalRequestTaskLogEntry> LogEntries { get; set; } = [];
 }

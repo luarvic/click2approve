@@ -11,10 +11,11 @@ namespace Click2Approve.Infrastructure.Persistence;
 public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>(options), IUnitOfWork
 {
     public DbSet<ApprovalRequest> ApprovalRequests { get; set; }
+    public DbSet<ApprovalRequestLogEntry> ApprovalRequestLogEntries { get; set; }
     public DbSet<ApprovalRequestStep> ApprovalRequestSteps { get; set; }
     public DbSet<ApprovalRequestStepApprover> ApprovalRequestStepApprovers { get; set; }
     public DbSet<ApprovalRequestTask> ApprovalRequestTasks { get; set; }
-    public DbSet<AuditLogEntry> AuditLogEntries { get; set; }
+    public DbSet<ApprovalRequestTaskLogEntry> ApprovalRequestTaskLogEntries { get; set; }
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<UserFile> UserFiles { get; set; }
     public DbSet<UserNotificationPreference> UserNotificationPreferences { get; set; }
@@ -66,10 +67,6 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
         modelBuilder.Entity<Tenant>()
             .HasIndex(t => t.BusinessName);
 
-        modelBuilder.Entity<AuditLogEntry>()
-            .Property(e => e.Who)
-            .HasMaxLength(255);
-
         modelBuilder.Entity<ApprovalRequest>()
             .Property(r => r.Status)
             .HasConversion<int>();
@@ -95,6 +92,43 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasOne(r => r.Tenant)
             .WithMany(t => t.ApprovalRequests)
             .HasForeignKey(r => r.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ApprovalRequestLogEntry>()
+            .Property(e => e.ActorType)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<ApprovalRequestLogEntry>()
+            .Property(e => e.EventType)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<ApprovalRequestLogEntry>()
+            .Property(e => e.ActorEmail)
+            .HasMaxLength(320);
+
+        modelBuilder.Entity<ApprovalRequestLogEntry>()
+            .Property(e => e.ActorDisplayName)
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<ApprovalRequestLogEntry>()
+            .HasIndex(e => new { e.ApprovalRequestId, e.Timestamp });
+
+        modelBuilder.Entity<ApprovalRequestLogEntry>()
+            .HasOne(e => e.ApprovalRequest)
+            .WithMany(r => r.LogEntries)
+            .HasForeignKey(e => e.ApprovalRequestId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ApprovalRequestLogEntry>()
+            .HasOne(e => e.ActorUser)
+            .WithMany()
+            .HasForeignKey(e => e.ActorUserId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<ApprovalRequestLogEntry>()
+            .HasOne(e => e.Tenant)
+            .WithMany(t => t.ApprovalRequestLogEntries)
+            .HasForeignKey(e => e.TenantId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<ApprovalRequestStep>()
@@ -173,12 +207,52 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasForeignKey(t => t.TenantId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<AuditLogEntry>()
-            .HasIndex(e => new { e.TenantId, e.Who, e.OccurredAt });
+        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
+            .Property(e => e.ActorType)
+            .HasConversion<int>();
 
-        modelBuilder.Entity<AuditLogEntry>()
+        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
+            .Property(e => e.EventType)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
+            .Property(e => e.ActorEmail)
+            .HasMaxLength(320);
+
+        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
+            .Property(e => e.ActorDisplayName)
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
+            .Property(e => e.OnBehalfOfActorType)
+            .HasConversion<int?>();
+
+        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
+            .Property(e => e.OnBehalfOfEmail)
+            .HasMaxLength(320);
+
+        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
+            .Property(e => e.OnBehalfOfDisplayName)
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
+            .HasIndex(e => new { e.ApprovalRequestTaskId, e.Timestamp });
+
+        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
+            .HasOne(e => e.ApprovalRequestTask)
+            .WithMany(t => t.LogEntries)
+            .HasForeignKey(e => e.ApprovalRequestTaskId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
+            .HasOne(e => e.ActorUser)
+            .WithMany()
+            .HasForeignKey(e => e.ActorUserId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
             .HasOne(e => e.Tenant)
-            .WithMany(t => t.AuditLogEntries)
+            .WithMany(t => t.ApprovalRequestTaskLogEntries)
             .HasForeignKey(e => e.TenantId)
             .OnDelete(DeleteBehavior.Cascade);
 

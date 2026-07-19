@@ -11,4 +11,6 @@ public class ApprovalRequestDto : ApprovalRequestListItemDto
     public required string CreatedByUserId { get; init; }
     public required string CreatedByEmail { get; init; }
     public required List<ApprovalRequestTaskDto> Tasks { get; init; }
+    public required List<ApprovalRequestLogEntryDto> LogEntries { get; init; }
+    public required List<ApprovalRequestTaskLogEntryDto> TaskLogEntries { get; init; }
 }

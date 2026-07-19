@@ -10,23 +10,23 @@ namespace Click2Approve.Infrastructure.Persistence;
 /// </summary>
 public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenantContext) : IApprovalRequestTaskRepository
 {
-    private readonly ApiDbContext _db = db;
-    private readonly ITenantContext _tenantContext = tenantContext;
+    protected readonly ApiDbContext Db = db;
+    protected readonly ITenantContext TenantContext = tenantContext;
 
-    public async Task<ApprovalRequestTask> AddAsync(ApprovalRequestTask approvalRequestTask, CancellationToken cancellationToken)
+    public virtual async Task<ApprovalRequestTask> AddAsync(ApprovalRequestTask approvalRequestTask, CancellationToken cancellationToken)
     {
-        var entry = await _db.ApprovalRequestTasks.AddAsync(approvalRequestTask, cancellationToken);
+        var entry = await Db.ApprovalRequestTasks.AddAsync(approvalRequestTask, cancellationToken);
         return entry.Entity;
     }
 
-    public async Task<int> ClaimEmailTasksAsync(AppUser user, long personalTenantId, CancellationToken cancellationToken)
+    public virtual async Task<int> ClaimEmailTasksAsync(AppUser user, long personalTenantId, CancellationToken cancellationToken)
     {
         if (user.NormalizedEmail is null)
         {
             return 0;
         }
 
-        var tasks = await _db.ApprovalRequestTasks
+        var tasks = await Db.ApprovalRequestTasks
             .Where(t => t.ApproverUserId == null && t.ApproverEmail == user.NormalizedEmail)
             .ToListAsync(cancellationToken);
 
@@ -39,38 +39,44 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
         return tasks.Count;
     }
 
-    public async Task<List<ApprovalRequestTask>> ListAsync(AppUser user, CancellationToken cancellationToken)
+    public virtual async Task<List<ApprovalRequestTask>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
-        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await _db.ApprovalRequestTasks
+        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await Db.ApprovalRequestTasks
             .AsNoTracking()
             .Where(t => t.ApproverUserId == user.Id
                 && t.TenantId == tenantId)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<ApprovalRequestTask> GetAsync(AppUser user, long id, CancellationToken cancellationToken)
+    public virtual async Task<ApprovalRequestTask> GetAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
-        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await _db.ApprovalRequestTasks
+        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await Db.ApprovalRequestTasks
             .AsNoTracking()
-            .Include(task => task.UserFiles)
+            .Include(task => task.LogEntries)
             .Include(task => task.ApprovalRequest)
+                .ThenInclude(request => request.UserFiles)
+            .Include(task => task.ApprovalRequest)
+                .ThenInclude(request => request.LogEntries)
             .FirstAsync(task => task.Id == id
                 && task.ApproverUserId == user.Id
                 && task.TenantId == tenantId,
                 cancellationToken);
     }
 
-    public async Task<ApprovalRequestTask> GetForCompletionAsync(AppUser user, long id, CancellationToken cancellationToken)
+    public virtual async Task<ApprovalRequestTask> GetForCompletionAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
-        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await _db.ApprovalRequestTasks
+        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await Db.ApprovalRequestTasks
             .Include(t => t.ApprovalRequest)
-            .Include(t => t.UserFiles)
+                .ThenInclude(r => r.UserFiles)
+            .Include(t => t.LogEntries)
             .Include(t => t.ApprovalRequest.Tasks)
+                .ThenInclude(task => task.LogEntries)
             .Include(t => t.ApprovalRequestStep)
                 .ThenInclude(s => s.Tasks)
+            .Include(t => t.ApprovalRequestStepApprover)
             .Include(t => t.ApprovalRequest.Steps)
                 .ThenInclude(s => s.Approvers)
             .Include(t => t.ApprovalRequest.Steps)
@@ -81,18 +87,18 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
                 cancellationToken);
     }
 
-    public async Task<long> CountUncompletedAsync(AppUser user, CancellationToken cancellationToken)
+    public virtual async Task<long> CountUncompletedAsync(AppUser user, CancellationToken cancellationToken)
     {
-        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await _db.ApprovalRequestTasks
+        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        return await Db.ApprovalRequestTasks
             .Where(t => t.ApproverUserId == user.Id
                 && t.Status == ApprovalRequestTaskStatus.Pending
                 && t.TenantId == tenantId)
             .LongCountAsync(cancellationToken);
     }
 
-    public void Remove(ApprovalRequestTask approvalRequestTask)
+    public virtual void Remove(ApprovalRequestTask approvalRequestTask)
     {
-        _db.ApprovalRequestTasks.Remove(approvalRequestTask);
+        Db.ApprovalRequestTasks.Remove(approvalRequestTask);
     }
 }
