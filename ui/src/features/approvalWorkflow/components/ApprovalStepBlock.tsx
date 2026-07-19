@@ -88,8 +88,11 @@ const getApproverLabel = (approver: ApprovalStep["approvers"][number]) => {
   return approver.email?.toLowerCase() ?? "Approver";
 };
 
-const getTaskApproverLabel = (task: ApprovalRequestTask) =>
-  task.approverDisplayName || task.approverEmail.toLowerCase();
+const getTaskApprover = (step: ApprovalStep, task: ApprovalRequestTask) =>
+  step.approvers.find((item) => item.id === task.approvalRequestStepApproverId);
+
+const getTaskApproverLabel = (step: ApprovalStep, task: ApprovalRequestTask) =>
+  getTaskApprover(step, task)?.displayName || task.approverEmail.toLowerCase();
 
 const getApproverIcon = (type: ApprovalRecipientType) => {
   switch (type) {
@@ -103,10 +106,19 @@ const getApproverIcon = (type: ApprovalRecipientType) => {
 };
 
 const getTaskApproverIcon = (step: ApprovalStep, task: ApprovalRequestTask) => {
-  const approver = step.approvers.find(
-    (item) => item.id === task.approvalRequestStepApproverId,
-  );
+  const approver = getTaskApprover(step, task);
   return getApproverIcon(approver?.type ?? ApprovalRecipientType.Email);
+};
+
+const getTaskCompletionDate = (task: ApprovalRequestTask) => {
+  if (task.status === ApprovalRequestTaskStatus.Pending) {
+    return null;
+  }
+
+  return (task.logEntries ?? [])
+    .map((entry) => entry.timestampDate)
+    .filter(Boolean)
+    .sort((left, right) => right.getTime() - left.getTime())[0] ?? null;
 };
 
 const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
@@ -131,8 +143,10 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
         />
       </Stack>
       {tasks.length > 0
-        ? tasks.map((task) => (
-          <Stack key={task.id} spacing={StackSpacing.default}>
+        ? tasks.map((task) => {
+          const completedAt = getTaskCompletionDate(task);
+          return (
+            <Stack key={task.id} spacing={StackSpacing.default}>
             <Stack
               direction="row"
               spacing={StackSpacing.tight}
@@ -140,7 +154,7 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
             >
               {getTaskApproverIcon(step, task)}
               <Typography variant="body2">
-                {getTaskApproverLabel(task)}
+                {getTaskApproverLabel(step, task)}
               </Typography>
             </Stack>
             <Stack
@@ -151,15 +165,16 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
               <Typography variant="caption" color="text.secondary">
                 Created at {getLocaleDateTimeString(task.createdAtDate)}
               </Typography>
-              {task.completedAtDate && (
+              {completedAt && (
                 <Typography variant="caption" color="text.secondary">
-                  {getTaskCompletionLabel(task.status)} {getLocaleDateTimeString(task.completedAtDate)}
+                  {getTaskCompletionLabel(task.status)} {getLocaleDateTimeString(completedAt)}
                 </Typography>
               )}
             </Stack>
             <ApprovalRequestComment text={task.comment} label="Comment" />
           </Stack>
-        ))
+          );
+        })
         : (step.approvers ?? []).filter(Boolean).map((approver, index) => (
           <Stack key={approver.id ?? index} spacing={StackSpacing.default}>
             <Stack

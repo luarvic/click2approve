@@ -1,6 +1,10 @@
 import { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import { ApprovalRequestListItem } from "./approvalRequestListItem";
+import {
+  ApprovalRequestLogEntry,
+  ApprovalRequestTaskLogEntry,
+} from "./approvalRequestLogEntry";
 import { ApprovalRequestTask } from "./approvalRequestTask";
 
 export interface ApprovalRequest extends ApprovalRequestListItem {
@@ -10,6 +14,8 @@ export interface ApprovalRequest extends ApprovalRequestListItem {
   createdByUserId: string;
   createdByEmail: string;
   tasks: ApprovalRequestTask[];
+  logEntries: ApprovalRequestLogEntry[];
+  taskLogEntries: ApprovalRequestTaskLogEntry[];
 }
 
 export interface SubmitApprovalRequestRequest {

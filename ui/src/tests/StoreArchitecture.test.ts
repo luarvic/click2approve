@@ -59,6 +59,8 @@ const approvalRequest = (id: number): ApprovalRequest => ({
   createdByEmail: "user@example.com",
   status: ApprovalRequestStatus.Pending,
   tasks: [],
+  logEntries: [],
+  taskLogEntries: [],
 });
 
 const approvalRequestTask = (
@@ -68,7 +70,6 @@ const approvalRequestTask = (
   id,
   title: `Task ${id}`,
   approvalRequest: approvalRequest(id),
-  userFiles: [],
   approvalRequestId: id,
   approvalRequestStepId: id,
   approverEmail: "approver@example.com",
@@ -76,6 +77,8 @@ const approvalRequestTask = (
   status,
   createdAt: "2026-01-01T00:00:00",
   createdAtDate: new Date(),
+  userFiles: [],
+  logEntries: [],
 });
 
 describe("store architecture", () => {

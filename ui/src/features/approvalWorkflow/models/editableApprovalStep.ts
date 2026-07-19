@@ -47,20 +47,3 @@ const toApprovalStep = (step: EditableApprovalStep): ApprovalStep => ({
 export const toApprovalStepSubmissions = (
   steps: EditableApprovalStep[],
 ): ApprovalStep[] => steps.map(toApprovalStep);
-
-export const toApprovalStepUpdates = (
-  steps: EditableApprovalStep[],
-): ApprovalStep[] =>
-  steps.map((step) => ({
-    ...toApprovalStep(step),
-    id: step.id,
-    approvers: step.approvers.map((approver) => ({
-      type: approver.type,
-      email: approver.email,
-      employeeId: approver.employeeId,
-      teamId: approver.teamId,
-      displayName: approver.displayName,
-      canViewRequest: approver.canViewRequest,
-      id: approver.id,
-    })),
-  }));

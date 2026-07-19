@@ -15,14 +15,6 @@ export class UserProfileStore {
     makeAutoObservable(this);
   }
 
-  get displayName(): string | null {
-    const fullName = [this.profile?.firstName, this.profile?.lastName]
-      .filter(Boolean)
-      .join(" ")
-      .trim();
-    return fullName || null;
-  }
-
   load = async (): Promise<void> => {
     const profile = await getUserProfile();
     runInAction(() => {

@@ -26,10 +26,6 @@ export class ProductStore {
     return this.productInfo?.capabilities.approvalStepTemplates === true;
   }
 
-  get approvalRequestSharingIsEnabled(): boolean {
-    return this.productInfo?.capabilities.approvalRequestSharing === true;
-  }
-
   get requiresConfirmedEmail(): boolean {
     return this.productInfo?.requiresConfirmedEmail === true;
   }

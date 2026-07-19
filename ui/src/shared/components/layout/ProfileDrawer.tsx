@@ -1,6 +1,10 @@
 import { stores } from "@/app/rootStore";
 import { getPublicApiUrl } from "@/shared/api/userProfileApi";
 import { Lists, Shell } from "@/shared/constants/constants";
+import {
+  getUserDisplayName,
+  normalizeEmailForDisplay,
+} from "@/shared/utils/displayNameHelpers";
 import { Logout, Settings } from "@mui/icons-material";
 import {
   Avatar,
@@ -19,9 +23,8 @@ import { useNavigate } from "react-router-dom";
 const ProfileDrawer = () => {
   const navigate = useNavigate();
   const profile = stores.userProfileStore.profile;
-  const displayName =
-    stores.userProfileStore.displayName ??
-    stores.userAccountStore.currentUser?.email.toLowerCase();
+  const email = stores.userAccountStore.currentUser?.email;
+  const displayName = getUserDisplayName(profile, email);
 
   return (
     <Drawer
@@ -52,7 +55,7 @@ const ProfileDrawer = () => {
               </ListItemIcon>
               <ListItemText
                 primary={displayName}
-                secondary={stores.userAccountStore.currentUser?.email.toLowerCase()}
+                secondary={normalizeEmailForDisplay(email)}
               />
             </ListItemButton>
           </ListItem>

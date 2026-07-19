@@ -5,7 +5,7 @@ import ApprovalRequestFilesBox from "@/features/approvalRequests/components/Appr
 import ApprovalRequestLog from "@/features/approvalRequests/components/ApprovalRequestLog";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
-import { normalizeApprovalRequestDates } from "@/features/approvalRequests/stores/approvalRequestStore";
+import { normalizeApprovalRequestDates } from "@/features/approvalRequests/utils/approvalRequestDateNormalizers";
 import { Dialogs, Pages } from "@/shared/constants/constants";
 import {
   Button,
@@ -35,7 +35,7 @@ const ApprovalRequestTaskEditor: React.FC<ApprovalRequestTaskEditorProps> = ({ o
   const [selectedTab, setSelectedTab] = useState("task");
   const currentTask = stores.approvalRequestTaskStore.currentTask;
   const canViewRequest = currentTask?.canViewRequest !== false;
-  const isCompleted = Boolean(currentTask?.completedAt);
+  const isCompleted = Boolean(currentTask && currentTask.status !== ApprovalRequestTaskStatus.Pending);
 
   useEffect(() => {
     setDecision(

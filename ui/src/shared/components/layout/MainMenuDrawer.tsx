@@ -1,11 +1,12 @@
 import { stores } from "@/app/rootStore";
-import { TenantType } from "@/features/tenants/models/tenant";
+import { EmployeeRole, TenantType } from "@/features/tenants/models/tenant";
 import { Api, Lists, Refresh, Routes, Shell } from "@/shared/constants/constants";
 import {
   Business,
   ChevronLeft,
   Create,
   Description,
+  Diversity3,
   Groups,
   HelpOutline,
   Inbox,
@@ -46,6 +47,9 @@ const MainMenuDrawer = () => {
     stores.productStore.tenantsAreEnabled &&
     currentTenant?.type === TenantType.Business &&
     currentTenant?.role !== undefined;
+  const delegationsIsVisible =
+    currentTenant?.type === TenantType.Business &&
+    currentTenant.role === EmployeeRole.Admin;
   const teamsManagerIsVisible =
     employeeManagerIsVisible && stores.productStore.teamApproversAreEnabled;
   const templatesIsVisible =
@@ -62,6 +66,7 @@ const MainMenuDrawer = () => {
   const templatesPath = tenantPath("/approvalStepTemplates");
   const teamsPath = tenantPath("/teams");
   const employeesPath = tenantPath("/employees");
+  const delegationsPath = tenantPath("/delegations");
   const inboxIsSelected =
     location.pathname === "/" ||
     location.pathname.startsWith(inboxPath);
@@ -245,6 +250,22 @@ const MainMenuDrawer = () => {
                 <Person />
               </ListItemIcon>
               <ListItemText primary="Employees" />
+            </ListItemButton>
+          </ListItem>
+        )}
+        {delegationsIsVisible && (
+          <ListItem key="delegations" disablePadding>
+            <ListItemButton
+              selected={location.pathname.startsWith(delegationsPath)}
+              onClick={() => {
+                navigate(delegationsPath);
+                closeTemporaryDrawer();
+              }}
+            >
+              <ListItemIcon sx={Lists.itemIconSx}>
+                <Diversity3 />
+              </ListItemIcon>
+              <ListItemText primary="Delegations" />
             </ListItemButton>
           </ListItem>
         )}

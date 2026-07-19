@@ -7,6 +7,7 @@ import InboxPage from "@/features/approvalRequests/pages/InboxPage";
 import OutboxPage from "@/features/approvalRequests/pages/OutboxPage";
 import ApprovalStepTemplateEditorPage from "@/features/approvalStepTemplates/pages/ApprovalStepTemplateEditorPage";
 import ApprovalStepTemplatesPage from "@/features/approvalStepTemplates/pages/ApprovalStepTemplatesPage";
+import DelegationsPage from "@/features/delegations/pages/DelegationsPage";
 import EmployeeEditorPage from "@/features/employees/pages/EmployeeEditorPage";
 import EmployeesPage from "@/features/employees/pages/EmployeesPage";
 import ConfirmEmailPage from "@/features/identity/pages/ConfirmEmailPage";
@@ -17,7 +18,7 @@ import SignInPage from "@/features/identity/pages/SignInPage";
 import SignUpPage from "@/features/identity/pages/SignUpPage";
 import TeamEditorPage from "@/features/teams/pages/TeamEditorPage";
 import TeamsPage from "@/features/teams/pages/TeamsPage";
-import { TenantType } from "@/features/tenants/models/tenant";
+import { EmployeeRole, TenantType } from "@/features/tenants/models/tenant";
 import TenantEditorPage from "@/features/tenants/pages/TenantEditorPage";
 import TenantsPage from "@/features/tenants/pages/TenantsPage";
 import MainLayout from "@/layouts/MainLayout";
@@ -53,6 +54,9 @@ const App = () => {
     stores.productStore.approvalStepTemplatesAreEnabled &&
     currentTenant?.type === TenantType.Business &&
     currentTenant.role !== undefined;
+  const canManageDelegations =
+    currentTenant?.type === TenantType.Business &&
+    currentTenant.role === EmployeeRole.Admin;
 
   useEffect(() => {
     const load = async () => {
@@ -122,6 +126,9 @@ const App = () => {
                     </Route>
                     <Route element={<RouteGuard isAllowed={canManageEmployees} />}>
                       <Route path="employees" element={<EmployeesPage />} />
+                    </Route>
+                    <Route element={<RouteGuard isAllowed={canManageDelegations} />}>
+                      <Route path="delegations" element={<DelegationsPage />} />
                     </Route>
                     <Route path="approvalStepTemplates/new" element={<ApprovalStepTemplateEditorPage />} />
                     <Route path="approvalStepTemplates/:templateId" element={<ApprovalStepTemplateEditorPage />} />

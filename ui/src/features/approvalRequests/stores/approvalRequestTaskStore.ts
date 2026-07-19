@@ -1,8 +1,10 @@
 import * as approvalRequestTaskApi from "@/features/approvalRequests/api/approvalRequestTaskApi";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
-import { normalizeApprovalRequestDates } from "@/features/approvalRequests/stores/approvalRequestStore";
-import { parseUtcDateTime } from "@/shared/utils/helpers";
+import {
+  normalizeApprovalRequestDates,
+  normalizeApprovalRequestTaskDates,
+} from "@/features/approvalRequests/utils/approvalRequestDateNormalizers";
 import { makeAutoObservable, runInAction } from "mobx";
 
 export class ApprovalRequestTaskStore {
@@ -43,7 +45,7 @@ export class ApprovalRequestTaskStore {
       if (requestVersion !== this.listRequestVersion) {
         return;
       }
-      tasks.forEach(normalizeTaskDates);
+      tasks.forEach(normalizeApprovalRequestTaskDates);
       runInAction(() => {
         this.registry = new Map(tasks.map((task) => [task.id, task]));
       });
@@ -62,7 +64,7 @@ export class ApprovalRequestTaskStore {
 
     const request = approvalRequestTaskApi.getApprovalRequestTask(id).then((task) => {
       if (task) {
-        normalizeTaskDates(task);
+        normalizeApprovalRequestTaskDates(task);
         if (task.approvalRequest) {
           normalizeApprovalRequestDates(task.approvalRequest);
         }
@@ -118,15 +120,3 @@ export class ApprovalRequestTaskStore {
     });
   };
 }
-
-const normalizeTaskDates = (
-  task: Pick<ApprovalRequestTask, "createdAt" | "completedAt"> & {
-    createdAtDate?: Date;
-    completedAtDate?: Date;
-  },
-) => {
-  task.createdAtDate = parseUtcDateTime(task.createdAt);
-  if (task.completedAt) {
-    task.completedAtDate = parseUtcDateTime(task.completedAt);
-  }
-};

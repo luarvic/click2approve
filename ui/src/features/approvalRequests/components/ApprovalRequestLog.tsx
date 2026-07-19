@@ -1,10 +1,13 @@
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
-import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
-import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import {
-  ApprovalRecipientType,
-  ApprovalStepApprover,
-} from "@/features/approvalWorkflow/models/approvalStep";
+  ApprovalLogActorType,
+  ApprovalRequestLogEntry,
+  ApprovalRequestLogEventType,
+  ApprovalRequestTaskLogEntry,
+  ApprovalRequestTaskLogEventType,
+} from "@/features/approvalRequests/models/approvalRequestLogEntry";
+import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
+import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { Dialogs, StackSpacing } from "@/shared/constants/constants";
 import { getLocaleDateTimeString } from "@/shared/utils/helpers";
 import { Box, Stack } from "@mui/material";
@@ -14,13 +17,14 @@ interface ApprovalRequestLogProps {
   approvalRequest?: ApprovalRequest | null;
 }
 
-interface ApprovalRequestLogEntry {
-  action: string;
-  date: Date;
-  details: string;
-  id: string;
+interface DisplayLogEntry {
   actor: string;
   actorType: string;
+  details: string;
+  event: string;
+  id: string;
+  onBehalfOf?: string;
+  timestamp: Date;
 }
 
 const approvalRequestLogRecordsSx: SxProps<Theme> = {
@@ -47,101 +51,138 @@ const approvalRequestLogRecordValueSx: SxProps<Theme> = {
 
 const detailsRecordValueSx: SxProps<Theme> = { whiteSpace: "pre-wrap" };
 
-const getAction = (status: ApprovalRequestTaskStatus) => {
+const getActorTypeLabel = (actorType: ApprovalLogActorType) => {
+  switch (actorType) {
+    case ApprovalLogActorType.System:
+      return "System";
+    case ApprovalLogActorType.Employee:
+      return "Employee";
+    default:
+      return "User";
+  }
+};
+
+const getRequestEventLabel = (eventType: ApprovalRequestLogEventType) => {
+  switch (eventType) {
+    case ApprovalRequestLogEventType.Submitted:
+      return "Request submitted";
+    case ApprovalRequestLogEventType.StatusChanged:
+      return "Request status changed";
+    default:
+      return "Request event";
+  }
+};
+
+const getTaskEventLabel = (eventType: ApprovalRequestTaskLogEventType) => {
+  switch (eventType) {
+    case ApprovalRequestTaskLogEventType.Submitted:
+      return "Task submitted";
+    case ApprovalRequestTaskLogEventType.StatusChanged:
+      return "Task status changed";
+    default:
+      return "Task event";
+  }
+};
+
+const getRequestStatusLabel = (status?: ApprovalRequestStatus) => {
+  switch (status) {
+    case ApprovalRequestStatus.Approved:
+      return "Approved";
+    case ApprovalRequestStatus.Canceled:
+      return "Canceled";
+    case ApprovalRequestStatus.Pending:
+      return "Pending";
+    case ApprovalRequestStatus.Rejected:
+      return "Rejected";
+    default:
+      return "";
+  }
+};
+
+const getTaskStatusLabel = (status?: ApprovalRequestTaskStatus) => {
   switch (status) {
     case ApprovalRequestTaskStatus.Approved:
       return "Approved";
+    case ApprovalRequestTaskStatus.Pending:
+      return "Pending";
     case ApprovalRequestTaskStatus.Rejected:
       return "Rejected";
     case ApprovalRequestTaskStatus.Skipped:
       return "Skipped";
     default:
-      return "Pending";
+      return "";
   }
 };
 
-const getPartyType = (type?: ApprovalRecipientType) => {
-  switch (type) {
-    case ApprovalRecipientType.Employee:
-      return "Employee";
-    case ApprovalRecipientType.Team:
-      return "Team";
+const parseDetails = (details: string): Record<string, unknown> => {
+  try {
+    const value = JSON.parse(details);
+    return value && typeof value === "object" ? value : {};
+  } catch {
+    return {};
+  }
+};
+
+const formatRequestDetails = (entry: ApprovalRequestLogEntry) => {
+  const details = parseDetails(entry.details);
+  switch (entry.eventType) {
+    case ApprovalRequestLogEventType.Submitted:
+      return `Status: ${getRequestStatusLabel(details.status as ApprovalRequestStatus | undefined)}`;
+    case ApprovalRequestLogEventType.StatusChanged:
+      return [
+        `Previous status: ${getRequestStatusLabel(details.previousStatus as ApprovalRequestStatus | undefined) || "None"}`,
+        `Status: ${getRequestStatusLabel(details.status as ApprovalRequestStatus | undefined)}`,
+      ].join("\n");
     default:
-      return "Email";
+      return entry.details;
   }
 };
 
-const getSteps = (approvalRequest: ApprovalRequest) =>
-  (approvalRequest.steps ?? []).filter(Boolean);
+const formatTaskDetails = (entry: ApprovalRequestTaskLogEntry) => {
+  const details = parseDetails(entry.details);
+  if (entry.eventType === ApprovalRequestTaskLogEventType.Submitted) {
+    return `Status: ${getTaskStatusLabel(details.status as ApprovalRequestTaskStatus | undefined)}`;
+  }
 
-const getTaskApprover = (
-  approvalRequest: ApprovalRequest,
-  task: ApprovalRequestTask,
-): ApprovalStepApprover | undefined => {
-  const step = getSteps(approvalRequest).find(
-    (item) => item.id === task.approvalRequestStepId,
-  );
-  return (step?.approvers ?? []).filter(Boolean).find(
-    (approver) =>
-      approver.id === task.approvalRequestStepApproverId ||
-      approver.email?.toLowerCase() === task.approverEmail.toLowerCase() ||
-      approver.displayName === task.approverDisplayName,
-  );
+  return [
+    `Previous status: ${getTaskStatusLabel(details.previousStatus as ApprovalRequestTaskStatus | undefined) || "None"}`,
+    `Status: ${getTaskStatusLabel(details.status as ApprovalRequestTaskStatus | undefined)}`,
+    details.comment ? `Comment: ${details.comment}` : "",
+  ].filter(Boolean).join("\n");
 };
 
-const getTasks = (approvalRequest: ApprovalRequest) => {
-  const tasks = [
-    ...(approvalRequest.tasks ?? []),
-    ...getSteps(approvalRequest).flatMap((step) => step.tasks ?? []),
-  ].filter((task): task is ApprovalRequestTask => Boolean(task));
+const mapRequestEntry = (entry: ApprovalRequestLogEntry): DisplayLogEntry => ({
+  actor: entry.actorDisplayName ?? entry.actorEmail.toLowerCase(),
+  actorType: getActorTypeLabel(entry.actorType),
+  details: formatRequestDetails(entry),
+  event: getRequestEventLabel(entry.eventType),
+  id: `request-${entry.id}`,
+  timestamp: entry.timestampDate,
+});
 
-  return tasks.filter(
-    (task, index, tasks) =>
-      tasks.findIndex((item) => item.id === task.id) === index,
-  );
-};
+const mapTaskEntry = (entry: ApprovalRequestTaskLogEntry): DisplayLogEntry => ({
+  actor: entry.actorDisplayName ?? entry.actorEmail.toLowerCase(),
+  actorType: getActorTypeLabel(entry.actorType),
+  details: formatTaskDetails(entry),
+  event: getTaskEventLabel(entry.eventType),
+  id: `task-${entry.id}`,
+  onBehalfOf: entry.onBehalfOfDisplayName ?? entry.onBehalfOfEmail?.toLowerCase(),
+  timestamp: entry.timestampDate,
+});
 
-const getLogEntries = (approvalRequest: ApprovalRequest): ApprovalRequestLogEntry[] => {
-  const requestCreatedEntry: ApprovalRequestLogEntry = {
-    action: "Created",
-    date: approvalRequest.createdAtDate,
-    details: approvalRequest.description ?? "",
-    id: "request-created",
-    actor: approvalRequest.createdByEmail.toLowerCase(),
-    actorType: "User",
-  };
-  const taskEntries = getTasks(approvalRequest).map((task) => {
-    const approver = getTaskApprover(approvalRequest, task);
-    return {
-      action: getAction(task.status),
-      date: task.completedAtDate ?? task.createdAtDate,
-      details: task.comment ?? "",
-      id: `task-${task.id}`,
-      actor:
-        task.approverDisplayName ??
-        approver?.displayName ??
-        task.approverEmail.toLowerCase(),
-      actorType: getPartyType(
-        approver?.type ??
-        (task.approverDisplayName
-          ? ApprovalRecipientType.Employee
-          : ApprovalRecipientType.Email),
-      ),
-    };
-  });
+const getLogEntries = (approvalRequest: ApprovalRequest): DisplayLogEntry[] => [
+  ...(approvalRequest.logEntries ?? []).map(mapRequestEntry),
+  ...(approvalRequest.taskLogEntries ?? []).map(mapTaskEntry),
+].sort((left, right) => left.timestamp.getTime() - right.timestamp.getTime());
 
-  return [requestCreatedEntry, ...taskEntries].sort(
-    (left, right) => left.date.getTime() - right.date.getTime(),
-  );
-};
-
-const getRecordRows = (entry: ApprovalRequestLogEntry) => [
-  { label: "Timestamp", value: getLocaleDateTimeString(entry.date) },
-  { label: "Event", value: entry.action },
+const getRecordRows = (entry: DisplayLogEntry) => [
+  { label: "Timestamp", value: getLocaleDateTimeString(entry.timestamp) },
+  { label: "Event", value: entry.event },
   { label: "Actor type", value: entry.actorType },
   { label: "Actor", value: entry.actor },
+  entry.onBehalfOf ? { label: "On behalf of", value: entry.onBehalfOf } : null,
   { label: "Details", value: entry.details },
-];
+].filter(Boolean) as { label: string; value: string }[];
 
 const ApprovalRequestLog: React.FC<ApprovalRequestLogProps> = ({ approvalRequest }) => {
   if (!approvalRequest) {

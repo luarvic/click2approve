@@ -37,9 +37,7 @@ const AVATAR_PICKER_SIZE = 96;
 
 const notificationLabels: Record<NotificationType, string> = {
   [NotificationType.ApprovalRequestTaskCreated]: "New approval request task",
-  [NotificationType.ApprovalRequestTaskRemoved]: "Approval request task removed",
   [NotificationType.ApprovalRequestCancelled]: "Approval request cancelled",
-  [NotificationType.ApprovalRequestDeleted]: "Approval request deleted",
   [NotificationType.ApprovalRequestReviewed]: "Approval request reviewed",
 };
 
