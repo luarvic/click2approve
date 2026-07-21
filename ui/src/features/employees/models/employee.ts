@@ -10,6 +10,7 @@ export interface Employee {
   tenantId: number;
   userId?: string;
   email: string;
+  displayName: string;
   firstName?: string;
   lastName?: string;
   position?: string;

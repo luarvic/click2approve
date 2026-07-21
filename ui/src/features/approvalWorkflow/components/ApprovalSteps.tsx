@@ -4,10 +4,12 @@ import { StackSpacing } from "@/shared/constants/constants";
 import type { SxProps } from "@mui/material";
 import { Divider, Stack } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
+import type { ReactNode } from "react";
 import ApprovalStepBlock from "./ApprovalStepBlock";
 
 interface ApprovalStepsProps {
   approvalRequest: ApprovalRequest;
+  leadingItem?: ReactNode;
   showDividers?: boolean;
   sx?: SxProps<Theme>;
 }
@@ -25,7 +27,7 @@ const getStepTasks = (
         task.approvalRequestStepId === step.id ||
         (stepTaskIds.size > 0 && stepTaskIds.has(task.id)),
     );
-  return [...stepTasks, ...requestStepTasks].filter(
+  return [...requestStepTasks, ...stepTasks].filter(
     (task, index, tasks) =>
       tasks.findIndex((item) => item.id === task.id) === index,
   );
@@ -33,6 +35,7 @@ const getStepTasks = (
 
 const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
   approvalRequest,
+  leadingItem,
   showDividers = false,
   sx,
 }) => {
@@ -46,6 +49,7 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
       divider={showDividers ? <Divider flexItem /> : undefined}
       sx={sx}
     >
+      {leadingItem}
       {steps.map((step) => (
         <ApprovalStepBlock
           key={step.id ?? step.sequence}

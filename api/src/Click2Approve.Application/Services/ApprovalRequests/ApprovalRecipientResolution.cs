@@ -5,5 +5,5 @@ public sealed record ApprovalRecipientResolution(
     string? ApproverUserId,
     long? ApproverEmployeeId,
     long TenantId,
-    string? DisplayName,
+    string ApproverDisplayName,
     bool CanViewRequest);

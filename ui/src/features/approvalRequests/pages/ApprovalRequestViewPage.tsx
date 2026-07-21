@@ -1,5 +1,5 @@
 import { stores } from "@/app/rootStore";
-import ApprovalRequestEditor from "@/features/approvalRequests/components/ApprovalRequestViewDialog";
+import ApprovalRequestView from "@/features/approvalRequests/components/ApprovalRequestViewDialog";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
@@ -7,7 +7,7 @@ import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 
-const ApprovalRequestEditorPage = () => {
+const ApprovalRequestViewPage = () => {
   usePageTitle("Approval request");
   const navigate = useNavigate();
   const { approvalRequestId } = useParams<{ approvalRequestId: string }>();
@@ -39,7 +39,7 @@ const ApprovalRequestEditorPage = () => {
   if (!Number.isInteger(parsedApprovalRequestId)) return <Navigate to={outboxPath} />;
   if (!approvalRequest || loadedApprovalRequestId !== parsedApprovalRequestId) return <LoadingOverlay />;
 
-  return <ApprovalRequestEditor
+  return <ApprovalRequestView
     onClose={(currentApprovalRequestId) =>
       navigate(outboxPath, {
         state: currentApprovalRequestId ? { currentApprovalRequestId } : undefined,
@@ -49,4 +49,4 @@ const ApprovalRequestEditorPage = () => {
   />;
 };
 
-export default observer(ApprovalRequestEditorPage);
+export default observer(ApprovalRequestViewPage);

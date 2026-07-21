@@ -11,6 +11,7 @@ public interface ITenantRepository
     Task<Tenant?> GetAsync(long id, CancellationToken cancellationToken);
     Task<Tenant?> GetPersonalAsync(AppUser user, CancellationToken cancellationToken);
     Task<Tenant?> GetPersonalAsync(string normalizedEmail, CancellationToken cancellationToken);
+    Task<List<Tenant>> ListPersonalAsync(IReadOnlyCollection<string> normalizedEmails, CancellationToken cancellationToken);
     Task<List<Tenant>> ListAsync(AppUser user, CancellationToken cancellationToken);
     void Remove(Tenant tenant);
 }

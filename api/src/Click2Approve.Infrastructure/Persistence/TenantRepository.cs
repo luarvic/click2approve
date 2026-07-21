@@ -42,6 +42,15 @@ public class TenantRepository(ApiDbContext db) : ITenantRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
+    public virtual Task<List<Tenant>> ListPersonalAsync(IReadOnlyCollection<string> normalizedEmails, CancellationToken cancellationToken)
+    {
+        return Db.Tenants
+            .Include(t => t.Owner)
+            .Where(t => normalizedEmails.Contains(t.Owner.NormalizedEmail!) && t.Type == TenantType.Personal)
+            .OrderBy(t => t.Id)
+            .ToListAsync(cancellationToken);
+    }
+
     public virtual Task<List<Tenant>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
         return Db.Tenants

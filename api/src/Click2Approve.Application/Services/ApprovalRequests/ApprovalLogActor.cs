@@ -10,4 +10,4 @@ public sealed record ApprovalLogActor(
     string? UserId,
     long? EmployeeId,
     string Email,
-    string? DisplayName);
+    string DisplayName);

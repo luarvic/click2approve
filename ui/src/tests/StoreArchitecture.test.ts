@@ -44,6 +44,7 @@ const employee = (id: number, tenantId: number): Employee => ({
   id,
   tenantId,
   email: `employee-${id}@example.com`,
+  displayName: `Employee ${id} (employee-${id}@example.com)`,
   role: EmployeeRole.User,
   status: EmployeeStatus.Active,
 });
@@ -57,6 +58,7 @@ const approvalRequest = (id: number): ApprovalRequest => ({
   createdAtDate: new Date(),
   createdByUserId: "user-id",
   createdByEmail: "user@example.com",
+  createdByDisplayName: "user@example.com",
   status: ApprovalRequestStatus.Pending,
   tasks: [],
   logEntries: [],
@@ -73,6 +75,7 @@ const approvalRequestTask = (
   approvalRequestId: id,
   approvalRequestStepId: id,
   approverEmail: "approver@example.com",
+  approverDisplayName: "approver@example.com",
   canViewRequest: true,
   status,
   createdAt: "2026-01-01T00:00:00",

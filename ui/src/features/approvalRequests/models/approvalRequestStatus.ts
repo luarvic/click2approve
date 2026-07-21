@@ -4,4 +4,5 @@ export enum ApprovalRequestStatus {
   Approved = 2,
   Rejected = 3,
   Canceled = 4,
+  Started = 5,
 }

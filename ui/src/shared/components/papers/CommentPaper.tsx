@@ -18,9 +18,6 @@ const CommentPaper: React.FC<CommentProps> = ({ children, text, label, sx }) => 
     <Box
       sx={[
         {
-          borderLeft: "3px solid",
-          borderColor: "divider",
-          pl: 1.5,
           py: 0.5,
           color: "text.secondary",
         },
@@ -34,7 +31,7 @@ const CommentPaper: React.FC<CommentProps> = ({ children, text, label, sx }) => 
       )}
       {children ??
         text?.split(/\r?\n/).map((line, index) => (
-          <Typography key={index} variant="body2">
+          <Typography key={index}>
             {line}
           </Typography>
         ))}

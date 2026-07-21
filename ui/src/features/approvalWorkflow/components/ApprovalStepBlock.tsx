@@ -1,27 +1,78 @@
 import ApprovalRequestComment from "@/features/approvalRequests/components/ApprovalRequestComment";
+import ApprovalRequestParticipantLine, {
+  getApprovalRecipientIcon,
+} from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
+import type { ApprovalRequestTimestampType } from "@/features/approvalRequests/components/ApprovalRequestTimestamp";
+import ApprovalRequestTimestampRow from "@/features/approvalRequests/components/ApprovalRequestTimestampRow";
+import {
+  ApprovalStatusLineColor,
+  ApprovalStatusLineSection,
+} from "@/features/approvalRequests/components/ApprovalStatusLines";
+import { ApprovalRequestTaskLogEventType } from "@/features/approvalRequests/models/approvalRequestLogEntry";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import {
   ApprovalRecipientType,
   ApprovalStep,
+  ApprovalStepApprover,
   ApprovalStepMode,
 } from "@/features/approvalWorkflow/models/approvalStep";
-import { Flex, StackSpacing } from "@/shared/constants/constants";
-import { getLocaleDateTimeString } from "@/shared/utils/helpers";
-import { Email, Groups, Person } from "@mui/icons-material";
-import { Chip, Divider, Stack, Typography } from "@mui/material";
+import { Flex, Icons, StackSpacing } from "@/shared/constants/constants";
+import {
+  ChecklistRtlOutlined,
+  ExpandMore,
+  Person,
+  RuleOutlined,
+} from "@mui/icons-material";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import type { SxProps } from "@mui/material";
+import type { Theme } from "@mui/material/styles";
 
 interface ApprovalStepBlockProps {
   step: ApprovalStep;
   tasks: ApprovalRequestTask[];
 }
 
-const approvalStepBlockSx = {
+const approvalStepBlockSx: SxProps<Theme> = {
   px: 1.5,
   py: 1,
 };
 
 const approvalStepHeaderSx = { mb: 1 };
+
+const teamAccordionSx = {
+  bgcolor: "transparent",
+  boxShadow: "none",
+  "&::before": {
+    display: "none",
+  },
+};
+
+const teamAccordionSummarySx = {
+  minHeight: 0,
+  px: 0,
+  py: 0,
+  "& .MuiAccordionSummary-content": {
+    my: 0,
+  },
+};
+
+const teamAccordionDetailsSx = {
+  px: 0,
+  pb: 0,
+  pt: 1,
+};
+
+const teamTaskListSx: SxProps<Theme> = {
+  pl: 3,
+};
 
 const getStepStatus = (step: ApprovalStep, tasks: ApprovalRequestTask[]) => {
   if (tasks.length === 0) {
@@ -61,53 +112,62 @@ const getTaskCompletionLabel = (status: ApprovalRequestTaskStatus) => {
   }
 };
 
-const getStepStatusColor = (step: ApprovalStep, tasks: ApprovalRequestTask[]) => {
-  const status = getStepStatus(step, tasks);
+const getTaskCompletionTimestampType = (
+  status: ApprovalRequestTaskStatus,
+): ApprovalRequestTimestampType => {
+  switch (status) {
+    case ApprovalRequestTaskStatus.Approved:
+      return "approved";
+    case ApprovalRequestTaskStatus.Rejected:
+      return "rejected";
+    case ApprovalRequestTaskStatus.Skipped:
+      return "skipped";
+    default:
+      return "completed";
+  }
+};
+
+const getStepStatusLineColor = (status: string): ApprovalStatusLineColor => {
   switch (status) {
     case "Approved":
-      return "success" as const;
+      return "approved";
     case "Rejected":
-      return "error" as const;
-    case "Skipped":
-      return "default" as const;
+      return "changeRequested";
     default:
-      return "warning" as const;
+      return "other";
   }
 };
 
-const getApproverLabel = (approver: ApprovalStep["approvers"][number]) => {
-  if (approver.displayName) {
-    return approver.displayName;
-  }
-  if (approver.type === ApprovalRecipientType.Team) {
-    return `Team #${approver.teamId}`;
-  }
-  if (approver.type === ApprovalRecipientType.Employee) {
-    return `Employee #${approver.employeeId}`;
-  }
-  return approver.email?.toLowerCase() ?? "Approver";
-};
+const getStepStatusLabel = (status: string) =>
+  status === "Rejected" ? "Change requested" : status;
 
-const getTaskApprover = (step: ApprovalStep, task: ApprovalRequestTask) =>
-  step.approvers.find((item) => item.id === task.approvalRequestStepApproverId);
+const getApproverLabel = (approver: ApprovalStep["approvers"][number]) =>
+  approver.displayName;
 
-const getTaskApproverLabel = (step: ApprovalStep, task: ApprovalRequestTask) =>
-  getTaskApprover(step, task)?.displayName || task.approverEmail.toLowerCase();
+const getTaskApproverLabel = (task: ApprovalRequestTask) =>
+  task.approverDisplayName;
 
-const getApproverIcon = (type: ApprovalRecipientType) => {
-  switch (type) {
-    case ApprovalRecipientType.Employee:
-      return <Person color="action" fontSize="small" />;
-    case ApprovalRecipientType.Team:
-      return <Groups color="action" fontSize="small" />;
-    default:
-      return <Email color="action" fontSize="small" />;
-  }
-};
+const getTeamTaskApproverLabel = (task: ApprovalRequestTask) =>
+  task.approverDisplayName;
 
 const getTaskApproverIcon = (step: ApprovalStep, task: ApprovalRequestTask) => {
-  const approver = getTaskApprover(step, task);
-  return getApproverIcon(approver?.type ?? ApprovalRecipientType.Email);
+  const approver = step.approvers.find((item) => item.id === task.approvalRequestStepApproverId);
+  return getApprovalRecipientIcon(approver?.type ?? ApprovalRecipientType.Email);
+};
+
+const renderStepModeIndicator = (mode: ApprovalStepMode) => {
+  const label = mode === ApprovalStepMode.All
+    ? "All approvers"
+    : "Any approver";
+  const icon = mode === ApprovalStepMode.All
+    ? <ChecklistRtlOutlined color={Icons.secondaryColor} fontSize="small" />
+    : <RuleOutlined color={Icons.secondaryColor} fontSize="small" />;
+
+  return (
+    <Tooltip title={label}>
+      {icon}
+    </Tooltip>
+  );
 };
 
 const getTaskCompletionDate = (task: ApprovalRequestTask) => {
@@ -116,80 +176,206 @@ const getTaskCompletionDate = (task: ApprovalRequestTask) => {
   }
 
   return (task.logEntries ?? [])
+    .filter((entry) => entry.eventType === ApprovalRequestTaskLogEventType.StatusChanged)
     .map((entry) => entry.timestampDate)
     .filter(Boolean)
     .sort((left, right) => right.getTime() - left.getTime())[0] ?? null;
+};
+
+const getApproverTasks = (
+  approver: ApprovalStep["approvers"][number],
+  tasks: ApprovalRequestTask[],
+) => tasks.filter((task) => task.approvalRequestStepApproverId === approver.id);
+
+const getUnassignedTasks = (
+  step: ApprovalStep,
+  tasks: ApprovalRequestTask[],
+) => {
+  const approverIds = new Set((step.approvers ?? []).map((approver) => approver.id));
+  return tasks.filter(
+    (task) =>
+      task.approvalRequestStepApproverId === undefined ||
+      !approverIds.has(task.approvalRequestStepApproverId),
+  );
+};
+
+const renderTaskDetails = (
+  task: ApprovalRequestTask,
+  label: string,
+  icon: React.ReactNode,
+) => {
+  const completedAt = getTaskCompletionDate(task);
+
+  return (
+    <Stack key={task.id} spacing={StackSpacing.default}>
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={StackSpacing.tight}
+        alignItems={{ xs: "flex-start", sm: "center" }}
+      >
+        <ApprovalRequestParticipantLine
+          canViewRequest={task.canViewRequest}
+          icon={icon}
+          label={label}
+          showTrackingIndicator
+          sx={Flex.growSx}
+        />
+      </Stack>
+      <ApprovalRequestComment text={task.comment} />
+      <ApprovalRequestTimestampRow
+        items={[
+          {
+            date: task.createdAtDate,
+            label: "Created at",
+            type: "created",
+          },
+          completedAt
+            ? {
+              date: completedAt,
+              label: getTaskCompletionLabel(task.status),
+              type: getTaskCompletionTimestampType(task.status),
+            }
+            : null,
+        ]}
+      />
+    </Stack>
+  );
+};
+
+const renderApproverWithoutTasks = (
+  approver: ApprovalStepApprover,
+  index: number,
+) => (
+  <ApprovalRequestParticipantLine
+    key={approver.id ?? index}
+    canViewRequest={approver.canViewRequest}
+    label={getApproverLabel(approver)}
+    showTrackingIndicator
+    type={approver.type}
+  />
+);
+
+const renderTeamApprover = (
+  approver: ApprovalStepApprover,
+  approverTasks: ApprovalRequestTask[],
+  index: number,
+) => (
+  <Accordion
+    key={approver.id ?? index}
+    defaultExpanded
+    disableGutters
+    sx={teamAccordionSx}
+  >
+    <AccordionSummary
+      expandIcon={<ExpandMore />}
+      sx={teamAccordionSummarySx}
+    >
+      <Stack
+        direction="row"
+        spacing={StackSpacing.tight}
+        alignItems="center"
+        sx={Flex.growSx}
+      >
+        <ApprovalRequestParticipantLine
+          canViewRequest={approver.canViewRequest}
+          label={getApproverLabel(approver)}
+          showTrackingIndicator
+          type={approver.type}
+        />
+        <Typography variant="caption" color="text.secondary">
+          {approverTasks.length} {approverTasks.length === 1 ? "task" : "tasks"}
+        </Typography>
+      </Stack>
+    </AccordionSummary>
+    <AccordionDetails sx={teamAccordionDetailsSx}>
+      {approverTasks.length > 0 ? (
+        <Stack spacing={StackSpacing.default} sx={teamTaskListSx}>
+          {approverTasks.map((task) =>
+            renderTaskDetails(
+              task,
+              getTeamTaskApproverLabel(task),
+              <Person color="action" fontSize="small" />,
+            ),
+          )}
+        </Stack>
+      ) : (
+        <Typography variant="caption" color="text.secondary">
+          No employee tasks yet
+        </Typography>
+      )}
+    </AccordionDetails>
+  </Accordion>
+);
+
+const renderApprover = (
+  step: ApprovalStep,
+  approver: ApprovalStepApprover,
+  tasks: ApprovalRequestTask[],
+  index: number,
+) => {
+  const approverTasks = getApproverTasks(approver, tasks);
+  if (approver.type === ApprovalRecipientType.Team) {
+    return renderTeamApprover(approver, approverTasks, index);
+  }
+
+  if (approverTasks.length === 0) {
+    return renderApproverWithoutTasks(approver, index);
+  }
+
+  return approverTasks.map((task) =>
+    renderTaskDetails(
+      task,
+      getTaskApproverLabel(task),
+      getTaskApproverIcon(step, task),
+    ),
+  );
 };
 
 const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
   step,
   tasks,
 }) => {
+  const approvers = (step.approvers ?? []).filter(Boolean);
+  const stepStatus = getStepStatus(step, tasks);
+  const unassignedTasks = getUnassignedTasks(step, tasks);
+
   return (
-    <Stack spacing={StackSpacing.default} sx={approvalStepBlockSx}>
-      <Stack
-        direction="row"
-        spacing={StackSpacing.default}
-        alignItems="center"
-        sx={approvalStepHeaderSx}
-      >
-        <Typography variant="subtitle2" sx={Flex.growSx}>
-          Step {step.sequence}
-        </Typography>
-        <Chip
-          label={getStepStatus(step, tasks)}
-          size="small"
-          color={getStepStatusColor(step, tasks)}
-        />
+    <ApprovalStatusLineSection
+      color={getStepStatusLineColor(stepStatus)}
+      label={getStepStatusLabel(stepStatus)}
+      sx={approvalStepBlockSx}
+    >
+      <Stack spacing={StackSpacing.default}>
+        <Stack
+          direction="row"
+          spacing={StackSpacing.default}
+          alignItems="center"
+          sx={approvalStepHeaderSx}
+        >
+          <Stack
+            direction="row"
+            spacing={StackSpacing.tight}
+            alignItems="center"
+            sx={Flex.growSx}
+          >
+            <Typography variant="subtitle2">
+              Step {step.sequence}
+            </Typography>
+            {renderStepModeIndicator(step.mode)}
+          </Stack>
+        </Stack>
+        {approvers.map((approver, index) =>
+          renderApprover(step, approver, tasks, index),
+        )}
+        {unassignedTasks.map((task) =>
+          renderTaskDetails(
+            task,
+            getTaskApproverLabel(task),
+            getTaskApproverIcon(step, task),
+          ),
+        )}
       </Stack>
-      {tasks.length > 0
-        ? tasks.map((task) => {
-          const completedAt = getTaskCompletionDate(task);
-          return (
-            <Stack key={task.id} spacing={StackSpacing.default}>
-            <Stack
-              direction="row"
-              spacing={StackSpacing.tight}
-              alignItems="center"
-            >
-              {getTaskApproverIcon(step, task)}
-              <Typography variant="body2">
-                {getTaskApproverLabel(step, task)}
-              </Typography>
-            </Stack>
-            <Stack
-              direction="row"
-              spacing={StackSpacing.default}
-              divider={<Divider orientation="vertical" flexItem />}
-            >
-              <Typography variant="caption" color="text.secondary">
-                Created at {getLocaleDateTimeString(task.createdAtDate)}
-              </Typography>
-              {completedAt && (
-                <Typography variant="caption" color="text.secondary">
-                  {getTaskCompletionLabel(task.status)} {getLocaleDateTimeString(completedAt)}
-                </Typography>
-              )}
-            </Stack>
-            <ApprovalRequestComment text={task.comment} label="Comment" />
-          </Stack>
-          );
-        })
-        : (step.approvers ?? []).filter(Boolean).map((approver, index) => (
-          <Stack key={approver.id ?? index} spacing={StackSpacing.default}>
-            <Stack
-              direction="row"
-              spacing={StackSpacing.tight}
-              alignItems="center"
-            >
-              {getApproverIcon(approver.type)}
-              <Typography variant="body2">
-                {getApproverLabel(approver)}
-              </Typography>
-            </Stack>
-          </Stack>
-        ))}
-    </Stack>
+    </ApprovalStatusLineSection>
   );
 };
 

@@ -23,6 +23,7 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
         ApprovalRequestStepApproverId = source.ApprovalRequestStepApproverId;
         ApproverUserId = source.ApproverUserId;
         ApproverEmail = source.ApproverEmail;
+        ApproverDisplayName = source.ApproverDisplayName;
         CanViewRequest = source.CanViewRequest;
         Description = source.Description;
         Comment = source.Comment;
@@ -34,6 +35,7 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
     public long? ApprovalRequestStepApproverId { get; init; }
     public string? ApproverUserId { get; init; }
     public required string ApproverEmail { get; init; }
+    public required string ApproverDisplayName { get; init; }
     public bool CanViewRequest { get; init; }
     public string? Description { get; init; }
     public string? Comment { get; init; }

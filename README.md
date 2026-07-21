@@ -26,7 +26,7 @@ review decisions, and tracking request history.
   email-based approvers.
 - Build multi-step approval workflows with serial or parallel approver steps.
 - Track sent approval requests in the outbox, inspect request details and audit
-  history, edit pending approver steps, cancel pending requests, and delete
+  history, see in-progress request state, cancel pending requests, and delete
   requests.
 - Review incoming approval tasks in the inbox, open task details, preview
   attached files, approve or reject with comments, and see the uncompleted task

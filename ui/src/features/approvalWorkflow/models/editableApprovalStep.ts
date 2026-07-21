@@ -39,7 +39,6 @@ const toApprovalStep = (step: EditableApprovalStep): ApprovalStep => ({
     email: approver.email,
     employeeId: approver.employeeId,
     teamId: approver.teamId,
-    displayName: approver.displayName,
     canViewRequest: approver.canViewRequest,
   })),
 });

@@ -1,8 +1,8 @@
 import { stores } from "@/app/rootStore";
-import ApprovalRequestEditorPage from "@/features/approvalRequests/pages/ApprovalRequestEditorPage";
 import ApprovalRequestStartPage from "@/features/approvalRequests/pages/ApprovalRequestStartPage";
 import ApprovalRequestSubmitPage from "@/features/approvalRequests/pages/ApprovalRequestSubmitPage";
 import ApprovalRequestTaskEditorPage from "@/features/approvalRequests/pages/ApprovalRequestTaskEditorPage";
+import ApprovalRequestViewPage from "@/features/approvalRequests/pages/ApprovalRequestViewPage";
 import InboxPage from "@/features/approvalRequests/pages/InboxPage";
 import OutboxPage from "@/features/approvalRequests/pages/OutboxPage";
 import ApprovalStepTemplateEditorPage from "@/features/approvalStepTemplates/pages/ApprovalStepTemplateEditorPage";
@@ -117,7 +117,7 @@ const App = () => {
                     <Route path="outbox" element={<OutboxPage />} />
                     <Route path="outbox/new" element={<ApprovalRequestStartPage />} />
                     <Route path="outbox/new/compose" element={<ApprovalRequestSubmitPage />} />
-                    <Route path="outbox/:approvalRequestId" element={<ApprovalRequestEditorPage />} />
+                    <Route path="outbox/:approvalRequestId" element={<ApprovalRequestViewPage />} />
                     <Route element={<RouteGuard isAllowed={canViewTemplates} />}>
                       <Route path="approvalStepTemplates" element={<ApprovalStepTemplatesPage />} />
                     </Route>

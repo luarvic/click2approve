@@ -8,9 +8,7 @@ interface ApprovalRequestCommentProps {
 
 const approvalRequestCommentSx: SxProps<Theme> = {
   bgcolor: "action.hover",
-  borderColor: "primary.main",
   borderRadius: 1,
-  color: "text.primary",
   px: 1.5,
   py: 1,
 };

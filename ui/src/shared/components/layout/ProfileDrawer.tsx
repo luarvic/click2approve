@@ -2,7 +2,7 @@ import { stores } from "@/app/rootStore";
 import { getPublicApiUrl } from "@/shared/api/userProfileApi";
 import { Lists, Shell } from "@/shared/constants/constants";
 import {
-  getUserDisplayName,
+  getUserProfileName,
   normalizeEmailForDisplay,
 } from "@/shared/utils/displayNameHelpers";
 import { Logout, Settings } from "@mui/icons-material";
@@ -24,7 +24,7 @@ const ProfileDrawer = () => {
   const navigate = useNavigate();
   const profile = stores.userProfileStore.profile;
   const email = stores.userAccountStore.currentUser?.email;
-  const displayName = getUserDisplayName(profile, email);
+  const displayName = getUserProfileName(profile);
 
   return (
     <Drawer

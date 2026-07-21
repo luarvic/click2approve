@@ -3,7 +3,6 @@ import {
   ApprovalStepApprover,
 } from "@/features/approvalWorkflow/models/approvalStep";
 import { Employee } from "@/features/employees/models/employee";
-import { getEmployeeDisplayName } from "@/features/employees/utils/employeeLabels";
 import { Dialogs } from "@/shared/constants/constants";
 import { Close, InfoOutlined } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
@@ -115,7 +114,7 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
           <Autocomplete
             fullWidth
             options={employees}
-            getOptionLabel={getEmployeeDisplayName}
+            getOptionLabel={(option) => option.displayName}
             value={
               employees.find((user) => user.id === approver.employeeId) ?? null
             }
@@ -127,7 +126,6 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
               onChange({
                 ...approver,
                 employeeId: value?.id,
-                displayName: value ? getEmployeeDisplayName(value) : undefined,
               })
             }
             sx={assigneeFieldSx}
@@ -147,7 +145,6 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
               onChange({
                 ...approver,
                 teamId: value?.id,
-                displayName: value?.name,
               })
             }
             sx={assigneeFieldSx}

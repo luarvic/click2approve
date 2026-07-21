@@ -7,7 +7,6 @@ import {
 } from "@/features/delegations/api/approvalDelegationApi";
 import { ApprovalDelegation } from "@/features/delegations/models/approvalDelegation";
 import { EmployeeStatus } from "@/features/employees/models/employee";
-import { getEmployeeDisplayName } from "@/features/employees/utils/employeeLabels";
 import { Dialogs, Pages, StackSpacing } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { Add, DeleteOutline, Save } from "@mui/icons-material";
@@ -164,7 +163,7 @@ const DelegationsPage = () => {
               <MenuItem value={0}>Select employee</MenuItem>
               {activeEmployees.map((employee) => (
                 <MenuItem key={employee.id} value={employee.id}>
-                  {getEmployeeDisplayName(employee)}
+                  {employee.displayName}
                 </MenuItem>
               ))}
             </TextField>
@@ -183,7 +182,7 @@ const DelegationsPage = () => {
               <MenuItem value={0}>Select delegate</MenuItem>
               {activeEmployees.map((employee) => (
                 <MenuItem key={employee.id} value={employee.id}>
-                  {getEmployeeDisplayName(employee)}
+                  {employee.displayName}
                 </MenuItem>
               ))}
             </TextField>

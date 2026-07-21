@@ -1,7 +1,7 @@
 import { stores } from "@/app/rootStore";
 import { cancelApprovalRequest } from "@/features/approvalRequests/api/approvalRequestApi";
-import ApprovalRequestFilesBox from "@/features/approvalRequests/components/ApprovalRequestFilesBox";
 import ApprovalRequestLog from "@/features/approvalRequests/components/ApprovalRequestLog";
+import ApprovalRequestSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestSummaryBlock";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import ApprovalSteps from "@/features/approvalWorkflow/components/ApprovalSteps";
 import { Dialogs, Pages } from "@/shared/constants/constants";
@@ -10,18 +10,17 @@ import {
   Stack,
   Tab,
   Tabs,
-  TextField,
   Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 
-interface ApprovalRequestEditorProps {
+interface ApprovalRequestViewProps {
   onClose: (currentApprovalRequestId?: number) => void;
   onClone: () => void;
 }
 
-const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({
+const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
   onClose,
   onClone,
 }) => {
@@ -69,26 +68,13 @@ const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({
       </Tabs>
       {selectedTab === "request" && (
         <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
-          <TextField
-            margin="normal"
-            fullWidth
-            label="Title"
-            value={approvalRequest?.title ?? ""}
-            disabled
-          />
-          <ApprovalRequestFilesBox
-            userFiles={approvalRequest?.userFiles}
-            approvalRequestId={approvalRequest?.id}
-          />
-          <TextField
-            margin="normal"
-            fullWidth
-            label="Description"
-            multiline
-            value={approvalRequest?.description ?? ""}
-            disabled
-          />
-          {approvalRequest && <ApprovalSteps approvalRequest={approvalRequest} showDividers />}
+          {approvalRequest && (
+            <ApprovalSteps
+              approvalRequest={approvalRequest}
+              leadingItem={<ApprovalRequestSummaryBlock approvalRequest={approvalRequest} />}
+              showDividers
+            />
+          )}
         </Stack>
       )}
       {selectedTab === "log" && (
@@ -105,14 +91,15 @@ const ApprovalRequestEditor: React.FC<ApprovalRequestEditorProps> = ({
         <Button variant="outlined" onClick={handleClone}>
           Clone
         </Button>
-        {approvalRequest?.status === ApprovalRequestStatus.Pending && (
-          <Button variant="outlined" onClick={handleCancelRequest}>
-            Cancel request
-          </Button>
-        )}
+        {(approvalRequest?.status === ApprovalRequestStatus.Pending ||
+          approvalRequest?.status === ApprovalRequestStatus.Started) && (
+            <Button variant="outlined" onClick={handleCancelRequest}>
+              Cancel request
+            </Button>
+          )}
       </Stack>
     </>
   );
 };
 
-export default observer(ApprovalRequestEditor);
+export default observer(ApprovalRequestView);

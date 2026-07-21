@@ -22,7 +22,7 @@ export interface ApprovalLogEntryBase {
   actorUserId?: string;
   actorEmployeeId?: number;
   actorEmail: string;
-  actorDisplayName?: string;
+  actorDisplayName: string;
   details: string;
 }
 

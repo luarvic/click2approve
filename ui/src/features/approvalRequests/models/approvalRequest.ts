@@ -13,6 +13,7 @@ export interface ApprovalRequest extends ApprovalRequestListItem {
   description?: string;
   createdByUserId: string;
   createdByEmail: string;
+  createdByDisplayName: string;
   tasks: ApprovalRequestTask[];
   logEntries: ApprovalRequestLogEntry[];
   taskLogEntries: ApprovalRequestTaskLogEntry[];

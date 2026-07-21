@@ -1,13 +1,16 @@
 import { stores } from "@/app/rootStore";
+import {
+  ApprovalRequestStatusLineLabel,
+  getApprovalRequestStatusLabel,
+} from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequestListItem } from "@/features/approvalRequests/models/approvalRequestListItem";
-import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { getHumanReadableRelativeDate } from "@/shared/utils/helpers";
 import { Add } from "@mui/icons-material";
-import { Box, Button, Chip, LinearProgress } from "@mui/material";
+import { Box, Button, LinearProgress } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -31,17 +34,6 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestId }) => 
     stores.approvalRequestStore.approvalRequests,
     currentApprovalRequestId,
   );
-
-  const getStatusChipColor = (status: ApprovalRequestStatus) => {
-    switch (status) {
-      case ApprovalRequestStatus.Approved:
-        return "success" as const;
-      case ApprovalRequestStatus.Rejected:
-        return "error" as const;
-      default:
-        return "default" as const;
-    }
-  };
 
   useGridRefresh(() => {
     if (tenantScopeIsReady) {
@@ -80,17 +72,10 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestId }) => 
       field: "status",
       headerName: "Status",
       flex: DataGrids.approvalColumnFlex.metadata,
-      renderCell: (params) => {
-        const label = ApprovalRequestStatus[params.row.status];
-        return (
-          <Chip
-            label={label}
-            size="small"
-            color={getStatusChipColor(params.row.status)}
-          />
-        );
-      },
-      valueGetter: (_value, row) => ApprovalRequestStatus[row.status],
+      renderCell: (params) => (
+        <ApprovalRequestStatusLineLabel status={params.row.status} />
+      ),
+      valueGetter: (_value, row) => getApprovalRequestStatusLabel(row.status),
     },
     {
       field: "createdAtDate",

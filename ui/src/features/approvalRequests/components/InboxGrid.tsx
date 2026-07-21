@@ -1,12 +1,15 @@
 import { stores } from "@/app/rootStore";
+import {
+  ApprovalRequestTaskStatusLineLabel,
+  getApprovalRequestTaskStatusLabel,
+} from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
-import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { getHumanReadableRelativeDate } from "@/shared/utils/helpers";
-import { Box, Chip, LinearProgress } from "@mui/material";
+import { Box, LinearProgress } from "@mui/material";
 import { DataGrid, GridColDef, GridSlots } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
@@ -26,19 +29,6 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskId }) => {
     currentTaskId,
   );
 
-  const getStatusChipColor = (status: ApprovalRequestTaskStatus) => {
-    switch (status) {
-      case ApprovalRequestTaskStatus.Approved:
-        return "success" as const;
-      case ApprovalRequestTaskStatus.Rejected:
-        return "error" as const;
-      case ApprovalRequestTaskStatus.Skipped:
-        return "default" as const;
-      default:
-        return "warning" as const;
-    }
-  };
-
   useGridRefresh(() => {
     if (tenantScopeIsReady) {
       return stores.approvalRequestTaskStore.loadIncoming();
@@ -56,17 +46,10 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskId }) => {
       field: "status",
       headerName: "Status",
       flex: DataGrids.approvalColumnFlex.metadata,
-      renderCell: (params) => {
-        const label = ApprovalRequestTaskStatus[params.row.status];
-        return (
-          <Chip
-            label={label}
-            size="small"
-            color={getStatusChipColor(params.row.status)}
-          />
-        );
-      },
-      valueGetter: (_value, row) => ApprovalRequestTaskStatus[row.status],
+      renderCell: (params) => (
+        <ApprovalRequestTaskStatusLineLabel status={params.row.status} />
+      ),
+      valueGetter: (_value, row) => getApprovalRequestTaskStatusLabel(row.status),
     },
     {
       field: "createdAtDate",

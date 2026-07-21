@@ -92,6 +92,8 @@ const getRequestStatusLabel = (status?: ApprovalRequestStatus) => {
       return "Canceled";
     case ApprovalRequestStatus.Pending:
       return "Pending";
+    case ApprovalRequestStatus.Started:
+      return "Started";
     case ApprovalRequestStatus.Rejected:
       return "Rejected";
     default:
@@ -152,7 +154,7 @@ const formatTaskDetails = (entry: ApprovalRequestTaskLogEntry) => {
 };
 
 const mapRequestEntry = (entry: ApprovalRequestLogEntry): DisplayLogEntry => ({
-  actor: entry.actorDisplayName ?? entry.actorEmail.toLowerCase(),
+  actor: entry.actorDisplayName,
   actorType: getActorTypeLabel(entry.actorType),
   details: formatRequestDetails(entry),
   event: getRequestEventLabel(entry.eventType),
@@ -161,12 +163,12 @@ const mapRequestEntry = (entry: ApprovalRequestLogEntry): DisplayLogEntry => ({
 });
 
 const mapTaskEntry = (entry: ApprovalRequestTaskLogEntry): DisplayLogEntry => ({
-  actor: entry.actorDisplayName ?? entry.actorEmail.toLowerCase(),
+  actor: entry.actorDisplayName,
   actorType: getActorTypeLabel(entry.actorType),
   details: formatTaskDetails(entry),
   event: getTaskEventLabel(entry.eventType),
   id: `task-${entry.id}`,
-  onBehalfOf: entry.onBehalfOfDisplayName ?? entry.onBehalfOfEmail?.toLowerCase(),
+  onBehalfOf: entry.onBehalfOfDisplayName,
   timestamp: entry.timestampDate,
 });
 

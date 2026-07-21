@@ -192,6 +192,7 @@ export const StackSpacing = {
 } as const;
 
 export const Icons = {
+  secondaryColor: "disabled",
   verticalAlignSx: {
     verticalAlign: "middle",
   } as SxProps<Theme>,

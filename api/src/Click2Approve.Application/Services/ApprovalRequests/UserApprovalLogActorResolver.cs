@@ -15,6 +15,6 @@ public class UserApprovalLogActorResolver : IApprovalLogActorResolver
             UserId: user.Id,
             EmployeeId: null,
             Email: user.NormalizedEmail ?? user.Email ?? string.Empty,
-            DisplayName: DisplayNameHelpers.FormatUser(user)));
+            DisplayName: DisplayNameHelpers.NormalizeEmailForDisplay(user.NormalizedEmail ?? user.Email)));
     }
 }

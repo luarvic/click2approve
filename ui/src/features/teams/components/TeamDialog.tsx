@@ -1,5 +1,4 @@
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
-import { getEmployeeDisplayName } from "@/features/employees/utils/employeeLabels";
 import { Team, UpsertTeamRequest } from "@/features/teams/models/team";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import { Dialogs, Pages } from "@/shared/constants/constants";
@@ -23,7 +22,7 @@ interface TeamDialogProps {
 }
 
 const getEmployeeLabel = (employee: Employee) => {
-  return getEmployeeDisplayName(employee);
+  return employee.displayName;
 };
 
 const TeamDialog: React.FC<TeamDialogProps> = ({

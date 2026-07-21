@@ -9,11 +9,41 @@ public class EmailOnlyApprovalRecipientResolver(ITenantRepository tenantReposito
 {
     private readonly ITenantRepository _tenantRepository = tenantRepository;
 
+    public async Task<Dictionary<ApprovalRequestStepApprover, List<ApprovalRecipientResolution>>> ResolveAsync(
+        ApprovalRequest approvalRequest,
+        IReadOnlyCollection<ApprovalRecipientResolveItem> approvers,
+        CancellationToken cancellationToken)
+    {
+        var emails = approvers.Select(NormalizeEmailApprover).Distinct().ToList();
+        var tenantByEmail = (await _tenantRepository.ListPersonalAsync(emails, cancellationToken))
+            .GroupBy(tenant => tenant.Owner.NormalizedEmail)
+            .ToDictionary(group => group.Key!, group => group.First());
+
+        return approvers.ToDictionary(
+            approver => approver.Approver,
+            approver => ResolveEmail(approvalRequest, approver.Approver, tenantByEmail));
+    }
+
     public async Task<List<ApprovalRecipientResolution>> ResolveAsync(
         ApprovalRequest approvalRequest,
         ApprovalRequestStep step,
         ApprovalRequestStepApprover approver,
         CancellationToken cancellationToken)
+    {
+        var email = NormalizeEmailApprover(approver);
+        var approverTenant = await _tenantRepository.GetPersonalAsync(email, cancellationToken);
+        var tenantByEmail = approverTenant is null
+            ? []
+            : new Dictionary<string, Tenant> { [email] = approverTenant };
+        return ResolveEmail(approvalRequest, approver, tenantByEmail);
+    }
+
+    private static string NormalizeEmailApprover(ApprovalRecipientResolveItem approver)
+    {
+        return NormalizeEmailApprover(approver.Approver);
+    }
+
+    private static string NormalizeEmailApprover(ApprovalRequestStepApprover approver)
     {
         if (approver.Type != ApprovalRecipientType.Email)
         {
@@ -24,8 +54,19 @@ public class EmailOnlyApprovalRecipientResolver(ITenantRepository tenantReposito
             approver.Email,
             "Approver email is required.");
         approver.Email = email;
-        approver.DisplayName ??= EmailHelpers.NormalizeEmailAddress(email);
-        var approverTenant = await _tenantRepository.GetPersonalAsync(email, cancellationToken);
+        var displayName = DisplayNameHelpers.NormalizeEmailForDisplay(email);
+        approver.ApproverDisplayName = displayName;
+        return email;
+    }
+
+    private static List<ApprovalRecipientResolution> ResolveEmail(
+        ApprovalRequest approvalRequest,
+        ApprovalRequestStepApprover approver,
+        IReadOnlyDictionary<string, Tenant> tenantByEmail)
+    {
+        var email = approver.Email!;
+        var displayName = approver.ApproverDisplayName ?? DisplayNameHelpers.NormalizeEmailForDisplay(email);
+        tenantByEmail.TryGetValue(email, out var approverTenant);
         return
         [
             new ApprovalRecipientResolution(
@@ -33,7 +74,7 @@ public class EmailOnlyApprovalRecipientResolver(ITenantRepository tenantReposito
                 approverTenant?.Owner.Id,
                 ApproverEmployeeId: null,
                 approverTenant?.Id ?? approvalRequest.TenantId,
-                approver.DisplayName,
+                displayName,
                 approver.CanViewRequest)
         ];
     }

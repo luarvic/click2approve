@@ -80,6 +80,10 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasMaxLength(320);
 
         modelBuilder.Entity<ApprovalRequest>()
+            .Property(r => r.CreatedByDisplayName)
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<ApprovalRequest>()
             .HasIndex(r => new { r.TenantId, r.CreatedByUserId, r.CreatedAt });
 
         modelBuilder.Entity<ApprovalRequest>()
@@ -154,6 +158,10 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasMaxLength(320);
 
         modelBuilder.Entity<ApprovalRequestStepApprover>()
+            .Property(a => a.ApproverDisplayName)
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<ApprovalRequestStepApprover>()
             .HasOne(a => a.ApprovalRequestStep)
             .WithMany(s => s.Approvers)
             .HasForeignKey(a => a.ApprovalRequestStepId)
@@ -170,6 +178,10 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
         modelBuilder.Entity<ApprovalRequestTask>()
             .Property(t => t.ApproverEmail)
             .HasMaxLength(320);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .Property(t => t.ApproverDisplayName)
+            .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequestTask>()
             .HasIndex(t => new { t.ApproverEmail, t.ApproverUserId });
