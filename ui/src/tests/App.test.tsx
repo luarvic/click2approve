@@ -17,9 +17,9 @@ describe("<App />", () => {
     Object.defineProperty(window, "location", {
       writable: true,
       value: {
-        pathname: "/ui",
+        pathname: "/ui/signIn",
         origin: "http://localhost",
-        href: "http://localhost/ui",
+        href: "http://localhost/ui/signIn",
       },
     });
   });
@@ -28,7 +28,10 @@ describe("<App />", () => {
     const wrapper = render(<App />);
     expect(wrapper).toBeTruthy();
 
-    const heading = await screen.findByRole("heading", { level: 6 });
-    expect(heading.textContent).toBe("Click2Approve");
+    const heading = await screen.findByRole("heading", { level: 1 });
+    expect(heading.textContent).toBe("Sign in");
+    expect(
+      screen.queryByRole("heading", { level: 6, name: "Click2Approve" }),
+    ).toBeNull();
   });
 });

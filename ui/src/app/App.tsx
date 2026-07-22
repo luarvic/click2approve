@@ -25,6 +25,7 @@ import MainLayout from "@/layouts/MainLayout";
 import TenantScopeLayout from "@/layouts/TenantScopeLayout";
 import WrapperLayout from "@/layouts/WrapperLayout";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
+import AnonymousRoute from "@/shared/components/routing/AnonymousRoute";
 import RouteGuard from "@/shared/components/routing/RouteGuard";
 import TenantHomeRedirect from "@/shared/components/routing/TenantHomeRedirect";
 import { Toasts } from "@/shared/constants/constants";
@@ -80,20 +81,23 @@ const App = () => {
           }}
         >
           <Routes>
-            <Route element={<MainLayout />}>
-              <Route element={<WrapperLayout />}>
+            <Route element={<WrapperLayout />}>
+              <Route element={<AnonymousRoute />}>
                 <Route path="/signIn" element={<SignInPage />} />
                 <Route path="/signUp" element={<SignUpPage />} />
                 <Route path="/forgotPassword" element={<ForgotPasswordPage />} />
-                <Route path="/confirmEmail" element={<ConfirmEmailPage />} />
                 <Route
                   path="/resendConfirmationEmail"
                   element={<ResendConfirmationEmailPage />}
                 />
                 <Route path="/resetPassword" element={<ResetPasswordPage />} />
-                <Route path="/information" element={<InformationPage />} />
-                <Route path="*" element={<NotFoundPage />} />
-                <Route element={<RouteGuard />}>
+              </Route>
+              <Route path="/confirmEmail" element={<ConfirmEmailPage />} />
+              <Route path="/information" element={<InformationPage />} />
+            </Route>
+            <Route element={<RouteGuard />}>
+              <Route element={<MainLayout />}>
+                <Route element={<WrapperLayout />}>
                   <Route path="/userProfile" element={<UserProfilePage />} />
                   <Route
                     element={
@@ -107,8 +111,6 @@ const App = () => {
                     <Route path="/tenants/:tenantId" element={<TenantEditorPage />} />
                   </Route>
                 </Route>
-              </Route>
-              <Route element={<RouteGuard />}>
                 <Route index element={<TenantHomeRedirect />} />
                 <Route path="/tenants/:tenantId" element={<TenantScopeLayout />}>
                   <Route element={<WrapperLayout />}>
@@ -140,6 +142,7 @@ const App = () => {
                 </Route>
               </Route>
             </Route>
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>
         <ToastContainer
