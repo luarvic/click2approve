@@ -195,7 +195,10 @@ public class ApprovalRequestService(
         var reviewedMessageTemplate = _configuration["Email:Templates:ApprovalRequestReviewedMessage"]!;
         var reviewedLinkText = _configuration["Email:Templates:ApprovalRequestReviewedLinkText"]!;
         var reviewedSubject = _configuration["Email:Templates:ApprovalRequestReviewedSubject"]!;
-        var reviewedLink = $"{_configuration["UI:BaseUrl"]}/sent";
+        var reviewedLink = UriHelpers.GetUiUri(
+            _configuration.GetValue<Uri>("UI:BaseUrl"),
+            _configuration["UI:AppPath"],
+            "sent").ToString();
 
         if (await _notificationPreferenceService.IsEnabledAsync(
             approvalRequestTask.ApprovalRequest.CreatedByUserId,
@@ -638,7 +641,10 @@ public class ApprovalRequestService(
 
         var template = GetApproverNotificationTemplate(notification);
         approvalRequest ??= taskList.First().ApprovalRequest;
-        var link = $"{_configuration["UI:BaseUrl"]}/inbox";
+        var link = UriHelpers.GetUiUri(
+            _configuration.GetValue<Uri>("UI:BaseUrl"),
+            _configuration["UI:AppPath"],
+            "inbox").ToString();
 
         var notificationType = GetNotificationType(notification);
         var recipients = taskList

@@ -74,7 +74,7 @@ const App = () => {
     <ThemeProvider theme={stores.userPreferencesStore.theme}>
       <CssBaseline>
         <BrowserRouter
-          basename="ui"
+          basename="app"
           future={{
             v7_relativeSplatPath: true,
             v7_startTransition: true,

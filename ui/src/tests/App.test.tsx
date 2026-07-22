@@ -17,9 +17,9 @@ describe("<App />", () => {
     Object.defineProperty(window, "location", {
       writable: true,
       value: {
-        pathname: "/ui/signIn",
+        pathname: "/app/signIn",
         origin: "http://localhost",
-        href: "http://localhost/ui/signIn",
+        href: "http://localhost/app/signIn",
       },
     });
   });

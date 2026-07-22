@@ -22,7 +22,9 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
     {
         var confirmationLinkPlainText = HttpUtility.HtmlDecode(confirmationLink);
         var derivedConfirmationLink = UriHelpers.GetDerivedEmailConfirmationLink(
-            new Uri(confirmationLinkPlainText), _configuration.GetValue<Uri>("UI:BaseUrl")
+            new Uri(confirmationLinkPlainText),
+            _configuration.GetValue<Uri>("UI:BaseUrl"),
+            _configuration["UI:AppPath"]
         ).ToString();
         var confirmationHeading = _configuration["Email:Templates:IdentityConfirmationHeading"]!;
         var confirmationMessageTemplate = _configuration["Email:Templates:IdentityConfirmationMessage"]!;
@@ -48,7 +50,10 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
     public async Task SendPasswordResetCodeAsync(AppUser user, string email, string resetCode)
     {
         var derivedResetLink = UriHelpers.GetDerivedPasswordResetLink(
-            user.Email!.ToLower(), resetCode, _configuration.GetValue<Uri>("UI:BaseUrl")
+            user.Email!.ToLower(),
+            resetCode,
+            _configuration.GetValue<Uri>("UI:BaseUrl"),
+            _configuration["UI:AppPath"]
         ).ToString();
         var resetHeading = _configuration["Email:Templates:IdentityResetHeading"]!;
         var resetMessageTemplate = _configuration["Email:Templates:IdentityResetMessage"]!;

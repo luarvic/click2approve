@@ -7,7 +7,7 @@ export default defineConfig(() => {
     server: {
       port: 3333,
     },
-    base: "/ui",
+    base: "/app",
     plugins: [react()],
     resolve: {
       alias: {
