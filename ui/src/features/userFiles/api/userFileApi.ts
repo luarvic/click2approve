@@ -4,6 +4,7 @@ import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
 import { toast } from "react-toastify";
 
 export const uploadUserFiles = async (
+  tenantId: number,
   files: FileList | File[]
 ): Promise<UserFile[]> => {
   try {
@@ -12,7 +13,7 @@ export const uploadUserFiles = async (
       formData.append("files", file);
     });
     const { data } = await axios.post<UserFile[]>(
-      "api/file/upload",
+      `api/tenants/${tenantId}/files/upload`,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
@@ -26,10 +27,13 @@ export const uploadUserFiles = async (
 };
 
 export const downloadUserFileBase64 = async (
+  tenantId: number,
   id: number
 ): Promise<string | null> => {
   try {
-    const { data } = await axios.get(`api/file/downloadBase64?id=${id}`);
+    const { data } = await axios.get(
+      `api/tenants/${tenantId}/files/downloadBase64?id=${id}`,
+    );
     return data;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
@@ -38,12 +42,13 @@ export const downloadUserFileBase64 = async (
 };
 
 export const downloadApprovalRequestFileBase64 = async (
+  tenantId: number,
   id: number,
   approvalRequestId: number,
 ): Promise<string | null> => {
   try {
     const { data } = await axios.get(
-      `api/file/downloadBase64ForApprovalRequest?id=${id}&approvalRequestId=${approvalRequestId}`,
+      `api/tenants/${tenantId}/files/downloadBase64ForApprovalRequest?id=${id}&approvalRequestId=${approvalRequestId}`,
     );
     return data;
   } catch (e) {
@@ -53,12 +58,13 @@ export const downloadApprovalRequestFileBase64 = async (
 };
 
 export const downloadApprovalRequestTaskFileBase64 = async (
+  tenantId: number,
   id: number,
   approvalRequestTaskId: number,
 ): Promise<string | null> => {
   try {
     const { data } = await axios.get(
-      `api/file/downloadBase64ForApprovalRequestTask?id=${id}&approvalRequestTaskId=${approvalRequestTaskId}`,
+      `api/tenants/${tenantId}/files/downloadBase64ForApprovalRequestTask?id=${id}&approvalRequestTaskId=${approvalRequestTaskId}`,
     );
     return data;
   } catch (e) {

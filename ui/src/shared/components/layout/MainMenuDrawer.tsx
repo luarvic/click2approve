@@ -94,13 +94,19 @@ const MainMenuDrawer = () => {
       return;
     }
 
-    stores.approvalRequestTaskStore.loadUncompletedCount();
+    const tenantId = stores.tenantStore.currentTenantId;
+    if (tenantId) {
+      stores.approvalRequestTaskStore.loadUncompletedCount(tenantId);
+    }
     if (Refresh.uncompletedTasksMs <= 0) {
       return;
     }
 
     const intervalId = window.setInterval(() => {
-      stores.approvalRequestTaskStore.loadUncompletedCount();
+      const tenantId = stores.tenantStore.currentTenantId;
+      if (tenantId) {
+        stores.approvalRequestTaskStore.loadUncompletedCount(tenantId);
+      }
     }, Refresh.uncompletedTasksMs);
     return () => window.clearInterval(intervalId);
   }, [currentUser, tenantScopeIsReady]);

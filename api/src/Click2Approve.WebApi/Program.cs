@@ -86,6 +86,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+app.UseRouting();
 app.UseAuthentication();
 app.UseMiddleware<InitialTenantSetupMiddleware>();
 app.UseMiddleware<DefaultTenantResolutionMiddleware>();

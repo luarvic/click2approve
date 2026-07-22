@@ -31,13 +31,13 @@ export class ApprovalRequestStore {
 
   getDetail = (id: number): ApprovalRequest | null => this.details.get(id) ?? null;
 
-  load = (): Promise<void> => {
+  load = (tenantId: number): Promise<void> => {
     if (this.listRequest) {
       return this.listRequest;
     }
 
     const requestVersion = ++this.requestVersion;
-    const request = approvalRequestApi.listApprovalRequests().then((approvalRequests) => {
+    const request = approvalRequestApi.listApprovalRequests(tenantId).then((approvalRequests) => {
       if (requestVersion !== this.requestVersion) {
         return;
       }
@@ -55,13 +55,13 @@ export class ApprovalRequestStore {
     return request;
   };
 
-  loadDetails = (id: number): Promise<ApprovalRequest | null> => {
+  loadDetails = (tenantId: number, id: number): Promise<ApprovalRequest | null> => {
     const inFlight = this.detailRequests.get(id);
     if (inFlight) {
       return inFlight;
     }
 
-    const request = approvalRequestApi.getApprovalRequest(id).then((approvalRequest) => {
+    const request = approvalRequestApi.getApprovalRequest(tenantId, id).then((approvalRequest) => {
       if (approvalRequest) {
         normalizeApprovalRequestDates(approvalRequest);
         runInAction(() => {

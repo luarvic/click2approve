@@ -93,8 +93,8 @@ describe("store architecture", () => {
       reactions += 1;
     });
 
-    store.updateLoadingCounter("get_api/task/countUncompleted", 1);
-    store.updateLoadingCounter("get_api/task/countUncompleted", -1);
+    store.updateLoadingCounter("get_api/tenants/1/tasks/countUncompleted", 1);
+    store.updateLoadingCounter("get_api/tenants/1/tasks/countUncompleted", -1);
 
     expect(reactions).toBe(1);
     expect(store.loadingCounter).toEqual({});
@@ -141,8 +141,8 @@ describe("store architecture", () => {
       .mockResolvedValueOnce([approvalRequest(2)]);
     const store = new ApprovalRequestStore();
 
-    await store.load();
-    await store.load();
+    await store.load(1);
+    await store.load(1);
 
     expect(store.approvalRequests.map(({ id }) => id)).toEqual([2]);
   });
@@ -152,8 +152,8 @@ describe("store architecture", () => {
     const store = new ApprovalRequestStore();
 
     const [first, second] = await Promise.all([
-      store.loadDetails(1),
-      store.loadDetails(1),
+      store.loadDetails(1, 1),
+      store.loadDetails(1, 1),
     ]);
 
     expect(approvalRequestApi.getApprovalRequest).toHaveBeenCalledOnce();
@@ -168,8 +168,8 @@ describe("store architecture", () => {
       .mockResolvedValueOnce({ ...approvalRequest(1), title: "Updated request" });
     const store = new ApprovalRequestStore();
 
-    await store.loadDetails(1);
-    const latest = await store.loadDetails(1);
+    await store.loadDetails(1, 1);
+    const latest = await store.loadDetails(1, 1);
 
     expect(approvalRequestApi.getApprovalRequest).toHaveBeenCalledTimes(2);
     expect(latest?.title).toBe("Updated request");
@@ -185,7 +185,7 @@ describe("store architecture", () => {
     ]);
     const store = new ApprovalRequestTaskStore();
 
-    await store.loadIncoming();
+    await store.loadIncoming(1);
 
     expect(store.tasks.map(({ status }) => status)).toEqual([
       ApprovalRequestTaskStatus.Skipped,
@@ -201,8 +201,8 @@ describe("store architecture", () => {
     const store = new ApprovalRequestTaskStore();
 
     const [first, second] = await Promise.all([
-      store.loadDetails(1),
-      store.loadDetails(1),
+      store.loadDetails(1, 1),
+      store.loadDetails(1, 1),
     ]);
 
     expect(approvalRequestTaskApi.getApprovalRequestTask).toHaveBeenCalledOnce();
@@ -217,8 +217,8 @@ describe("store architecture", () => {
       .mockResolvedValueOnce(approvalRequestTask(1, ApprovalRequestTaskStatus.Approved));
     const store = new ApprovalRequestTaskStore();
 
-    await store.loadDetails(1);
-    const latest = await store.loadDetails(1);
+    await store.loadDetails(1, 1);
+    const latest = await store.loadDetails(1, 1);
 
     expect(approvalRequestTaskApi.getApprovalRequestTask).toHaveBeenCalledTimes(2);
     expect(latest?.status).toBe(ApprovalRequestTaskStatus.Approved);

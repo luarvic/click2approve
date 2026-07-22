@@ -77,7 +77,7 @@ const DelegationsPage = () => {
 
     void Promise.all([
       stores.employeeStore.load(tenantId),
-      listApprovalDelegations().then((items) =>
+      listApprovalDelegations(tenantId).then((items) =>
         setDelegations(items.map(toEditable)),
       ),
     ]);
@@ -95,6 +95,9 @@ const DelegationsPage = () => {
   };
 
   const saveDelegation = async (delegation: EditableDelegation) => {
+    if (!tenantId) {
+      return;
+    }
     if (!delegation.delegatorEmployeeId || !delegation.delegateEmployeeId) {
       toast.error("Select both employees.");
       return;
@@ -109,8 +112,8 @@ const DelegationsPage = () => {
       delegatorEmployeeId: delegation.delegatorEmployeeId,
     };
     const saved = delegation.id
-      ? await updateApprovalDelegation(delegation.id, payload)
-      : await createApprovalDelegation(payload);
+      ? await updateApprovalDelegation(tenantId, delegation.id, payload)
+      : await createApprovalDelegation(tenantId, payload);
     if (!saved) {
       return;
     }
@@ -120,6 +123,9 @@ const DelegationsPage = () => {
   };
 
   const removeDelegation = async (delegation: EditableDelegation) => {
+    if (!tenantId) {
+      return;
+    }
     if (!delegation.id) {
       setDelegations((current) =>
         current.filter((item) => item.key !== delegation.key),
@@ -127,7 +133,7 @@ const DelegationsPage = () => {
       return;
     }
 
-    if (await deleteApprovalDelegation(delegation.id)) {
+    if (await deleteApprovalDelegation(tenantId, delegation.id)) {
       setDelegations((current) =>
         current.filter((item) => item.key !== delegation.key),
       );

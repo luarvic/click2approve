@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 export const getCurrentTenantId = async (): Promise<number | null> => {
   try {
-    const { data } = await axios.get<{ id: number }>("api/tenant/current");
+    const { data } = await axios.get<{ id: number }>("api/tenants/current");
     return data.id;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));

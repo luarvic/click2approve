@@ -13,7 +13,7 @@ namespace Click2Approve.WebApi.Controllers;
 /// </summary>
 [Tags("Click2Approve.WebApi.UserProfile")]
 [ApiController]
-[Route("api/userProfile")]
+[Route("api/userProfiles")]
 public class UserProfileController(IUserProfileService userProfileService, UserManager<AppUser> userManager) : ControllerBase
 {
     private readonly IUserProfileService _userProfileService = userProfileService;

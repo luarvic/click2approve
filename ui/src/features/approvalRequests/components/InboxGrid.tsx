@@ -24,16 +24,17 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskId }) => {
     !stores.productStore.tenantsAreEnabled ||
     (stores.tenantStore.hasLoaded &&
       stores.tenantStore.currentTenantId !== null);
+  const tenantId = stores.tenantStore.currentTenantId;
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     stores.approvalRequestTaskStore.tasks,
     currentTaskId,
   );
 
   useGridRefresh(() => {
-    if (tenantScopeIsReady) {
-      return stores.approvalRequestTaskStore.loadIncoming();
+    if (tenantScopeIsReady && tenantId) {
+      return stores.approvalRequestTaskStore.loadIncoming(tenantId);
     }
-  }, tenantScopeIsReady);
+  }, tenantScopeIsReady && tenantId !== null);
 
   const columns: GridColDef[] = [
     {
@@ -83,8 +84,13 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskId }) => {
         sx={DataGrids.sx}
         autoHeight
         loading={
-          stores.commonStore.isLoading("get_api/task/list") ||
-          stores.commonStore.isLoading("post_api/task/complete")
+          tenantId !== null &&
+          (stores.commonStore.isLoading(
+            `get_api/tenants/${tenantId}/tasks/list`,
+          ) ||
+            stores.commonStore.isLoading(
+              `post_api/tenants/${tenantId}/tasks/complete`,
+            ))
         }
       />
     </Box>

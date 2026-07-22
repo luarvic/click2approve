@@ -1,3 +1,4 @@
+import { stores } from "@/app/rootStore";
 import UserFilesList from "@/features/userFiles/components/UserFilesList";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import {
@@ -17,15 +18,22 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
   approvalRequestId,
   approvalRequestTaskId,
 }) => {
-  const onDownload = approvalRequestTaskId
-    ? (userFile: UserFile) => downloadApprovalRequestTaskFile(userFile, approvalRequestTaskId)
-    : approvalRequestId
-      ? (userFile: UserFile) => downloadApprovalRequestFile(userFile, approvalRequestId)
+  const tenantId = stores.tenantStore.currentTenantId;
+  const onDownload = tenantId && approvalRequestTaskId
+    ? (userFile: UserFile) =>
+      downloadApprovalRequestTaskFile(tenantId, userFile, approvalRequestTaskId)
+    : tenantId && approvalRequestId
+      ? (userFile: UserFile) =>
+        downloadApprovalRequestFile(tenantId, userFile, approvalRequestId)
       : undefined;
 
   return (
     <CommentPaper>
-      <UserFilesList userFiles={userFiles} direction="column" onDownload={onDownload} />
+      <UserFilesList
+        userFiles={userFiles}
+        direction="column"
+        onDownload={onDownload}
+      />
     </CommentPaper>
   );
 };

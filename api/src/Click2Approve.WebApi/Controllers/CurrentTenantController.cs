@@ -13,7 +13,7 @@ namespace Click2Approve.WebApi.Controllers;
 /// </summary>
 [Tags("Click2Approve.WebApi.CurrentTenant")]
 [ApiController]
-[Route("api/tenant")]
+[Route("api/tenants")]
 [Authorize]
 public class CurrentTenantController(ITenantService tenantService, UserManager<AppUser> userManager) : ControllerBase
 {

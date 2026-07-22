@@ -57,7 +57,12 @@ const ApprovalRequestTaskEditor: React.FC<ApprovalRequestTaskEditorProps> = ({ o
     }
 
     const load = async () => {
-      const approvalRequest = await getApprovalRequest(currentTask.approvalRequestId);
+      const tenantId = stores.tenantStore.currentTenantId;
+      if (!tenantId) {
+        return;
+      }
+
+      const approvalRequest = await getApprovalRequest(tenantId, currentTask.approvalRequestId);
       if (active && approvalRequest) {
         normalizeApprovalRequestDates(approvalRequest);
         setLogApprovalRequest(approvalRequest);
@@ -87,8 +92,11 @@ const ApprovalRequestTaskEditor: React.FC<ApprovalRequestTaskEditorProps> = ({ o
       return;
     }
     if (!currentTask || !stores.userAccountStore.currentUser) return;
+    const tenantId = stores.tenantStore.currentTenantId;
+    if (!tenantId) return;
 
     const didComplete = await completeApprovalRequestTask(
+      tenantId,
       currentTask.id,
       decision === "approve"
         ? ApprovalRequestTaskStatus.Approved
@@ -98,7 +106,7 @@ const ApprovalRequestTaskEditor: React.FC<ApprovalRequestTaskEditorProps> = ({ o
     if (didComplete) {
       cleanUp();
       stores.approvalRequestTaskStore.clear();
-      stores.approvalRequestTaskStore.loadUncompletedCount();
+      stores.approvalRequestTaskStore.loadUncompletedCount(tenantId);
       onClose(currentTask.id);
     }
   };

@@ -28,19 +28,33 @@ const browserOpenableExtensions = new Set([
   ".xml",
 ]);
 
-export const downloadUserFile = async (userFile: UserFile) => {
-  return downloadFile(userFile, () => downloadUserFileBase64(userFile.id));
+export const downloadUserFile = async (tenantId: number, userFile: UserFile) => {
+  return downloadFile(userFile, () =>
+    downloadUserFileBase64(tenantId, userFile.id),
+  );
 };
 
 export const downloadApprovalRequestFile = async (
+  tenantId: number,
   userFile: UserFile,
   approvalRequestId: number,
-) => downloadFile(userFile, () => downloadApprovalRequestFileBase64(userFile.id, approvalRequestId));
+) =>
+  downloadFile(userFile, () =>
+    downloadApprovalRequestFileBase64(tenantId, userFile.id, approvalRequestId),
+  );
 
 export const downloadApprovalRequestTaskFile = async (
+  tenantId: number,
   userFile: UserFile,
   approvalRequestTaskId: number,
-) => downloadFile(userFile, () => downloadApprovalRequestTaskFileBase64(userFile.id, approvalRequestTaskId));
+) =>
+  downloadFile(userFile, () =>
+    downloadApprovalRequestTaskFileBase64(
+      tenantId,
+      userFile.id,
+      approvalRequestTaskId,
+    ),
+  );
 
 const downloadFile = async (
   userFile: UserFile,

@@ -10,6 +10,7 @@ import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
 import { toast } from "react-toastify";
 
 export const submitApprovalRequest = async (
+  tenantId: number,
   title: string,
   files: UserFile[],
   steps: ApprovalStep[],
@@ -22,7 +23,10 @@ export const submitApprovalRequest = async (
       steps,
       description,
     };
-    const { data } = await axios.post<number>("api/request", payload);
+    const { data } = await axios.post<number>(
+      `api/tenants/${tenantId}/requests`,
+      payload,
+    );
     return data;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
@@ -30,9 +34,12 @@ export const submitApprovalRequest = async (
   }
 };
 
-export const cancelApprovalRequest = async (id: number): Promise<boolean> => {
+export const cancelApprovalRequest = async (
+  tenantId: number,
+  id: number,
+): Promise<boolean> => {
   try {
-    await axios.post(`api/request/${id}/cancel`);
+    await axios.post(`api/tenants/${tenantId}/requests/${id}/cancel`);
     return true;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
@@ -40,9 +47,13 @@ export const cancelApprovalRequest = async (id: number): Promise<boolean> => {
   }
 };
 
-export const listApprovalRequests = async (): Promise<ApprovalRequestListItem[]> => {
+export const listApprovalRequests = async (
+  tenantId: number,
+): Promise<ApprovalRequestListItem[]> => {
   try {
-    const { data } = await axios.get<ApprovalRequestListItem[]>("api/request/list");
+    const { data } = await axios.get<ApprovalRequestListItem[]>(
+      `api/tenants/${tenantId}/requests/list`,
+    );
     return data;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
@@ -51,10 +62,13 @@ export const listApprovalRequests = async (): Promise<ApprovalRequestListItem[]>
 };
 
 export const getApprovalRequest = async (
+  tenantId: number,
   id: number,
 ): Promise<ApprovalRequest | null> => {
   try {
-    const { data } = await axios.get<ApprovalRequest>(`api/request/${id}`);
+    const { data } = await axios.get<ApprovalRequest>(
+      `api/tenants/${tenantId}/requests/${id}`,
+    );
     return data;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));

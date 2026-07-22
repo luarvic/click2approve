@@ -20,7 +20,7 @@ public class UserProfileService(
     IFileStorage fileStorage,
     IConfiguration configuration) : IUserProfileService
 {
-    private const string AvatarRouteTemplate = "api/userProfile/{0}/avatar";
+    private const string AvatarRouteTemplate = "api/userProfiles/{0}/avatar";
     private const string AllowedAvatarExtensionsConfigurationKey = "Limitations:AllowedAvatarExtensions";
 
     private readonly UserManager<AppUser> _userManager = userManager;

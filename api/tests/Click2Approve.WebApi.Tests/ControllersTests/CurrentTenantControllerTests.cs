@@ -14,7 +14,7 @@ public class CurrentTenantControllerTests(CustomWebApplicationFactory<Program> a
     [Fact]
     public async Task GetCurrentAsync_WithoutBearerToken_ReturnsUnauthorized()
     {
-        var response = await _applicationFactory.CreateClient().GetAsync("api/tenant/current");
+        var response = await _applicationFactory.CreateClient().GetAsync("api/tenants/current");
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -29,7 +29,7 @@ public class CurrentTenantControllerTests(CustomWebApplicationFactory<Program> a
         var login = await client.LogInAsync(credentials, CancellationToken.None);
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", login.AccessToken);
 
-        var tenant = await client.GetFromJsonAsync<CurrentTenantDto>("api/tenant/current");
+        var tenant = await client.GetFromJsonAsync<CurrentTenantDto>("api/tenants/current");
 
         Assert.NotNull(tenant);
         Assert.True(tenant.Id > 0);

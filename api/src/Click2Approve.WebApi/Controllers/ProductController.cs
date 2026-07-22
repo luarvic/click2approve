@@ -8,7 +8,7 @@ namespace Click2Approve.WebApi.Controllers;
 /// </summary>
 [Tags("Click2Approve.WebApi.Product")]
 [ApiController]
-[Route("api/product")]
+[Route("api/products")]
 public class ProductController(IConfiguration configuration) : ControllerBase
 {
     private readonly IConfiguration _configuration = configuration;

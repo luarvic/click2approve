@@ -16,7 +16,7 @@ namespace Click2Approve.WebApi.Controllers;
 /// <param name="userManager">The service that manages users.</param>
 [Tags("Click2Approve.WebApi.ApprovalRequest")]
 [ApiController]
-[Route("api/request")]
+[Route("api/tenants/{tenantId:long}/requests")]
 [Authorize]
 public class ApprovalRequestController(
     ILogger<ApprovalRequestController> logger,

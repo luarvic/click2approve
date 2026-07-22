@@ -15,7 +15,7 @@ namespace Click2Approve.WebApi.Controllers;
 /// <param name="userManager">The service that manages users.</param>
 [Tags("Click2Approve.WebApi.UserFile")]
 [ApiController]
-[Route("api/file")]
+[Route("api/tenants/{tenantId:long}/files")]
 [Authorize]
 public class UserFileController(ILogger<UserFileController> logger, IUserFileService userFileService, UserManager<AppUser> userManager) : ControllerBase
 {

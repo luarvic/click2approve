@@ -13,9 +13,9 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
     private readonly CustomWebApplicationFactory<Program> _applicationFactory = applicationFactory;
 
     [Theory]
-    [InlineData("POST", "api/request")]
-    [InlineData("GET", "api/request/list")]
-    [InlineData("GET", "api/request/1")]
+    [InlineData("POST", "api/tenants/1/requests")]
+    [InlineData("GET", "api/tenants/1/requests/list")]
+    [InlineData("GET", "api/tenants/1/requests/1")]
     public async Task Requests_WithoutBearerToken_ShouldReturnUnauthorized(string httpMethod, string url)
     {
         var client = _applicationFactory.CreateClient();
@@ -38,10 +38,11 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var client = _applicationFactory.CreateClient();
         var requesterLogin = await client.LogInAsync(requester, CancellationToken.None);
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", requesterLogin.AccessToken);
+        var requesterTenantId = await client.GetCurrentTenantIdAsync(requesterLogin.AccessToken, CancellationToken.None);
         var userFiles = await client.UploadTextFilesAsync(requesterLogin.AccessToken,
             new Dictionary<string, string> { { "request.txt", "Approval request test file" } },
             CancellationToken.None);
-        var response = await client.PostAsJsonAsync("api/request", new ApprovalRequestSubmitDto
+        var response = await client.PostAsJsonAsync($"api/tenants/{requesterTenantId}/requests", new ApprovalRequestSubmitDto
         {
             Title = "Cycle-safe request",
             UserFileIds = userFiles.Select(file => file.Id).ToList(),
@@ -77,7 +78,8 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var approverClient = _applicationFactory.CreateClient();
         var approverLogin = await approverClient.LogInAsync(approver, CancellationToken.None);
         approverClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", approverLogin.AccessToken);
-        var taskResponse = await approverClient.GetAsync($"api/task/{Assert.Single(approvalRequest.Tasks).Id}");
+        var approverTenantId = await approverClient.GetCurrentTenantIdAsync(approverLogin.AccessToken, CancellationToken.None);
+        var taskResponse = await approverClient.GetAsync($"api/tenants/{approverTenantId}/tasks/{Assert.Single(approvalRequest.Tasks).Id}");
         Assert.True(taskResponse.IsSuccessStatusCode, await taskResponse.Content.ReadAsStringAsync());
         var task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
         Assert.NotNull(task);
@@ -97,10 +99,11 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var requesterClient = _applicationFactory.CreateClient();
         var requesterLogin = await requesterClient.LogInAsync(requester, CancellationToken.None);
         requesterClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", requesterLogin.AccessToken);
+        var requesterTenantId = await requesterClient.GetCurrentTenantIdAsync(requesterLogin.AccessToken, CancellationToken.None);
         var userFiles = await requesterClient.UploadTextFilesAsync(requesterLogin.AccessToken,
             new Dictionary<string, string> { { "request.txt", "Approval request test file" } },
             CancellationToken.None);
-        var response = await requesterClient.PostAsJsonAsync("api/request", new ApprovalRequestSubmitDto
+        var response = await requesterClient.PostAsJsonAsync($"api/tenants/{requesterTenantId}/requests", new ApprovalRequestSubmitDto
         {
             Title = "Original task title",
             Description = "Original task description",
@@ -135,7 +138,8 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var approverClient = _applicationFactory.CreateClient();
         var approverLogin = await approverClient.LogInAsync(approver, CancellationToken.None);
         approverClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", approverLogin.AccessToken);
-        response = await approverClient.PostAsJsonAsync("api/task/complete", new
+        var approverTenantId = await approverClient.GetCurrentTenantIdAsync(approverLogin.AccessToken, CancellationToken.None);
+        response = await approverClient.PostAsJsonAsync($"api/tenants/{approverTenantId}/tasks/complete", new
         {
             task.Id,
             Status = ApprovalRequestTaskStatus.Approved,

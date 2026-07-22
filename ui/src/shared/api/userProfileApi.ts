@@ -15,7 +15,7 @@ export const getPublicApiUrl = (path?: string): string | undefined => {
 
 export const getUserProfile = async (): Promise<UserProfile | null> => {
   try {
-    const { data } = await axios.get<UserProfile>("api/userProfile");
+    const { data } = await axios.get<UserProfile>("api/userProfiles");
     return data;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
@@ -27,7 +27,7 @@ export const updateUserProfile = async (
   payload: UserProfileUpdateRequest
 ): Promise<UserProfile | null> => {
   try {
-    const { data } = await axios.put<UserProfile>("api/userProfile", payload);
+    const { data } = await axios.put<UserProfile>("api/userProfiles", payload);
     return data;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
@@ -42,7 +42,7 @@ export const uploadUserAvatar = async (
     const formData = new FormData();
     formData.append("avatar", avatar);
     const { data } = await axios.post<UserProfile>(
-      "api/userProfile/avatar",
+      "api/userProfiles/avatar",
       formData
     );
     return data;
@@ -54,7 +54,7 @@ export const uploadUserAvatar = async (
 
 export const deleteUserAvatar = async (): Promise<UserProfile | null> => {
   try {
-    const { data } = await axios.delete<UserProfile>("api/userProfile/avatar");
+    const { data } = await axios.delete<UserProfile>("api/userProfiles/avatar");
     return data;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));

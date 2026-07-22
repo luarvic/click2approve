@@ -20,8 +20,8 @@ const ApprovalRequestTaskEditorPage = () => {
   useEffect(() => {
     let active = true;
     setLoadedTaskId(null);
-    if (Number.isInteger(parsedTaskId)) {
-      void stores.approvalRequestTaskStore.loadDetails(parsedTaskId).then(() => {
+    if (tenantId && Number.isInteger(parsedTaskId)) {
+      void stores.approvalRequestTaskStore.loadDetails(tenantId, parsedTaskId).then(() => {
         if (active) {
           setLoadedTaskId(parsedTaskId);
         }
@@ -30,7 +30,7 @@ const ApprovalRequestTaskEditorPage = () => {
     return () => {
       active = false;
     };
-  }, [parsedTaskId]);
+  }, [parsedTaskId, tenantId]);
 
   useEffect(() => {
     stores.approvalRequestTaskStore.setCurrent(task ?? null);

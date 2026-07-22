@@ -20,8 +20,8 @@ const ApprovalRequestViewPage = () => {
   useEffect(() => {
     let active = true;
     setLoadedApprovalRequestId(null);
-    if (Number.isInteger(parsedApprovalRequestId)) {
-      void stores.approvalRequestStore.loadDetails(parsedApprovalRequestId).then(() => {
+    if (tenantId && Number.isInteger(parsedApprovalRequestId)) {
+      void stores.approvalRequestStore.loadDetails(tenantId, parsedApprovalRequestId).then(() => {
         if (active) {
           setLoadedApprovalRequestId(parsedApprovalRequestId);
         }
@@ -30,7 +30,7 @@ const ApprovalRequestViewPage = () => {
     return () => {
       active = false;
     };
-  }, [parsedApprovalRequestId]);
+  }, [parsedApprovalRequestId, tenantId]);
 
   useEffect(() => {
     stores.approvalRequestStore.setCurrent(approvalRequest ?? null);

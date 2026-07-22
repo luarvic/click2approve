@@ -6,12 +6,13 @@ import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
 import { toast } from "react-toastify";
 
 export const completeApprovalRequestTask = async (
+  tenantId: number,
   id: number,
   status: ApprovalRequestTaskStatus,
   comment: string | undefined
 ): Promise<boolean> => {
   try {
-    await axios.post("api/task/complete", {
+    await axios.post(`api/tenants/${tenantId}/tasks/complete`, {
       id: id,
       status: status,
       comment: comment,
@@ -23,11 +24,15 @@ export const completeApprovalRequestTask = async (
   }
 };
 
-export const listApprovalRequestTasks = async (): Promise<
+export const listApprovalRequestTasks = async (
+  tenantId: number,
+): Promise<
   ApprovalRequestTaskListItem[]
 > => {
   try {
-    const { data } = await axios.get<ApprovalRequestTaskListItem[]>("api/task/list");
+    const { data } = await axios.get<ApprovalRequestTaskListItem[]>(
+      `api/tenants/${tenantId}/tasks/list`,
+    );
     return data;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
@@ -36,10 +41,13 @@ export const listApprovalRequestTasks = async (): Promise<
 };
 
 export const getApprovalRequestTask = async (
+  tenantId: number,
   id: number,
 ): Promise<ApprovalRequestTask | null> => {
   try {
-    const { data } = await axios.get<ApprovalRequestTask>(`api/task/${id}`);
+    const { data } = await axios.get<ApprovalRequestTask>(
+      `api/tenants/${tenantId}/tasks/${id}`,
+    );
     return data;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
@@ -47,9 +55,13 @@ export const getApprovalRequestTask = async (
   }
 };
 
-export const countUncompletedApprovalRequestTasks = async (): Promise<number> => {
+export const countUncompletedApprovalRequestTasks = async (
+  tenantId: number,
+): Promise<number> => {
   try {
-    const { data } = await axios.get<number>("api/task/countUncompleted");
+    const { data } = await axios.get<number>(
+      `api/tenants/${tenantId}/tasks/countUncompleted`,
+    );
     return data;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));

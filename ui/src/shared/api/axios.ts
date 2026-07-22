@@ -17,7 +17,7 @@ const anonymousUrls = [
   "api/account/register",
   "api/account/resendConfirmationEmail",
   "api/account/resetPassword",
-  "api/product/info",
+  "api/products/info",
 ];
 
 const shouldSendAuthentication = (url: string | undefined): boolean => {
@@ -38,13 +38,6 @@ axiosInstance.interceptors.request.use(async (config) => {
   const sendAuthentication = shouldSendAuthentication(config.url);
   if (tokens && sendAuthentication) {
     config.headers.Authorization = `Bearer ${tokens.accessToken}`;
-  }
-  if (
-    sendAuthentication &&
-    context.tenantsAreEnabled() &&
-    context.getCurrentTenantId()
-  ) {
-    config.headers["X-Tenant-Id"] = context.getCurrentTenantId();
   }
   return config;
 });

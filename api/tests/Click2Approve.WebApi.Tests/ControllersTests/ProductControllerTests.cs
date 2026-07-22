@@ -11,7 +11,7 @@ public class ProductControllerTests(CustomWebApplicationFactory<Program> applica
     [Fact]
     public async Task GetInfo_ReturnsIdentityConfirmationRequirement()
     {
-        var response = await _client.GetAsync("api/product/info");
+        var response = await _client.GetAsync("api/products/info");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var productInfo = await response.Content.ReadFromJsonAsync<ProductInfoDto>();

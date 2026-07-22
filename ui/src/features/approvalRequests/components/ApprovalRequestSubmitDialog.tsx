@@ -240,13 +240,18 @@ const ApprovalRequestSubmitPage: React.FC<ApprovalRequestSubmitPageProps> = ({
     if (!validateSteps()) {
       return;
     }
-    const uploadedFiles = await uploadUserFiles(newFiles);
+    if (!tenantId) {
+      return;
+    }
+
+    const uploadedFiles = await uploadUserFiles(tenantId, newFiles);
     if (uploadedFiles.length !== newFiles.length) {
       toast.error("One or more files could not be uploaded.");
       return;
     }
 
     const approvalRequestId = await submitApprovalRequest(
+      tenantId,
       trimmedTitle,
       [...existingFiles, ...uploadedFiles],
       toApprovalStepSubmissions(steps),
@@ -257,11 +262,11 @@ const ApprovalRequestSubmitPage: React.FC<ApprovalRequestSubmitPageProps> = ({
       cleanUp();
       stores.approvalRequestStore.clear();
       const [, createdRequest] = await Promise.all([
-        stores.approvalRequestStore.load(),
-        stores.approvalRequestStore.loadDetails(approvalRequestId),
+        stores.approvalRequestStore.load(tenantId),
+        stores.approvalRequestStore.loadDetails(tenantId, approvalRequestId),
       ]);
       stores.approvalRequestStore.setCurrent(createdRequest ?? null);
-      stores.approvalRequestTaskStore.loadUncompletedCount();
+      stores.approvalRequestTaskStore.loadUncompletedCount(tenantId);
       onClose(createdRequest?.id);
     }
   };

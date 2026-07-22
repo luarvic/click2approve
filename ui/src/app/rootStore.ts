@@ -62,10 +62,8 @@ export class RootStore {
       this.clearSession,
     );
     configureRequestContext({
-      getCurrentTenantId: () => this.tenantStore.currentTenantId,
       onLoadingChange: this.commonStore.updateLoadingCounter,
       onUnauthorized: this.userAccountStore.signOut,
-      tenantsAreEnabled: () => this.productStore.tenantsAreEnabled,
     });
   }
 
@@ -84,11 +82,12 @@ export class RootStore {
     if (!this.tenantStore.currentTenantId) {
       return;
     }
+    const tenantId = this.tenantStore.currentTenantId;
     await Promise.all([
-      this.approvalRequestStore.load(),
-      this.approvalRequestTaskStore.loadUncompletedCount(),
+      this.approvalRequestStore.load(tenantId),
+      this.approvalRequestTaskStore.loadUncompletedCount(tenantId),
       loadIncomingTasks
-        ? this.approvalRequestTaskStore.loadIncoming()
+        ? this.approvalRequestTaskStore.loadIncoming(tenantId)
         : Promise.resolve(),
     ]);
   };

@@ -1,3 +1,4 @@
+import { stores } from "@/app/rootStore";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import { downloadUserFile } from "@/features/userFiles/utils/downloaders";
 import { Lists } from "@/shared/constants/constants";
@@ -40,8 +41,8 @@ const UserFilesList: React.FC<UserFilesListProps> = ({
               event.preventDefault();
               if (onDownload) {
                 onDownload(userFile);
-              } else {
-                downloadUserFile(userFile);
+              } else if (stores.tenantStore.currentTenantId) {
+                downloadUserFile(stores.tenantStore.currentTenantId, userFile);
               }
             }}
             sx={userFileLinkSx}

@@ -6,9 +6,13 @@ import axios from "@/shared/api/axios";
 import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
 import { toast } from "react-toastify";
 
-export const listApprovalDelegations = async (): Promise<ApprovalDelegation[]> => {
+export const listApprovalDelegations = async (
+  tenantId: number,
+): Promise<ApprovalDelegation[]> => {
   try {
-    const { data } = await axios.get<ApprovalDelegation[]>("api/delegations");
+    const { data } = await axios.get<ApprovalDelegation[]>(
+      `api/tenants/${tenantId}/delegations`,
+    );
     return data;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
@@ -17,11 +21,12 @@ export const listApprovalDelegations = async (): Promise<ApprovalDelegation[]> =
 };
 
 export const createApprovalDelegation = async (
+  tenantId: number,
   payload: ApprovalDelegationUpsert,
 ): Promise<ApprovalDelegation | null> => {
   try {
     const { data } = await axios.post<ApprovalDelegation>(
-      "api/delegations",
+      `api/tenants/${tenantId}/delegations`,
       payload,
     );
     return data;
@@ -32,12 +37,13 @@ export const createApprovalDelegation = async (
 };
 
 export const updateApprovalDelegation = async (
+  tenantId: number,
   delegationId: number,
   payload: ApprovalDelegationUpsert,
 ): Promise<ApprovalDelegation | null> => {
   try {
     const { data } = await axios.put<ApprovalDelegation>(
-      `api/delegations/${delegationId}`,
+      `api/tenants/${tenantId}/delegations/${delegationId}`,
       payload,
     );
     return data;
@@ -48,10 +54,11 @@ export const updateApprovalDelegation = async (
 };
 
 export const deleteApprovalDelegation = async (
+  tenantId: number,
   delegationId: number,
 ): Promise<boolean> => {
   try {
-    await axios.delete(`api/delegations/${delegationId}`);
+    await axios.delete(`api/tenants/${tenantId}/delegations/${delegationId}`);
     return true;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));

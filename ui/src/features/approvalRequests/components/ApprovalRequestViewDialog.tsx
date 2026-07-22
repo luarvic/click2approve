@@ -47,7 +47,12 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
     if (!approvalRequest) {
       return;
     }
-    if (await cancelApprovalRequest(approvalRequest.id)) {
+    const tenantId = stores.tenantStore.currentTenantId;
+    if (!tenantId) {
+      return;
+    }
+
+    if (await cancelApprovalRequest(tenantId, approvalRequest.id)) {
       stores.approvalRequestStore.clear();
       onClose(approvalRequest.id);
     }

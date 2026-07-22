@@ -35,13 +35,13 @@ export class ApprovalRequestTaskStore {
 
   getDetail = (id: number): ApprovalRequestTask | null => this.details.get(id) ?? null;
 
-  loadIncoming = (): Promise<void> => {
+  loadIncoming = (tenantId: number): Promise<void> => {
     if (this.listRequest) {
       return this.listRequest;
     }
 
     const requestVersion = ++this.listRequestVersion;
-    const request = approvalRequestTaskApi.listApprovalRequestTasks().then((tasks) => {
+    const request = approvalRequestTaskApi.listApprovalRequestTasks(tenantId).then((tasks) => {
       if (requestVersion !== this.listRequestVersion) {
         return;
       }
@@ -56,13 +56,13 @@ export class ApprovalRequestTaskStore {
     return request;
   };
 
-  loadDetails = (id: number): Promise<ApprovalRequestTask | null> => {
+  loadDetails = (tenantId: number, id: number): Promise<ApprovalRequestTask | null> => {
     const inFlight = this.detailRequests.get(id);
     if (inFlight) {
       return inFlight;
     }
 
-    const request = approvalRequestTaskApi.getApprovalRequestTask(id).then((task) => {
+    const request = approvalRequestTaskApi.getApprovalRequestTask(tenantId, id).then((task) => {
       if (task) {
         normalizeApprovalRequestTaskDates(task);
         if (task.approvalRequest) {
@@ -84,9 +84,9 @@ export class ApprovalRequestTaskStore {
     return request;
   };
 
-  loadUncompletedCount = async (): Promise<void> => {
+  loadUncompletedCount = async (tenantId: number): Promise<void> => {
     const requestVersion = ++this.countRequestVersion;
-    const numberOfUncompletedTasks = await approvalRequestTaskApi.countUncompletedApprovalRequestTasks();
+    const numberOfUncompletedTasks = await approvalRequestTaskApi.countUncompletedApprovalRequestTasks(tenantId);
     if (requestVersion !== this.countRequestVersion) {
       return;
     }

@@ -30,16 +30,17 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestId }) => 
     !stores.productStore.tenantsAreEnabled ||
     (stores.tenantStore.hasLoaded &&
       stores.tenantStore.currentTenantId !== null);
+  const tenantId = stores.tenantStore.currentTenantId;
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     stores.approvalRequestStore.approvalRequests,
     currentApprovalRequestId,
   );
 
   useGridRefresh(() => {
-    if (tenantScopeIsReady) {
-      return stores.approvalRequestStore.load();
+    if (tenantScopeIsReady && tenantId) {
+      return stores.approvalRequestStore.load(tenantId);
     }
-  }, tenantScopeIsReady);
+  }, tenantScopeIsReady && tenantId !== null);
 
   const customToolbar = () => {
     return (
@@ -116,8 +117,16 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestId }) => 
         sx={DataGrids.sx}
         autoHeight
         loading={
-          stores.commonStore.isLoading("get_api/request/list") ||
-          stores.commonStore.isLoading("delete_api/request")
+          tenantId !== null &&
+          (stores.commonStore.isLoading(
+            `get_api/tenants/${tenantId}/requests/list`,
+          ) ||
+            stores.commonStore.isLoading(
+              `post_api/tenants/${tenantId}/requests`,
+            ) ||
+            stores.commonStore.isLoadingByPrefix(
+              `post_api/tenants/${tenantId}/requests/`,
+            ))
         }
       />
     </Box>

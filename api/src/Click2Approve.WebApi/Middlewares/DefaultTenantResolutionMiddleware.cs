@@ -1,5 +1,6 @@
 using Click2Approve.Application.Services.Tenants;
 using Click2Approve.Application.Services.TenantContext;
+using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 
@@ -23,9 +24,25 @@ public class DefaultTenantResolutionMiddleware(RequestDelegate next)
             var user = await userManager.GetUserAsync(context.User)
                 ?? throw new UnauthorizedAccessException("User not found.");
             var tenant = await tenantService.GetRequiredDefaultAsync(user, context.RequestAborted);
+            if (context.Request.RouteValues.TryGetValue("tenantId", out var routeValue))
+            {
+                var tenantId = ParseTenantId(routeValue);
+                if (tenantId != tenant.Id)
+                {
+                    throw new UnauthorizedAccessException();
+                }
+            }
+
             tenantContext.SetTenantId(tenant.Id);
         }
 
         await _next(context);
+    }
+
+    private static long ParseTenantId(object? value)
+    {
+        return long.TryParse(value?.ToString(), out var tenantId) && tenantId > 0
+            ? tenantId
+            : throw new BusinessRuleException("The tenant route value must be a positive integer.");
     }
 }
