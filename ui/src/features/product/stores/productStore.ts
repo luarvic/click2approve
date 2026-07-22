@@ -1,4 +1,4 @@
-import * as productApi from "@/features/product/api/productApi";
+import * as productApi from "@/features/product/api/productsApi";
 import { ProductInfo } from "@/features/product/models/productInfo";
 import { makeAutoObservable, runInAction } from "mobx";
 

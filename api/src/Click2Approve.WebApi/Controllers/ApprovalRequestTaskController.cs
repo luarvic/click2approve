@@ -45,7 +45,7 @@ public class ApprovalRequestTaskController(
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The list of approval request task summaries.</returns>
-    [HttpGet("list")]
+    [HttpGet]
     public async Task<ActionResult<List<ApprovalRequestTaskListItemDto>>> ListAsync(CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
@@ -68,7 +68,7 @@ public class ApprovalRequestTaskController(
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The number of the approval requests.</returns>
-    [HttpGet("countUncompleted")]
+    [HttpGet("uncompleted/count")]
     public async Task<ActionResult<long>> CountUncompletedAsync(CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);

@@ -1,8 +1,6 @@
-import {
-  downloadApprovalRequestFileBase64,
-  downloadApprovalRequestTaskFileBase64,
-  downloadUserFileBase64,
-} from "@/features/userFiles/api/userFileApi";
+import { downloadApprovalRequestFileBase64 } from "@/features/approvalRequests/api/approvalRequestFilesApi";
+import { downloadApprovalRequestTaskFileBase64 } from "@/features/approvalRequests/api/approvalRequestTaskFilesApi";
+import { downloadUserFileBase64 } from "@/features/userFiles/api/userFilesApi";
 import { UserFile } from "@/features/userFiles/models/userFile";
 
 const browserOpenableExtensions = new Set([

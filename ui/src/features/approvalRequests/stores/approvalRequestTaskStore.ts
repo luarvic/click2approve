@@ -1,4 +1,4 @@
-import * as approvalRequestTaskApi from "@/features/approvalRequests/api/approvalRequestTaskApi";
+import * as approvalRequestTaskApi from "@/features/approvalRequests/api/approvalRequestTasksApi";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
 import {

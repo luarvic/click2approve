@@ -86,7 +86,7 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskId }) => {
         loading={
           tenantId !== null &&
           (stores.commonStore.isLoading(
-            `get_api/tenants/${tenantId}/tasks/list`,
+            `get_api/tenants/${tenantId}/tasks`,
           ) ||
             stores.commonStore.isLoading(
               `post_api/tenants/${tenantId}/tasks/complete`,

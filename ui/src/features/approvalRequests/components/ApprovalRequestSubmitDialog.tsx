@@ -1,5 +1,5 @@
 import { stores } from "@/app/rootStore";
-import { submitApprovalRequest } from "@/features/approvalRequests/api/approvalRequestApi";
+import { submitApprovalRequest } from "@/features/approvalRequests/api/approvalRequestsApi";
 import ApprovalRequestFilesList from "@/features/approvalRequests/components/ApprovalRequestFilesList";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
 import {
@@ -14,7 +14,7 @@ import {
   toApprovalStepSubmissions,
 } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
-import { uploadUserFiles } from "@/features/userFiles/api/userFileApi";
+import { uploadUserFiles } from "@/features/userFiles/api/userFilesApi";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import { Dialogs, Files, Pages } from "@/shared/constants/constants";
 import { validateEmails } from "@/shared/utils/validators";

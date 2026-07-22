@@ -1,6 +1,6 @@
 import { stores } from "@/app/rootStore";
-import * as approvalRequestApi from "@/features/approvalRequests/api/approvalRequestApi";
-import * as approvalRequestTaskApi from "@/features/approvalRequests/api/approvalRequestTaskApi";
+import * as approvalRequestApi from "@/features/approvalRequests/api/approvalRequestsApi";
+import * as approvalRequestTaskApi from "@/features/approvalRequests/api/approvalRequestTasksApi";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
@@ -8,7 +8,7 @@ import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/ap
 import { ApprovalRequestStore } from "@/features/approvalRequests/stores/approvalRequestStore";
 import { ApprovalRequestTaskStore } from "@/features/approvalRequests/stores/approvalRequestTaskStore";
 import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
-import * as employeeApi from "@/features/employees/api/employeeApi";
+import * as employeeApi from "@/features/employees/api/employeesApi";
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import { EmployeeStore } from "@/features/employees/stores/employeeStore";
 import { Team } from "@/features/teams/models/team";
@@ -17,18 +17,18 @@ import { CommonStore } from "@/shared/stores/commonStore";
 import { autorun, runInAction } from "mobx";
 import { describe, expect, test, vi } from "vitest";
 
-vi.mock("@/features/approvalRequests/api/approvalRequestApi", () => ({
+vi.mock("@/features/approvalRequests/api/approvalRequestsApi", () => ({
   getApprovalRequest: vi.fn(),
   listApprovalRequests: vi.fn(),
 }));
 
-vi.mock("@/features/approvalRequests/api/approvalRequestTaskApi", () => ({
+vi.mock("@/features/approvalRequests/api/approvalRequestTasksApi", () => ({
   countUncompletedApprovalRequestTasks: vi.fn(),
   getApprovalRequestTask: vi.fn(),
   listApprovalRequestTasks: vi.fn(),
 }));
 
-vi.mock("@/features/employees/api/employeeApi", () => ({
+vi.mock("@/features/employees/api/employeesApi", () => ({
   listEmployees: vi.fn(),
 }));
 
@@ -93,8 +93,8 @@ describe("store architecture", () => {
       reactions += 1;
     });
 
-    store.updateLoadingCounter("get_api/tenants/1/tasks/countUncompleted", 1);
-    store.updateLoadingCounter("get_api/tenants/1/tasks/countUncompleted", -1);
+    store.updateLoadingCounter("get_api/tenants/1/tasks/uncompleted/count", 1);
+    store.updateLoadingCounter("get_api/tenants/1/tasks/uncompleted/count", -1);
 
     expect(reactions).toBe(1);
     expect(store.loadingCounter).toEqual({});

@@ -1,5 +1,5 @@
 import { stores } from "@/app/rootStore";
-import { getPublicApiUrl } from "@/shared/api/userProfileApi";
+import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
 import { Routes, Shell } from "@/shared/constants/constants";
 import { getEmailInitials } from "@/shared/utils/helpers";
 import { Menu } from "@mui/icons-material";

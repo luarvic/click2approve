@@ -1,5 +1,5 @@
 import { stores } from "@/app/rootStore";
-import { getPublicApiUrl } from "@/shared/api/userProfileApi";
+import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
 import { Lists, Shell } from "@/shared/constants/constants";
 import {
   getUserProfileName,

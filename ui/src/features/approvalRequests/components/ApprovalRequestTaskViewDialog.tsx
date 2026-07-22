@@ -1,6 +1,6 @@
 import { stores } from "@/app/rootStore";
-import { getApprovalRequest } from "@/features/approvalRequests/api/approvalRequestApi";
-import { completeApprovalRequestTask } from "@/features/approvalRequests/api/approvalRequestTaskApi";
+import { getApprovalRequest } from "@/features/approvalRequests/api/approvalRequestsApi";
+import { completeApprovalRequestTask } from "@/features/approvalRequests/api/approvalRequestTasksApi";
 import ApprovalRequestFilesBox from "@/features/approvalRequests/components/ApprovalRequestFilesBox";
 import ApprovalRequestLog from "@/features/approvalRequests/components/ApprovalRequestLog";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";

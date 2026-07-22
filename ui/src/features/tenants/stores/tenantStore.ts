@@ -1,4 +1,4 @@
-import * as tenantApi from "@/features/tenants/api/tenantApi";
+import * as tenantApi from "@/features/tenants/api/tenantsApi";
 import { CreateTenantRequest, Tenant, UpdateTenantRequest } from "@/features/tenants/models/tenant";
 import {
   deleteCurrentTenantId,

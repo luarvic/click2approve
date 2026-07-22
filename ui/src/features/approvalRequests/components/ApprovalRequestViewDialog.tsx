@@ -1,5 +1,5 @@
 import { stores } from "@/app/rootStore";
-import { cancelApprovalRequest } from "@/features/approvalRequests/api/approvalRequestApi";
+import { cancelApprovalRequest } from "@/features/approvalRequests/api/approvalRequestsApi";
 import ApprovalRequestLog from "@/features/approvalRequests/components/ApprovalRequestLog";
 import ApprovalRequestSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestSummaryBlock";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";

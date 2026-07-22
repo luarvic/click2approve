@@ -52,7 +52,7 @@ export const listApprovalRequests = async (
 ): Promise<ApprovalRequestListItem[]> => {
   try {
     const { data } = await axios.get<ApprovalRequestListItem[]>(
-      `api/tenants/${tenantId}/requests/list`,
+      `api/tenants/${tenantId}/requests`,
     );
     return data;
   } catch (e) {

@@ -1,4 +1,4 @@
-import * as teamApi from "@/features/teams/api/teamApi";
+import * as teamApi from "@/features/teams/api/teamsApi";
 import { Team, UpsertTeamRequest } from "@/features/teams/models/team";
 import { makeAutoObservable, runInAction } from "mobx";
 

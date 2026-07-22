@@ -23,12 +23,12 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
     /// </summary>
     [Theory]
     [InlineData("POST", "api/tenants/1/files/upload")]
-    [InlineData("GET", "api/tenants/1/files/list")]
-    [InlineData("GET", "api/tenants/1/files/download")]
-    [InlineData("GET", "api/tenants/1/files/downloadBase64")]
-    [InlineData("GET", "api/tenants/1/files/downloadBase64ForApprovalRequest")]
-    [InlineData("GET", "api/tenants/1/files/downloadBase64ForApprovalRequestTask")]
-    [InlineData("DELETE", "api/tenants/1/files")]
+    [InlineData("GET", "api/tenants/1/files")]
+    [InlineData("GET", "api/tenants/1/files/1/download")]
+    [InlineData("GET", "api/tenants/1/files/1/downloadBase64")]
+    [InlineData("GET", "api/tenants/1/requests/1/files/1/downloadBase64")]
+    [InlineData("GET", "api/tenants/1/tasks/1/files/1/downloadBase64")]
+    [InlineData("DELETE", "api/tenants/1/files/1")]
     public async Task AllEndpoints_WhenRequestedWithoutBearerToken_ShouldReturnUnauthorized(string httpMethod, string url)
     {
         var request = new HttpRequestMessage(HttpMethod.Parse(httpMethod), url);

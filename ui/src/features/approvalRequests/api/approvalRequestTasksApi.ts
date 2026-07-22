@@ -31,7 +31,7 @@ export const listApprovalRequestTasks = async (
 > => {
   try {
     const { data } = await axios.get<ApprovalRequestTaskListItem[]>(
-      `api/tenants/${tenantId}/tasks/list`,
+      `api/tenants/${tenantId}/tasks`,
     );
     return data;
   } catch (e) {
@@ -60,7 +60,7 @@ export const countUncompletedApprovalRequestTasks = async (
 ): Promise<number> => {
   try {
     const { data } = await axios.get<number>(
-      `api/tenants/${tenantId}/tasks/countUncompleted`,
+      `api/tenants/${tenantId}/tasks/uncompleted/count`,
     );
     return data;
   } catch (e) {

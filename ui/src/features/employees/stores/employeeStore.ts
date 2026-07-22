@@ -1,4 +1,4 @@
-import * as employeeApi from "@/features/employees/api/employeeApi";
+import * as employeeApi from "@/features/employees/api/employeesApi";
 import {
   CreateEmployeeRequest,
   Employee,

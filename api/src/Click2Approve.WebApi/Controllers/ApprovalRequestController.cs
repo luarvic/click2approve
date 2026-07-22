@@ -55,7 +55,7 @@ public class ApprovalRequestController(
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The list of approval request summaries.</returns>
-    [HttpGet("list")]
+    [HttpGet]
     public async Task<ActionResult<List<ApprovalRequestListItemDto>>> ListAsync(CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);

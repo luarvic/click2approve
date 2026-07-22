@@ -4,7 +4,7 @@ import {
   deleteApprovalDelegation,
   listApprovalDelegations,
   updateApprovalDelegation,
-} from "@/features/delegations/api/approvalDelegationApi";
+} from "@/features/delegations/api/approvalDelegationsApi";
 import { ApprovalDelegation } from "@/features/delegations/models/approvalDelegation";
 import { EmployeeStatus } from "@/features/employees/models/employee";
 import { Dialogs, Pages, StackSpacing } from "@/shared/constants/constants";

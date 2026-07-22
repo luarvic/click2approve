@@ -1,4 +1,4 @@
-import * as tenantApi from "@/features/tenants/api/tenantApi";
+import * as tenantApi from "@/features/tenants/api/tenantsApi";
 import { Files, Flex, StackSpacing } from "@/shared/constants/constants";
 import { AddAPhoto, Business, DeleteOutline } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";

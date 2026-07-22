@@ -3,7 +3,7 @@ import {
   getUserProfile,
   updateUserProfile,
   uploadUserAvatar,
-} from "@/shared/api/userProfileApi";
+} from "@/shared/api/userProfilesApi";
 import { UserProfile, UserProfileUpdateRequest } from "@/shared/models/userProfile";
 import { makeAutoObservable, runInAction } from "mobx";
 

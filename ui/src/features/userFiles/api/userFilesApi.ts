@@ -32,39 +32,7 @@ export const downloadUserFileBase64 = async (
 ): Promise<string | null> => {
   try {
     const { data } = await axios.get(
-      `api/tenants/${tenantId}/files/downloadBase64?id=${id}`,
-    );
-    return data;
-  } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
-    return null;
-  }
-};
-
-export const downloadApprovalRequestFileBase64 = async (
-  tenantId: number,
-  id: number,
-  approvalRequestId: number,
-): Promise<string | null> => {
-  try {
-    const { data } = await axios.get(
-      `api/tenants/${tenantId}/files/downloadBase64ForApprovalRequest?id=${id}&approvalRequestId=${approvalRequestId}`,
-    );
-    return data;
-  } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
-    return null;
-  }
-};
-
-export const downloadApprovalRequestTaskFileBase64 = async (
-  tenantId: number,
-  id: number,
-  approvalRequestTaskId: number,
-): Promise<string | null> => {
-  try {
-    const { data } = await axios.get(
-      `api/tenants/${tenantId}/files/downloadBase64ForApprovalRequestTask?id=${id}&approvalRequestTaskId=${approvalRequestTaskId}`,
+      `api/tenants/${tenantId}/files/${id}/downloadBase64`,
     );
     return data;
   } catch (e) {

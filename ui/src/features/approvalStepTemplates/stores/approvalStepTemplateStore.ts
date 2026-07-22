@@ -1,4 +1,4 @@
-import * as approvalStepTemplateApi from "@/features/approvalStepTemplates/api/approvalStepTemplateApi";
+import * as approvalStepTemplateApi from "@/features/approvalStepTemplates/api/approvalStepTemplatesApi";
 import {
   ApprovalStepTemplate,
   UpsertApprovalStepTemplateRequest,

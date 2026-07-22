@@ -1,4 +1,4 @@
-import * as approvalRequestApi from "@/features/approvalRequests/api/approvalRequestApi";
+import * as approvalRequestApi from "@/features/approvalRequests/api/approvalRequestsApi";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestListItem } from "@/features/approvalRequests/models/approvalRequestListItem";
 import { normalizeApprovalRequestDates } from "@/features/approvalRequests/utils/approvalRequestDateNormalizers";

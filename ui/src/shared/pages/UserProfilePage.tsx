@@ -1,5 +1,5 @@
 import { stores } from "@/app/rootStore";
-import { getPublicApiUrl } from "@/shared/api/userProfileApi";
+import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { AuthForms, Dialogs, Files, Flex, Pages, StackSpacing } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";

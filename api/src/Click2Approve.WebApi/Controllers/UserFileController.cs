@@ -42,7 +42,7 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The list of user files.</returns>
-    [HttpGet("list")]
+    [HttpGet]
     public async Task<ActionResult<List<UserFile>>> ListAsync(CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
@@ -56,7 +56,7 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     /// <param name="id">The ID of the file to download.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The FileContentResult object.</returns>
-    [HttpGet("download")]
+    [HttpGet("{id:long}/download")]
     public async Task<IActionResult> DownloadAsync(long id, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
@@ -73,7 +73,7 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     /// <param name="id">The ID of the file to download.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The base64 string.</returns>
-    [HttpGet("downloadBase64")]
+    [HttpGet("{id:long}/downloadBase64")]
     public async Task<ActionResult<string>> DownloadBase64Async(long id, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
@@ -82,33 +82,11 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     }
 
     /// <summary>
-    /// Downloads a base64 representation of a file attached to an approval request.
-    /// </summary>
-    [HttpGet("downloadBase64ForApprovalRequest")]
-    public async Task<ActionResult<string>> DownloadBase64ForApprovalRequestAsync(long id, long approvalRequestId, CancellationToken cancellationToken)
-    {
-        var user = await _userManager.GetAppUserAsync(User);
-        var (filename, bytes) = await _userFileService.DownloadApprovalRequestFileAsync(user, id, approvalRequestId, cancellationToken);
-        return $"data:{MimeTypes.GetMimeType(filename)};base64,{Convert.ToBase64String(bytes)}";
-    }
-
-    /// <summary>
-    /// Downloads a base64 representation of a file attached to an approval request task.
-    /// </summary>
-    [HttpGet("downloadBase64ForApprovalRequestTask")]
-    public async Task<ActionResult<string>> DownloadBase64ForApprovalRequestTaskAsync(long id, long approvalRequestTaskId, CancellationToken cancellationToken)
-    {
-        var user = await _userManager.GetAppUserAsync(User);
-        var (filename, bytes) = await _userFileService.DownloadApprovalRequestTaskFileAsync(user, id, approvalRequestTaskId, cancellationToken);
-        return $"data:{MimeTypes.GetMimeType(filename)};base64,{Convert.ToBase64String(bytes)}";
-    }
-
-    /// <summary>
     /// Deletes a file.
     /// </summary>
     /// <param name="id">The ID of the file to delete.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    [HttpDelete()]
+    [HttpDelete("{id:long}")]
     public async Task<IActionResult> DeleteAsync(long id, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
