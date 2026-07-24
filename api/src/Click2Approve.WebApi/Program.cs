@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using System.Text.Json.Serialization;
 using Click2Approve.Application.Persistence;
 using Click2Approve.WebApi.Extensions;
@@ -25,6 +26,13 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1.0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = new UrlSegmentApiVersionReader();
+});
 builder.Services.AddCors();
 builder.Services.AddDbContext<ApiDbContext>(options =>
 {
@@ -92,6 +100,6 @@ app.UseMiddleware<InitialTenantSetupMiddleware>();
 app.UseMiddleware<DefaultTenantResolutionMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
-app.MapGroup("/api/account").MapIdentityApi<AppUser>();
+app.MapGroup("/api/v1/account").MapIdentityApi<AppUser>();
 
 app.Run();

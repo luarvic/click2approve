@@ -13,7 +13,7 @@ export const uploadUserFiles = async (
       formData.append("files", file);
     });
     const { data } = await axios.post<UserFile[]>(
-      `api/tenants/${tenantId}/files/upload`,
+      `api/v1/tenants/${tenantId}/files/upload`,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
@@ -32,7 +32,7 @@ export const downloadUserFileBase64 = async (
 ): Promise<string | null> => {
   try {
     const { data } = await axios.get(
-      `api/tenants/${tenantId}/files/${id}/downloadBase64`,
+      `api/v1/tenants/${tenantId}/files/${id}/downloadBase64`,
     );
     return data;
   } catch (e) {

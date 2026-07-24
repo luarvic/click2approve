@@ -32,7 +32,7 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantId }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isSmallDisplay = useMediaQuery(theme.breakpoints.down("sm"));
-  const tenantsLoaderPrefix = "api/tenants";
+  const tenantsLoaderPrefix = "api/v1/tenants";
   const businessTenants = stores.tenantStore.tenants.filter(
     (tenant) => tenant.type === TenantType.Business,
   );

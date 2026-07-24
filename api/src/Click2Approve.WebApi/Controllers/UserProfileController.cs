@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Application.Services.UserProfiles;
 using Click2Approve.Domain.Models;
@@ -13,7 +14,8 @@ namespace Click2Approve.WebApi.Controllers;
 /// </summary>
 [Tags("Click2Approve.WebApi.UserProfile")]
 [ApiController]
-[Route("api/userProfiles")]
+[ApiVersion(1.0)]
+[Route("api/v{version:apiVersion}/userProfiles")]
 public class UserProfileController(IUserProfileService userProfileService, UserManager<AppUser> userManager) : ControllerBase
 {
     private readonly IUserProfileService _userProfileService = userProfileService;
@@ -37,7 +39,7 @@ public class UserProfileController(IUserProfileService userProfileService, UserM
 
     [HttpPost("avatar")]
     [Authorize]
-    public async Task<ActionResult<UserProfileDto>> UploadAvatarAsync([FromForm] IFormFile avatar, CancellationToken cancellationToken)
+    public async Task<ActionResult<UserProfileDto>> UploadAvatarAsync(IFormFile avatar, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
         return Ok(await _userProfileService.UploadAvatarAsync(user, avatar, cancellationToken));

@@ -22,13 +22,13 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
     /// Makes sure an anonymous user cannot access the controller's endpoints.
     /// </summary>
     [Theory]
-    [InlineData("POST", "api/tenants/1/files/upload")]
-    [InlineData("GET", "api/tenants/1/files")]
-    [InlineData("GET", "api/tenants/1/files/1/download")]
-    [InlineData("GET", "api/tenants/1/files/1/downloadBase64")]
-    [InlineData("GET", "api/tenants/1/requests/1/files/1/downloadBase64")]
-    [InlineData("GET", "api/tenants/1/tasks/1/files/1/downloadBase64")]
-    [InlineData("DELETE", "api/tenants/1/files/1")]
+    [InlineData("POST", "api/v1/tenants/1/files/upload")]
+    [InlineData("GET", "api/v1/tenants/1/files")]
+    [InlineData("GET", "api/v1/tenants/1/files/1/download")]
+    [InlineData("GET", "api/v1/tenants/1/files/1/downloadBase64")]
+    [InlineData("GET", "api/v1/tenants/1/requests/1/files/1/downloadBase64")]
+    [InlineData("GET", "api/v1/tenants/1/tasks/1/files/1/downloadBase64")]
+    [InlineData("DELETE", "api/v1/tenants/1/files/1")]
     public async Task AllEndpoints_WhenRequestedWithoutBearerToken_ShouldReturnUnauthorized(string httpMethod, string url)
     {
         var request = new HttpRequestMessage(HttpMethod.Parse(httpMethod), url);

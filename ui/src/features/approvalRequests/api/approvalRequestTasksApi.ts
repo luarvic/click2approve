@@ -12,7 +12,7 @@ export const completeApprovalRequestTask = async (
   comment: string | undefined
 ): Promise<boolean> => {
   try {
-    await axios.post(`api/tenants/${tenantId}/tasks/complete`, {
+    await axios.post(`api/v1/tenants/${tenantId}/tasks/complete`, {
       id: id,
       status: status,
       comment: comment,
@@ -31,7 +31,7 @@ export const listApprovalRequestTasks = async (
 > => {
   try {
     const { data } = await axios.get<ApprovalRequestTaskListItem[]>(
-      `api/tenants/${tenantId}/tasks`,
+      `api/v1/tenants/${tenantId}/tasks`,
     );
     return data;
   } catch (e) {
@@ -46,7 +46,7 @@ export const getApprovalRequestTask = async (
 ): Promise<ApprovalRequestTask | null> => {
   try {
     const { data } = await axios.get<ApprovalRequestTask>(
-      `api/tenants/${tenantId}/tasks/${id}`,
+      `api/v1/tenants/${tenantId}/tasks/${id}`,
     );
     return data;
   } catch (e) {
@@ -60,7 +60,7 @@ export const countUncompletedApprovalRequestTasks = async (
 ): Promise<number> => {
   try {
     const { data } = await axios.get<number>(
-      `api/tenants/${tenantId}/tasks/uncompleted/count`,
+      `api/v1/tenants/${tenantId}/tasks/uncompleted/count`,
     );
     return data;
   } catch (e) {

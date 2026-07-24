@@ -90,12 +90,12 @@ describe("store architecture", () => {
     const store = new CommonStore();
     let reactions = 0;
     const dispose = autorun(() => {
-      store.isLoadingByPrefix("put_api/tenants/1/users/");
+      store.isLoadingByPrefix("put_api/v1/tenants/1/users/");
       reactions += 1;
     });
 
-    store.updateLoadingCounter("get_api/tenants/1/tasks/uncompleted/count", 1);
-    store.updateLoadingCounter("get_api/tenants/1/tasks/uncompleted/count", -1);
+    store.updateLoadingCounter("get_api/v1/tenants/1/tasks/uncompleted/count", 1);
+    store.updateLoadingCounter("get_api/v1/tenants/1/tasks/uncompleted/count", -1);
 
     expect(reactions).toBe(1);
     expect(store.loadingCounter).toEqual({});
@@ -105,7 +105,7 @@ describe("store architecture", () => {
 
   test("loading counters support concurrent requests and remove completed entries", () => {
     const store = new CommonStore();
-    const loader = "get_api/tenants/1/users";
+    const loader = "get_api/v1/tenants/1/users";
 
     store.updateLoadingCounter(loader, 1);
     store.updateLoadingCounter(loader, 1);

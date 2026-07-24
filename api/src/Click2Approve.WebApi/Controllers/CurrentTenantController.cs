@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Click2Approve.Application.Services.Tenants;
 using Click2Approve.Domain.Models;
 using Click2Approve.WebApi.Extensions;
@@ -13,7 +14,8 @@ namespace Click2Approve.WebApi.Controllers;
 /// </summary>
 [Tags("Click2Approve.WebApi.CurrentTenant")]
 [ApiController]
-[Route("api/tenants")]
+[ApiVersion(1.0)]
+[Route("api/v{version:apiVersion}/tenants")]
 [Authorize]
 public class CurrentTenantController(ITenantService tenantService, UserManager<AppUser> userManager) : ControllerBase
 {

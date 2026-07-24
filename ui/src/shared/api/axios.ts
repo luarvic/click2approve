@@ -11,13 +11,13 @@ const axiosInstance = axios.create({
 });
 
 const anonymousUrls = [
-  "api/account/forgotPassword",
-  "api/account/login",
-  "api/account/refresh",
-  "api/account/register",
-  "api/account/resendConfirmationEmail",
-  "api/account/resetPassword",
-  "api/products/info",
+  "api/v1/account/forgotPassword",
+  "api/v1/account/login",
+  "api/v1/account/refresh",
+  "api/v1/account/register",
+  "api/v1/account/resendConfirmationEmail",
+  "api/v1/account/resetPassword",
+  "api/v1/products/info",
 ];
 
 const shouldSendAuthentication = (url: string | undefined): boolean => {
@@ -26,7 +26,7 @@ const shouldSendAuthentication = (url: string | undefined): boolean => {
   }
 
   return (
-    !anonymousUrls.includes(url) && !url.startsWith("api/account/confirmEmail")
+    !anonymousUrls.includes(url) && !url.startsWith("api/v1/account/confirmEmail")
   );
 };
 
@@ -65,8 +65,8 @@ axiosInstance.interceptors.response.use(
       error.response &&
       error.response.status &&
       error.response.status === 401 &&
-      originalRequest.url !== "api/account/refresh" &&
-      !originalRequest.url.startsWith("api/account/confirmEmail")
+      originalRequest.url !== "api/v1/account/refresh" &&
+      !originalRequest.url.startsWith("api/v1/account/confirmEmail")
     ) {
       if (!originalRequest._retry) {
         originalRequest._retry = true;

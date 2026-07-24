@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 export const listTeams = async (tenantId: number): Promise<Team[]> => {
   try {
-    const { data } = await axios.get<Team[]>(`api/tenants/${tenantId}/teams`);
+    const { data } = await axios.get<Team[]>(`api/v1/tenants/${tenantId}/teams`);
     return data;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
@@ -19,7 +19,7 @@ export const createTeam = async (
 ): Promise<Team | null> => {
   try {
     const { data } = await axios.post<Team>(
-      `api/tenants/${tenantId}/teams`,
+      `api/v1/tenants/${tenantId}/teams`,
       payload
     );
     return data;
@@ -36,7 +36,7 @@ export const updateTeam = async (
 ): Promise<Team | null> => {
   try {
     const { data } = await axios.put<Team>(
-      `api/tenants/${tenantId}/teams/${teamId}`,
+      `api/v1/tenants/${tenantId}/teams/${teamId}`,
       payload
     );
     return data;
@@ -51,7 +51,7 @@ export const deleteTeam = async (
   teamId: number
 ): Promise<boolean> => {
   try {
-    await axios.delete(`api/tenants/${tenantId}/teams/${teamId}`);
+    await axios.delete(`api/v1/tenants/${tenantId}/teams/${teamId}`);
     return true;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));

@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Click2Approve.WebApi.Extensions;
 using Click2Approve.Domain.Models;
 using Click2Approve.Application.Models.DTOs;
@@ -16,7 +17,8 @@ namespace Click2Approve.WebApi.Controllers;
 /// <param name="userManager">The service that manages users.</param>
 [Tags("Click2Approve.WebApi.ApprovalRequestTask")]
 [ApiController]
-[Route("api/tenants/{tenantId:long}/tasks")]
+[ApiVersion(1.0)]
+[Route("api/v{version:apiVersion}/tenants/{tenantId:long}/tasks")]
 [Authorize]
 public class ApprovalRequestTaskController(
     ILogger<ApprovalRequestTaskController> logger,

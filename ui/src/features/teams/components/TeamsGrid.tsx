@@ -24,8 +24,8 @@ interface TeamsGridProps {
 const TeamsGrid: React.FC<TeamsGridProps> = ({ currentTeamId }) => {
   const navigate = useNavigate();
   const tenantId = stores.tenantStore.currentTenantId;
-  const teamsLoaderPrefix = tenantId ? `api/tenants/${tenantId}/teams` : "";
-  const employeesLoaderPrefix = tenantId ? `api/tenants/${tenantId}/users` : "";
+  const teamsLoaderPrefix = tenantId ? `api/v1/tenants/${tenantId}/teams` : "";
+  const employeesLoaderPrefix = tenantId ? `api/v1/tenants/${tenantId}/users` : "";
   const canModifyTeams =
     stores.tenantStore.currentTenant?.role === EmployeeRole.Admin ||
     stores.tenantStore.currentTenant?.isOwner === true;

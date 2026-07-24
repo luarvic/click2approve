@@ -24,7 +24,7 @@ export const submitApprovalRequest = async (
       description,
     };
     const { data } = await axios.post<number>(
-      `api/tenants/${tenantId}/requests`,
+      `api/v1/tenants/${tenantId}/requests`,
       payload,
     );
     return data;
@@ -39,7 +39,7 @@ export const cancelApprovalRequest = async (
   id: number,
 ): Promise<boolean> => {
   try {
-    await axios.post(`api/tenants/${tenantId}/requests/${id}/cancel`);
+    await axios.post(`api/v1/tenants/${tenantId}/requests/${id}/cancel`);
     return true;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
@@ -52,7 +52,7 @@ export const listApprovalRequests = async (
 ): Promise<ApprovalRequestListItem[]> => {
   try {
     const { data } = await axios.get<ApprovalRequestListItem[]>(
-      `api/tenants/${tenantId}/requests`,
+      `api/v1/tenants/${tenantId}/requests`,
     );
     return data;
   } catch (e) {
@@ -67,7 +67,7 @@ export const getApprovalRequest = async (
 ): Promise<ApprovalRequest | null> => {
   try {
     const { data } = await axios.get<ApprovalRequest>(
-      `api/tenants/${tenantId}/requests/${id}`,
+      `api/v1/tenants/${tenantId}/requests/${id}`,
     );
     return data;
   } catch (e) {

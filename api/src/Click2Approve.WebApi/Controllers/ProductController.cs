@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Click2Approve.WebApi.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +9,8 @@ namespace Click2Approve.WebApi.Controllers;
 /// </summary>
 [Tags("Click2Approve.WebApi.Product")]
 [ApiController]
-[Route("api/products")]
+[ApiVersion(1.0)]
+[Route("api/v{version:apiVersion}/products")]
 public class ProductController(IConfiguration configuration) : ControllerBase
 {
     private readonly IConfiguration _configuration = configuration;

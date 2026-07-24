@@ -125,13 +125,13 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestId }) => 
         loading={
           tenantId !== null &&
           (stores.commonStore.isLoading(
-            `get_api/tenants/${tenantId}/requests`,
+            `get_api/v1/tenants/${tenantId}/requests`,
           ) ||
             stores.commonStore.isLoading(
-              `post_api/tenants/${tenantId}/requests`,
+              `post_api/v1/tenants/${tenantId}/requests`,
             ) ||
             stores.commonStore.isLoadingByPrefix(
-              `post_api/tenants/${tenantId}/requests/`,
+              `post_api/v1/tenants/${tenantId}/requests/`,
             ))
         }
       />

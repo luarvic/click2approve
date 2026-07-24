@@ -11,7 +11,7 @@ export const listApprovalStepTemplates = async (
 ): Promise<ApprovalStepTemplate[]> => {
   try {
     const { data } = await axios.get<ApprovalStepTemplate[]>(
-      `api/tenants/${tenantId}/approvalStepTemplates`
+      `api/v1/tenants/${tenantId}/approvalStepTemplates`
     );
     return data;
   } catch (e) {
@@ -26,7 +26,7 @@ export const createApprovalStepTemplate = async (
 ): Promise<ApprovalStepTemplate | null> => {
   try {
     const { data } = await axios.post<ApprovalStepTemplate>(
-      `api/tenants/${tenantId}/approvalStepTemplates`,
+      `api/v1/tenants/${tenantId}/approvalStepTemplates`,
       payload
     );
     return data;
@@ -43,7 +43,7 @@ export const updateApprovalStepTemplate = async (
 ): Promise<ApprovalStepTemplate | null> => {
   try {
     const { data } = await axios.put<ApprovalStepTemplate>(
-      `api/tenants/${tenantId}/approvalStepTemplates/${templateId}`,
+      `api/v1/tenants/${tenantId}/approvalStepTemplates/${templateId}`,
       payload
     );
     return data;
@@ -59,7 +59,7 @@ export const deleteApprovalStepTemplate = async (
 ): Promise<boolean> => {
   try {
     await axios.delete(
-      `api/tenants/${tenantId}/approvalStepTemplates/${templateId}`
+      `api/v1/tenants/${tenantId}/approvalStepTemplates/${templateId}`
     );
     return true;
   } catch (e) {

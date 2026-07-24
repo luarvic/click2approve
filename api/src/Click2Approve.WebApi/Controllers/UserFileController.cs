@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Click2Approve.WebApi.Extensions;
 using Click2Approve.Domain.Models;
 using Click2Approve.Application.Services.UserFiles;
@@ -15,7 +16,8 @@ namespace Click2Approve.WebApi.Controllers;
 /// <param name="userManager">The service that manages users.</param>
 [Tags("Click2Approve.WebApi.UserFile")]
 [ApiController]
-[Route("api/tenants/{tenantId:long}/files")]
+[ApiVersion(1.0)]
+[Route("api/v{version:apiVersion}/tenants/{tenantId:long}/files")]
 [Authorize]
 public class UserFileController(ILogger<UserFileController> logger, IUserFileService userFileService, UserManager<AppUser> userManager) : ControllerBase
 {
@@ -30,7 +32,7 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The list of uploaded files.</returns>
     [HttpPost("upload")]
-    public async Task<ActionResult<List<UserFile>>> UploadAsync([FromForm] IFormFileCollection files, CancellationToken cancellationToken)
+    public async Task<ActionResult<List<UserFile>>> UploadAsync(IFormFileCollection files, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
         var userFiles = await _userFileService.UploadAsync(user, files, cancellationToken);

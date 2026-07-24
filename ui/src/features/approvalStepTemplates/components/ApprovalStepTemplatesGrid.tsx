@@ -26,7 +26,7 @@ const ApprovalStepTemplatesGrid: React.FC<ApprovalStepTemplatesGridProps> = ({
   const navigate = useNavigate();
   const tenantId = stores.tenantStore.currentTenantId;
   const loaderPrefix = tenantId
-    ? `api/tenants/${tenantId}/approvalStepTemplates`
+    ? `api/v1/tenants/${tenantId}/approvalStepTemplates`
     : "";
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     stores.approvalStepTemplateStore.templates,

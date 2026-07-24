@@ -12,7 +12,7 @@ export const listEmployees = async (
 ): Promise<Employee[]> => {
   try {
     const { data } = await axios.get<Employee[]>(
-      `api/tenants/${tenantId}/employees`
+      `api/v1/tenants/${tenantId}/employees`
     );
     return data;
   } catch (e) {
@@ -27,7 +27,7 @@ export const createEmployee = async (
 ): Promise<Employee | null> => {
   try {
     const { data } = await axios.post<Employee>(
-      `api/tenants/${tenantId}/employees`,
+      `api/v1/tenants/${tenantId}/employees`,
       payload
     );
     return data;
@@ -44,7 +44,7 @@ export const updateEmployee = async (
 ): Promise<Employee | null> => {
   try {
     const { data } = await axios.put<Employee>(
-      `api/tenants/${tenantId}/employees/${employeeId}`,
+      `api/v1/tenants/${tenantId}/employees/${employeeId}`,
       payload
     );
     return data;
@@ -59,7 +59,7 @@ export const deleteEmployee = async (
   employeeId: number
 ): Promise<boolean> => {
   try {
-    await axios.delete(`api/tenants/${tenantId}/employees/${employeeId}`);
+    await axios.delete(`api/v1/tenants/${tenantId}/employees/${employeeId}`);
     return true;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));

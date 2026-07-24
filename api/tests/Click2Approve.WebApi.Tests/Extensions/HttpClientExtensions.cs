@@ -70,12 +70,12 @@ public static class HttpClientExtensions
     }
 
     /// <summary>
-    /// Registers a user by sending POST request to api/account/register endpoint.
+    /// Registers a user by sending POST request to api/v1/account/register endpoint.
     /// </summary>
     public static async Task RegisterAsync(this HttpClient httpClient, Credentials credentials, CancellationToken cancellationToken)
     {
         await httpClient.SendAsync(HttpMethod.Post,
-            "api/account/register",
+            "api/v1/account/register",
             null,
             null,
             new StringContent(JsonSerializer.Serialize(credentials), Encoding.UTF8, "application/json"),
@@ -83,12 +83,12 @@ public static class HttpClientExtensions
     }
 
     /// <summary>
-    /// Logs in a user by sending POST request to api/account/login endpoint.
+    /// Logs in a user by sending POST request to api/v1/account/login endpoint.
     /// </summary>
     public static async Task<LoginResponse> LogInAsync(this HttpClient httpClient, Credentials credentials, CancellationToken cancellationToken)
     {
         return await httpClient.SendAsync<LoginResponse>(HttpMethod.Post,
-            "api/account/login",
+            "api/v1/account/login",
             null,
             null,
             new StringContent(JsonSerializer.Serialize(credentials), Encoding.UTF8, "application/json"),
@@ -103,7 +103,7 @@ public static class HttpClientExtensions
         CancellationToken cancellationToken)
     {
         var tenant = await httpClient.SendAsync<CurrentTenantDto>(HttpMethod.Get,
-            "api/tenants/current",
+            "api/v1/tenants/current",
             new Dictionary<string, string> {
                 {"Authorization", $"Bearer {accessToken}"}
             },
@@ -128,7 +128,7 @@ public static class HttpClientExtensions
         }
         var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
         return await httpClient.SendAsync<List<UserFile>>(HttpMethod.Post,
-            $"api/tenants/{tenantId}/files/upload",
+            $"api/v1/tenants/{tenantId}/files/upload",
             new Dictionary<string, string> {
                 {"Authorization", $"Bearer {accessToken}"}
             },
@@ -147,7 +147,7 @@ public static class HttpClientExtensions
     {
         var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
         return await httpClient.SendAsync<List<UserFile>>(HttpMethod.Get,
-            $"api/tenants/{tenantId}/files",
+            $"api/v1/tenants/{tenantId}/files",
             new Dictionary<string, string> {
                 {"Authorization", $"Bearer {accessToken}"}
             },
@@ -166,7 +166,7 @@ public static class HttpClientExtensions
     {
         var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
         return await httpClient.SendAsync<string>(HttpMethod.Get,
-            $"api/tenants/{tenantId}/files/{id}/download",
+            $"api/v1/tenants/{tenantId}/files/{id}/download",
             new Dictionary<string, string> {
                 {"Authorization", $"Bearer {accessToken}"}
             },
@@ -186,7 +186,7 @@ public static class HttpClientExtensions
     {
         var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
         return await httpClient.SendAsync<string>(HttpMethod.Get,
-            $"api/tenants/{tenantId}/files/{id}/downloadBase64",
+            $"api/v1/tenants/{tenantId}/files/{id}/downloadBase64",
             new Dictionary<string, string> {
                 {"Authorization", $"Bearer {accessToken}"}
             },
@@ -207,7 +207,7 @@ public static class HttpClientExtensions
     {
         var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
         return await httpClient.SendAsync<string>(HttpMethod.Get,
-            $"api/tenants/{tenantId}/tasks/{approvalRequestTaskId}/files/{id}/downloadBase64",
+            $"api/v1/tenants/{tenantId}/tasks/{approvalRequestTaskId}/files/{id}/downloadBase64",
             new Dictionary<string, string> { { "Authorization", $"Bearer {accessToken}" } },
             null,
             null,
@@ -225,7 +225,7 @@ public static class HttpClientExtensions
     {
         var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
         return await httpClient.SendAsync<string>(HttpMethod.Get,
-            $"api/tenants/{tenantId}/requests/{approvalRequestId}/files/{id}/downloadBase64",
+            $"api/v1/tenants/{tenantId}/requests/{approvalRequestId}/files/{id}/downloadBase64",
             new Dictionary<string, string> { { "Authorization", $"Bearer {accessToken}" } },
             null,
             null,
@@ -242,7 +242,7 @@ public static class HttpClientExtensions
     {
         var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
         return await httpClient.SendAsync<string>(HttpMethod.Delete,
-            $"api/tenants/{tenantId}/files/{id}",
+            $"api/v1/tenants/{tenantId}/files/{id}",
             new Dictionary<string, string> {
                 {"Authorization", $"Bearer {accessToken}"}
             },
@@ -266,7 +266,7 @@ public static class HttpClientExtensions
             MediaTypeNames.Application.Json);
         var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
         return await httpClient.SendAsync<string>(HttpMethod.Post,
-            $"api/tenants/{tenantId}/requests",
+            $"api/v1/tenants/{tenantId}/requests",
             new Dictionary<string, string> {
                 {"Authorization", $"Bearer {accessToken}"}
             },
@@ -285,7 +285,7 @@ public static class HttpClientExtensions
     {
         var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
         return await httpClient.SendAsync<List<ApprovalRequestListItemDto>>(HttpMethod.Get,
-            $"api/tenants/{tenantId}/requests",
+            $"api/v1/tenants/{tenantId}/requests",
             new Dictionary<string, string> {
                 {"Authorization", $"Bearer {accessToken}"}
             },
@@ -304,7 +304,7 @@ public static class HttpClientExtensions
     {
         var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
         return await httpClient.SendAsync<ApprovalRequestDto>(HttpMethod.Get,
-            $"api/tenants/{tenantId}/requests/{id}",
+            $"api/v1/tenants/{tenantId}/requests/{id}",
             new Dictionary<string, string> {
                 {"Authorization", $"Bearer {accessToken}"}
             },

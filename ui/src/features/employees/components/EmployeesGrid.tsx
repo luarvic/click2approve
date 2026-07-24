@@ -36,7 +36,7 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeId }) => {
   const theme = useTheme();
   const isSmallDisplay = useMediaQuery(theme.breakpoints.down("sm"));
   const tenantId = stores.tenantStore.currentTenantId;
-  const employeesLoaderPrefix = tenantId ? `api/tenants/${tenantId}/users` : "";
+  const employeesLoaderPrefix = tenantId ? `api/v1/tenants/${tenantId}/users` : "";
   const canModifyEmployees =
     stores.tenantStore.currentTenant?.role === EmployeeRole.Admin ||
     stores.tenantStore.currentTenant?.isOwner === true;

@@ -11,7 +11,7 @@ export const listApprovalDelegations = async (
 ): Promise<ApprovalDelegation[]> => {
   try {
     const { data } = await axios.get<ApprovalDelegation[]>(
-      `api/tenants/${tenantId}/delegations`,
+      `api/v1/tenants/${tenantId}/delegations`,
     );
     return data;
   } catch (e) {
@@ -26,7 +26,7 @@ export const createApprovalDelegation = async (
 ): Promise<ApprovalDelegation | null> => {
   try {
     const { data } = await axios.post<ApprovalDelegation>(
-      `api/tenants/${tenantId}/delegations`,
+      `api/v1/tenants/${tenantId}/delegations`,
       payload,
     );
     return data;
@@ -43,7 +43,7 @@ export const updateApprovalDelegation = async (
 ): Promise<ApprovalDelegation | null> => {
   try {
     const { data } = await axios.put<ApprovalDelegation>(
-      `api/tenants/${tenantId}/delegations/${delegationId}`,
+      `api/v1/tenants/${tenantId}/delegations/${delegationId}`,
       payload,
     );
     return data;
@@ -58,7 +58,7 @@ export const deleteApprovalDelegation = async (
   delegationId: number,
 ): Promise<boolean> => {
   try {
-    await axios.delete(`api/tenants/${tenantId}/delegations/${delegationId}`);
+    await axios.delete(`api/v1/tenants/${tenantId}/delegations/${delegationId}`);
     return true;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
