@@ -6,4 +6,5 @@ export interface ApprovalRequestTaskListItem {
   status: ApprovalRequestTaskStatus;
   createdAt: string;
   createdAtDate: Date;
+  requestedByDisplayName: string;
 }

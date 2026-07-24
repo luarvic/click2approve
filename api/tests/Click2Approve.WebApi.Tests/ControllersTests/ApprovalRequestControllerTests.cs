@@ -81,8 +81,15 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var approverTenantId = await approverClient.GetCurrentTenantIdAsync(approverLogin.AccessToken, CancellationToken.None);
         var taskResponse = await approverClient.GetAsync($"api/tenants/{approverTenantId}/tasks/{Assert.Single(approvalRequest.Tasks).Id}");
         Assert.True(taskResponse.IsSuccessStatusCode, await taskResponse.Content.ReadAsStringAsync());
+        var taskJson = await taskResponse.Content.ReadAsStringAsync();
+        Assert.DoesNotContain("\"approvalRequest\":{", taskJson);
+        Assert.DoesNotContain("\"steps\"", taskJson);
+        Assert.DoesNotContain("\"createdByEmail\"", taskJson);
+        Assert.DoesNotContain("\"taskLogEntries\"", taskJson);
+
         var task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
         Assert.NotNull(task);
+        Assert.Equal(requester.Email, task.RequestedByDisplayName);
         Assert.Null(task.ApprovalRequest);
         Assert.Collection(task.UserFiles,
             file => Assert.Equal("request.txt", file.Name));
@@ -139,6 +146,15 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var approverLogin = await approverClient.LogInAsync(approver, CancellationToken.None);
         approverClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", approverLogin.AccessToken);
         var approverTenantId = await approverClient.GetCurrentTenantIdAsync(approverLogin.AccessToken, CancellationToken.None);
+        var taskResponse = await approverClient.GetAsync($"api/tenants/{approverTenantId}/tasks/{task.Id}");
+        Assert.True(taskResponse.IsSuccessStatusCode, await taskResponse.Content.ReadAsStringAsync());
+        var taskDetail = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
+        Assert.NotNull(taskDetail);
+        Assert.Equal(requester.Email, taskDetail.RequestedByDisplayName);
+        Assert.NotNull(taskDetail.ApprovalRequest);
+        Assert.Single(taskDetail.ApprovalRequest.Steps);
+        Assert.Single(Assert.Single(taskDetail.ApprovalRequest.Steps).Tasks);
+
         response = await approverClient.PostAsJsonAsync($"api/tenants/{approverTenantId}/tasks/complete", new
         {
             task.Id,

@@ -150,7 +150,11 @@ public class ApprovalRequestService(
     public async Task<ApprovalRequestTaskDetailDto> GetTaskAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
         var task = await _approvalRequestTaskRepository.GetAsync(user, id, cancellationToken);
-        return MapDetailResponse(task);
+        var approvalRequest = task.CanViewRequest
+            ? await _approvalRequestTaskRepository.GetRequestAsync(user, id, cancellationToken)
+            : null;
+
+        return MapDetailResponse(task, approvalRequest);
     }
 
     /// <summary>
@@ -281,7 +285,8 @@ public class ApprovalRequestService(
         Id = task.Id,
         Title = task.Title,
         Status = task.Status,
-        CreatedAt = task.CreatedAt
+        CreatedAt = task.CreatedAt,
+        RequestedByDisplayName = task.ApprovalRequest.CreatedByDisplayName
     };
 
     private static ApprovalRequestDto MapResponse(ApprovalRequest approvalRequest)
@@ -291,14 +296,14 @@ public class ApprovalRequestService(
             Id = approvalRequest.Id,
             Title = approvalRequest.Title,
             UserFiles = [.. approvalRequest.UserFiles.Select(MapResponse)],
-            Steps = [.. approvalRequest.Steps.Select(MapResponse)],
+            Steps = [.. approvalRequest.Steps.Select(step => MapResponse(step, approvalRequest.CreatedByDisplayName))],
             Description = approvalRequest.Description,
             CreatedAt = approvalRequest.CreatedAt,
             CreatedByUserId = approvalRequest.CreatedByUserId,
             CreatedByEmail = approvalRequest.CreatedByEmail,
             CreatedByDisplayName = approvalRequest.CreatedByDisplayName,
             Status = approvalRequest.Status,
-            Tasks = [.. approvalRequest.Tasks.Select(MapResponse)],
+            Tasks = [.. approvalRequest.Tasks.Select(task => MapResponse(task, approvalRequest.CreatedByDisplayName))],
             LogEntries = [.. approvalRequest.LogEntries.Select(MapResponse)],
             TaskLogEntries = [.. approvalRequest.Tasks.SelectMany(task => task.LogEntries).Select(MapResponse)]
         };
@@ -306,25 +311,32 @@ public class ApprovalRequestService(
 
     private static ApprovalRequestDto MapTaskRequestResponse(ApprovalRequest approvalRequest)
     {
+        var tasks = approvalRequest.Steps
+            .SelectMany(step => step.Tasks)
+            .DistinctBy(task => task.Id)
+            .ToList();
+
         return new ApprovalRequestDto
         {
             Id = approvalRequest.Id,
             Title = approvalRequest.Title,
             UserFiles = [.. approvalRequest.UserFiles.Select(MapResponse)],
-            Steps = [],
+            Steps = [.. approvalRequest.Steps.Select(step => MapResponse(step, approvalRequest.CreatedByDisplayName))],
             Description = approvalRequest.Description,
             CreatedAt = approvalRequest.CreatedAt,
             CreatedByUserId = approvalRequest.CreatedByUserId,
             CreatedByEmail = approvalRequest.CreatedByEmail,
             CreatedByDisplayName = approvalRequest.CreatedByDisplayName,
             Status = approvalRequest.Status,
-            Tasks = [.. approvalRequest.Tasks.Select(MapResponse)],
+            Tasks = [.. tasks.Select(task => MapResponse(task, approvalRequest.CreatedByDisplayName))],
             LogEntries = [.. approvalRequest.LogEntries.Select(MapResponse)],
-            TaskLogEntries = [.. approvalRequest.Tasks.SelectMany(task => task.LogEntries).Select(MapResponse)]
+            TaskLogEntries = [.. tasks.SelectMany(task => task.LogEntries).Select(MapResponse)]
         };
     }
 
-    private static ApprovalRequestStepDto MapResponse(ApprovalRequestStep step)
+    private static ApprovalRequestStepDto MapResponse(
+        ApprovalRequestStep step,
+        string createdByDisplayName)
     {
         return new ApprovalRequestStepDto
         {
@@ -332,7 +344,7 @@ public class ApprovalRequestService(
             Sequence = step.Sequence,
             Mode = step.Mode,
             Approvers = step.Approvers.Select(MapResponse).ToList(),
-            Tasks = step.Tasks.Select(MapResponse).ToList()
+            Tasks = step.Tasks.Select(task => MapResponse(task, createdByDisplayName)).ToList()
         };
     }
 
@@ -350,7 +362,9 @@ public class ApprovalRequestService(
         };
     }
 
-    private static ApprovalRequestTaskDto MapResponse(ApprovalRequestTask task)
+    private static ApprovalRequestTaskDto MapResponse(
+        ApprovalRequestTask task,
+        string? createdByDisplayName = null)
     {
         return new ApprovalRequestTaskDto
         {
@@ -362,6 +376,7 @@ public class ApprovalRequestService(
             ApproverUserId = task.ApproverUserId,
             ApproverEmail = task.ApproverEmail,
             ApproverDisplayName = task.ApproverDisplayName,
+            RequestedByDisplayName = createdByDisplayName ?? task.ApprovalRequest.CreatedByDisplayName,
             CanViewRequest = task.CanViewRequest,
             Status = task.Status,
             CreatedAt = task.CreatedAt,
@@ -371,10 +386,12 @@ public class ApprovalRequestService(
         };
     }
 
-    private static ApprovalRequestTaskDetailDto MapDetailResponse(ApprovalRequestTask task) => new(MapResponse(task))
+    private static ApprovalRequestTaskDetailDto MapDetailResponse(
+        ApprovalRequestTask task,
+        ApprovalRequest? approvalRequest) => new(MapResponse(task))
     {
         UserFiles = [.. task.ApprovalRequest.UserFiles.Select(MapResponse)],
-        ApprovalRequest = task.CanViewRequest ? MapTaskRequestResponse(task.ApprovalRequest) : null
+        ApprovalRequest = approvalRequest is not null ? MapTaskRequestResponse(approvalRequest) : null
     };
 
     private static ApprovalRequestLogEntryDto MapResponse(ApprovalRequestLogEntry logEntry) => new()

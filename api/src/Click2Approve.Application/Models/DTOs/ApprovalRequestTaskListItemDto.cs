@@ -11,4 +11,5 @@ public class ApprovalRequestTaskListItemDto
     public required string Title { get; init; }
     public ApprovalRequestTaskStatus Status { get; init; }
     public DateTime CreatedAt { get; init; }
+    public required string RequestedByDisplayName { get; init; }
 }

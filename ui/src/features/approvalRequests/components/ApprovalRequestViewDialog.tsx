@@ -1,9 +1,8 @@
 import { stores } from "@/app/rootStore";
 import { cancelApprovalRequest } from "@/features/approvalRequests/api/approvalRequestsApi";
+import ApprovalRequestDetails from "@/features/approvalRequests/components/ApprovalRequestDetails";
 import ApprovalRequestLog from "@/features/approvalRequests/components/ApprovalRequestLog";
-import ApprovalRequestSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestSummaryBlock";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
-import ApprovalSteps from "@/features/approvalWorkflow/components/ApprovalSteps";
 import { Dialogs, Pages } from "@/shared/constants/constants";
 import {
   Button,
@@ -71,17 +70,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
         <Tab label="Request" value="request" />
         <Tab label="Log" value="log" />
       </Tabs>
-      {selectedTab === "request" && (
-        <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
-          {approvalRequest && (
-            <ApprovalSteps
-              approvalRequest={approvalRequest}
-              leadingItem={<ApprovalRequestSummaryBlock approvalRequest={approvalRequest} />}
-              showDividers
-            />
-          )}
-        </Stack>
-      )}
+      {selectedTab === "request" && <ApprovalRequestDetails approvalRequest={approvalRequest} />}
       {selectedTab === "log" && (
         <ApprovalRequestLog approvalRequest={approvalRequest} />
       )}

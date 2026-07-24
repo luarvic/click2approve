@@ -76,6 +76,7 @@ const approvalRequestTask = (
   approvalRequestStepId: id,
   approverEmail: "approver@example.com",
   approverDisplayName: "approver@example.com",
+  requestedByDisplayName: "user@example.com",
   canViewRequest: true,
   status,
   createdAt: "2026-01-01T00:00:00",

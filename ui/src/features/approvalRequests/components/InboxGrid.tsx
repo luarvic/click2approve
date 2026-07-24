@@ -53,6 +53,12 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskId }) => {
       valueGetter: (_value, row) => getApprovalRequestTaskStatusLabel(row.status),
     },
     {
+      field: "requestedByDisplayName",
+      headerName: "Requested by",
+      flex: DataGrids.approvalColumnFlex.metadata,
+      valueGetter: (_value, row) => row.requestedByDisplayName,
+    },
+    {
       field: "createdAtDate",
       headerName: "Created",
       flex: DataGrids.approvalColumnFlex.metadata,

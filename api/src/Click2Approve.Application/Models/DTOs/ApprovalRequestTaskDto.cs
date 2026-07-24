@@ -24,6 +24,7 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
         ApproverUserId = source.ApproverUserId;
         ApproverEmail = source.ApproverEmail;
         ApproverDisplayName = source.ApproverDisplayName;
+        RequestedByDisplayName = source.RequestedByDisplayName;
         CanViewRequest = source.CanViewRequest;
         Description = source.Description;
         Comment = source.Comment;

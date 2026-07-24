@@ -221,7 +221,7 @@ const renderTaskDetails = (
           sx={Flex.growSx}
         />
       </Stack>
-      <ApprovalRequestComment text={task.comment} />
+      <ApprovalRequestComment label="Comment" text={task.comment} />
       <ApprovalRequestTimestampRow
         items={[
           {
