@@ -1,5 +1,5 @@
-import ApprovalRequestFilesBox from "@/features/approvalRequests/components/ApprovalRequestFilesBox";
 import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
+import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
 import type { ApprovalRequestTimestampType } from "@/features/approvalRequests/components/ApprovalRequestTimestamp";
 import ApprovalRequestTimestampRow from "@/features/approvalRequests/components/ApprovalRequestTimestampRow";
 import { ApprovalRequestStatusLineSection } from "@/features/approvalRequests/components/ApprovalStatusLines";
@@ -8,7 +8,7 @@ import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequ
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { StackSpacing } from "@/shared/constants/constants";
 import type { SxProps } from "@mui/material";
-import { Stack, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 
 interface ApprovalRequestSummaryBlockProps {
@@ -17,15 +17,6 @@ interface ApprovalRequestSummaryBlockProps {
 
 const requestSummarySx: SxProps<Theme> = {
   minWidth: 0,
-};
-
-const requestTitleSx: SxProps<Theme> = {
-  overflowWrap: "anywhere",
-};
-
-const requestDescriptionSx: SxProps<Theme> = {
-  overflowWrap: "anywhere",
-  whiteSpace: "pre-wrap",
 };
 
 const finalRequestStatuses = new Set<ApprovalRequestStatus>([
@@ -91,7 +82,6 @@ const getFinalStatusTimestampType = (
 const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = ({
   approvalRequest,
 }) => {
-  const description = approvalRequest.description?.trim();
   const finalStatusChange = getFinalStatusChange(approvalRequest);
 
   return (
@@ -100,24 +90,11 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
       sx={requestSummarySx}
     >
       <Stack spacing={StackSpacing.tight}>
-        <Typography
-          component="h2"
-          variant="h6"
-          sx={requestTitleSx}
-        >
-          {approvalRequest.title}
-        </Typography>
-        {description && (
-          <Typography
-            variant="body1"
-            sx={requestDescriptionSx}
-          >
-            {description}
-          </Typography>
-        )}
-        <ApprovalRequestFilesBox
-          userFiles={approvalRequest.userFiles}
+        <ApprovalRequestSummary
+          title={approvalRequest.title}
+          description={approvalRequest.description}
           approvalRequestId={approvalRequest.id}
+          userFiles={approvalRequest.userFiles}
         />
         <ApprovalRequestParticipantLine label={approvalRequest.createdByDisplayName} />
         <ApprovalRequestTimestampRow

@@ -1,8 +1,8 @@
 import { stores } from "@/app/rootStore";
 import { getApprovalRequest } from "@/features/approvalRequests/api/approvalRequestsApi";
 import { completeApprovalRequestTask } from "@/features/approvalRequests/api/approvalRequestTasksApi";
-import ApprovalRequestFilesBox from "@/features/approvalRequests/components/ApprovalRequestFilesBox";
 import ApprovalRequestLog from "@/features/approvalRequests/components/ApprovalRequestLog";
+import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { normalizeApprovalRequestDates } from "@/features/approvalRequests/utils/approvalRequestDateNormalizers";
@@ -131,23 +131,14 @@ const ApprovalRequestTaskEditor: React.FC<ApprovalRequestTaskEditorProps> = ({ o
           spacing={Dialogs.formStackSpacing}
           sx={canViewRequest ? Dialogs.tabContentSx : undefined}
         >
-          <TextField
-            fullWidth
-            label="Title"
-            value={currentTask?.title ?? ""}
-            disabled
-          />
-          <ApprovalRequestFilesBox
-            userFiles={currentTask?.userFiles}
-            approvalRequestTaskId={currentTask?.id}
-          />
-          <TextField
-            fullWidth
-            label="Description"
-            multiline
-            value={currentTask?.description ?? ""}
-            disabled
-          />
+          {currentTask && (
+            <ApprovalRequestSummary
+              title={currentTask.title}
+              description={currentTask.description}
+              approvalRequestTaskId={currentTask.id}
+              userFiles={currentTask.userFiles}
+            />
+          )}
           <FormControl key="decision" error={decisionError}>
             <RadioGroup
               row
