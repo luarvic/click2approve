@@ -1,8 +1,6 @@
 import { stores } from "@/app/rootStore";
-import { cancelApprovalRequest } from "@/features/approvalRequests/api/approvalRequestsApi";
 import ApprovalRequestDetails from "@/features/approvalRequests/components/ApprovalRequestDetails";
 import ApprovalRequestLog from "@/features/approvalRequests/components/ApprovalRequestLog";
-import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { Dialogs, Pages } from "@/shared/constants/constants";
 import {
   Button,
@@ -16,12 +14,10 @@ import { useEffect, useState } from "react";
 
 interface ApprovalRequestViewProps {
   onClose: (currentApprovalRequestId?: number) => void;
-  onClone: () => void;
 }
 
 const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
   onClose,
-  onClone,
 }) => {
   const approvalRequest = stores.approvalRequestStore.currentApprovalRequest;
   const [selectedTab, setSelectedTab] = useState("request");
@@ -32,29 +28,6 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
 
   const handleClose = () => {
     onClose(approvalRequest?.id);
-  };
-
-  const handleClone = () => {
-    if (!approvalRequest) {
-      return;
-    }
-    stores.approvalRequestStore.setRequestToClone(approvalRequest);
-    onClone();
-  };
-
-  const handleCancelRequest = async () => {
-    if (!approvalRequest) {
-      return;
-    }
-    const tenantId = stores.tenantStore.currentTenantId;
-    if (!tenantId) {
-      return;
-    }
-
-    if (await cancelApprovalRequest(tenantId, approvalRequest.id)) {
-      stores.approvalRequestStore.clear();
-      onClose(approvalRequest.id);
-    }
   };
 
   return (
@@ -82,15 +55,6 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
         <Button variant="outlined" onClick={handleClose}>
           Close
         </Button>
-        <Button variant="outlined" onClick={handleClone}>
-          Clone
-        </Button>
-        {(approvalRequest?.status === ApprovalRequestStatus.Pending ||
-          approvalRequest?.status === ApprovalRequestStatus.Started) && (
-            <Button variant="outlined" onClick={handleCancelRequest}>
-              Cancel request
-            </Button>
-          )}
       </Stack>
     </>
   );

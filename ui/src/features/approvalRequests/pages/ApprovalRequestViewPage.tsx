@@ -45,7 +45,6 @@ const ApprovalRequestViewPage = () => {
         state: currentApprovalRequestId ? { currentApprovalRequestId } : undefined,
       })
     }
-    onClone={() => navigate(`${outboxPath}/new/compose`)}
   />;
 };
 

@@ -194,8 +194,10 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
         <ApprovalRequestLog approvalRequest={approvalRequest} />
       )}
       <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
-        <Button variant="outlined" onClick={handleClose}>Cancel</Button>
-        {!isCompleted && <Button variant="outlined" onClick={handleSubmit}>Save</Button>}
+        <Button variant="outlined" onClick={handleClose}>
+          {isCompleted ? "Close" : "Cancel"}
+        </Button>
+        {!isCompleted && <Button variant="outlined" onClick={handleSubmit}>Submit</Button>}
       </Stack>
     </>
   );
