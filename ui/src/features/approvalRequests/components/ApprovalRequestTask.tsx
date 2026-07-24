@@ -25,11 +25,11 @@ import {
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 
-interface ApprovalRequestTaskEditorProps {
+interface ApprovalRequestTaskProps {
   onClose: (currentTaskId?: number) => void;
 }
 
-const ApprovalRequestTaskEditor: React.FC<ApprovalRequestTaskEditorProps> = ({ onClose }) => {
+const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) => {
   const [decisionError, setDecisionError] = useState(false);
   const [decision, setDecision] = useState("");
   const [comment, setComment] = useState("");
@@ -201,4 +201,4 @@ const ApprovalRequestTaskEditor: React.FC<ApprovalRequestTaskEditorProps> = ({ o
   );
 };
 
-export default observer(ApprovalRequestTaskEditor);
+export default observer(ApprovalRequestTask);

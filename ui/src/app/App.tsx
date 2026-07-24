@@ -1,7 +1,7 @@
 import { stores } from "@/app/rootStore";
 import ApprovalRequestStartPage from "@/features/approvalRequests/pages/ApprovalRequestStartPage";
 import ApprovalRequestSubmitPage from "@/features/approvalRequests/pages/ApprovalRequestSubmitPage";
-import ApprovalRequestTaskEditorPage from "@/features/approvalRequests/pages/ApprovalRequestTaskEditorPage";
+import ApprovalRequestTaskPage from "@/features/approvalRequests/pages/ApprovalRequestTaskPage";
 import ApprovalRequestViewPage from "@/features/approvalRequests/pages/ApprovalRequestViewPage";
 import InboxPage from "@/features/approvalRequests/pages/InboxPage";
 import OutboxPage from "@/features/approvalRequests/pages/OutboxPage";
@@ -115,7 +115,7 @@ const App = () => {
                 <Route path="/tenants/:tenantId" element={<TenantScopeLayout />}>
                   <Route element={<WrapperLayout />}>
                     <Route path="inbox" element={<InboxPage />} />
-                    <Route path="inbox/:taskId" element={<ApprovalRequestTaskEditorPage />} />
+                    <Route path="inbox/:taskId" element={<ApprovalRequestTaskPage />} />
                     <Route path="outbox" element={<OutboxPage />} />
                     <Route path="outbox/new" element={<ApprovalRequestStartPage />} />
                     <Route path="outbox/new/compose" element={<ApprovalRequestSubmitPage />} />

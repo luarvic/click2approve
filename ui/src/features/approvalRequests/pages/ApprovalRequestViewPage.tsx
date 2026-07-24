@@ -1,5 +1,5 @@
 import { stores } from "@/app/rootStore";
-import ApprovalRequestView from "@/features/approvalRequests/components/ApprovalRequestViewDialog";
+import ApprovalRequestView from "@/features/approvalRequests/components/ApprovalRequestView";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";

@@ -1,5 +1,5 @@
 import { stores } from "@/app/rootStore";
-import ApprovalRequestSubmitPageContent from "@/features/approvalRequests/components/ApprovalRequestSubmitDialog";
+import ApprovalRequestSubmit from "@/features/approvalRequests/components/ApprovalRequestSubmit";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { observer } from "mobx-react-lite";
@@ -16,7 +16,7 @@ const ApprovalRequestSubmitPage = () => {
   const outboxPath = tenantId ? Routes.tenantPath(tenantId, "/outbox") : "/";
 
   return (
-    <ApprovalRequestSubmitPageContent
+    <ApprovalRequestSubmit
       initialTemplateId={initialTemplateId}
       onClose={(currentApprovalRequestId) =>
         navigate(outboxPath, {

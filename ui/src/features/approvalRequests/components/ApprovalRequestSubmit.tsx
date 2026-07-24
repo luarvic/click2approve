@@ -30,12 +30,12 @@ import { observer } from "mobx-react-lite";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
-interface ApprovalRequestSubmitPageProps {
+interface ApprovalRequestSubmitProps {
   initialTemplateId?: number;
   onClose: (currentApprovalRequestId?: number) => void;
 }
 
-const ApprovalRequestSubmitPage: React.FC<ApprovalRequestSubmitPageProps> = ({
+const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   initialTemplateId,
   onClose,
 }) => {
@@ -355,4 +355,4 @@ const ApprovalRequestSubmitPage: React.FC<ApprovalRequestSubmitPageProps> = ({
   );
 };
 
-export default observer(ApprovalRequestSubmitPage);
+export default observer(ApprovalRequestSubmit);
