@@ -8,6 +8,10 @@ import {
   NotificationType,
   UserNotificationPreference,
 } from "@/shared/models/userProfile";
+import {
+  PersistenceSuccessMessages,
+  showPersistenceSuccessToast,
+} from "@/shared/utils/toasts";
 import { AddAPhoto, DeleteOutline, Person } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import {
@@ -150,11 +154,15 @@ const UserProfilePage = () => {
       }
       setSelectedAvatar(null);
     }
+    showPersistenceSuccessToast(PersistenceSuccessMessages.profileSaved);
   };
 
   const handleRemoveAvatar = async () => {
     setSelectedAvatar(null);
-    await stores.userProfileStore.deleteAvatar();
+    const deleted = await stores.userProfileStore.deleteAvatar();
+    if (deleted) {
+      showPersistenceSuccessToast(PersistenceSuccessMessages.profileSaved);
+    }
   };
 
   const avatarUrl = selectedAvatarUrl ?? getPublicApiUrl(profile.avatar);

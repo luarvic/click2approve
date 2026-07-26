@@ -156,7 +156,7 @@ const App = () => {
           closeButton={Toasts.closeButton}
           draggable={Toasts.draggable}
           stacked
-          theme={stores.userPreferencesStore.theme.palette.mode}
+          theme="colored"
         />
       </CssBaseline>
     </ThemeProvider>

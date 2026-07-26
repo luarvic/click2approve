@@ -5,6 +5,10 @@ import { EmployeeRole } from "@/features/tenants/models/tenant";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import {
+  PersistenceSuccessMessages,
+  showPersistenceSuccessToast,
+} from "@/shared/utils/toasts";
 import { observer } from "mobx-react-lite";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 
@@ -29,10 +33,21 @@ const TeamEditorPage = () => {
     onClose={(currentTeamId) => navigate(teamsPath, { state: currentTeamId ? { currentTeamId } : undefined })}
     onDelete={async (id) => {
       const deleted = await stores.teamStore.delete(tenantId, id);
-      if (deleted) navigate(teamsPath);
+      if (deleted) {
+        showPersistenceSuccessToast(PersistenceSuccessMessages.teamDeleted);
+        navigate(teamsPath);
+      }
       return deleted;
     }}
-    onSubmit={(payload: UpsertTeamRequest, id?: number) => id ? stores.teamStore.update(tenantId, id, payload) : stores.teamStore.create(tenantId, payload)}
+    onSubmit={async (payload: UpsertTeamRequest, id?: number) => {
+      const saved = id
+        ? await stores.teamStore.update(tenantId, id, payload)
+        : await stores.teamStore.create(tenantId, payload);
+      if (saved) {
+        showPersistenceSuccessToast(PersistenceSuccessMessages.teamSaved);
+      }
+      return saved;
+    }}
   />;
 };
 

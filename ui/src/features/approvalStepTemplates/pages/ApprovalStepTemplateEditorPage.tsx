@@ -4,6 +4,10 @@ import { TenantType } from "@/features/tenants/models/tenant";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import {
+  PersistenceSuccessMessages,
+  showPersistenceSuccessToast,
+} from "@/shared/utils/toasts";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
@@ -77,6 +81,9 @@ const ApprovalStepTemplateEditorPage = () => {
           ? await stores.approvalStepTemplateStore.delete(tenantId, id)
           : false;
         if (deleted) {
+          showPersistenceSuccessToast(
+            PersistenceSuccessMessages.templateDeleted,
+          );
           navigate(templatesPath);
         }
         return deleted;

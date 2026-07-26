@@ -15,6 +15,10 @@ import {
 import { TenantType } from "@/features/tenants/models/tenant";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import { Dialogs, Pages } from "@/shared/constants/constants";
+import {
+  PersistenceSuccessMessages,
+  showPersistenceSuccessToast,
+} from "@/shared/utils/toasts";
 import { validateEmails } from "@/shared/utils/validators";
 import { Button, Stack, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -160,14 +164,15 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
 
     const saved = template
       ? await stores.approvalStepTemplateStore.update(tenantId, template.id, {
-        name: name.trim(),
-        steps: toApprovalStepSubmissions(steps),
-      })
+          name: name.trim(),
+          steps: toApprovalStepSubmissions(steps),
+        })
       : await stores.approvalStepTemplateStore.create(tenantId, {
-        name: name.trim(),
-        steps: toApprovalStepSubmissions(steps),
-      });
+          name: name.trim(),
+          steps: toApprovalStepSubmissions(steps),
+        });
     if (saved) {
+      showPersistenceSuccessToast(PersistenceSuccessMessages.templateSaved);
       onClose(saved.id);
     }
   };

@@ -17,6 +17,10 @@ import { TenantType } from "@/features/tenants/models/tenant";
 import { uploadUserFiles } from "@/features/userFiles/api/userFilesApi";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import { Dialogs, Files, Pages } from "@/shared/constants/constants";
+import {
+  PersistenceSuccessMessages,
+  showPersistenceSuccessToast,
+} from "@/shared/utils/toasts";
 import { validateEmails } from "@/shared/utils/validators";
 import { Add, AttachFile } from "@mui/icons-material";
 import {
@@ -258,7 +262,9 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       description,
     );
     if (approvalRequestId) {
-      toast.success("The request was successfully sent");
+      showPersistenceSuccessToast(
+        PersistenceSuccessMessages.approvalRequestSubmitted,
+      );
       cleanUp();
       stores.approvalRequestStore.clear();
       const [, createdRequest] = await Promise.all([
@@ -278,65 +284,65 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       </Typography>
       <Box component="form" onSubmit={handleSubmit}>
         <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
-            <TextField
-              autoFocus
-              margin="normal"
-              fullWidth
-              label="Title"
-              required
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
+          <TextField
+            autoFocus
+            margin="normal"
+            fullWidth
+            label="Title"
+            required
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+          />
+          <ApprovalRequestFilesList
+            existingFiles={existingFiles}
+            newFiles={newFiles}
+            onRemoveExisting={(index) =>
+              setExistingFiles((files) => files.filter((_, i) => i !== index))
+            }
+            onRemoveNew={(index) =>
+              setNewFiles((files) => files.filter((_, i) => i !== index))
+            }
+          />
+          <Box sx={Dialogs.bottomSpacingSx}>
+            <Button startIcon={<AttachFile />} onClick={handleUploadClick}>
+              Add files
+            </Button>
+            <input
+              type="file"
+              multiple
+              onChange={handleFilesChange}
+              ref={fileInput}
+              style={Files.inputStyle}
             />
-            <ApprovalRequestFilesList
-              existingFiles={existingFiles}
-              newFiles={newFiles}
-              onRemoveExisting={(index) =>
-                setExistingFiles((files) => files.filter((_, i) => i !== index))
-              }
-              onRemoveNew={(index) =>
-                setNewFiles((files) => files.filter((_, i) => i !== index))
-              }
-            />
-            <Box sx={Dialogs.bottomSpacingSx}>
-              <Button startIcon={<AttachFile />} onClick={handleUploadClick}>
-                Add files
-              </Button>
-              <input
-                type="file"
-                multiple
-                onChange={handleFilesChange}
-                ref={fileInput}
-                style={Files.inputStyle}
-              />
-            </Box>
-            <TextField
-              margin="normal"
-              fullWidth
-              label="Description"
-              multiline
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-            />
-            <ApprovalStepEditor
-              steps={steps}
-              canUseEmployees={canUseEmployees}
-              canUseTeams={canUseTeams}
-              employees={stores.employeeStore.employees}
-              teams={stores.teamStore.teams}
-              onAddApprover={addApprover}
-              onAddStep={addStep}
-              onMoveStep={moveStep}
-              onRemoveApprover={removeApprover}
-              onRemoveStep={removeStep}
-              onUpdateApprover={updateApprover}
-              onUpdateStep={updateStep}
-              showAddStep={false}
-            />
-            <Box sx={Dialogs.textBottomSpacingSx}>
-              <Button startIcon={<Add />} onClick={addStep}>
-                Add step
-              </Button>
-            </Box>
+          </Box>
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Description"
+            multiline
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+          />
+          <ApprovalStepEditor
+            steps={steps}
+            canUseEmployees={canUseEmployees}
+            canUseTeams={canUseTeams}
+            employees={stores.employeeStore.employees}
+            teams={stores.teamStore.teams}
+            onAddApprover={addApprover}
+            onAddStep={addStep}
+            onMoveStep={moveStep}
+            onRemoveApprover={removeApprover}
+            onRemoveStep={removeStep}
+            onUpdateApprover={updateApprover}
+            onUpdateStep={updateStep}
+            showAddStep={false}
+          />
+          <Box sx={Dialogs.textBottomSpacingSx}>
+            <Button startIcon={<Add />} onClick={addStep}>
+              Add step
+            </Button>
+          </Box>
         </Stack>
         <Stack
           direction={{ xs: "column", sm: "row" }}

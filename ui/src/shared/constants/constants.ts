@@ -11,6 +11,8 @@ const uncompletedTasksRefreshSeconds = Number(
   import.meta.env.VITE_UNCOMPLETED_TASKS_REFRESH_SECONDS ??
   String(refreshSecondsDefault),
 );
+const showPersistenceSuccessToasts =
+  import.meta.env.VITE_SHOW_PERSISTENCE_SUCCESS_TOASTS !== "false";
 const appBarHeight = 64;
 const mainMenuDrawerWidth = 240;
 const passwordMinLength = 8;
@@ -53,6 +55,7 @@ export const Toasts = {
   limit: 2,
   closeButton: true,
   draggable: false,
+  showPersistenceSuccess: showPersistenceSuccessToasts,
 } as const;
 
 export const GridToolbar = {

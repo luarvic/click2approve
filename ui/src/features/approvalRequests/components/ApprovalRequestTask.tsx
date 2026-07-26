@@ -10,6 +10,10 @@ import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/ap
 import { normalizeApprovalRequestDates } from "@/features/approvalRequests/utils/approvalRequestDateNormalizers";
 import { Dialogs, Pages } from "@/shared/constants/constants";
 import {
+  PersistenceSuccessMessages,
+  showPersistenceSuccessToast,
+} from "@/shared/utils/toasts";
+import {
   Button,
   FormControl,
   FormControlLabel,
@@ -111,6 +115,9 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
       comment,
     );
     if (didComplete) {
+      showPersistenceSuccessToast(
+        PersistenceSuccessMessages.approvalDecisionSubmitted,
+      );
       cleanUp();
       stores.approvalRequestTaskStore.clear();
       stores.approvalRequestTaskStore.loadUncompletedCount(tenantId);

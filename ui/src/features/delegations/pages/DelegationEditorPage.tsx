@@ -14,6 +14,10 @@ import { EmployeeRole } from "@/features/tenants/models/tenant";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import {
+  PersistenceSuccessMessages,
+  showPersistenceSuccessToast,
+} from "@/shared/utils/toasts";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
@@ -70,14 +74,25 @@ const DelegationEditorPage = () => {
       }
       onDelete={async (id) => {
         const deleted = await deleteApprovalDelegation(tenantId, id);
-        if (deleted) navigate(delegationsPath);
+        if (deleted) {
+          showPersistenceSuccessToast(
+            PersistenceSuccessMessages.delegationDeleted,
+          );
+          navigate(delegationsPath);
+        }
         return deleted;
       }}
-      onSubmit={(payload: ApprovalDelegationUpsert, id?: number) =>
-        id
-          ? updateApprovalDelegation(tenantId, id, payload)
-          : createApprovalDelegation(tenantId, payload)
-      }
+      onSubmit={async (payload: ApprovalDelegationUpsert, id?: number) => {
+        const saved = id
+          ? await updateApprovalDelegation(tenantId, id, payload)
+          : await createApprovalDelegation(tenantId, payload);
+        if (saved) {
+          showPersistenceSuccessToast(
+            PersistenceSuccessMessages.delegationSaved,
+          );
+        }
+        return saved;
+      }}
     />
   );
 };

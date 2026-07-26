@@ -3,6 +3,10 @@ import TenantEditor from "@/features/tenants/components/TenantDialog";
 import { CreateTenantRequest, EmployeeRole, UpdateTenantRequest } from "@/features/tenants/models/tenant";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import {
+  PersistenceSuccessMessages,
+  showPersistenceSuccessToast,
+} from "@/shared/utils/toasts";
 import { observer } from "mobx-react-lite";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 
@@ -25,6 +29,9 @@ const TenantEditorPage = () => {
       ? await stores.tenantStore.update(id, payload as UpdateTenantRequest)
       : await stores.tenantStore.create(payload as CreateTenantRequest);
     if (saved && !id) await stores.refreshTenantScope();
+    if (saved) {
+      showPersistenceSuccessToast(PersistenceSuccessMessages.organizationSaved);
+    }
     return saved;
   };
 
@@ -37,6 +44,9 @@ const TenantEditorPage = () => {
       const deleted = await stores.tenantStore.delete(id);
       if (deleted) {
         await stores.refreshTenantScope();
+        showPersistenceSuccessToast(
+          PersistenceSuccessMessages.organizationDeleted,
+        );
         navigate(tenantsPath);
       }
       return deleted;

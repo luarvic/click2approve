@@ -4,6 +4,10 @@ import { CreateEmployeeRequest, UpdateEmployeeRequest } from "@/features/employe
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import {
+  PersistenceSuccessMessages,
+  showPersistenceSuccessToast,
+} from "@/shared/utils/toasts";
 import { observer } from "mobx-react-lite";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 
@@ -43,12 +47,21 @@ const EmployeeEditorPage = () => {
     onClose={(currentEmployeeId) => navigate(employeesPath, { state: currentEmployeeId ? { currentEmployeeId } : undefined })}
     onDelete={async (id) => {
       const deleted = await stores.employeeStore.delete(tenantId, id);
-      if (deleted) navigate(employeesPath);
+      if (deleted) {
+        showPersistenceSuccessToast(
+          PersistenceSuccessMessages.employeeDeleted,
+        );
+        navigate(employeesPath);
+      }
       return deleted;
     }}
     onSubmit={async (payload: CreateEmployeeRequest | UpdateEmployeeRequest, teamIds, id) => {
       const saved = id ? await stores.employeeStore.update(tenantId, id, payload as UpdateEmployeeRequest) : await stores.employeeStore.create(tenantId, payload as CreateEmployeeRequest);
-      return saved && await syncTeams(saved.id, teamIds) ? saved : null;
+      if (!saved || !(await syncTeams(saved.id, teamIds))) {
+        return null;
+      }
+      showPersistenceSuccessToast(PersistenceSuccessMessages.employeeSaved);
+      return saved;
     }}
   />;
 };
