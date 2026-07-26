@@ -89,7 +89,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
       status={approvalRequest.status}
       sx={requestSummarySx}
     >
-      <Stack spacing={StackSpacing.tight}>
+      <Stack spacing={StackSpacing.default}>
         <ApprovalRequestSummary
           title={approvalRequest.title}
           description={approvalRequest.description}

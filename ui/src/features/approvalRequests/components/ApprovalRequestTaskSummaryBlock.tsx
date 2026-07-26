@@ -58,7 +58,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   const completedAt = getTaskCompletionDate(task);
 
   return (
-    <Stack spacing={StackSpacing.tight}>
+    <Stack spacing={StackSpacing.default}>
       <ApprovalRequestSummary
         title={task.title}
         description={task.description}

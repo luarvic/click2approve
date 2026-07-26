@@ -17,13 +17,19 @@ import {
   ApprovalStepApprover,
   ApprovalStepMode,
 } from "@/features/approvalWorkflow/models/approvalStep";
-import { Flex, Icons, StackSpacing } from "@/shared/constants/constants";
+import {
+  Dialogs,
+  Flex,
+  Icons,
+  StackSpacing,
+} from "@/shared/constants/constants";
 import {
   ChecklistRtlOutlined,
   ExpandMore,
   Person,
   RuleOutlined,
 } from "@mui/icons-material";
+import type { SxProps } from "@mui/material";
 import {
   Accordion,
   AccordionDetails,
@@ -32,7 +38,6 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import type { SxProps } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 
 interface ApprovalStepBlockProps {
@@ -41,11 +46,11 @@ interface ApprovalStepBlockProps {
 }
 
 const approvalStepBlockSx: SxProps<Theme> = {
-  px: 1.5,
-  py: 1,
+  px: Dialogs.stepStackSpacing,
+  py: 0,
 };
 
-const approvalStepHeaderSx = { mb: 1 };
+const approvalStepHeaderSx = { mb: Dialogs.stepHeaderSpacing };
 
 const teamAccordionSx = {
   bgcolor: "transparent",
@@ -67,7 +72,7 @@ const teamAccordionSummarySx = {
 const teamAccordionDetailsSx = {
   px: 0,
   pb: 0,
-  pt: 1,
+  pt: Dialogs.stepHeaderSpacing,
 };
 
 const teamTaskListSx: SxProps<Theme> = {
@@ -345,10 +350,10 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
       label={getStepStatusLabel(stepStatus)}
       sx={approvalStepBlockSx}
     >
-      <Stack spacing={StackSpacing.default}>
+      <Stack spacing={Dialogs.stepStackSpacing}>
         <Stack
           direction="row"
-          spacing={StackSpacing.default}
+          spacing={Dialogs.stepHeaderSpacing}
           alignItems="center"
           sx={approvalStepHeaderSx}
         >

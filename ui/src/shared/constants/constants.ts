@@ -439,6 +439,11 @@ export const DataGrids = {
     name: { flex: 3, minWidth: 220 },
     members: { flex: 5, minWidth: 260 },
   },
+  delegationsColumnSizing: {
+    employee: { flex: 3, minWidth: 220 },
+    delegate: { flex: 3, minWidth: 220 },
+    createdAt: { flex: 1, minWidth: 130 },
+  },
   tenantsColumnSizing: {
     businessName: { flex: 3, minWidth: 220 },
     role: { flex: 1, minWidth: 110 },

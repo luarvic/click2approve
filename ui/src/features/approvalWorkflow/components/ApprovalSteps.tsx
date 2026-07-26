@@ -1,6 +1,6 @@
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
-import { StackSpacing } from "@/shared/constants/constants";
+import { Dialogs } from "@/shared/constants/constants";
 import type { SxProps } from "@mui/material";
 import { Divider, Stack } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
@@ -45,7 +45,7 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
 
   return (
     <Stack
-      spacing={StackSpacing.relaxed}
+      spacing={Dialogs.stepStackSpacing}
       divider={showDividers ? <Divider flexItem /> : undefined}
       sx={sx}
     >

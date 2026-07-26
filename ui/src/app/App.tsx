@@ -7,6 +7,7 @@ import InboxPage from "@/features/approvalRequests/pages/InboxPage";
 import OutboxPage from "@/features/approvalRequests/pages/OutboxPage";
 import ApprovalStepTemplateEditorPage from "@/features/approvalStepTemplates/pages/ApprovalStepTemplateEditorPage";
 import ApprovalStepTemplatesPage from "@/features/approvalStepTemplates/pages/ApprovalStepTemplatesPage";
+import DelegationEditorPage from "@/features/delegations/pages/DelegationEditorPage";
 import DelegationsPage from "@/features/delegations/pages/DelegationsPage";
 import EmployeeEditorPage from "@/features/employees/pages/EmployeeEditorPage";
 import EmployeesPage from "@/features/employees/pages/EmployeesPage";
@@ -131,6 +132,8 @@ const App = () => {
                     </Route>
                     <Route element={<RouteGuard isAllowed={canManageDelegations} />}>
                       <Route path="delegations" element={<DelegationsPage />} />
+                      <Route path="delegations/new" element={<DelegationEditorPage />} />
+                      <Route path="delegations/:delegationId" element={<DelegationEditorPage />} />
                     </Route>
                     <Route path="approvalStepTemplates/new" element={<ApprovalStepTemplateEditorPage />} />
                     <Route path="approvalStepTemplates/:templateId" element={<ApprovalStepTemplateEditorPage />} />

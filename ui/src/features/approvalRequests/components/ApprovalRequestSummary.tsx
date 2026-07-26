@@ -32,7 +32,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   const trimmedDescription = description?.trim();
 
   return (
-    <Stack spacing={StackSpacing.tight}>
+    <Stack spacing={StackSpacing.default}>
       <Typography
         component="h2"
         variant="h6"
