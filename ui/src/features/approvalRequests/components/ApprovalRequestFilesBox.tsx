@@ -66,6 +66,12 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
 
   const files = requestFiles ?? [];
   const orderedFiles = [...files].sort((left, right) => left.sequence - right.sequence);
+  const replacedOriginalFileIds = new Set(
+    orderedFiles
+      .filter((file) => file.revisionAction === ApprovalRequestFileRevisionAction.Replaced)
+      .map((file) => file.previousApprovalRequestFileId)
+      .filter((id): id is number => Boolean(id)),
+  );
 
   const renderChip = (
     userFile: UserFile,
@@ -143,6 +149,10 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
           }
 
           if (file.revisionAction === ApprovalRequestFileRevisionAction.Removed) {
+            if (replacedOriginalFileIds.has(file.id)) {
+              return null;
+            }
+
             return renderChip(
               file.previousUserFile ?? file.userFile,
               file.id,
@@ -156,6 +166,10 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
           }
 
           if (file.revisionAction === ApprovalRequestFileRevisionAction.Replaced) {
+            const previousRequestFile = orderedFiles.find(
+              (item) => item.id === file.previousApprovalRequestFileId,
+            );
+
             return (
               <Stack
                 key={file.id}
@@ -163,9 +177,9 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
                 spacing={StackSpacing.none}
                 alignItems="center"
               >
-                {file.previousUserFile &&
+                {(previousRequestFile?.userFile ?? file.previousUserFile) &&
                   renderChip(
-                    file.previousUserFile,
+                    previousRequestFile?.userFile ?? file.previousUserFile!,
                     `${file.id}-previous`,
                     "default",
                     undefined,

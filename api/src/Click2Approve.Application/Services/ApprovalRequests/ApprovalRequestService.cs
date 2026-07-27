@@ -487,6 +487,8 @@ public class ApprovalRequestService(
                     UserFile = userFile,
                     UserFileId = userFile.Id,
                     Sequence = index,
+                    RevisionAction = file.RevisionAction,
+                    PreviousApprovalRequestFileId = file.PreviousApprovalRequestFileId,
                     ApprovalRequest = null!
                 };
             });
@@ -494,6 +496,7 @@ public class ApprovalRequestService(
 
     private static string GetActiveFileNames(ApprovalRequest approvalRequest) =>
         string.Join(", ", OrderRequestFiles(approvalRequest)
+            .Where(file => file.RevisionAction != ApprovalRequestFileRevisionAction.Removed)
             .Select(file => file.UserFile.Name));
 
     private static List<ApprovalRequestStep> BuildSteps(List<ApprovalRequestStepSubmitDto> stepDtos)
