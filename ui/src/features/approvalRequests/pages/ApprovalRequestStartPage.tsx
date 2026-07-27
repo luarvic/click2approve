@@ -41,6 +41,10 @@ const ApprovalRequestStartPage = () => {
   const [templateId, setTemplateId] = useState<number | "">("");
 
   useEffect(() => {
+    stores.approvalRequestStore.setRequestToClone(null);
+  }, []);
+
+  useEffect(() => {
     if (!tenantScopeIsReady) {
       return;
     }

@@ -26,6 +26,10 @@ export class ProductStore {
     return this.productInfo?.capabilities.approvalStepTemplates === true;
   }
 
+  get approvalRequestRevisionsAreEnabled(): boolean {
+    return this.productInfo?.capabilities.approvalRequestRevisions === true;
+  }
+
   get requiresConfirmedEmail(): boolean {
     return this.productInfo?.requiresConfirmedEmail === true;
   }

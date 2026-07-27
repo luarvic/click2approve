@@ -188,6 +188,7 @@ export const Flex = {
 } as const;
 
 export const StackSpacing = {
+  none: 0,
   tight: 0.5,
   default: 1,
   relaxed: 1.5,
@@ -430,6 +431,11 @@ export const DataGrids = {
     content: 5,
     metadata: 3,
   },
+  approvalTitleCellSx: {
+    height: "100%",
+    justifyContent: "center",
+    minWidth: 0,
+  } as SxProps<Theme>,
   tenantUsersColumnSizing: {
     email: { flex: 3, minWidth: 220 },
     firstName: { flex: 2, minWidth: 130 },

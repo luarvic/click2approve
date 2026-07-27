@@ -37,8 +37,8 @@ const statusLineOffset = 1.5;
 
 export const ApprovalStatusLineColors = {
   approved: "success.main",
-  canceled: "error.main",
-  changeRequested: "warning.main",
+  canceled: "warning.main",
+  changeRequested: "error.main",
   other: "divider",
   started: "success.main",
 } as const;
@@ -79,6 +79,7 @@ export const getApprovalRequestStatusLineColor = (
     case ApprovalRequestStatus.Approved:
       return "approved";
     case ApprovalRequestStatus.Canceled:
+    case ApprovalRequestStatus.Superseded:
       return "canceled";
     case ApprovalRequestStatus.Rejected:
       return "changeRequested";
@@ -95,6 +96,9 @@ export const getApprovalRequestTaskStatusLineColor = (
   switch (status) {
     case ApprovalRequestTaskStatus.Approved:
       return "approved";
+    case ApprovalRequestTaskStatus.Skipped:
+    case ApprovalRequestTaskStatus.Canceled:
+      return "canceled";
     case ApprovalRequestTaskStatus.Rejected:
       return "changeRequested";
     default:

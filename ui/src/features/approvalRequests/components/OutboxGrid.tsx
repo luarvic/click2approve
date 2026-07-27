@@ -3,14 +3,15 @@ import {
   ApprovalRequestStatusLineLabel,
   getApprovalRequestStatusLabel,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
+import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
 import { ApprovalRequestListItem } from "@/features/approvalRequests/models/approvalRequestListItem";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
-import { DataGrids, Routes } from "@/shared/constants/constants";
+import { DataGrids, Routes, StackSpacing } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { getHumanReadableRelativeDate } from "@/shared/utils/helpers";
 import { Add } from "@mui/icons-material";
-import { Box, Button, LinearProgress } from "@mui/material";
+import { Box, Button, LinearProgress, Stack, Typography } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -67,6 +68,18 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestId }) => 
       field: "title",
       headerName: "Title",
       flex: DataGrids.approvalColumnFlex.content,
+      renderCell: (params) => (
+        <Stack sx={DataGrids.approvalTitleCellSx}>
+          <Stack
+            direction="row"
+            spacing={StackSpacing.tight}
+            alignItems="center"
+          >
+            <Typography variant="body2">{params.row.title}</Typography>
+            <ApprovalRequestRevisionChip revisionNumber={params.row.revisionNumber} />
+          </Stack>
+        </Stack>
+      ),
       valueGetter: (_value, row) => row.title,
     },
     {

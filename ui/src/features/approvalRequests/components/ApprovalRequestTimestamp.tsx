@@ -1,10 +1,12 @@
 import { Icons, StackSpacing } from "@/shared/constants/constants";
 import { getLocaleDateTimeString } from "@/shared/utils/helpers";
 import {
+  BlockOutlined,
   CancelOutlined,
   CheckCircleOutlineOutlined,
   DoNotDisturbOnOutlined,
   PendingOutlined,
+  ReplayOutlined,
   TimerOutlined,
 } from "@mui/icons-material";
 import { Stack, Tooltip, Typography } from "@mui/material";
@@ -16,7 +18,8 @@ export type ApprovalRequestTimestampType =
   | "created"
   | "pending"
   | "rejected"
-  | "skipped";
+  | "skipped"
+  | "superseded";
 
 interface ApprovalRequestTimestampProps {
   date: Date;
@@ -31,11 +34,13 @@ const getTimestampIcon = (type: ApprovalRequestTimestampType) => {
     case "pending":
       return <PendingOutlined color={Icons.secondaryColor} fontSize="inherit" />;
     case "rejected":
-      return <CancelOutlined color="warning" fontSize="inherit" />;
-    case "canceled":
       return <CancelOutlined color="error" fontSize="inherit" />;
+    case "canceled":
+      return <BlockOutlined color="warning" fontSize="inherit" />;
     case "skipped":
-      return <DoNotDisturbOnOutlined color={Icons.secondaryColor} fontSize="inherit" />;
+      return <DoNotDisturbOnOutlined color="warning" fontSize="inherit" />;
+    case "superseded":
+      return <ReplayOutlined color="warning" fontSize="inherit" />;
     case "approved":
     case "completed":
       return <CheckCircleOutlineOutlined color="success" fontSize="inherit" />;

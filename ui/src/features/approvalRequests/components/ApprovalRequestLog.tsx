@@ -90,6 +90,8 @@ const getRequestStatusLabel = (status?: ApprovalRequestStatus) => {
       return "Approved";
     case ApprovalRequestStatus.Canceled:
       return "Canceled";
+    case ApprovalRequestStatus.Superseded:
+      return "Superseded";
     case ApprovalRequestStatus.Pending:
       return "Pending";
     case ApprovalRequestStatus.Started:
@@ -111,6 +113,8 @@ const getTaskStatusLabel = (status?: ApprovalRequestTaskStatus) => {
       return "Rejected";
     case ApprovalRequestTaskStatus.Skipped:
       return "Skipped";
+    case ApprovalRequestTaskStatus.Canceled:
+      return "Canceled";
     default:
       return "";
   }

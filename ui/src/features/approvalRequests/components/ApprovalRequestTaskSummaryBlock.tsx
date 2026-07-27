@@ -12,29 +12,33 @@ interface ApprovalRequestTaskSummaryBlockProps {
   task: ApprovalRequestTask;
 }
 
-const getTaskCompletionLabel = (status: ApprovalRequestTaskStatus) => {
-  switch (status) {
+const getTaskCompletionLabel = (task: ApprovalRequestTask) => {
+  switch (task.status) {
     case ApprovalRequestTaskStatus.Approved:
       return "Approved at";
     case ApprovalRequestTaskStatus.Rejected:
       return "Rejected at";
     case ApprovalRequestTaskStatus.Skipped:
       return "Skipped at";
+    case ApprovalRequestTaskStatus.Canceled:
+      return "Canceled at";
     default:
       return "Completed at";
   }
 };
 
 const getTaskCompletionTimestampType = (
-  status: ApprovalRequestTaskStatus,
+  task: ApprovalRequestTask,
 ): ApprovalRequestTimestampType => {
-  switch (status) {
+  switch (task.status) {
     case ApprovalRequestTaskStatus.Approved:
       return "approved";
     case ApprovalRequestTaskStatus.Rejected:
       return "rejected";
     case ApprovalRequestTaskStatus.Skipped:
       return "skipped";
+    case ApprovalRequestTaskStatus.Canceled:
+      return "canceled";
     default:
       return "completed";
   }
@@ -63,7 +67,8 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
         title={task.title}
         description={task.description}
         approvalRequestTaskId={task.id}
-        userFiles={task.userFiles}
+        requestFiles={task.requestFiles}
+        showFileStateIndicators={false}
       />
       <ApprovalRequestParticipantLine label={task.requestedByDisplayName} />
       <ApprovalRequestTimestampRow
@@ -76,8 +81,8 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
           completedAt
             ? {
               date: completedAt,
-              label: getTaskCompletionLabel(task.status),
-              type: getTaskCompletionTimestampType(task.status),
+              label: getTaskCompletionLabel(task),
+              type: getTaskCompletionTimestampType(task),
             }
             : null,
         ]}

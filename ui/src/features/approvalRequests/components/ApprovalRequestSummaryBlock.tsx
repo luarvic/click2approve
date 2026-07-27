@@ -23,6 +23,7 @@ const finalRequestStatuses = new Set<ApprovalRequestStatus>([
   ApprovalRequestStatus.Approved,
   ApprovalRequestStatus.Rejected,
   ApprovalRequestStatus.Canceled,
+  ApprovalRequestStatus.Superseded,
 ]);
 
 const parseStatusChangedDetails = (details: string) => {
@@ -59,6 +60,8 @@ const getFinalStatusLabel = (status: ApprovalRequestStatus) => {
       return "Rejected at";
     case ApprovalRequestStatus.Canceled:
       return "Canceled at";
+    case ApprovalRequestStatus.Superseded:
+      return "Superseded at";
     default:
       return "Completed at";
   }
@@ -74,6 +77,8 @@ const getFinalStatusTimestampType = (
       return "rejected";
     case ApprovalRequestStatus.Canceled:
       return "canceled";
+    case ApprovalRequestStatus.Superseded:
+      return "superseded";
     default:
       return "completed";
   }
@@ -94,7 +99,9 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
           title={approvalRequest.title}
           description={approvalRequest.description}
           approvalRequestId={approvalRequest.id}
-          userFiles={approvalRequest.userFiles}
+          requestFiles={approvalRequest.requestFiles}
+          revisionNumber={approvalRequest.revisionNumber}
+          compareFilesWithPrevious={(approvalRequest.revisionNumber ?? 1) > 1}
         />
         <ApprovalRequestParticipantLine label={approvalRequest.createdByDisplayName} />
         <ApprovalRequestTimestampRow

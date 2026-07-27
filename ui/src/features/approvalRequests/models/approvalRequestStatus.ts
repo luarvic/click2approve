@@ -5,4 +5,5 @@ export enum ApprovalRequestStatus {
   Rejected = 3,
   Canceled = 4,
   Started = 5,
+  Superseded = 6,
 }

@@ -8,20 +8,48 @@ import {
 import { ApprovalRequestTask } from "./approvalRequestTask";
 
 export interface ApprovalRequest extends ApprovalRequestListItem {
-  userFiles: UserFile[];
+  requestFiles: ApprovalRequestFile[];
   steps: ApprovalStep[];
   description?: string;
   createdByUserId: string;
   createdByEmail: string;
   createdByDisplayName: string;
+  previousRevisionApprovalRequestId?: number;
+  previousRevisionApprovalRequestTitle?: string;
+  nextRevisionApprovalRequestId?: number;
+  nextRevisionApprovalRequestTitle?: string;
   tasks: ApprovalRequestTask[];
   logEntries: ApprovalRequestLogEntry[];
   taskLogEntries: ApprovalRequestTaskLogEntry[];
 }
 
+export enum ApprovalRequestFileRevisionAction {
+  Unchanged = 0,
+  Added = 1,
+  Removed = 2,
+  Replaced = 3,
+}
+
+export interface ApprovalRequestFile {
+  id: number;
+  userFile: UserFile;
+  sequence: number;
+  revisionAction: ApprovalRequestFileRevisionAction;
+  previousApprovalRequestFileId?: number;
+  previousUserFile?: UserFile;
+}
+
+export interface ApprovalRequestFileSubmission {
+  userFileId: number;
+  sequence: number;
+  revisionAction: ApprovalRequestFileRevisionAction;
+  previousApprovalRequestFileId?: number;
+}
+
 export interface SubmitApprovalRequestRequest {
   title: string;
-  userFileIds: number[];
+  previousRevisionApprovalRequestId?: number;
+  requestFiles: ApprovalRequestFileSubmission[];
   steps: ApprovalStep[];
   description?: string;
 }

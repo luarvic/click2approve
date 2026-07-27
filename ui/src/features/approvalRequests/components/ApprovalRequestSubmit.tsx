@@ -1,6 +1,15 @@
 import { stores } from "@/app/rootStore";
-import { submitApprovalRequest } from "@/features/approvalRequests/api/approvalRequestsApi";
-import ApprovalRequestFilesList from "@/features/approvalRequests/components/ApprovalRequestFilesList";
+import {
+  resubmitApprovalRequest,
+  submitApprovalRequest,
+} from "@/features/approvalRequests/api/approvalRequestsApi";
+import ApprovalRequestFilesList, {
+  RevisionExistingFile,
+} from "@/features/approvalRequests/components/ApprovalRequestFilesList";
+import {
+  ApprovalRequestFileRevisionAction,
+  ApprovalRequestFileSubmission,
+} from "@/features/approvalRequests/models/approvalRequest";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
 import {
   ApprovalRecipientType,
@@ -15,7 +24,6 @@ import {
 } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
 import { uploadUserFiles } from "@/features/userFiles/api/userFilesApi";
-import { UserFile } from "@/features/userFiles/models/userFile";
 import { Dialogs, Files, Pages } from "@/shared/constants/constants";
 import {
   PersistenceSuccessMessages,
@@ -44,11 +52,14 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   onClose,
 }) => {
   const fileInput = useRef<HTMLInputElement>(null);
+  const replacementFileInput = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState("");
   const [newFiles, setNewFiles] = useState<File[]>([]);
-  const [existingFiles, setExistingFiles] = useState<UserFile[]>([]);
+  const [existingFiles, setExistingFiles] = useState<RevisionExistingFile[]>([]);
+  const [removedExistingFiles, setRemovedExistingFiles] = useState<RevisionExistingFile[]>([]);
   const [steps, setSteps] = useState<EditableApprovalStep[]>([]);
   const [description, setDescription] = useState("");
+  const [replacementFileIndex, setReplacementFileIndex] = useState<number | null>(null);
   const initialTemplateHasBeenApplied = useRef(false);
 
   const tenantId = stores.tenantStore.currentTenantId;
@@ -63,11 +74,25 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     stores.productStore.approvalStepTemplatesAreEnabled &&
     tenantId !== null;
   const requestToClone = stores.approvalRequestStore.requestToClone;
+  const isRevision = Boolean(
+    requestToClone && stores.productStore.approvalRequestRevisionsAreEnabled,
+  );
 
   useEffect(() => {
     if (requestToClone) {
       setTitle(requestToClone.title);
-      setExistingFiles(requestToClone.userFiles);
+      setExistingFiles(
+        (requestToClone.requestFiles?.length
+          ? requestToClone.requestFiles
+          : []
+        )
+          .filter((file) => file.revisionAction !== ApprovalRequestFileRevisionAction.Removed)
+          .map((file) => ({
+            file: file.userFile,
+            requestFileId: file.id,
+          })),
+      );
+      setRemovedExistingFiles([]);
       setSteps(createEditableSteps(requestToClone.steps));
       setDescription(requestToClone.description ?? "");
     }
@@ -115,12 +140,44 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     event.currentTarget.value = "";
   };
 
+  const handleReplacementFilesChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.currentTarget.files?.[0];
+    if (replacementFileIndex !== null && selectedFile) {
+      setExistingFiles((files) =>
+        files.map((file, index) =>
+          index === replacementFileIndex
+            ? { ...file, removed: false, replacement: selectedFile }
+            : file,
+        ),
+      );
+    }
+    setReplacementFileIndex(null);
+    event.currentTarget.value = "";
+  };
+
+  const removeExistingFile = (index: number) => {
+    const fileToRemove = existingFiles[index];
+    if (!fileToRemove) {
+      return;
+    }
+
+    setExistingFiles((files) => files.filter((_, i) => i !== index));
+    if (isRevision) {
+      setRemovedExistingFiles((files) => [
+        ...files,
+        { ...fileToRemove, removed: true, replacement: undefined },
+      ]);
+    }
+  };
+
   const cleanUp = () => {
     setTitle("");
     setNewFiles([]);
     setExistingFiles([]);
+    setRemovedExistingFiles([]);
     setSteps([]);
     setDescription("");
+    setReplacementFileIndex(null);
     stores.approvalRequestStore.setRequestToClone(null);
   };
 
@@ -248,19 +305,79 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       return;
     }
 
-    const uploadedFiles = await uploadUserFiles(tenantId, newFiles);
-    if (uploadedFiles.length !== newFiles.length) {
+    const replacementFiles = existingFiles
+      .map((file) => file.replacement)
+      .filter((file): file is File => Boolean(file));
+    const filesToUpload = [...replacementFiles, ...newFiles];
+    const uploadedFiles = await uploadUserFiles(tenantId, filesToUpload);
+    if (uploadedFiles.length !== filesToUpload.length) {
       toast.error("One or more files could not be uploaded.");
       return;
     }
 
-    const approvalRequestId = await submitApprovalRequest(
-      tenantId,
-      trimmedTitle,
-      [...existingFiles, ...uploadedFiles],
-      toApprovalStepSubmissions(steps),
-      description,
-    );
+    const uploadedReplacements = uploadedFiles.slice(0, replacementFiles.length);
+    const uploadedNewFiles = uploadedFiles.slice(replacementFiles.length);
+    let replacementIndex = 0;
+    const requestFiles: ApprovalRequestFileSubmission[] = [];
+
+    existingFiles.forEach((file, index) => {
+      if (file.replacement) {
+        const replacement = uploadedReplacements[replacementIndex++];
+        requestFiles.push({
+          userFileId: replacement.id,
+          sequence: index,
+          revisionAction: ApprovalRequestFileRevisionAction.Replaced,
+          previousApprovalRequestFileId: file.requestFileId,
+        });
+        return;
+      }
+
+      requestFiles.push({
+        userFileId: file.file.id,
+        sequence: index,
+        revisionAction: isRevision
+          ? ApprovalRequestFileRevisionAction.Unchanged
+          : ApprovalRequestFileRevisionAction.Added,
+        previousApprovalRequestFileId: file.requestFileId,
+      });
+    });
+
+    uploadedNewFiles.forEach((file, index) => {
+      requestFiles.push({
+        userFileId: file.id,
+        sequence: existingFiles.length + index,
+        revisionAction: isRevision
+          ? ApprovalRequestFileRevisionAction.Added
+          : ApprovalRequestFileRevisionAction.Unchanged,
+      });
+    });
+
+    removedExistingFiles.forEach((file, index) => {
+      requestFiles.push({
+        userFileId: file.file.id,
+        sequence: existingFiles.length + uploadedNewFiles.length + index,
+        revisionAction: ApprovalRequestFileRevisionAction.Removed,
+        previousApprovalRequestFileId: file.requestFileId,
+      });
+    });
+
+    const approvalRequestId = isRevision && requestToClone
+      ? await resubmitApprovalRequest(
+        tenantId,
+        requestToClone.id,
+        trimmedTitle,
+        toApprovalStepSubmissions(steps),
+        description,
+        requestFiles,
+      )
+      : await submitApprovalRequest(
+        tenantId,
+        trimmedTitle,
+        toApprovalStepSubmissions(steps),
+        description,
+        undefined,
+        requestFiles,
+      );
     if (approvalRequestId) {
       showPersistenceSuccessToast(
         PersistenceSuccessMessages.approvalRequestSubmitted,
@@ -280,7 +397,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   return (
     <>
       <Typography component="h1" variant="h5" sx={Pages.titleSx}>
-        {requestToClone ? "Clone approval request" : "New approval request"}
+        {isRevision ? "Resubmit approval request" : "New approval request"}
       </Typography>
       <Box component="form" onSubmit={handleSubmit}>
         <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
@@ -296,12 +413,23 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
           <ApprovalRequestFilesList
             existingFiles={existingFiles}
             newFiles={newFiles}
-            onRemoveExisting={(index) =>
-              setExistingFiles((files) => files.filter((_, i) => i !== index))
-            }
+            onRemoveExisting={removeExistingFile}
             onRemoveNew={(index) =>
               setNewFiles((files) => files.filter((_, i) => i !== index))
             }
+            onRemoveReplacement={(index) =>
+              setExistingFiles((files) =>
+                files.map((file, i) =>
+                  i === index ? { ...file, replacement: undefined } : file,
+                ),
+              )
+            }
+            onReplaceExisting={isRevision
+              ? (index) => {
+                setReplacementFileIndex(index);
+                replacementFileInput.current?.click();
+              }
+              : undefined}
           />
           <Box sx={Dialogs.bottomSpacingSx}>
             <Button startIcon={<AttachFile />} onClick={handleUploadClick}>
@@ -312,6 +440,12 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
               multiple
               onChange={handleFilesChange}
               ref={fileInput}
+              style={Files.inputStyle}
+            />
+            <input
+              type="file"
+              onChange={handleReplacementFilesChange}
+              ref={replacementFileInput}
               style={Files.inputStyle}
             />
           </Box>

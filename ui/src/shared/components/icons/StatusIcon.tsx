@@ -3,7 +3,7 @@ import {
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { Icons } from "@/shared/constants/constants";
-import { Check, Close, Loop, QuestionMark } from "@mui/icons-material";
+import { Check, Close, Loop, QuestionMark, Replay } from "@mui/icons-material";
 import { Tooltip } from "@mui/material";
 import React from "react";
 
@@ -20,8 +20,11 @@ const StatusIcon: React.FC<StatusIconProps> = ({ status }) => {
       case ApprovalRequestStatus.Approved:
         return <Check sx={Icons.verticalAlignSx} color="success" />;
       case ApprovalRequestStatus.Rejected:
-      case ApprovalRequestStatus.Canceled:
         return <Close sx={Icons.verticalAlignSx} color="error" />;
+      case ApprovalRequestStatus.Canceled:
+        return <Close sx={Icons.verticalAlignSx} color="warning" />;
+      case ApprovalRequestStatus.Superseded:
+        return <Replay sx={Icons.verticalAlignSx} color="warning" />;
       default:
         return <QuestionMark sx={Icons.verticalAlignSx} color="disabled" />;
     }

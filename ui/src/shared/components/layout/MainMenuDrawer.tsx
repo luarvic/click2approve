@@ -83,6 +83,12 @@ const MainMenuDrawer = () => {
       return;
     }
 
+    if (!isDesktop) {
+      stores.commonStore.setMainMenuDrawerIsOpen(false);
+      initializedDesktopDrawer.current = false;
+      return;
+    }
+
     if (isDesktop && !initializedDesktopDrawer.current) {
       stores.commonStore.setMainMenuDrawerIsOpen(true);
       initializedDesktopDrawer.current = true;

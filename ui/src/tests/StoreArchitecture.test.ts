@@ -52,13 +52,14 @@ const employee = (id: number, tenantId: number): Employee => ({
 const approvalRequest = (id: number): ApprovalRequest => ({
   id,
   title: `Request ${id}`,
-  userFiles: [],
+  requestFiles: [],
   steps: [],
   createdAt: "2026-01-01T00:00:00",
   createdAtDate: new Date(),
   createdByUserId: "user-id",
   createdByEmail: "user@example.com",
   createdByDisplayName: "user@example.com",
+  revisionNumber: 1,
   status: ApprovalRequestStatus.Pending,
   tasks: [],
   logEntries: [],
@@ -81,7 +82,7 @@ const approvalRequestTask = (
   status,
   createdAt: "2026-01-01T00:00:00",
   createdAtDate: new Date(),
-  userFiles: [],
+  requestFiles: [],
   logEntries: [],
 });
 

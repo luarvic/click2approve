@@ -1,5 +1,6 @@
+import { ApprovalRequestFile } from "@/features/approvalRequests/models/approvalRequest";
 import ApprovalRequestFilesBox from "@/features/approvalRequests/components/ApprovalRequestFilesBox";
-import { UserFile } from "@/features/userFiles/models/userFile";
+import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
 import { StackSpacing } from "@/shared/constants/constants";
 import type { SxProps } from "@mui/material";
 import { Stack, Typography } from "@mui/material";
@@ -10,7 +11,10 @@ interface ApprovalRequestSummaryProps {
   approvalRequestTaskId?: number;
   description?: string;
   title: string;
-  userFiles?: UserFile[];
+  requestFiles?: ApprovalRequestFile[];
+  revisionNumber?: number;
+  compareFilesWithPrevious?: boolean;
+  showFileStateIndicators?: boolean;
 }
 
 const summaryTitleSx: SxProps<Theme> = {
@@ -27,19 +31,29 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   approvalRequestTaskId,
   description,
   title,
-  userFiles,
+  requestFiles,
+  revisionNumber,
+  compareFilesWithPrevious = false,
+  showFileStateIndicators = true,
 }) => {
   const trimmedDescription = description?.trim();
 
   return (
     <Stack spacing={StackSpacing.default}>
-      <Typography
-        component="h2"
-        variant="h6"
-        sx={summaryTitleSx}
+      <Stack
+        direction="row"
+        spacing={StackSpacing.tight}
+        alignItems="center"
       >
-        {title}
-      </Typography>
+        <Typography
+          component="h2"
+          variant="h6"
+          sx={summaryTitleSx}
+        >
+          {title}
+        </Typography>
+        <ApprovalRequestRevisionChip revisionNumber={revisionNumber} />
+      </Stack>
       {trimmedDescription && (
         <Typography
           variant="body1"
@@ -49,9 +63,11 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
         </Typography>
       )}
       <ApprovalRequestFilesBox
-        userFiles={userFiles}
+        requestFiles={requestFiles}
         approvalRequestId={approvalRequestId}
         approvalRequestTaskId={approvalRequestTaskId}
+        compareWithPrevious={compareFilesWithPrevious}
+        showFileStateIndicators={showFileStateIndicators}
       />
     </Stack>
   );

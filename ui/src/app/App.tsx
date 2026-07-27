@@ -120,6 +120,7 @@ const App = () => {
                     <Route path="outbox" element={<OutboxPage />} />
                     <Route path="outbox/new" element={<ApprovalRequestStartPage />} />
                     <Route path="outbox/new/compose" element={<ApprovalRequestSubmitPage />} />
+                    <Route path="outbox/:approvalRequestId/resubmit" element={<ApprovalRequestSubmitPage />} />
                     <Route path="outbox/:approvalRequestId" element={<ApprovalRequestViewPage />} />
                     <Route element={<RouteGuard isAllowed={canViewTemplates} />}>
                       <Route path="approvalStepTemplates" element={<ApprovalStepTemplatesPage />} />

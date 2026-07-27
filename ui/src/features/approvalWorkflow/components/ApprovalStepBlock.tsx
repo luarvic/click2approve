@@ -79,10 +79,14 @@ const teamTaskListSx: SxProps<Theme> = {
   pl: 3,
 };
 
-const getStepStatus = (step: ApprovalStep, tasks: ApprovalRequestTask[]) => {
+const getStepStatus = (
+  step: ApprovalStep,
+  tasks: ApprovalRequestTask[],
+) => {
   if (tasks.length === 0) {
     return "Not started";
   }
+
   if (step.mode === ApprovalStepMode.All) {
     if (tasks.some((task) => task.status === ApprovalRequestTaskStatus.Rejected)) {
       return "Rejected";
@@ -101,32 +105,41 @@ const getStepStatus = (step: ApprovalStep, tasks: ApprovalRequestTask[]) => {
   if (tasks.every((task) => task.status === ApprovalRequestTaskStatus.Skipped)) {
     return "Skipped";
   }
+  if (tasks.every((task) => task.status === ApprovalRequestTaskStatus.Canceled)) {
+    return "Canceled";
+  }
   return "Pending";
 };
 
-const getTaskCompletionLabel = (status: ApprovalRequestTaskStatus) => {
-  switch (status) {
+const getTaskCompletionLabel = (
+  task: ApprovalRequestTask,
+) => {
+  switch (task.status) {
     case ApprovalRequestTaskStatus.Approved:
       return "Approved at";
     case ApprovalRequestTaskStatus.Rejected:
       return "Rejected at";
     case ApprovalRequestTaskStatus.Skipped:
       return "Skipped at";
+    case ApprovalRequestTaskStatus.Canceled:
+      return "Canceled at";
     default:
       return "Completed at";
   }
 };
 
 const getTaskCompletionTimestampType = (
-  status: ApprovalRequestTaskStatus,
+  task: ApprovalRequestTask,
 ): ApprovalRequestTimestampType => {
-  switch (status) {
+  switch (task.status) {
     case ApprovalRequestTaskStatus.Approved:
       return "approved";
     case ApprovalRequestTaskStatus.Rejected:
       return "rejected";
     case ApprovalRequestTaskStatus.Skipped:
       return "skipped";
+    case ApprovalRequestTaskStatus.Canceled:
+      return "canceled";
     default:
       return "completed";
   }
@@ -138,13 +151,22 @@ const getStepStatusLineColor = (status: string): ApprovalStatusLineColor => {
       return "approved";
     case "Rejected":
       return "changeRequested";
+    case "Canceled":
+    case "Skipped":
+      return "canceled";
     default:
       return "other";
   }
 };
 
-const getStepStatusLabel = (status: string) =>
-  status === "Rejected" ? "Change requested" : status;
+const getStepStatusLabel = (status: string) => {
+  switch (status) {
+    case "Rejected":
+      return "Change requested";
+    default:
+      return status;
+  }
+};
 
 const getApproverLabel = (approver: ApprovalStep["approvers"][number]) =>
   approver.displayName;
@@ -237,8 +259,8 @@ const renderTaskDetails = (
           completedAt
             ? {
               date: completedAt,
-              label: getTaskCompletionLabel(task.status),
-              type: getTaskCompletionTimestampType(task.status),
+              label: getTaskCompletionLabel(task),
+              type: getTaskCompletionTimestampType(task),
             }
             : null,
         ]}

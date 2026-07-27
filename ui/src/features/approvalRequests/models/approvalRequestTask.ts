@@ -1,5 +1,5 @@
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
-import { UserFile } from "@/features/userFiles/models/userFile";
+import { ApprovalRequestFile } from "./approvalRequest";
 import { ApprovalRequestTaskLogEntry } from "./approvalRequestLogEntry";
 import { ApprovalRequestTaskListItem } from "./approvalRequestTaskListItem";
 
@@ -15,6 +15,6 @@ export interface ApprovalRequestTask extends ApprovalRequestTaskListItem {
   canViewRequest: boolean;
   description?: string;
   comment?: string;
-  userFiles: UserFile[];
+  requestFiles: ApprovalRequestFile[];
   logEntries: ApprovalRequestTaskLogEntry[];
 }

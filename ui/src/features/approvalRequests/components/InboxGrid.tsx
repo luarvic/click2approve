@@ -9,7 +9,7 @@ import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { getHumanReadableRelativeDate } from "@/shared/utils/helpers";
-import { Box, LinearProgress } from "@mui/material";
+import { Box, LinearProgress, Stack, Typography } from "@mui/material";
 import { DataGrid, GridColDef, GridSlots } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
@@ -41,6 +41,11 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskId }) => {
       field: "title",
       headerName: "Title",
       flex: DataGrids.approvalColumnFlex.content,
+      renderCell: (params) => (
+        <Stack sx={DataGrids.approvalTitleCellSx}>
+          <Typography variant="body2">{params.row.title}</Typography>
+        </Stack>
+      ),
       valueGetter: (_value, row) => row.title,
     },
     {
