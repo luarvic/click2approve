@@ -5,11 +5,15 @@ namespace Click2Approve.Application.Models.DTOs;
 /// </summary>
 public class ApprovalRequestDto : ApprovalRequestListItemDto
 {
-    public required List<UserFileDto> UserFiles { get; init; }
+    public required List<ApprovalRequestFileDto> RequestFiles { get; init; }
     public required List<ApprovalRequestStepDto> Steps { get; init; }
     public string? Description { get; init; }
     public required string CreatedByUserId { get; init; }
     public required string CreatedByEmail { get; init; }
+    public long? PreviousRevisionApprovalRequestId { get; init; }
+    public string? PreviousRevisionApprovalRequestTitle { get; init; }
+    public long? NextRevisionApprovalRequestId { get; init; }
+    public string? NextRevisionApprovalRequestTitle { get; init; }
     public required List<ApprovalRequestTaskDto> Tasks { get; init; }
     public required List<ApprovalRequestLogEntryDto> LogEntries { get; init; }
     public required List<ApprovalRequestTaskLogEntryDto> TaskLogEntries { get; init; }

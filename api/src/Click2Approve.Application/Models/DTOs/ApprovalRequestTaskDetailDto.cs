@@ -14,9 +14,9 @@ public class ApprovalRequestTaskDetailDto : ApprovalRequestTaskDto
     [SetsRequiredMembers]
     public ApprovalRequestTaskDetailDto(ApprovalRequestTaskDto source) : base(source)
     {
-        UserFiles = [];
+        RequestFiles = [];
     }
 
-    public required List<UserFileDto> UserFiles { get; init; }
+    public required List<ApprovalRequestFileDto> RequestFiles { get; init; }
     public ApprovalRequestDto? ApprovalRequest { get; init; }
 }

@@ -42,7 +42,8 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.ApprovalRequests
-            .Where(r => r.TenantId == tenantId && r.UserFiles.Any(f => f.Id == userFileId))
+            .Where(r => r.TenantId == tenantId
+                && r.RequestFiles.Any(file => file.UserFileId == userFileId))
             .ToListAsync(cancellationToken);
     }
 
@@ -65,7 +66,8 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
     }
 
     protected static IQueryable<ApprovalRequest> IncludeDetails(IQueryable<ApprovalRequest> requests) => requests
-        .Include(request => request.UserFiles)
+        .Include(request => request.RequestFiles)
+            .ThenInclude(file => file.UserFile)
         .Include(request => request.LogEntries)
         .Include(request => request.Tasks)
             .ThenInclude(task => task.LogEntries)

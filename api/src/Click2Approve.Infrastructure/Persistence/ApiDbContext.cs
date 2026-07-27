@@ -11,6 +11,7 @@ namespace Click2Approve.Infrastructure.Persistence;
 public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>(options), IUnitOfWork
 {
     public DbSet<ApprovalRequest> ApprovalRequests { get; set; }
+    public DbSet<ApprovalRequestFile> ApprovalRequestFiles { get; set; }
     public DbSet<ApprovalRequestLogEntry> ApprovalRequestLogEntries { get; set; }
     public DbSet<ApprovalRequestStep> ApprovalRequestSteps { get; set; }
     public DbSet<ApprovalRequestStepApprover> ApprovalRequestStepApprovers { get; set; }
@@ -72,6 +73,10 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasConversion<int>();
 
         modelBuilder.Entity<ApprovalRequest>()
+            .Property(r => r.RevisionNumber)
+            .HasDefaultValue(1);
+
+        modelBuilder.Entity<ApprovalRequest>()
             .Property(r => r.Title)
             .HasMaxLength(255);
 
@@ -87,6 +92,10 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasIndex(r => new { r.TenantId, r.CreatedByUserId, r.CreatedAt });
 
         modelBuilder.Entity<ApprovalRequest>()
+            .HasIndex(r => r.PreviousRevisionApprovalRequestId)
+            .IsUnique();
+
+        modelBuilder.Entity<ApprovalRequest>()
             .HasOne(r => r.CreatedByUser)
             .WithMany()
             .HasForeignKey(r => r.CreatedByUserId)
@@ -97,6 +106,37 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .WithMany(t => t.ApprovalRequests)
             .HasForeignKey(r => r.TenantId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ApprovalRequest>()
+            .HasOne(r => r.PreviousRevisionApprovalRequest)
+            .WithOne(r => r.NextRevisionApprovalRequest)
+            .HasForeignKey<ApprovalRequest>(r => r.PreviousRevisionApprovalRequestId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequestFile>()
+            .Property(file => file.RevisionAction)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<ApprovalRequestFile>()
+            .HasIndex(file => new { file.ApprovalRequestId, file.Sequence });
+
+        modelBuilder.Entity<ApprovalRequestFile>()
+            .HasOne(file => file.ApprovalRequest)
+            .WithMany(request => request.RequestFiles)
+            .HasForeignKey(file => file.ApprovalRequestId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ApprovalRequestFile>()
+            .HasOne(file => file.UserFile)
+            .WithMany(userFile => userFile.ApprovalRequestFiles)
+            .HasForeignKey(file => file.UserFileId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequestFile>()
+            .HasOne(file => file.PreviousApprovalRequestFile)
+            .WithMany()
+            .HasForeignKey(file => file.PreviousApprovalRequestFileId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestLogEntry>()
             .Property(e => e.ActorType)

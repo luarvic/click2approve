@@ -28,8 +28,9 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.UserFiles
-            .Include(f => f.ApprovalRequests)
-            .ThenInclude(r => r.Tasks)
+            .Include(f => f.ApprovalRequestFiles)
+                .ThenInclude(requestFile => requestFile.ApprovalRequest)
+                    .ThenInclude(request => request.Tasks)
             .FirstAsync(f => f.TenantId == tenantId && f.Id == id && f.OwnerId == user.Id, cancellationToken);
     }
 
@@ -39,9 +40,9 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
         return await Db.UserFiles
             .Include(file => file.Owner)
             .FirstAsync(file => file.Id == id
-                && file.ApprovalRequests.Any(request => request.Id == approvalRequestId
-                    && request.TenantId == tenantId
-                    && request.CreatedByUserId == user.Id), cancellationToken);
+                && file.ApprovalRequestFiles.Any(requestFile => requestFile.ApprovalRequestId == approvalRequestId
+                        && requestFile.ApprovalRequest.TenantId == tenantId
+                        && requestFile.ApprovalRequest.CreatedByUserId == user.Id), cancellationToken);
     }
 
     public virtual async Task<UserFile> GetForApprovalRequestTaskDownloadAsync(AppUser user, long id, long approvalRequestTaskId, CancellationToken cancellationToken)
@@ -50,9 +51,9 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
         return await Db.UserFiles
             .Include(file => file.Owner)
             .FirstAsync(file => file.Id == id
-                && file.ApprovalRequests.Any(request => request.Tasks.Any(task => task.Id == approvalRequestTaskId
-                    && task.TenantId == tenantId
-                    && task.ApproverUserId == user.Id)), cancellationToken);
+                && file.ApprovalRequestFiles.Any(requestFile => requestFile.ApprovalRequest.Tasks.Any(task => task.Id == approvalRequestTaskId
+                        && task.TenantId == tenantId
+                        && task.ApproverUserId == user.Id)), cancellationToken);
     }
 
     public async Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken)

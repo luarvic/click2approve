@@ -45,7 +45,11 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var response = await client.PostAsJsonAsync($"api/v1/tenants/{requesterTenantId}/requests", new ApprovalRequestSubmitDto
         {
             Title = "Cycle-safe request",
-            UserFileIds = userFiles.Select(file => file.Id).ToList(),
+            RequestFiles = [.. userFiles.Select((file, index) => new ApprovalRequestFileSubmitDto
+            {
+                UserFileId = file.Id,
+                Sequence = index
+            })],
             Steps =
             [
                 new ApprovalRequestStepSubmitDto
@@ -91,8 +95,8 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         Assert.NotNull(task);
         Assert.Equal(requester.Email, task.RequestedByDisplayName);
         Assert.Null(task.ApprovalRequest);
-        Assert.Collection(task.UserFiles,
-            file => Assert.Equal("request.txt", file.Name));
+        Assert.Collection(task.RequestFiles,
+            file => Assert.Equal("request.txt", file.UserFile.Name));
     }
 
     [Fact]
@@ -114,7 +118,11 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         {
             Title = "Original task title",
             Description = "Original task description",
-            UserFileIds = userFiles.Select(file => file.Id).ToList(),
+            RequestFiles = [.. userFiles.Select((file, index) => new ApprovalRequestFileSubmitDto
+            {
+                UserFileId = file.Id,
+                Sequence = index
+            })],
             Steps =
             [
                 new ApprovalRequestStepSubmitDto

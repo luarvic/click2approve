@@ -147,7 +147,14 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
         var payload = new ApprovalRequestSubmitDto
         {
             Title = "File access approval",
-            UserFileIds = [taskFile.Id],
+            RequestFiles =
+            [
+                new ApprovalRequestFileSubmitDto
+                {
+                    UserFileId = taskFile.Id,
+                    Sequence = 0
+                }
+            ],
             Steps =
             [
                 new ApprovalRequestStepSubmitDto
@@ -171,10 +178,17 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
         await _client.SubmitApprovalRequestAsync(requesterLoginData.AccessToken, payload, CancellationToken.None);
 
         var approvalRequest = _db.ApprovalRequests
-            .Include(request => request.UserFiles)
+            .Include(request => request.RequestFiles)
             .Include(request => request.Tasks)
-            .Single(request => request.UserFiles.Any(file => file.Id == taskFile.Id));
-        approvalRequest.UserFiles.Add(laterRequestFile);
+            .Single(request => request.RequestFiles.Any(file => file.UserFileId == taskFile.Id));
+        approvalRequest.RequestFiles.Add(new ApprovalRequestFile
+        {
+            ApprovalRequest = approvalRequest,
+            UserFile = laterRequestFile,
+            UserFileId = laterRequestFile.Id,
+            Sequence = 2,
+            RevisionAction = ApprovalRequestFileRevisionAction.Unchanged
+        });
         await _db.SaveChangesAsync();
 
         await _client.DownloadApprovalRequestBase64Async(
@@ -201,7 +215,7 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
         await Assert.ThrowsAsync<Exception>(() =>
             _client.DownloadBase64Async(approverLoginData.AccessToken, laterRequestFile.Id, CancellationToken.None));
 
-        var approvalRequestFileIds = approvalRequest.UserFiles.Select(file => file.Id).ToHashSet();
+        var approvalRequestFileIds = approvalRequest.RequestFiles.Select(file => file.UserFileId).ToHashSet();
         foreach (var testDataEntry in testData)
         {
             var loginData = await _client.LogInAsync(testDataEntry.Credentials, CancellationToken.None);

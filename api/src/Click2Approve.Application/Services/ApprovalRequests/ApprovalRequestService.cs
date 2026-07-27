@@ -57,10 +57,19 @@ public class ApprovalRequestService(
 
         await CheckLimitations(user, payload, cancellationToken);
 
-        var userFiles = await _userFileRepository.ListAsync(user, payload.UserFileIds, cancellationToken);
-        if (userFiles.Count == 0)
+        var userFileIds = payload.RequestFiles
+            .Select(file => file.UserFileId)
+            .Distinct()
+            .ToList();
+        if (userFileIds.Count == 0)
         {
             throw new BusinessRuleException("Add one or more files.");
+        }
+
+        var userFiles = await _userFileRepository.ListAsync(user, userFileIds, cancellationToken);
+        if (userFiles.Count != userFileIds.Count)
+        {
+            throw new BusinessRuleException("One or more files could not be found.");
         }
 
         var now = DateTime.UtcNow;
@@ -71,7 +80,7 @@ public class ApprovalRequestService(
         var newApprovalRequest = await _approvalRequestRepository.AddAsync(new ApprovalRequest
         {
             Title = title,
-            UserFiles = userFiles,
+            RequestFiles = [.. BuildRequestFiles(payload.RequestFiles, userFiles)],
             Steps = steps,
             CreatedAt = now,
             Description = payload.Description,
@@ -84,6 +93,10 @@ public class ApprovalRequestService(
             CreatedByDisplayName = actor.DisplayName,
             Tasks = []
         }, cancellationToken);
+        foreach (var requestFile in newApprovalRequest.RequestFiles)
+        {
+            requestFile.ApprovalRequest = newApprovalRequest;
+        }
 
         var approverResolutions = await ResolveApproversAsync(newApprovalRequest, cancellationToken);
         AddRequestSubmittedLog(newApprovalRequest, actor, now);
@@ -101,7 +114,7 @@ public class ApprovalRequestService(
     public async Task CancelApprovalRequestAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
         var approvalRequest = await _approvalRequestRepository.GetForUpdateAsync(user, id, cancellationToken);
-        if (approvalRequest.Status is ApprovalRequestStatus.Approved or ApprovalRequestStatus.Rejected or ApprovalRequestStatus.Canceled)
+        if (approvalRequest.Status is not (ApprovalRequestStatus.Pending or ApprovalRequestStatus.Started))
         {
             throw new BusinessRuleException("The approval request cannot be cancelled.");
         }
@@ -218,7 +231,7 @@ public class ApprovalRequestService(
                     reviewedHeadingTemplate,
                     string.Format(reviewedMessageTemplate,
                         user.Email!.ToLower(),
-                        string.Join(", ", approvalRequestTask.ApprovalRequest.UserFiles.Select(f => f.Name))),
+                        GetActiveFileNames(approvalRequestTask.ApprovalRequest)),
                     reviewedLink,
                     reviewedLinkText)
             }, cancellationToken);
@@ -277,7 +290,8 @@ public class ApprovalRequestService(
         Title = approvalRequest.Title,
         Status = approvalRequest.Status,
         CreatedAt = approvalRequest.CreatedAt,
-        CreatedByDisplayName = approvalRequest.CreatedByDisplayName
+        CreatedByDisplayName = approvalRequest.CreatedByDisplayName,
+        RevisionNumber = approvalRequest.RevisionNumber
     };
 
     private static ApprovalRequestTaskListItemDto MapListItem(ApprovalRequestTask task) => new()
@@ -295,7 +309,7 @@ public class ApprovalRequestService(
         {
             Id = approvalRequest.Id,
             Title = approvalRequest.Title,
-            UserFiles = [.. approvalRequest.UserFiles.Select(MapResponse)],
+            RequestFiles = [.. OrderRequestFiles(approvalRequest).Select(MapResponse)],
             Steps = [.. approvalRequest.Steps.Select(step => MapResponse(step, approvalRequest.CreatedByDisplayName))],
             Description = approvalRequest.Description,
             CreatedAt = approvalRequest.CreatedAt,
@@ -303,6 +317,7 @@ public class ApprovalRequestService(
             CreatedByEmail = approvalRequest.CreatedByEmail,
             CreatedByDisplayName = approvalRequest.CreatedByDisplayName,
             Status = approvalRequest.Status,
+            RevisionNumber = approvalRequest.RevisionNumber,
             Tasks = [.. approvalRequest.Tasks.Select(task => MapResponse(task, approvalRequest.CreatedByDisplayName))],
             LogEntries = [.. approvalRequest.LogEntries.Select(MapResponse)],
             TaskLogEntries = [.. approvalRequest.Tasks.SelectMany(task => task.LogEntries).Select(MapResponse)]
@@ -320,7 +335,7 @@ public class ApprovalRequestService(
         {
             Id = approvalRequest.Id,
             Title = approvalRequest.Title,
-            UserFiles = [.. approvalRequest.UserFiles.Select(MapResponse)],
+            RequestFiles = [.. OrderRequestFiles(approvalRequest).Select(MapResponse)],
             Steps = [.. approvalRequest.Steps.Select(step => MapResponse(step, approvalRequest.CreatedByDisplayName))],
             Description = approvalRequest.Description,
             CreatedAt = approvalRequest.CreatedAt,
@@ -328,6 +343,7 @@ public class ApprovalRequestService(
             CreatedByEmail = approvalRequest.CreatedByEmail,
             CreatedByDisplayName = approvalRequest.CreatedByDisplayName,
             Status = approvalRequest.Status,
+            RevisionNumber = approvalRequest.RevisionNumber,
             Tasks = [.. tasks.Select(task => MapResponse(task, approvalRequest.CreatedByDisplayName))],
             LogEntries = [.. approvalRequest.LogEntries.Select(MapResponse)],
             TaskLogEntries = [.. tasks.SelectMany(task => task.LogEntries).Select(MapResponse)]
@@ -390,7 +406,7 @@ public class ApprovalRequestService(
         ApprovalRequestTask task,
         ApprovalRequest? approvalRequest) => new(MapResponse(task))
     {
-        UserFiles = [.. task.ApprovalRequest.UserFiles.Select(MapResponse)],
+        RequestFiles = [.. OrderRequestFiles(task.ApprovalRequest).Select(MapResponse)],
         ApprovalRequest = approvalRequest is not null ? MapTaskRequestResponse(approvalRequest) : null
     };
 
@@ -437,6 +453,48 @@ public class ApprovalRequestService(
             Size = userFile.Size
         };
     }
+
+    private static ApprovalRequestFileDto MapResponse(ApprovalRequestFile requestFile)
+    {
+        return new ApprovalRequestFileDto
+        {
+            Id = requestFile.Id,
+            UserFile = MapResponse(requestFile.UserFile),
+            Sequence = requestFile.Sequence,
+            RevisionAction = requestFile.RevisionAction,
+            PreviousApprovalRequestFileId = requestFile.PreviousApprovalRequestFileId,
+            PreviousUserFile = requestFile.PreviousApprovalRequestFile is null
+                ? null
+                : MapResponse(requestFile.PreviousApprovalRequestFile.UserFile)
+        };
+    }
+
+    private static IEnumerable<ApprovalRequestFile> OrderRequestFiles(ApprovalRequest approvalRequest) =>
+        approvalRequest.RequestFiles.OrderBy(file => file.Sequence);
+
+    private static IEnumerable<ApprovalRequestFile> BuildRequestFiles(
+        IEnumerable<ApprovalRequestFileSubmitDto> submittedFiles,
+        IEnumerable<UserFile> userFiles)
+    {
+        var userFilesById = userFiles.ToDictionary(file => file.Id);
+        return submittedFiles
+            .OrderBy(file => file.Sequence)
+            .Select((file, index) =>
+            {
+                var userFile = userFilesById[file.UserFileId];
+                return new ApprovalRequestFile
+                {
+                    UserFile = userFile,
+                    UserFileId = userFile.Id,
+                    Sequence = index,
+                    ApprovalRequest = null!
+                };
+            });
+    }
+
+    private static string GetActiveFileNames(ApprovalRequest approvalRequest) =>
+        string.Join(", ", OrderRequestFiles(approvalRequest)
+            .Select(file => file.UserFile.Name));
 
     private static List<ApprovalRequestStep> BuildSteps(List<ApprovalRequestStepSubmitDto> stepDtos)
     {
@@ -691,7 +749,7 @@ public class ApprovalRequestService(
                     template.Heading,
                     string.Format(template.Message,
                         approvalRequest.CreatedByEmail.ToLower(),
-                        string.Join(", ", approvalRequest.UserFiles.Select(f => f.Name))),
+                        GetActiveFileNames(approvalRequest)),
                     link,
                     template.LinkText)
             }, cancellationToken);

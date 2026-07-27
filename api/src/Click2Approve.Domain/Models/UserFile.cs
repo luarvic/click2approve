@@ -13,5 +13,5 @@ public class UserFile : DbEntity
     public long TenantId { get; set; }
     public Tenant? Tenant { get; set; }
     public required long Size { get; set; }
-    public List<ApprovalRequest> ApprovalRequests { get; set; } = [];
+    public List<ApprovalRequestFile> ApprovalRequestFiles { get; set; } = [];
 }

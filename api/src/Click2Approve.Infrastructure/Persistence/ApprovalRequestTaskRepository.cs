@@ -57,7 +57,8 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
             .AsNoTracking()
             .Include(task => task.LogEntries)
             .Include(task => task.ApprovalRequest)
-                .ThenInclude(request => request.UserFiles)
+                .ThenInclude(request => request.RequestFiles)
+                    .ThenInclude(file => file.UserFile)
             .FirstAsync(task => task.Id == id
                 && task.ApproverUserId == user.Id
                 && task.TenantId == tenantId,
@@ -69,7 +70,8 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.ApprovalRequests
             .AsNoTracking()
-            .Include(request => request.UserFiles)
+            .Include(request => request.RequestFiles)
+                .ThenInclude(file => file.UserFile)
             .Include(request => request.LogEntries)
             .Include(request => request.Steps)
                 .ThenInclude(step => step.Approvers)
@@ -88,7 +90,8 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.ApprovalRequestTasks
             .Include(t => t.ApprovalRequest)
-                .ThenInclude(r => r.UserFiles)
+                .ThenInclude(r => r.RequestFiles)
+                    .ThenInclude(file => file.UserFile)
             .Include(t => t.LogEntries)
             .Include(t => t.ApprovalRequest.Tasks)
                 .ThenInclude(task => task.LogEntries)
