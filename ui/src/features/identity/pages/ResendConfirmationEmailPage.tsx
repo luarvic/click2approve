@@ -1,4 +1,5 @@
 import { stores } from "@/app/rootStore";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { AuthForms, Information } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { validateEmail } from "@/shared/utils/validators";
@@ -9,7 +10,6 @@ import {
   Grid,
   Link,
   TextField,
-  Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
@@ -48,9 +48,7 @@ const ResendConfirmationEmailPage = () => {
   return (
     <Container component="main" maxWidth={AuthForms.maxWidth}>
       <Box sx={AuthForms.containerSx}>
-        <Typography component="h1" variant="h5">
-          Email confirmation
-        </Typography>
+        <PageBreadcrumbs items={[{ label: "Email confirmation" }]} />
         <Box component="form" onSubmit={handleSubmit} noValidate>
           <TextField
             margin="normal"

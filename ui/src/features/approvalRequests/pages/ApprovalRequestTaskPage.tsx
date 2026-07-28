@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 
 const ApprovalRequestTaskPage = () => {
-  usePageTitle("Inbox request");
+  usePageTitle("Task");
   const navigate = useNavigate();
   const { taskId } = useParams<{ taskId: string }>();
   const parsedTaskId = Number(taskId);

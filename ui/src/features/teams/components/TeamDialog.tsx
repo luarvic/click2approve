@@ -1,14 +1,15 @@
+import { stores } from "@/app/rootStore";
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import { Team, UpsertTeamRequest } from "@/features/teams/models/team";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
-import { Dialogs, Pages } from "@/shared/constants/constants";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { Dialogs, Routes } from "@/shared/constants/constants";
 import {
   Autocomplete,
   Button,
   Chip,
   Stack,
   TextField,
-  Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -38,6 +39,8 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
   const [nameTouched, setNameTouched] = useState(false);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const isNew = team === null;
+  const tenantId = stores.tenantStore.currentTenantId;
+  const teamsPath = tenantId ? Routes.tenantPath(tenantId, "/teams") : "/";
   const activeEmployees = employees.filter(
     (employee) => employee.status === EmployeeStatus.Active,
   );
@@ -70,9 +73,16 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
 
   return (
     <>
-      <Typography component="h1" variant="h5" sx={Pages.titleSx}>
-        {isNew ? "New team" : "Team"}
-      </Typography>
+      <PageBreadcrumbs
+        items={[
+          {
+            label: "Teams",
+            state: team ? { currentTeamId: team.id } : undefined,
+            to: teamsPath,
+          },
+          { label: isNew ? "New team" : "Team" },
+        ]}
+      />
       <Stack spacing={Dialogs.formStackSpacing}>
         <TextField
           label="Name"

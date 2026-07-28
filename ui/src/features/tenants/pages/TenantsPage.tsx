@@ -1,7 +1,6 @@
 import TenantsGrid from "@/features/tenants/components/TenantsGrid";
-import { Pages } from "@/shared/constants/constants";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
-import { Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
 
@@ -15,9 +14,7 @@ const TenantsPage = () => {
   const { currentTenantId } = (location.state as TenantsLocationState | null) ?? {};
   return (
     <>
-      <Typography component="h1" variant="h5" sx={Pages.titleSx}>
-        Organizations
-      </Typography>
+      <PageBreadcrumbs items={[{ label: "Organizations" }]} />
       <TenantsGrid currentTenantId={currentTenantId} />
     </>
   );

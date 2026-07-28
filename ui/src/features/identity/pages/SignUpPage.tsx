@@ -1,5 +1,6 @@
 import { stores } from "@/app/rootStore";
 import { Credentials } from "@/features/identity/models/credentials";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import {
   AuthForms,
   Information,
@@ -22,7 +23,6 @@ import {
   Link,
   OutlinedInput,
   TextField,
-  Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
@@ -101,9 +101,7 @@ const SignUpPage = () => {
   return (
     <Container component="main" maxWidth={AuthForms.maxWidth}>
       <Box sx={AuthForms.containerSx}>
-        <Typography component="h1" variant="h5">
-          Sign up
-        </Typography>
+        <PageBreadcrumbs items={[{ label: "Sign up" }]} />
         <Box component="form" onSubmit={handleSubmit} noValidate>
           <TextField
             margin="normal"

@@ -38,7 +38,7 @@ const ProfileDrawer = () => {
       >
         <List
           subheader={
-            <ListSubheader component="div" sx={Lists.sectionHeaderSx}>
+            <ListSubheader component="div">
               Profile
             </ListSubheader>
           }

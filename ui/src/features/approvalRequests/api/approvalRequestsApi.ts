@@ -1,6 +1,7 @@
 import {
   ApprovalRequest,
   ApprovalRequestFileSubmission,
+  ResubmitApprovalRequestRequest,
   SubmitApprovalRequestRequest,
 } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestListItem } from "@/features/approvalRequests/models/approvalRequestListItem";
@@ -39,15 +40,12 @@ export const submitApprovalRequest = async (
 export const resubmitApprovalRequest = async (
   tenantId: number,
   id: number,
-  title: string,
   steps: ApprovalStep[],
   description: string | undefined,
   requestFiles: ApprovalRequestFileSubmission[],
 ): Promise<number | null> => {
   try {
-    const payload: SubmitApprovalRequestRequest = {
-      title,
-      previousRevisionApprovalRequestId: id,
+    const payload: ResubmitApprovalRequestRequest = {
       requestFiles,
       steps,
       description,

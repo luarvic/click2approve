@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 
 const ApprovalRequestViewPage = () => {
-  usePageTitle("Approval request");
+  usePageTitle("Request");
   const navigate = useNavigate();
   const { approvalRequestId } = useParams<{ approvalRequestId: string }>();
   const parsedApprovalRequestId = Number(approvalRequestId);

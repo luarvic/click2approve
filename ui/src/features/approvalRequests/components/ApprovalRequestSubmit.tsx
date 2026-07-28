@@ -24,7 +24,8 @@ import {
 } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
 import { uploadUserFiles } from "@/features/userFiles/api/userFilesApi";
-import { Dialogs, Files, Pages } from "@/shared/constants/constants";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { Dialogs, Files, Routes } from "@/shared/constants/constants";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessToast,
@@ -36,7 +37,6 @@ import {
   Button,
   Stack,
   TextField,
-  Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
@@ -63,6 +63,10 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   const initialTemplateHasBeenApplied = useRef(false);
 
   const tenantId = stores.tenantStore.currentTenantId;
+  const outboxPath = tenantId ? Routes.tenantPath(tenantId, "/outbox") : "/";
+  const newRequestPath = tenantId
+    ? Routes.tenantPath(tenantId, "/outbox/new")
+    : "/";
   const businessTenantIsSelected =
     stores.tenantStore.currentTenant?.type === TenantType.Business;
   const canUseEmployees =
@@ -365,7 +369,6 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       ? await resubmitApprovalRequest(
         tenantId,
         requestToClone.id,
-        trimmedTitle,
         toApprovalStepSubmissions(steps),
         description,
         requestFiles,
@@ -396,9 +399,19 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
 
   return (
     <>
-      <Typography component="h1" variant="h5" sx={Pages.titleSx}>
-        {isRevision ? "Resubmit approval request" : "New approval request"}
-      </Typography>
+      <PageBreadcrumbs
+        items={[
+          {
+            label: "Outbox",
+            state: requestToClone ? { currentApprovalRequestId: requestToClone.id } : undefined,
+            to: outboxPath,
+          },
+          ...(isRevision
+            ? []
+            : [{ label: "New request", to: newRequestPath }]),
+          { label: isRevision ? "Resubmit approval request" : "New approval request" },
+        ]}
+      />
       <Box component="form" onSubmit={handleSubmit}>
         <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
           <TextField
@@ -408,6 +421,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
             label="Title"
             required
             value={title}
+            disabled={isRevision}
             onChange={(event) => setTitle(event.target.value)}
           />
           <ApprovalRequestFilesList

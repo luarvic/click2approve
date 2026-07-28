@@ -53,3 +53,9 @@ export interface SubmitApprovalRequestRequest {
   steps: ApprovalStep[];
   description?: string;
 }
+
+export interface ResubmitApprovalRequestRequest {
+  requestFiles: ApprovalRequestFileSubmission[];
+  steps: ApprovalStep[];
+  description?: string;
+}

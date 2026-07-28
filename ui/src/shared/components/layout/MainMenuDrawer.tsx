@@ -4,7 +4,6 @@ import { Api, Lists, Refresh, Routes, Shell } from "@/shared/constants/constants
 import {
   Business,
   ChevronLeft,
-  Create,
   Description,
   Diversity3,
   Groups,
@@ -12,10 +11,10 @@ import {
   Inbox,
   Outbox,
   Person,
+  PlaylistAdd,
 } from "@mui/icons-material";
 import {
   Box,
-  Button,
   Divider,
   Drawer,
   IconButton,
@@ -26,6 +25,7 @@ import {
   ListItemText,
   ListSubheader,
   Toolbar,
+  Tooltip,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -135,27 +135,27 @@ const MainMenuDrawer = () => {
       </Toolbar>
       <Divider />
       <List
+        sx={Shell.mainMenuDrawerFirstListSx}
         subheader={
-          <ListSubheader component="div" sx={Lists.sectionHeaderSx}>
-            Approval Requests
+          <ListSubheader component="div" sx={Lists.actionSubheaderSx}>
+            <span>Requests</span>
+            <Tooltip title="Compose approval request">
+              <IconButton
+                aria-label="Compose approval request"
+                color="primary"
+                edge="end"
+                size="small"
+                onClick={() => {
+                  navigate(`${outboxPath}/new`);
+                  closeTemporaryDrawer();
+                }}
+              >
+                <PlaylistAdd fontSize="medium" />
+              </IconButton>
+            </Tooltip>
           </ListSubheader>
         }
       >
-        <Box sx={Shell.drawerComposeActionContainerSx}>
-          <Button
-            fullWidth
-            variant="outlined"
-            size="large"
-            startIcon={<Create />}
-            onClick={() => {
-              navigate(`${outboxPath}/new`);
-              closeTemporaryDrawer();
-            }}
-            sx={Shell.drawerComposeButtonSx}
-          >
-            Compose
-          </Button>
-        </Box>
         <ListItem key="incoming" disablePadding>
           <ListItemButton
             selected={inboxIsSelected}
@@ -212,7 +212,7 @@ const MainMenuDrawer = () => {
       </List>
       <List
         subheader={
-          <ListSubheader component="div" sx={Lists.sectionHeaderSx}>
+          <ListSubheader component="div">
             Access
           </ListSubheader>
         }
@@ -284,7 +284,7 @@ const MainMenuDrawer = () => {
       </List>
       <List
         subheader={
-          <ListSubheader component="div" sx={Lists.sectionHeaderSx}>
+          <ListSubheader component="div">
             Docs
           </ListSubheader>
         }

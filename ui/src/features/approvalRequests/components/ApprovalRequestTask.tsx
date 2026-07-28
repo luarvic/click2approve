@@ -8,7 +8,8 @@ import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/compone
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { normalizeApprovalRequestDates } from "@/features/approvalRequests/utils/approvalRequestDateNormalizers";
-import { Dialogs, Pages } from "@/shared/constants/constants";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { Dialogs, Routes } from "@/shared/constants/constants";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessToast,
@@ -24,7 +25,6 @@ import {
   Tab,
   Tabs,
   TextField,
-  Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
@@ -39,6 +39,8 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
   const [comment, setComment] = useState("");
   const [approvalRequest, setApprovalRequest] = useState<ApprovalRequest | null>(null);
   const [selectedTab, setSelectedTab] = useState("task");
+  const tenantId = stores.tenantStore.currentTenantId;
+  const inboxPath = tenantId ? Routes.tenantPath(tenantId, "/inbox") : "/";
   const currentTask = stores.approvalRequestTaskStore.currentTask;
   const canViewRequest = currentTask?.canViewRequest === true;
   const isCompleted = Boolean(currentTask && currentTask.status !== ApprovalRequestTaskStatus.Pending);
@@ -68,7 +70,6 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
     }
 
     const load = async () => {
-      const tenantId = stores.tenantStore.currentTenantId;
       if (!tenantId) {
         return;
       }
@@ -83,7 +84,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
     return () => {
       active = false;
     };
-  }, [approvalRequest, canViewRequest, currentTask?.approvalRequestId, selectedTab]);
+  }, [approvalRequest, canViewRequest, currentTask?.approvalRequestId, selectedTab, tenantId]);
 
   const cleanUp = () => {
     setDecisionError(false);
@@ -127,14 +128,21 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
 
   return (
     <>
-      <Typography component="h1" variant="h5" sx={Pages.titleSx}>
-        Approval request task
-      </Typography>
+      <PageBreadcrumbs
+        items={[
+          {
+            label: "Inbox",
+            state: currentTask ? { currentTaskId: currentTask.id } : undefined,
+            to: inboxPath,
+          },
+          { label: "Task" },
+        ]}
+      />
       {canViewRequest && (
         <Tabs
           value={selectedTab}
           onChange={(_, value: string) => setSelectedTab(value)}
-          aria-label="Approval request task sections"
+          aria-label="Task sections"
         >
           <Tab label="Task" value="task" />
           <Tab label="Request" value="request" />

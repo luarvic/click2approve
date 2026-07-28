@@ -1,12 +1,12 @@
 import TenantLogoPicker from "@/features/tenants/components/TenantLogoPicker";
 import { CreateTenantRequest, Tenant, UpdateTenantRequest } from "@/features/tenants/models/tenant";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
-import { Dialogs, Pages } from "@/shared/constants/constants";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { Dialogs } from "@/shared/constants/constants";
 import {
   Button,
   Stack,
   TextField,
-  Typography,
 } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 
@@ -103,9 +103,16 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
 
   return (
     <>
-      <Typography component="h1" variant="h5" sx={Pages.titleSx}>
-        {isNew ? "New organization" : "Organization"}
-      </Typography>
+      <PageBreadcrumbs
+        items={[
+          {
+            label: "Organizations",
+            state: tenant ? { currentTenantId: tenant.id } : undefined,
+            to: "/tenants",
+          },
+          { label: isNew ? "New organization" : "Organization" },
+        ]}
+      />
       <Stack spacing={Dialogs.formStackSpacing}>
         <TenantLogoPicker
           logoUrl={logoWasRemoved ? undefined : tenant?.logo}

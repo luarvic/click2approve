@@ -1,5 +1,6 @@
 import { stores } from "@/app/rootStore";
 import { Credentials } from "@/features/identity/models/credentials";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { AuthForms, Routes, Validation } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { validatePassword } from "@/shared/utils/validators";
@@ -16,7 +17,6 @@ import {
   InputLabel,
   Link,
   OutlinedInput,
-  Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
@@ -98,9 +98,7 @@ const ResetPasswordPage = () => {
   return (
     <Container component="main" maxWidth={AuthForms.maxWidth}>
       <Box sx={AuthForms.containerSx}>
-        <Typography component="h1" variant="h5">
-          Reset password
-        </Typography>
+        <PageBreadcrumbs items={[{ label: "Reset password" }]} />
         <Box
           component="form"
           onSubmit={handleSubmit}

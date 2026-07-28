@@ -1,7 +1,6 @@
 import TeamsGrid from "@/features/teams/components/TeamsGrid";
-import { Pages } from "@/shared/constants/constants";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
-import { Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
 
@@ -15,9 +14,7 @@ const TeamsPage = () => {
   const { currentTeamId } = (location.state as TeamsLocationState | null) ?? {};
   return (
     <>
-      <Typography component="h1" variant="h5" sx={Pages.titleSx}>
-        Teams
-      </Typography>
+      <PageBreadcrumbs items={[{ label: "Teams" }]} />
       <TeamsGrid currentTeamId={currentTeamId} />
     </>
   );

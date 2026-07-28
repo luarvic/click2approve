@@ -1,5 +1,6 @@
 import { stores } from "@/app/rootStore";
 import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { AuthForms, Dialogs, Files, Flex, Pages, StackSpacing } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
@@ -169,9 +170,7 @@ const UserProfilePage = () => {
 
   return (
     <Box sx={Pages.userProfileContainerSx}>
-      <Typography component="h1" variant="h5">
-        User profile
-      </Typography>
+      <PageBreadcrumbs items={[{ label: "User profile" }]} />
       <Stack component="form" noValidate spacing={StackSpacing.loose} sx={AuthForms.formSx}>
         <Tabs
           value={selectedTab}

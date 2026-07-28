@@ -1,7 +1,8 @@
 import { stores } from "@/app/rootStore";
 import { TenantType } from "@/features/tenants/models/tenant";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
-import { Dialogs, Pages, Routes } from "@/shared/constants/constants";
+import { Dialogs, Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import type { SxProps } from "@mui/material";
 import {
@@ -13,7 +14,6 @@ import {
   RadioGroup,
   Stack,
   TextField,
-  Typography,
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import { observer } from "mobx-react-lite";
@@ -31,6 +31,7 @@ const ApprovalRequestStartPage = () => {
   const composePath = tenantId
     ? Routes.tenantPath(tenantId, "/outbox/new/compose")
     : "/";
+  const outboxPath = tenantId ? Routes.tenantPath(tenantId, "/outbox") : "/";
   const tenantScopeIsReady = stores.tenantStore.hasLoaded;
   const canUseTemplates =
     stores.tenantStore.currentTenant?.type === TenantType.Business &&
@@ -74,9 +75,12 @@ const ApprovalRequestStartPage = () => {
 
   return (
     <>
-      <Typography component="h1" variant="h5" sx={Pages.titleSx}>
-        Start a new approval request
-      </Typography>
+      <PageBreadcrumbs
+        items={[
+          { label: "Outbox", to: outboxPath },
+          { label: "New request" },
+        ]}
+      />
       <Stack component="form" onSubmit={handleSubmit} spacing={Dialogs.formStackSpacing}>
         <FormControl>
           <RadioGroup

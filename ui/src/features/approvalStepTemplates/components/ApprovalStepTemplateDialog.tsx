@@ -14,13 +14,14 @@ import {
 } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
-import { Dialogs, Pages } from "@/shared/constants/constants";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { Dialogs, Routes } from "@/shared/constants/constants";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessToast,
 } from "@/shared/utils/toasts";
 import { validateEmails } from "@/shared/utils/validators";
-import { Button, Stack, TextField, Typography } from "@mui/material";
+import { Button, Stack, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -41,6 +42,9 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
     createEmptyStep(1),
   ]);
   const tenantId = stores.tenantStore.currentTenantId;
+  const templatesPath = tenantId
+    ? Routes.tenantPath(tenantId, "/approvalStepTemplates")
+    : "/";
   const businessTenantIsSelected =
     stores.tenantStore.currentTenant?.type === TenantType.Business;
   const canUseEmployees =
@@ -179,9 +183,16 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
 
   return (
     <>
-      <Typography component="h1" variant="h5" sx={Pages.titleSx}>
-        {template ? "Template" : "New template"}
-      </Typography>
+      <PageBreadcrumbs
+        items={[
+          {
+            label: "Templates",
+            state: template ? { currentTemplateId: template.id } : undefined,
+            to: templatesPath,
+          },
+          { label: template ? "Template" : "New template" },
+        ]}
+      />
       <Stack spacing={Dialogs.formStackSpacing}>
         <TextField
           label="Name"

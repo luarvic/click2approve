@@ -23,6 +23,7 @@ import { EmployeeRole, TenantType } from "@/features/tenants/models/tenant";
 import TenantEditorPage from "@/features/tenants/pages/TenantEditorPage";
 import TenantsPage from "@/features/tenants/pages/TenantsPage";
 import MainLayout from "@/layouts/MainLayout";
+import PublicLayout from "@/layouts/PublicLayout";
 import TenantScopeLayout from "@/layouts/TenantScopeLayout";
 import WrapperLayout from "@/layouts/WrapperLayout";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
@@ -82,19 +83,21 @@ const App = () => {
           }}
         >
           <Routes>
-            <Route element={<WrapperLayout />}>
-              <Route element={<AnonymousRoute />}>
-                <Route path="/signIn" element={<SignInPage />} />
-                <Route path="/signUp" element={<SignUpPage />} />
-                <Route path="/forgotPassword" element={<ForgotPasswordPage />} />
-                <Route
-                  path="/resendConfirmationEmail"
-                  element={<ResendConfirmationEmailPage />}
-                />
-                <Route path="/resetPassword" element={<ResetPasswordPage />} />
+            <Route element={<PublicLayout />}>
+              <Route element={<WrapperLayout />}>
+                <Route element={<AnonymousRoute />}>
+                  <Route path="/signIn" element={<SignInPage />} />
+                  <Route path="/signUp" element={<SignUpPage />} />
+                  <Route path="/forgotPassword" element={<ForgotPasswordPage />} />
+                  <Route
+                    path="/resendConfirmationEmail"
+                    element={<ResendConfirmationEmailPage />}
+                  />
+                  <Route path="/resetPassword" element={<ResetPasswordPage />} />
+                </Route>
+                <Route path="/confirmEmail" element={<ConfirmEmailPage />} />
+                <Route path="/information" element={<InformationPage />} />
               </Route>
-              <Route path="/confirmEmail" element={<ConfirmEmailPage />} />
-              <Route path="/information" element={<InformationPage />} />
             </Route>
             <Route element={<RouteGuard />}>
               <Route element={<MainLayout />}>

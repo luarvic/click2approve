@@ -1,8 +1,8 @@
 import { stores } from "@/app/rootStore";
 import InboxGrid from "@/features/approvalRequests/components/InboxGrid";
-import { Pages } from "@/shared/constants/constants";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
 
@@ -22,9 +22,7 @@ const InboxPage = () => {
   const { currentTaskId } = (location.state as InboxLocationState | null) ?? {};
   return (
     <Box>
-      <Typography component="h1" variant="h5" sx={Pages.titleSx}>
-        Inbox
-      </Typography>
+      <PageBreadcrumbs items={[{ label: "Inbox" }]} />
       <InboxGrid currentTaskId={currentTaskId} />
     </Box>
   );

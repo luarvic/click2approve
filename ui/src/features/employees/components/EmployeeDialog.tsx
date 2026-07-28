@@ -1,3 +1,4 @@
+import { stores } from "@/app/rootStore";
 import {
   CreateEmployeeRequest,
   Employee,
@@ -6,7 +7,8 @@ import {
 import { Team } from "@/features/teams/models/team";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
-import { Dialogs, Pages, Validation } from "@/shared/constants/constants";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { Dialogs, Routes, Validation } from "@/shared/constants/constants";
 import {
   Autocomplete,
   Button,
@@ -17,7 +19,6 @@ import {
   Select,
   Stack,
   TextField,
-  Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -59,6 +60,10 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
   const [emailTouched, setEmailTouched] = useState(false);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const isNew = employee === null;
+  const tenantId = stores.tenantStore.currentTenantId;
+  const employeesPath = tenantId
+    ? Routes.tenantPath(tenantId, "/employees")
+    : "/";
   const emailHasError =
     isNew && emailTouched && !Validation.emailRegex.test(email);
 
@@ -102,9 +107,16 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
 
   return (
     <>
-      <Typography component="h1" variant="h5" sx={Pages.titleSx}>
-        {isNew ? "New employee" : "Employee"}
-      </Typography>
+      <PageBreadcrumbs
+        items={[
+          {
+            label: "Employees",
+            state: employee ? { currentEmployeeId: employee.id } : undefined,
+            to: employeesPath,
+          },
+          { label: isNew ? "New employee" : "Employee" },
+        ]}
+      />
       <Stack spacing={Dialogs.formStackSpacing}>
         <TextField
           label="Email"

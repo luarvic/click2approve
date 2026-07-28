@@ -1,3 +1,4 @@
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Pages } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { Box, Container, Typography } from "@mui/material";
@@ -24,9 +25,7 @@ const InformationPage = ({ message, title }: InformationPageProps) => {
   return (
     <Container component="main" maxWidth={Pages.centeredMessageMaxWidth}>
       <Box sx={Pages.centeredMessageContainerSx}>
-        <Typography component="h1" variant="h5" sx={Pages.titleSx}>
-          {pageTitle}
-        </Typography>
+        <PageBreadcrumbs items={[{ label: pageTitle }]} />
         <Typography>{pageMessage}</Typography>
       </Box>
     </Container>

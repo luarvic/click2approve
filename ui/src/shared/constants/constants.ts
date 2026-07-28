@@ -74,6 +74,18 @@ export const GridToolbar = {
 export const Pages = {
   containerSx: { p: 2 } as SxProps<Theme>,
   titleSx: { mb: 2 } as SxProps<Theme>,
+  breadcrumbCurrentSx: {
+    color: "text.primary",
+    fontWeight: 600,
+  } as SxProps<Theme>,
+  breadcrumbLinkSx: {
+    color: "text.secondary",
+    textDecoration: "none",
+    "&:hover": {
+      color: "text.primary",
+      textDecoration: "underline",
+    },
+  } as SxProps<Theme>,
   userProfileContainerSx: {
     display: "flex",
     flexDirection: "column",
@@ -209,14 +221,10 @@ export const Lists = {
   } as SxProps<Theme>,
   itemSpacing: 1,
   itemIconSx: { minWidth: 35 } as SxProps<Theme>,
-  sectionHeaderSx: {
-    bgcolor: "transparent",
-    color: "text.secondary",
-    fontWeight: 600,
-    lineHeight: 1,
-    px: 2,
-    pt: 2,
-    pb: 1,
+  actionSubheaderSx: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
   } as SxProps<Theme>,
 } as const;
 
@@ -327,8 +335,8 @@ export const Shell = {
     height: 36,
     mr: 0.5,
   } as SxProps<Theme>,
-  appBarBrandTitleSx: (isUnauthenticated: boolean): SxProps<Theme> => ({
-    display: isUnauthenticated ? "block" : { xs: "none", sm: "block" },
+  appBarBrandTitleSx: (isAlwaysVisible: boolean = false): SxProps<Theme> => ({
+    display: isAlwaysVisible ? "block" : { xs: "none", sm: "block" },
     color: "inherit",
     overflow: "hidden",
     textDecoration: "none",
@@ -375,6 +383,9 @@ export const Shell = {
     minHeight: appBarHeight,
     px: 1,
   } as SxProps<Theme>,
+  mainMenuDrawerFirstListSx: {
+    pt: 0,
+  } as SxProps<Theme>,
   drawerPaperSx: {
     "& .MuiDrawer-paper": {
       boxSizing: "border-box",
@@ -393,24 +404,6 @@ export const Shell = {
       ...this.drawerPaperSx,
     };
   },
-  drawerComposeActionContainerSx: {
-    px: 2,
-  } as SxProps<Theme>,
-  drawerComposeButtonSx: {
-    justifyContent: "center",
-    border: 1,
-    borderColor: "primary.main",
-    borderRadius: 1,
-    my: 1,
-    bgcolor: "transparent",
-    px: 2,
-    py: 1.25,
-    "&:hover": {
-      border: 1,
-      borderColor: "primary.main",
-      bgcolor: "transparent",
-    },
-  } as SxProps<Theme>,
   profileDrawerContentSx: { minWidth: 280 } as SxProps<Theme>,
 } as const;
 

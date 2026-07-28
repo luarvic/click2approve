@@ -1,7 +1,6 @@
 import DelegationsGrid from "@/features/delegations/components/DelegationsGrid";
-import { Pages } from "@/shared/constants/constants";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
-import { Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
 
@@ -17,9 +16,7 @@ const DelegationsPage = () => {
 
   return (
     <>
-      <Typography component="h1" variant="h5" sx={Pages.titleSx}>
-        Delegations
-      </Typography>
+      <PageBreadcrumbs items={[{ label: "Delegations" }]} />
       <DelegationsGrid currentDelegationId={currentDelegationId} />
     </>
   );

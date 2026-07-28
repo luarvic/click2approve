@@ -1,7 +1,6 @@
 import ApprovalStepTemplatesGrid from "@/features/approvalStepTemplates/components/ApprovalStepTemplatesGrid";
-import { Pages } from "@/shared/constants/constants";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
-import { Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
 
@@ -16,9 +15,7 @@ const ApprovalStepTemplatesPage = () => {
     (location.state as ApprovalStepTemplatesLocationState | null) ?? {};
   return (
     <>
-      <Typography component="h1" variant="h5" sx={Pages.titleSx}>
-        Templates
-      </Typography>
+      <PageBreadcrumbs items={[{ label: "Templates" }]} />
       <ApprovalStepTemplatesGrid currentTemplateId={currentTemplateId} />
     </>
   );

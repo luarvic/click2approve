@@ -2,14 +2,14 @@ import { stores } from "@/app/rootStore";
 import ApprovalRequestDetails from "@/features/approvalRequests/components/ApprovalRequestDetails";
 import ApprovalRequestLog from "@/features/approvalRequests/components/ApprovalRequestLog";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
-import { Dialogs, Pages, Routes } from "@/shared/constants/constants";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { Dialogs, Routes } from "@/shared/constants/constants";
 import { Replay } from "@mui/icons-material";
 import {
   Button,
   Stack,
   Tab,
   Tabs,
-  Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
@@ -30,6 +30,8 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
 }) => {
   const navigate = useNavigate();
   const approvalRequest = stores.approvalRequestStore.currentApprovalRequest;
+  const tenantId = stores.tenantStore.currentTenantId;
+  const outboxPath = tenantId ? Routes.tenantPath(tenantId, "/outbox") : "/";
   const [selectedTab, setSelectedTab] = useState("request");
   const canResubmit = Boolean(
     approvalRequest &&
@@ -51,7 +53,6 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
       return;
     }
 
-    const tenantId = stores.tenantStore.currentTenantId;
     navigate(
       tenantId
         ? Routes.tenantPath(tenantId, `/outbox/${approvalRequest.id}/resubmit`)
@@ -61,13 +62,20 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
 
   return (
     <>
-      <Typography component="h1" variant="h5" sx={Pages.titleSx}>
-        Approval request
-      </Typography>
+      <PageBreadcrumbs
+        items={[
+          {
+            label: "Outbox",
+            state: approvalRequest ? { currentApprovalRequestId: approvalRequest.id } : undefined,
+            to: outboxPath,
+          },
+          { label: "Request" },
+        ]}
+      />
       <Tabs
         value={selectedTab}
         onChange={(_, value: string) => setSelectedTab(value)}
-        aria-label="Approval request sections"
+        aria-label="Request sections"
       >
         <Tab label="Request" value="request" />
         <Tab label="Log" value="log" />

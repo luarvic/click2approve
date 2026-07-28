@@ -1,3 +1,4 @@
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Pages, Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { Box, Button, Container, Typography } from "@mui/material";
@@ -33,9 +34,12 @@ const NotFoundPage = () => {
           alt="Click2Approve"
           sx={notFoundLogoSx}
         />
-        <Typography component="h1" variant="h5" sx={Pages.titleSx}>
-          Page not found
-        </Typography>
+        <PageBreadcrumbs
+          items={[
+            { label: "Home", to: Routes.defaultPath },
+            { label: "Page not found" },
+          ]}
+        />
         <Typography sx={notFoundMessageSx}>
           Sorry, but the page you are looking for has not been found.
         </Typography>

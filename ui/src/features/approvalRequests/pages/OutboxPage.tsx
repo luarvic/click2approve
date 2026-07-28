@@ -1,7 +1,7 @@
 import OutboxGrid from "@/features/approvalRequests/components/OutboxGrid";
-import { Pages } from "@/shared/constants/constants";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
 
@@ -15,9 +15,7 @@ const OutboxPage = () => {
   const { currentApprovalRequestId } = (location.state as OutboxLocationState | null) ?? {};
   return (
     <Box>
-      <Typography component="h1" variant="h5" sx={Pages.titleSx}>
-        Outbox
-      </Typography>
+      <PageBreadcrumbs items={[{ label: "Outbox" }]} />
       <OutboxGrid currentApprovalRequestId={currentApprovalRequestId} />
     </Box>
   );

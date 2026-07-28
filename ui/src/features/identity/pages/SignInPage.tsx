@@ -1,5 +1,6 @@
 import { stores } from "@/app/rootStore";
 import { Credentials } from "@/features/identity/models/credentials";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { AuthForms, Routes, Text } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { validateEmail } from "@/shared/utils/validators";
@@ -17,7 +18,6 @@ import {
   Link,
   OutlinedInput,
   TextField,
-  Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
@@ -68,9 +68,7 @@ const SignInPage = () => {
   return (
     <Container component="main" maxWidth={AuthForms.maxWidth}>
       <Box sx={AuthForms.containerSx}>
-        <Typography component="h1" variant="h5">
-          Sign in
-        </Typography>
+        <PageBreadcrumbs items={[{ label: "Sign in" }]} />
         <Box component="form" onSubmit={handleSubmit} noValidate>
           <TextField
             margin="normal"

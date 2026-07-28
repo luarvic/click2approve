@@ -31,7 +31,10 @@ describe("<App />", () => {
     const heading = await screen.findByRole("heading", { level: 1 });
     expect(heading.textContent).toBe("Sign in");
     expect(
-      screen.queryByRole("heading", { level: 6, name: "Click2Approve" }),
-    ).toBeNull();
+      screen.getByRole("button", { name: "Click2Approve home" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("heading", { level: 6, name: "Click2Approve" }),
+    ).toBeTruthy();
   });
 });

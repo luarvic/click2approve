@@ -1,16 +1,17 @@
+import { stores } from "@/app/rootStore";
 import {
   ApprovalDelegation,
   ApprovalDelegationUpsert,
 } from "@/features/delegations/models/approvalDelegation";
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
-import { Dialogs, Pages } from "@/shared/constants/constants";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { Dialogs, Routes } from "@/shared/constants/constants";
 import {
   Button,
   MenuItem,
   Stack,
   TextField,
-  Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -47,6 +48,10 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const isNew = delegation === null;
+  const tenantId = stores.tenantStore.currentTenantId;
+  const delegationsPath = tenantId
+    ? Routes.tenantPath(tenantId, "/delegations")
+    : "/";
   const selectableEmployees = employees.filter(
     (employee) =>
       employee.status === EmployeeStatus.Active ||
@@ -105,9 +110,16 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
 
   return (
     <>
-      <Typography component="h1" variant="h5" sx={Pages.titleSx}>
-        {isNew ? "New delegation" : "Delegation"}
-      </Typography>
+      <PageBreadcrumbs
+        items={[
+          {
+            label: "Delegations",
+            state: delegation ? { currentDelegationId: delegation.id } : undefined,
+            to: delegationsPath,
+          },
+          { label: isNew ? "New delegation" : "Delegation" },
+        ]}
+      />
       <Stack spacing={Dialogs.formStackSpacing}>
         <TextField
           select
