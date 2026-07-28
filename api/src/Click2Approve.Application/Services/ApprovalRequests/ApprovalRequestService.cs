@@ -26,10 +26,17 @@ public class ApprovalRequestService(
     ITenantContext tenantContext,
     IConfiguration configuration) : IApprovalRequestService
 {
-    private readonly IApprovalRequestRepository _approvalRequestRepository = approvalRequestRepository;
+    protected readonly IApprovalRequestRepository _approvalRequestRepository = approvalRequestRepository;
+    protected readonly IUnitOfWork _unitOfWork = unitOfWork;
+    protected static readonly ApprovalLogActor SystemActor = new(
+        Type: ApprovalLogActorType.System,
+        UserId: null,
+        EmployeeId: null,
+        Email: "system",
+        DisplayName: "System");
+
     private readonly IApprovalRequestTaskRepository _approvalRequestTaskRepository = approvalRequestTaskRepository;
     private readonly IUserFileRepository _userFileRepository = userFileRepository;
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IEmailService _emailService = emailService;
     private readonly IUserNotificationPreferenceService _notificationPreferenceService = notificationPreferenceService;
     private readonly IApprovalRecipientResolver _approvalRecipientResolver = approvalRecipientResolver;
@@ -37,12 +44,6 @@ public class ApprovalRequestService(
     private readonly ITenantContext _tenantContext = tenantContext;
     private readonly IConfiguration _configuration = configuration;
     private static readonly JsonSerializerOptions LogDetailsJsonOptions = new(JsonSerializerDefaults.Web);
-    private static readonly ApprovalLogActor SystemActor = new(
-        Type: ApprovalLogActorType.System,
-        UserId: null,
-        EmployeeId: null,
-        Email: "system",
-        DisplayName: "System");
 
     /// <summary>
     /// Creates a new approval request.
@@ -801,7 +802,7 @@ public class ApprovalRequestService(
             new ApprovalRequestSubmittedDetails(approvalRequest.Status));
     }
 
-    private static void AddRequestStatusLog(
+    protected static void AddRequestStatusLog(
         ApprovalRequest approvalRequest,
         DateTime timestamp,
         ApprovalRequestStatus? previousStatus,
@@ -826,7 +827,7 @@ public class ApprovalRequestService(
             new ApprovalRequestTaskSubmittedDetails(task.Status));
     }
 
-    private static void AddTaskStatusLog(
+    protected static void AddTaskStatusLog(
         ApprovalRequestTask task,
         ApprovalLogActor actor,
         DateTime timestamp,
