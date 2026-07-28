@@ -12,6 +12,6 @@ public class ApprovalRequestStepApprover : DbEntity
     public long? EmployeeId { get; set; }
     public long? TeamId { get; set; }
     public string? ApproverDisplayName { get; set; }
-    public required bool CanViewRequest { get; set; }
     public List<ApprovalRequestTask> Tasks { get; set; } = [];
+    public List<ApprovalRequestStepVisibility> StepVisibilities { get; set; } = [];
 }

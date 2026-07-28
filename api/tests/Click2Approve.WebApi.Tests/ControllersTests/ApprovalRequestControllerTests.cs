@@ -61,10 +61,32 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                         new ApprovalRequestApproverSubmitDto
                         {
                             Type = ApprovalRecipientType.Email,
-                            Email = approver.Email,
-                            CanViewRequest = false
+                            Email = approver.Email
                         }
                     ]
+                },
+                new ApprovalRequestStepSubmitDto
+                {
+                    Sequence = 2,
+                    Mode = ApprovalStepMode.All,
+                    Approvers =
+                    [
+                        new ApprovalRequestApproverSubmitDto
+                        {
+                            Type = ApprovalRecipientType.Email,
+                            Email = $"later-{Guid.NewGuid()}@example.com"
+                        }
+                    ]
+                }
+            ],
+            StepVisibility =
+            [
+                new ApprovalRequestStepVisibilitySubmitDto
+                {
+                    StepSequence = 2,
+                    ApproverStepSequence = 1,
+                    ApproverIndex = 0,
+                    IsVisible = false
                 }
             ]
         });
@@ -77,7 +99,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
             Assert.Single(approvalRequests).Id,
             CancellationToken.None);
         Assert.Single(approvalRequest.Tasks);
-        Assert.Single(Assert.Single(approvalRequest.Steps).Tasks);
+        Assert.Single(approvalRequest.Steps.Single(step => step.Sequence == 1).Tasks);
 
         var approverClient = _applicationFactory.CreateClient();
         var approverLogin = await approverClient.LogInAsync(approver, CancellationToken.None);
@@ -86,15 +108,51 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var taskResponse = await approverClient.GetAsync($"api/v1/tenants/{approverTenantId}/tasks/{Assert.Single(approvalRequest.Tasks).Id}");
         Assert.True(taskResponse.IsSuccessStatusCode, await taskResponse.Content.ReadAsStringAsync());
         var taskJson = await taskResponse.Content.ReadAsStringAsync();
-        Assert.DoesNotContain("\"approvalRequest\":{", taskJson);
-        Assert.DoesNotContain("\"steps\"", taskJson);
-        Assert.DoesNotContain("\"createdByEmail\"", taskJson);
-        Assert.DoesNotContain("\"taskLogEntries\"", taskJson);
+        Assert.Contains("\"approvalRequest\":{", taskJson);
+        Assert.Contains("\"steps\"", taskJson);
+        Assert.Contains("\"createdByEmail\"", taskJson);
+        Assert.Contains("\"taskLogEntries\"", taskJson);
 
         var task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
         Assert.NotNull(task);
         Assert.Equal(requester.Email, task.RequestedByDisplayName);
-        Assert.Null(task.ApprovalRequest);
+        Assert.NotNull(task.ApprovalRequest);
+        Assert.Collection(task.ApprovalRequest.Steps.OrderBy(step => step.Sequence),
+            step =>
+            {
+                Assert.Equal(1, step.Sequence);
+                Assert.True(step.IsVisible);
+                Assert.NotNull(step.Mode);
+                Assert.Single(step.Tasks);
+                Assert.Single(step.Approvers);
+            },
+            step =>
+            {
+                Assert.Equal(2, step.Sequence);
+                Assert.False(step.IsVisible);
+                Assert.Null(step.Mode);
+                Assert.Empty(step.Tasks);
+                Assert.Empty(step.Approvers);
+            });
+        Assert.Single(task.ApprovalRequest.Tasks);
+        Assert.All(task.ApprovalRequest.TaskLogEntries, logEntry =>
+            Assert.Equal(task.Id, logEntry.ApprovalRequestTaskId));
+
+        response = await approverClient.PostAsJsonAsync($"api/v1/tenants/{approverTenantId}/tasks/complete", new
+        {
+            task.Id,
+            Status = ApprovalRequestTaskStatus.Approved
+        });
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+
+        taskResponse = await approverClient.GetAsync($"api/v1/tenants/{approverTenantId}/tasks/{task.Id}");
+        Assert.True(taskResponse.IsSuccessStatusCode, await taskResponse.Content.ReadAsStringAsync());
+        task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
+        Assert.NotNull(task);
+        Assert.NotNull(task.ApprovalRequest);
+        Assert.Single(task.ApprovalRequest.Tasks);
+        Assert.All(task.ApprovalRequest.TaskLogEntries, logEntry =>
+            Assert.Equal(task.Id, logEntry.ApprovalRequestTaskId));
         Assert.Collection(task.RequestFiles,
             file => Assert.Equal("request.txt", file.UserFile.Name));
     }
@@ -134,8 +192,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                         new ApprovalRequestApproverSubmitDto
                         {
                             Type = ApprovalRecipientType.Email,
-                            Email = approver.Email,
-                            CanViewRequest = true
+                            Email = approver.Email
                         }
                     ]
                 }

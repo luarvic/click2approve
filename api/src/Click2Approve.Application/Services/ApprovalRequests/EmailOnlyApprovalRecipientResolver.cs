@@ -74,8 +74,7 @@ public class EmailOnlyApprovalRecipientResolver(ITenantRepository tenantReposito
                 approverTenant?.Owner.Id,
                 ApproverEmployeeId: null,
                 approverTenant?.Id ?? approvalRequest.TenantId,
-                displayName,
-                approver.CanViewRequest)
+                displayName)
         ];
     }
 }

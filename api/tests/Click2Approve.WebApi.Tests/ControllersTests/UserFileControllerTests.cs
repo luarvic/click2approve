@@ -166,8 +166,7 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
                         new ApprovalRequestApproverSubmitDto
                         {
                             Type = ApprovalRecipientType.Email,
-                            Email = approver.Credentials.Email,
-                            CanViewRequest = false
+                            Email = approver.Credentials.Email
                         }
                     ]
                 }

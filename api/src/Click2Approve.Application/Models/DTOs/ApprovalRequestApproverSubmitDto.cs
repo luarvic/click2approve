@@ -11,5 +11,4 @@ public class ApprovalRequestApproverSubmitDto
     public string? Email { get; set; }
     public long? EmployeeId { get; set; }
     public long? TeamId { get; set; }
-    public bool CanViewRequest { get; set; }
 }

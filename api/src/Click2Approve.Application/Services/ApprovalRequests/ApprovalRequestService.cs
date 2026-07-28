@@ -77,6 +77,7 @@ public class ApprovalRequestService(
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         var actor = await _approvalLogActorResolver.ResolveAsync(user, tenantId, cancellationToken);
         var steps = BuildSteps(payload.Steps);
+        ApplyStepVisibility(steps, payload.StepVisibility);
 
         var newApprovalRequest = await _approvalRequestRepository.AddAsync(new ApprovalRequest
         {
@@ -164,9 +165,7 @@ public class ApprovalRequestService(
     public async Task<ApprovalRequestTaskDetailDto> GetTaskAsync(AppUser user, long id, CancellationToken cancellationToken)
     {
         var task = await _approvalRequestTaskRepository.GetAsync(user, id, cancellationToken);
-        var approvalRequest = task.CanViewRequest
-            ? await _approvalRequestTaskRepository.GetRequestAsync(user, id, cancellationToken)
-            : null;
+        var approvalRequest = await _approvalRequestTaskRepository.GetRequestAsync(user, id, cancellationToken);
 
         return MapDetailResponse(task, approvalRequest);
     }
@@ -325,9 +324,14 @@ public class ApprovalRequestService(
         };
     }
 
-    private static ApprovalRequestDto MapTaskRequestResponse(ApprovalRequest approvalRequest)
+    private static ApprovalRequestDto MapTaskRequestResponse(
+        ApprovalRequest approvalRequest,
+        long? approvalRequestStepApproverId)
     {
-        var tasks = approvalRequest.Steps
+        var visibleSteps = approvalRequest.Steps
+            .Where(step => StepIsVisibleToApprover(step, approvalRequestStepApproverId))
+            .ToList();
+        var tasks = visibleSteps
             .SelectMany(step => step.Tasks)
             .DistinctBy(task => task.Id)
             .ToList();
@@ -337,7 +341,10 @@ public class ApprovalRequestService(
             Id = approvalRequest.Id,
             Title = approvalRequest.Title,
             RequestFiles = [.. OrderRequestFiles(approvalRequest).Select(MapResponse)],
-            Steps = [.. approvalRequest.Steps.Select(step => MapResponse(step, approvalRequest.CreatedByDisplayName))],
+            Steps = [.. approvalRequest.Steps.Select(step => MapTaskStepResponse(
+                step,
+                approvalRequest.CreatedByDisplayName,
+                approvalRequestStepApproverId))],
             Description = approvalRequest.Description,
             CreatedAt = approvalRequest.CreatedAt,
             CreatedByUserId = approvalRequest.CreatedByUserId,
@@ -361,7 +368,8 @@ public class ApprovalRequestService(
             Sequence = step.Sequence,
             Mode = step.Mode,
             Approvers = step.Approvers.Select(MapResponse).ToList(),
-            Tasks = step.Tasks.Select(task => MapResponse(task, createdByDisplayName)).ToList()
+            Tasks = step.Tasks.Select(task => MapResponse(task, createdByDisplayName)).ToList(),
+            Visibility = step.StepVisibilities.Select(MapStepVisibility).ToList()
         };
     }
 
@@ -374,10 +382,38 @@ public class ApprovalRequestService(
             Email = approver.Email,
             EmployeeId = approver.EmployeeId,
             TeamId = approver.TeamId,
-            DisplayName = approver.ApproverDisplayName,
-            CanViewRequest = approver.CanViewRequest
+            DisplayName = approver.ApproverDisplayName
         };
     }
+
+    private static ApprovalRequestStepDto MapTaskStepResponse(
+        ApprovalRequestStep step,
+        string createdByDisplayName,
+        long? approvalRequestStepApproverId)
+    {
+        if (!StepIsVisibleToApprover(step, approvalRequestStepApproverId))
+        {
+            return new ApprovalRequestStepDto
+            {
+                Sequence = step.Sequence,
+                IsVisible = false
+            };
+        }
+
+        return MapResponse(step, createdByDisplayName);
+    }
+
+    private static ApprovalRequestStepVisibilityDto MapStepVisibility(
+        ApprovalRequestStepVisibility visibility) => new()
+    {
+        ApproverId = visibility.ApprovalRequestStepApproverId,
+        ApproverType = visibility.ApprovalRequestStepApprover.Type,
+        ApproverDisplayName = visibility.ApprovalRequestStepApprover.ApproverDisplayName,
+        ApproverEmail = visibility.ApprovalRequestStepApprover.Email,
+        ApproverEmployeeId = visibility.ApprovalRequestStepApprover.EmployeeId,
+        ApproverTeamId = visibility.ApprovalRequestStepApprover.TeamId,
+        IsVisible = visibility.IsVisible
+    };
 
     private static ApprovalRequestTaskDto MapResponse(
         ApprovalRequestTask task,
@@ -394,7 +430,6 @@ public class ApprovalRequestService(
             ApproverEmail = task.ApproverEmail,
             ApproverDisplayName = task.ApproverDisplayName,
             RequestedByDisplayName = createdByDisplayName ?? task.ApprovalRequest.CreatedByDisplayName,
-            CanViewRequest = task.CanViewRequest,
             Status = task.Status,
             CreatedAt = task.CreatedAt,
             Description = task.Description,
@@ -408,7 +443,9 @@ public class ApprovalRequestService(
         ApprovalRequest? approvalRequest) => new(MapResponse(task))
     {
         RequestFiles = [.. OrderRequestFiles(task.ApprovalRequest).Select(MapResponse)],
-        ApprovalRequest = approvalRequest is not null ? MapTaskRequestResponse(approvalRequest) : null
+        ApprovalRequest = approvalRequest is not null
+            ? MapTaskRequestResponse(approvalRequest, task.ApprovalRequestStepApproverId)
+            : null
     };
 
     private static ApprovalRequestLogEntryDto MapResponse(ApprovalRequestLogEntry logEntry) => new()
@@ -545,8 +582,57 @@ public class ApprovalRequestService(
             Email = approver.Email,
             EmployeeId = approver.EmployeeId,
             TeamId = approver.TeamId,
-            CanViewRequest = approver.CanViewRequest
         };
+    }
+
+    private static void ApplyStepVisibility(
+        List<ApprovalRequestStep> steps,
+        List<ApprovalRequestStepVisibilitySubmitDto> visibilityDtos)
+    {
+        if (visibilityDtos.Count == 0)
+        {
+            return;
+        }
+
+        var stepsBySequence = steps.ToDictionary(step => step.Sequence);
+        foreach (var visibilityDto in visibilityDtos)
+        {
+            if (!stepsBySequence.TryGetValue(visibilityDto.StepSequence, out var step)
+                || !stepsBySequence.TryGetValue(visibilityDto.ApproverStepSequence, out var approverStep)
+                || visibilityDto.ApproverIndex < 0
+                || visibilityDto.ApproverIndex >= approverStep.Approvers.Count)
+            {
+                throw new BusinessRuleException("Step visibility contains an invalid step or approver.");
+            }
+
+            var approver = approverStep.Approvers[visibilityDto.ApproverIndex];
+            var approverIsAssignedToStep = step.Approvers.Contains(approver);
+            step.StepVisibilities.Add(new ApprovalRequestStepVisibility
+            {
+                ApprovalRequestStep = step,
+                ApprovalRequestStepApprover = approver,
+                IsVisible = approverIsAssignedToStep || visibilityDto.IsVisible
+            });
+        }
+    }
+
+    private static bool StepIsVisibleToApprover(
+        ApprovalRequestStep step,
+        long? approvalRequestStepApproverId)
+    {
+        if (approvalRequestStepApproverId is null)
+        {
+            return true;
+        }
+
+        if (step.Approvers.Any(approver => approver.Id == approvalRequestStepApproverId))
+        {
+            return true;
+        }
+
+        return step.StepVisibilities
+            .FirstOrDefault(visibility => visibility.ApprovalRequestStepApproverId == approvalRequestStepApproverId)
+            ?.IsVisible ?? true;
     }
 
     private async Task CreateTasksForStepAsync(
@@ -624,7 +710,6 @@ public class ApprovalRequestService(
                 ApproverUserId = resolution.ApproverUserId,
                 ApproverEmployeeId = resolution.ApproverEmployeeId,
                 ApproverDisplayName = resolution.ApproverDisplayName,
-                CanViewRequest = resolution.CanViewRequest,
                 TenantId = resolution.TenantId,
                 Status = ApprovalRequestTaskStatus.Pending,
                 CreatedAt = timestamp

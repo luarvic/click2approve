@@ -4,28 +4,22 @@ import {
 } from "@/features/approvalWorkflow/models/approvalStep";
 import { Employee } from "@/features/employees/models/employee";
 import { Dialogs } from "@/shared/constants/constants";
-import { Close, InfoOutlined } from "@mui/icons-material";
+import { Close } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import {
   Autocomplete,
-  FormControlLabel,
   IconButton,
   MenuItem,
-  Popover,
   Stack,
-  Switch,
   TextField,
   Tooltip,
-  Typography,
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
-import { useState } from "react";
 
 interface ApprovalStepApproverRowProps {
   approver: ApprovalStepApprover;
   canUseEmployees: boolean;
   canUseTeams: boolean;
-  canViewRequestIsVisible?: boolean;
   employees: Employee[];
   teams: { id: number; name: string }[];
   disabled?: boolean;
@@ -40,16 +34,11 @@ const getApproverRowSx = (muted: boolean): SxProps<Theme> => ({
 });
 const assigneeControlsSx: SxProps<Theme> = { flexWrap: "nowrap" };
 const assigneeFieldSx: SxProps<Theme> = { flexGrow: 1, minWidth: 0 };
-const trackingInfoSx: SxProps<Theme> = { p: 2, maxWidth: 280 };
-const trackingControlsSx: SxProps<Theme> = {
-  pb: Dialogs.approverStackSpacing,
-};
 
 const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
   approver,
   canUseEmployees,
   canUseTeams,
-  canViewRequestIsVisible = true,
   employees,
   teams,
   disabled = false,
@@ -58,8 +47,6 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
   onChange,
   onRemove,
 }) => {
-  const [trackingInfoAnchor, setTrackingInfoAnchor] =
-    useState<HTMLElement | null>(null);
   const recipientTypes = [
     { value: ApprovalRecipientType.Email, label: "Email" },
     ...(canUseEmployees
@@ -87,7 +74,6 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
             onChange({
               id: approver.id,
               type: Number(event.target.value) as ApprovalRecipientType,
-              canViewRequest: approver.canViewRequest,
             })
           }
           sx={Dialogs.approverTypeFieldSx}
@@ -164,39 +150,6 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
           </span>
         </Tooltip>
       </Stack>
-      {canViewRequestIsVisible && (
-        <Stack direction="row" alignItems="center" sx={trackingControlsSx}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={approver.canViewRequest}
-                disabled={disabled}
-                onChange={(_, checked) =>
-                  onChange({ ...approver, canViewRequest: checked })
-                }
-              />
-            }
-            label="Can track request"
-          />
-          <IconButton
-            aria-label="About tracking a request"
-            onClick={(event) => setTrackingInfoAnchor(event.currentTarget)}
-          >
-            <InfoOutlined fontSize="small" />
-          </IconButton>
-          <Popover
-            open={Boolean(trackingInfoAnchor)}
-            anchorEl={trackingInfoAnchor}
-            onClose={() => setTrackingInfoAnchor(null)}
-            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-          >
-            <Typography sx={trackingInfoSx}>
-              This assignee can view the request workflow and follow each
-              step's progress.
-            </Typography>
-          </Popover>
-        </Stack>
-      )}
     </Stack>
   );
 };

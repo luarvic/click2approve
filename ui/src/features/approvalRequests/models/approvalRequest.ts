@@ -46,16 +46,25 @@ export interface ApprovalRequestFileSubmission {
   previousApprovalRequestFileId?: number;
 }
 
+export interface ApprovalRequestStepVisibilitySubmission {
+  stepSequence: number;
+  approverStepSequence: number;
+  approverIndex: number;
+  isVisible: boolean;
+}
+
 export interface SubmitApprovalRequestRequest {
   title: string;
   previousRevisionApprovalRequestId?: number;
   requestFiles: ApprovalRequestFileSubmission[];
   steps: ApprovalStep[];
+  stepVisibility: ApprovalRequestStepVisibilitySubmission[];
   description?: string;
 }
 
 export interface ResubmitApprovalRequestRequest {
   requestFiles: ApprovalRequestFileSubmission[];
   steps: ApprovalStep[];
+  stepVisibility: ApprovalRequestStepVisibilitySubmission[];
   description?: string;
 }

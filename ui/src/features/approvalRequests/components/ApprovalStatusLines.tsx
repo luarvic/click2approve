@@ -10,6 +10,7 @@ interface ApprovalStatusLineSectionProps {
   children: ReactNode;
   color: ApprovalStatusLineColor;
   label: string;
+  lineVariant?: "solid" | "dotted";
   sx?: SxProps<Theme>;
 }
 
@@ -47,8 +48,9 @@ export type ApprovalStatusLineColor = keyof typeof ApprovalStatusLineColors;
 
 const approvalStatusLineSectionSx = (
   color: ApprovalStatusLineColor,
+  lineVariant?: "solid" | "dotted",
 ): SxProps<Theme> => ({
-  borderLeft: `${statusLineWidth} ${color === "started" ? "dotted" : "solid"}`,
+  borderLeft: `${statusLineWidth} ${lineVariant ?? (color === "started" ? "dotted" : "solid")}`,
   borderLeftColor: ApprovalStatusLineColors[color],
   minWidth: 0,
   pl: statusLineOffset,
@@ -67,10 +69,11 @@ const approvalStatusLineLabelSx = (
 
 const getApprovalStatusLineSectionSx = (
   color: ApprovalStatusLineColor,
+  lineVariant?: "solid" | "dotted",
   sx?: SxProps<Theme>,
 ): SxProps<Theme> => sx
-  ? ([approvalStatusLineSectionSx(color), sx] as SxProps<Theme>)
-  : approvalStatusLineSectionSx(color);
+  ? ([approvalStatusLineSectionSx(color, lineVariant), sx] as SxProps<Theme>)
+  : approvalStatusLineSectionSx(color, lineVariant);
 
 export const getApprovalRequestStatusLineColor = (
   status: ApprovalRequestStatus,
@@ -118,11 +121,12 @@ export const ApprovalStatusLineSection: React.FC<ApprovalStatusLineSectionProps>
   children,
   color,
   label,
+  lineVariant,
   sx,
 }) => (
   <Box
     aria-label={label}
-    sx={getApprovalStatusLineSectionSx(color, sx)}
+    sx={getApprovalStatusLineSectionSx(color, lineVariant, sx)}
   >
     {children}
   </Box>

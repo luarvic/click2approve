@@ -32,10 +32,8 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
         return await IncludeDetails(Db.ApprovalRequests)
             .AsNoTracking()
             .FirstAsync(r => r.Id == id
-                && ((r.TenantId == tenantId && r.CreatedByUserId == user.Id)
-                    || r.Tasks.Any(task => task.ApproverUserId == user.Id
-                    && task.TenantId == tenantId
-                    && task.CanViewRequest)), cancellationToken);
+                && r.TenantId == tenantId
+                && r.CreatedByUserId == user.Id, cancellationToken);
     }
 
     public async Task<IList<ApprovalRequest>> ListAsync(AppUser user, long userFileId, CancellationToken cancellationToken)
@@ -73,6 +71,9 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
             .ThenInclude(task => task.LogEntries)
         .Include(request => request.Steps)
             .ThenInclude(step => step.Approvers)
+        .Include(request => request.Steps)
+            .ThenInclude(step => step.StepVisibilities)
+                .ThenInclude(visibility => visibility.ApprovalRequestStepApprover)
         .Include(request => request.Steps)
             .ThenInclude(step => step.Tasks);
 }

@@ -9,6 +9,7 @@ import ApprovalRequestFilesList, {
 import {
   ApprovalRequestFileRevisionAction,
   ApprovalRequestFileSubmission,
+  ApprovalRequestStepVisibilitySubmission,
 } from "@/features/approvalRequests/models/approvalRequest";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
 import {
@@ -31,12 +32,15 @@ import {
   showPersistenceSuccessToast,
 } from "@/shared/utils/toasts";
 import { validateEmails } from "@/shared/utils/validators";
-import { Add, AttachFile } from "@mui/icons-material";
+import { Add, ArrowBack, ArrowForward, AttachFile } from "@mui/icons-material";
 import {
   Box,
   Button,
+  Checkbox,
+  FormControlLabel,
   Stack,
   TextField,
+  Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
@@ -60,13 +64,12 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   const [steps, setSteps] = useState<EditableApprovalStep[]>([]);
   const [description, setDescription] = useState("");
   const [replacementFileIndex, setReplacementFileIndex] = useState<number | null>(null);
+  const [submitPage, setSubmitPage] = useState<"compose" | "visibility">("compose");
+  const [stepVisibility, setStepVisibility] = useState<Record<string, boolean>>({});
   const initialTemplateHasBeenApplied = useRef(false);
 
   const tenantId = stores.tenantStore.currentTenantId;
   const outboxPath = tenantId ? Routes.tenantPath(tenantId, "/outbox") : "/";
-  const newRequestPath = tenantId
-    ? Routes.tenantPath(tenantId, "/outbox/new")
-    : "/";
   const businessTenantIsSelected =
     stores.tenantStore.currentTenant?.type === TenantType.Business;
   const canUseEmployees =
@@ -182,6 +185,8 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     setSteps([]);
     setDescription("");
     setReplacementFileIndex(null);
+    setSubmitPage("compose");
+    setStepVisibility({});
     stores.approvalRequestStore.setRequestToClone(null);
   };
 
@@ -291,18 +296,93 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     return true;
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const validateDraft = () => {
     const trimmedTitle = title.trim();
     if (!trimmedTitle) {
       toast.error("Title is required.");
-      return;
+      return false;
     }
     if (newFiles.length === 0 && existingFiles.length === 0) {
       toast.error("Add one or more files.");
+      return false;
+    }
+    return validateSteps();
+  };
+
+  const handleConfigureVisibility = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!validateDraft()) {
       return;
     }
-    if (!validateSteps()) {
+    setSubmitPage("visibility");
+  };
+
+  const getApproverVisibilityKey = (
+    stepSequence: number,
+    approverStepSequence: number,
+    approverIndex: number,
+  ) => `${stepSequence}:${approverStepSequence}:${approverIndex}`;
+
+  const getRequestApprovers = () =>
+    steps.flatMap((step) =>
+      step.approvers.map((approver, approverIndex) => ({
+        approver,
+        approverIndex,
+        stepSequence: step.sequence,
+      })),
+    );
+
+  const getApproverLabel = (
+    approver: ApprovalStepApprover,
+  ) => {
+    if (approver.displayName) {
+      return approver.displayName;
+    }
+    if (approver.type === ApprovalRecipientType.Employee) {
+      return stores.employeeStore.employees.find((employee) => employee.id === approver.employeeId)?.displayName ?? "Employee";
+    }
+    if (approver.type === ApprovalRecipientType.Team) {
+      return stores.teamStore.teams.find((team) => team.id === approver.teamId)?.name ?? "Team";
+    }
+    return approver.email || "Email";
+  };
+
+  const getStepVisibilityValue = (
+    stepSequence: number,
+    approverStepSequence: number,
+    approverIndex: number,
+  ) => stepVisibility[getApproverVisibilityKey(stepSequence, approverStepSequence, approverIndex)] ?? true;
+
+  const setStepVisibilityValue = (
+    stepSequence: number,
+    approverStepSequence: number,
+    approverIndex: number,
+    isVisible: boolean,
+  ) => {
+    setStepVisibility((current) => ({
+      ...current,
+      [getApproverVisibilityKey(stepSequence, approverStepSequence, approverIndex)]: isVisible,
+    }));
+  };
+
+  const createStepVisibilitySubmissions = (): ApprovalRequestStepVisibilitySubmission[] =>
+    steps.flatMap((step) =>
+      getRequestApprovers().map((approver) => ({
+        stepSequence: step.sequence,
+        approverStepSequence: approver.stepSequence,
+        approverIndex: approver.approverIndex,
+        isVisible: step.sequence === approver.stepSequence ||
+          getStepVisibilityValue(
+            step.sequence,
+            approver.stepSequence,
+            approver.approverIndex,
+          ),
+      })),
+    );
+
+  const handleSubmit = async () => {
+    const trimmedTitle = title.trim();
+    if (!validateDraft()) {
       return;
     }
     if (!tenantId) {
@@ -370,6 +450,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
         tenantId,
         requestToClone.id,
         toApprovalStepSubmissions(steps),
+        createStepVisibilitySubmissions(),
         description,
         requestFiles,
       )
@@ -377,6 +458,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
         tenantId,
         trimmedTitle,
         toApprovalStepSubmissions(steps),
+        createStepVisibilitySubmissions(),
         description,
         undefined,
         requestFiles,
@@ -406,13 +488,11 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
             state: requestToClone ? { currentApprovalRequestId: requestToClone.id } : undefined,
             to: outboxPath,
           },
-          ...(isRevision
-            ? []
-            : [{ label: "New request", to: newRequestPath }]),
-          { label: isRevision ? "Resubmit approval request" : "New approval request" },
+          { label: isRevision ? "Resubmit request" : "New request" },
         ]}
       />
-      <Box component="form" onSubmit={handleSubmit}>
+      {submitPage === "compose" && (
+      <Box component="form" onSubmit={handleConfigureVisibility}>
         <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
           <TextField
             autoFocus
@@ -500,11 +580,75 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
           <Button variant="outlined" onClick={handleClose}>
             Cancel
           </Button>
-          <Button type="submit" variant="outlined">
-            Submit
+          <Button type="submit" endIcon={<ArrowForward />}>
+            VISIBILITY
           </Button>
         </Stack>
       </Box>
+      )}
+      {submitPage === "visibility" && (
+        <>
+          <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
+            <Typography component="h1" variant="h5">
+              Visibility
+            </Typography>
+            <Stack spacing={Dialogs.stepStackSpacing}>
+              {steps.map((step) => (
+                <Stack key={step.sequence} spacing={Dialogs.approverStackSpacing}>
+                  <Typography variant="subtitle1">
+                    Step {step.sequence}
+                  </Typography>
+                  <Stack spacing={Dialogs.approverStackSpacing}>
+                    {getRequestApprovers().map((approver) => {
+                      const isStepApprover = step.sequence === approver.stepSequence;
+                      return (
+                        <FormControlLabel
+                          key={`${step.sequence}-${approver.stepSequence}-${approver.approverIndex}`}
+                          control={
+                            <Checkbox
+                              checked={isStepApprover ||
+                                getStepVisibilityValue(
+                                  step.sequence,
+                                  approver.stepSequence,
+                                  approver.approverIndex,
+                                )}
+                              disabled={isStepApprover}
+                              onChange={(_, checked) =>
+                                setStepVisibilityValue(
+                                  step.sequence,
+                                  approver.stepSequence,
+                                  approver.approverIndex,
+                                  checked,
+                                )
+                              }
+                            />
+                          }
+                          label={`${getApproverLabel(approver.approver)} (Step ${approver.stepSequence})`}
+                        />
+                      );
+                    })}
+                  </Stack>
+                </Stack>
+              ))}
+            </Stack>
+          </Stack>
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={Dialogs.stepHeaderSpacing}
+            sx={Dialogs.addStepButtonSx}
+          >
+            <Button
+              startIcon={<ArrowBack />}
+              onClick={() => setSubmitPage("compose")}
+            >
+              BACK
+            </Button>
+            <Button variant="outlined" onClick={handleSubmit}>
+              Submit
+            </Button>
+          </Stack>
+        </>
+      )}
     </>
   );
 };

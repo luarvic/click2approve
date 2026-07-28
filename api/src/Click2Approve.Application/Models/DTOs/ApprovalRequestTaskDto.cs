@@ -25,7 +25,6 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
         ApproverEmail = source.ApproverEmail;
         ApproverDisplayName = source.ApproverDisplayName;
         RequestedByDisplayName = source.RequestedByDisplayName;
-        CanViewRequest = source.CanViewRequest;
         Description = source.Description;
         Comment = source.Comment;
         LogEntries = source.LogEntries;
@@ -37,7 +36,6 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
     public string? ApproverUserId { get; init; }
     public required string ApproverEmail { get; init; }
     public required string ApproverDisplayName { get; init; }
-    public bool CanViewRequest { get; init; }
     public string? Description { get; init; }
     public string? Comment { get; init; }
     public required List<ApprovalRequestTaskLogEntryDto> LogEntries { get; init; }

@@ -15,6 +15,7 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
     public DbSet<ApprovalRequestLogEntry> ApprovalRequestLogEntries { get; set; }
     public DbSet<ApprovalRequestStep> ApprovalRequestSteps { get; set; }
     public DbSet<ApprovalRequestStepApprover> ApprovalRequestStepApprovers { get; set; }
+    public DbSet<ApprovalRequestStepVisibility> ApprovalRequestStepVisibilities { get; set; }
     public DbSet<ApprovalRequestTask> ApprovalRequestTasks { get; set; }
     public DbSet<ApprovalRequestTaskLogEntry> ApprovalRequestTaskLogEntries { get; set; }
     public DbSet<Tenant> Tenants { get; set; }
@@ -205,6 +206,22 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasOne(a => a.ApprovalRequestStep)
             .WithMany(s => s.Approvers)
             .HasForeignKey(a => a.ApprovalRequestStepId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ApprovalRequestStepVisibility>()
+            .HasIndex(visibility => new { visibility.ApprovalRequestStepId, visibility.ApprovalRequestStepApproverId })
+            .IsUnique();
+
+        modelBuilder.Entity<ApprovalRequestStepVisibility>()
+            .HasOne(visibility => visibility.ApprovalRequestStep)
+            .WithMany(step => step.StepVisibilities)
+            .HasForeignKey(visibility => visibility.ApprovalRequestStepId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ApprovalRequestStepVisibility>()
+            .HasOne(visibility => visibility.ApprovalRequestStepApprover)
+            .WithMany(approver => approver.StepVisibilities)
+            .HasForeignKey(visibility => visibility.ApprovalRequestStepApproverId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<ApprovalRequestTask>()

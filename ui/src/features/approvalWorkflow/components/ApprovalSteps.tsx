@@ -50,13 +50,19 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
       sx={sx}
     >
       {leadingItem}
-      {steps.map((step) => (
-        <ApprovalStepBlock
-          key={step.id ?? step.sequence}
-          step={step}
-          tasks={getStepTasks(approvalRequest, step)}
-        />
-      ))}
+      {steps.map((step) => {
+        if (step.isVisible === false) {
+          return null;
+        }
+
+        return (
+          <ApprovalStepBlock
+            key={step.id ?? step.sequence}
+            step={step}
+            tasks={getStepTasks(approvalRequest, step)}
+          />
+        );
+      })}
     </Stack>
   );
 };

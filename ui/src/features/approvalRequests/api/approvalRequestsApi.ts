@@ -1,6 +1,7 @@
 import {
   ApprovalRequest,
   ApprovalRequestFileSubmission,
+  ApprovalRequestStepVisibilitySubmission,
   ResubmitApprovalRequestRequest,
   SubmitApprovalRequestRequest,
 } from "@/features/approvalRequests/models/approvalRequest";
@@ -14,6 +15,7 @@ export const submitApprovalRequest = async (
   tenantId: number,
   title: string,
   steps: ApprovalStep[],
+  stepVisibility: ApprovalRequestStepVisibilitySubmission[],
   description: string | undefined,
   previousRevisionApprovalRequestId?: number,
   requestFiles: ApprovalRequestFileSubmission[] = [],
@@ -24,6 +26,7 @@ export const submitApprovalRequest = async (
       previousRevisionApprovalRequestId,
       requestFiles,
       steps,
+      stepVisibility,
       description,
     };
     const { data } = await axios.post<number>(
@@ -41,6 +44,7 @@ export const resubmitApprovalRequest = async (
   tenantId: number,
   id: number,
   steps: ApprovalStep[],
+  stepVisibility: ApprovalRequestStepVisibilitySubmission[],
   description: string | undefined,
   requestFiles: ApprovalRequestFileSubmission[],
 ): Promise<number | null> => {
@@ -48,6 +52,7 @@ export const resubmitApprovalRequest = async (
     const payload: ResubmitApprovalRequestRequest = {
       requestFiles,
       steps,
+      stepVisibility,
       description,
     };
     const { data } = await axios.post<number>(

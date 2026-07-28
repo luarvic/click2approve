@@ -7,9 +7,11 @@ namespace Click2Approve.Application.Models.DTOs;
 /// </summary>
 public class ApprovalRequestStepDto
 {
-    public long Id { get; init; }
+    public long? Id { get; init; }
     public int Sequence { get; init; }
-    public ApprovalStepMode Mode { get; init; }
-    public required List<ApprovalRequestApproverDto> Approvers { get; init; }
-    public required List<ApprovalRequestTaskDto> Tasks { get; init; }
+    public ApprovalStepMode? Mode { get; init; }
+    public bool IsVisible { get; init; } = true;
+    public List<ApprovalRequestApproverDto> Approvers { get; init; } = [];
+    public List<ApprovalRequestTaskDto> Tasks { get; init; } = [];
+    public List<ApprovalRequestStepVisibilityDto> Visibility { get; init; } = [];
 }

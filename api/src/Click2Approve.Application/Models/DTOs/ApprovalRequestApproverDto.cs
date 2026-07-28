@@ -13,5 +13,4 @@ public class ApprovalRequestApproverDto
     public long? EmployeeId { get; init; }
     public long? TeamId { get; init; }
     public string? DisplayName { get; init; }
-    public bool CanViewRequest { get; init; }
 }

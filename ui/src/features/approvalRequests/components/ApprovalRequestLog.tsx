@@ -176,10 +176,43 @@ const mapTaskEntry = (entry: ApprovalRequestTaskLogEntry): DisplayLogEntry => ({
   timestamp: entry.timestampDate,
 });
 
-const getLogEntries = (approvalRequest: ApprovalRequest): DisplayLogEntry[] => [
-  ...(approvalRequest.logEntries ?? []).map(mapRequestEntry),
-  ...(approvalRequest.taskLogEntries ?? []).map(mapTaskEntry),
-].sort((left, right) => left.timestamp.getTime() - right.timestamp.getTime());
+const getVisibleTaskIds = (approvalRequest: ApprovalRequest) => {
+  const steps = approvalRequest.steps ?? [];
+  if (!steps.some((step) => step.isVisible === false)) {
+    return null;
+  }
+
+  const visibleStepIds = new Set(
+    steps
+      .filter((step) => step.isVisible !== false && step.id !== undefined)
+      .map((step) => step.id),
+  );
+  const visibleTaskIds = new Set(
+    (approvalRequest.tasks ?? [])
+      .filter((task) => visibleStepIds.has(task.approvalRequestStepId))
+      .map((task) => task.id),
+  );
+  steps
+    .filter((step) => step.isVisible !== false)
+    .flatMap((step) => step.tasks ?? [])
+    .forEach((task) => visibleTaskIds.add(task.id));
+
+  return visibleTaskIds;
+};
+
+const getLogEntries = (approvalRequest: ApprovalRequest): DisplayLogEntry[] => {
+  const visibleTaskIds = getVisibleTaskIds(approvalRequest);
+  const taskLogEntries = visibleTaskIds
+    ? (approvalRequest.taskLogEntries ?? []).filter((entry) =>
+        visibleTaskIds.has(entry.approvalRequestTaskId),
+      )
+    : (approvalRequest.taskLogEntries ?? []);
+
+  return [
+    ...(approvalRequest.logEntries ?? []).map(mapRequestEntry),
+    ...taskLogEntries.map(mapTaskEntry),
+  ].sort((left, right) => left.timestamp.getTime() - right.timestamp.getTime());
+};
 
 const getRecordRows = (entry: DisplayLogEntry) => [
   { label: "Timestamp", value: getLocaleDateTimeString(entry.timestamp) },

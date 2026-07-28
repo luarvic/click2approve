@@ -25,7 +25,7 @@ const continueButtonSx: SxProps<Theme> = { alignSelf: "flex-start" };
 type RequestType = "custom" | "template";
 
 const ApprovalRequestStartPage = () => {
-  usePageTitle("Start a new approval request");
+  usePageTitle("Start a new request");
   const navigate = useNavigate();
   const tenantId = stores.tenantStore.currentTenantId;
   const composePath = tenantId

@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 
 const ApprovalRequestSubmitPage = () => {
-  usePageTitle("Compose approval request");
+  usePageTitle("Compose request");
   const navigate = useNavigate();
   const location = useLocation();
   const initialTemplateId = (

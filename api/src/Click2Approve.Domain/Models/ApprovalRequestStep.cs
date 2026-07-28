@@ -11,4 +11,5 @@ public class ApprovalRequestStep : DbEntity
     public required ApprovalStepMode Mode { get; set; }
     public required List<ApprovalRequestStepApprover> Approvers { get; set; }
     public required List<ApprovalRequestTask> Tasks { get; set; }
+    public List<ApprovalRequestStepVisibility> StepVisibilities { get; set; } = [];
 }

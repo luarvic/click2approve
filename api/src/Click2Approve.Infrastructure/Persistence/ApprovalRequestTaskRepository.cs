@@ -76,12 +76,14 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
             .Include(request => request.Steps)
                 .ThenInclude(step => step.Approvers)
             .Include(request => request.Steps)
+                .ThenInclude(step => step.StepVisibilities)
+                    .ThenInclude(visibility => visibility.ApprovalRequestStepApprover)
+            .Include(request => request.Steps)
                 .ThenInclude(step => step.Tasks)
                     .ThenInclude(requestTask => requestTask.LogEntries)
             .FirstAsync(request => request.Tasks.Any(task => task.Id == id
                 && task.ApproverUserId == user.Id
-                && task.TenantId == tenantId
-                && task.CanViewRequest),
+                && task.TenantId == tenantId),
                 cancellationToken);
     }
 
@@ -98,10 +100,13 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
             .Include(t => t.ApprovalRequestStep)
                 .ThenInclude(s => s.Tasks)
             .Include(t => t.ApprovalRequestStepApprover)
-            .Include(t => t.ApprovalRequest.Steps)
-                .ThenInclude(s => s.Approvers)
-            .Include(t => t.ApprovalRequest.Steps)
-                .ThenInclude(s => s.Tasks)
+        .Include(t => t.ApprovalRequest.Steps)
+            .ThenInclude(s => s.Approvers)
+        .Include(t => t.ApprovalRequest.Steps)
+            .ThenInclude(s => s.StepVisibilities)
+                .ThenInclude(visibility => visibility.ApprovalRequestStepApprover)
+        .Include(t => t.ApprovalRequest.Steps)
+            .ThenInclude(s => s.Tasks)
             .FirstAsync(t => t.Id == id
                 && t.ApproverUserId == user.Id
                 && t.TenantId == tenantId,

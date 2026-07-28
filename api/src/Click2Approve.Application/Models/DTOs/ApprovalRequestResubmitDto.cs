@@ -7,5 +7,6 @@ public class ApprovalRequestResubmitDto
 {
     public List<ApprovalRequestFileSubmitDto> RequestFiles { get; set; } = [];
     public List<ApprovalRequestStepSubmitDto> Steps { get; set; } = [];
+    public List<ApprovalRequestStepVisibilitySubmitDto> StepVisibility { get; set; } = [];
     public string? Description { get; set; }
 }

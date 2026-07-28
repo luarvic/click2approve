@@ -1,5 +1,4 @@
 import { stores } from "@/app/rootStore";
-import { getApprovalRequest } from "@/features/approvalRequests/api/approvalRequestsApi";
 import { completeApprovalRequestTask } from "@/features/approvalRequests/api/approvalRequestTasksApi";
 import ApprovalRequestComment from "@/features/approvalRequests/components/ApprovalRequestComment";
 import ApprovalRequestDetails from "@/features/approvalRequests/components/ApprovalRequestDetails";
@@ -7,7 +6,6 @@ import ApprovalRequestLog from "@/features/approvalRequests/components/ApprovalR
 import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestTaskSummaryBlock";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
-import { normalizeApprovalRequestDates } from "@/features/approvalRequests/utils/approvalRequestDateNormalizers";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import {
@@ -42,7 +40,6 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
   const tenantId = stores.tenantStore.currentTenantId;
   const inboxPath = tenantId ? Routes.tenantPath(tenantId, "/inbox") : "/";
   const currentTask = stores.approvalRequestTaskStore.currentTask;
-  const canViewRequest = currentTask?.canViewRequest === true;
   const isCompleted = Boolean(currentTask && currentTask.status !== ApprovalRequestTaskStatus.Pending);
 
   useEffect(() => {
@@ -57,34 +54,6 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
     setApprovalRequest(currentTask?.approvalRequest ?? null);
     setSelectedTab("task");
   }, [currentTask]);
-
-  useEffect(() => {
-    let active = true;
-    if (
-      !canViewRequest ||
-      (selectedTab !== "request" && selectedTab !== "log") ||
-      !currentTask?.approvalRequestId ||
-      approvalRequest
-    ) {
-      return;
-    }
-
-    const load = async () => {
-      if (!tenantId) {
-        return;
-      }
-
-      const approvalRequest = await getApprovalRequest(tenantId, currentTask.approvalRequestId);
-      if (active && approvalRequest) {
-        normalizeApprovalRequestDates(approvalRequest);
-        setApprovalRequest(approvalRequest);
-      }
-    };
-    load();
-    return () => {
-      active = false;
-    };
-  }, [approvalRequest, canViewRequest, currentTask?.approvalRequestId, selectedTab, tenantId]);
 
   const cleanUp = () => {
     setDecisionError(false);
@@ -138,21 +107,19 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
           { label: "Task" },
         ]}
       />
-      {canViewRequest && (
-        <Tabs
-          value={selectedTab}
-          onChange={(_, value: string) => setSelectedTab(value)}
-          aria-label="Task sections"
-        >
-          <Tab label="Task" value="task" />
-          <Tab label="Request" value="request" />
-          <Tab label="Log" value="log" />
-        </Tabs>
-      )}
+      <Tabs
+        value={selectedTab}
+        onChange={(_, value: string) => setSelectedTab(value)}
+        aria-label="Task sections"
+      >
+        <Tab label="Task" value="task" />
+        <Tab label="Request" value="request" />
+        <Tab label="Log" value="log" />
+      </Tabs>
       {selectedTab === "task" && (
         <Stack
           spacing={Dialogs.formStackSpacing}
-          sx={canViewRequest ? Dialogs.tabContentSx : undefined}
+          sx={Dialogs.tabContentSx}
         >
           {currentTask && <ApprovalRequestTaskSummaryBlock task={currentTask} />}
           {isCompleted
@@ -202,10 +169,10 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
             )}
         </Stack>
       )}
-      {selectedTab === "request" && canViewRequest && (
+      {selectedTab === "request" && (
         <ApprovalRequestDetails approvalRequest={approvalRequest} />
       )}
-      {selectedTab === "log" && canViewRequest && (
+      {selectedTab === "log" && (
         <ApprovalRequestLog approvalRequest={approvalRequest} />
       )}
       <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>

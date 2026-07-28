@@ -18,13 +18,24 @@ export interface ApprovalStepApprover {
   employeeId?: number;
   teamId?: number;
   displayName?: string;
-  canViewRequest: boolean;
 }
 
 export interface ApprovalStep {
   id?: number;
   sequence: number;
-  mode: ApprovalStepMode;
+  mode?: ApprovalStepMode;
+  isVisible?: boolean;
   approvers: ApprovalStepApprover[];
   tasks?: ApprovalRequestTask[];
+  visibility?: ApprovalStepVisibility[];
+}
+
+export interface ApprovalStepVisibility {
+  approverId: number;
+  approverType: ApprovalRecipientType;
+  approverDisplayName?: string;
+  approverEmail?: string;
+  approverEmployeeId?: number;
+  approverTeamId?: number;
+  isVisible: boolean;
 }

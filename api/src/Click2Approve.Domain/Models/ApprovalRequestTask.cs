@@ -17,7 +17,6 @@ public class ApprovalRequestTask : DbEntity
     public long? ApproverEmployeeId { get; set; }
     public required string ApproverDisplayName { get; set; }
     public required string ApproverEmail { get; set; }
-    public required bool CanViewRequest { get; set; }
     public long TenantId { get; set; }
     public Tenant? Tenant { get; set; }
     public ApprovalRequestTaskStatus Status { get; set; }

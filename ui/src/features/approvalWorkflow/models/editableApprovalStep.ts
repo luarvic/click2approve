@@ -10,7 +10,6 @@ export type EditableApprovalStep = ApprovalStep;
 export const createEmptyApprover = (): ApprovalStepApprover => ({
   type: ApprovalRecipientType.Email,
   email: "",
-  canViewRequest: false,
 });
 
 export const createEmptyStep = (
@@ -33,13 +32,12 @@ export const createEditableSteps = (
 
 const toApprovalStep = (step: EditableApprovalStep): ApprovalStep => ({
   sequence: step.sequence,
-  mode: step.mode,
+  mode: step.mode ?? ApprovalStepMode.Any,
   approvers: step.approvers.map((approver) => ({
     type: approver.type,
     email: approver.email,
     employeeId: approver.employeeId,
     teamId: approver.teamId,
-    canViewRequest: approver.canViewRequest,
   })),
 });
 

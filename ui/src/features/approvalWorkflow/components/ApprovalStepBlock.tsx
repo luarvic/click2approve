@@ -28,19 +28,30 @@ import {
   ExpandMore,
   Person,
   RuleOutlined,
+  VisibilityOff,
 } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Box,
+  IconButton,
+  Popover,
   Stack,
   Tooltip,
   Typography,
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
+import type { ReactNode } from "react";
+import { useState } from "react";
 
 interface ApprovalStepBlockProps {
+  contentSx?: SxProps<Theme>;
+  headerAccessory?: ReactNode;
+  lineVariant?: "solid" | "dotted";
+  statusColor?: ApprovalStatusLineColor;
+  statusLabel?: string;
   step: ApprovalStep;
   tasks: ApprovalRequestTask[];
 }
@@ -51,6 +62,15 @@ const approvalStepBlockSx: SxProps<Theme> = {
 };
 
 const approvalStepHeaderSx = { mb: Dialogs.stepHeaderSpacing };
+const stepHeaderActionsSx: SxProps<Theme> = {
+  alignItems: "center",
+  display: "flex",
+  ml: Dialogs.stepHeaderSpacing,
+};
+const visibilityPopoverSx: SxProps<Theme> = {
+  maxWidth: 320,
+  p: 2,
+};
 
 const teamAccordionSx = {
   bgcolor: "transparent",
@@ -182,18 +202,42 @@ const getTaskApproverIcon = (step: ApprovalStep, task: ApprovalRequestTask) => {
   return getApprovalRecipientIcon(approver?.type ?? ApprovalRecipientType.Email);
 };
 
-const renderStepModeIndicator = (mode: ApprovalStepMode) => {
-  const label = mode === ApprovalStepMode.All
-    ? "All approvers"
-    : "Any approver";
-  const icon = mode === ApprovalStepMode.All
-    ? <ChecklistRtlOutlined color={Icons.secondaryColor} fontSize="small" />
-    : <RuleOutlined color={Icons.secondaryColor} fontSize="small" />;
+const getStepModeSummary = (mode: ApprovalStepMode) => {
+  switch (mode) {
+    case ApprovalStepMode.All:
+      return "Everyone assigned to this step must approve it before the request can move forward.";
+    default:
+      return "The first approval from any assigned approver completes this step.";
+  }
+};
+
+const getHiddenApproverLabels = (step: ApprovalStep) => {
+  return (step.visibility ?? [])
+    .filter((visibility) => visibility.isVisible === false)
+    .map((visibility) =>
+      visibility.approverDisplayName ??
+      visibility.approverEmail ??
+      "Approver",
+    )
+    .filter((label): label is string => Boolean(label));
+};
+
+const renderVisibilitySummary = (hiddenApproverLabels: string[]) => {
+  if (hiddenApproverLabels.length === 0) {
+    return "Visible to all request approvers.";
+  }
 
   return (
-    <Tooltip title={label}>
-      {icon}
-    </Tooltip>
+    <Stack spacing={StackSpacing.tight}>
+      <Typography variant="body2">
+        Hidden from:
+      </Typography>
+      {hiddenApproverLabels.map((label) => (
+        <Typography key={label} variant="body2" color="text.secondary">
+          {label}
+        </Typography>
+      ))}
+    </Stack>
   );
 };
 
@@ -241,10 +285,8 @@ const renderTaskDetails = (
         alignItems={{ xs: "flex-start", sm: "center" }}
       >
         <ApprovalRequestParticipantLine
-          canViewRequest={task.canViewRequest}
           icon={icon}
           label={label}
-          showTrackingIndicator
           sx={Flex.growSx}
         />
       </Stack>
@@ -275,9 +317,7 @@ const renderApproverWithoutTasks = (
 ) => (
   <ApprovalRequestParticipantLine
     key={approver.id ?? index}
-    canViewRequest={approver.canViewRequest}
     label={getApproverLabel(approver)}
-    showTrackingIndicator
     type={approver.type}
   />
 );
@@ -304,14 +344,9 @@ const renderTeamApprover = (
         sx={Flex.growSx}
       >
         <ApprovalRequestParticipantLine
-          canViewRequest={approver.canViewRequest}
           label={getApproverLabel(approver)}
-          showTrackingIndicator
           type={approver.type}
         />
-        <Typography variant="caption" color="text.secondary">
-          {approverTasks.length} {approverTasks.length === 1 ? "task" : "tasks"}
-        </Typography>
       </Stack>
     </AccordionSummary>
     <AccordionDetails sx={teamAccordionDetailsSx}>
@@ -359,17 +394,28 @@ const renderApprover = (
 };
 
 const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
+  contentSx,
+  headerAccessory,
+  lineVariant,
+  statusColor,
+  statusLabel,
   step,
   tasks,
 }) => {
+  const [modeAnchor, setModeAnchor] = useState<HTMLElement | null>(null);
+  const [visibilityAnchor, setVisibilityAnchor] = useState<HTMLElement | null>(null);
   const approvers = (step.approvers ?? []).filter(Boolean);
   const stepStatus = getStepStatus(step, tasks);
   const unassignedTasks = getUnassignedTasks(step, tasks);
+  const hiddenApproverLabels = getHiddenApproverLabels(step);
+  const hasVisibilityRestrictions = hiddenApproverLabels.length > 0;
+  const stepMode = step.mode ?? ApprovalStepMode.Any;
 
   return (
     <ApprovalStatusLineSection
-      color={getStepStatusLineColor(stepStatus)}
-      label={getStepStatusLabel(stepStatus)}
+      color={statusColor ?? getStepStatusLineColor(stepStatus)}
+      label={statusLabel ?? getStepStatusLabel(stepStatus)}
+      lineVariant={lineVariant}
       sx={approvalStepBlockSx}
     >
       <Stack spacing={Dialogs.stepStackSpacing}>
@@ -388,19 +434,69 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
             <Typography variant="subtitle2">
               Step {step.sequence}
             </Typography>
-            {renderStepModeIndicator(step.mode)}
+            <Box sx={stepHeaderActionsSx}>
+              <Tooltip title="Completion rule">
+                <IconButton
+                  aria-label={`Step ${step.sequence} completion rule`}
+                  size="small"
+                  onClick={(event) => setModeAnchor(event.currentTarget)}
+                >
+                  {stepMode === ApprovalStepMode.All
+                    ? <ChecklistRtlOutlined color={Icons.secondaryColor} fontSize="small" />
+                    : <RuleOutlined color={Icons.secondaryColor} fontSize="small" />}
+                </IconButton>
+              </Tooltip>
+              <Popover
+                open={Boolean(modeAnchor)}
+                anchorEl={modeAnchor}
+                onClose={() => setModeAnchor(null)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+              >
+                <Box sx={visibilityPopoverSx}>
+                  <Typography variant="body2">
+                    {getStepModeSummary(stepMode)}
+                  </Typography>
+                </Box>
+              </Popover>
+              {hasVisibilityRestrictions && (
+                <>
+                  <Tooltip title="Step visibility">
+                    <IconButton
+                      aria-label={`Step ${step.sequence} visibility`}
+                      size="small"
+                      onClick={(event) => setVisibilityAnchor(event.currentTarget)}
+                    >
+                      <VisibilityOff color={Icons.secondaryColor} fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  <Popover
+                    open={Boolean(visibilityAnchor)}
+                    anchorEl={visibilityAnchor}
+                    onClose={() => setVisibilityAnchor(null)}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                  >
+                    <Box sx={visibilityPopoverSx}>
+                      {renderVisibilitySummary(hiddenApproverLabels)}
+                    </Box>
+                  </Popover>
+                </>
+              )}
+            </Box>
+            {headerAccessory}
           </Stack>
         </Stack>
-        {approvers.map((approver, index) =>
-          renderApprover(step, approver, tasks, index),
-        )}
-        {unassignedTasks.map((task) =>
-          renderTaskDetails(
-            task,
-            getTaskApproverLabel(task),
-            getTaskApproverIcon(step, task),
-          ),
-        )}
+        <Stack spacing={Dialogs.approverStackSpacing} sx={contentSx}>
+          {approvers.map((approver, index) =>
+            renderApprover(step, approver, tasks, index),
+          )}
+          {unassignedTasks.map((task) =>
+            renderTaskDetails(
+              task,
+              getTaskApproverLabel(task),
+              getTaskApproverIcon(step, task),
+            ),
+          )}
+        </Stack>
       </Stack>
     </ApprovalStatusLineSection>
   );
