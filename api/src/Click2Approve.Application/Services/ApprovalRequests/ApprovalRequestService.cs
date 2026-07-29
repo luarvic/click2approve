@@ -174,7 +174,7 @@ public class ApprovalRequestService(
     public async Task<ApprovalRequestTaskDetailDto> GetTaskAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
         var task = await _approvalRequestTaskRepository.GetAsync(user, globalId, cancellationToken);
-        var approvalRequest = await _approvalRequestTaskRepository.GetRequestAsync(user, globalId, cancellationToken);
+        var approvalRequest = await _approvalRequestTaskRepository.GetRequestForTaskAsync(user, globalId, cancellationToken);
 
         // Approver rows keep tenant-local employee/team IDs; resolve public global IDs before DTO mapping.
         var approverGlobalIdMaps = approvalRequest is null

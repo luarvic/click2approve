@@ -170,7 +170,10 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
         </Stack>
       )}
       {selectedTab === "request" && (
-        <ApprovalRequestDetails approvalRequest={approvalRequest} />
+        <ApprovalRequestDetails
+          approvalRequest={approvalRequest}
+          showVisibleStepVisibility={false}
+        />
       )}
       {selectedTab === "log" && (
         <ApprovalRequestLog approvalRequest={approvalRequest} />

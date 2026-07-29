@@ -6,16 +6,19 @@ import { Stack } from "@mui/material";
 
 interface ApprovalRequestDetailsProps {
   approvalRequest: ApprovalRequest | null;
+  showVisibleStepVisibility?: boolean;
 }
 
 const ApprovalRequestDetails: React.FC<ApprovalRequestDetailsProps> = ({
   approvalRequest,
+  showVisibleStepVisibility = true,
 }) => (
   <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
     {approvalRequest && (
       <ApprovalSteps
         approvalRequest={approvalRequest}
         leadingItem={<ApprovalRequestSummaryBlock approvalRequest={approvalRequest} />}
+        showVisibleStepVisibility={showVisibleStepVisibility}
         showDividers
       />
     )}

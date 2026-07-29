@@ -51,6 +51,7 @@ interface ApprovalStepBlockProps {
   contentSx?: SxProps<Theme>;
   headerAccessory?: ReactNode;
   lineVariant?: "solid" | "dotted";
+  showVisibility?: boolean;
   statusColor?: ApprovalStatusLineColor;
   statusLabel?: string;
   step: ApprovalStep;
@@ -398,6 +399,7 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
   contentSx,
   headerAccessory,
   lineVariant,
+  showVisibility = true,
   statusColor,
   statusLabel,
   step,
@@ -458,27 +460,31 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
                   </Typography>
                 </Box>
               </Popover>
-              <Tooltip title="Step visibility">
-                <IconButton
-                  aria-label={`Step ${step.sequence} visibility`}
-                  size="small"
-                  onClick={(event) => setVisibilityAnchor(event.currentTarget)}
-                >
-                  {hiddenApproverLabels.length === 0
-                    ? <Visibility color={Icons.secondaryColor} fontSize="small" />
-                    : <VisibilityOff color={Icons.secondaryColor} fontSize="small" />}
-                </IconButton>
-              </Tooltip>
-              <Popover
-                open={Boolean(visibilityAnchor)}
-                anchorEl={visibilityAnchor}
-                onClose={() => setVisibilityAnchor(null)}
-                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-              >
-                <Box sx={visibilityPopoverSx}>
-                  {renderVisibilitySummary(hiddenApproverLabels)}
-                </Box>
-              </Popover>
+              {showVisibility && (
+                <>
+                  <Tooltip title="Step visibility">
+                    <IconButton
+                      aria-label={`Step ${step.sequence} visibility`}
+                      size="small"
+                      onClick={(event) => setVisibilityAnchor(event.currentTarget)}
+                    >
+                      {hiddenApproverLabels.length === 0
+                        ? <Visibility color={Icons.secondaryColor} fontSize="small" />
+                        : <VisibilityOff color={Icons.secondaryColor} fontSize="small" />}
+                    </IconButton>
+                  </Tooltip>
+                  <Popover
+                    open={Boolean(visibilityAnchor)}
+                    anchorEl={visibilityAnchor}
+                    onClose={() => setVisibilityAnchor(null)}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                  >
+                    <Box sx={visibilityPopoverSx}>
+                      {renderVisibilitySummary(hiddenApproverLabels)}
+                    </Box>
+                  </Popover>
+                </>
+              )}
             </Box>
             {headerAccessory}
           </Stack>

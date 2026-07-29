@@ -71,12 +71,12 @@ internal static class ApprovalRequestMapper
         ApprovalRequestTask task,
         ApprovalRequest? approvalRequest,
         ApprovalRequestApproverGlobalIdMaps approverGlobalIdMaps) => new(MapTask(task))
-    {
-        RequestFiles = [.. OrderRequestFiles(task.ApprovalRequest).Select(MapRequestFile)],
-        ApprovalRequest = approvalRequest is not null
+        {
+            RequestFiles = [.. OrderRequestFiles(task.ApprovalRequest).Select(MapRequestFile)],
+            ApprovalRequest = approvalRequest is not null
             ? MapApprovalRequestForTask(approvalRequest, task.ApprovalRequestStepApproverId, approverGlobalIdMaps)
             : null
-    };
+        };
 
     private static ApprovalRequestDto MapApprovalRequestForTask(
         ApprovalRequest approvalRequest,
@@ -127,7 +127,8 @@ internal static class ApprovalRequestMapper
         Guid approvalRequestGlobalId,
         string createdByDisplayName,
         IReadOnlyDictionary<long, Guid>? approverGlobalIdsById = null,
-        ApprovalRequestApproverGlobalIdMaps? approverGlobalIdMaps = null)
+        ApprovalRequestApproverGlobalIdMaps? approverGlobalIdMaps = null,
+        bool includeVisibility = true)
     {
         approverGlobalIdMaps ??= ApprovalRequestApproverGlobalIdMaps.Empty;
         return new ApprovalRequestStepDto
@@ -136,15 +137,17 @@ internal static class ApprovalRequestMapper
             Sequence = step.Sequence,
             Mode = step.Mode,
             Approvers = step.Approvers.Select(approver => MapApprover(approver, approverGlobalIdMaps)).ToList(),
-            Tasks = step.Tasks.Select(task => MapTask(
+            Tasks = [.. step.Tasks.Select(task => MapTask(
                 task,
                 createdByDisplayName,
                 approvalRequestGlobalId,
                 step.GlobalId,
                 approverGlobalIdsById is not null
                     ? GetTaskApproverGlobalId(task, approverGlobalIdsById)
-                    : null)).ToList(),
-            Visibility = step.StepVisibilities.Select(visibility => MapStepVisibility(visibility, approverGlobalIdMaps)).ToList()
+                    : null))],
+            Visibility = includeVisibility
+                ? [.. step.StepVisibilities.Select(visibility => MapStepVisibility(visibility, approverGlobalIdMaps))]
+                : []
         };
     }
 
@@ -180,21 +183,27 @@ internal static class ApprovalRequestMapper
             };
         }
 
-        return MapStep(step, approvalRequestGlobalId, createdByDisplayName, approverGlobalIdsById, approverGlobalIdMaps);
+        return MapStep(
+            step,
+            approvalRequestGlobalId,
+            createdByDisplayName,
+            approverGlobalIdsById,
+            approverGlobalIdMaps,
+            includeVisibility: false);
     }
 
     private static ApprovalRequestStepVisibilityDto MapStepVisibility(
         ApprovalRequestStepVisibility visibility,
         ApprovalRequestApproverGlobalIdMaps approverGlobalIdMaps) => new()
-    {
-        ApproverGlobalId = visibility.ApprovalRequestStepApprover.GlobalId,
-        ApproverType = visibility.ApprovalRequestStepApprover.Type,
-        ApproverDisplayName = visibility.ApprovalRequestStepApprover.ApproverDisplayName,
-        ApproverEmail = visibility.ApprovalRequestStepApprover.Email,
-        ApproverEmployeeGlobalId = GetEmployeeGlobalId(visibility.ApprovalRequestStepApprover, approverGlobalIdMaps),
-        ApproverTeamGlobalId = GetTeamGlobalId(visibility.ApprovalRequestStepApprover, approverGlobalIdMaps),
-        IsVisible = visibility.IsVisible
-    };
+        {
+            ApproverGlobalId = visibility.ApprovalRequestStepApprover.GlobalId,
+            ApproverType = visibility.ApprovalRequestStepApprover.Type,
+            ApproverDisplayName = visibility.ApprovalRequestStepApprover.ApproverDisplayName,
+            ApproverEmail = visibility.ApprovalRequestStepApprover.Email,
+            ApproverEmployeeGlobalId = GetEmployeeGlobalId(visibility.ApprovalRequestStepApprover, approverGlobalIdMaps),
+            ApproverTeamGlobalId = GetTeamGlobalId(visibility.ApprovalRequestStepApprover, approverGlobalIdMaps),
+            IsVisible = visibility.IsVisible
+        };
 
     private static ApprovalRequestTaskDto MapTask(
         ApprovalRequestTask task,

@@ -106,6 +106,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
             requesterLogin.AccessToken,
             approvalRequestSummary.GlobalId,
             CancellationToken.None);
+        Assert.Single(approvalRequest.Steps.Single(step => step.Sequence == 2).Visibility);
         var approvalRequestTask = Assert.Single(approvalRequest.Steps.Single(step => step.Sequence == 1).Tasks);
 
         var approverClient = _applicationFactory.CreateClient();
@@ -132,6 +133,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                 Assert.NotNull(step.Mode);
                 Assert.Single(step.Tasks);
                 Assert.Single(step.Approvers);
+                Assert.Empty(step.Visibility);
             },
             step =>
             {
@@ -140,6 +142,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                 Assert.Null(step.Mode);
                 Assert.Empty(step.Tasks);
                 Assert.Empty(step.Approvers);
+                Assert.Empty(step.Visibility);
             });
         Assert.All(task.ApprovalRequest.TaskLogEntries, logEntry =>
             Assert.Equal(task.GlobalId, logEntry.ApprovalRequestTaskGlobalId));

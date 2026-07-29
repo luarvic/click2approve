@@ -122,4 +122,25 @@ describe("<ApprovalSteps />", () => {
     expect(screen.getByText("This step is hidden from you.")).toBeTruthy();
     expect(screen.queryByText("Visible to all request approvers.")).toBeNull();
   });
+
+  test("can hide visible step visibility controls while keeping hidden step visibility controls", async () => {
+    const user = userEvent.setup();
+    render(
+      <ApprovalSteps
+        approvalRequest={{
+          ...approvalRequest,
+          steps: approvalRequest.steps.map((step) =>
+            step.isVisible === false
+              ? { ...step, visibility: [] }
+              : step,
+          ),
+        }}
+        showVisibleStepVisibility={false}
+      />,
+    );
+
+    expect(screen.queryByRole("button", { name: "Step 1 visibility" })).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Step 2 visibility" }));
+    expect(screen.getByText("This step is hidden from you.")).toBeTruthy();
+  });
 });

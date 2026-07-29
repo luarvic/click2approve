@@ -11,6 +11,7 @@ import ApprovalStepBlock from "./ApprovalStepBlock";
 interface ApprovalStepsProps {
   approvalRequest: ApprovalRequest;
   leadingItem?: ReactNode;
+  showVisibleStepVisibility?: boolean;
   showDividers?: boolean;
   sx?: SxProps<Theme>;
 }
@@ -27,6 +28,7 @@ const getStepTasks = (
 const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
   approvalRequest,
   leadingItem,
+  showVisibleStepVisibility = true,
   showDividers = false,
   sx,
 }) => {
@@ -54,6 +56,7 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
         return (
           <ApprovalStepBlock
             key={step.globalId ?? step.sequence}
+            showVisibility={showVisibleStepVisibility}
             step={step}
             tasks={getStepTasks(step)}
           />

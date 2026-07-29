@@ -67,7 +67,7 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
                 cancellationToken);
     }
 
-    public virtual async Task<ApprovalRequest> GetRequestAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    public virtual async Task<ApprovalRequest> GetRequestForTaskAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.ApprovalRequests
@@ -79,7 +79,6 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
                 .ThenInclude(step => step.Approvers)
             .Include(request => request.Steps)
                 .ThenInclude(step => step.StepVisibilities)
-                    .ThenInclude(visibility => visibility.ApprovalRequestStepApprover)
             .Include(request => request.Steps)
                 .ThenInclude(step => step.Tasks)
                     .ThenInclude(requestTask => requestTask.LogEntries)
