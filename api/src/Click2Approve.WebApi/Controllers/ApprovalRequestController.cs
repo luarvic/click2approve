@@ -18,7 +18,7 @@ namespace Click2Approve.WebApi.Controllers;
 [Tags("Click2Approve.WebApi.ApprovalRequest")]
 [ApiController]
 [ApiVersion(1.0)]
-[Route("api/v{version:apiVersion}/tenants/{tenantId:long}/requests")]
+[Route("api/v{version:apiVersion}/tenants/{tenantGlobalId:guid}/requests")]
 [Authorize]
 public class ApprovalRequestController(
     ILogger<ApprovalRequestController> logger,
@@ -44,11 +44,11 @@ public class ApprovalRequestController(
     /// <summary>
     /// Cancels an approval request.
     /// </summary>
-    [HttpPost("{id:long}/cancel")]
-    public async Task<IActionResult> CancelAsync(long id, CancellationToken cancellationToken)
+    [HttpPost("{globalId:guid}/cancel")]
+    public async Task<IActionResult> CancelAsync(Guid globalId, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        await _approvalRequestService.CancelApprovalRequestAsync(user, id, cancellationToken);
+        await _approvalRequestService.CancelApprovalRequestAsync(user, globalId, cancellationToken);
         return Ok();
     }
 
@@ -68,10 +68,10 @@ public class ApprovalRequestController(
     /// <summary>
     /// Gets an approval request with all data required by its editor.
     /// </summary>
-    [HttpGet("{id:long}")]
-    public async Task<ActionResult<ApprovalRequestDto>> GetAsync(long id, CancellationToken cancellationToken)
+    [HttpGet("{globalId:guid}")]
+    public async Task<ActionResult<ApprovalRequestDto>> GetAsync(Guid globalId, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        return Ok(await _approvalRequestService.GetApprovalRequestAsync(user, id, cancellationToken));
+        return Ok(await _approvalRequestService.GetApprovalRequestAsync(user, globalId, cancellationToken));
     }
 }

@@ -5,17 +5,17 @@ import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
 
 interface EmployeesLocationState {
-  currentEmployeeId?: number;
+  currentEmployeeGlobalId?: string;
 }
 
 const EmployeesPage = () => {
   usePageTitle("Employees");
   const location = useLocation();
-  const { currentEmployeeId } = (location.state as EmployeesLocationState | null) ?? {};
+  const { currentEmployeeGlobalId } = (location.state as EmployeesLocationState | null) ?? {};
   return (
     <>
       <PageBreadcrumbs items={[{ label: "Employees" }]} />
-      <EmployeesGrid currentEmployeeId={currentEmployeeId} />
+      <EmployeesGrid currentEmployeeGlobalId={currentEmployeeGlobalId} />
     </>
   );
 };

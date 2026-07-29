@@ -8,9 +8,9 @@ import { makeAutoObservable, runInAction } from "mobx";
 
 export class EmployeeStore {
   employees: Employee[];
-  private loadedTenantId: number | null = null;
+  private loadedTenantGlobalId: string | null = null;
   private loadRequest: Promise<void> | null = null;
-  private loadingTenantId: number | null = null;
+  private loadingTenantGlobalId: string | null = null;
   private requestVersion = 0;
 
   constructor(employees: Employee[] = []) {
@@ -18,40 +18,40 @@ export class EmployeeStore {
     makeAutoObservable(this);
   }
 
-  load = (tenantId: number, refresh = false): Promise<void> => {
-    if (!refresh && this.loadedTenantId === tenantId) {
+  load = (tenantGlobalId: string, refresh = false): Promise<void> => {
+    if (!refresh && this.loadedTenantGlobalId === tenantGlobalId) {
       return Promise.resolve();
     }
-    if (this.loadRequest && this.loadingTenantId === tenantId) {
+    if (this.loadRequest && this.loadingTenantGlobalId === tenantGlobalId) {
       return this.loadRequest;
     }
 
     const requestVersion = ++this.requestVersion;
-    const request = employeeApi.listEmployees(tenantId).then((employees) => {
+    const request = employeeApi.listEmployees(tenantGlobalId).then((employees) => {
       if (requestVersion !== this.requestVersion) {
         return;
       }
       runInAction(() => {
         this.employees = employees;
-        this.loadedTenantId = tenantId;
+        this.loadedTenantGlobalId = tenantGlobalId;
       });
     }).finally(() => {
       if (this.loadRequest === request) {
         this.loadRequest = null;
-        this.loadingTenantId = null;
+        this.loadingTenantGlobalId = null;
       }
     });
     this.loadRequest = request;
-    this.loadingTenantId = tenantId;
+    this.loadingTenantGlobalId = tenantGlobalId;
     return request;
   };
 
   create = async (
-    tenantId: number,
+    tenantGlobalId: string,
     payload: CreateEmployeeRequest
   ): Promise<Employee | null> => {
     const requestVersion = this.requestVersion;
-    const employee = await employeeApi.createEmployee(tenantId, payload);
+    const employee = await employeeApi.createEmployee(tenantGlobalId, payload);
     if (!employee || requestVersion !== this.requestVersion) {
       return null;
     }
@@ -63,27 +63,27 @@ export class EmployeeStore {
   };
 
   update = async (
-    tenantId: number,
-    employeeId: number,
+    tenantGlobalId: string,
+    employeeGlobalId: string,
     payload: UpdateEmployeeRequest
   ): Promise<Employee | null> => {
     const requestVersion = this.requestVersion;
-    const employee = await employeeApi.updateEmployee(tenantId, employeeId, payload);
+    const employee = await employeeApi.updateEmployee(tenantGlobalId, employeeGlobalId, payload);
     if (!employee || requestVersion !== this.requestVersion) {
       return null;
     }
 
     runInAction(() => {
       this.employees = this.employees.map((item) =>
-        item.id === employee.id ? employee : item
+        item.globalId === employee.globalId ? employee : item
       );
     });
     return employee;
   };
 
-  delete = async (tenantId: number, employeeId: number): Promise<boolean> => {
+  delete = async (tenantGlobalId: string, employeeGlobalId: string): Promise<boolean> => {
     const requestVersion = this.requestVersion;
-    if (!(await employeeApi.deleteEmployee(tenantId, employeeId))) {
+    if (!(await employeeApi.deleteEmployee(tenantGlobalId, employeeGlobalId))) {
       return false;
     }
     if (requestVersion !== this.requestVersion) {
@@ -92,7 +92,7 @@ export class EmployeeStore {
 
     runInAction(() => {
       this.employees = this.employees.filter(
-        (employee) => employee.id !== employeeId
+        (employee) => employee.globalId !== employeeGlobalId
       );
     });
     return true;
@@ -102,9 +102,9 @@ export class EmployeeStore {
     runInAction(() => {
       this.requestVersion += 1;
       this.employees = [];
-      this.loadedTenantId = null;
+      this.loadedTenantGlobalId = null;
       this.loadRequest = null;
-      this.loadingTenantId = null;
+      this.loadingTenantGlobalId = null;
     });
   };
 }

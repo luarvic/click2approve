@@ -9,6 +9,7 @@ public interface ITenantRepository
 {
     Task<Tenant> AddAsync(Tenant tenant, CancellationToken cancellationToken);
     Task<Tenant?> GetAsync(long id, CancellationToken cancellationToken);
+    Task<Tenant?> GetAsync(Guid globalId, CancellationToken cancellationToken);
     Task<Tenant?> GetPersonalAsync(AppUser user, CancellationToken cancellationToken);
     Task<Tenant?> GetPersonalAsync(string normalizedEmail, CancellationToken cancellationToken);
     Task<List<Tenant>> ListPersonalAsync(IReadOnlyCollection<string> normalizedEmails, CancellationToken cancellationToken);

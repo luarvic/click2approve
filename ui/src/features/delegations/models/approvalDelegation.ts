@@ -1,12 +1,12 @@
 export interface ApprovalDelegation {
-  id: number;
-  tenantId: number;
-  delegatorEmployeeId: number;
-  delegateEmployeeId: number;
+  globalId: string;
+  tenantGlobalId: string;
+  delegatorEmployeeGlobalId: string;
+  delegateEmployeeGlobalId: string;
   createdAt: string;
 }
 
 export interface ApprovalDelegationUpsert {
-  delegatorEmployeeId: number;
-  delegateEmployeeId: number;
+  delegatorEmployeeGlobalId: string;
+  delegateEmployeeGlobalId: string;
 }

@@ -14,22 +14,21 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 
 const ApprovalStepTemplateEditorPage = () => {
   const navigate = useNavigate();
-  const { templateId } = useParams<{ templateId: string }>();
-  usePageTitle(templateId === undefined ? "New template" : "Edit template");
+  const { templateGlobalId } = useParams<{ templateGlobalId: string }>();
+  usePageTitle(templateGlobalId === undefined ? "New template" : "Edit template");
   const [hasLoadedTemplates, setHasLoadedTemplates] = useState(false);
   const currentTenant = stores.tenantStore.currentTenant;
-  const tenantId = stores.tenantStore.currentTenantId;
-  const templatesPath = tenantId
-    ? Routes.tenantPath(tenantId, "/approvalStepTemplates")
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const templatesPath = tenantGlobalId
+    ? Routes.tenantPath(tenantGlobalId, "/approvalStepTemplates")
     : "/";
   const canViewTemplates =
     stores.productStore.approvalStepTemplatesAreEnabled &&
     currentTenant?.type === TenantType.Business &&
     currentTenant.role !== undefined;
-  const isNewTemplate = templateId === undefined;
-  const parsedTemplateId = Number(templateId);
+  const isNewTemplate = templateGlobalId === undefined;
   const template = stores.approvalStepTemplateStore.templates.find(
-    (item) => item.id === parsedTemplateId,
+    (item) => item.globalId === templateGlobalId,
   );
 
   useEffect(() => {
@@ -37,15 +36,15 @@ const ApprovalStepTemplateEditorPage = () => {
       setHasLoadedTemplates(true);
       return;
     }
-    if (!tenantId) {
+    if (!tenantGlobalId) {
       return;
     }
 
     setHasLoadedTemplates(false);
-    stores.approvalStepTemplateStore.load(tenantId).finally(() => {
+    stores.approvalStepTemplateStore.load(tenantGlobalId).finally(() => {
       setHasLoadedTemplates(true);
     });
-  }, [isNewTemplate, tenantId]);
+  }, [isNewTemplate, tenantGlobalId]);
 
   if (!stores.tenantStore.hasLoaded) {
     return <LoadingOverlay />;
@@ -53,7 +52,7 @@ const ApprovalStepTemplateEditorPage = () => {
 
   if (
     !canViewTemplates ||
-    (!isNewTemplate && !Number.isInteger(parsedTemplateId))
+    (!isNewTemplate && templateGlobalId === undefined)
   ) {
     return <Navigate to={templatesPath} />;
   }
@@ -69,16 +68,16 @@ const ApprovalStepTemplateEditorPage = () => {
   return (
     <ApprovalStepTemplateEditor
       template={template ?? null}
-      onClose={(currentTemplateId) =>
+      onClose={(currentTemplateGlobalId) =>
         navigate(templatesPath, {
-          state: currentTemplateId
-            ? { currentTemplateId }
+          state: currentTemplateGlobalId
+            ? { currentTemplateGlobalId }
             : undefined,
         })
       }
-      onDelete={async (id) => {
-        const deleted = tenantId
-          ? await stores.approvalStepTemplateStore.delete(tenantId, id)
+      onDelete={async  (id: string) => {
+        const deleted = tenantGlobalId
+          ? await stores.approvalStepTemplateStore.delete(tenantGlobalId, id)
           : false;
         if (deleted) {
           showPersistenceSuccessToast(

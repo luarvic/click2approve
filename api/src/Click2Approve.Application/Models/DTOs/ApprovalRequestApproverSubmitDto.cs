@@ -9,6 +9,6 @@ public class ApprovalRequestApproverSubmitDto
 {
     public required ApprovalRecipientType Type { get; set; }
     public string? Email { get; set; }
-    public long? EmployeeId { get; set; }
-    public long? TeamId { get; set; }
+    public Guid? EmployeeGlobalId { get; set; }
+    public Guid? TeamGlobalId { get; set; }
 }

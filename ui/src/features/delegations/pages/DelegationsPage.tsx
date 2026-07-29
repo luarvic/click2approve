@@ -5,19 +5,19 @@ import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
 
 interface DelegationsLocationState {
-  currentDelegationId?: number;
+  currentDelegationGlobalId?: string;
 }
 
 const DelegationsPage = () => {
   usePageTitle("Delegations");
   const location = useLocation();
-  const { currentDelegationId } =
+  const { currentDelegationGlobalId } =
     (location.state as DelegationsLocationState | null) ?? {};
 
   return (
     <>
       <PageBreadcrumbs items={[{ label: "Delegations" }]} />
-      <DelegationsGrid currentDelegationId={currentDelegationId} />
+      <DelegationsGrid currentDelegationGlobalId={currentDelegationGlobalId} />
     </>
   );
 };

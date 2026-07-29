@@ -30,6 +30,6 @@ public class CurrentTenantController(ITenantService tenantService, UserManager<A
     {
         var user = await _userManager.GetAppUserAsync(User);
         var tenant = await _tenantService.GetRequiredDefaultAsync(user, cancellationToken);
-        return Ok(new CurrentTenantDto { Id = tenant.Id });
+        return Ok(new CurrentTenantDto { GlobalId = tenant.GlobalId });
     }
 }

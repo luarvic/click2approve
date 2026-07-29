@@ -7,11 +7,11 @@ import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
 import { toast } from "react-toastify";
 
 export const listApprovalStepTemplates = async (
-  tenantId: number
+  tenantGlobalId: string
 ): Promise<ApprovalStepTemplate[]> => {
   try {
     const { data } = await axios.get<ApprovalStepTemplate[]>(
-      `api/v1/tenants/${tenantId}/approvalStepTemplates`
+      `api/v1/tenants/${tenantGlobalId}/approvalStepTemplates`
     );
     return data;
   } catch (e) {
@@ -21,12 +21,12 @@ export const listApprovalStepTemplates = async (
 };
 
 export const createApprovalStepTemplate = async (
-  tenantId: number,
+  tenantGlobalId: string,
   payload: UpsertApprovalStepTemplateRequest
 ): Promise<ApprovalStepTemplate | null> => {
   try {
     const { data } = await axios.post<ApprovalStepTemplate>(
-      `api/v1/tenants/${tenantId}/approvalStepTemplates`,
+      `api/v1/tenants/${tenantGlobalId}/approvalStepTemplates`,
       payload
     );
     return data;
@@ -37,13 +37,13 @@ export const createApprovalStepTemplate = async (
 };
 
 export const updateApprovalStepTemplate = async (
-  tenantId: number,
-  templateId: number,
+  tenantGlobalId: string,
+  templateGlobalId: string,
   payload: UpsertApprovalStepTemplateRequest
 ): Promise<ApprovalStepTemplate | null> => {
   try {
     const { data } = await axios.put<ApprovalStepTemplate>(
-      `api/v1/tenants/${tenantId}/approvalStepTemplates/${templateId}`,
+      `api/v1/tenants/${tenantGlobalId}/approvalStepTemplates/${templateGlobalId}`,
       payload
     );
     return data;
@@ -54,12 +54,12 @@ export const updateApprovalStepTemplate = async (
 };
 
 export const deleteApprovalStepTemplate = async (
-  tenantId: number,
-  templateId: number
+  tenantGlobalId: string,
+  templateGlobalId: string
 ): Promise<boolean> => {
   try {
     await axios.delete(
-      `api/v1/tenants/${tenantId}/approvalStepTemplates/${templateId}`
+      `api/v1/tenants/${tenantGlobalId}/approvalStepTemplates/${templateGlobalId}`
     );
     return true;
   } catch (e) {

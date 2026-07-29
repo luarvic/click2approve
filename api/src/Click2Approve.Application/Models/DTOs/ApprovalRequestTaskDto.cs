@@ -14,13 +14,13 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
     [SetsRequiredMembers]
     protected ApprovalRequestTaskDto(ApprovalRequestTaskDto source)
     {
-        Id = source.Id;
+        GlobalId = source.GlobalId;
         Title = source.Title;
         Status = source.Status;
         CreatedAt = source.CreatedAt;
-        ApprovalRequestId = source.ApprovalRequestId;
-        ApprovalRequestStepId = source.ApprovalRequestStepId;
-        ApprovalRequestStepApproverId = source.ApprovalRequestStepApproverId;
+        ApprovalRequestGlobalId = source.ApprovalRequestGlobalId;
+        ApprovalRequestStepGlobalId = source.ApprovalRequestStepGlobalId;
+        ApprovalRequestStepApproverGlobalId = source.ApprovalRequestStepApproverGlobalId;
         ApproverUserId = source.ApproverUserId;
         ApproverEmail = source.ApproverEmail;
         ApproverDisplayName = source.ApproverDisplayName;
@@ -30,9 +30,9 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
         LogEntries = source.LogEntries;
     }
 
-    public long ApprovalRequestId { get; init; }
-    public long ApprovalRequestStepId { get; init; }
-    public long? ApprovalRequestStepApproverId { get; init; }
+    public Guid ApprovalRequestGlobalId { get; init; }
+    public Guid ApprovalRequestStepGlobalId { get; init; }
+    public Guid? ApprovalRequestStepApproverGlobalId { get; init; }
     public string? ApproverUserId { get; init; }
     public required string ApproverEmail { get; init; }
     public required string ApproverDisplayName { get; init; }

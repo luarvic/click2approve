@@ -5,18 +5,18 @@ import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
 
 interface ApprovalStepTemplatesLocationState {
-  currentTemplateId?: number;
+  currentTemplateGlobalId?: string;
 }
 
 const ApprovalStepTemplatesPage = () => {
   usePageTitle("Templates");
   const location = useLocation();
-  const { currentTemplateId } =
+  const { currentTemplateGlobalId } =
     (location.state as ApprovalStepTemplatesLocationState | null) ?? {};
   return (
     <>
       <PageBreadcrumbs items={[{ label: "Templates" }]} />
-      <ApprovalStepTemplatesGrid currentTemplateId={currentTemplateId} />
+      <ApprovalStepTemplatesGrid currentTemplateGlobalId={currentTemplateGlobalId} />
     </>
   );
 };

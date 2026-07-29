@@ -10,7 +10,10 @@ public abstract class DbEntity
         ReferenceHandler = ReferenceHandler.IgnoreCycles
     };
 
+    [JsonIgnore]
     public long Id { get; set; }
+
+    public Guid GlobalId { get; set; } = Guid.NewGuid();
 
     public override string ToString()
     {

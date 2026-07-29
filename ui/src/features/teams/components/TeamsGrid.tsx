@@ -18,42 +18,42 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface TeamsGridProps {
-  currentTeamId?: number;
+  currentTeamGlobalId?: string;
 }
 
-const TeamsGrid: React.FC<TeamsGridProps> = ({ currentTeamId }) => {
+const TeamsGrid: React.FC<TeamsGridProps> = ({ currentTeamGlobalId }) => {
   const navigate = useNavigate();
-  const tenantId = stores.tenantStore.currentTenantId;
-  const teamsLoaderPrefix = tenantId ? `api/v1/tenants/${tenantId}/teams` : "";
-  const employeesLoaderPrefix = tenantId ? `api/v1/tenants/${tenantId}/users` : "";
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const teamsLoaderPrefix = tenantGlobalId ? `api/v1/tenants/${tenantGlobalId}/teams` : "";
+  const employeesLoaderPrefix = tenantGlobalId ? `api/v1/tenants/${tenantGlobalId}/users` : "";
   const canModifyTeams =
     stores.tenantStore.currentTenant?.role === EmployeeRole.Admin ||
     stores.tenantStore.currentTenant?.isOwner === true;
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     stores.teamStore.teams,
-    currentTeamId,
+    currentTeamGlobalId,
   );
 
   useEffect(() => {
     stores.teamStore.clear();
     stores.employeeStore.clear();
-  }, [tenantId]);
+  }, [tenantGlobalId]);
 
   useGridRefresh(() => {
-    if (tenantId) {
+    if (tenantGlobalId) {
       return Promise.all([
-        stores.teamStore.load(tenantId, true),
-        stores.employeeStore.load(tenantId, true),
+        stores.teamStore.load(tenantGlobalId, true),
+        stores.employeeStore.load(tenantGlobalId, true),
       ]).then(() => undefined);
     }
-  }, tenantId);
+  }, tenantGlobalId);
 
   const customToolbar = () => {
     return (
       <GridToolbarContainer>
         <Button
           startIcon={<Add />}
-          onClick={() => navigate(Routes.tenantPath(tenantId!, "/teams/new"))}
+          onClick={() => navigate(Routes.tenantPath(tenantGlobalId!, "/teams/new"))}
         >
           New team
         </Button>
@@ -73,11 +73,12 @@ const TeamsGrid: React.FC<TeamsGridProps> = ({ currentTeamId }) => {
     <Box sx={DataGrids.containerSx}>
       <DataGrid
         rows={stores.teamStore.teams}
+        getRowId={(row) => row.globalId}
         columns={columns}
-        rowSelectionModel={currentTeamId === undefined ? [] : [currentTeamId]}
+        rowSelectionModel={currentTeamGlobalId === undefined ? [] : [currentTeamGlobalId]}
         hideFooterSelectedRowCount
         onRowClick={(params) =>
-          navigate(Routes.tenantPath(tenantId!, `/teams/${(params.row as Team).id}`))
+          navigate(Routes.tenantPath(tenantGlobalId!, `/teams/${(params.row as Team).globalId}`))
         }
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}

@@ -486,8 +486,8 @@ export const Errors = {
 
 const inboxPath = "/inbox";
 
-const tenantPath = (tenantId: number, path: string): string =>
-  `/tenants/${tenantId}${path}`;
+const tenantPath = (tenantGlobalId: string, path: string): string =>
+  `/tenants/${tenantGlobalId}${path}`;
 
 export const Routes = {
   defaultPath: "/",

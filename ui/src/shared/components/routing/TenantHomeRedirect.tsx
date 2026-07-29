@@ -9,9 +9,9 @@ const TenantHomeRedirect = () => {
     return <LoadingOverlay />;
   }
 
-  const tenantId = stores.tenantStore.currentTenantId;
-  return tenantId ? (
-    <Navigate to={Routes.tenantPath(tenantId, Routes.inboxPath)} replace />
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  return tenantGlobalId ? (
+    <Navigate to={Routes.tenantPath(tenantGlobalId, Routes.inboxPath)} replace />
   ) : (
     <Navigate to="/signIn" replace />
   );

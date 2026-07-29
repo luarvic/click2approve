@@ -5,17 +5,17 @@ import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
 
 interface TeamsLocationState {
-  currentTeamId?: number;
+  currentTeamGlobalId?: string;
 }
 
 const TeamsPage = () => {
   usePageTitle("Teams");
   const location = useLocation();
-  const { currentTeamId } = (location.state as TeamsLocationState | null) ?? {};
+  const { currentTeamGlobalId } = (location.state as TeamsLocationState | null) ?? {};
   return (
     <>
       <PageBreadcrumbs items={[{ label: "Teams" }]} />
-      <TeamsGrid currentTeamId={currentTeamId} />
+      <TeamsGrid currentTeamGlobalId={currentTeamGlobalId} />
     </>
   );
 };

@@ -47,12 +47,12 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
 interface ApprovalRequestSubmitProps {
-  initialTemplateId?: number;
-  onClose: (currentApprovalRequestId?: number) => void;
+  initialTemplateGlobalId?: string;
+  onClose: (currentApprovalRequestGlobalId?: string) => void;
 }
 
 const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
-  initialTemplateId,
+  initialTemplateGlobalId,
   onClose,
 }) => {
   const fileInput = useRef<HTMLInputElement>(null);
@@ -68,8 +68,8 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   const [stepVisibility, setStepVisibility] = useState<Record<string, boolean>>({});
   const initialTemplateHasBeenApplied = useRef(false);
 
-  const tenantId = stores.tenantStore.currentTenantId;
-  const outboxPath = tenantId ? Routes.tenantPath(tenantId, "/outbox") : "/";
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
   const businessTenantIsSelected =
     stores.tenantStore.currentTenant?.type === TenantType.Business;
   const canUseEmployees =
@@ -79,7 +79,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   const canUseTemplates =
     businessTenantIsSelected &&
     stores.productStore.approvalStepTemplatesAreEnabled &&
-    tenantId !== null;
+    tenantGlobalId !== null;
   const requestToClone = stores.approvalRequestStore.requestToClone;
   const isRevision = Boolean(
     requestToClone && stores.productStore.approvalRequestRevisionsAreEnabled,
@@ -96,7 +96,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
           .filter((file) => file.revisionAction !== ApprovalRequestFileRevisionAction.Removed)
           .map((file) => ({
             file: file.userFile,
-            requestFileId: file.id,
+            requestFileGlobalId: file.globalId,
           })),
       );
       setRemovedExistingFiles([]);
@@ -104,21 +104,21 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       setDescription(requestToClone.description ?? "");
     }
 
-    if (tenantId && businessTenantIsSelected) {
+    if (tenantGlobalId && businessTenantIsSelected) {
       if (canUseEmployees) {
-        stores.employeeStore.load(tenantId);
+        stores.employeeStore.load(tenantGlobalId);
       }
       if (canUseTeams) {
-        stores.teamStore.load(tenantId);
+        stores.teamStore.load(tenantGlobalId);
       }
       if (canUseTemplates) {
-        void stores.approvalStepTemplateStore.load(tenantId).then(() => {
-          if (initialTemplateHasBeenApplied.current || !initialTemplateId) {
+        void stores.approvalStepTemplateStore.load(tenantGlobalId).then(() => {
+          if (initialTemplateHasBeenApplied.current || !initialTemplateGlobalId) {
             return;
           }
 
           const template = stores.approvalStepTemplateStore.templates.find(
-            (item) => item.id === initialTemplateId,
+            (item) => item.globalId === initialTemplateGlobalId,
           );
           if (template) {
             setSteps(createEditableSteps(template.steps));
@@ -129,12 +129,12 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     }
   }, [
     requestToClone,
-    tenantId,
+    tenantGlobalId,
     businessTenantIsSelected,
     canUseEmployees,
     canUseTeams,
     canUseTemplates,
-    initialTemplateId,
+    initialTemplateGlobalId,
   ]);
 
   const handleUploadClick = () => {
@@ -283,9 +283,9 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
             return !approver.email?.trim();
           }
           if (approver.type === ApprovalRecipientType.Employee) {
-            return !approver.employeeId;
+            return !approver.employeeGlobalId;
           }
-          return !approver.teamId;
+          return !approver.teamGlobalId;
         }),
     );
 
@@ -339,10 +339,10 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       return approver.displayName;
     }
     if (approver.type === ApprovalRecipientType.Employee) {
-      return stores.employeeStore.employees.find((employee) => employee.id === approver.employeeId)?.displayName ?? "Employee";
+      return stores.employeeStore.employees.find((employee) => employee.globalId === approver.employeeGlobalId)?.displayName ?? "Employee";
     }
     if (approver.type === ApprovalRecipientType.Team) {
-      return stores.teamStore.teams.find((team) => team.id === approver.teamId)?.name ?? "Team";
+      return stores.teamStore.teams.find((team) => team.globalId === approver.teamGlobalId)?.name ?? "Team";
     }
     return approver.email || "Email";
   };
@@ -385,7 +385,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     if (!validateDraft()) {
       return;
     }
-    if (!tenantId) {
+    if (!tenantGlobalId) {
       return;
     }
 
@@ -393,7 +393,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       .map((file) => file.replacement)
       .filter((file): file is File => Boolean(file));
     const filesToUpload = [...replacementFiles, ...newFiles];
-    const uploadedFiles = await uploadUserFiles(tenantId, filesToUpload);
+    const uploadedFiles = await uploadUserFiles(tenantGlobalId, filesToUpload);
     if (uploadedFiles.length !== filesToUpload.length) {
       toast.error("One or more files could not be uploaded.");
       return;
@@ -408,27 +408,27 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       if (file.replacement) {
         const replacement = uploadedReplacements[replacementIndex++];
         requestFiles.push({
-          userFileId: replacement.id,
+          userFileGlobalId: replacement.globalId,
           sequence: index,
           revisionAction: ApprovalRequestFileRevisionAction.Replaced,
-          previousApprovalRequestFileId: file.requestFileId,
+          previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
         });
         return;
       }
 
       requestFiles.push({
-        userFileId: file.file.id,
+        userFileGlobalId: file.file.globalId,
         sequence: index,
         revisionAction: isRevision
           ? ApprovalRequestFileRevisionAction.Unchanged
           : ApprovalRequestFileRevisionAction.Added,
-        previousApprovalRequestFileId: file.requestFileId,
+        previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
       });
     });
 
     uploadedNewFiles.forEach((file, index) => {
       requestFiles.push({
-        userFileId: file.id,
+        userFileGlobalId: file.globalId,
         sequence: existingFiles.length + index,
         revisionAction: isRevision
           ? ApprovalRequestFileRevisionAction.Added
@@ -438,24 +438,24 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
 
     removedExistingFiles.forEach((file, index) => {
       requestFiles.push({
-        userFileId: file.file.id,
+        userFileGlobalId: file.file.globalId,
         sequence: existingFiles.length + uploadedNewFiles.length + index,
         revisionAction: ApprovalRequestFileRevisionAction.Removed,
-        previousApprovalRequestFileId: file.requestFileId,
+        previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
       });
     });
 
-    const approvalRequestId = isRevision && requestToClone
+    const approvalRequestGlobalId = isRevision && requestToClone
       ? await resubmitApprovalRequest(
-        tenantId,
-        requestToClone.id,
+        tenantGlobalId,
+        requestToClone.globalId,
         toApprovalStepSubmissions(steps),
         createStepVisibilitySubmissions(),
         description,
         requestFiles,
       )
       : await submitApprovalRequest(
-        tenantId,
+        tenantGlobalId,
         trimmedTitle,
         toApprovalStepSubmissions(steps),
         createStepVisibilitySubmissions(),
@@ -463,19 +463,19 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
         undefined,
         requestFiles,
       );
-    if (approvalRequestId) {
+    if (approvalRequestGlobalId) {
       showPersistenceSuccessToast(
         PersistenceSuccessMessages.approvalRequestSubmitted,
       );
       cleanUp();
       stores.approvalRequestStore.clear();
       const [, createdRequest] = await Promise.all([
-        stores.approvalRequestStore.load(tenantId),
-        stores.approvalRequestStore.loadDetails(tenantId, approvalRequestId),
+        stores.approvalRequestStore.load(tenantGlobalId),
+        stores.approvalRequestStore.loadDetails(tenantGlobalId, approvalRequestGlobalId),
       ]);
       stores.approvalRequestStore.setCurrent(createdRequest ?? null);
-      stores.approvalRequestTaskStore.loadUncompletedCount(tenantId);
-      onClose(createdRequest?.id);
+      stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
+      onClose(createdRequest?.globalId);
     }
   };
 
@@ -485,7 +485,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
         items={[
           {
             label: "Outbox",
-            state: requestToClone ? { currentApprovalRequestId: requestToClone.id } : undefined,
+            state: requestToClone ? { currentApprovalRequestGlobalId: requestToClone.globalId } : undefined,
             to: outboxPath,
           },
           { label: isRevision ? "Resubmit request" : "New request" },

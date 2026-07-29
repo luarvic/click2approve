@@ -7,7 +7,7 @@ namespace Click2Approve.Application.Models.DTOs;
 /// </summary>
 public class ApprovalRequestTaskListItemDto
 {
-    public long Id { get; init; }
+    public Guid GlobalId { get; init; }
     public required string Title { get; init; }
     public ApprovalRequestTaskStatus Status { get; init; }
     public DateTime CreatedAt { get; init; }

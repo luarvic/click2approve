@@ -7,8 +7,8 @@ import { Stack, Typography } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 
 interface ApprovalRequestSummaryProps {
-  approvalRequestId?: number;
-  approvalRequestTaskId?: number;
+  approvalRequestGlobalId?: string;
+  approvalRequestTaskGlobalId?: string;
   description?: string;
   title: string;
   requestFiles?: ApprovalRequestFile[];
@@ -27,8 +27,8 @@ const summaryDescriptionSx: SxProps<Theme> = {
 };
 
 const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
-  approvalRequestId,
-  approvalRequestTaskId,
+  approvalRequestGlobalId,
+  approvalRequestTaskGlobalId,
   description,
   title,
   requestFiles,
@@ -64,8 +64,8 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
       )}
       <ApprovalRequestFilesBox
         requestFiles={requestFiles}
-        approvalRequestId={approvalRequestId}
-        approvalRequestTaskId={approvalRequestTaskId}
+        approvalRequestGlobalId={approvalRequestGlobalId}
+        approvalRequestTaskGlobalId={approvalRequestTaskGlobalId}
         compareWithPrevious={compareFilesWithPrevious}
         showFileStateIndicators={showFileStateIndicators}
       />

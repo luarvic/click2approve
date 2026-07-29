@@ -5,9 +5,9 @@ import { ApprovalRequestTaskListItem } from "./approvalRequestTaskListItem";
 
 export interface ApprovalRequestTask extends ApprovalRequestTaskListItem {
   approvalRequest?: ApprovalRequest;
-  approvalRequestId: number;
-  approvalRequestStepId: number;
-  approvalRequestStepApproverId?: number;
+  approvalRequestGlobalId: string;
+  approvalRequestStepGlobalId: string;
+  approvalRequestStepApproverGlobalId?: string;
   approverUserId?: string;
   approverEmail: string;
   approverDisplayName: string;

@@ -4,7 +4,7 @@ import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
 import { toast } from "react-toastify";
 
 export const uploadUserFiles = async (
-  tenantId: number,
+  tenantGlobalId: string,
   files: FileList | File[]
 ): Promise<UserFile[]> => {
   try {
@@ -13,7 +13,7 @@ export const uploadUserFiles = async (
       formData.append("files", file);
     });
     const { data } = await axios.post<UserFile[]>(
-      `api/v1/tenants/${tenantId}/files/upload`,
+      `api/v1/tenants/${tenantGlobalId}/files/upload`,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
@@ -27,12 +27,12 @@ export const uploadUserFiles = async (
 };
 
 export const downloadUserFileBase64 = async (
-  tenantId: number,
-  id: number
+  tenantGlobalId: string,
+  globalId: string
 ): Promise<string | null> => {
   try {
     const { data } = await axios.get(
-      `api/v1/tenants/${tenantId}/files/${id}/downloadBase64`,
+      `api/v1/tenants/${tenantGlobalId}/files/${globalId}/downloadBase64`,
     );
     return data;
   } catch (e) {

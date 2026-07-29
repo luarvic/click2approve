@@ -1,5 +1,6 @@
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Application.Extensions;
+using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Application.Persistence;
 using Click2Approve.Domain.Models;
 using Click2Approve.Application.Services.FileStorage;
@@ -31,7 +32,7 @@ public class UserFileService(
     /// <summary>
     /// Uploads a user file.
     /// </summary>
-    public async Task<IList<UserFile>> UploadAsync(AppUser user, IFormFileCollection files, CancellationToken cancellationToken)
+    public async Task<IList<UserFileDto>> UploadAsync(AppUser user, IFormFileCollection files, CancellationToken cancellationToken)
     {
         await CheckLimitations(user, files, cancellationToken);
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
@@ -63,33 +64,33 @@ public class UserFileService(
             await _fileStorage.SaveAsync(GetFilePath(user.Id, id, Path.GetFileName(file.FileName)), bytes, cancellationToken);
         }
 
-        return userFiles;
+        return [.. userFiles.Select(UserFileMapper.MapUserFile)];
     }
 
     /// <summary>
     /// Downloads the user file.
     /// </summary>
-    public async Task<(string Filename, byte[] Bytes)> DownloadAsync(AppUser user, long id, CancellationToken cancellationToken)
+    public async Task<(string Filename, byte[] Bytes)> DownloadAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
-        var userFile = await _userFileRepository.GetForDownloadAsync(user, id, cancellationToken);
+        var userFile = await _userFileRepository.GetForDownloadAsync(user, globalId, cancellationToken);
         return await ReadAsync(userFile, cancellationToken);
     }
 
     /// <summary>
     /// Downloads a file attached to an approval request the user can access.
     /// </summary>
-    public async Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestFileAsync(AppUser user, long id, long approvalRequestId, CancellationToken cancellationToken)
+    public async Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestFileAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken)
     {
-        var userFile = await _userFileRepository.GetForApprovalRequestDownloadAsync(user, id, approvalRequestId, cancellationToken);
+        var userFile = await _userFileRepository.GetForApprovalRequestDownloadAsync(user, globalId, approvalRequestGlobalId, cancellationToken);
         return await ReadAsync(userFile, cancellationToken);
     }
 
     /// <summary>
     /// Downloads a file attached to an approval request task the user can access.
     /// </summary>
-    public async Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestTaskFileAsync(AppUser user, long id, long approvalRequestTaskId, CancellationToken cancellationToken)
+    public async Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestTaskFileAsync(AppUser user, Guid globalId, Guid approvalRequestTaskGlobalId, CancellationToken cancellationToken)
     {
-        var userFile = await _userFileRepository.GetForApprovalRequestTaskDownloadAsync(user, id, approvalRequestTaskId, cancellationToken);
+        var userFile = await _userFileRepository.GetForApprovalRequestTaskDownloadAsync(user, globalId, approvalRequestTaskGlobalId, cancellationToken);
         return await ReadAsync(userFile, cancellationToken);
     }
 
@@ -105,26 +106,26 @@ public class UserFileService(
     /// <summary>
     /// Lists the user files.
     /// </summary>
-    public async Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken)
+    public async Task<IList<UserFileDto>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
         var userFiles = await _userFileRepository.ListAsync(user, cancellationToken);
-        return userFiles;
+        return [.. userFiles.Select(UserFileMapper.MapUserFile)];
     }
 
     /// <summary>
     /// Deletes the user file.
     /// </summary>
-    public async Task DeleteAsync(AppUser user, long id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
         // Delete related approval requests first.
-        var approvalRequests = await _approvalRequestRepository.ListAsync(user, id, cancellationToken);
+        var approvalRequests = await _approvalRequestRepository.ListAsync(user, globalId, cancellationToken);
         if (approvalRequests.Count > 0)
         {
             throw new BusinessRuleException("Files attached to approval requests cannot be deleted.");
         }
 
         // Delete the file.
-        var userFile = await _userFileRepository.GetForDeleteAsync(user, id, cancellationToken);
+        var userFile = await _userFileRepository.GetForDeleteAsync(user, globalId, cancellationToken);
         _userFileRepository.Remove(userFile);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         await _fileStorage.DeleteAsync(GetFilePath(user.Id, userFile.Id.ToString(), userFile.Name), cancellationToken);
@@ -160,4 +161,5 @@ public class UserFileService(
     {
         return Path.Combine(userId, fileId, fileName);
     }
+
 }

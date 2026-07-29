@@ -19,29 +19,29 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
         return entry.Entity;
     }
 
-    public virtual async Task<ApprovalRequest> GetForUpdateAsync(AppUser user, long id, CancellationToken cancellationToken)
+    public virtual async Task<ApprovalRequest> GetForUpdateAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await IncludeDetails(Db.ApprovalRequests)
-            .FirstAsync(r => r.TenantId == tenantId && r.Id == id && r.CreatedByUserId == user.Id, cancellationToken);
+            .FirstAsync(r => r.TenantId == tenantId && r.GlobalId == globalId && r.CreatedByUserId == user.Id, cancellationToken);
     }
 
-    public virtual async Task<ApprovalRequest> GetAsync(AppUser user, long id, CancellationToken cancellationToken)
+    public virtual async Task<ApprovalRequest> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await IncludeDetails(Db.ApprovalRequests)
             .AsNoTracking()
-            .FirstAsync(r => r.Id == id
+            .FirstAsync(r => r.GlobalId == globalId
                 && r.TenantId == tenantId
                 && r.CreatedByUserId == user.Id, cancellationToken);
     }
 
-    public async Task<IList<ApprovalRequest>> ListAsync(AppUser user, long userFileId, CancellationToken cancellationToken)
+    public async Task<IList<ApprovalRequest>> ListAsync(AppUser user, Guid userFileGlobalId, CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.ApprovalRequests
             .Where(r => r.TenantId == tenantId
-                && r.RequestFiles.Any(file => file.UserFileId == userFileId))
+                && r.RequestFiles.Any(file => file.UserFile.GlobalId == userFileGlobalId))
             .ToListAsync(cancellationToken);
     }
 
@@ -67,13 +67,12 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
         .Include(request => request.RequestFiles)
             .ThenInclude(file => file.UserFile)
         .Include(request => request.LogEntries)
-        .Include(request => request.Tasks)
-            .ThenInclude(task => task.LogEntries)
         .Include(request => request.Steps)
             .ThenInclude(step => step.Approvers)
         .Include(request => request.Steps)
             .ThenInclude(step => step.StepVisibilities)
                 .ThenInclude(visibility => visibility.ApprovalRequestStepApprover)
         .Include(request => request.Steps)
-            .ThenInclude(step => step.Tasks);
+            .ThenInclude(step => step.Tasks)
+                .ThenInclude(task => task.LogEntries);
 }

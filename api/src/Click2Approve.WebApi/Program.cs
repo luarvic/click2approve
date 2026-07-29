@@ -51,6 +51,7 @@ builder.Services.AddSwagger();
 
 builder.Services.AddScoped<IApprovalLogActorResolver, UserApprovalLogActorResolver>();
 builder.Services.AddScoped<IApprovalRecipientResolver, EmailOnlyApprovalRecipientResolver>();
+builder.Services.AddScoped<IApprovalRequestApproverGlobalIdResolver, DefaultApprovalRequestApproverGlobalIdResolver>();
 builder.Services.AddScoped<IApprovalRequestService, ApprovalRequestService>();
 builder.Services.AddScoped<IFileStorage, FileSystemFileStorage>();
 builder.Services.AddScoped<ITenantService, TenantService>();

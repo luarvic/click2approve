@@ -14,14 +14,14 @@ interface TenantDialogProps {
   canDelete: boolean;
   canEdit: boolean;
   tenant?: Tenant | null;
-  onClose: (currentTenantId?: number) => void;
-  onDelete: (tenantId: number) => Promise<boolean>;
+  onClose: (currentTenantGlobalId?: string) => void;
+  onDelete: (tenantGlobalId: string) => Promise<boolean>;
   onSubmit: (
     payload: CreateTenantRequest | UpdateTenantRequest,
-    tenantId?: number,
+    tenantGlobalId?: string,
   ) => Promise<Tenant | null>;
-  onLogoUpload: (tenantId: number, logo: File) => Promise<boolean>;
-  onLogoDelete: (tenantId: number) => Promise<boolean>;
+  onLogoUpload: (tenantGlobalId: string, logo: File) => Promise<boolean>;
+  onLogoDelete: (tenantGlobalId: string) => Promise<boolean>;
 }
 
 const TenantDialog: React.FC<TenantDialogProps> = ({
@@ -67,7 +67,7 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
         address: address.trim() || undefined,
         websiteUrl: websiteUrl.trim() || undefined,
       },
-      tenant?.id,
+      tenant?.globalId,
     );
 
     if (!savedTenant) {
@@ -75,20 +75,20 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
     }
 
     if (logoWasRemoved) {
-      const deleted = await onLogoDelete(savedTenant.id);
+      const deleted = await onLogoDelete(savedTenant.globalId);
       if (!deleted) {
         return;
       }
     }
 
     if (logoFile) {
-      const uploaded = await onLogoUpload(savedTenant.id, logoFile);
+      const uploaded = await onLogoUpload(savedTenant.globalId, logoFile);
       if (!uploaded) {
         return;
       }
     }
 
-    onClose(savedTenant.id);
+    onClose(savedTenant.globalId);
   };
 
   const handleLogoSelect = (file: File | null) => {
@@ -107,7 +107,7 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
         items={[
           {
             label: "Organizations",
-            state: tenant ? { currentTenantId: tenant.id } : undefined,
+            state: tenant ? { currentTenantGlobalId: tenant.globalId } : undefined,
             to: "/tenants",
           },
           { label: isNew ? "New organization" : "Organization" },
@@ -158,7 +158,7 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
         spacing={Dialogs.stepHeaderSpacing}
         sx={Dialogs.addStepButtonSx}
       >
-        <Button variant="outlined" onClick={() => onClose(tenant?.id)}>
+        <Button variant="outlined" onClick={() => onClose(tenant?.globalId)}>
           Cancel
         </Button>
         {!isNew && canDelete && (
@@ -186,7 +186,7 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
           open={deleteDialogIsOpen}
           title="Delete organization"
           onClose={() => setDeleteDialogIsOpen(false)}
-          onDelete={() => onDelete(tenant.id)}
+          onDelete={() => onDelete(tenant.globalId)}
         />
       )}
     </>

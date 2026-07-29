@@ -40,18 +40,18 @@ const deferred = <T,>() => {
   return { promise, resolve };
 };
 
-const employee = (id: number, tenantId: number): Employee => ({
-  id,
-  tenantId,
-  email: `employee-${id}@example.com`,
-  displayName: `Employee ${id} (employee-${id}@example.com)`,
+const employee = (globalId: string, tenantGlobalId: string): Employee => ({
+  globalId,
+  tenantGlobalId,
+  email: `employee-@example.com`,
+  displayName: `Employee  (employee-@example.com)`,
   role: EmployeeRole.User,
   status: EmployeeStatus.Active,
 });
 
-const approvalRequest = (id: number): ApprovalRequest => ({
-  id,
-  title: `Request ${id}`,
+const approvalRequest = (globalId: string): ApprovalRequest => ({
+  globalId,
+  title: `Request `,
   requestFiles: [],
   steps: [],
   createdAt: "2026-01-01T00:00:00",
@@ -61,20 +61,19 @@ const approvalRequest = (id: number): ApprovalRequest => ({
   createdByDisplayName: "user@example.com",
   revisionNumber: 1,
   status: ApprovalRequestStatus.Pending,
-  tasks: [],
   logEntries: [],
   taskLogEntries: [],
 });
 
 const approvalRequestTask = (
-  id: number,
+  globalId: string,
   status: ApprovalRequestTaskStatus,
 ): ApprovalRequestTask => ({
-  id,
-  title: `Task ${id}`,
-  approvalRequest: approvalRequest(id),
-  approvalRequestId: id,
-  approvalRequestStepId: id,
+  globalId,
+  title: `Task `,
+  approvalRequest: approvalRequest(globalId),
+  approvalRequestGlobalId: globalId,
+  approvalRequestStepGlobalId: globalId,
   approverEmail: "approver@example.com",
   approverDisplayName: "approver@example.com",
   requestedByDisplayName: "user@example.com",
@@ -126,110 +125,110 @@ describe("store architecture", () => {
       .mockReturnValueOnce(secondRequest.promise);
     const store = new EmployeeStore();
 
-    const firstLoad = store.load(1);
-    const secondLoad = store.load(2);
-    secondRequest.resolve([employee(2, 2)]);
+    const firstLoad = store.load("11111111-1111-4111-8111-111111111111");
+    const secondLoad = store.load("22222222-2222-4222-8222-222222222222");
+    secondRequest.resolve([employee("22222222-2222-4222-8222-222222222222", "22222222-2222-4222-8222-222222222222")]);
     await secondLoad;
-    firstRequest.resolve([employee(1, 1)]);
+    firstRequest.resolve([employee("11111111-1111-4111-8111-111111111111", "11111111-1111-4111-8111-111111111111")]);
     await firstLoad;
 
-    expect(store.employees.map(({ id }) => id)).toEqual([2]);
+    expect(store.employees.map(({ globalId }) => globalId)).toEqual(["22222222-2222-4222-8222-222222222222"]);
   });
 
   test("a collection load atomically replaces the previous snapshot", async () => {
     vi.mocked(approvalRequestApi.listApprovalRequests)
-      .mockResolvedValueOnce([approvalRequest(1), approvalRequest(2)])
-      .mockResolvedValueOnce([approvalRequest(2)]);
+      .mockResolvedValueOnce([approvalRequest("11111111-1111-4111-8111-111111111111"), approvalRequest("22222222-2222-4222-8222-222222222222")])
+      .mockResolvedValueOnce([approvalRequest("22222222-2222-4222-8222-222222222222")]);
     const store = new ApprovalRequestStore();
 
-    await store.load(1);
-    await store.load(1);
+    await store.load("11111111-1111-4111-8111-111111111111");
+    await store.load("11111111-1111-4111-8111-111111111111");
 
-    expect(store.approvalRequests.map(({ id }) => id)).toEqual([2]);
+    expect(store.approvalRequests.map(({ globalId }) => globalId)).toEqual(["22222222-2222-4222-8222-222222222222"]);
   });
 
   test("concurrent approval request detail loads share one API request", async () => {
-    vi.mocked(approvalRequestApi.getApprovalRequest).mockResolvedValue(approvalRequest(1));
+    vi.mocked(approvalRequestApi.getApprovalRequest).mockResolvedValue(approvalRequest("11111111-1111-4111-8111-111111111111"));
     const store = new ApprovalRequestStore();
 
     const [first, second] = await Promise.all([
-      store.loadDetails(1, 1),
-      store.loadDetails(1, 1),
+      store.loadDetails("11111111-1111-4111-8111-111111111111", "11111111-1111-4111-8111-111111111111"),
+      store.loadDetails("11111111-1111-4111-8111-111111111111", "11111111-1111-4111-8111-111111111111"),
     ]);
 
     expect(approvalRequestApi.getApprovalRequest).toHaveBeenCalledOnce();
     expect(first).toBe(second);
-    expect(store.getDetail(1)).toEqual(first);
+    expect(store.getDetail("11111111-1111-4111-8111-111111111111")).toEqual(first);
   });
 
   test("sequential approval request detail loads fetch the latest record", async () => {
     vi.mocked(approvalRequestApi.getApprovalRequest)
       .mockClear()
-      .mockResolvedValueOnce(approvalRequest(1))
-      .mockResolvedValueOnce({ ...approvalRequest(1), title: "Updated request" });
+      .mockResolvedValueOnce(approvalRequest("11111111-1111-4111-8111-111111111111"))
+      .mockResolvedValueOnce({ ...approvalRequest("11111111-1111-4111-8111-111111111111"), title: "Updated request" });
     const store = new ApprovalRequestStore();
 
-    await store.loadDetails(1, 1);
-    const latest = await store.loadDetails(1, 1);
+    await store.loadDetails("11111111-1111-4111-8111-111111111111", "11111111-1111-4111-8111-111111111111");
+    const latest = await store.loadDetails("11111111-1111-4111-8111-111111111111", "11111111-1111-4111-8111-111111111111");
 
     expect(approvalRequestApi.getApprovalRequest).toHaveBeenCalledTimes(2);
     expect(latest?.title).toBe("Updated request");
-    expect(store.getDetail(1)?.title).toBe("Updated request");
+    expect(store.getDetail("11111111-1111-4111-8111-111111111111")?.title).toBe("Updated request");
   });
 
   test("incoming tasks retain every status returned by the API", async () => {
     vi.mocked(approvalRequestTaskApi.listApprovalRequestTasks).mockResolvedValue([
-      approvalRequestTask(1, ApprovalRequestTaskStatus.Pending),
-      approvalRequestTask(2, ApprovalRequestTaskStatus.Approved),
-      approvalRequestTask(3, ApprovalRequestTaskStatus.Rejected),
-      approvalRequestTask(4, ApprovalRequestTaskStatus.Skipped),
+      approvalRequestTask("11111111-1111-4111-8111-111111111111", ApprovalRequestTaskStatus.Pending),
+      approvalRequestTask("22222222-2222-4222-8222-222222222222", ApprovalRequestTaskStatus.Approved),
+      approvalRequestTask("33333333-3333-4333-8333-333333333333", ApprovalRequestTaskStatus.Rejected),
+      approvalRequestTask("44444444-4444-4444-8444-444444444444", ApprovalRequestTaskStatus.Skipped),
     ]);
     const store = new ApprovalRequestTaskStore();
 
-    await store.loadIncoming(1);
+    await store.loadIncoming("11111111-1111-4111-8111-111111111111");
 
     expect(store.tasks.map(({ status }) => status)).toEqual([
-      ApprovalRequestTaskStatus.Skipped,
-      ApprovalRequestTaskStatus.Rejected,
-      ApprovalRequestTaskStatus.Approved,
       ApprovalRequestTaskStatus.Pending,
+      ApprovalRequestTaskStatus.Approved,
+      ApprovalRequestTaskStatus.Rejected,
+      ApprovalRequestTaskStatus.Skipped,
     ]);
   });
 
   test("concurrent task detail loads share one API request", async () => {
-    const task = approvalRequestTask(1, ApprovalRequestTaskStatus.Pending);
+    const task = approvalRequestTask("11111111-1111-4111-8111-111111111111", ApprovalRequestTaskStatus.Pending);
     vi.mocked(approvalRequestTaskApi.getApprovalRequestTask).mockResolvedValue(task);
     const store = new ApprovalRequestTaskStore();
 
     const [first, second] = await Promise.all([
-      store.loadDetails(1, 1),
-      store.loadDetails(1, 1),
+      store.loadDetails("11111111-1111-4111-8111-111111111111", "11111111-1111-4111-8111-111111111111"),
+      store.loadDetails("11111111-1111-4111-8111-111111111111", "11111111-1111-4111-8111-111111111111"),
     ]);
 
     expect(approvalRequestTaskApi.getApprovalRequestTask).toHaveBeenCalledOnce();
     expect(first).toBe(second);
-    expect(store.getDetail(1)).toEqual(first);
+    expect(store.getDetail("11111111-1111-4111-8111-111111111111")).toEqual(first);
   });
 
   test("sequential task detail loads fetch the latest record", async () => {
     vi.mocked(approvalRequestTaskApi.getApprovalRequestTask)
       .mockClear()
-      .mockResolvedValueOnce(approvalRequestTask(1, ApprovalRequestTaskStatus.Pending))
-      .mockResolvedValueOnce(approvalRequestTask(1, ApprovalRequestTaskStatus.Approved));
+      .mockResolvedValueOnce(approvalRequestTask("11111111-1111-4111-8111-111111111111", ApprovalRequestTaskStatus.Pending))
+      .mockResolvedValueOnce(approvalRequestTask("11111111-1111-4111-8111-111111111111", ApprovalRequestTaskStatus.Approved));
     const store = new ApprovalRequestTaskStore();
 
-    await store.loadDetails(1, 1);
-    const latest = await store.loadDetails(1, 1);
+    await store.loadDetails("11111111-1111-4111-8111-111111111111", "11111111-1111-4111-8111-111111111111");
+    const latest = await store.loadDetails("11111111-1111-4111-8111-111111111111", "11111111-1111-4111-8111-111111111111");
 
     expect(approvalRequestTaskApi.getApprovalRequestTask).toHaveBeenCalledTimes(2);
     expect(latest?.status).toBe(ApprovalRequestTaskStatus.Approved);
-    expect(store.getDetail(1)?.status).toBe(ApprovalRequestTaskStatus.Approved);
+    expect(store.getDetail("11111111-1111-4111-8111-111111111111")?.status).toBe(ApprovalRequestTaskStatus.Approved);
   });
 
   test("signing out clears all session-scoped stores", () => {
-    const currentEmployee = employee(1, 1);
+    const currentEmployee = employee("11111111-1111-4111-8111-111111111111", "11111111-1111-4111-8111-111111111111");
     const tenant: Tenant = {
-      id: 1,
+      globalId: "11111111-1111-4111-8111-111111111111",
       businessName: "Tenant",
       type: TenantType.Business,
       ownerId: "owner-id",
@@ -237,29 +236,29 @@ describe("store architecture", () => {
       role: EmployeeRole.Admin,
     };
     const team: Team = {
-      id: 1,
-      tenantId: 1,
+      globalId: "11111111-1111-4111-8111-111111111111",
+      tenantGlobalId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
       name: "Team",
       members: [currentEmployee],
     };
     const template: ApprovalStepTemplate = {
-      id: 1,
-      tenantId: 1,
+      globalId: "11111111-1111-4111-8111-111111111111",
+      tenantGlobalId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
       name: "Template",
       steps: [],
     };
-    const request = approvalRequest(1);
+    const request = approvalRequest("11111111-1111-4111-8111-111111111111");
     runInAction(() => {
       stores.userAccountStore.currentUser = {
         email: "user@example.com",
         isEmailConfirmed: true,
       };
       stores.tenantStore.tenants = [tenant];
-      stores.tenantStore.currentTenantId = tenant.id;
+      stores.tenantStore.currentTenantGlobalId = tenant.globalId;
       stores.employeeStore.employees = [currentEmployee];
       stores.teamStore.teams = [team];
       stores.approvalStepTemplateStore.templates = [template];
-      stores.approvalRequestStore.registry.set(request.id, request);
+      stores.approvalRequestStore.registry.set(request.globalId, request);
       stores.approvalRequestTaskStore.numberOfUncompletedTasks = 3;
     });
     stores.approvalRequestStore.setCurrent(request);
@@ -289,22 +288,22 @@ describe("store architecture", () => {
       .mockResolvedValue(0);
     runInAction(() => {
       stores.teamStore.teams = [{
-        id: 1,
-        tenantId: 1,
+        globalId: "11111111-1111-4111-8111-111111111111",
+        tenantGlobalId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
         name: "Old tenant team",
         members: [],
       }];
       stores.approvalStepTemplateStore.templates = [{
-        id: 1,
-        tenantId: 1,
+        globalId: "11111111-1111-4111-8111-111111111111",
+        tenantGlobalId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
         name: "Old tenant template",
         steps: [],
       }];
     });
 
-    await stores.switchTenant(2);
+    await stores.switchTenant("cccccccc-cccc-4ccc-8ccc-cccccccccccc");
 
-    expect(stores.tenantStore.currentTenantId).toBe(2);
+    expect(stores.tenantStore.currentTenantGlobalId).toBe("cccccccc-cccc-4ccc-8ccc-cccccccccccc");
     expect(stores.teamStore.teams).toEqual([]);
     expect(stores.approvalStepTemplateStore.templates).toEqual([]);
     expect(approvalRequestApi.listApprovalRequests).toHaveBeenCalledOnce();

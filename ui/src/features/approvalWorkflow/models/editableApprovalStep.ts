@@ -36,8 +36,8 @@ const toApprovalStep = (step: EditableApprovalStep): ApprovalStep => ({
   approvers: step.approvers.map((approver) => ({
     type: approver.type,
     email: approver.email,
-    employeeId: approver.employeeId,
-    teamId: approver.teamId,
+    employeeGlobalId: approver.employeeGlobalId,
+    teamGlobalId: approver.teamGlobalId,
   })),
 });
 

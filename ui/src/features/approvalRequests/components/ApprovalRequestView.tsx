@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface ApprovalRequestViewProps {
-  onClose: (currentApprovalRequestId?: number) => void;
+  onClose: (currentApprovalRequestGlobalId?: string) => void;
 }
 
 const resubmittableApprovalRequestStatuses = [
@@ -30,13 +30,13 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
 }) => {
   const navigate = useNavigate();
   const approvalRequest = stores.approvalRequestStore.currentApprovalRequest;
-  const tenantId = stores.tenantStore.currentTenantId;
-  const outboxPath = tenantId ? Routes.tenantPath(tenantId, "/outbox") : "/";
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
   const [selectedTab, setSelectedTab] = useState("request");
   const canResubmit = Boolean(
     approvalRequest &&
     stores.productStore.approvalRequestRevisionsAreEnabled &&
-    !approvalRequest.nextRevisionApprovalRequestId &&
+    !approvalRequest.nextRevisionApprovalRequestGlobalId &&
     resubmittableApprovalRequestStatuses.includes(approvalRequest.status),
   );
 
@@ -45,7 +45,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
   }, [approvalRequest]);
 
   const handleClose = () => {
-    onClose(approvalRequest?.id);
+    onClose(approvalRequest?.globalId);
   };
 
   const handleResubmit = () => {
@@ -54,8 +54,8 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
     }
 
     navigate(
-      tenantId
-        ? Routes.tenantPath(tenantId, `/outbox/${approvalRequest.id}/resubmit`)
+      tenantGlobalId
+        ? Routes.tenantPath(tenantGlobalId, `/outbox/${approvalRequest.globalId}/resubmit`)
         : "/",
     );
   };
@@ -66,7 +66,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
         items={[
           {
             label: "Outbox",
-            state: approvalRequest ? { currentApprovalRequestId: approvalRequest.id } : undefined,
+            state: approvalRequest ? { currentApprovalRequestGlobalId: approvalRequest.globalId } : undefined,
             to: outboxPath,
           },
           { label: "Request" },

@@ -1,12 +1,12 @@
 using Click2Approve.Application.Extensions;
 using Click2Approve.Application.Helpers;
 using Click2Approve.Application.Models.DTOs;
+using Click2Approve.Application.Persistence;
 using Click2Approve.Application.Services.FileStorage;
 using Click2Approve.Application.Services.Notifications;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 
 namespace Click2Approve.Application.Services.UserProfiles;
 
@@ -15,15 +15,16 @@ namespace Click2Approve.Application.Services.UserProfiles;
 /// </summary>
 public class UserProfileService(
     UserManager<AppUser> userManager,
+    ITenantRepository tenantRepository,
     IUserNotificationPreferenceService notificationPreferenceService,
     IUserProfileAccessService profileAccessService,
     IFileStorage fileStorage,
     IConfiguration configuration) : IUserProfileService
 {
-    private const string AvatarRouteTemplate = "api/v1/userProfiles/{0}/avatar";
     private const string AllowedAvatarExtensionsConfigurationKey = "Limitations:AllowedAvatarExtensions";
 
     private readonly UserManager<AppUser> _userManager = userManager;
+    private readonly ITenantRepository _tenantRepository = tenantRepository;
     private readonly IUserNotificationPreferenceService _notificationPreferenceService = notificationPreferenceService;
     private readonly IUserProfileAccessService _profileAccessService = profileAccessService;
     private readonly IFileStorage _fileStorage = fileStorage;
@@ -31,23 +32,38 @@ public class UserProfileService(
 
     public async Task<UserProfileDto> GetAsync(AppUser user, CancellationToken cancellationToken)
     {
-        return await ToDtoAsync(user, cancellationToken);
+        return await UserProfileMapper.MapUserProfileAsync(
+            user,
+            _tenantRepository,
+            _notificationPreferenceService,
+            cancellationToken);
     }
 
     public async Task<UserProfileDto> UpdateAsync(AppUser user, UserProfileUpdateDto payload, CancellationToken cancellationToken)
     {
-        if (payload.DefaultTenantId is not null
-            && !await _profileAccessService.CanUseDefaultTenantAsync(user, payload.DefaultTenantId.Value, cancellationToken))
+        long? defaultTenantId = null;
+        if (payload.DefaultTenantGlobalId is not null)
         {
-            throw new UnauthorizedAccessException();
+            var defaultTenant = await _tenantRepository.GetAsync(payload.DefaultTenantGlobalId.Value, cancellationToken)
+                ?? throw new BusinessRuleException("Default tenant was not found.");
+            if (!await _profileAccessService.CanUseDefaultTenantAsync(user, defaultTenant.Id, cancellationToken))
+            {
+                throw new UnauthorizedAccessException();
+            }
+
+            defaultTenantId = defaultTenant.Id;
         }
 
         user.FirstName = UserProfileNameHelpers.NormalizeOptional(payload.FirstName);
         user.LastName = UserProfileNameHelpers.NormalizeOptional(payload.LastName);
-        user.DefaultTenantId = payload.DefaultTenantId;
+        user.DefaultTenantId = defaultTenantId;
         await _notificationPreferenceService.ReplaceAsync(user, payload.NotificationPreferences, cancellationToken);
         await UpdateUserAsync(user);
-        return await ToDtoAsync(user, cancellationToken);
+        return await UserProfileMapper.MapUserProfileAsync(
+            user,
+            _tenantRepository,
+            _notificationPreferenceService,
+            cancellationToken);
     }
 
     public async Task<UserProfileDto> UploadAvatarAsync(AppUser user, IFormFile avatar, CancellationToken cancellationToken)
@@ -68,7 +84,11 @@ public class UserProfileService(
             await _fileStorage.DeleteAsync(oldAvatarPath, cancellationToken);
         }
 
-        return await ToDtoAsync(user, cancellationToken);
+        return await UserProfileMapper.MapUserProfileAsync(
+            user,
+            _tenantRepository,
+            _notificationPreferenceService,
+            cancellationToken);
     }
 
     public async Task<(string Filename, byte[] Bytes)> DownloadAvatarAsync(string userId, CancellationToken cancellationToken)
@@ -89,25 +109,21 @@ public class UserProfileService(
         var avatarPath = user.Avatar;
         if (string.IsNullOrWhiteSpace(avatarPath))
         {
-            return await ToDtoAsync(user, cancellationToken);
+            return await UserProfileMapper.MapUserProfileAsync(
+                user,
+                _tenantRepository,
+                _notificationPreferenceService,
+                cancellationToken);
         }
 
         user.Avatar = null;
         await UpdateUserAsync(user);
         await _fileStorage.DeleteAsync(avatarPath, cancellationToken);
-        return await ToDtoAsync(user, cancellationToken);
-    }
-
-    private async Task<UserProfileDto> ToDtoAsync(AppUser user, CancellationToken cancellationToken)
-    {
-        return new UserProfileDto
-        {
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Avatar = user.Avatar is null ? null : string.Format(AvatarRouteTemplate, user.Id),
-            DefaultTenantId = user.DefaultTenantId,
-            NotificationPreferences = await _notificationPreferenceService.ListAsync(user, cancellationToken)
-        };
+        return await UserProfileMapper.MapUserProfileAsync(
+            user,
+            _tenantRepository,
+            _notificationPreferenceService,
+            cancellationToken);
     }
 
     private async Task UpdateUserAsync(AppUser user)

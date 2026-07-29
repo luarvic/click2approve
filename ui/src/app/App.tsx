@@ -112,19 +112,19 @@ const App = () => {
                   >
                     <Route path="/tenants" element={<TenantsPage />} />
                     <Route path="/tenants/new" element={<TenantEditorPage />} />
-                    <Route path="/tenants/:tenantId" element={<TenantEditorPage />} />
+                    <Route path="/tenants/:tenantGlobalId" element={<TenantEditorPage />} />
                   </Route>
                 </Route>
                 <Route index element={<TenantHomeRedirect />} />
-                <Route path="/tenants/:tenantId" element={<TenantScopeLayout />}>
+                <Route path="/tenants/:tenantGlobalId" element={<TenantScopeLayout />}>
                   <Route element={<WrapperLayout />}>
                     <Route path="inbox" element={<InboxPage />} />
-                    <Route path="inbox/:taskId" element={<ApprovalRequestTaskPage />} />
+                    <Route path="inbox/:taskGlobalId" element={<ApprovalRequestTaskPage />} />
                     <Route path="outbox" element={<OutboxPage />} />
                     <Route path="outbox/new" element={<ApprovalRequestStartPage />} />
                     <Route path="outbox/new/compose" element={<ApprovalRequestSubmitPage />} />
-                    <Route path="outbox/:approvalRequestId/resubmit" element={<ApprovalRequestSubmitPage />} />
-                    <Route path="outbox/:approvalRequestId" element={<ApprovalRequestViewPage />} />
+                    <Route path="outbox/:approvalRequestGlobalId/resubmit" element={<ApprovalRequestSubmitPage />} />
+                    <Route path="outbox/:approvalRequestGlobalId" element={<ApprovalRequestViewPage />} />
                     <Route element={<RouteGuard isAllowed={canViewTemplates} />}>
                       <Route path="approvalStepTemplates" element={<ApprovalStepTemplatesPage />} />
                     </Route>
@@ -137,14 +137,14 @@ const App = () => {
                     <Route element={<RouteGuard isAllowed={canManageDelegations} />}>
                       <Route path="delegations" element={<DelegationsPage />} />
                       <Route path="delegations/new" element={<DelegationEditorPage />} />
-                      <Route path="delegations/:delegationId" element={<DelegationEditorPage />} />
+                      <Route path="delegations/:delegationGlobalId" element={<DelegationEditorPage />} />
                     </Route>
                     <Route path="approvalStepTemplates/new" element={<ApprovalStepTemplateEditorPage />} />
-                    <Route path="approvalStepTemplates/:templateId" element={<ApprovalStepTemplateEditorPage />} />
+                    <Route path="approvalStepTemplates/:templateGlobalId" element={<ApprovalStepTemplateEditorPage />} />
                     <Route path="teams/new" element={<TeamEditorPage />} />
-                    <Route path="teams/:teamId" element={<TeamEditorPage />} />
+                    <Route path="teams/:teamGlobalId" element={<TeamEditorPage />} />
                     <Route path="employees/new" element={<EmployeeEditorPage />} />
-                    <Route path="employees/:employeeId" element={<EmployeeEditorPage />} />
+                    <Route path="employees/:employeeGlobalId" element={<EmployeeEditorPage />} />
                   </Route>
                 </Route>
               </Route>

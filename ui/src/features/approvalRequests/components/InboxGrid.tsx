@@ -15,26 +15,26 @@ import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 
 interface InboxGridProps {
-  currentTaskId?: number;
+  currentTaskGlobalId?: string;
 }
 
-const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskId }) => {
+const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
   const navigate = useNavigate();
   const tenantScopeIsReady =
     !stores.productStore.tenantsAreEnabled ||
     (stores.tenantStore.hasLoaded &&
-      stores.tenantStore.currentTenantId !== null);
-  const tenantId = stores.tenantStore.currentTenantId;
+      stores.tenantStore.currentTenantGlobalId !== null);
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     stores.approvalRequestTaskStore.tasks,
-    currentTaskId,
+    currentTaskGlobalId,
   );
 
   useGridRefresh(() => {
-    if (tenantScopeIsReady && tenantId) {
-      return stores.approvalRequestTaskStore.loadIncoming(tenantId);
+    if (tenantScopeIsReady && tenantGlobalId) {
+      return stores.approvalRequestTaskStore.loadIncoming(tenantGlobalId);
     }
-  }, tenantScopeIsReady && tenantId !== null);
+  }, tenantScopeIsReady && tenantGlobalId !== null);
 
   const columns: GridColDef[] = [
     {
@@ -75,13 +75,14 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskId }) => {
     <Box sx={DataGrids.containerSx}>
       <DataGrid
         rows={stores.approvalRequestTaskStore.tasks}
+        getRowId={(row) => row.globalId}
         columns={columns}
-        rowSelectionModel={currentTaskId === undefined ? [] : [currentTaskId]}
+        rowSelectionModel={currentTaskGlobalId === undefined ? [] : [currentTaskGlobalId]}
         hideFooterSelectedRowCount
         onRowClick={(params) => {
-          const tenantId = stores.tenantStore.currentTenantId;
-          const path = `/inbox/${(params.row as ApprovalRequestTaskListItem).id}`;
-          navigate(tenantId ? Routes.tenantPath(tenantId, path) : "/");
+          const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+          const path = `/inbox/${(params.row as ApprovalRequestTaskListItem).globalId}`;
+          navigate(tenantGlobalId ? Routes.tenantPath(tenantGlobalId, path) : "/");
         }}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
@@ -95,12 +96,12 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskId }) => {
         sx={DataGrids.sx}
         autoHeight
         loading={
-          tenantId !== null &&
+          tenantGlobalId !== null &&
           (stores.commonStore.isLoading(
-            `get_api/v1/tenants/${tenantId}/tasks`,
+            `get_api/v1/tenants/${tenantGlobalId}/tasks`,
           ) ||
             stores.commonStore.isLoading(
-              `post_api/v1/tenants/${tenantId}/tasks/complete`,
+              `post_api/v1/tenants/${tenantGlobalId}/tasks/complete`,
             ))
         }
       />

@@ -24,6 +24,13 @@ public class TenantRepository(ApiDbContext db) : ITenantRepository
             .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 
+    public virtual Task<Tenant?> GetAsync(Guid globalId, CancellationToken cancellationToken)
+    {
+        return Db.Tenants
+            .Include(t => t.Owner)
+            .FirstOrDefaultAsync(t => t.GlobalId == globalId, cancellationToken);
+    }
+
     public virtual Task<Tenant?> GetPersonalAsync(AppUser user, CancellationToken cancellationToken)
     {
         return Db.Tenants

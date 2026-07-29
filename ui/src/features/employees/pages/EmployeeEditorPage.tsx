@@ -13,40 +13,39 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 
 const EmployeeEditorPage = () => {
   const navigate = useNavigate();
-  const { employeeId } = useParams<{ employeeId: string }>();
-  usePageTitle(employeeId === undefined ? "New employee" : "Edit employee");
-  const tenantId = stores.tenantStore.currentTenantId;
-  const employeesPath = tenantId
-    ? Routes.tenantPath(tenantId, "/employees")
+  const { employeeGlobalId } = useParams<{ employeeGlobalId: string }>();
+  usePageTitle(employeeGlobalId === undefined ? "New employee" : "Edit employee");
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const employeesPath = tenantGlobalId
+    ? Routes.tenantPath(tenantGlobalId, "/employees")
     : "/";
-  const isNewEmployee = employeeId === undefined;
-  const parsedEmployeeId = Number(employeeId);
-  const employee = stores.employeeStore.employees.find((item) => item.id === parsedEmployeeId);
+  const isNewEmployee = employeeGlobalId === undefined;
+  const employee = stores.employeeStore.employees.find((item) => item.globalId === employeeGlobalId);
   const canEdit = stores.tenantStore.currentTenant?.role === EmployeeRole.Admin || stores.tenantStore.currentTenant?.isOwner === true;
-  const selectedTeamIds = employee ? stores.teamStore.teams.filter((team) => team.members.some((member) => member.id === employee.id)).map((team) => team.id) : [];
+  const selectedTeamGlobalIds = employee ? stores.teamStore.teams.filter((team) => team.members.some((member) => member.globalId === employee.globalId)).map((team) => team.globalId) : [];
 
-  if (!tenantId || (!isNewEmployee && !employee)) return <Navigate to={employeesPath} />;
+  if (!tenantGlobalId || (!isNewEmployee && !employee)) return <Navigate to={employeesPath} />;
 
-  const syncTeams = async (employeeIdToSync: number, teamIds: number[]) => {
-    const selected = new Set(teamIds);
+  const syncTeams = async (employeeGlobalIdToSync: string, teamGlobalIds: string[]) => {
+    const selected = new Set(teamGlobalIds);
     for (const team of stores.teamStore.teams) {
-      const memberIds = team.members.map((member) => member.id);
-      if (memberIds.includes(employeeIdToSync) === selected.has(team.id)) continue;
-      const saved = await stores.teamStore.update(tenantId, team.id, { name: team.name, employeeIds: selected.has(team.id) ? [...memberIds, employeeIdToSync] : memberIds.filter((id) => id !== employeeIdToSync) });
+      const memberGlobalIds = team.members.map((member) => member.globalId);
+      if (memberGlobalIds.includes(employeeGlobalIdToSync) === selected.has(team.globalId)) continue;
+      const saved = await stores.teamStore.update(tenantGlobalId, team.globalId, { name: team.name, employeeGlobalIds: selected.has(team.globalId) ? [...memberGlobalIds, employeeGlobalIdToSync] : memberGlobalIds.filter( (id: string) => id !== employeeGlobalIdToSync) });
       if (!saved) return false;
     }
-    await stores.teamStore.load(tenantId, true);
+    await stores.teamStore.load(tenantGlobalId, true);
     return true;
   };
 
   return <EmployeeEditor
     employee={employee ?? null}
     teams={stores.teamStore.teams}
-    selectedTeamIds={selectedTeamIds}
+    selectedTeamGlobalIds={selectedTeamGlobalIds}
     canEdit={canEdit}
-    onClose={(currentEmployeeId) => navigate(employeesPath, { state: currentEmployeeId ? { currentEmployeeId } : undefined })}
-    onDelete={async (id) => {
-      const deleted = await stores.employeeStore.delete(tenantId, id);
+    onClose={(currentEmployeeGlobalId) => navigate(employeesPath, { state: currentEmployeeGlobalId ? { currentEmployeeGlobalId } : undefined })}
+    onDelete={async  (id: string) => {
+      const deleted = await stores.employeeStore.delete(tenantGlobalId, id);
       if (deleted) {
         showPersistenceSuccessToast(
           PersistenceSuccessMessages.employeeDeleted,
@@ -55,9 +54,9 @@ const EmployeeEditorPage = () => {
       }
       return deleted;
     }}
-    onSubmit={async (payload: CreateEmployeeRequest | UpdateEmployeeRequest, teamIds, id) => {
-      const saved = id ? await stores.employeeStore.update(tenantId, id, payload as UpdateEmployeeRequest) : await stores.employeeStore.create(tenantId, payload as CreateEmployeeRequest);
-      if (!saved || !(await syncTeams(saved.id, teamIds))) {
+    onSubmit={async (payload: CreateEmployeeRequest | UpdateEmployeeRequest, teamGlobalIds, id) => {
+      const saved = id ? await stores.employeeStore.update(tenantGlobalId, id, payload as UpdateEmployeeRequest) : await stores.employeeStore.create(tenantGlobalId, payload as CreateEmployeeRequest);
+      if (!saved || !(await syncTeams(saved.globalId, teamGlobalIds))) {
         return null;
       }
       showPersistenceSuccessToast(PersistenceSuccessMessages.employeeSaved);

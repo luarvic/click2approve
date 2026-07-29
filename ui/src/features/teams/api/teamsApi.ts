@@ -3,9 +3,9 @@ import axios from "@/shared/api/axios";
 import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
 import { toast } from "react-toastify";
 
-export const listTeams = async (tenantId: number): Promise<Team[]> => {
+export const listTeams = async (tenantGlobalId: string): Promise<Team[]> => {
   try {
-    const { data } = await axios.get<Team[]>(`api/v1/tenants/${tenantId}/teams`);
+    const { data } = await axios.get<Team[]>(`api/v1/tenants/${tenantGlobalId}/teams`);
     return data;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
@@ -14,12 +14,12 @@ export const listTeams = async (tenantId: number): Promise<Team[]> => {
 };
 
 export const createTeam = async (
-  tenantId: number,
+  tenantGlobalId: string,
   payload: UpsertTeamRequest
 ): Promise<Team | null> => {
   try {
     const { data } = await axios.post<Team>(
-      `api/v1/tenants/${tenantId}/teams`,
+      `api/v1/tenants/${tenantGlobalId}/teams`,
       payload
     );
     return data;
@@ -30,13 +30,13 @@ export const createTeam = async (
 };
 
 export const updateTeam = async (
-  tenantId: number,
-  teamId: number,
+  tenantGlobalId: string,
+  teamGlobalId: string,
   payload: UpsertTeamRequest
 ): Promise<Team | null> => {
   try {
     const { data } = await axios.put<Team>(
-      `api/v1/tenants/${tenantId}/teams/${teamId}`,
+      `api/v1/tenants/${tenantGlobalId}/teams/${teamGlobalId}`,
       payload
     );
     return data;
@@ -47,11 +47,11 @@ export const updateTeam = async (
 };
 
 export const deleteTeam = async (
-  tenantId: number,
-  teamId: number
+  tenantGlobalId: string,
+  teamGlobalId: string
 ): Promise<boolean> => {
   try {
-    await axios.delete(`api/v1/tenants/${tenantId}/teams/${teamId}`);
+    await axios.delete(`api/v1/tenants/${tenantGlobalId}/teams/${teamGlobalId}`);
     return true;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));

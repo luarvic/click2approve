@@ -17,8 +17,8 @@ import type { Theme } from "@mui/material/styles";
 
 interface ApprovalRequestFilesBoxProps {
   requestFiles?: ApprovalRequestFile[];
-  approvalRequestId?: number;
-  approvalRequestTaskId?: number;
+  approvalRequestGlobalId?: string;
+  approvalRequestTaskGlobalId?: string;
   compareWithPrevious?: boolean;
   showFileStateIndicators?: boolean;
 }
@@ -50,28 +50,32 @@ const fileChipsSx: SxProps<Theme> = {
 
 const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
   requestFiles,
-  approvalRequestId,
-  approvalRequestTaskId,
+  approvalRequestGlobalId,
+  approvalRequestTaskGlobalId,
   compareWithPrevious = false,
   showFileStateIndicators = true,
 }) => {
-  const tenantId = stores.tenantStore.currentTenantId;
-  const onDownload = tenantId && approvalRequestTaskId
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const onDownload = tenantGlobalId && approvalRequestTaskGlobalId
     ? (userFile: UserFile) =>
-      downloadApprovalRequestTaskFile(tenantId, userFile, approvalRequestTaskId)
-    : tenantId && approvalRequestId
+      downloadApprovalRequestTaskFile(tenantGlobalId, userFile, approvalRequestTaskGlobalId)
+    : tenantGlobalId && approvalRequestGlobalId
       ? (userFile: UserFile) =>
-        downloadApprovalRequestFile(tenantId, userFile, approvalRequestId)
+        downloadApprovalRequestFile(tenantGlobalId, userFile, approvalRequestGlobalId)
       : undefined;
 
   const files = requestFiles ?? [];
   const orderedFiles = [...files].sort((left, right) => left.sequence - right.sequence);
-  const replacedOriginalFileIds = new Set(
-    orderedFiles
-      .filter((file) => file.revisionAction === ApprovalRequestFileRevisionAction.Replaced)
-      .map((file) => file.previousApprovalRequestFileId)
-      .filter((id): id is number => Boolean(id)),
-  );
+  const isPreviousFileForReplacement = (file: ApprovalRequestFile, index: number) =>
+    file.revisionAction === ApprovalRequestFileRevisionAction.Removed &&
+    orderedFiles[index + 1]?.revisionAction === ApprovalRequestFileRevisionAction.Replaced;
+
+  const getReplacedOriginalFile = (replacementIndex: number) => {
+    const previousFile = orderedFiles[replacementIndex - 1];
+    return previousFile?.revisionAction === ApprovalRequestFileRevisionAction.Removed
+      ? previousFile
+      : undefined;
+  };
 
   const renderChip = (
     userFile: UserFile,
@@ -119,7 +123,7 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
   const renderCurrentFile = (file: ApprovalRequestFile) =>
     renderChip(
       file.userFile,
-      file.id,
+      file.globalId,
       "default",
       undefined,
       undefined,
@@ -141,7 +145,7 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
         flexWrap="wrap"
         sx={fileChipsSx}
       >
-        {orderedFiles.map((file) => {
+        {orderedFiles.map((file, index) => {
           if (!compareWithPrevious) {
             return file.revisionAction === ApprovalRequestFileRevisionAction.Removed
               ? null
@@ -149,13 +153,13 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
           }
 
           if (file.revisionAction === ApprovalRequestFileRevisionAction.Removed) {
-            if (replacedOriginalFileIds.has(file.id)) {
+            if (isPreviousFileForReplacement(file, index)) {
               return null;
             }
 
             return renderChip(
               file.previousUserFile ?? file.userFile,
-              file.id,
+              file.globalId,
               "default",
               undefined,
               showFileStateIndicators ? deletedFileChipSx : undefined,
@@ -166,13 +170,11 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
           }
 
           if (file.revisionAction === ApprovalRequestFileRevisionAction.Replaced) {
-            const previousRequestFile = orderedFiles.find(
-              (item) => item.id === file.previousApprovalRequestFileId,
-            );
+            const previousRequestFile = getReplacedOriginalFile(index);
 
             return (
               <Stack
-                key={file.id}
+                key={file.globalId}
                 direction="row"
                 spacing={StackSpacing.none}
                 alignItems="center"
@@ -180,7 +182,7 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
                 {(previousRequestFile?.userFile ?? file.previousUserFile) &&
                   renderChip(
                     previousRequestFile?.userFile ?? file.previousUserFile!,
-                    `${file.id}-previous`,
+                    `${file.globalId}-previous`,
                     "default",
                     undefined,
                     showFileStateIndicators ? replacedOriginalChipSx : undefined,
@@ -190,7 +192,7 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
                   )}
                 {renderChip(
                   file.userFile,
-                  `${file.id}-current`,
+                  `${file.globalId}-current`,
                   "default",
                   undefined,
                   replacementChipSx,

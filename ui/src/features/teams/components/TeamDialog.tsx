@@ -17,9 +17,9 @@ interface TeamDialogProps {
   canEdit: boolean;
   team: Team | null;
   employees: Employee[];
-  onClose: (currentTeamId?: number) => void;
-  onDelete: (teamId: number) => Promise<boolean>;
-  onSubmit: (payload: UpsertTeamRequest, teamId?: number) => Promise<Team | null>;
+  onClose: (currentTeamGlobalId?: string) => void;
+  onDelete: (teamGlobalId: string) => Promise<boolean>;
+  onSubmit: (payload: UpsertTeamRequest, teamGlobalId?: string) => Promise<Team | null>;
 }
 
 const getEmployeeLabel = (employee: Employee) => {
@@ -39,8 +39,8 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
   const [nameTouched, setNameTouched] = useState(false);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const isNew = team === null;
-  const tenantId = stores.tenantStore.currentTenantId;
-  const teamsPath = tenantId ? Routes.tenantPath(tenantId, "/teams") : "/";
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const teamsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/teams") : "/";
   const activeEmployees = employees.filter(
     (employee) => employee.status === EmployeeStatus.Active,
   );
@@ -61,13 +61,13 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
     const savedTeam = await onSubmit(
       {
         name: name.trim(),
-        employeeIds: members.map((member) => member.id),
+        employeeGlobalIds: members.map((member) => member.globalId),
       },
-      team?.id,
+      team?.globalId,
     );
 
     if (savedTeam) {
-      onClose(savedTeam.id);
+      onClose(savedTeam.globalId);
     }
   };
 
@@ -77,7 +77,7 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
         items={[
           {
             label: "Teams",
-            state: team ? { currentTeamId: team.id } : undefined,
+            state: team ? { currentTeamGlobalId: team.globalId } : undefined,
             to: teamsPath,
           },
           { label: isNew ? "New team" : "Team" },
@@ -102,7 +102,7 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
           options={activeEmployees}
           value={members}
           getOptionLabel={getEmployeeLabel}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
+          isOptionEqualToValue={(option, value) => option.globalId === value.globalId}
           onChange={(_, value) => setMembers(value)}
           disabled={!isNew && !canEdit}
           renderTags={(value, getTagProps) =>
@@ -127,7 +127,7 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
         spacing={Dialogs.stepHeaderSpacing}
         sx={Dialogs.addStepButtonSx}
       >
-        <Button variant="outlined" onClick={() => onClose(team?.id)}>
+        <Button variant="outlined" onClick={() => onClose(team?.globalId)}>
           Cancel
         </Button>
         {!isNew && canEdit && (
@@ -151,7 +151,7 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
           open={deleteDialogIsOpen}
           title="Delete team"
           onClose={() => setDeleteDialogIsOpen(false)}
-          onDelete={() => onDelete(team.id)}
+          onDelete={() => onDelete(team.globalId)}
         />
       )}
     </>

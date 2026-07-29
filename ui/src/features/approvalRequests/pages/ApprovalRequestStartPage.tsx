@@ -27,19 +27,19 @@ type RequestType = "custom" | "template";
 const ApprovalRequestStartPage = () => {
   usePageTitle("Start a new request");
   const navigate = useNavigate();
-  const tenantId = stores.tenantStore.currentTenantId;
-  const composePath = tenantId
-    ? Routes.tenantPath(tenantId, "/outbox/new/compose")
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const composePath = tenantGlobalId
+    ? Routes.tenantPath(tenantGlobalId, "/outbox/new/compose")
     : "/";
-  const outboxPath = tenantId ? Routes.tenantPath(tenantId, "/outbox") : "/";
+  const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
   const tenantScopeIsReady = stores.tenantStore.hasLoaded;
   const canUseTemplates =
     stores.tenantStore.currentTenant?.type === TenantType.Business &&
     stores.productStore.approvalStepTemplatesAreEnabled &&
-    tenantId !== null;
+    tenantGlobalId !== null;
   const hasTemplates = stores.approvalStepTemplateStore.templates.length > 0;
   const [requestType, setRequestType] = useState<RequestType>("custom");
-  const [templateId, setTemplateId] = useState<number | "">("");
+  const [templateGlobalId, setTemplateGlobalId] = useState<string | "">("");
 
   useEffect(() => {
     stores.approvalRequestStore.setRequestToClone(null);
@@ -55,13 +55,13 @@ const ApprovalRequestStartPage = () => {
       return;
     }
 
-    void stores.approvalStepTemplateStore.load(tenantId);
-  }, [canUseTemplates, composePath, navigate, tenantId, tenantScopeIsReady]);
+    void stores.approvalStepTemplateStore.load(tenantGlobalId);
+  }, [canUseTemplates, composePath, navigate, tenantGlobalId, tenantScopeIsReady]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     navigate(composePath, {
-      state: requestType === "template" ? { templateId } : undefined,
+      state: requestType === "template" ? { templateGlobalId } : undefined,
     });
   };
 
@@ -104,17 +104,17 @@ const ApprovalRequestStartPage = () => {
             select
             fullWidth
             label="Template"
-            value={templateId}
+            value={templateGlobalId}
             onChange={(event) => {
               const value = event.target.value;
-              setTemplateId(value === "" ? "" : Number(value));
+              setTemplateGlobalId(value);
             }}
           >
             {!hasTemplates && (
               <MenuItem disabled>No templates available</MenuItem>
             )}
             {stores.approvalStepTemplateStore.templates.map((template) => (
-              <MenuItem key={template.id} value={template.id}>
+              <MenuItem key={template.globalId} value={template.globalId}>
                 {template.name}
               </MenuItem>
             ))}
@@ -122,7 +122,7 @@ const ApprovalRequestStartPage = () => {
         )}
         <Button
           disabled={
-            requestType === "template" && (!hasTemplates || templateId === "")
+            requestType === "template" && (!hasTemplates || templateGlobalId === "")
           }
           sx={continueButtonSx}
           type="submit"

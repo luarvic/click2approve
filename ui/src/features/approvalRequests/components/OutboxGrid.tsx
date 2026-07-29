@@ -22,26 +22,26 @@ import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 
 interface OutboxGridProps {
-  currentApprovalRequestId?: number;
+  currentApprovalRequestGlobalId?: string;
 }
 
-const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestId }) => {
+const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestGlobalId }) => {
   const navigate = useNavigate();
   const tenantScopeIsReady =
     !stores.productStore.tenantsAreEnabled ||
     (stores.tenantStore.hasLoaded &&
-      stores.tenantStore.currentTenantId !== null);
-  const tenantId = stores.tenantStore.currentTenantId;
+      stores.tenantStore.currentTenantGlobalId !== null);
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     stores.approvalRequestStore.approvalRequests,
-    currentApprovalRequestId,
+    currentApprovalRequestGlobalId,
   );
 
   useGridRefresh(() => {
-    if (tenantScopeIsReady && tenantId) {
-      return stores.approvalRequestStore.load(tenantId);
+    if (tenantScopeIsReady && tenantGlobalId) {
+      return stores.approvalRequestStore.load(tenantGlobalId);
     }
-  }, tenantScopeIsReady && tenantId !== null);
+  }, tenantScopeIsReady && tenantGlobalId !== null);
 
   const customToolbar = () => {
     return (
@@ -49,10 +49,10 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestId }) => 
         <Button
           startIcon={<Add />}
           onClick={() => {
-            const tenantId = stores.tenantStore.currentTenantId;
+            const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
             navigate(
-              tenantId
-                ? Routes.tenantPath(tenantId, "/outbox/new")
+              tenantGlobalId
+                ? Routes.tenantPath(tenantGlobalId, "/outbox/new")
                 : "/",
             );
           }}
@@ -109,19 +109,20 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestId }) => 
     <Box sx={DataGrids.containerSx}>
       <DataGrid
         rows={stores.approvalRequestStore.approvalRequests}
+        getRowId={(row) => row.globalId}
         columns={columns}
         rowSelectionModel={
-          currentApprovalRequestId === undefined
+          currentApprovalRequestGlobalId === undefined
             ? stores.approvalRequestStore.currentApprovalRequest
-              ? [stores.approvalRequestStore.currentApprovalRequest.id]
+              ? [stores.approvalRequestStore.currentApprovalRequest.globalId]
               : []
-            : [currentApprovalRequestId]
+            : [currentApprovalRequestGlobalId]
         }
         hideFooterSelectedRowCount
         onRowClick={(params) => {
-          const tenantId = stores.tenantStore.currentTenantId;
-          const path = `/outbox/${(params.row as ApprovalRequestListItem).id}`;
-          navigate(tenantId ? Routes.tenantPath(tenantId, path) : "/");
+          const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+          const path = `/outbox/${(params.row as ApprovalRequestListItem).globalId}`;
+          navigate(tenantGlobalId ? Routes.tenantPath(tenantGlobalId, path) : "/");
         }}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
@@ -136,15 +137,15 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestId }) => 
         sx={DataGrids.sx}
         autoHeight
         loading={
-          tenantId !== null &&
+          tenantGlobalId !== null &&
           (stores.commonStore.isLoading(
-            `get_api/v1/tenants/${tenantId}/requests`,
+            `get_api/v1/tenants/${tenantGlobalId}/requests`,
           ) ||
             stores.commonStore.isLoading(
-              `post_api/v1/tenants/${tenantId}/requests`,
+              `post_api/v1/tenants/${tenantGlobalId}/requests`,
             ) ||
             stores.commonStore.isLoadingByPrefix(
-              `post_api/v1/tenants/${tenantId}/requests/`,
+              `post_api/v1/tenants/${tenantGlobalId}/requests/`,
             ))
         }
       />

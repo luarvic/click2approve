@@ -25,10 +25,10 @@ import { useNavigate } from "react-router-dom";
 const roleLabels = ["User", "Manager", "Admin"];
 
 interface TenantsGridProps {
-  currentTenantId?: number;
+  currentTenantGlobalId?: string;
 }
 
-const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantId }) => {
+const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isSmallDisplay = useMediaQuery(theme.breakpoints.down("sm"));
@@ -38,7 +38,7 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantId }) => {
   );
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     businessTenants,
-    currentTenantId,
+    currentTenantGlobalId,
   );
 
   useGridRefresh(() => stores.tenantStore.load(), "tenants");
@@ -80,10 +80,11 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantId }) => {
     <Box sx={DataGrids.containerSx}>
       <DataGrid
         rows={businessTenants}
+        getRowId={(row) => row.globalId}
         columns={columns}
-        rowSelectionModel={currentTenantId === undefined ? [] : [currentTenantId]}
+        rowSelectionModel={currentTenantGlobalId === undefined ? [] : [currentTenantGlobalId]}
         hideFooterSelectedRowCount
-        onRowClick={(params) => navigate(`/tenants/${(params.row as Tenant).id}`)}
+        onRowClick={(params) => navigate(`/tenants/${(params.row as Tenant).globalId}`)}
         columnVisibilityModel={{
           role: !isSmallDisplay,
           isOwner: !isSmallDisplay,

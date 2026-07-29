@@ -1,73 +1,73 @@
 import * as tenantApi from "@/features/tenants/api/tenantsApi";
 import { CreateTenantRequest, Tenant, UpdateTenantRequest } from "@/features/tenants/models/tenant";
 import {
-  deleteCurrentTenantId,
-  readCurrentTenantId,
-  writeCurrentTenantId,
+  deleteCurrentTenantGlobalId,
+  readCurrentTenantGlobalId,
+  writeCurrentTenantGlobalId,
 } from "@/shared/session/session";
 import { makeAutoObservable, runInAction } from "mobx";
 
 export class TenantStore {
   tenants: Tenant[];
-  currentTenantId: number | null;
+  currentTenantGlobalId: string | null;
   hasLoaded: boolean;
   // Incremented to invalidate older async requests so only the latest response updates the store.
   private requestVersion = 0;
 
   constructor(
     tenants: Tenant[] = [],
-    currentTenantId: number | null = readCurrentTenantId(),
+    currentTenantGlobalId: string | null = readCurrentTenantGlobalId(),
     hasLoaded: boolean = false
   ) {
     this.tenants = tenants;
-    this.currentTenantId = currentTenantId;
+    this.currentTenantGlobalId = currentTenantGlobalId;
     this.hasLoaded = hasLoaded;
     makeAutoObservable(this);
   }
 
   get currentTenant(): Tenant | null {
-    return this.tenants.find((tenant) => tenant.id === this.currentTenantId) ?? null;
+    return this.tenants.find((tenant) => tenant.globalId === this.currentTenantGlobalId) ?? null;
   }
 
   loadCurrent = async (): Promise<void> => {
     const requestVersion = ++this.requestVersion;
-    const tenantId = await tenantApi.getCurrentTenantId();
+    const tenantGlobalId = await tenantApi.getCurrentTenantId();
     if (requestVersion !== this.requestVersion) {
       return;
     }
     runInAction(() => {
       this.tenants = [];
-      this.currentTenantId = tenantId;
+      this.currentTenantGlobalId = tenantGlobalId;
       this.hasLoaded = true;
     });
-    if (tenantId) {
-      writeCurrentTenantId(tenantId);
+    if (tenantGlobalId) {
+      writeCurrentTenantGlobalId(tenantGlobalId);
     } else {
-      deleteCurrentTenantId();
+      deleteCurrentTenantGlobalId();
     }
   };
 
-  load = async (defaultTenantId?: number): Promise<void> => {
+  load = async (defaultTenantGlobalId?: string): Promise<void> => {
     const requestVersion = ++this.requestVersion;
     const tenants = await tenantApi.listTenants();
     if (requestVersion !== this.requestVersion) {
       return;
     }
-    const cachedTenantId = readCurrentTenantId();
+    const cachedTenantId = readCurrentTenantGlobalId();
     const currentTenant =
-      tenants.find((tenant) => tenant.id === defaultTenantId) ??
-      tenants.find((tenant) => tenant.id === cachedTenantId) ??
+      tenants.find((tenant) => tenant.globalId === defaultTenantGlobalId) ??
+      tenants.find((tenant) => tenant.globalId === cachedTenantId) ??
       tenants[0] ??
       null;
     runInAction(() => {
       this.tenants = tenants;
-      this.currentTenantId = currentTenant?.id ?? null;
+      this.currentTenantGlobalId = currentTenant?.globalId ?? null;
       this.hasLoaded = true;
     });
     if (currentTenant) {
-      writeCurrentTenantId(currentTenant.id);
+      writeCurrentTenantGlobalId(currentTenant.globalId);
     } else {
-      deleteCurrentTenantId();
+      deleteCurrentTenantGlobalId();
     }
   };
 
@@ -80,10 +80,10 @@ export class TenantStore {
 
     runInAction(() => {
       this.tenants = [...this.tenants, tenant];
-      this.currentTenantId = tenant.id;
+      this.currentTenantGlobalId = tenant.globalId;
       this.hasLoaded = true;
     });
-    writeCurrentTenantId(tenant.id);
+    writeCurrentTenantGlobalId(tenant.globalId);
     return tenant;
   };
 
@@ -99,35 +99,35 @@ export class TenantStore {
 
     runInAction(() => {
       this.tenants = [...this.tenants, tenant];
-      this.currentTenantId = tenant.id;
+      this.currentTenantGlobalId = tenant.globalId;
       this.hasLoaded = true;
     });
-    writeCurrentTenantId(tenant.id);
+    writeCurrentTenantGlobalId(tenant.globalId);
     return tenant;
   };
 
   update = async (
-    tenantId: number,
+    tenantGlobalId: string,
     payload: UpdateTenantRequest
   ): Promise<Tenant | null> => {
     const requestVersion = this.requestVersion;
-    const tenant = await tenantApi.updateTenant(tenantId, payload);
+    const tenant = await tenantApi.updateTenant(tenantGlobalId, payload);
     if (!tenant || requestVersion !== this.requestVersion) {
       return null;
     }
 
     runInAction(() => {
       this.tenants = this.tenants.map((existingTenant) =>
-        existingTenant.id === tenant.id ? tenant : existingTenant
+        existingTenant.globalId === tenant.globalId ? tenant : existingTenant
       );
       this.hasLoaded = true;
     });
     return tenant;
   };
 
-  uploadLogo = async (tenantId: number, logo: File): Promise<boolean> => {
+  uploadLogo = async (tenantGlobalId: string, logo: File): Promise<boolean> => {
     const requestVersion = this.requestVersion;
-    const tenant = await tenantApi.uploadTenantLogo(tenantId, logo);
+    const tenant = await tenantApi.uploadTenantLogo(tenantGlobalId, logo);
     if (!tenant || requestVersion !== this.requestVersion) {
       return false;
     }
@@ -136,9 +136,9 @@ export class TenantStore {
     return true;
   };
 
-  deleteLogo = async (tenantId: number): Promise<boolean> => {
+  deleteLogo = async (tenantGlobalId: string): Promise<boolean> => {
     const requestVersion = this.requestVersion;
-    const tenant = await tenantApi.deleteTenantLogo(tenantId);
+    const tenant = await tenantApi.deleteTenantLogo(tenantGlobalId);
     if (!tenant || requestVersion !== this.requestVersion) {
       return false;
     }
@@ -147,46 +147,46 @@ export class TenantStore {
     return true;
   };
 
-  delete = async (tenantId: number): Promise<boolean> => {
+  delete = async (tenantGlobalId: string): Promise<boolean> => {
     const requestVersion = this.requestVersion;
-    const deleted = await tenantApi.deleteTenant(tenantId);
+    const deleted = await tenantApi.deleteTenant(tenantGlobalId);
     if (!deleted || requestVersion !== this.requestVersion) {
       return false;
     }
 
-    let currentTenantId: number | null = null;
+    let currentTenantGlobalId: string | null = null;
     runInAction(() => {
-      this.tenants = this.tenants.filter((tenant) => tenant.id !== tenantId);
-      currentTenantId =
-        this.currentTenantId === tenantId
-          ? this.tenants[0]?.id ?? null
-          : this.currentTenantId;
-      this.currentTenantId = currentTenantId;
+      this.tenants = this.tenants.filter((tenant) => tenant.globalId !== tenantGlobalId);
+      currentTenantGlobalId =
+        this.currentTenantGlobalId === tenantGlobalId
+          ? this.tenants[0]?.globalId ?? null
+          : this.currentTenantGlobalId;
+      this.currentTenantGlobalId = currentTenantGlobalId;
       this.hasLoaded = true;
     });
 
-    if (currentTenantId) {
-      writeCurrentTenantId(currentTenantId);
+    if (currentTenantGlobalId) {
+      writeCurrentTenantGlobalId(currentTenantGlobalId);
     } else {
-      deleteCurrentTenantId();
+      deleteCurrentTenantGlobalId();
     }
 
     return true;
   };
 
-  setCurrentId = (tenantId: number): void => {
+  setCurrentGlobalId = (tenantGlobalId: string): void => {
     runInAction(() => {
-      this.currentTenantId = tenantId;
+      this.currentTenantGlobalId = tenantGlobalId;
     });
-    writeCurrentTenantId(tenantId);
+    writeCurrentTenantGlobalId(tenantGlobalId);
   };
 
   clear = (): void => {
-    deleteCurrentTenantId();
+    deleteCurrentTenantGlobalId();
     runInAction(() => {
       this.requestVersion += 1;
       this.tenants = [];
-      this.currentTenantId = null;
+      this.currentTenantGlobalId = null;
       this.hasLoaded = false;
     });
   };
@@ -194,7 +194,7 @@ export class TenantStore {
   private replaceTenant = (tenant: Tenant): void => {
     runInAction(() => {
       this.tenants = this.tenants.map((existingTenant) =>
-        existingTenant.id === tenant.id ? tenant : existingTenant
+        existingTenant.globalId === tenant.globalId ? tenant : existingTenant
       );
       this.hasLoaded = true;
     });

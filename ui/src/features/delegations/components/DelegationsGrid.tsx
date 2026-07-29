@@ -24,32 +24,32 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface DelegationsGridProps {
-  currentDelegationId?: number;
+  currentDelegationGlobalId?: string;
 }
 
 const unknownEmployeeLabel = "Unknown employee";
 
 const DelegationsGrid: React.FC<DelegationsGridProps> = ({
-  currentDelegationId,
+  currentDelegationGlobalId,
 }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isSmallDisplay = useMediaQuery(theme.breakpoints.down("sm"));
-  const tenantId = stores.tenantStore.currentTenantId;
-  const delegationsLoaderPrefix = tenantId
-    ? `api/v1/tenants/${tenantId}/delegations`
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const delegationsLoaderPrefix = tenantGlobalId
+    ? `api/v1/tenants/${tenantGlobalId}/delegations`
     : "";
-  const employeesLoaderPrefix = tenantId
-    ? `api/v1/tenants/${tenantId}/users`
+  const employeesLoaderPrefix = tenantGlobalId
+    ? `api/v1/tenants/${tenantGlobalId}/users`
     : "";
   const [delegations, setDelegations] = useState<ApprovalDelegation[]>([]);
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     delegations,
-    currentDelegationId,
+    currentDelegationGlobalId,
   );
   const employeeNames = new Map(
     stores.employeeStore.employees.map((employee) => [
-      employee.id,
+      employee.globalId,
       employee.displayName,
     ]),
   );
@@ -57,19 +57,19 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({
   useEffect(() => {
     setDelegations([]);
     stores.employeeStore.clear();
-  }, [tenantId]);
+  }, [tenantGlobalId]);
 
   useGridRefresh(() => {
-    if (tenantId) {
+    if (tenantGlobalId) {
       return Promise.all([
-        stores.employeeStore.load(tenantId, true),
-        listApprovalDelegations(tenantId).then(setDelegations),
+        stores.employeeStore.load(tenantGlobalId, true),
+        listApprovalDelegations(tenantGlobalId).then(setDelegations),
       ]).then(() => undefined);
     }
-  }, tenantId);
+  }, tenantGlobalId);
 
-  const getEmployeeName = (employeeId: number) =>
-    employeeNames.get(employeeId) ?? unknownEmployeeLabel;
+  const getEmployeeName = (employeeGlobalId: string) =>
+    employeeNames.get(employeeGlobalId) ?? unknownEmployeeLabel;
 
   const customToolbar = () => {
     return (
@@ -77,7 +77,7 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({
         <Button
           startIcon={<Add />}
           onClick={() =>
-            navigate(Routes.tenantPath(tenantId!, "/delegations/new"))
+            navigate(Routes.tenantPath(tenantGlobalId!, "/delegations/new"))
           }
         >
           New delegation
@@ -88,16 +88,16 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({
 
   const columns: GridColDef[] = [
     {
-      field: "delegatorEmployeeId",
+      field: "delegatorEmployeeGlobalId",
       headerName: "Employee",
       ...DataGrids.delegationsColumnSizing.employee,
-      valueGetter: (value) => getEmployeeName(value as number),
+      valueGetter: (value) => getEmployeeName(value as string),
     },
     {
-      field: "delegateEmployeeId",
+      field: "delegateEmployeeGlobalId",
       headerName: "Delegate",
       ...DataGrids.delegationsColumnSizing.delegate,
-      valueGetter: (value) => getEmployeeName(value as number),
+      valueGetter: (value) => getEmployeeName(value as string),
     },
     {
       field: "createdAt",
@@ -112,16 +112,17 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({
     <Box sx={DataGrids.containerSx}>
       <DataGrid
         rows={delegations}
+        getRowId={(row) => row.globalId}
         columns={columns}
         rowSelectionModel={
-          currentDelegationId === undefined ? [] : [currentDelegationId]
+          currentDelegationGlobalId === undefined ? [] : [currentDelegationGlobalId]
         }
         hideFooterSelectedRowCount
         onRowClick={(params) =>
           navigate(
             Routes.tenantPath(
-              tenantId!,
-              `/delegations/${(params.row as ApprovalDelegation).id}`,
+              tenantGlobalId!,
+              `/delegations/${(params.row as ApprovalDelegation).globalId}`,
             ),
           )
         }

@@ -19,15 +19,15 @@ interface DelegationDialogProps {
   canEdit: boolean;
   delegation: ApprovalDelegation | null;
   employees: Employee[];
-  onClose: (currentDelegationId?: number) => void;
-  onDelete: (delegationId: number) => Promise<boolean>;
+  onClose: (currentDelegationGlobalId?: string) => void;
+  onDelete: (delegationGlobalId: string) => Promise<boolean>;
   onSubmit: (
     payload: ApprovalDelegationUpsert,
-    delegationId?: number,
+    delegationGlobalId?: string,
   ) => Promise<ApprovalDelegation | null>;
 }
 
-const employeeSelectionDefault = 0;
+const employeeSelectionDefault = "";
 
 const DelegationDialog: React.FC<DelegationDialogProps> = ({
   canEdit,
@@ -48,15 +48,15 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const isNew = delegation === null;
-  const tenantId = stores.tenantStore.currentTenantId;
-  const delegationsPath = tenantId
-    ? Routes.tenantPath(tenantId, "/delegations")
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const delegationsPath = tenantGlobalId
+    ? Routes.tenantPath(tenantGlobalId, "/delegations")
     : "/";
   const selectableEmployees = employees.filter(
     (employee) =>
       employee.status === EmployeeStatus.Active ||
-      employee.id === delegatorEmployeeId ||
-      employee.id === delegateEmployeeId,
+      employee.globalId === delegatorEmployeeId ||
+      employee.globalId === delegateEmployeeId,
   );
   const selectionsAreMissing =
     !delegatorEmployeeId || !delegateEmployeeId;
@@ -79,10 +79,10 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
 
   useEffect(() => {
     setDelegatorEmployeeId(
-      delegation?.delegatorEmployeeId ?? employeeSelectionDefault,
+      delegation?.delegatorEmployeeGlobalId ?? employeeSelectionDefault,
     );
     setDelegateEmployeeId(
-      delegation?.delegateEmployeeId ?? employeeSelectionDefault,
+      delegation?.delegateEmployeeGlobalId ?? employeeSelectionDefault,
     );
     setDelegatorTouched(false);
     setDelegateTouched(false);
@@ -97,14 +97,14 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
 
     const savedDelegation = await onSubmit(
       {
-        delegateEmployeeId,
-        delegatorEmployeeId,
+        delegateEmployeeGlobalId: delegateEmployeeId,
+        delegatorEmployeeGlobalId: delegatorEmployeeId,
       },
-      delegation?.id,
+      delegation?.globalId,
     );
 
     if (savedDelegation) {
-      onClose(savedDelegation.id);
+      onClose(savedDelegation.globalId);
     }
   };
 
@@ -114,7 +114,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
         items={[
           {
             label: "Delegations",
-            state: delegation ? { currentDelegationId: delegation.id } : undefined,
+            state: delegation ? { currentDelegationGlobalId: delegation.globalId } : undefined,
             to: delegationsPath,
           },
           { label: isNew ? "New delegation" : "Delegation" },
@@ -125,7 +125,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           select
           label="Employee"
           value={delegatorEmployeeId}
-          onChange={(event) => setDelegatorEmployeeId(Number(event.target.value))}
+          onChange={(event) => setDelegatorEmployeeId(event.target.value)}
           onBlur={() => setDelegatorTouched(true)}
           error={delegatorHasError}
           helperText={delegatorHasError ? "Select an employee." : undefined}
@@ -135,7 +135,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
         >
           <MenuItem value={employeeSelectionDefault}>Select employee</MenuItem>
           {selectableEmployees.map((employee) => (
-            <MenuItem key={employee.id} value={employee.id}>
+            <MenuItem key={employee.globalId} value={employee.globalId}>
               {employee.displayName}
             </MenuItem>
           ))}
@@ -144,7 +144,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           select
           label="Delegate"
           value={delegateEmployeeId}
-          onChange={(event) => setDelegateEmployeeId(Number(event.target.value))}
+          onChange={(event) => setDelegateEmployeeId(event.target.value)}
           onBlur={() => setDelegateTouched(true)}
           error={delegateHasError}
           helperText={delegateHasError ? delegateHelperText : undefined}
@@ -154,7 +154,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
         >
           <MenuItem value={employeeSelectionDefault}>Select delegate</MenuItem>
           {selectableEmployees.map((employee) => (
-            <MenuItem key={employee.id} value={employee.id}>
+            <MenuItem key={employee.globalId} value={employee.globalId}>
               {employee.displayName}
             </MenuItem>
           ))}
@@ -165,7 +165,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
         spacing={Dialogs.stepHeaderSpacing}
         sx={Dialogs.addStepButtonSx}
       >
-        <Button variant="outlined" onClick={() => onClose(delegation?.id)}>
+        <Button variant="outlined" onClick={() => onClose(delegation?.globalId)}>
           Cancel
         </Button>
         {!isNew && canEdit && (
@@ -189,15 +189,15 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           open={deleteDialogIsOpen}
           title="Delete delegation"
           onClose={() => setDeleteDialogIsOpen(false)}
-          onDelete={() => onDelete(delegation.id)}
+          onDelete={() => onDelete(delegation.globalId)}
         />
       )}
     </>
   );
 };
 
-const getEmployeeName = (employees: Employee[], employeeId: number) =>
-  employees.find((employee) => employee.id === employeeId)?.displayName ??
+const getEmployeeName = (employees: Employee[], employeeGlobalId: string) =>
+  employees.find((employee) => employee.globalId === employeeGlobalId)?.displayName ??
   "unknown employee";
 
 export default DelegationDialog;

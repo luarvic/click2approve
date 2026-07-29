@@ -7,10 +7,10 @@ namespace Click2Approve.Application.Models.DTOs;
 /// </summary>
 public class ApprovalRequestApproverDto
 {
-    public long Id { get; init; }
+    public Guid GlobalId { get; init; }
     public ApprovalRecipientType Type { get; init; }
     public string? Email { get; init; }
-    public long? EmployeeId { get; init; }
-    public long? TeamId { get; init; }
+    public Guid? EmployeeGlobalId { get; init; }
+    public Guid? TeamGlobalId { get; init; }
     public string? DisplayName { get; init; }
 }

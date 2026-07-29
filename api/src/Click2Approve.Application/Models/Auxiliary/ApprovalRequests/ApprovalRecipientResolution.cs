@@ -1,4 +1,4 @@
-namespace Click2Approve.Application.Services.ApprovalRequests;
+namespace Click2Approve.Application.Models.Auxiliary.ApprovalRequests;
 
 public sealed record ApprovalRecipientResolution(
     string ApproverEmail,

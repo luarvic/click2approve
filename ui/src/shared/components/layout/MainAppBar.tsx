@@ -25,9 +25,9 @@ const MainAppBar = () => {
     stores.productStore.tenantsAreEnabled &&
     Boolean(currentUser) &&
     stores.tenantStore.tenants.length > 0;
-  const currentTenantId = stores.tenantStore.currentTenantId;
-  const inboxPath = currentTenantId
-    ? Routes.tenantPath(currentTenantId, Routes.inboxPath)
+  const currentTenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const inboxPath = currentTenantGlobalId
+    ? Routes.tenantPath(currentTenantGlobalId, Routes.inboxPath)
     : "/";
   return (
     <PublicAppBar
@@ -54,16 +54,16 @@ const MainAppBar = () => {
       {tenantPickerIsVisible && (
         <Select
           size="small"
-          value={stores.tenantStore.currentTenantId ?? ""}
+          value={stores.tenantStore.currentTenantGlobalId ?? ""}
           onChange={async (event) => {
-            const tenantId = Number(event.target.value);
-            await stores.switchTenant(tenantId, location.pathname === inboxPath);
-            navigate(Routes.tenantPath(tenantId, Routes.inboxPath));
+            const tenantGlobalId = event.target.value;
+            await stores.switchTenant(tenantGlobalId, location.pathname === inboxPath);
+            navigate(Routes.tenantPath(tenantGlobalId, Routes.inboxPath));
           }}
           sx={Shell.tenantPickerSx}
         >
           {stores.tenantStore.tenants.map((tenant) => (
-            <MenuItem key={tenant.id} value={tenant.id}>
+            <MenuItem key={tenant.globalId} value={tenant.globalId}>
               {tenant.businessName}
             </MenuItem>
           ))}

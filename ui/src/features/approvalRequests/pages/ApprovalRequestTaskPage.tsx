@@ -10,36 +10,35 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 const ApprovalRequestTaskPage = () => {
   usePageTitle("Task");
   const navigate = useNavigate();
-  const { taskId } = useParams<{ taskId: string }>();
-  const parsedTaskId = Number(taskId);
-  const tenantId = stores.tenantStore.currentTenantId;
-  const inboxPath = tenantId ? Routes.tenantPath(tenantId, "/inbox") : "/";
-  const task = stores.approvalRequestTaskStore.getDetail(parsedTaskId);
-  const [loadedTaskId, setLoadedTaskId] = useState<number | null>(null);
+  const { taskGlobalId } = useParams<{ taskGlobalId: string }>();
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const inboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/inbox") : "/";
+  const task = taskGlobalId ? stores.approvalRequestTaskStore.getDetail(taskGlobalId) : null;
+  const [loadedTaskGlobalId, setLoadedTaskGlobalId] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
-    setLoadedTaskId(null);
-    if (tenantId && Number.isInteger(parsedTaskId)) {
-      void stores.approvalRequestTaskStore.loadDetails(tenantId, parsedTaskId).then(() => {
+    setLoadedTaskGlobalId(null);
+    if (tenantGlobalId && taskGlobalId) {
+      void stores.approvalRequestTaskStore.loadDetails(tenantGlobalId, taskGlobalId).then(() => {
         if (active) {
-          setLoadedTaskId(parsedTaskId);
+          setLoadedTaskGlobalId(taskGlobalId);
         }
       });
     }
     return () => {
       active = false;
     };
-  }, [parsedTaskId, tenantId]);
+  }, [taskGlobalId, tenantGlobalId]);
 
   useEffect(() => {
     stores.approvalRequestTaskStore.setCurrent(task ?? null);
   }, [task]);
 
-  if (!Number.isInteger(parsedTaskId)) return <Navigate to={inboxPath} />;
-  if (!task || loadedTaskId !== parsedTaskId) return <LoadingOverlay />;
+  if (!taskGlobalId) return <Navigate to={inboxPath} />;
+  if (!task || loadedTaskGlobalId !== taskGlobalId) return <LoadingOverlay />;
 
-  return <ApprovalRequestTask onClose={(currentTaskId) => navigate(inboxPath, { state: currentTaskId ? { currentTaskId } : undefined })} />;
+  return <ApprovalRequestTask onClose={(currentTaskGlobalId) => navigate(inboxPath, { state: currentTaskGlobalId ? { currentTaskGlobalId } : undefined })} />;
 };
 
 export default observer(ApprovalRequestTaskPage);

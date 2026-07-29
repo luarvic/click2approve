@@ -6,7 +6,7 @@ namespace Click2Approve.Application.Models.DTOs;
 public class ApprovalRequestSubmitDto
 {
     public required string Title { get; set; }
-    public long? PreviousRevisionApprovalRequestId { get; set; }
+    public Guid? PreviousRevisionApprovalRequestGlobalId { get; set; }
     public List<ApprovalRequestFileSubmitDto> RequestFiles { get; set; } = [];
     public List<ApprovalRequestStepSubmitDto> Steps { get; set; } = [];
     public List<ApprovalRequestStepVisibilitySubmitDto> StepVisibility { get; set; } = [];

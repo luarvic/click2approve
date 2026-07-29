@@ -1,4 +1,5 @@
 using Click2Approve.Domain.Models;
+using Click2Approve.Application.Models.DTOs;
 
 namespace Click2Approve.Application.Services.UserFiles;
 
@@ -7,10 +8,10 @@ namespace Click2Approve.Application.Services.UserFiles;
 /// </summary>
 public interface IUserFileService
 {
-    Task<IList<UserFile>> UploadAsync(AppUser user, IFormFileCollection files, CancellationToken cancellationToken);
-    Task<(string Filename, byte[] Bytes)> DownloadAsync(AppUser user, long id, CancellationToken cancellationToken);
-    Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestFileAsync(AppUser user, long id, long approvalRequestId, CancellationToken cancellationToken);
-    Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestTaskFileAsync(AppUser user, long id, long approvalRequestTaskId, CancellationToken cancellationToken);
-    Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken);
-    Task DeleteAsync(AppUser user, long id, CancellationToken cancellationToken);
+    Task<IList<UserFileDto>> UploadAsync(AppUser user, IFormFileCollection files, CancellationToken cancellationToken);
+    Task<(string Filename, byte[] Bytes)> DownloadAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
+    Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestFileAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken);
+    Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestTaskFileAsync(AppUser user, Guid globalId, Guid approvalRequestTaskGlobalId, CancellationToken cancellationToken);
+    Task<IList<UserFileDto>> ListAsync(AppUser user, CancellationToken cancellationToken);
+    Task DeleteAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
 }

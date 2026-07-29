@@ -28,7 +28,7 @@ import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 
 interface ApprovalRequestTaskProps {
-  onClose: (currentTaskId?: number) => void;
+  onClose: (currentTaskGlobalId?: string) => void;
 }
 
 const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) => {
@@ -37,8 +37,8 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
   const [comment, setComment] = useState("");
   const [approvalRequest, setApprovalRequest] = useState<ApprovalRequest | null>(null);
   const [selectedTab, setSelectedTab] = useState("task");
-  const tenantId = stores.tenantStore.currentTenantId;
-  const inboxPath = tenantId ? Routes.tenantPath(tenantId, "/inbox") : "/";
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const inboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/inbox") : "/";
   const currentTask = stores.approvalRequestTaskStore.currentTask;
   const isCompleted = Boolean(currentTask && currentTask.status !== ApprovalRequestTaskStatus.Pending);
 
@@ -63,7 +63,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
 
   const handleClose = () => {
     cleanUp();
-    onClose(currentTask?.id);
+    onClose(currentTask?.globalId);
   };
 
   const handleSubmit = async () => {
@@ -73,12 +73,12 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
       return;
     }
     if (!currentTask || !stores.userAccountStore.currentUser) return;
-    const tenantId = stores.tenantStore.currentTenantId;
-    if (!tenantId) return;
+    const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+    if (!tenantGlobalId) return;
 
     const didComplete = await completeApprovalRequestTask(
-      tenantId,
-      currentTask.id,
+      tenantGlobalId,
+      currentTask.globalId,
       decision === "approve"
         ? ApprovalRequestTaskStatus.Approved
         : ApprovalRequestTaskStatus.Rejected,
@@ -90,8 +90,8 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
       );
       cleanUp();
       stores.approvalRequestTaskStore.clear();
-      stores.approvalRequestTaskStore.loadUncompletedCount(tenantId);
-      onClose(currentTask.id);
+      stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
+      onClose(currentTask.globalId);
     }
   };
 
@@ -101,7 +101,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
         items={[
           {
             label: "Inbox",
-            state: currentTask ? { currentTaskId: currentTask.id } : undefined,
+            state: currentTask ? { currentTaskGlobalId: currentTask.globalId } : undefined,
             to: inboxPath,
           },
           { label: "Task" },

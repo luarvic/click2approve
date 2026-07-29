@@ -5,5 +5,5 @@ namespace Click2Approve.WebApi.Models.DTOs;
 /// </summary>
 public class CurrentTenantDto
 {
-    public long Id { get; init; }
+    public Guid GlobalId { get; init; }
 }

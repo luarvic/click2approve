@@ -28,6 +28,7 @@ import {
   ExpandMore,
   Person,
   RuleOutlined,
+  Visibility,
   VisibilityOff,
 } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
@@ -198,7 +199,7 @@ const getTeamTaskApproverLabel = (task: ApprovalRequestTask) =>
   task.approverDisplayName;
 
 const getTaskApproverIcon = (step: ApprovalStep, task: ApprovalRequestTask) => {
-  const approver = step.approvers.find((item) => item.id === task.approvalRequestStepApproverId);
+  const approver = step.approvers.find((item) => item.globalId === task.approvalRequestStepApproverGlobalId);
   return getApprovalRecipientIcon(approver?.type ?? ApprovalRecipientType.Email);
 };
 
@@ -256,17 +257,17 @@ const getTaskCompletionDate = (task: ApprovalRequestTask) => {
 const getApproverTasks = (
   approver: ApprovalStep["approvers"][number],
   tasks: ApprovalRequestTask[],
-) => tasks.filter((task) => task.approvalRequestStepApproverId === approver.id);
+) => tasks.filter((task) => task.approvalRequestStepApproverGlobalId === approver.globalId);
 
 const getUnassignedTasks = (
   step: ApprovalStep,
   tasks: ApprovalRequestTask[],
 ) => {
-  const approverIds = new Set((step.approvers ?? []).map((approver) => approver.id));
+  const approverGlobalIds = new Set((step.approvers ?? []).map((approver) => approver.globalId));
   return tasks.filter(
     (task) =>
-      task.approvalRequestStepApproverId === undefined ||
-      !approverIds.has(task.approvalRequestStepApproverId),
+      task.approvalRequestStepApproverGlobalId === undefined ||
+      !approverGlobalIds.has(task.approvalRequestStepApproverGlobalId),
   );
 };
 
@@ -278,7 +279,7 @@ const renderTaskDetails = (
   const completedAt = getTaskCompletionDate(task);
 
   return (
-    <Stack key={task.id} spacing={StackSpacing.default}>
+    <Stack key={task.globalId} spacing={StackSpacing.default}>
       <Stack
         direction={{ xs: "column", sm: "row" }}
         spacing={StackSpacing.tight}
@@ -316,7 +317,7 @@ const renderApproverWithoutTasks = (
   index: number,
 ) => (
   <ApprovalRequestParticipantLine
-    key={approver.id ?? index}
+    key={approver.globalId ?? index}
     label={getApproverLabel(approver)}
     type={approver.type}
   />
@@ -328,7 +329,7 @@ const renderTeamApprover = (
   index: number,
 ) => (
   <Accordion
-    key={approver.id ?? index}
+    key={approver.globalId ?? index}
     defaultExpanded
     disableGutters
     sx={teamAccordionSx}
@@ -408,7 +409,6 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
   const stepStatus = getStepStatus(step, tasks);
   const unassignedTasks = getUnassignedTasks(step, tasks);
   const hiddenApproverLabels = getHiddenApproverLabels(step);
-  const hasVisibilityRestrictions = hiddenApproverLabels.length > 0;
   const stepMode = step.mode ?? ApprovalStepMode.Any;
 
   return (
@@ -458,29 +458,27 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
                   </Typography>
                 </Box>
               </Popover>
-              {hasVisibilityRestrictions && (
-                <>
-                  <Tooltip title="Step visibility">
-                    <IconButton
-                      aria-label={`Step ${step.sequence} visibility`}
-                      size="small"
-                      onClick={(event) => setVisibilityAnchor(event.currentTarget)}
-                    >
-                      <VisibilityOff color={Icons.secondaryColor} fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                  <Popover
-                    open={Boolean(visibilityAnchor)}
-                    anchorEl={visibilityAnchor}
-                    onClose={() => setVisibilityAnchor(null)}
-                    anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                  >
-                    <Box sx={visibilityPopoverSx}>
-                      {renderVisibilitySummary(hiddenApproverLabels)}
-                    </Box>
-                  </Popover>
-                </>
-              )}
+              <Tooltip title="Step visibility">
+                <IconButton
+                  aria-label={`Step ${step.sequence} visibility`}
+                  size="small"
+                  onClick={(event) => setVisibilityAnchor(event.currentTarget)}
+                >
+                  {hiddenApproverLabels.length === 0
+                    ? <Visibility color={Icons.secondaryColor} fontSize="small" />
+                    : <VisibilityOff color={Icons.secondaryColor} fontSize="small" />}
+                </IconButton>
+              </Tooltip>
+              <Popover
+                open={Boolean(visibilityAnchor)}
+                anchorEl={visibilityAnchor}
+                onClose={() => setVisibilityAnchor(null)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+              >
+                <Box sx={visibilityPopoverSx}>
+                  {renderVisibilitySummary(hiddenApproverLabels)}
+                </Box>
+              </Popover>
             </Box>
             {headerAccessory}
           </Stack>

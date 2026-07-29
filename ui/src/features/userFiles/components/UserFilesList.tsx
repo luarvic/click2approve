@@ -41,8 +41,8 @@ const UserFilesList: React.FC<UserFilesListProps> = ({
               event.preventDefault();
               if (onDownload) {
                 onDownload(userFile);
-              } else if (stores.tenantStore.currentTenantId) {
-                downloadUserFile(stores.tenantStore.currentTenantId, userFile);
+              } else if (stores.tenantStore.currentTenantGlobalId) {
+                downloadUserFile(stores.tenantStore.currentTenantGlobalId, userFile);
               }
             }}
             sx={userFileLinkSx}

@@ -16,7 +16,7 @@ import { useState } from "react";
 
 export interface RevisionExistingFile {
   file: UserFile;
-  requestFileId?: number;
+  requestFileGlobalId?: string;
   removed?: boolean;
   replacement?: File;
 }
@@ -129,7 +129,7 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
       >
         {existingFiles.map((file, index) => (
           <Stack
-            key={`existing-${file.requestFileId ?? file.file.id}`}
+            key={`existing-${file.requestFileGlobalId ?? file.file.globalId}`}
             direction="row"
             spacing={file.replacement ? StackSpacing.none : StackSpacing.tight}
             alignItems="center"

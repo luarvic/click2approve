@@ -25,6 +25,7 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        ConfigureGlobalIdIndexes(modelBuilder);
 
         modelBuilder.Entity<Tenant>()
             .Property(t => t.BusinessName)
@@ -254,7 +255,7 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
 
         modelBuilder.Entity<ApprovalRequestTask>()
             .HasOne(t => t.ApprovalRequest)
-            .WithMany(r => r.Tasks)
+            .WithMany()
             .HasForeignKey(t => t.ApprovalRequestId)
             .OnDelete(DeleteBehavior.Cascade);
 
@@ -357,5 +358,20 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
         modelBuilder.Entity<UserNotificationPreference>()
             .HasIndex(preference => new { preference.UserId, preference.Type, preference.Channel })
             .IsUnique();
+    }
+
+    protected static void ConfigureGlobalIdIndexes(ModelBuilder modelBuilder)
+    {
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes()
+            .Where(entityType => typeof(DbEntity).IsAssignableFrom(entityType.ClrType)))
+        {
+            modelBuilder.Entity(entityType.ClrType)
+                .Property(nameof(DbEntity.GlobalId))
+                .IsRequired();
+
+            modelBuilder.Entity(entityType.ClrType)
+                .HasIndex(nameof(DbEntity.GlobalId))
+                .IsUnique();
+        }
     }
 }

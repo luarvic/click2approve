@@ -28,36 +28,36 @@ const roleLabels = ["User", "Manager", "Admin"];
 const statusLabels = ["Pending", "Active"];
 
 interface EmployeesGridProps {
-  currentEmployeeId?: number;
+  currentEmployeeGlobalId?: string;
 }
 
-const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeId }) => {
+const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isSmallDisplay = useMediaQuery(theme.breakpoints.down("sm"));
-  const tenantId = stores.tenantStore.currentTenantId;
-  const employeesLoaderPrefix = tenantId ? `api/v1/tenants/${tenantId}/users` : "";
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const employeesLoaderPrefix = tenantGlobalId ? `api/v1/tenants/${tenantGlobalId}/users` : "";
   const canModifyEmployees =
     stores.tenantStore.currentTenant?.role === EmployeeRole.Admin ||
     stores.tenantStore.currentTenant?.isOwner === true;
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     stores.employeeStore.employees,
-    currentEmployeeId,
+    currentEmployeeGlobalId,
   );
 
   useEffect(() => {
     stores.employeeStore.clear();
     stores.teamStore.clear();
-  }, [tenantId]);
+  }, [tenantGlobalId]);
 
   useGridRefresh(() => {
-    if (tenantId) {
+    if (tenantGlobalId) {
       return Promise.all([
-        stores.employeeStore.load(tenantId, true),
-        stores.teamStore.load(tenantId, true),
+        stores.employeeStore.load(tenantGlobalId, true),
+        stores.teamStore.load(tenantGlobalId, true),
       ]).then(() => undefined);
     }
-  }, tenantId);
+  }, tenantGlobalId);
 
   const customToolbar = () => {
     return (
@@ -65,7 +65,7 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeId }) => {
         <Button
           startIcon={<Add />}
           onClick={() =>
-            navigate(Routes.tenantPath(tenantId!, "/employees/new"))
+            navigate(Routes.tenantPath(tenantGlobalId!, "/employees/new"))
           }
         >
           New employee
@@ -123,12 +123,13 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeId }) => {
     <Box sx={DataGrids.containerSx}>
       <DataGrid
         rows={stores.employeeStore.employees}
+        getRowId={(row) => row.globalId}
         columns={columns}
-        rowSelectionModel={currentEmployeeId === undefined ? [] : [currentEmployeeId]}
+        rowSelectionModel={currentEmployeeGlobalId === undefined ? [] : [currentEmployeeGlobalId]}
         hideFooterSelectedRowCount
         onRowClick={(params) =>
           navigate(
-            Routes.tenantPath(tenantId!, `/employees/${(params.row as Employee).id}`),
+            Routes.tenantPath(tenantGlobalId!, `/employees/${(params.row as Employee).globalId}`),
           )
         }
         columnVisibilityModel={{

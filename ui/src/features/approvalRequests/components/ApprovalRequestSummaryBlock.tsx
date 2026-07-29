@@ -98,7 +98,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
         <ApprovalRequestSummary
           title={approvalRequest.title}
           description={approvalRequest.description}
-          approvalRequestId={approvalRequest.id}
+          approvalRequestGlobalId={approvalRequest.globalId}
           requestFiles={approvalRequest.requestFiles}
           revisionNumber={approvalRequest.revisionNumber}
           compareFilesWithPrevious={(approvalRequest.revisionNumber ?? 1) > 1}

@@ -6,17 +6,17 @@ import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
 
 interface OutboxLocationState {
-  currentApprovalRequestId?: number;
+  currentApprovalRequestGlobalId?: string;
 }
 
 const OutboxPage = () => {
   usePageTitle("Outbox");
   const location = useLocation();
-  const { currentApprovalRequestId } = (location.state as OutboxLocationState | null) ?? {};
+  const { currentApprovalRequestGlobalId } = (location.state as OutboxLocationState | null) ?? {};
   return (
     <Box>
       <PageBreadcrumbs items={[{ label: "Outbox" }]} />
-      <OutboxGrid currentApprovalRequestId={currentApprovalRequestId} />
+      <OutboxGrid currentApprovalRequestGlobalId={currentApprovalRequestGlobalId} />
     </Box>
   );
 };

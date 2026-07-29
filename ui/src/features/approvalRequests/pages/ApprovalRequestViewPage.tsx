@@ -10,39 +10,38 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 const ApprovalRequestViewPage = () => {
   usePageTitle("Request");
   const navigate = useNavigate();
-  const { approvalRequestId } = useParams<{ approvalRequestId: string }>();
-  const parsedApprovalRequestId = Number(approvalRequestId);
-  const tenantId = stores.tenantStore.currentTenantId;
-  const outboxPath = tenantId ? Routes.tenantPath(tenantId, "/outbox") : "/";
-  const approvalRequest = stores.approvalRequestStore.getDetail(parsedApprovalRequestId);
-  const [loadedApprovalRequestId, setLoadedApprovalRequestId] = useState<number | null>(null);
+  const { approvalRequestGlobalId } = useParams<{ approvalRequestGlobalId: string }>();
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
+  const approvalRequest = approvalRequestGlobalId ? stores.approvalRequestStore.getDetail(approvalRequestGlobalId) : null;
+  const [loadedApprovalRequestGlobalId, setLoadedApprovalRequestGlobalId] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
-    setLoadedApprovalRequestId(null);
-    if (tenantId && Number.isInteger(parsedApprovalRequestId)) {
-      void stores.approvalRequestStore.loadDetails(tenantId, parsedApprovalRequestId).then(() => {
+    setLoadedApprovalRequestGlobalId(null);
+    if (tenantGlobalId && approvalRequestGlobalId) {
+      void stores.approvalRequestStore.loadDetails(tenantGlobalId, approvalRequestGlobalId).then(() => {
         if (active) {
-          setLoadedApprovalRequestId(parsedApprovalRequestId);
+          setLoadedApprovalRequestGlobalId(approvalRequestGlobalId);
         }
       });
     }
     return () => {
       active = false;
     };
-  }, [parsedApprovalRequestId, tenantId]);
+  }, [approvalRequestGlobalId, tenantGlobalId]);
 
   useEffect(() => {
     stores.approvalRequestStore.setCurrent(approvalRequest ?? null);
   }, [approvalRequest]);
 
-  if (!Number.isInteger(parsedApprovalRequestId)) return <Navigate to={outboxPath} />;
-  if (!approvalRequest || loadedApprovalRequestId !== parsedApprovalRequestId) return <LoadingOverlay />;
+  if (!approvalRequestGlobalId) return <Navigate to={outboxPath} />;
+  if (!approvalRequest || loadedApprovalRequestGlobalId !== approvalRequestGlobalId) return <LoadingOverlay />;
 
   return <ApprovalRequestView
-    onClose={(currentApprovalRequestId) =>
+    onClose={(currentApprovalRequestGlobalId) =>
       navigate(outboxPath, {
-        state: currentApprovalRequestId ? { currentApprovalRequestId } : undefined,
+        state: currentApprovalRequestGlobalId ? { currentApprovalRequestGlobalId } : undefined,
       })
     }
   />;

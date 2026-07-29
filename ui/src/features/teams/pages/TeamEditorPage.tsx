@@ -14,35 +14,34 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 
 const TeamEditorPage = () => {
   const navigate = useNavigate();
-  const { teamId } = useParams<{ teamId: string }>();
-  usePageTitle(teamId === undefined ? "New team" : "Edit team");
-  const tenantId = stores.tenantStore.currentTenantId;
-  const teamsPath = tenantId ? Routes.tenantPath(tenantId, "/teams") : "/";
-  const isNewTeam = teamId === undefined;
-  const parsedTeamId = Number(teamId);
-  const team = stores.teamStore.teams.find((item) => item.id === parsedTeamId);
+  const { teamGlobalId } = useParams<{ teamGlobalId: string }>();
+  usePageTitle(teamGlobalId === undefined ? "New team" : "Edit team");
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const teamsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/teams") : "/";
+  const isNewTeam = teamGlobalId === undefined;
+  const team = stores.teamStore.teams.find((item) => item.globalId === teamGlobalId);
   const canEdit = stores.tenantStore.currentTenant?.role === EmployeeRole.Admin || stores.tenantStore.currentTenant?.isOwner === true;
 
-  if (!tenantId) return <Navigate to={teamsPath} />;
+  if (!tenantGlobalId) return <Navigate to={teamsPath} />;
   if (!isNewTeam && !team) return <LoadingOverlay />;
 
   return <TeamEditor
     team={team ?? null}
     employees={stores.employeeStore.employees}
     canEdit={canEdit}
-    onClose={(currentTeamId) => navigate(teamsPath, { state: currentTeamId ? { currentTeamId } : undefined })}
-    onDelete={async (id) => {
-      const deleted = await stores.teamStore.delete(tenantId, id);
+    onClose={(currentTeamGlobalId) => navigate(teamsPath, { state: currentTeamGlobalId ? { currentTeamGlobalId } : undefined })}
+    onDelete={async (globalId: string) => {
+      const deleted = await stores.teamStore.delete(tenantGlobalId, globalId);
       if (deleted) {
         showPersistenceSuccessToast(PersistenceSuccessMessages.teamDeleted);
         navigate(teamsPath);
       }
       return deleted;
     }}
-    onSubmit={async (payload: UpsertTeamRequest, id?: number) => {
-      const saved = id
-        ? await stores.teamStore.update(tenantId, id, payload)
-        : await stores.teamStore.create(tenantId, payload);
+    onSubmit={async (payload: UpsertTeamRequest, globalId?: string) => {
+      const saved = globalId
+        ? await stores.teamStore.update(tenantGlobalId, globalId, payload)
+        : await stores.teamStore.create(tenantGlobalId, payload);
       if (saved) {
         showPersistenceSuccessToast(PersistenceSuccessMessages.teamSaved);
       }

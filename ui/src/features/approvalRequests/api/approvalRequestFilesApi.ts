@@ -3,13 +3,13 @@ import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
 import { toast } from "react-toastify";
 
 export const downloadApprovalRequestFileBase64 = async (
-  tenantId: number,
-  id: number,
-  approvalRequestId: number,
+  tenantGlobalId: string,
+  globalId: string,
+  approvalRequestGlobalId: string,
 ): Promise<string | null> => {
   try {
     const { data } = await axios.get(
-      `api/v1/tenants/${tenantId}/requests/${approvalRequestId}/files/${id}/downloadBase64`,
+      `api/v1/tenants/${tenantGlobalId}/requests/${approvalRequestGlobalId}/files/${globalId}/downloadBase64`,
     );
     return data;
   } catch (e) {

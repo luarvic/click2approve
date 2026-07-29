@@ -7,7 +7,7 @@ namespace Click2Approve.Application.Models.DTOs;
 /// </summary>
 public class ApprovalRequestStepDto
 {
-    public long? Id { get; init; }
+    public Guid? GlobalId { get; init; }
     public int Sequence { get; init; }
     public ApprovalStepMode? Mode { get; init; }
     public bool IsVisible { get; init; } = true;

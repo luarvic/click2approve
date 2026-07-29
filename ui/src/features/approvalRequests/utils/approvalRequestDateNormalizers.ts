@@ -25,7 +25,6 @@ type NormalizableTask =
 type NormalizableApprovalRequest =
   Pick<ApprovalRequest, "createdAt"> & {
     createdAtDate?: Date;
-    tasks?: ApprovalRequest["tasks"];
     steps?: ApprovalRequest["steps"];
     logEntries?: ApprovalRequest["logEntries"];
     taskLogEntries?: ApprovalRequest["taskLogEntries"];
@@ -35,7 +34,6 @@ export const normalizeApprovalRequestDates = (
   approvalRequest: NormalizableApprovalRequest,
 ): void => {
   approvalRequest.createdAtDate = parseUtcDateTime(approvalRequest.createdAt);
-  approvalRequest.tasks?.forEach(normalizeApprovalRequestTaskDates);
   approvalRequest.steps?.forEach((step) => {
     step.tasks?.forEach(normalizeApprovalRequestTaskDates);
   });

@@ -24,36 +24,35 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 
 const DelegationEditorPage = () => {
   const navigate = useNavigate();
-  const { delegationId } = useParams<{ delegationId: string }>();
+  const { delegationGlobalId } = useParams<{ delegationGlobalId: string }>();
   usePageTitle(
-    delegationId === undefined ? "New delegation" : "Edit delegation",
+    delegationGlobalId === undefined ? "New delegation" : "Edit delegation",
   );
-  const tenantId = stores.tenantStore.currentTenantId;
-  const delegationsPath = tenantId
-    ? Routes.tenantPath(tenantId, "/delegations")
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const delegationsPath = tenantGlobalId
+    ? Routes.tenantPath(tenantGlobalId, "/delegations")
     : "/";
-  const isNewDelegation = delegationId === undefined;
-  const parsedDelegationId = Number(delegationId);
+  const isNewDelegation = delegationGlobalId === undefined;
   const [delegations, setDelegations] = useState<ApprovalDelegation[]>([]);
   const [delegationsHaveLoaded, setDelegationsHaveLoaded] = useState(false);
-  const delegation = delegations.find((item) => item.id === parsedDelegationId);
+  const delegation = delegations.find((item) => item.globalId === delegationGlobalId);
   const canEdit = stores.tenantStore.currentTenant?.role === EmployeeRole.Admin;
 
   useEffect(() => {
     setDelegations([]);
     setDelegationsHaveLoaded(false);
     stores.employeeStore.clear();
-    if (!tenantId) {
+    if (!tenantGlobalId) {
       return;
     }
 
     void Promise.all([
-      stores.employeeStore.load(tenantId, true),
-      listApprovalDelegations(tenantId).then(setDelegations),
+      stores.employeeStore.load(tenantGlobalId, true),
+      listApprovalDelegations(tenantGlobalId).then(setDelegations),
     ]).finally(() => setDelegationsHaveLoaded(true));
-  }, [tenantId]);
+  }, [tenantGlobalId]);
 
-  if (!tenantId) return <Navigate to={delegationsPath} />;
+  if (!tenantGlobalId) return <Navigate to={delegationsPath} />;
   if (!isNewDelegation && !delegation) {
     return delegationsHaveLoaded ? (
       <Navigate to={delegationsPath} />
@@ -67,13 +66,13 @@ const DelegationEditorPage = () => {
       delegation={delegation ?? null}
       employees={stores.employeeStore.employees}
       canEdit={canEdit}
-      onClose={(currentDelegationId) =>
+      onClose={(currentDelegationGlobalId) =>
         navigate(delegationsPath, {
-          state: currentDelegationId ? { currentDelegationId } : undefined,
+          state: currentDelegationGlobalId ? { currentDelegationGlobalId } : undefined,
         })
       }
-      onDelete={async (id) => {
-        const deleted = await deleteApprovalDelegation(tenantId, id);
+      onDelete={async  (id: string) => {
+        const deleted = await deleteApprovalDelegation(tenantGlobalId, id);
         if (deleted) {
           showPersistenceSuccessToast(
             PersistenceSuccessMessages.delegationDeleted,
@@ -82,10 +81,10 @@ const DelegationEditorPage = () => {
         }
         return deleted;
       }}
-      onSubmit={async (payload: ApprovalDelegationUpsert, id?: number) => {
-        const saved = id
-          ? await updateApprovalDelegation(tenantId, id, payload)
-          : await createApprovalDelegation(tenantId, payload);
+      onSubmit={async (payload: ApprovalDelegationUpsert, globalId?: string) => {
+        const saved = globalId
+          ? await updateApprovalDelegation(tenantGlobalId, globalId, payload)
+          : await createApprovalDelegation(tenantGlobalId, payload);
         if (saved) {
           showPersistenceSuccessToast(
             PersistenceSuccessMessages.delegationSaved,

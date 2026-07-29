@@ -6,38 +6,38 @@ import { useEffect } from "react";
 import { Navigate, Outlet, useParams } from "react-router-dom";
 
 const TenantScopeLayout = () => {
-  const { tenantId } = useParams<{ tenantId: string }>();
-  const parsedTenantId = Number(tenantId);
+  const { tenantGlobalId } = useParams<{ tenantGlobalId: string }>();
   const tenantScopeIsAvailable =
     stores.tenantStore.hasLoaded &&
-    Number.isInteger(parsedTenantId) &&
+    tenantGlobalId !== undefined &&
     (stores.productStore.tenantsAreEnabled
-      ? stores.tenantStore.tenants.some((tenant) => tenant.id === parsedTenantId)
-      : stores.tenantStore.currentTenantId === parsedTenantId);
+      ? stores.tenantStore.tenants.some((tenant) => tenant.globalId === tenantGlobalId)
+      : stores.tenantStore.currentTenantGlobalId === tenantGlobalId);
 
   useEffect(() => {
     if (
       tenantScopeIsAvailable &&
-      stores.tenantStore.currentTenantId !== parsedTenantId
+      tenantGlobalId !== undefined &&
+      stores.tenantStore.currentTenantGlobalId !== tenantGlobalId
     ) {
-      void stores.switchTenant(parsedTenantId);
+      void stores.switchTenant(tenantGlobalId);
     }
-  }, [parsedTenantId, tenantScopeIsAvailable]);
+  }, [tenantGlobalId, tenantScopeIsAvailable]);
 
   if (!stores.tenantStore.hasLoaded) {
     return <LoadingOverlay />;
   }
 
   if (!tenantScopeIsAvailable) {
-    const currentTenantId = stores.tenantStore.currentTenantId;
-    return currentTenantId ? (
-      <Navigate to={Routes.tenantPath(currentTenantId, Routes.inboxPath)} replace />
+    const currentTenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+    return currentTenantGlobalId ? (
+      <Navigate to={Routes.tenantPath(currentTenantGlobalId, Routes.inboxPath)} replace />
     ) : (
       <Navigate to="/signIn" replace />
     );
   }
 
-  if (stores.tenantStore.currentTenantId !== parsedTenantId) {
+  if (stores.tenantStore.currentTenantGlobalId !== tenantGlobalId) {
     return <LoadingOverlay />;
   }
 

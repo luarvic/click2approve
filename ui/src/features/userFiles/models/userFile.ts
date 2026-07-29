@@ -1,5 +1,5 @@
 export interface UserFile {
-  id: number;
+  globalId: string;
   name: string;
   type: string;
   createdAt: string;

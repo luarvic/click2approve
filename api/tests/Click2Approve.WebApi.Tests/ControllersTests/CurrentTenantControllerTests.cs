@@ -32,6 +32,6 @@ public class CurrentTenantControllerTests(CustomWebApplicationFactory<Program> a
         var tenant = await client.GetFromJsonAsync<CurrentTenantDto>("api/v1/tenants/current");
 
         Assert.NotNull(tenant);
-        Assert.True(tenant.Id > 0);
+        Assert.NotEqual(Guid.Empty, tenant.GlobalId);
     }
 }

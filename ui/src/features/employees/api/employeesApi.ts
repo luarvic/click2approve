@@ -8,11 +8,11 @@ import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
 import { toast } from "react-toastify";
 
 export const listEmployees = async (
-  tenantId: number
+  tenantGlobalId: string
 ): Promise<Employee[]> => {
   try {
     const { data } = await axios.get<Employee[]>(
-      `api/v1/tenants/${tenantId}/employees`
+      `api/v1/tenants/${tenantGlobalId}/employees`
     );
     return data;
   } catch (e) {
@@ -22,12 +22,12 @@ export const listEmployees = async (
 };
 
 export const createEmployee = async (
-  tenantId: number,
+  tenantGlobalId: string,
   payload: CreateEmployeeRequest
 ): Promise<Employee | null> => {
   try {
     const { data } = await axios.post<Employee>(
-      `api/v1/tenants/${tenantId}/employees`,
+      `api/v1/tenants/${tenantGlobalId}/employees`,
       payload
     );
     return data;
@@ -38,13 +38,13 @@ export const createEmployee = async (
 };
 
 export const updateEmployee = async (
-  tenantId: number,
-  employeeId: number,
+  tenantGlobalId: string,
+  employeeGlobalId: string,
   payload: UpdateEmployeeRequest
 ): Promise<Employee | null> => {
   try {
     const { data } = await axios.put<Employee>(
-      `api/v1/tenants/${tenantId}/employees/${employeeId}`,
+      `api/v1/tenants/${tenantGlobalId}/employees/${employeeGlobalId}`,
       payload
     );
     return data;
@@ -55,11 +55,11 @@ export const updateEmployee = async (
 };
 
 export const deleteEmployee = async (
-  tenantId: number,
-  employeeId: number
+  tenantGlobalId: string,
+  employeeGlobalId: string
 ): Promise<boolean> => {
   try {
-    await axios.delete(`api/v1/tenants/${tenantId}/employees/${employeeId}`);
+    await axios.delete(`api/v1/tenants/${tenantGlobalId}/employees/${employeeGlobalId}`);
     return true;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));

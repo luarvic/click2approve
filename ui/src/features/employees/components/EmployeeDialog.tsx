@@ -26,13 +26,13 @@ interface EmployeeDialogProps {
   canEdit: boolean;
   employee: Employee | null;
   teams: Team[];
-  selectedTeamIds: number[];
-  onClose: (currentEmployeeId?: number) => void;
-  onDelete: (employeeId: number) => Promise<boolean>;
+  selectedTeamGlobalIds: string[];
+  onClose: (currentEmployeeGlobalId?: string) => void;
+  onDelete: (employeeGlobalId: string) => Promise<boolean>;
   onSubmit: (
     payload: CreateEmployeeRequest | UpdateEmployeeRequest,
-    teamIds: number[],
-    employeeId?: number,
+    teamGlobalIds: string[],
+    employeeGlobalId?: string,
   ) => Promise<Employee | null>;
 }
 
@@ -45,7 +45,7 @@ const roleOptions = [
 const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
   employee,
   teams,
-  selectedTeamIds,
+  selectedTeamGlobalIds,
   canEdit,
   onClose,
   onDelete,
@@ -60,9 +60,9 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
   const [emailTouched, setEmailTouched] = useState(false);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const isNew = employee === null;
-  const tenantId = stores.tenantStore.currentTenantId;
-  const employeesPath = tenantId
-    ? Routes.tenantPath(tenantId, "/employees")
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const employeesPath = tenantGlobalId
+    ? Routes.tenantPath(tenantGlobalId, "/employees")
     : "/";
   const emailHasError =
     isNew && emailTouched && !Validation.emailRegex.test(email);
@@ -73,9 +73,9 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
     setLastName(employee?.lastName ?? "");
     setPosition(employee?.position ?? "");
     setRole(employee?.role ?? EmployeeRole.User);
-    setSelectedTeams(teams.filter((team) => selectedTeamIds.includes(team.id)));
+    setSelectedTeams(teams.filter((team) => selectedTeamGlobalIds.includes(team.globalId)));
     setEmailTouched(false);
-  }, [employee, teams, selectedTeamIds]);
+  }, [employee, teams, selectedTeamGlobalIds]);
 
   const handleSubmit = async () => {
     if (isNew && !Validation.emailRegex.test(email)) {
@@ -92,16 +92,16 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
     const savedEmployee = !isNew
       ? await onSubmit(
         payload,
-        selectedTeams.map((team) => team.id),
-        employee.id,
+        selectedTeams.map((team) => team.globalId),
+        employee.globalId,
       )
       : await onSubmit(
         { ...payload, email: email.trim() },
-        selectedTeams.map((team) => team.id),
+        selectedTeams.map((team) => team.globalId),
       );
 
     if (savedEmployee) {
-      onClose(savedEmployee.id);
+      onClose(savedEmployee.globalId);
     }
   };
 
@@ -111,7 +111,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
         items={[
           {
             label: "Employees",
-            state: employee ? { currentEmployeeId: employee.id } : undefined,
+            state: employee ? { currentEmployeeGlobalId: employee.globalId } : undefined,
             to: employeesPath,
           },
           { label: isNew ? "New employee" : "Employee" },
@@ -173,7 +173,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
           options={teams}
           value={selectedTeams}
           getOptionLabel={(option) => option.name}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
+          isOptionEqualToValue={(option, value) => option.globalId === value.globalId}
           onChange={(_, value) => setSelectedTeams(value)}
           disabled={!isNew && !canEdit}
           renderTags={(value, getTagProps) =>
@@ -195,7 +195,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
         spacing={Dialogs.stepHeaderSpacing}
         sx={Dialogs.addStepButtonSx}
       >
-        <Button variant="outlined" onClick={() => onClose(employee?.id)}>
+        <Button variant="outlined" onClick={() => onClose(employee?.globalId)}>
           Cancel
         </Button>
         {!isNew && canEdit && (
@@ -215,7 +215,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
           open={deleteDialogIsOpen}
           title="Delete employee"
           onClose={() => setDeleteDialogIsOpen(false)}
-          onDelete={() => onDelete(employee.id)}
+          onDelete={() => onDelete(employee.globalId)}
         />
       )}
     </>

@@ -7,8 +7,8 @@ namespace Click2Approve.Application.Models.DTOs;
 /// </summary>
 public class ApprovalRequestFileSubmitDto
 {
-    public long UserFileId { get; set; }
+    public Guid UserFileGlobalId { get; set; }
     public int Sequence { get; set; }
     public ApprovalRequestFileRevisionAction RevisionAction { get; set; }
-    public long? PreviousApprovalRequestFileId { get; set; }
+    public Guid? PreviousApprovalRequestFileGlobalId { get; set; }
 }

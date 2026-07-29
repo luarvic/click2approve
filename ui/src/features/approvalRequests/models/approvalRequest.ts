@@ -5,7 +5,6 @@ import {
   ApprovalRequestLogEntry,
   ApprovalRequestTaskLogEntry,
 } from "./approvalRequestLogEntry";
-import { ApprovalRequestTask } from "./approvalRequestTask";
 
 export interface ApprovalRequest extends ApprovalRequestListItem {
   requestFiles: ApprovalRequestFile[];
@@ -14,11 +13,10 @@ export interface ApprovalRequest extends ApprovalRequestListItem {
   createdByUserId: string;
   createdByEmail: string;
   createdByDisplayName: string;
-  previousRevisionApprovalRequestId?: number;
+  previousRevisionApprovalRequestGlobalId?: string;
   previousRevisionApprovalRequestTitle?: string;
-  nextRevisionApprovalRequestId?: number;
+  nextRevisionApprovalRequestGlobalId?: string;
   nextRevisionApprovalRequestTitle?: string;
-  tasks: ApprovalRequestTask[];
   logEntries: ApprovalRequestLogEntry[];
   taskLogEntries: ApprovalRequestTaskLogEntry[];
 }
@@ -31,19 +29,19 @@ export enum ApprovalRequestFileRevisionAction {
 }
 
 export interface ApprovalRequestFile {
-  id: number;
+  globalId: string;
   userFile: UserFile;
   sequence: number;
   revisionAction: ApprovalRequestFileRevisionAction;
-  previousApprovalRequestFileId?: number;
+  previousApprovalRequestFileGlobalId?: string;
   previousUserFile?: UserFile;
 }
 
 export interface ApprovalRequestFileSubmission {
-  userFileId: number;
+  userFileGlobalId: string;
   sequence: number;
   revisionAction: ApprovalRequestFileRevisionAction;
-  previousApprovalRequestFileId?: number;
+  previousApprovalRequestFileGlobalId?: string;
 }
 
 export interface ApprovalRequestStepVisibilitySubmission {
@@ -55,7 +53,7 @@ export interface ApprovalRequestStepVisibilitySubmission {
 
 export interface SubmitApprovalRequestRequest {
   title: string;
-  previousRevisionApprovalRequestId?: number;
+  previousRevisionApprovalRequestGlobalId?: string;
   requestFiles: ApprovalRequestFileSubmission[];
   steps: ApprovalStep[];
   stepVisibility: ApprovalRequestStepVisibilitySubmission[];

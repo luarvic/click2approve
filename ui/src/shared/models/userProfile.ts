@@ -18,13 +18,13 @@ export interface UserProfile {
   firstName?: string;
   lastName?: string;
   avatar?: string;
-  defaultTenantId?: number;
+  defaultTenantGlobalId?: string;
   notificationPreferences: UserNotificationPreference[];
 }
 
 export interface UserProfileUpdateRequest {
   firstName?: string;
   lastName?: string;
-  defaultTenantId?: number;
+  defaultTenantGlobalId?: string;
   notificationPreferences: UserNotificationPreference[];
 }

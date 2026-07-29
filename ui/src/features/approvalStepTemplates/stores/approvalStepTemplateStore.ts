@@ -15,9 +15,9 @@ export class ApprovalStepTemplateStore {
     makeAutoObservable(this);
   }
 
-  load = async (tenantId: number): Promise<void> => {
+  load = async (tenantGlobalId: string): Promise<void> => {
     const requestVersion = ++this.requestVersion;
-    const templates = await approvalStepTemplateApi.listApprovalStepTemplates(tenantId);
+    const templates = await approvalStepTemplateApi.listApprovalStepTemplates(tenantGlobalId);
     if (requestVersion !== this.requestVersion) {
       return;
     }
@@ -27,11 +27,11 @@ export class ApprovalStepTemplateStore {
   };
 
   create = async (
-    tenantId: number,
+    tenantGlobalId: string,
     payload: UpsertApprovalStepTemplateRequest
   ): Promise<ApprovalStepTemplate | null> => {
     const requestVersion = this.requestVersion;
-    const template = await approvalStepTemplateApi.createApprovalStepTemplate(tenantId, payload);
+    const template = await approvalStepTemplateApi.createApprovalStepTemplate(tenantGlobalId, payload);
     if (!template || requestVersion !== this.requestVersion) {
       return null;
     }
@@ -43,14 +43,14 @@ export class ApprovalStepTemplateStore {
   };
 
   update = async (
-    tenantId: number,
-    templateId: number,
+    tenantGlobalId: string,
+    templateGlobalId: string,
     payload: UpsertApprovalStepTemplateRequest
   ): Promise<ApprovalStepTemplate | null> => {
     const requestVersion = this.requestVersion;
     const template = await approvalStepTemplateApi.updateApprovalStepTemplate(
-      tenantId,
-      templateId,
+      tenantGlobalId,
+      templateGlobalId,
       payload
     );
     if (!template || requestVersion !== this.requestVersion) {
@@ -59,15 +59,15 @@ export class ApprovalStepTemplateStore {
 
     runInAction(() => {
       this.templates = this.templates.map((item) =>
-        item.id === template.id ? template : item
+        item.globalId === template.globalId ? template : item
       );
     });
     return template;
   };
 
-  delete = async (tenantId: number, templateId: number): Promise<boolean> => {
+  delete = async (tenantGlobalId: string, templateGlobalId: string): Promise<boolean> => {
     const requestVersion = this.requestVersion;
-    if (!(await approvalStepTemplateApi.deleteApprovalStepTemplate(tenantId, templateId))) {
+    if (!(await approvalStepTemplateApi.deleteApprovalStepTemplate(tenantGlobalId, templateGlobalId))) {
       return false;
     }
     if (requestVersion !== this.requestVersion) {
@@ -76,7 +76,7 @@ export class ApprovalStepTemplateStore {
 
     runInAction(() => {
       this.templates = this.templates.filter(
-        (template) => template.id !== templateId
+        (template) => template.globalId !== templateGlobalId
       );
     });
     return true;

@@ -7,7 +7,7 @@ import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
 
 interface InboxLocationState {
-  currentTaskId?: number;
+  currentTaskGlobalId?: string;
 }
 
 const InboxPage = () => {
@@ -19,11 +19,11 @@ const InboxPage = () => {
       : "Inbox";
   usePageTitle(pageTitle);
   const location = useLocation();
-  const { currentTaskId } = (location.state as InboxLocationState | null) ?? {};
+  const { currentTaskGlobalId } = (location.state as InboxLocationState | null) ?? {};
   return (
     <Box>
       <PageBreadcrumbs items={[{ label: "Inbox" }]} />
-      <InboxGrid currentTaskId={currentTaskId} />
+      <InboxGrid currentTaskGlobalId={currentTaskGlobalId} />
     </Box>
   );
 };

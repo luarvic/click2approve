@@ -5,16 +5,16 @@ import { normalizeApprovalRequestDates } from "@/features/approvalRequests/utils
 import { makeAutoObservable, runInAction } from "mobx";
 
 export class ApprovalRequestStore {
-  registry: Map<number, ApprovalRequestListItem>;
-  details: Map<number, ApprovalRequest>;
+  registry: Map<string, ApprovalRequestListItem>;
+  details: Map<string, ApprovalRequest>;
   currentApprovalRequest: ApprovalRequest | null;
   requestToClone: ApprovalRequest | null;
-  private detailRequests = new Map<number, Promise<ApprovalRequest | null>>();
+  private detailRequests = new Map<string, Promise<ApprovalRequest | null>>();
   private listRequest: Promise<void> | null = null;
   private requestVersion = 0;
 
   constructor(
-    registry: Map<number, ApprovalRequestListItem> = new Map(),
+    registry: Map<string, ApprovalRequestListItem> = new Map(),
     currentApprovalRequest: ApprovalRequest | null = null,
     requestToClone: ApprovalRequest | null = null,
   ) {
@@ -26,18 +26,18 @@ export class ApprovalRequestStore {
   }
 
   get approvalRequests(): ApprovalRequestListItem[] {
-    return Array.from(this.registry.values()).sort((a, b) => b.id - a.id);
+    return Array.from(this.registry.values()).sort((a, b) => Date.parse(b.createdAt.toString()) - Date.parse(a.createdAt.toString()));
   }
 
-  getDetail = (id: number): ApprovalRequest | null => this.details.get(id) ?? null;
+  getDetail = (globalId: string): ApprovalRequest | null => this.details.get(globalId) ?? null;
 
-  load = (tenantId: number): Promise<void> => {
+  load = (tenantGlobalId: string): Promise<void> => {
     if (this.listRequest) {
       return this.listRequest;
     }
 
     const requestVersion = ++this.requestVersion;
-    const request = approvalRequestApi.listApprovalRequests(tenantId).then((approvalRequests) => {
+    const request = approvalRequestApi.listApprovalRequests(tenantGlobalId).then((approvalRequests) => {
       if (requestVersion !== this.requestVersion) {
         return;
       }
@@ -45,7 +45,7 @@ export class ApprovalRequestStore {
       approvalRequests.forEach(normalizeApprovalRequestDates);
       runInAction(() => {
         this.registry = new Map(
-          approvalRequests.map((approvalRequest) => [approvalRequest.id, approvalRequest]),
+          approvalRequests.map((approvalRequest) => [approvalRequest.globalId, approvalRequest]),
         );
       });
     }).finally(() => {
@@ -55,31 +55,31 @@ export class ApprovalRequestStore {
     return request;
   };
 
-  loadDetails = (tenantId: number, id: number): Promise<ApprovalRequest | null> => {
-    const inFlight = this.detailRequests.get(id);
+  loadDetails = (tenantGlobalId: string, globalId: string): Promise<ApprovalRequest | null> => {
+    const inFlight = this.detailRequests.get(globalId);
     if (inFlight) {
       return inFlight;
     }
 
-    const request = approvalRequestApi.getApprovalRequest(tenantId, id).then((approvalRequest) => {
+    const request = approvalRequestApi.getApprovalRequest(tenantGlobalId, globalId).then((approvalRequest) => {
       if (approvalRequest) {
         normalizeApprovalRequestDates(approvalRequest);
         runInAction(() => {
-          this.details.set(approvalRequest.id, approvalRequest);
-          if (this.currentApprovalRequest?.id === approvalRequest.id) {
+          this.details.set(approvalRequest.globalId, approvalRequest);
+          if (this.currentApprovalRequest?.globalId === approvalRequest.globalId) {
             this.currentApprovalRequest = approvalRequest;
           }
-          if (this.requestToClone?.id === approvalRequest.id) {
+          if (this.requestToClone?.globalId === approvalRequest.globalId) {
             this.requestToClone = approvalRequest;
           }
         });
       }
       return approvalRequest;
     }).finally(() => {
-      this.detailRequests.delete(id);
+      this.detailRequests.delete(globalId);
     });
 
-    this.detailRequests.set(id, request);
+    this.detailRequests.set(globalId, request);
     return request;
   };
 

@@ -1,4 +1,5 @@
 using Asp.Versioning;
+using Click2Approve.Application.Models.DTOs;
 using Click2Approve.WebApi.Extensions;
 using Click2Approve.Domain.Models;
 using Click2Approve.Application.Services.UserFiles;
@@ -17,7 +18,7 @@ namespace Click2Approve.WebApi.Controllers;
 [Tags("Click2Approve.WebApi.UserFile")]
 [ApiController]
 [ApiVersion(1.0)]
-[Route("api/v{version:apiVersion}/tenants/{tenantId:long}/files")]
+[Route("api/v{version:apiVersion}/tenants/{tenantGlobalId:guid}/files")]
 [Authorize]
 public class UserFileController(ILogger<UserFileController> logger, IUserFileService userFileService, UserManager<AppUser> userManager) : ControllerBase
 {
@@ -32,7 +33,7 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The list of uploaded files.</returns>
     [HttpPost("upload")]
-    public async Task<ActionResult<List<UserFile>>> UploadAsync(IFormFileCollection files, CancellationToken cancellationToken)
+    public async Task<ActionResult<List<UserFileDto>>> UploadAsync(IFormFileCollection files, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
         var userFiles = await _userFileService.UploadAsync(user, files, cancellationToken);
@@ -45,7 +46,7 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The list of user files.</returns>
     [HttpGet]
-    public async Task<ActionResult<List<UserFile>>> ListAsync(CancellationToken cancellationToken)
+    public async Task<ActionResult<List<UserFileDto>>> ListAsync(CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
         var userFiles = await _userFileService.ListAsync(user, cancellationToken);
@@ -55,14 +56,14 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     /// <summary>
     /// Downloads the file.
     /// </summary>
-    /// <param name="id">The ID of the file to download.</param>
+    /// <param name="globalId">The global ID of the file to download.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The FileContentResult object.</returns>
-    [HttpGet("{id:long}/download")]
-    public async Task<IActionResult> DownloadAsync(long id, CancellationToken cancellationToken)
+    [HttpGet("{globalId:guid}/download")]
+    public async Task<IActionResult> DownloadAsync(Guid globalId, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        var (filename, bytes) = await _userFileService.DownloadAsync(user, id, cancellationToken);
+        var (filename, bytes) = await _userFileService.DownloadAsync(user, globalId, cancellationToken);
         return new FileContentResult(bytes, MimeTypes.GetMimeType(filename))
         {
             FileDownloadName = filename
@@ -72,27 +73,27 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     /// <summary>
     /// Downloads a base64 representation of the file.
     /// </summary>
-    /// <param name="id">The ID of the file to download.</param>
+    /// <param name="globalId">The global ID of the file to download.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The base64 string.</returns>
-    [HttpGet("{id:long}/downloadBase64")]
-    public async Task<ActionResult<string>> DownloadBase64Async(long id, CancellationToken cancellationToken)
+    [HttpGet("{globalId:guid}/downloadBase64")]
+    public async Task<ActionResult<string>> DownloadBase64Async(Guid globalId, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        var (filename, bytes) = await _userFileService.DownloadAsync(user, id, cancellationToken);
+        var (filename, bytes) = await _userFileService.DownloadAsync(user, globalId, cancellationToken);
         return $"data:{MimeTypes.GetMimeType(filename)};base64,{Convert.ToBase64String(bytes)}";
     }
 
     /// <summary>
     /// Deletes a file.
     /// </summary>
-    /// <param name="id">The ID of the file to delete.</param>
+    /// <param name="globalId">The global ID of the file to delete.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    [HttpDelete("{id:long}")]
-    public async Task<IActionResult> DeleteAsync(long id, CancellationToken cancellationToken)
+    [HttpDelete("{globalId:guid}")]
+    public async Task<IActionResult> DeleteAsync(Guid globalId, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        await _userFileService.DeleteAsync(user, id, cancellationToken);
+        await _userFileService.DeleteAsync(user, globalId, cancellationToken);
         return Ok();
     }
 }

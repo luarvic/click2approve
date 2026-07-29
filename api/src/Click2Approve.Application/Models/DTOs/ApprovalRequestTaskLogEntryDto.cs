@@ -7,8 +7,8 @@ namespace Click2Approve.Application.Models.DTOs;
 /// </summary>
 public class ApprovalRequestTaskLogEntryDto
 {
-    public long Id { get; init; }
-    public long ApprovalRequestTaskId { get; init; }
+    public Guid GlobalId { get; init; }
+    public Guid ApprovalRequestTaskGlobalId { get; init; }
     public DateTime Timestamp { get; init; }
     public ApprovalLogActorType ActorType { get; init; }
     public string? ActorUserId { get; init; }

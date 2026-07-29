@@ -11,30 +11,29 @@ const ApprovalRequestSubmitPage = () => {
   usePageTitle("Compose request");
   const navigate = useNavigate();
   const location = useLocation();
-  const initialTemplateId = (
-    location.state as { templateId?: number } | null
-  )?.templateId;
-  const { approvalRequestId } = useParams<{ approvalRequestId: string }>();
-  const parsedApprovalRequestId = Number(approvalRequestId);
-  const isResubmit = approvalRequestId !== undefined;
-  const tenantId = stores.tenantStore.currentTenantId;
-  const outboxPath = tenantId ? Routes.tenantPath(tenantId, "/outbox") : "/";
-  const [loadedApprovalRequestId, setLoadedApprovalRequestId] = useState<number | null>(null);
+  const initialTemplateGlobalId = (
+    location.state as { templateGlobalId?: string } | null
+  )?.templateGlobalId;
+  const { approvalRequestGlobalId } = useParams<{ approvalRequestGlobalId: string }>();
+  const isResubmit = approvalRequestGlobalId !== undefined;
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
+  const [loadedApprovalRequestGlobalId, setLoadedApprovalRequestGlobalId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isResubmit) {
       stores.approvalRequestStore.setRequestToClone(null);
-      setLoadedApprovalRequestId(null);
+      setLoadedApprovalRequestGlobalId(null);
       return;
     }
 
     let active = true;
-    setLoadedApprovalRequestId(null);
-    if (tenantId && Number.isInteger(parsedApprovalRequestId)) {
-      void stores.approvalRequestStore.loadDetails(tenantId, parsedApprovalRequestId).then((approvalRequest) => {
+    setLoadedApprovalRequestGlobalId(null);
+    if (tenantGlobalId && approvalRequestGlobalId) {
+      void stores.approvalRequestStore.loadDetails(tenantGlobalId, approvalRequestGlobalId).then((approvalRequest) => {
         if (active) {
           stores.approvalRequestStore.setRequestToClone(approvalRequest);
-          setLoadedApprovalRequestId(parsedApprovalRequestId);
+          setLoadedApprovalRequestGlobalId(approvalRequestGlobalId);
         }
       });
     }
@@ -42,23 +41,23 @@ const ApprovalRequestSubmitPage = () => {
     return () => {
       active = false;
     };
-  }, [isResubmit, parsedApprovalRequestId, tenantId]);
+  }, [isResubmit, approvalRequestGlobalId, tenantGlobalId]);
 
-  if (isResubmit && !Number.isInteger(parsedApprovalRequestId)) {
+  if (isResubmit && !approvalRequestGlobalId) {
     return <Navigate to={outboxPath} />;
   }
 
-  if (isResubmit && loadedApprovalRequestId !== parsedApprovalRequestId) {
+  if (isResubmit && loadedApprovalRequestGlobalId !== approvalRequestGlobalId) {
     return <LoadingOverlay />;
   }
 
   return (
     <ApprovalRequestSubmit
-      initialTemplateId={initialTemplateId}
-      onClose={(currentApprovalRequestId) =>
+      initialTemplateGlobalId={initialTemplateGlobalId}
+      onClose={(currentApprovalRequestGlobalId) =>
         navigate(outboxPath, {
-          state: currentApprovalRequestId
-            ? { currentApprovalRequestId }
+          state: currentApprovalRequestGlobalId
+            ? { currentApprovalRequestGlobalId }
             : undefined,
         })
       }

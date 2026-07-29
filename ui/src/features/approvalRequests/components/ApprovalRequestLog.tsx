@@ -162,7 +162,7 @@ const mapRequestEntry = (entry: ApprovalRequestLogEntry): DisplayLogEntry => ({
   actorType: getActorTypeLabel(entry.actorType),
   details: formatRequestDetails(entry),
   event: getRequestEventLabel(entry.eventType),
-  id: `request-${entry.id}`,
+  id: `request-${entry.globalId}`,
   timestamp: entry.timestampDate,
 });
 
@@ -171,7 +171,7 @@ const mapTaskEntry = (entry: ApprovalRequestTaskLogEntry): DisplayLogEntry => ({
   actorType: getActorTypeLabel(entry.actorType),
   details: formatTaskDetails(entry),
   event: getTaskEventLabel(entry.eventType),
-  id: `task-${entry.id}`,
+  id: `task-${entry.globalId}`,
   onBehalfOf: entry.onBehalfOfDisplayName,
   timestamp: entry.timestampDate,
 });
@@ -182,29 +182,20 @@ const getVisibleTaskIds = (approvalRequest: ApprovalRequest) => {
     return null;
   }
 
-  const visibleStepIds = new Set(
-    steps
-      .filter((step) => step.isVisible !== false && step.id !== undefined)
-      .map((step) => step.id),
-  );
-  const visibleTaskIds = new Set(
-    (approvalRequest.tasks ?? [])
-      .filter((task) => visibleStepIds.has(task.approvalRequestStepId))
-      .map((task) => task.id),
-  );
+  const visibleTaskGlobalIds = new Set<string>();
   steps
     .filter((step) => step.isVisible !== false)
     .flatMap((step) => step.tasks ?? [])
-    .forEach((task) => visibleTaskIds.add(task.id));
+    .forEach((task) => visibleTaskGlobalIds.add(task.globalId));
 
-  return visibleTaskIds;
+  return visibleTaskGlobalIds;
 };
 
 const getLogEntries = (approvalRequest: ApprovalRequest): DisplayLogEntry[] => {
-  const visibleTaskIds = getVisibleTaskIds(approvalRequest);
-  const taskLogEntries = visibleTaskIds
+  const visibleTaskGlobalIds = getVisibleTaskIds(approvalRequest);
+  const taskLogEntries = visibleTaskGlobalIds
     ? (approvalRequest.taskLogEntries ?? []).filter((entry) =>
-        visibleTaskIds.has(entry.approvalRequestTaskId),
+        visibleTaskGlobalIds.has(entry.approvalRequestTaskGlobalId),
       )
     : (approvalRequest.taskLogEntries ?? []);
 

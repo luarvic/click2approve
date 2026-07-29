@@ -15,12 +15,12 @@ export enum ApprovalRequestTaskLogEventType {
 }
 
 export interface ApprovalLogEntryBase {
-  id: number;
+  globalId: string;
   timestamp: string;
   timestampDate: Date;
   actorType: ApprovalLogActorType;
   actorUserId?: string;
-  actorEmployeeId?: number;
+  actorEmployeeGlobalId?: string;
   actorEmail: string;
   actorDisplayName: string;
   details: string;
@@ -31,11 +31,11 @@ export interface ApprovalRequestLogEntry extends ApprovalLogEntryBase {
 }
 
 export interface ApprovalRequestTaskLogEntry extends ApprovalLogEntryBase {
-  approvalRequestTaskId: number;
+  approvalRequestTaskGlobalId: string;
   eventType: ApprovalRequestTaskLogEventType;
   onBehalfOfActorType?: ApprovalLogActorType;
   onBehalfOfUserId?: string;
-  onBehalfOfEmployeeId?: number;
+  onBehalfOfEmployeeGlobalId?: string;
   onBehalfOfEmail?: string;
   onBehalfOfDisplayName?: string;
 }

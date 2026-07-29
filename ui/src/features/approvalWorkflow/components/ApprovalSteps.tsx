@@ -5,6 +5,7 @@ import type { SxProps } from "@mui/material";
 import { Divider, Stack } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
+import ApprovalHiddenStepBlock from "./ApprovalHiddenStepBlock";
 import ApprovalStepBlock from "./ApprovalStepBlock";
 
 interface ApprovalStepsProps {
@@ -15,21 +16,11 @@ interface ApprovalStepsProps {
 }
 
 const getStepTasks = (
-  approvalRequest: ApprovalRequest,
   step: ApprovalStep,
 ) => {
-  const stepTasks = step.tasks?.filter(Boolean) ?? [];
-  const stepTaskIds = new Set(stepTasks.map((task) => task.id));
-  const requestStepTasks = (approvalRequest.tasks ?? [])
-    .filter(Boolean)
-    .filter(
-      (task) =>
-        task.approvalRequestStepId === step.id ||
-        (stepTaskIds.size > 0 && stepTaskIds.has(task.id)),
-    );
-  return [...requestStepTasks, ...stepTasks].filter(
+  return (step.tasks ?? []).filter(Boolean).filter(
     (task, index, tasks) =>
-      tasks.findIndex((item) => item.id === task.id) === index,
+      tasks.findIndex((item) => item.globalId === task.globalId) === index,
   );
 };
 
@@ -52,14 +43,19 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
       {leadingItem}
       {steps.map((step) => {
         if (step.isVisible === false) {
-          return null;
+          return (
+            <ApprovalHiddenStepBlock
+              key={step.globalId ?? step.sequence}
+              step={step}
+            />
+          );
         }
 
         return (
           <ApprovalStepBlock
-            key={step.id ?? step.sequence}
+            key={step.globalId ?? step.sequence}
             step={step}
-            tasks={getStepTasks(approvalRequest, step)}
+            tasks={getStepTasks(step)}
           />
         );
       })}

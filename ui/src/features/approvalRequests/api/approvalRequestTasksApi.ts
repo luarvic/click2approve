@@ -6,14 +6,14 @@ import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
 import { toast } from "react-toastify";
 
 export const completeApprovalRequestTask = async (
-  tenantId: number,
-  id: number,
+  tenantGlobalId: string,
+  globalId: string,
   status: ApprovalRequestTaskStatus,
   comment: string | undefined
 ): Promise<boolean> => {
   try {
-    await axios.post(`api/v1/tenants/${tenantId}/tasks/complete`, {
-      id: id,
+    await axios.post(`api/v1/tenants/${tenantGlobalId}/tasks/complete`, {
+      globalId: globalId,
       status: status,
       comment: comment,
     });
@@ -25,13 +25,13 @@ export const completeApprovalRequestTask = async (
 };
 
 export const listApprovalRequestTasks = async (
-  tenantId: number,
+  tenantGlobalId: string,
 ): Promise<
   ApprovalRequestTaskListItem[]
 > => {
   try {
     const { data } = await axios.get<ApprovalRequestTaskListItem[]>(
-      `api/v1/tenants/${tenantId}/tasks`,
+      `api/v1/tenants/${tenantGlobalId}/tasks`,
     );
     return data;
   } catch (e) {
@@ -41,12 +41,12 @@ export const listApprovalRequestTasks = async (
 };
 
 export const getApprovalRequestTask = async (
-  tenantId: number,
-  id: number,
+  tenantGlobalId: string,
+  globalId: string,
 ): Promise<ApprovalRequestTask | null> => {
   try {
     const { data } = await axios.get<ApprovalRequestTask>(
-      `api/v1/tenants/${tenantId}/tasks/${id}`,
+      `api/v1/tenants/${tenantGlobalId}/tasks/${globalId}`,
     );
     return data;
   } catch (e) {
@@ -56,11 +56,11 @@ export const getApprovalRequestTask = async (
 };
 
 export const countUncompletedApprovalRequestTasks = async (
-  tenantId: number,
+  tenantGlobalId: string,
 ): Promise<number> => {
   try {
     const { data } = await axios.get<number>(
-      `api/v1/tenants/${tenantId}/tasks/uncompleted/count`,
+      `api/v1/tenants/${tenantGlobalId}/tasks/uncompleted/count`,
     );
     return data;
   } catch (e) {

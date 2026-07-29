@@ -22,6 +22,5 @@ public class ApprovalRequest : DbEntity
     public List<ApprovalRequestFile> RequestFiles { get; set; } = [];
     public required List<ApprovalRequestStep> Steps { get; set; }
     public required string? Description { get; set; }
-    public required List<ApprovalRequestTask> Tasks { get; set; }
     public List<ApprovalRequestLogEntry> LogEntries { get; set; } = [];
 }

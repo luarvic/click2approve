@@ -6,8 +6,8 @@ export enum EmployeeStatus {
 }
 
 export interface Employee {
-  id: number;
-  tenantId: number;
+  globalId: string;
+  tenantGlobalId: string;
   userId?: string;
   email: string;
   displayName: string;

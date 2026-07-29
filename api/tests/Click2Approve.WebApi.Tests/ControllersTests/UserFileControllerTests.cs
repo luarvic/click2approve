@@ -109,10 +109,10 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
             {
                 var originalFile = testDataEntry.FilesToUpload.Single(f => f.Key == file.Name);
 
-                var downloadedFileContent = await _client.DownloadFileAsync(loginData.AccessToken, file.Id, CancellationToken.None);
+                var downloadedFileContent = await _client.DownloadFileAsync(loginData.AccessToken, file.GlobalId, CancellationToken.None);
                 Assert.Equal(originalFile.Value, downloadedFileContent);
 
-                var downloadFileBase64 = await _client.DownloadBase64Async(loginData.AccessToken, file.Id, CancellationToken.None);
+                var downloadFileBase64 = await _client.DownloadBase64Async(loginData.AccessToken, file.GlobalId, CancellationToken.None);
                 var originalFileBase64 = $"data:{MimeTypes.GetMimeType(originalFile.Key)};base64,{Converters.GetBase64FromString(originalFile.Value)}";
                 Assert.Equal(originalFileBase64, downloadFileBase64);
             }
@@ -130,9 +130,9 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
             foreach (var file in filesOwnedByOtherUsers)
             {
                 await Assert.ThrowsAsync<Exception>(async () =>
-                    await _client.DownloadFileAsync(loginData.AccessToken, file.Id, CancellationToken.None));
+                    await _client.DownloadFileAsync(loginData.AccessToken, file.GlobalId, CancellationToken.None));
                 await Assert.ThrowsAsync<Exception>(async () =>
-                    await _client.DeleteFileAsync(loginData.AccessToken, file.Id, CancellationToken.None));
+                    await _client.DeleteFileAsync(loginData.AccessToken, file.GlobalId, CancellationToken.None));
             }
         }
 
@@ -151,7 +151,7 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
             [
                 new ApprovalRequestFileSubmitDto
                 {
-                    UserFileId = taskFile.Id,
+                    UserFileGlobalId = taskFile.GlobalId,
                     Sequence = 0
                 }
             ],
@@ -178,8 +178,10 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
 
         var approvalRequest = _db.ApprovalRequests
             .Include(request => request.RequestFiles)
-            .Include(request => request.Tasks)
+            .Include(request => request.Steps)
+                .ThenInclude(step => step.Tasks)
             .Single(request => request.RequestFiles.Any(file => file.UserFileId == taskFile.Id));
+        var approvalRequestTask = Assert.Single(Assert.Single(approvalRequest.Steps).Tasks);
         approvalRequest.RequestFiles.Add(new ApprovalRequestFile
         {
             ApprovalRequest = approvalRequest,
@@ -192,27 +194,27 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
 
         await _client.DownloadApprovalRequestBase64Async(
             requesterLoginData.AccessToken,
-            taskFile.Id,
-            approvalRequest.Id,
+            taskFile.GlobalId,
+            approvalRequest.GlobalId,
             CancellationToken.None);
 
         var approverLoginData = await _client.LogInAsync(approver.Credentials, CancellationToken.None);
         await Assert.ThrowsAsync<Exception>(() =>
-            _client.DownloadFileAsync(approverLoginData.AccessToken, taskFile.Id, CancellationToken.None));
+            _client.DownloadFileAsync(approverLoginData.AccessToken, taskFile.GlobalId, CancellationToken.None));
         await Assert.ThrowsAsync<Exception>(() =>
-            _client.DownloadBase64Async(approverLoginData.AccessToken, taskFile.Id, CancellationToken.None));
+            _client.DownloadBase64Async(approverLoginData.AccessToken, taskFile.GlobalId, CancellationToken.None));
         await _client.DownloadApprovalRequestTaskBase64Async(
             approverLoginData.AccessToken,
-            taskFile.Id,
-            Assert.Single(approvalRequest.Tasks).Id,
+            taskFile.GlobalId,
+            approvalRequestTask.GlobalId,
             CancellationToken.None);
         await _client.DownloadApprovalRequestTaskBase64Async(
             approverLoginData.AccessToken,
-            laterRequestFile.Id,
-            Assert.Single(approvalRequest.Tasks).Id,
+            laterRequestFile.GlobalId,
+            approvalRequestTask.GlobalId,
             CancellationToken.None);
         await Assert.ThrowsAsync<Exception>(() =>
-            _client.DownloadBase64Async(approverLoginData.AccessToken, laterRequestFile.Id, CancellationToken.None));
+            _client.DownloadBase64Async(approverLoginData.AccessToken, laterRequestFile.GlobalId, CancellationToken.None));
 
         var approvalRequestFileIds = approvalRequest.RequestFiles.Select(file => file.UserFileId).ToHashSet();
         foreach (var testDataEntry in testData)
@@ -229,11 +231,11 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
                 if (approvalRequestFileIds.Contains(file.Id))
                 {
                     await Assert.ThrowsAsync<Exception>(async () =>
-                        await _client.DeleteFileAsync(loginData.AccessToken, file.Id, CancellationToken.None));
+                        await _client.DeleteFileAsync(loginData.AccessToken, file.GlobalId, CancellationToken.None));
                     continue;
                 }
 
-                await _client.DeleteFileAsync(loginData.AccessToken, file.Id, CancellationToken.None);
+                await _client.DeleteFileAsync(loginData.AccessToken, file.GlobalId, CancellationToken.None);
             }
 
             Assert.Empty(_db.UserFiles

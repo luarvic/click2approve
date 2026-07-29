@@ -17,31 +17,31 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface ApprovalStepTemplatesGridProps {
-  currentTemplateId?: number;
+  currentTemplateGlobalId?: string;
 }
 
 const ApprovalStepTemplatesGrid: React.FC<ApprovalStepTemplatesGridProps> = ({
-  currentTemplateId,
+  currentTemplateGlobalId,
 }) => {
   const navigate = useNavigate();
-  const tenantId = stores.tenantStore.currentTenantId;
-  const loaderPrefix = tenantId
-    ? `api/v1/tenants/${tenantId}/approvalStepTemplates`
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const loaderPrefix = tenantGlobalId
+    ? `api/v1/tenants/${tenantGlobalId}/approvalStepTemplates`
     : "";
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     stores.approvalStepTemplateStore.templates,
-    currentTemplateId,
+    currentTemplateGlobalId,
   );
 
   useEffect(() => {
     stores.approvalStepTemplateStore.clear();
-  }, [tenantId]);
+  }, [tenantGlobalId]);
 
   useGridRefresh(() => {
-    if (tenantId) {
-      return stores.approvalStepTemplateStore.load(tenantId);
+    if (tenantGlobalId) {
+      return stores.approvalStepTemplateStore.load(tenantGlobalId);
     }
-  }, tenantId);
+  }, tenantGlobalId);
 
   const customToolbar = () => {
     return (
@@ -50,7 +50,7 @@ const ApprovalStepTemplatesGrid: React.FC<ApprovalStepTemplatesGridProps> = ({
           startIcon={<Add />}
           onClick={() =>
             navigate(
-              Routes.tenantPath(tenantId!, "/approvalStepTemplates/new"),
+              Routes.tenantPath(tenantGlobalId!, "/approvalStepTemplates/new"),
             )
           }
         >
@@ -72,15 +72,16 @@ const ApprovalStepTemplatesGrid: React.FC<ApprovalStepTemplatesGridProps> = ({
     <Box sx={DataGrids.containerSx}>
       <DataGrid
         rows={stores.approvalStepTemplateStore.templates}
+        getRowId={(row) => row.globalId}
         columns={columns}
         rowSelectionModel={
-          currentTemplateId === undefined ? [] : [currentTemplateId]
+          currentTemplateGlobalId === undefined ? [] : [currentTemplateGlobalId]
         }
         hideFooterSelectedRowCount
         onRowClick={(params) =>
           navigate(Routes.tenantPath(
-            tenantId!,
-            `/approvalStepTemplates/${(params.row as ApprovalStepTemplate).id}`,
+            tenantGlobalId!,
+            `/approvalStepTemplates/${(params.row as ApprovalStepTemplate).globalId}`,
           ))
         }
         paginationModel={paginationModel}

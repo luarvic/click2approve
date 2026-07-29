@@ -12,25 +12,25 @@ import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
 import { toast } from "react-toastify";
 
 export const submitApprovalRequest = async (
-  tenantId: number,
+  tenantGlobalId: string,
   title: string,
   steps: ApprovalStep[],
   stepVisibility: ApprovalRequestStepVisibilitySubmission[],
   description: string | undefined,
-  previousRevisionApprovalRequestId?: number,
+  previousRevisionApprovalRequestGlobalId?: string,
   requestFiles: ApprovalRequestFileSubmission[] = [],
-): Promise<number | null> => {
+): Promise<string | null> => {
   try {
     const payload: SubmitApprovalRequestRequest = {
       title,
-      previousRevisionApprovalRequestId,
+      previousRevisionApprovalRequestGlobalId,
       requestFiles,
       steps,
       stepVisibility,
       description,
     };
-    const { data } = await axios.post<number>(
-      `api/v1/tenants/${tenantId}/requests`,
+    const { data } = await axios.post<string>(
+      `api/v1/tenants/${tenantGlobalId}/requests`,
       payload,
     );
     return data;
@@ -41,13 +41,13 @@ export const submitApprovalRequest = async (
 };
 
 export const resubmitApprovalRequest = async (
-  tenantId: number,
-  id: number,
+  tenantGlobalId: string,
+  globalId: string,
   steps: ApprovalStep[],
   stepVisibility: ApprovalRequestStepVisibilitySubmission[],
   description: string | undefined,
   requestFiles: ApprovalRequestFileSubmission[],
-): Promise<number | null> => {
+): Promise<string | null> => {
   try {
     const payload: ResubmitApprovalRequestRequest = {
       requestFiles,
@@ -55,8 +55,8 @@ export const resubmitApprovalRequest = async (
       stepVisibility,
       description,
     };
-    const { data } = await axios.post<number>(
-      `api/v1/tenants/${tenantId}/requests/${id}/resubmit`,
+    const { data } = await axios.post<string>(
+      `api/v1/tenants/${tenantGlobalId}/requests/${globalId}/resubmit`,
       payload,
     );
     return data;
@@ -67,11 +67,11 @@ export const resubmitApprovalRequest = async (
 };
 
 export const cancelApprovalRequest = async (
-  tenantId: number,
-  id: number,
+  tenantGlobalId: string,
+  globalId: string,
 ): Promise<boolean> => {
   try {
-    await axios.post(`api/v1/tenants/${tenantId}/requests/${id}/cancel`);
+    await axios.post(`api/v1/tenants/${tenantGlobalId}/requests/${globalId}/cancel`);
     return true;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
@@ -80,11 +80,11 @@ export const cancelApprovalRequest = async (
 };
 
 export const listApprovalRequests = async (
-  tenantId: number,
+  tenantGlobalId: string,
 ): Promise<ApprovalRequestListItem[]> => {
   try {
     const { data } = await axios.get<ApprovalRequestListItem[]>(
-      `api/v1/tenants/${tenantId}/requests`,
+      `api/v1/tenants/${tenantGlobalId}/requests`,
     );
     return data;
   } catch (e) {
@@ -94,12 +94,12 @@ export const listApprovalRequests = async (
 };
 
 export const getApprovalRequest = async (
-  tenantId: number,
-  id: number,
+  tenantGlobalId: string,
+  globalId: string,
 ): Promise<ApprovalRequest | null> => {
   try {
     const { data } = await axios.get<ApprovalRequest>(
-      `api/v1/tenants/${tenantId}/requests/${id}`,
+      `api/v1/tenants/${tenantGlobalId}/requests/${globalId}`,
     );
     return data;
   } catch (e) {

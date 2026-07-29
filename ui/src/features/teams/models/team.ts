@@ -1,13 +1,13 @@
 import { Employee } from "@/features/employees/models/employee";
 
 export interface Team {
-  id: number;
-  tenantId: number;
+  globalId: string;
+  tenantGlobalId: string;
   name: string;
   members: Employee[];
 }
 
 export interface UpsertTeamRequest {
   name: string;
-  employeeIds: number[];
+  employeeGlobalIds: string[];
 }

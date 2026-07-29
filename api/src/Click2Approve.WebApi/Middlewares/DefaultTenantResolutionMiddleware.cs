@@ -24,10 +24,10 @@ public class DefaultTenantResolutionMiddleware(RequestDelegate next)
             var user = await userManager.GetUserAsync(context.User)
                 ?? throw new UnauthorizedAccessException("User not found.");
             var tenant = await tenantService.GetRequiredDefaultAsync(user, context.RequestAborted);
-            if (context.Request.RouteValues.TryGetValue("tenantId", out var routeValue))
+            if (context.Request.RouteValues.TryGetValue("tenantGlobalId", out var routeValue))
             {
-                var tenantId = ParseTenantId(routeValue);
-                if (tenantId != tenant.Id)
+                var tenantGlobalId = ParseTenantGlobalId(routeValue);
+                if (tenantGlobalId != tenant.GlobalId)
                 {
                     throw new UnauthorizedAccessException();
                 }
@@ -39,10 +39,10 @@ public class DefaultTenantResolutionMiddleware(RequestDelegate next)
         await _next(context);
     }
 
-    private static long ParseTenantId(object? value)
+    private static Guid ParseTenantGlobalId(object? value)
     {
-        return long.TryParse(value?.ToString(), out var tenantId) && tenantId > 0
-            ? tenantId
-            : throw new BusinessRuleException("The tenant route value must be a positive integer.");
+        return Guid.TryParse(value?.ToString(), out var tenantGlobalId) && tenantGlobalId != Guid.Empty
+            ? tenantGlobalId
+            : throw new BusinessRuleException("The tenant route value must be a GUID.");
     }
 }

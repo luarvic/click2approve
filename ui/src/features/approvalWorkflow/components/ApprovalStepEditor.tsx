@@ -49,7 +49,7 @@ interface ApprovalStepEditorProps {
   canUseEmployees: boolean;
   canUseTeams: boolean;
   employees: Employee[];
-  teams: { id: number; name: string }[];
+  teams: { globalId: string; name: string }[];
   getStepState?: (
     step: EditableApprovalStep,
     stepIndex: number,
@@ -116,7 +116,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
 
           return (
             <CommentPaper
-              key={step.id ?? `new-${step.sequence}`}
+              key={step.globalId ?? `new-${step.sequence}`}
               sx={state.sx}
             >
               <Stack spacing={Dialogs.stepStackSpacing}>
@@ -205,7 +205,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                         ) ?? {};
                       return (
                         <ApprovalStepApproverRow
-                          key={approver.id ?? approverIndex}
+                          key={approver.globalId ?? approverIndex}
                           approver={approver}
                           canUseEmployees={canUseEmployees}
                           canUseTeams={canUseTeams}

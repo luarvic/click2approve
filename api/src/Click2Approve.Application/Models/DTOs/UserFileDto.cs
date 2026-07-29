@@ -5,7 +5,7 @@ namespace Click2Approve.Application.Models.DTOs;
 /// </summary>
 public class UserFileDto
 {
-    public long Id { get; init; }
+    public Guid GlobalId { get; init; }
     public required string Name { get; init; }
     public required string Type { get; init; }
     public DateTime CreatedAt { get; init; }

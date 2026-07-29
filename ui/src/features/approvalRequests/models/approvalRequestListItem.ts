@@ -1,7 +1,7 @@
 import { ApprovalRequestStatus } from "./approvalRequestStatus";
 
 export interface ApprovalRequestListItem {
-  id: number;
+  globalId: string;
   title: string;
   status: ApprovalRequestStatus;
   createdAt: string;

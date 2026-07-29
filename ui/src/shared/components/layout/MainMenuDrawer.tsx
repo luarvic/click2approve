@@ -56,11 +56,11 @@ const MainMenuDrawer = () => {
     stores.productStore.approvalStepTemplatesAreEnabled &&
     currentTenant?.type === TenantType.Business &&
     currentTenant?.role !== undefined;
-  const currentTenantId = stores.tenantStore.currentTenantId;
+  const currentTenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const tenantScopeIsReady =
-    stores.tenantStore.hasLoaded && currentTenantId !== null;
+    stores.tenantStore.hasLoaded && currentTenantGlobalId !== null;
   const tenantPath = (path: string) =>
-    currentTenantId ? Routes.tenantPath(currentTenantId, path) : "/";
+    currentTenantGlobalId ? Routes.tenantPath(currentTenantGlobalId, path) : "/";
   const inboxPath = tenantPath(Routes.inboxPath);
   const outboxPath = tenantPath("/outbox");
   const templatesPath = tenantPath("/approvalStepTemplates");
@@ -100,18 +100,18 @@ const MainMenuDrawer = () => {
       return;
     }
 
-    const tenantId = stores.tenantStore.currentTenantId;
-    if (tenantId) {
-      stores.approvalRequestTaskStore.loadUncompletedCount(tenantId);
+    const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+    if (tenantGlobalId) {
+      stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
     }
     if (Refresh.uncompletedTasksMs <= 0) {
       return;
     }
 
     const intervalId = window.setInterval(() => {
-      const tenantId = stores.tenantStore.currentTenantId;
-      if (tenantId) {
-        stores.approvalRequestTaskStore.loadUncompletedCount(tenantId);
+      const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+      if (tenantGlobalId) {
+        stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
       }
     }, Refresh.uncompletedTasksMs);
     return () => window.clearInterval(intervalId);

@@ -8,17 +8,17 @@ import {
 import { makeAutoObservable, runInAction } from "mobx";
 
 export class ApprovalRequestTaskStore {
-  registry: Map<number, ApprovalRequestTaskListItem>;
-  details: Map<number, ApprovalRequestTask>;
+  registry: Map<string, ApprovalRequestTaskListItem>;
+  details: Map<string, ApprovalRequestTask>;
   currentTask: ApprovalRequestTask | null;
   numberOfUncompletedTasks: number;
-  private detailRequests = new Map<number, Promise<ApprovalRequestTask | null>>();
+  private detailRequests = new Map<string, Promise<ApprovalRequestTask | null>>();
   private listRequest: Promise<void> | null = null;
   private countRequestVersion = 0;
   private listRequestVersion = 0;
 
   constructor(
-    registry: Map<number, ApprovalRequestTaskListItem> = new Map(),
+    registry: Map<string, ApprovalRequestTaskListItem> = new Map(),
     currentTask: ApprovalRequestTask | null = null,
     numberOfUncompletedTasks: number = 0,
   ) {
@@ -30,24 +30,24 @@ export class ApprovalRequestTaskStore {
   }
 
   get tasks(): ApprovalRequestTaskListItem[] {
-    return Array.from(this.registry.values()).sort((a, b) => b.id - a.id);
+    return Array.from(this.registry.values()).sort((a, b) => Date.parse(b.createdAt.toString()) - Date.parse(a.createdAt.toString()));
   }
 
-  getDetail = (id: number): ApprovalRequestTask | null => this.details.get(id) ?? null;
+  getDetail = (globalId: string): ApprovalRequestTask | null => this.details.get(globalId) ?? null;
 
-  loadIncoming = (tenantId: number): Promise<void> => {
+  loadIncoming = (tenantGlobalId: string): Promise<void> => {
     if (this.listRequest) {
       return this.listRequest;
     }
 
     const requestVersion = ++this.listRequestVersion;
-    const request = approvalRequestTaskApi.listApprovalRequestTasks(tenantId).then((tasks) => {
+    const request = approvalRequestTaskApi.listApprovalRequestTasks(tenantGlobalId).then((tasks) => {
       if (requestVersion !== this.listRequestVersion) {
         return;
       }
       tasks.forEach(normalizeApprovalRequestTaskDates);
       runInAction(() => {
-        this.registry = new Map(tasks.map((task) => [task.id, task]));
+        this.registry = new Map(tasks.map((task) => [task.globalId, task]));
       });
     }).finally(() => {
       this.listRequest = null;
@@ -56,37 +56,37 @@ export class ApprovalRequestTaskStore {
     return request;
   };
 
-  loadDetails = (tenantId: number, id: number): Promise<ApprovalRequestTask | null> => {
-    const inFlight = this.detailRequests.get(id);
+  loadDetails = (tenantGlobalId: string, globalId: string): Promise<ApprovalRequestTask | null> => {
+    const inFlight = this.detailRequests.get(globalId);
     if (inFlight) {
       return inFlight;
     }
 
-    const request = approvalRequestTaskApi.getApprovalRequestTask(tenantId, id).then((task) => {
+    const request = approvalRequestTaskApi.getApprovalRequestTask(tenantGlobalId, globalId).then((task) => {
       if (task) {
         normalizeApprovalRequestTaskDates(task);
         if (task.approvalRequest) {
           normalizeApprovalRequestDates(task.approvalRequest);
         }
         runInAction(() => {
-          this.details.set(task.id, task);
-          if (this.currentTask?.id === task.id) {
+          this.details.set(task.globalId, task);
+          if (this.currentTask?.globalId === task.globalId) {
             this.currentTask = task;
           }
         });
       }
       return task;
     }).finally(() => {
-      this.detailRequests.delete(id);
+      this.detailRequests.delete(globalId);
     });
 
-    this.detailRequests.set(id, request);
+    this.detailRequests.set(globalId, request);
     return request;
   };
 
-  loadUncompletedCount = async (tenantId: number): Promise<void> => {
+  loadUncompletedCount = async (tenantGlobalId: string): Promise<void> => {
     const requestVersion = ++this.countRequestVersion;
-    const numberOfUncompletedTasks = await approvalRequestTaskApi.countUncompletedApprovalRequestTasks(tenantId);
+    const numberOfUncompletedTasks = await approvalRequestTaskApi.countUncompletedApprovalRequestTasks(tenantGlobalId);
     if (requestVersion !== this.countRequestVersion) {
       return;
     }

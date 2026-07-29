@@ -14,21 +14,20 @@ const tenantsPath = "/tenants";
 
 const TenantEditorPage = () => {
   const navigate = useNavigate();
-  const { tenantId } = useParams<{ tenantId: string }>();
-  usePageTitle(tenantId === undefined ? "New organization" : "Edit organization");
-  const isNewTenant = tenantId === undefined;
-  const parsedTenantId = Number(tenantId);
-  const tenant = stores.tenantStore.tenants.find((item) => item.id === parsedTenantId);
+  const { tenantGlobalId } = useParams<{ tenantGlobalId: string }>();
+  usePageTitle(tenantGlobalId === undefined ? "New organization" : "Edit organization");
+  const isNewTenant = tenantGlobalId === undefined;
+  const tenant = stores.tenantStore.tenants.find((item) => item.globalId === tenantGlobalId);
 
   if (!stores.tenantStore.hasLoaded) return <LoadingOverlay />;
-  if (!isNewTenant && (!Number.isInteger(parsedTenantId) || !tenant)) return <Navigate to={tenantsPath} />;
+  if (!isNewTenant && (!tenant)) return <Navigate to={tenantsPath} />;
 
-  const close = (currentTenantId?: number) => navigate(tenantsPath, { state: currentTenantId ? { currentTenantId } : undefined });
-  const submit = async (payload: CreateTenantRequest | UpdateTenantRequest, id?: number) => {
-    const saved = id
-      ? await stores.tenantStore.update(id, payload as UpdateTenantRequest)
+  const close = (currentTenantGlobalId?: string) => navigate(tenantsPath, { state: currentTenantGlobalId ? { currentTenantGlobalId } : undefined });
+  const submit = async (payload: CreateTenantRequest | UpdateTenantRequest, globalId?: string) => {
+    const saved = globalId
+      ? await stores.tenantStore.update(globalId, payload as UpdateTenantRequest)
       : await stores.tenantStore.create(payload as CreateTenantRequest);
-    if (saved && !id) await stores.refreshTenantScope();
+    if (saved && !globalId) await stores.refreshTenantScope();
     if (saved) {
       showPersistenceSuccessToast(PersistenceSuccessMessages.organizationSaved);
     }
@@ -40,8 +39,8 @@ const TenantEditorPage = () => {
     canEdit={isNewTenant || tenant?.role === EmployeeRole.Admin || tenant?.isOwner === true}
     canDelete={tenant?.isOwner === true}
     onClose={close}
-    onDelete={async (id) => {
-      const deleted = await stores.tenantStore.delete(id);
+    onDelete={async (globalId: string) => {
+      const deleted = await stores.tenantStore.delete(globalId);
       if (deleted) {
         await stores.refreshTenantScope();
         showPersistenceSuccessToast(

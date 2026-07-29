@@ -10,7 +10,7 @@ export enum TenantType {
 }
 
 export interface Tenant {
-  id: number;
+  globalId: string;
   businessName: string;
   type: TenantType;
   email?: string;

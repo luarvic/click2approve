@@ -16,7 +16,7 @@ namespace Click2Approve.WebApi.Controllers;
 [Tags("Click2Approve.WebApi.ApprovalRequestTaskFile")]
 [ApiController]
 [ApiVersion(1.0)]
-[Route("api/v{version:apiVersion}/tenants/{tenantId:long}/tasks/{approvalRequestTaskId:long}/files")]
+[Route("api/v{version:apiVersion}/tenants/{tenantGlobalId:guid}/tasks/{approvalRequestTaskGlobalId:guid}/files")]
 [Authorize]
 public class ApprovalRequestTaskFileController(IUserFileService userFileService, UserManager<AppUser> userManager) : ControllerBase
 {
@@ -26,11 +26,11 @@ public class ApprovalRequestTaskFileController(IUserFileService userFileService,
     /// <summary>
     /// Downloads a base64 representation of a file attached to an approval request task.
     /// </summary>
-    [HttpGet("{id:long}/downloadBase64")]
-    public async Task<ActionResult<string>> DownloadBase64Async(long id, long approvalRequestTaskId, CancellationToken cancellationToken)
+    [HttpGet("{globalId:guid}/downloadBase64")]
+    public async Task<ActionResult<string>> DownloadBase64Async(Guid globalId, Guid approvalRequestTaskGlobalId, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        var (filename, bytes) = await _userFileService.DownloadApprovalRequestTaskFileAsync(user, id, approvalRequestTaskId, cancellationToken);
+        var (filename, bytes) = await _userFileService.DownloadApprovalRequestTaskFileAsync(user, globalId, approvalRequestTaskGlobalId, cancellationToken);
         return $"data:{MimeTypes.GetMimeType(filename)};base64,{Convert.ToBase64String(bytes)}";
     }
 }

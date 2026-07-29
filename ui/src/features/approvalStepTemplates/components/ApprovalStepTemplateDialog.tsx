@@ -27,8 +27,8 @@ import { toast } from "react-toastify";
 
 interface ApprovalStepTemplateEditorProps {
   template: ApprovalStepTemplate | null;
-  onClose: (currentTemplateId?: number) => void;
-  onDelete: (templateId: number) => Promise<boolean>;
+  onClose: (currentTemplateGlobalId?: string) => void;
+  onDelete: (templateGlobalId: string) => Promise<boolean>;
 }
 
 const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
@@ -41,9 +41,9 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
   const [steps, setSteps] = useState<EditableApprovalStep[]>([
     createEmptyStep(1),
   ]);
-  const tenantId = stores.tenantStore.currentTenantId;
-  const templatesPath = tenantId
-    ? Routes.tenantPath(tenantId, "/approvalStepTemplates")
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const templatesPath = tenantGlobalId
+    ? Routes.tenantPath(tenantGlobalId, "/approvalStepTemplates")
     : "/";
   const businessTenantIsSelected =
     stores.tenantStore.currentTenant?.type === TenantType.Business;
@@ -57,17 +57,17 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
     setSteps(
       template ? createEditableSteps(template.steps) : [createEmptyStep(1)],
     );
-    if (tenantId && businessTenantIsSelected) {
+    if (tenantGlobalId && businessTenantIsSelected) {
       if (canUseEmployees) {
-        stores.employeeStore.load(tenantId);
+        stores.employeeStore.load(tenantGlobalId);
       }
       if (canUseTeams) {
-        stores.teamStore.load(tenantId);
+        stores.teamStore.load(tenantGlobalId);
       }
     }
   }, [
     template,
-    tenantId,
+    tenantGlobalId,
     businessTenantIsSelected,
     canUseEmployees,
     canUseTeams,
@@ -140,9 +140,9 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
           return !approver.email?.trim();
         }
         if (approver.type === ApprovalRecipientType.Employee) {
-          return !approver.employeeId;
+          return !approver.employeeGlobalId;
         }
-        return !approver.teamId;
+        return !approver.teamGlobalId;
       }),
     );
 
@@ -155,7 +155,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
   };
 
   const handleSubmit = async () => {
-    if (!tenantId) {
+    if (!tenantGlobalId) {
       return;
     }
     if (!name.trim()) {
@@ -167,17 +167,17 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
     }
 
     const saved = template
-      ? await stores.approvalStepTemplateStore.update(tenantId, template.id, {
+      ? await stores.approvalStepTemplateStore.update(tenantGlobalId, template.globalId, {
           name: name.trim(),
           steps: toApprovalStepSubmissions(steps),
         })
-      : await stores.approvalStepTemplateStore.create(tenantId, {
+      : await stores.approvalStepTemplateStore.create(tenantGlobalId, {
           name: name.trim(),
           steps: toApprovalStepSubmissions(steps),
         });
     if (saved) {
       showPersistenceSuccessToast(PersistenceSuccessMessages.templateSaved);
-      onClose(saved.id);
+      onClose(saved.globalId);
     }
   };
 
@@ -187,7 +187,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
         items={[
           {
             label: "Templates",
-            state: template ? { currentTemplateId: template.id } : undefined,
+            state: template ? { currentTemplateGlobalId: template.globalId } : undefined,
             to: templatesPath,
           },
           { label: template ? "Template" : "New template" },
@@ -236,7 +236,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
         spacing={Dialogs.stepHeaderSpacing}
         sx={Dialogs.addStepButtonSx}
       >
-        <Button variant="outlined" onClick={() => onClose(template?.id)}>
+        <Button variant="outlined" onClick={() => onClose(template?.globalId)}>
           Cancel
         </Button>
         {template && (
@@ -260,7 +260,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
           open={deleteDialogIsOpen}
           title="Delete template"
           onClose={() => setDeleteDialogIsOpen(false)}
-          onDelete={() => onDelete(template.id)}
+          onDelete={() => onDelete(template.globalId)}
         />
       )}
     </>

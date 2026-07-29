@@ -12,16 +12,16 @@ export enum ApprovalRecipientType {
 }
 
 export interface ApprovalStepApprover {
-  id?: number;
+  globalId?: string;
   type: ApprovalRecipientType;
   email?: string;
-  employeeId?: number;
-  teamId?: number;
+  employeeGlobalId?: string;
+  teamGlobalId?: string;
   displayName?: string;
 }
 
 export interface ApprovalStep {
-  id?: number;
+  globalId?: string;
   sequence: number;
   mode?: ApprovalStepMode;
   isVisible?: boolean;
@@ -31,11 +31,11 @@ export interface ApprovalStep {
 }
 
 export interface ApprovalStepVisibility {
-  approverId: number;
+  approverGlobalId: string;
   approverType: ApprovalRecipientType;
   approverDisplayName?: string;
   approverEmail?: string;
-  approverEmployeeId?: number;
-  approverTeamId?: number;
+  approverEmployeeGlobalId?: string;
+  approverTeamGlobalId?: string;
   isVisible: boolean;
 }

@@ -77,7 +77,7 @@ const UserProfilePage = () => {
   const profile = stores.userProfileStore.profile;
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [defaultTenantId, setDefaultTenantId] = useState<number | "">("");
+  const [defaultTenantGlobalId, setDefaultTenantGlobalId] = useState<string | "">("");
   const [notificationPreferences, setNotificationPreferences] = useState<
     UserNotificationPreference[]
   >([]);
@@ -94,7 +94,7 @@ const UserProfilePage = () => {
   useEffect(() => {
     setFirstName(profile?.firstName ?? "");
     setLastName(profile?.lastName ?? "");
-    setDefaultTenantId(profile?.defaultTenantId ?? "");
+    setDefaultTenantGlobalId(profile?.defaultTenantGlobalId ?? "");
     setNotificationPreferences(profile?.notificationPreferences ?? []);
   }, [profile]);
 
@@ -141,7 +141,7 @@ const UserProfilePage = () => {
     const saved = await stores.userProfileStore.update({
       firstName: firstName.trim() || undefined,
       lastName: lastName.trim() || undefined,
-      defaultTenantId: defaultTenantId === "" ? undefined : defaultTenantId,
+      defaultTenantGlobalId: defaultTenantGlobalId === "" ? undefined : defaultTenantGlobalId,
       notificationPreferences,
     });
     if (!saved) {
@@ -242,16 +242,16 @@ const UserProfilePage = () => {
                 <Select
                   labelId="default-organization-label"
                   label="Default organization"
-                  value={defaultTenantId}
+                  value={defaultTenantGlobalId}
                   onChange={(event) =>
-                    setDefaultTenantId(
-                      event.target.value === "" ? "" : Number(event.target.value)
+                    setDefaultTenantGlobalId(
+                      event.target.value === "" ? "" : event.target.value
                     )
                   }
                 >
                   <MenuItem value="">No default organization</MenuItem>
                   {stores.tenantStore.tenants.map((tenant) => (
-                    <MenuItem key={tenant.id} value={tenant.id}>
+                    <MenuItem key={tenant.globalId} value={tenant.globalId}>
                       {tenant.businessName}
                     </MenuItem>
                   ))}

@@ -21,7 +21,7 @@ interface ApprovalStepApproverRowProps {
   canUseEmployees: boolean;
   canUseTeams: boolean;
   employees: Employee[];
-  teams: { id: number; name: string }[];
+  teams: { globalId: string; name: string }[];
   disabled?: boolean;
   removeDisabled?: boolean;
   muted?: boolean;
@@ -72,7 +72,7 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
           disabled={disabled}
           onChange={(event) =>
             onChange({
-              id: approver.id,
+              globalId: approver.globalId,
               type: Number(event.target.value) as ApprovalRecipientType,
             })
           }
@@ -102,7 +102,7 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
             options={employees}
             getOptionLabel={(option) => option.displayName}
             value={
-              employees.find((user) => user.id === approver.employeeId) ?? null
+              employees.find((user) => user.globalId === approver.employeeGlobalId) ?? null
             }
             disabled={disabled}
             renderInput={(params) => (
@@ -111,7 +111,7 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
             onChange={(_, value) =>
               onChange({
                 ...approver,
-                employeeId: value?.id,
+                employeeGlobalId: value?.globalId,
               })
             }
             sx={assigneeFieldSx}
@@ -122,7 +122,7 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
             fullWidth
             options={teams}
             getOptionLabel={(option) => option.name}
-            value={teams.find((team) => team.id === approver.teamId) ?? null}
+            value={teams.find((team) => team.globalId === approver.teamGlobalId) ?? null}
             disabled={disabled}
             renderInput={(params) => (
               <TextField {...params} label="Team" />
@@ -130,7 +130,7 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
             onChange={(_, value) =>
               onChange({
                 ...approver,
-                teamId: value?.id,
+                teamGlobalId: value?.globalId,
               })
             }
             sx={assigneeFieldSx}

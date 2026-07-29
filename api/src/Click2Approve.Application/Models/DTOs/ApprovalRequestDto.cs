@@ -10,11 +10,10 @@ public class ApprovalRequestDto : ApprovalRequestListItemDto
     public string? Description { get; init; }
     public required string CreatedByUserId { get; init; }
     public required string CreatedByEmail { get; init; }
-    public long? PreviousRevisionApprovalRequestId { get; init; }
+    public Guid? PreviousRevisionApprovalRequestGlobalId { get; init; }
     public string? PreviousRevisionApprovalRequestTitle { get; init; }
-    public long? NextRevisionApprovalRequestId { get; init; }
+    public Guid? NextRevisionApprovalRequestGlobalId { get; init; }
     public string? NextRevisionApprovalRequestTitle { get; init; }
-    public required List<ApprovalRequestTaskDto> Tasks { get; init; }
     public required List<ApprovalRequestLogEntryDto> LogEntries { get; init; }
     public required List<ApprovalRequestTaskLogEntryDto> TaskLogEntries { get; init; }
 }

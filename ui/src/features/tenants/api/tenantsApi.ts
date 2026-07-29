@@ -3,10 +3,10 @@ import axios from "@/shared/api/axios";
 import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
 import { toast } from "react-toastify";
 
-export const getCurrentTenantId = async (): Promise<number | null> => {
+export const getCurrentTenantId = async (): Promise<string | null> => {
   try {
-    const { data } = await axios.get<{ id: number }>("api/v1/tenants/current");
-    return data.id;
+    const { data } = await axios.get<{ globalId: string }>("api/v1/tenants/current");
+    return data.globalId;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
     return null;
@@ -68,11 +68,11 @@ export const createTenantWithLogo = async (
 };
 
 export const updateTenant = async (
-  tenantId: number,
+  tenantGlobalId: string,
   payload: UpdateTenantRequest
 ): Promise<Tenant | null> => {
   try {
-    const { data } = await axios.put<Tenant>(`api/v1/tenants/${tenantId}`, payload);
+    const { data } = await axios.put<Tenant>(`api/v1/tenants/${tenantGlobalId}`, payload);
     return data;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
@@ -81,14 +81,14 @@ export const updateTenant = async (
 };
 
 export const uploadTenantLogo = async (
-  tenantId: number,
+  tenantGlobalId: string,
   logo: File
 ): Promise<Tenant | null> => {
   try {
     const formData = new FormData();
     formData.append("logo", logo);
     const { data } = await axios.post<Tenant>(
-      `api/v1/tenants/${tenantId}/logo`,
+      `api/v1/tenants/${tenantGlobalId}/logo`,
       formData
     );
     return data;
@@ -109,10 +109,10 @@ export const downloadTenantLogo = async (logoUrl: string): Promise<Blob | null> 
 };
 
 export const deleteTenantLogo = async (
-  tenantId: number
+  tenantGlobalId: string
 ): Promise<Tenant | null> => {
   try {
-    const { data } = await axios.delete<Tenant>(`api/v1/tenants/${tenantId}/logo`);
+    const { data } = await axios.delete<Tenant>(`api/v1/tenants/${tenantGlobalId}/logo`);
     return data;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));
@@ -120,9 +120,9 @@ export const deleteTenantLogo = async (
   }
 };
 
-export const deleteTenant = async (tenantId: number): Promise<boolean> => {
+export const deleteTenant = async (tenantGlobalId: string): Promise<boolean> => {
   try {
-    await axios.delete(`api/v1/tenants/${tenantId}`);
+    await axios.delete(`api/v1/tenants/${tenantGlobalId}`);
     return true;
   } catch (e) {
     toast.error(getUserFriendlyApiErrorMessage(e));

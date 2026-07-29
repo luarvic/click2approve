@@ -53,7 +53,7 @@ export class RootStore {
         await this.userProfileStore.load();
         if (this.productStore.tenantsAreEnabled) {
           await this.tenantStore.load(
-            this.userProfileStore.profile?.defaultTenantId
+            this.userProfileStore.profile?.defaultTenantGlobalId
           );
         } else {
           await this.tenantStore.loadCurrent();
@@ -68,10 +68,10 @@ export class RootStore {
   }
 
   switchTenant = async (
-    tenantId: number,
+    tenantGlobalId: string,
     loadIncomingTasks: boolean = false,
   ): Promise<void> => {
-    this.tenantStore.setCurrentId(tenantId);
+    this.tenantStore.setCurrentGlobalId(tenantGlobalId);
     await this.refreshTenantScope(loadIncomingTasks);
   };
 
@@ -79,15 +79,15 @@ export class RootStore {
     loadIncomingTasks: boolean = false,
   ): Promise<void> => {
     this.clearTenantScope();
-    if (!this.tenantStore.currentTenantId) {
+    if (!this.tenantStore.currentTenantGlobalId) {
       return;
     }
-    const tenantId = this.tenantStore.currentTenantId;
+    const tenantGlobalId = this.tenantStore.currentTenantGlobalId;
     await Promise.all([
-      this.approvalRequestStore.load(tenantId),
-      this.approvalRequestTaskStore.loadUncompletedCount(tenantId),
+      this.approvalRequestStore.load(tenantGlobalId),
+      this.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId),
       loadIncomingTasks
-        ? this.approvalRequestTaskStore.loadIncoming(tenantId)
+        ? this.approvalRequestTaskStore.loadIncoming(tenantGlobalId)
         : Promise.resolve(),
     ]);
   };

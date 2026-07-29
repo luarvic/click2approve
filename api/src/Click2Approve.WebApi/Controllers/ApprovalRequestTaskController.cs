@@ -18,7 +18,7 @@ namespace Click2Approve.WebApi.Controllers;
 [Tags("Click2Approve.WebApi.ApprovalRequestTask")]
 [ApiController]
 [ApiVersion(1.0)]
-[Route("api/v{version:apiVersion}/tenants/{tenantId:long}/tasks")]
+[Route("api/v{version:apiVersion}/tenants/{tenantGlobalId:guid}/tasks")]
 [Authorize]
 public class ApprovalRequestTaskController(
     ILogger<ApprovalRequestTaskController> logger,
@@ -58,11 +58,11 @@ public class ApprovalRequestTaskController(
     /// <summary>
     /// Gets an approval request task with the request data the approver can view.
     /// </summary>
-    [HttpGet("{id:long}")]
-    public async Task<ActionResult<ApprovalRequestTaskDetailDto>> GetAsync(long id, CancellationToken cancellationToken)
+    [HttpGet("{globalId:guid}")]
+    public async Task<ActionResult<ApprovalRequestTaskDetailDto>> GetAsync(Guid globalId, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        return Ok(await _approvalRequestService.GetTaskAsync(user, id, cancellationToken));
+        return Ok(await _approvalRequestService.GetTaskAsync(user, globalId, cancellationToken));
     }
 
     /// <summary>

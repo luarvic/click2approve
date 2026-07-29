@@ -8,12 +8,12 @@ namespace Click2Approve.Application.Services.ApprovalRequests;
 /// </summary>
 public interface IApprovalRequestService
 {
-    Task<long> SubmitApprovalRequestAsync(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken);
-    Task CancelApprovalRequestAsync(AppUser user, long id, CancellationToken cancellationToken);
+    Task<Guid> SubmitApprovalRequestAsync(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken);
+    Task CancelApprovalRequestAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task<List<ApprovalRequestListItemDto>> ListApprovalRequestsAsync(AppUser user, CancellationToken cancellationToken);
-    Task<ApprovalRequestDto> GetApprovalRequestAsync(AppUser user, long id, CancellationToken cancellationToken);
+    Task<ApprovalRequestDto> GetApprovalRequestAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task<List<ApprovalRequestTaskListItemDto>> ListTasksAsync(AppUser user, CancellationToken cancellationToken);
-    Task<ApprovalRequestTaskDetailDto> GetTaskAsync(AppUser user, long id, CancellationToken cancellationToken);
+    Task<ApprovalRequestTaskDetailDto> GetTaskAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task CompleteTaskAsync(AppUser user, ApprovalRequestTaskCompleteDto payload, CancellationToken cancellationToken);
     Task<long> CountUncompletedTasksAsync(AppUser user, CancellationToken cancellationToken);
 }
