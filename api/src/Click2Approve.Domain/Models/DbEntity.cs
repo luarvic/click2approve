@@ -13,7 +13,7 @@ public abstract class DbEntity
     [JsonIgnore]
     public long Id { get; set; }
 
-    public Guid GlobalId { get; set; } = Guid.NewGuid();
+    public Guid GlobalId { get; init; } = Guid.NewGuid();
 
     public override string ToString()
     {
