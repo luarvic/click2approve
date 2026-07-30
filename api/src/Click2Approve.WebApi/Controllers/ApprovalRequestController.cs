@@ -13,7 +13,7 @@ namespace Click2Approve.WebApi.Controllers;
 /// API endpoints that manage approval requests.
 /// </summary>
 /// <param name="logger">The logger service.</param>
-/// <param name="approvalRequestService">The service that manages approval requests and derived tasks.</param>
+/// <param name="approvalRequestService">The service that manages approval requests.</param>
 /// <param name="userManager">The service that manages users.</param>
 [Tags("Click2Approve.WebApi.ApprovalRequest")]
 [ApiController]
@@ -38,7 +38,7 @@ public class ApprovalRequestController(
     public async Task<IActionResult> SubmitAsync([FromBody] ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        return Ok(await _approvalRequestService.SubmitApprovalRequestAsync(user, payload, cancellationToken));
+        return Ok(await _approvalRequestService.SubmitAsync(user, payload, cancellationToken));
     }
 
     /// <summary>
@@ -48,7 +48,7 @@ public class ApprovalRequestController(
     public async Task<IActionResult> CancelAsync(Guid globalId, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        await _approvalRequestService.CancelApprovalRequestAsync(user, globalId, cancellationToken);
+        await _approvalRequestService.CancelAsync(user, globalId, cancellationToken);
         return Ok();
     }
 
@@ -61,7 +61,7 @@ public class ApprovalRequestController(
     public async Task<ActionResult<List<ApprovalRequestListItemDto>>> ListAsync(CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        var approvalRequests = await _approvalRequestService.ListApprovalRequestsAsync(user, cancellationToken);
+        var approvalRequests = await _approvalRequestService.ListAsync(user, cancellationToken);
         return Ok(approvalRequests);
     }
 
@@ -72,6 +72,6 @@ public class ApprovalRequestController(
     public async Task<ActionResult<ApprovalRequestDto>> GetAsync(Guid globalId, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        return Ok(await _approvalRequestService.GetApprovalRequestAsync(user, globalId, cancellationToken));
+        return Ok(await _approvalRequestService.GetAsync(user, globalId, cancellationToken));
     }
 }

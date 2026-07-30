@@ -13,7 +13,7 @@ namespace Click2Approve.WebApi.Controllers;
 /// API endpoints that manage approval request tasks.
 /// </summary>
 /// <param name="logger">The logger service.</param>
-/// <param name="approvalRequestService">The service that manages approval requests and derived tasks.</param>
+/// <param name="approvalRequestTaskService">The service that manages approval request tasks.</param>
 /// <param name="userManager">The service that manages users.</param>
 [Tags("Click2Approve.WebApi.ApprovalRequestTask")]
 [ApiController]
@@ -22,11 +22,11 @@ namespace Click2Approve.WebApi.Controllers;
 [Authorize]
 public class ApprovalRequestTaskController(
     ILogger<ApprovalRequestTaskController> logger,
-    IApprovalRequestService approvalRequestService,
+    IApprovalRequestTaskService approvalRequestTaskService,
     UserManager<AppUser> userManager) : ControllerBase
 {
     private readonly ILogger<ApprovalRequestTaskController> _logger = logger;
-    private readonly IApprovalRequestService _approvalRequestService = approvalRequestService;
+    private readonly IApprovalRequestTaskService _approvalRequestTaskService = approvalRequestTaskService;
     private readonly UserManager<AppUser> _userManager = userManager;
 
     /// <summary>
@@ -38,7 +38,7 @@ public class ApprovalRequestTaskController(
     public async Task<IActionResult> CompleteAsync([FromBody] ApprovalRequestTaskCompleteDto payload, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        await _approvalRequestService.CompleteTaskAsync(user, payload, cancellationToken);
+        await _approvalRequestTaskService.CompleteAsync(user, payload, cancellationToken);
         return Ok();
     }
 
@@ -51,7 +51,7 @@ public class ApprovalRequestTaskController(
     public async Task<ActionResult<List<ApprovalRequestTaskListItemDto>>> ListAsync(CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        var tasks = await _approvalRequestService.ListTasksAsync(user, cancellationToken);
+        var tasks = await _approvalRequestTaskService.ListAsync(user, cancellationToken);
         return Ok(tasks);
     }
 
@@ -62,7 +62,7 @@ public class ApprovalRequestTaskController(
     public async Task<ActionResult<ApprovalRequestTaskDetailDto>> GetAsync(Guid globalId, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        return Ok(await _approvalRequestService.GetTaskAsync(user, globalId, cancellationToken));
+        return Ok(await _approvalRequestTaskService.GetAsync(user, globalId, cancellationToken));
     }
 
     /// <summary>
@@ -74,7 +74,7 @@ public class ApprovalRequestTaskController(
     public async Task<ActionResult<long>> CountUncompletedAsync(CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        var count = await _approvalRequestService.CountUncompletedTasksAsync(user, cancellationToken);
+        var count = await _approvalRequestTaskService.CountUncompletedAsync(user, cancellationToken);
         return Ok(count);
     }
 }
