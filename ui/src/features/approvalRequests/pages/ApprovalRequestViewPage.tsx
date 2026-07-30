@@ -3,6 +3,7 @@ import ApprovalRequestView from "@/features/approvalRequests/components/Approval
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
@@ -15,6 +16,8 @@ const ApprovalRequestViewPage = () => {
   const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
   const approvalRequest = approvalRequestGlobalId ? stores.approvalRequestStore.getDetail(approvalRequestGlobalId) : null;
   const [loadedApprovalRequestGlobalId, setLoadedApprovalRequestGlobalId] = useState<string | null>(null);
+  const approvalRequestHasLoaded =
+    loadedApprovalRequestGlobalId === approvalRequestGlobalId;
 
   useEffect(() => {
     let active = true;
@@ -36,7 +39,8 @@ const ApprovalRequestViewPage = () => {
   }, [approvalRequest]);
 
   if (!approvalRequestGlobalId) return <Navigate to={outboxPath} />;
-  if (!approvalRequest || loadedApprovalRequestGlobalId !== approvalRequestGlobalId) return <LoadingOverlay />;
+  if (approvalRequestHasLoaded && !approvalRequest) return <NotFoundPage />;
+  if (!approvalRequest || !approvalRequestHasLoaded) return <LoadingOverlay />;
 
   return <ApprovalRequestView
     onClose={(currentApprovalRequestGlobalId) =>

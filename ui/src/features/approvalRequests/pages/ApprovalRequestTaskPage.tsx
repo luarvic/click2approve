@@ -3,6 +3,7 @@ import ApprovalRequestTask from "@/features/approvalRequests/components/Approval
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
@@ -15,6 +16,7 @@ const ApprovalRequestTaskPage = () => {
   const inboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/inbox") : "/";
   const task = taskGlobalId ? stores.approvalRequestTaskStore.getDetail(taskGlobalId) : null;
   const [loadedTaskGlobalId, setLoadedTaskGlobalId] = useState<string | null>(null);
+  const taskHasLoaded = loadedTaskGlobalId === taskGlobalId;
 
   useEffect(() => {
     let active = true;
@@ -36,7 +38,8 @@ const ApprovalRequestTaskPage = () => {
   }, [task]);
 
   if (!taskGlobalId) return <Navigate to={inboxPath} />;
-  if (!task || loadedTaskGlobalId !== taskGlobalId) return <LoadingOverlay />;
+  if (taskHasLoaded && !task) return <NotFoundPage />;
+  if (!task || !taskHasLoaded) return <LoadingOverlay />;
 
   return <ApprovalRequestTask onClose={(currentTaskGlobalId) => navigate(inboxPath, { state: currentTaskGlobalId ? { currentTaskGlobalId } : undefined })} />;
 };

@@ -2,7 +2,10 @@ import { ApprovalRequestTask } from "@/features/approvalRequests/models/approval
 import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import axios from "@/shared/api/axios";
-import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
+import {
+  getUserFriendlyApiErrorMessage,
+  isResourceNotFoundOrForbiddenError,
+} from "@/shared/utils/helpers";
 import { toast } from "react-toastify";
 
 export const completeApprovalRequestTask = async (
@@ -50,6 +53,9 @@ export const getApprovalRequestTask = async (
     );
     return data;
   } catch (e) {
+    if (isResourceNotFoundOrForbiddenError(e)) {
+      return null;
+    }
     toast.error(getUserFriendlyApiErrorMessage(e));
     return null;
   }

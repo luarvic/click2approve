@@ -5,9 +5,14 @@ import ProfileDrawer from "@/shared/components/layout/ProfileDrawer";
 import { Shell } from "@/shared/constants/constants";
 import { Box, Toolbar } from "@mui/material";
 import { observer } from "mobx-react-lite";
+import { ReactNode } from "react";
 import { Outlet } from "react-router-dom";
 
-const MainLayout = () => {
+interface MainLayoutProps {
+  children?: ReactNode;
+}
+
+const MainLayout = ({ children }: MainLayoutProps) => {
   const drawerIsVisible =
     Boolean(stores.userAccountStore.currentUser) &&
     stores.commonStore.mainMenuDrawerIsOpen;
@@ -19,7 +24,7 @@ const MainLayout = () => {
       <Box component="main" sx={Shell.mainContentSx(drawerIsVisible)}>
         <Toolbar sx={Shell.appBarSpacerSx} />
         <ProfileDrawer />
-        <Outlet />
+        {children ?? <Outlet />}
       </Box>
     </>
   );

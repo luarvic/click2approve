@@ -22,18 +22,17 @@ import TeamsPage from "@/features/teams/pages/TeamsPage";
 import { EmployeeRole, TenantType } from "@/features/tenants/models/tenant";
 import TenantEditorPage from "@/features/tenants/pages/TenantEditorPage";
 import TenantsPage from "@/features/tenants/pages/TenantsPage";
-import AppChromeLayout from "@/layouts/AppChromeLayout";
 import MainLayout from "@/layouts/MainLayout";
 import PublicLayout from "@/layouts/PublicLayout";
 import TenantScopeLayout from "@/layouts/TenantScopeLayout";
 import WrapperLayout from "@/layouts/WrapperLayout";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import AnonymousRoute from "@/shared/components/routing/AnonymousRoute";
+import NotFoundRoute from "@/shared/components/routing/NotFoundRoute";
 import RouteGuard from "@/shared/components/routing/RouteGuard";
 import TenantHomeRedirect from "@/shared/components/routing/TenantHomeRedirect";
 import { Toasts } from "@/shared/constants/constants";
 import InformationPage from "@/shared/pages/InformationPage";
-import NotFoundPage from "@/shared/pages/NotFoundPage";
 import UserProfilePage from "@/shared/pages/UserProfilePage";
 import "@fontsource/sora/400.css";
 import "@fontsource/sora/500.css";
@@ -150,11 +149,7 @@ const App = () => {
                 </Route>
               </Route>
             </Route>
-            <Route element={<AppChromeLayout />}>
-              <Route element={<WrapperLayout />}>
-                <Route path="*" element={<NotFoundPage />} />
-              </Route>
-            </Route>
+            <Route path="*" element={<NotFoundRoute />} />
           </Routes>
         </BrowserRouter>
         <ToastContainer

@@ -4,6 +4,7 @@ import { TenantType } from "@/features/tenants/models/tenant";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import NotFoundPage from "@/shared/pages/NotFoundPage";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessToast,
@@ -62,7 +63,7 @@ const ApprovalStepTemplateEditorPage = () => {
   }
 
   if (!isNewTemplate && !template) {
-    return <Navigate to={templatesPath} />;
+    return <NotFoundPage />;
   }
 
   return (

@@ -10,7 +10,9 @@ import {
   showPersistenceSuccessToast,
 } from "@/shared/utils/toasts";
 import { observer } from "mobx-react-lite";
+import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
+import NotFoundPage from "@/shared/pages/NotFoundPage";
 
 const TeamEditorPage = () => {
   const navigate = useNavigate();
@@ -19,11 +21,33 @@ const TeamEditorPage = () => {
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const teamsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/teams") : "/";
   const isNewTeam = teamGlobalId === undefined;
+  const [teamDataHasLoaded, setTeamDataHasLoaded] = useState(isNewTeam);
   const team = stores.teamStore.teams.find((item) => item.globalId === teamGlobalId);
   const canEdit = stores.tenantStore.currentTenant?.role === EmployeeRole.Admin || stores.tenantStore.currentTenant?.isOwner === true;
 
+  useEffect(() => {
+    let active = true;
+    setTeamDataHasLoaded(false);
+    if (!tenantGlobalId) {
+      return;
+    }
+
+    void Promise.all([
+      stores.teamStore.load(tenantGlobalId, true),
+      stores.employeeStore.load(tenantGlobalId, true),
+    ]).finally(() => {
+      if (active) {
+        setTeamDataHasLoaded(true);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [tenantGlobalId]);
+
   if (!tenantGlobalId) return <Navigate to={teamsPath} />;
-  if (!isNewTeam && !team) return <LoadingOverlay />;
+  if (!teamDataHasLoaded) return <LoadingOverlay />;
+  if (!isNewTeam && !team) return <NotFoundPage />;
 
   return <TeamEditor
     team={team ?? null}

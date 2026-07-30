@@ -98,6 +98,10 @@ export const getUserFriendlyApiErrorMessage = (error: any): string => {
   }
 };
 
+export const isResourceNotFoundOrForbiddenError = (error: any): boolean =>
+  error instanceof AxiosError &&
+  (error.response?.status === 403 || error.response?.status === 404);
+
 export const getLoaderName = (
   request: InternalAxiosRequestConfig<any>,
 ): string => {

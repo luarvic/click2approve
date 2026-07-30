@@ -1,9 +1,10 @@
 import { stores } from "@/app/rootStore";
+import WrapperLayout from "@/layouts/WrapperLayout";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
-import { Routes } from "@/shared/constants/constants";
+import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
-import { Navigate, Outlet, useParams } from "react-router-dom";
+import { Outlet, useParams } from "react-router-dom";
 
 const TenantScopeLayout = () => {
   const { tenantGlobalId } = useParams<{ tenantGlobalId: string }>();
@@ -29,11 +30,10 @@ const TenantScopeLayout = () => {
   }
 
   if (!tenantScopeIsAvailable) {
-    const currentTenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-    return currentTenantGlobalId ? (
-      <Navigate to={Routes.tenantPath(currentTenantGlobalId, Routes.inboxPath)} replace />
-    ) : (
-      <Navigate to="/signIn" replace />
+    return (
+      <WrapperLayout>
+        <NotFoundPage />
+      </WrapperLayout>
     );
   }
 

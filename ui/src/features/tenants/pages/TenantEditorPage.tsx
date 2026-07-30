@@ -8,7 +8,8 @@ import {
   showPersistenceSuccessToast,
 } from "@/shared/utils/toasts";
 import { observer } from "mobx-react-lite";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import NotFoundPage from "@/shared/pages/NotFoundPage";
 
 const tenantsPath = "/tenants";
 
@@ -20,7 +21,7 @@ const TenantEditorPage = () => {
   const tenant = stores.tenantStore.tenants.find((item) => item.globalId === tenantGlobalId);
 
   if (!stores.tenantStore.hasLoaded) return <LoadingOverlay />;
-  if (!isNewTenant && (!tenant)) return <Navigate to={tenantsPath} />;
+  if (!isNewTenant && (!tenant)) return <NotFoundPage />;
 
   const close = (currentTenantGlobalId?: string) => navigate(tenantsPath, { state: currentTenantGlobalId ? { currentTenantGlobalId } : undefined });
   const submit = async (payload: CreateTenantRequest | UpdateTenantRequest, globalId?: string) => {

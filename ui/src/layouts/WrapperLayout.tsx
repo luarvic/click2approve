@@ -1,11 +1,16 @@
 import { Pages } from "@/shared/constants/constants";
 import { Box } from "@mui/material";
+import { ReactNode } from "react";
 import { Outlet } from "react-router-dom";
 
-const WrapperLayout = () => {
+interface WrapperLayoutProps {
+  children?: ReactNode;
+}
+
+const WrapperLayout = ({ children }: WrapperLayoutProps) => {
   return (
     <Box sx={Pages.containerSx}>
-      <Outlet />
+      {children ?? <Outlet />}
     </Box>
   );
 };

@@ -14,6 +14,7 @@ import { EmployeeRole } from "@/features/tenants/models/tenant";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import NotFoundPage from "@/shared/pages/NotFoundPage";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessToast,
@@ -55,7 +56,7 @@ const DelegationEditorPage = () => {
   if (!tenantGlobalId) return <Navigate to={delegationsPath} />;
   if (!isNewDelegation && !delegation) {
     return delegationsHaveLoaded ? (
-      <Navigate to={delegationsPath} />
+      <NotFoundPage />
     ) : (
       <LoadingOverlay />
     );
