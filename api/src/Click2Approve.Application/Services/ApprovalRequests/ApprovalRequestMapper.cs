@@ -26,7 +26,7 @@ internal static class ApprovalRequestMapper
         Status = task.Status,
         CreatedAt = task.CreatedAt,
         RequestedByDisplayName = task.ApprovalRequest.CreatedByDisplayName,
-        RevisionNumber = task.RevisionNumber
+        RevisionNumber = GetTaskRevisionNumber(task)
     };
 
     public static ApprovalRequestDto MapApprovalRequest(
@@ -224,7 +224,7 @@ internal static class ApprovalRequestMapper
             ApproverEmail = task.ApproverEmail,
             ApproverDisplayName = task.ApproverDisplayName,
             RequestedByDisplayName = createdByDisplayName ?? task.ApprovalRequest.CreatedByDisplayName,
-            RevisionNumber = task.RevisionNumber,
+            RevisionNumber = GetTaskRevisionNumber(task),
             Status = task.Status,
             CreatedAt = task.CreatedAt,
             Description = task.Description,
@@ -316,6 +316,11 @@ internal static class ApprovalRequestMapper
                 ? globalId
                 : task.ApprovalRequestStepApprover?.GlobalId
             : null;
+
+    private static int GetTaskRevisionNumber(ApprovalRequestTask task) =>
+        task.ApprovalRequest is { } approvalRequest
+            ? approvalRequest.RevisionNumber
+            : task.RevisionNumber;
 
     private static IEnumerable<ApprovalRequestFile> OrderRequestFiles(ApprovalRequest approvalRequest) =>
         approvalRequest.RequestFiles.OrderBy(file => file.Sequence);
