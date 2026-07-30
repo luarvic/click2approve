@@ -34,11 +34,11 @@ public class ApprovalRequestTaskService(
     /// </summary>
     public async Task<ApprovalRequestTaskDetailDto> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
-        var task = await _approvalRequestTaskRepository.GetAsync(user, globalId, cancellationToken);
-        var approvalRequest = await _approvalRequestTaskRepository.GetRequestForTaskAsync(user, globalId, cancellationToken);
-        var approverGlobalIdMaps = approvalRequest is null
-            ? ApprovalRequestApproverGlobalIdMaps.Empty
-            : await _approverGlobalIdResolver.ResolveAsync(approvalRequest, cancellationToken);
+        var task = await _approvalRequestTaskRepository.GetAsync(user, globalId, cancellationToken)
+            ?? throw new NotFoundException("Approval request task was not found.");
+        var approvalRequest = await _approvalRequestTaskRepository.GetRequestForTaskAsync(user, globalId, cancellationToken)
+            ?? throw new NotFoundException("Approval request task was not found.");
+        var approverGlobalIdMaps = await _approverGlobalIdResolver.ResolveAsync(approvalRequest, cancellationToken);
         return ApprovalRequestMapper.MapTaskDetail(task, approvalRequest, approverGlobalIdMaps);
     }
 
@@ -47,7 +47,8 @@ public class ApprovalRequestTaskService(
     /// </summary>
     public async Task CompleteAsync(AppUser user, ApprovalRequestTaskCompleteDto payload, CancellationToken cancellationToken)
     {
-        var approvalRequestTask = await _approvalRequestTaskRepository.GetForCompletionAsync(user, payload.GlobalId, cancellationToken);
+        var approvalRequestTask = await _approvalRequestTaskRepository.GetForCompletionAsync(user, payload.GlobalId, cancellationToken)
+            ?? throw new NotFoundException("Approval request task was not found.");
         if (approvalRequestTask.Status != ApprovalRequestTaskStatus.Pending)
         {
             throw new BusinessRuleException("The task has already been completed.");

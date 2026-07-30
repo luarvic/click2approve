@@ -1,6 +1,5 @@
 using Click2Approve.Application.Persistence;
 using Click2Approve.Application.Services.TenantContext;
-using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,23 +19,21 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
         return entry.Entity;
     }
 
-    public virtual async Task<ApprovalRequest> GetForUpdateAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    public virtual async Task<ApprovalRequest?> GetForUpdateAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await IncludeDetails(Db.ApprovalRequests)
-            .FirstOrDefaultAsync(r => r.TenantId == tenantId && r.GlobalId == globalId && r.CreatedByUserId == user.Id, cancellationToken)
-            ?? throw new NotFoundException("Approval request was not found.");
+            .FirstOrDefaultAsync(r => r.TenantId == tenantId && r.GlobalId == globalId && r.CreatedByUserId == user.Id, cancellationToken);
     }
 
-    public virtual async Task<ApprovalRequest> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    public virtual async Task<ApprovalRequest?> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await IncludeDetails(Db.ApprovalRequests)
             .AsNoTracking()
             .FirstOrDefaultAsync(r => r.GlobalId == globalId
                 && r.TenantId == tenantId
-                && r.CreatedByUserId == user.Id, cancellationToken)
-            ?? throw new NotFoundException("Approval request was not found.");
+                && r.CreatedByUserId == user.Id, cancellationToken);
     }
 
     public async Task<IList<ApprovalRequest>> ListAsync(AppUser user, Guid userFileGlobalId, CancellationToken cancellationToken)

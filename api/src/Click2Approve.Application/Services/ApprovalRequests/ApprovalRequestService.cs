@@ -101,7 +101,8 @@ public class ApprovalRequestService(
     /// </summary>
     public async Task CancelAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
-        var approvalRequest = await _approvalRequestRepository.GetForUpdateAsync(user, globalId, cancellationToken);
+        var approvalRequest = await _approvalRequestRepository.GetForUpdateAsync(user, globalId, cancellationToken)
+            ?? throw new NotFoundException("Approval request was not found.");
         if (approvalRequest.Status is not (ApprovalRequestStatus.Pending or ApprovalRequestStatus.Started))
         {
             throw new BusinessRuleException("The approval request cannot be cancelled.");
@@ -132,7 +133,8 @@ public class ApprovalRequestService(
     /// </summary>
     public async Task<ApprovalRequestDto> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
-        var approvalRequest = await _approvalRequestRepository.GetAsync(user, globalId, cancellationToken);
+        var approvalRequest = await _approvalRequestRepository.GetAsync(user, globalId, cancellationToken)
+            ?? throw new NotFoundException("Approval request was not found.");
         var approverGlobalIdMaps = await _approverGlobalIdResolver.ResolveAsync(approvalRequest, cancellationToken);
         return ApprovalRequestMapper.MapApprovalRequest(approvalRequest, approverGlobalIdMaps);
     }

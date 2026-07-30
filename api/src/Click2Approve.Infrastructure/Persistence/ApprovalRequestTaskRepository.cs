@@ -1,6 +1,5 @@
 using Click2Approve.Application.Persistence;
 using Click2Approve.Application.Services.TenantContext;
-using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -51,7 +50,7 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
             .ToListAsync(cancellationToken);
     }
 
-    public virtual async Task<ApprovalRequestTask> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    public virtual async Task<ApprovalRequestTask?> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.ApprovalRequestTasks
@@ -65,11 +64,10 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
             .FirstOrDefaultAsync(task => task.GlobalId == globalId
                 && task.ApproverUserId == user.Id
                 && task.TenantId == tenantId,
-                cancellationToken)
-            ?? throw new NotFoundException("Approval request task was not found.");
+                cancellationToken);
     }
 
-    public virtual async Task<ApprovalRequest> GetRequestForTaskAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    public virtual async Task<ApprovalRequest?> GetRequestForTaskAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.ApprovalRequests
@@ -90,11 +88,10 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
             .FirstOrDefaultAsync(request => request.Steps.Any(step => step.Tasks.Any(task => task.GlobalId == globalId
                 && task.ApproverUserId == user.Id
                 && task.TenantId == tenantId)),
-                cancellationToken)
-            ?? throw new NotFoundException("Approval request task was not found.");
+                cancellationToken);
     }
 
-    public virtual async Task<ApprovalRequestTask> GetForCompletionAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    public virtual async Task<ApprovalRequestTask?> GetForCompletionAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.ApprovalRequestTasks
@@ -119,8 +116,7 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
                 .FirstOrDefaultAsync(t => t.GlobalId == globalId
                     && t.ApproverUserId == user.Id
                     && t.TenantId == tenantId,
-                    cancellationToken)
-                ?? throw new NotFoundException("Approval request task was not found.");
+                    cancellationToken);
     }
 
     public virtual async Task<long> CountUncompletedAsync(AppUser user, CancellationToken cancellationToken)

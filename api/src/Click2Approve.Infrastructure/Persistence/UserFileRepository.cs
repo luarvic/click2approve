@@ -1,6 +1,5 @@
 using Click2Approve.Application.Persistence;
 using Click2Approve.Application.Services.TenantContext;
-using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,12 +19,12 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
         return entry.Entity;
     }
 
-    public Task<UserFile> GetForDownloadAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    public Task<UserFile?> GetForDownloadAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
         return GetForDownloadCoreAsync(user, globalId, cancellationToken);
     }
 
-    public async Task<UserFile> GetForDeleteAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    public async Task<UserFile?> GetForDeleteAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.UserFiles
@@ -33,11 +32,10 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
                 .ThenInclude(requestFile => requestFile.ApprovalRequest)
                     .ThenInclude(request => request.Steps)
                         .ThenInclude(step => step.Tasks)
-            .FirstOrDefaultAsync(f => f.TenantId == tenantId && f.GlobalId == globalId && f.OwnerId == user.Id, cancellationToken)
-            ?? throw new NotFoundException("File was not found.");
+            .FirstOrDefaultAsync(f => f.TenantId == tenantId && f.GlobalId == globalId && f.OwnerId == user.Id, cancellationToken);
     }
 
-    public virtual async Task<UserFile> GetForApprovalRequestDownloadAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken)
+    public virtual async Task<UserFile?> GetForApprovalRequestDownloadAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.UserFiles
@@ -45,11 +43,10 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
             .FirstOrDefaultAsync(file => file.GlobalId == globalId
                 && file.ApprovalRequestFiles.Any(requestFile => requestFile.ApprovalRequest.GlobalId == approvalRequestGlobalId
                         && requestFile.ApprovalRequest.TenantId == tenantId
-                        && requestFile.ApprovalRequest.CreatedByUserId == user.Id), cancellationToken)
-            ?? throw new NotFoundException("File was not found.");
+                        && requestFile.ApprovalRequest.CreatedByUserId == user.Id), cancellationToken);
     }
 
-    public virtual async Task<UserFile> GetForApprovalRequestTaskDownloadAsync(AppUser user, Guid globalId, Guid approvalRequestTaskGlobalId, CancellationToken cancellationToken)
+    public virtual async Task<UserFile?> GetForApprovalRequestTaskDownloadAsync(AppUser user, Guid globalId, Guid approvalRequestTaskGlobalId, CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.UserFiles
@@ -57,8 +54,7 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
             .FirstOrDefaultAsync(file => file.GlobalId == globalId
                 && file.ApprovalRequestFiles.Any(requestFile => requestFile.ApprovalRequest.Steps.Any(step => step.Tasks.Any(task => task.GlobalId == approvalRequestTaskGlobalId
                         && task.TenantId == tenantId
-                        && task.ApproverUserId == user.Id))), cancellationToken)
-            ?? throw new NotFoundException("File was not found.");
+                        && task.ApproverUserId == user.Id))), cancellationToken);
     }
 
     public async Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken)
@@ -88,12 +84,11 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
         Db.UserFiles.Remove(userFile);
     }
 
-    private async Task<UserFile> GetForDownloadCoreAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    private async Task<UserFile?> GetForDownloadCoreAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.UserFiles
             .Include(f => f.Owner)
-            .FirstOrDefaultAsync(f => f.GlobalId == globalId && f.TenantId == tenantId && f.OwnerId == user.Id, cancellationToken)
-            ?? throw new NotFoundException("File was not found.");
+            .FirstOrDefaultAsync(f => f.GlobalId == globalId && f.TenantId == tenantId && f.OwnerId == user.Id, cancellationToken);
     }
 }

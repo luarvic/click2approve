@@ -72,7 +72,8 @@ public class UserFileService(
     /// </summary>
     public async Task<(string Filename, byte[] Bytes)> DownloadAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
-        var userFile = await _userFileRepository.GetForDownloadAsync(user, globalId, cancellationToken);
+        var userFile = await _userFileRepository.GetForDownloadAsync(user, globalId, cancellationToken)
+            ?? throw new NotFoundException("File was not found.");
         return await ReadAsync(userFile, cancellationToken);
     }
 
@@ -81,7 +82,8 @@ public class UserFileService(
     /// </summary>
     public async Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestFileAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken)
     {
-        var userFile = await _userFileRepository.GetForApprovalRequestDownloadAsync(user, globalId, approvalRequestGlobalId, cancellationToken);
+        var userFile = await _userFileRepository.GetForApprovalRequestDownloadAsync(user, globalId, approvalRequestGlobalId, cancellationToken)
+            ?? throw new NotFoundException("File was not found.");
         return await ReadAsync(userFile, cancellationToken);
     }
 
@@ -90,7 +92,8 @@ public class UserFileService(
     /// </summary>
     public async Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestTaskFileAsync(AppUser user, Guid globalId, Guid approvalRequestTaskGlobalId, CancellationToken cancellationToken)
     {
-        var userFile = await _userFileRepository.GetForApprovalRequestTaskDownloadAsync(user, globalId, approvalRequestTaskGlobalId, cancellationToken);
+        var userFile = await _userFileRepository.GetForApprovalRequestTaskDownloadAsync(user, globalId, approvalRequestTaskGlobalId, cancellationToken)
+            ?? throw new NotFoundException("File was not found.");
         return await ReadAsync(userFile, cancellationToken);
     }
 
@@ -125,7 +128,8 @@ public class UserFileService(
         }
 
         // Delete the file.
-        var userFile = await _userFileRepository.GetForDeleteAsync(user, globalId, cancellationToken);
+        var userFile = await _userFileRepository.GetForDeleteAsync(user, globalId, cancellationToken)
+            ?? throw new NotFoundException("File was not found.");
         _userFileRepository.Remove(userFile);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         await _fileStorage.DeleteAsync(GetFilePath(user.Id, userFile.Id.ToString(), userFile.Name), cancellationToken);
