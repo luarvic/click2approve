@@ -94,11 +94,11 @@ public class UserProfileService(
     public async Task<(string Filename, byte[] Bytes)> DownloadAvatarAsync(string userId, CancellationToken cancellationToken)
     {
         var user = await _userManager.FindByIdAsync(userId)
-            ?? throw new BusinessRuleException("User was not found.");
+            ?? throw new NotFoundException("User was not found.");
         var avatarPath = user.Avatar;
         if (string.IsNullOrWhiteSpace(avatarPath))
         {
-            throw new BusinessRuleException("User avatar was not found.");
+            throw new NotFoundException("User avatar was not found.");
         }
 
         return (Path.GetFileName(avatarPath), await _fileStorage.ReadAsync(avatarPath, cancellationToken));

@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Models;
 using Click2Approve.Infrastructure.Persistence;
@@ -22,18 +23,47 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
     /// Makes sure an anonymous user cannot access the controller's endpoints.
     /// </summary>
     [Theory]
-    [InlineData("POST", "api/v1/tenants/1/files/upload")]
-    [InlineData("GET", "api/v1/tenants/1/files")]
-    [InlineData("GET", "api/v1/tenants/1/files/1/download")]
-    [InlineData("GET", "api/v1/tenants/1/files/1/downloadBase64")]
-    [InlineData("GET", "api/v1/tenants/1/requests/1/files/1/downloadBase64")]
-    [InlineData("GET", "api/v1/tenants/1/tasks/1/files/1/downloadBase64")]
-    [InlineData("DELETE", "api/v1/tenants/1/files/1")]
+    [InlineData("POST", "api/v1/tenants/00000000-0000-0000-0000-000000000001/files/upload")]
+    [InlineData("GET", "api/v1/tenants/00000000-0000-0000-0000-000000000001/files")]
+    [InlineData("GET", "api/v1/tenants/00000000-0000-0000-0000-000000000001/files/00000000-0000-0000-0000-000000000002/download")]
+    [InlineData("GET", "api/v1/tenants/00000000-0000-0000-0000-000000000001/files/00000000-0000-0000-0000-000000000002/downloadBase64")]
+    [InlineData("GET", "api/v1/tenants/00000000-0000-0000-0000-000000000001/requests/00000000-0000-0000-0000-000000000002/files/00000000-0000-0000-0000-000000000003/downloadBase64")]
+    [InlineData("GET", "api/v1/tenants/00000000-0000-0000-0000-000000000001/tasks/00000000-0000-0000-0000-000000000002/files/00000000-0000-0000-0000-000000000003/downloadBase64")]
+    [InlineData("DELETE", "api/v1/tenants/00000000-0000-0000-0000-000000000001/files/00000000-0000-0000-0000-000000000002")]
     public async Task AllEndpoints_WhenRequestedWithoutBearerToken_ShouldReturnUnauthorized(string httpMethod, string url)
     {
         var request = new HttpRequestMessage(HttpMethod.Parse(httpMethod), url);
         var response = await _client.SendAsync(request);
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task ResourceEndpoints_WithMissingGlobalIds_ReturnNotFound()
+    {
+        var credentials = new Credentials { Email = $"missing-file-{Guid.NewGuid()}@example.com", Password = "ZAQ12wsx!" };
+        await _client.RegisterAsync(credentials, CancellationToken.None);
+
+        var login = await _client.LogInAsync(credentials, CancellationToken.None);
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", login.AccessToken);
+        var tenantGlobalId = await _client.GetCurrentTenantIdAsync(login.AccessToken, CancellationToken.None);
+        var missingFileGlobalId = Guid.NewGuid();
+        var missingApprovalRequestGlobalId = Guid.NewGuid();
+        var missingTaskGlobalId = Guid.NewGuid();
+
+        var downloadResponse = await _client.GetAsync($"api/v1/tenants/{tenantGlobalId}/files/{missingFileGlobalId}/download");
+        Assert.Equal(HttpStatusCode.NotFound, downloadResponse.StatusCode);
+
+        var downloadBase64Response = await _client.GetAsync($"api/v1/tenants/{tenantGlobalId}/files/{missingFileGlobalId}/downloadBase64");
+        Assert.Equal(HttpStatusCode.NotFound, downloadBase64Response.StatusCode);
+
+        var deleteResponse = await _client.DeleteAsync($"api/v1/tenants/{tenantGlobalId}/files/{missingFileGlobalId}");
+        Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
+
+        var requestFileResponse = await _client.GetAsync($"api/v1/tenants/{tenantGlobalId}/requests/{missingApprovalRequestGlobalId}/files/{missingFileGlobalId}/downloadBase64");
+        Assert.Equal(HttpStatusCode.NotFound, requestFileResponse.StatusCode);
+
+        var taskFileResponse = await _client.GetAsync($"api/v1/tenants/{tenantGlobalId}/tasks/{missingTaskGlobalId}/files/{missingFileGlobalId}/downloadBase64");
+        Assert.Equal(HttpStatusCode.NotFound, taskFileResponse.StatusCode);
     }
 
     /// <summary>

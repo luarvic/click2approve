@@ -25,6 +25,35 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
+    [Fact]
+    public async Task ResourceEndpoints_WithMissingGlobalIds_ReturnNotFound()
+    {
+        var credentials = new Credentials { Email = $"missing-request-{Guid.NewGuid()}@example.com", Password = "ZAQ12wsx!" };
+        var client = _applicationFactory.CreateClient();
+        await client.RegisterAsync(credentials, CancellationToken.None);
+
+        var login = await client.LogInAsync(credentials, CancellationToken.None);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", login.AccessToken);
+        var tenantGlobalId = await client.GetCurrentTenantIdAsync(login.AccessToken, CancellationToken.None);
+        var missingGlobalId = Guid.NewGuid();
+
+        var requestGetResponse = await client.GetAsync($"api/v1/tenants/{tenantGlobalId}/requests/{missingGlobalId}");
+        Assert.Equal(HttpStatusCode.NotFound, requestGetResponse.StatusCode);
+
+        var requestCancelResponse = await client.PostAsync($"api/v1/tenants/{tenantGlobalId}/requests/{missingGlobalId}/cancel", null);
+        Assert.Equal(HttpStatusCode.NotFound, requestCancelResponse.StatusCode);
+
+        var taskGetResponse = await client.GetAsync($"api/v1/tenants/{tenantGlobalId}/tasks/{missingGlobalId}");
+        Assert.Equal(HttpStatusCode.NotFound, taskGetResponse.StatusCode);
+
+        var taskCompleteResponse = await client.PostAsJsonAsync($"api/v1/tenants/{tenantGlobalId}/tasks/complete", new
+        {
+            GlobalId = missingGlobalId,
+            Status = ApprovalRequestTaskStatus.Approved
+        });
+        Assert.Equal(HttpStatusCode.NotFound, taskCompleteResponse.StatusCode);
+    }
+
     /// <summary>
     /// Ensures submitted requests can be listed without serializing EF navigation cycles.
     /// </summary>

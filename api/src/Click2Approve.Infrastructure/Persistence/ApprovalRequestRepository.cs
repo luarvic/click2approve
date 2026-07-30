@@ -1,5 +1,6 @@
 using Click2Approve.Application.Persistence;
 using Click2Approve.Application.Services.TenantContext;
+using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,7 +24,8 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await IncludeDetails(Db.ApprovalRequests)
-            .FirstAsync(r => r.TenantId == tenantId && r.GlobalId == globalId && r.CreatedByUserId == user.Id, cancellationToken);
+            .FirstOrDefaultAsync(r => r.TenantId == tenantId && r.GlobalId == globalId && r.CreatedByUserId == user.Id, cancellationToken)
+            ?? throw new NotFoundException("Approval request was not found.");
     }
 
     public virtual async Task<ApprovalRequest> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
@@ -31,9 +33,10 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await IncludeDetails(Db.ApprovalRequests)
             .AsNoTracking()
-            .FirstAsync(r => r.GlobalId == globalId
+            .FirstOrDefaultAsync(r => r.GlobalId == globalId
                 && r.TenantId == tenantId
-                && r.CreatedByUserId == user.Id, cancellationToken);
+                && r.CreatedByUserId == user.Id, cancellationToken)
+            ?? throw new NotFoundException("Approval request was not found.");
     }
 
     public async Task<IList<ApprovalRequest>> ListAsync(AppUser user, Guid userFileGlobalId, CancellationToken cancellationToken)

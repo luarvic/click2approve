@@ -1,5 +1,6 @@
 using Click2Approve.Application.Persistence;
 using Click2Approve.Application.Services.TenantContext;
+using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -61,10 +62,11 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
             .Include(task => task.ApprovalRequest)
                 .ThenInclude(request => request.RequestFiles)
                     .ThenInclude(file => file.UserFile)
-            .FirstAsync(task => task.GlobalId == globalId
+            .FirstOrDefaultAsync(task => task.GlobalId == globalId
                 && task.ApproverUserId == user.Id
                 && task.TenantId == tenantId,
-                cancellationToken);
+                cancellationToken)
+            ?? throw new NotFoundException("Approval request task was not found.");
     }
 
     public virtual async Task<ApprovalRequest> GetRequestForTaskAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
@@ -85,10 +87,11 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
             .Include(request => request.Steps)
                 .ThenInclude(step => step.Tasks)
                     .ThenInclude(requestTask => requestTask.ApprovalRequestStepApprover)
-            .FirstAsync(request => request.Steps.Any(step => step.Tasks.Any(task => task.GlobalId == globalId
+            .FirstOrDefaultAsync(request => request.Steps.Any(step => step.Tasks.Any(task => task.GlobalId == globalId
                 && task.ApproverUserId == user.Id
                 && task.TenantId == tenantId)),
-                cancellationToken);
+                cancellationToken)
+            ?? throw new NotFoundException("Approval request task was not found.");
     }
 
     public virtual async Task<ApprovalRequestTask> GetForCompletionAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
@@ -113,10 +116,11 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
             .Include(t => t.ApprovalRequest.Steps)
                 .ThenInclude(s => s.Tasks)
                     .ThenInclude(task => task.LogEntries)
-                .FirstAsync(t => t.GlobalId == globalId
+                .FirstOrDefaultAsync(t => t.GlobalId == globalId
                     && t.ApproverUserId == user.Id
                     && t.TenantId == tenantId,
-                    cancellationToken);
+                    cancellationToken)
+                ?? throw new NotFoundException("Approval request task was not found.");
     }
 
     public virtual async Task<long> CountUncompletedAsync(AppUser user, CancellationToken cancellationToken)

@@ -29,7 +29,7 @@ public class DefaultTenantResolutionMiddleware(RequestDelegate next)
                 var tenantGlobalId = ParseTenantGlobalId(routeValue);
                 if (tenantGlobalId != tenant.GlobalId)
                 {
-                    throw new UnauthorizedAccessException();
+                    throw new NotFoundException("Tenant was not found.");
                 }
             }
 

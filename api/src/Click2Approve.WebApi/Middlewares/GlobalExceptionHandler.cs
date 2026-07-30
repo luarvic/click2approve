@@ -37,6 +37,7 @@ public sealed class GlobalExceptionHandler(
         var statusCode = exception switch
         {
             UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+            NotFoundException => StatusCodes.Status404NotFound,
             _ when isCustomException => StatusCodes.Status400BadRequest,
             _ => StatusCodes.Status500InternalServerError
         };
