@@ -18,6 +18,7 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
         Title = source.Title;
         Status = source.Status;
         CreatedAt = source.CreatedAt;
+        RevisionNumber = source.RevisionNumber;
         ApprovalRequestGlobalId = source.ApprovalRequestGlobalId;
         ApprovalRequestStepGlobalId = source.ApprovalRequestStepGlobalId;
         ApprovalRequestStepApproverGlobalId = source.ApprovalRequestStepApproverGlobalId;

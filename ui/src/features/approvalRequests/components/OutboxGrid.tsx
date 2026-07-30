@@ -3,6 +3,7 @@ import {
   ApprovalRequestStatusLineLabel,
   getApprovalRequestStatusLabel,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
+import ApprovalRequestNumberText, { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
 import { ApprovalRequestListItem } from "@/features/approvalRequests/models/approvalRequestListItem";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
@@ -64,6 +65,15 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestGlobalId 
   };
 
   const columns: GridColDef[] = [
+    {
+      field: "globalId",
+      headerName: "Number",
+      width: DataGrids.approvalNumberColumnWidth,
+      renderCell: (params) => (
+        <ApprovalRequestNumberText globalId={params.row.globalId} includeHash={false} />
+      ),
+      valueGetter: (_value, row) => getApprovalRequestNumber(row.globalId, false),
+    },
     {
       field: "title",
       headerName: "Title",

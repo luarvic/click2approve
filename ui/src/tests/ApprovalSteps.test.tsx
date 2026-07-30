@@ -68,6 +68,7 @@ const approvalRequest: ApprovalRequest = {
           logEntries: [],
           requestFiles: [],
           requestedByDisplayName: "Requester",
+          revisionNumber: 1,
           status: ApprovalRequestTaskStatus.Pending,
           title: "Hidden task",
         },

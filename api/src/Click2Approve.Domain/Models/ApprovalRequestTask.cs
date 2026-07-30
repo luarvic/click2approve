@@ -27,6 +27,7 @@ public class ApprovalRequestTask : DbEntity
     public required string ApproverEmail { get; set; }
     public long TenantId { get; set; }
     public Tenant? Tenant { get; set; }
+    public int RevisionNumber { get; set; } = 1;
     public ApprovalRequestTaskStatus Status { get; set; }
     public required DateTime CreatedAt { get; set; }
     public string? Description { get; set; }

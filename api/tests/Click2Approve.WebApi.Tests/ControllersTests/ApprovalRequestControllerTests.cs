@@ -124,6 +124,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
         Assert.NotNull(task);
         Assert.Equal(requester.Email, task.RequestedByDisplayName);
+        Assert.Equal(approvalRequest.RevisionNumber, task.RevisionNumber);
         Assert.NotNull(task.ApprovalRequest);
         Assert.Collection(task.ApprovalRequest.Steps.OrderBy(step => step.Sequence),
             step =>

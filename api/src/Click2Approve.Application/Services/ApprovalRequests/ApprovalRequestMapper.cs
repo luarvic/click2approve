@@ -25,7 +25,8 @@ internal static class ApprovalRequestMapper
         Title = task.Title,
         Status = task.Status,
         CreatedAt = task.CreatedAt,
-        RequestedByDisplayName = task.ApprovalRequest.CreatedByDisplayName
+        RequestedByDisplayName = task.ApprovalRequest.CreatedByDisplayName,
+        RevisionNumber = task.RevisionNumber
     };
 
     public static ApprovalRequestDto MapApprovalRequest(
@@ -223,6 +224,7 @@ internal static class ApprovalRequestMapper
             ApproverEmail = task.ApproverEmail,
             ApproverDisplayName = task.ApproverDisplayName,
             RequestedByDisplayName = createdByDisplayName ?? task.ApprovalRequest.CreatedByDisplayName,
+            RevisionNumber = task.RevisionNumber,
             Status = task.Status,
             CreatedAt = task.CreatedAt,
             Description = task.Description,

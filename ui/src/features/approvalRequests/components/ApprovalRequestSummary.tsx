@@ -1,7 +1,9 @@
 import { ApprovalRequestFile } from "@/features/approvalRequests/models/approvalRequest";
 import ApprovalRequestFilesBox from "@/features/approvalRequests/components/ApprovalRequestFilesBox";
+import ApprovalRequestNumberText from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
 import { StackSpacing } from "@/shared/constants/constants";
+import { ChevronRight } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import { Stack, Typography } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
@@ -26,6 +28,12 @@ const summaryDescriptionSx: SxProps<Theme> = {
   whiteSpace: "pre-wrap",
 };
 
+const summaryTitleSeparatorIconSx: SxProps<Theme> = {
+  color: "text.disabled",
+  flexShrink: 0,
+  mx: StackSpacing.tight,
+};
+
 const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   approvalRequestGlobalId,
   approvalRequestTaskGlobalId,
@@ -37,6 +45,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   showFileStateIndicators = true,
 }) => {
   const trimmedDescription = description?.trim();
+  const numberGlobalId = approvalRequestTaskGlobalId ?? approvalRequestGlobalId;
 
   return (
     <Stack spacing={StackSpacing.default}>
@@ -45,6 +54,8 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
         spacing={StackSpacing.tight}
         alignItems="center"
       >
+        <ApprovalRequestNumberText globalId={numberGlobalId} variant="h6" />
+        <ChevronRight fontSize="small" sx={summaryTitleSeparatorIconSx} />
         <Typography
           component="h2"
           variant="h6"

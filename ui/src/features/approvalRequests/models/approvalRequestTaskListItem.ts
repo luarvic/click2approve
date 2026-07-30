@@ -7,4 +7,5 @@ export interface ApprovalRequestTaskListItem {
   createdAt: string;
   createdAtDate: Date;
   requestedByDisplayName: string;
+  revisionNumber: number;
 }

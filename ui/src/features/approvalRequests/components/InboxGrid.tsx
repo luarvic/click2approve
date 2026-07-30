@@ -3,9 +3,11 @@ import {
   ApprovalRequestTaskStatusLineLabel,
   getApprovalRequestTaskStatusLabel,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
+import ApprovalRequestNumberText, { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
+import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
 import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
-import { DataGrids, Routes } from "@/shared/constants/constants";
+import { DataGrids, Routes, StackSpacing } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { getHumanReadableRelativeDate } from "@/shared/utils/helpers";
@@ -38,12 +40,28 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
 
   const columns: GridColDef[] = [
     {
+      field: "globalId",
+      headerName: "Number",
+      width: DataGrids.approvalNumberColumnWidth,
+      renderCell: (params) => (
+        <ApprovalRequestNumberText globalId={params.row.globalId} includeHash={false} />
+      ),
+      valueGetter: (_value, row) => getApprovalRequestNumber(row.globalId, false),
+    },
+    {
       field: "title",
       headerName: "Title",
       flex: DataGrids.approvalColumnFlex.content,
       renderCell: (params) => (
         <Stack sx={DataGrids.approvalTitleCellSx}>
-          <Typography variant="body2">{params.row.title}</Typography>
+          <Stack
+            direction="row"
+            spacing={StackSpacing.tight}
+            alignItems="center"
+          >
+            <Typography variant="body2">{params.row.title}</Typography>
+            <ApprovalRequestRevisionChip revisionNumber={params.row.revisionNumber} />
+          </Stack>
         </Stack>
       ),
       valueGetter: (_value, row) => row.title,

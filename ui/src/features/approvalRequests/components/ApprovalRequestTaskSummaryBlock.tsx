@@ -68,6 +68,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
         description={task.description}
         approvalRequestTaskGlobalId={task.globalId}
         requestFiles={task.requestFiles}
+        revisionNumber={task.revisionNumber}
         showFileStateIndicators={false}
       />
       <ApprovalRequestParticipantLine label={task.requestedByDisplayName} />

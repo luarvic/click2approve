@@ -366,6 +366,7 @@ public class ApprovalWorkflowService(
                 ApproverEmployeeId = resolution.ApproverEmployeeId,
                 ApproverDisplayName = resolution.ApproverDisplayName,
                 TenantId = resolution.TenantId,
+                RevisionNumber = approvalRequest.RevisionNumber,
                 Status = ApprovalRequestTaskStatus.Pending,
                 CreatedAt = timestamp
             }, cancellationToken);

@@ -230,6 +230,10 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasConversion<int>();
 
         modelBuilder.Entity<ApprovalRequestTask>()
+            .Property(t => t.RevisionNumber)
+            .HasDefaultValue(1);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
             .Property(t => t.Title)
             .HasMaxLength(255);
 
