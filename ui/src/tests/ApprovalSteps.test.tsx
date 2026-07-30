@@ -4,7 +4,6 @@ import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/ap
 import ApprovalSteps from "@/features/approvalWorkflow/components/ApprovalSteps";
 import { ApprovalRecipientType } from "@/features/approvalWorkflow/models/approvalStep";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { describe, expect, test } from "vitest";
 
 const createdAt = "2026-07-29T12:00:00Z";
@@ -34,6 +33,14 @@ const approvalRequest: ApprovalRequest = {
       ],
       globalId: "visible-step-id",
       sequence: 1,
+      visibility: [
+        {
+          approverDisplayName: "Blocked Approver",
+          approverGlobalId: "blocked-approver-id",
+          approverType: ApprovalRecipientType.Email,
+          isVisible: false,
+        },
+      ],
     },
     {
       approvers: [
@@ -80,28 +87,24 @@ const approvalRequest: ApprovalRequest = {
 };
 
 describe("<ApprovalSteps />", () => {
-  test("shows a dotted title placeholder for hidden steps without leaking hidden details", async () => {
-    const user = userEvent.setup();
+  test("shows hidden approvers with the step title without leaking hidden details", () => {
     render(<ApprovalSteps approvalRequest={approvalRequest} />);
 
     expect(screen.getByText("Step 1")).toBeTruthy();
     expect(screen.getByText("Visible Approver")).toBeTruthy();
+    expect(screen.getAllByText(/Hidden from/)).toHaveLength(2);
+    expect(screen.getByText("Blocked Approver")).toBeTruthy();
     expect(screen.getByText("Step 2")).toBeTruthy();
     expect(screen.getByLabelText("Hidden")).toBeTruthy();
-    expect(screen.getByTestId("VisibilityIcon")).toBeTruthy();
-    await user.click(screen.getByRole("button", { name: "Step 1 visibility" }));
-    expect(screen.getByText("Visible to all request approvers.")).toBeTruthy();
-    await user.keyboard("{Escape}");
-    expect(screen.queryByRole("button", { name: "Step 2 completion rule" })).toBeNull();
-    await user.click(screen.getByRole("button", { name: "Step 2 visibility" }));
-    expect(screen.getByText("Hidden from:")).toBeTruthy();
+    expect(screen.getAllByTestId("VisibilityOffIcon")).toHaveLength(2);
     expect(screen.getByText("Current Approver")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Step 1 visibility" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Step 2 completion rule" })).toBeNull();
     expect(screen.queryByText("Hidden Approver")).toBeNull();
     expect(screen.queryByText("Hidden task comment")).toBeNull();
   });
 
-  test("uses hidden-from-you wording when a hidden step has no visibility details", async () => {
-    const user = userEvent.setup();
+  test("uses hidden-from-you wording when a hidden step has no visibility details", () => {
     render(
       <ApprovalSteps
         approvalRequest={{
@@ -118,13 +121,11 @@ describe("<ApprovalSteps />", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Step 1 visibility" }));
-    expect(screen.getByText("This step is hidden from you.")).toBeTruthy();
+    expect(screen.getByText("Hidden from you")).toBeTruthy();
     expect(screen.queryByText("Visible to all request approvers.")).toBeNull();
   });
 
-  test("can hide visible step visibility controls while keeping hidden step visibility controls", async () => {
-    const user = userEvent.setup();
+  test("can hide visible step visibility summaries while keeping hidden step visibility summaries", () => {
     render(
       <ApprovalSteps
         approvalRequest={{
@@ -139,8 +140,7 @@ describe("<ApprovalSteps />", () => {
       />,
     );
 
-    expect(screen.queryByRole("button", { name: "Step 1 visibility" })).toBeNull();
-    await user.click(screen.getByRole("button", { name: "Step 2 visibility" }));
-    expect(screen.getByText("This step is hidden from you.")).toBeTruthy();
+    expect(screen.queryByText("Blocked Approver")).toBeNull();
+    expect(screen.getByText("Hidden from you")).toBeTruthy();
   });
 });

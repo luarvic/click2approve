@@ -28,8 +28,6 @@ import {
   ExpandMore,
   Person,
   RuleOutlined,
-  Visibility,
-  VisibilityOff,
 } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import {
@@ -46,6 +44,7 @@ import {
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
 import { useState } from "react";
+import ApprovalStepVisibilitySummary from "./ApprovalStepVisibilitySummary";
 
 interface ApprovalStepBlockProps {
   contentSx?: SxProps<Theme>;
@@ -64,10 +63,11 @@ const approvalStepBlockSx: SxProps<Theme> = {
 };
 
 const approvalStepHeaderSx = { mb: Dialogs.stepHeaderSpacing };
-const stepHeaderActionsSx: SxProps<Theme> = {
+const stepTitleRowSx: SxProps<Theme> = {
   alignItems: "center",
   display: "flex",
-  ml: Dialogs.stepHeaderSpacing,
+  flexWrap: "wrap",
+  gap: StackSpacing.tight,
 };
 const visibilityPopoverSx: SxProps<Theme> = {
   maxWidth: 320,
@@ -211,36 +211,6 @@ const getStepModeSummary = (mode: ApprovalStepMode) => {
     default:
       return "The first approval from any assigned approver completes this step.";
   }
-};
-
-const getHiddenApproverLabels = (step: ApprovalStep) => {
-  return (step.visibility ?? [])
-    .filter((visibility) => visibility.isVisible === false)
-    .map((visibility) =>
-      visibility.approverDisplayName ??
-      visibility.approverEmail ??
-      "Approver",
-    )
-    .filter((label): label is string => Boolean(label));
-};
-
-const renderVisibilitySummary = (hiddenApproverLabels: string[]) => {
-  if (hiddenApproverLabels.length === 0) {
-    return "Visible to all request approvers.";
-  }
-
-  return (
-    <Stack spacing={StackSpacing.tight}>
-      <Typography variant="body2">
-        Hidden from:
-      </Typography>
-      {hiddenApproverLabels.map((label) => (
-        <Typography key={label} variant="body2" color="text.secondary">
-          {label}
-        </Typography>
-      ))}
-    </Stack>
-  );
 };
 
 const getTaskCompletionDate = (task: ApprovalRequestTask) => {
@@ -406,11 +376,9 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
   tasks,
 }) => {
   const [modeAnchor, setModeAnchor] = useState<HTMLElement | null>(null);
-  const [visibilityAnchor, setVisibilityAnchor] = useState<HTMLElement | null>(null);
   const approvers = (step.approvers ?? []).filter(Boolean);
   const stepStatus = getStepStatus(step, tasks);
   const unassignedTasks = getUnassignedTasks(step, tasks);
-  const hiddenApproverLabels = getHiddenApproverLabels(step);
   const stepMode = step.mode ?? ApprovalStepMode.Any;
 
   return (
@@ -428,15 +396,15 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
           sx={approvalStepHeaderSx}
         >
           <Stack
-            direction="row"
-            spacing={StackSpacing.tight}
-            alignItems="center"
             sx={Flex.growSx}
           >
-            <Typography variant="subtitle2">
-              Step {step.sequence}
-            </Typography>
-            <Box sx={stepHeaderActionsSx}>
+            <Stack
+              direction="row"
+              sx={stepTitleRowSx}
+            >
+              <Typography variant="subtitle2">
+                Step {step.sequence}
+              </Typography>
               <Tooltip title="Completion rule">
                 <IconButton
                   aria-label={`Step ${step.sequence} completion rule`}
@@ -460,33 +428,9 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
                   </Typography>
                 </Box>
               </Popover>
-              {showVisibility && (
-                <>
-                  <Tooltip title="Step visibility">
-                    <IconButton
-                      aria-label={`Step ${step.sequence} visibility`}
-                      size="small"
-                      onClick={(event) => setVisibilityAnchor(event.currentTarget)}
-                    >
-                      {hiddenApproverLabels.length === 0
-                        ? <Visibility color={Icons.secondaryColor} fontSize="small" />
-                        : <VisibilityOff color={Icons.secondaryColor} fontSize="small" />}
-                    </IconButton>
-                  </Tooltip>
-                  <Popover
-                    open={Boolean(visibilityAnchor)}
-                    anchorEl={visibilityAnchor}
-                    onClose={() => setVisibilityAnchor(null)}
-                    anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                  >
-                    <Box sx={visibilityPopoverSx}>
-                      {renderVisibilitySummary(hiddenApproverLabels)}
-                    </Box>
-                  </Popover>
-                </>
-              )}
-            </Box>
-            {headerAccessory}
+              {showVisibility && <ApprovalStepVisibilitySummary inline step={step} />}
+              {headerAccessory}
+            </Stack>
           </Stack>
         </Stack>
         <Stack spacing={Dialogs.approverStackSpacing} sx={contentSx}>
