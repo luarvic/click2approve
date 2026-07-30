@@ -1,21 +1,7 @@
-import { InputFields } from "@/shared/constants/constants";
 import { readColorMode, writeColorMode } from "@/shared/session/session";
-import { PaletteMode, Theme, createTheme } from "@mui/material";
+import { createAppTheme } from "@/shared/theme/createAppTheme";
+import { PaletteMode, Theme } from "@mui/material";
 import { makeAutoObservable, runInAction } from "mobx";
-
-const createAppTheme = (colorMode: PaletteMode) =>
-  createTheme({
-    typography: { fontFamily: "Sora, sans-serif" },
-    palette: { mode: colorMode },
-    components: {
-      MuiFormControl: {
-        defaultProps: { variant: InputFields.variant },
-      },
-      MuiTextField: {
-        defaultProps: { variant: InputFields.variant },
-      },
-    },
-  });
 
 export class UserPreferencesStore {
   theme: Theme;
