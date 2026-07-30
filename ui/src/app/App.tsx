@@ -22,6 +22,7 @@ import TeamsPage from "@/features/teams/pages/TeamsPage";
 import { EmployeeRole, TenantType } from "@/features/tenants/models/tenant";
 import TenantEditorPage from "@/features/tenants/pages/TenantEditorPage";
 import TenantsPage from "@/features/tenants/pages/TenantsPage";
+import AppChromeLayout from "@/layouts/AppChromeLayout";
 import MainLayout from "@/layouts/MainLayout";
 import PublicLayout from "@/layouts/PublicLayout";
 import TenantScopeLayout from "@/layouts/TenantScopeLayout";
@@ -149,7 +150,11 @@ const App = () => {
                 </Route>
               </Route>
             </Route>
-            <Route path="*" element={<NotFoundPage />} />
+            <Route element={<AppChromeLayout />}>
+              <Route element={<WrapperLayout />}>
+                <Route path="*" element={<NotFoundPage />} />
+              </Route>
+            </Route>
           </Routes>
         </BrowserRouter>
         <ToastContainer
