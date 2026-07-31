@@ -233,7 +233,8 @@ public class ApprovalRequestService(
         return new ApprovalRequestStepApprover
         {
             Type = approver.Type,
-            Email = approver.Email
+            Email = approver.Email,
+            RequiresIdentityVerification = approver.RequiresIdentityVerification
         };
     }
 

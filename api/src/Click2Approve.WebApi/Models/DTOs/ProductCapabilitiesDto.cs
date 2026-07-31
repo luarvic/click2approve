@@ -7,4 +7,5 @@ public class ProductCapabilitiesDto
     public bool TeamApprovers { get; set; }
     public bool ApprovalStepTemplates { get; set; }
     public bool ApprovalRequestRevisions { get; set; }
+    public bool IdentityVerification { get; set; }
 }

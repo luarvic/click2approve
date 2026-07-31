@@ -6,4 +6,10 @@ namespace Click2Approve.Domain.Models;
 public sealed record ApprovalRequestTaskStatusChangedDetails(
     ApprovalRequestTaskStatus? PreviousStatus,
     ApprovalRequestTaskStatus Status,
-    string? Comment);
+    string? Comment,
+    string? IpAddress,
+    string? BrowserData,
+    string? LegalFirstName,
+    string? LegalLastName,
+    DateOnly? DateOfBirth,
+    bool? SignatureCaptured);

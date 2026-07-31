@@ -154,6 +154,13 @@ const formatTaskDetails = (entry: ApprovalRequestTaskLogEntry) => {
     `Previous status: ${getTaskStatusLabel(details.previousStatus as ApprovalRequestTaskStatus | undefined) || "None"}`,
     `Status: ${getTaskStatusLabel(details.status as ApprovalRequestTaskStatus | undefined)}`,
     details.comment ? `Comment: ${details.comment}` : "",
+    details.legalFirstName || details.legalLastName
+      ? `Legal name: ${[details.legalFirstName, details.legalLastName].filter(Boolean).join(" ")}`
+      : "",
+    details.dateOfBirth ? `Date of birth: ${details.dateOfBirth}` : "",
+    details.signatureCaptured === true ? "Signature: Captured" : "",
+    details.ipAddress ? `IP address: ${details.ipAddress}` : "",
+    details.browserData ? `Browser data: ${details.browserData}` : "",
   ].filter(Boolean).join("\n");
 };
 

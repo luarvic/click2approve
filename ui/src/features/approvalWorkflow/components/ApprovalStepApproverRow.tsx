@@ -8,9 +8,11 @@ import { Close } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import {
   Autocomplete,
+  FormControlLabel,
   IconButton,
   MenuItem,
   Stack,
+  Switch,
   TextField,
   Tooltip,
 } from "@mui/material";
@@ -20,6 +22,7 @@ interface ApprovalStepApproverRowProps {
   approver: ApprovalStepApprover;
   canUseEmployees: boolean;
   canUseTeams: boolean;
+  canRequireIdentityVerification: boolean;
   employees: Employee[];
   teams: { globalId: string; name: string }[];
   disabled?: boolean;
@@ -37,6 +40,7 @@ const assigneeFieldSx: SxProps<Theme> = { flexGrow: 1, minWidth: 0 };
 
 const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
   approver,
+  canRequireIdentityVerification,
   canUseEmployees,
   canUseTeams,
   employees,
@@ -74,6 +78,7 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
             onChange({
               globalId: approver.globalId,
               type: Number(event.target.value) as ApprovalRecipientType,
+              requiresIdentityVerification: approver.requiresIdentityVerification,
             })
           }
           sx={Dialogs.approverTypeFieldSx}
@@ -150,6 +155,23 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
           </span>
         </Tooltip>
       </Stack>
+      {canRequireIdentityVerification && (
+        <FormControlLabel
+          control={(
+            <Switch
+              checked={approver.requiresIdentityVerification === true}
+              disabled={disabled}
+              onChange={(event) =>
+                onChange({
+                  ...approver,
+                  requiresIdentityVerification: event.target.checked,
+                })
+              }
+            />
+          )}
+          label="Require identity verification"
+        />
+      )}
     </Stack>
   );
 };

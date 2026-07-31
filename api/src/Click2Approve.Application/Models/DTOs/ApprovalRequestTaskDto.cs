@@ -28,6 +28,13 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
         RequestedByDisplayName = source.RequestedByDisplayName;
         Description = source.Description;
         Comment = source.Comment;
+        RequiresIdentityVerification = source.RequiresIdentityVerification;
+        ApproverIpAddress = source.ApproverIpAddress;
+        ApproverBrowserData = source.ApproverBrowserData;
+        ApproverLegalFirstName = source.ApproverLegalFirstName;
+        ApproverLegalLastName = source.ApproverLegalLastName;
+        ApproverDateOfBirth = source.ApproverDateOfBirth;
+        HasApproverSignature = source.HasApproverSignature;
         LogEntries = source.LogEntries;
     }
 
@@ -39,5 +46,12 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
     public required string ApproverDisplayName { get; init; }
     public string? Description { get; init; }
     public string? Comment { get; init; }
+    public bool RequiresIdentityVerification { get; init; }
+    public string? ApproverIpAddress { get; init; }
+    public string? ApproverBrowserData { get; init; }
+    public string? ApproverLegalFirstName { get; init; }
+    public string? ApproverLegalLastName { get; init; }
+    public DateOnly? ApproverDateOfBirth { get; init; }
+    public bool HasApproverSignature { get; init; }
     public required List<ApprovalRequestTaskLogEntryDto> LogEntries { get; init; }
 }

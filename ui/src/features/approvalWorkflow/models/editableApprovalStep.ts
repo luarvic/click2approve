@@ -38,6 +38,7 @@ const toApprovalStep = (step: EditableApprovalStep): ApprovalStep => ({
     email: approver.email,
     employeeGlobalId: approver.employeeGlobalId,
     teamGlobalId: approver.teamGlobalId,
+    requiresIdentityVerification: approver.requiresIdentityVerification === true,
   })),
 });
 

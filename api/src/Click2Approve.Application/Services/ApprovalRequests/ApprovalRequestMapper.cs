@@ -76,7 +76,8 @@ internal static class ApprovalRequestMapper
             RequestFiles = [.. OrderRequestFiles(task.ApprovalRequest).Select(MapRequestFile)],
             ApprovalRequest = approvalRequest is not null
             ? MapApprovalRequestForTask(approvalRequest, task.ApprovalRequestStepApproverId, approverGlobalIdMaps)
-            : null
+            : null,
+            ApproverSignatureJson = task.ApproverSignatureJson
         };
 
     private static ApprovalRequestDto MapApprovalRequestForTask(
@@ -163,7 +164,8 @@ internal static class ApprovalRequestMapper
             Email = approver.Email,
             EmployeeGlobalId = GetEmployeeGlobalId(approver, approverGlobalIdMaps),
             TeamGlobalId = GetTeamGlobalId(approver, approverGlobalIdMaps),
-            DisplayName = approver.ApproverDisplayName
+            DisplayName = approver.ApproverDisplayName,
+            RequiresIdentityVerification = approver.RequiresIdentityVerification
         };
     }
 
@@ -229,6 +231,13 @@ internal static class ApprovalRequestMapper
             CreatedAt = task.CreatedAt,
             Description = task.Description,
             Comment = task.Comment,
+            RequiresIdentityVerification = task.RequiresIdentityVerification,
+            ApproverIpAddress = task.ApproverIpAddress,
+            ApproverBrowserData = task.ApproverBrowserData,
+            ApproverLegalFirstName = task.ApproverLegalFirstName,
+            ApproverLegalLastName = task.ApproverLegalLastName,
+            ApproverDateOfBirth = task.ApproverDateOfBirth,
+            HasApproverSignature = !string.IsNullOrWhiteSpace(task.ApproverSignatureJson),
             LogEntries = [.. task.LogEntries.Select(MapTaskLogEntry)]
         };
     }

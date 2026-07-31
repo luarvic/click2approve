@@ -38,6 +38,8 @@ public class ApprovalRequestTaskController(
     public async Task<IActionResult> CompleteAsync([FromBody] ApprovalRequestTaskCompleteDto payload, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
+        payload.ApproverIpAddress = GetClientIpAddress();
+        payload.ApproverBrowserData = Request.Headers.UserAgent.ToString();
         await _approvalRequestTaskService.CompleteAsync(user, payload, cancellationToken);
         return Ok();
     }
@@ -76,5 +78,16 @@ public class ApprovalRequestTaskController(
         var user = await _userManager.GetAppUserAsync(User);
         var count = await _approvalRequestTaskService.CountUncompletedAsync(user, cancellationToken);
         return Ok(count);
+    }
+
+    private string? GetClientIpAddress()
+    {
+        var forwardedFor = Request.Headers["X-Forwarded-For"].ToString();
+        if (!string.IsNullOrWhiteSpace(forwardedFor))
+        {
+            return forwardedFor.Split(',')[0].Trim();
+        }
+
+        return HttpContext.Connection.RemoteIpAddress?.ToString();
     }
 }

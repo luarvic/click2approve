@@ -12,13 +12,20 @@ export const completeApprovalRequestTask = async (
   tenantGlobalId: string,
   globalId: string,
   status: ApprovalRequestTaskStatus,
-  comment: string | undefined
+  comment: string | undefined,
+  identityVerification?: {
+    approverDateOfBirth?: string;
+    approverLegalFirstName?: string;
+    approverLegalLastName?: string;
+    approverSignatureJson?: string;
+  },
 ): Promise<boolean> => {
   try {
     await axios.post(`api/v1/tenants/${tenantGlobalId}/tasks/complete`, {
       globalId: globalId,
       status: status,
       comment: comment,
+      ...identityVerification,
     });
     return true;
   } catch (e) {

@@ -46,6 +46,7 @@ interface ApprovalStepEditorApproverState {
 
 interface ApprovalStepEditorProps {
   steps: EditableApprovalStep[];
+  canRequireIdentityVerification: boolean;
   canUseEmployees: boolean;
   canUseTeams: boolean;
   employees: Employee[];
@@ -88,6 +89,7 @@ const stepAddButtonSx: SxProps<Theme> = {
 
 const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
   steps,
+  canRequireIdentityVerification,
   canUseEmployees,
   canUseTeams,
   employees,
@@ -207,6 +209,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                         <ApprovalStepApproverRow
                           key={approver.globalId ?? approverIndex}
                           approver={approver}
+                          canRequireIdentityVerification={canRequireIdentityVerification}
                           canUseEmployees={canUseEmployees}
                           canUseTeams={canUseTeams}
                           employees={employees}

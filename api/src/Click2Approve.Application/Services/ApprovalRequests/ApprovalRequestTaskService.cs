@@ -57,9 +57,22 @@ public class ApprovalRequestTaskService(
         var now = DateTime.UtcNow;
         var actor = await _workflowService.ResolveActorAsync(user, approvalRequestTask.TenantId, cancellationToken);
         var previousTaskStatus = approvalRequestTask.Status;
+        ApplyCompletionDetails(approvalRequestTask, payload);
         approvalRequestTask.Status = payload.Status;
         approvalRequestTask.Comment = payload.Comment;
-        _workflowService.AddStatusLog(approvalRequestTask, actor, now, previousTaskStatus, payload.Status, payload.Comment);
+        _workflowService.AddStatusLog(
+            approvalRequestTask,
+            actor,
+            now,
+            previousTaskStatus,
+            payload.Status,
+            payload.Comment,
+            approvalRequestTask.ApproverIpAddress,
+            approvalRequestTask.ApproverBrowserData,
+            approvalRequestTask.ApproverLegalFirstName,
+            approvalRequestTask.ApproverLegalLastName,
+            approvalRequestTask.ApproverDateOfBirth,
+            !string.IsNullOrWhiteSpace(approvalRequestTask.ApproverSignatureJson));
 
         if (approvalRequestTask.ApprovalRequest.Status is ApprovalRequestStatus.Pending or ApprovalRequestStatus.Started)
         {
@@ -97,5 +110,66 @@ public class ApprovalRequestTaskService(
     public async Task<long> CountUncompletedAsync(AppUser user, CancellationToken cancellationToken)
     {
         return await _approvalRequestTaskRepository.CountUncompletedAsync(user, cancellationToken);
+    }
+
+    private static void ApplyCompletionDetails(
+        ApprovalRequestTask approvalRequestTask,
+        ApprovalRequestTaskCompleteDto payload)
+    {
+        approvalRequestTask.ApproverIpAddress = TrimToLength(payload.ApproverIpAddress, 128);
+        approvalRequestTask.ApproverBrowserData = TrimToLength(payload.ApproverBrowserData, 1024);
+        if (!approvalRequestTask.RequiresIdentityVerification)
+        {
+            return;
+        }
+
+        var legalFirstName = (payload.ApproverLegalFirstName ?? string.Empty).Trim();
+        var legalLastName = (payload.ApproverLegalLastName ?? string.Empty).Trim();
+        var signatureJson = (payload.ApproverSignatureJson ?? string.Empty).Trim();
+        if (legalFirstName.Length == 0)
+        {
+            throw new BusinessRuleException("Legal first name is required.");
+        }
+
+        if (legalLastName.Length == 0)
+        {
+            throw new BusinessRuleException("Legal last name is required.");
+        }
+
+        if (payload.ApproverDateOfBirth is null)
+        {
+            throw new BusinessRuleException("Date of birth is required.");
+        }
+
+        if (payload.ApproverDateOfBirth >= DateOnly.FromDateTime(DateTime.UtcNow))
+        {
+            throw new BusinessRuleException("Date of birth must be in the past.");
+        }
+
+        if (signatureJson.Length == 0)
+        {
+            throw new BusinessRuleException("Signature is required.");
+        }
+
+        if (signatureJson.Length > 16000)
+        {
+            throw new BusinessRuleException("Signature is too large.");
+        }
+
+        approvalRequestTask.ApproverLegalFirstName = TrimToLength(legalFirstName, 255);
+        approvalRequestTask.ApproverLegalLastName = TrimToLength(legalLastName, 255);
+        approvalRequestTask.ApproverDateOfBirth = payload.ApproverDateOfBirth;
+        approvalRequestTask.ApproverSignatureJson = signatureJson;
+    }
+
+    private static string? TrimToLength(string? value, int maxLength)
+    {
+        var trimmed = value?.Trim();
+        if (string.IsNullOrEmpty(trimmed))
+        {
+            return null;
+        }
+
+        return trimmed.Length <= maxLength ? trimmed : trimmed[..maxLength];
     }
 }

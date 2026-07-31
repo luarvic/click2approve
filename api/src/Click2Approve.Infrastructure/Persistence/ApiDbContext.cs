@@ -204,6 +204,10 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequestStepApprover>()
+            .Property(a => a.RequiresIdentityVerification)
+            .HasDefaultValue(false);
+
+        modelBuilder.Entity<ApprovalRequestStepApprover>()
             .HasOne(a => a.ApprovalRequestStep)
             .WithMany(s => s.Approvers)
             .HasForeignKey(a => a.ApprovalRequestStepId)
@@ -243,6 +247,26 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
 
         modelBuilder.Entity<ApprovalRequestTask>()
             .Property(t => t.ApproverDisplayName)
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .Property(t => t.RequiresIdentityVerification)
+            .HasDefaultValue(false);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .Property(t => t.ApproverIpAddress)
+            .HasMaxLength(128);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .Property(t => t.ApproverBrowserData)
+            .HasMaxLength(1024);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .Property(t => t.ApproverLegalFirstName)
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .Property(t => t.ApproverLegalLastName)
             .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequestTask>()

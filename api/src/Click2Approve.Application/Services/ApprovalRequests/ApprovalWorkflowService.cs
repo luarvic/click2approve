@@ -326,7 +326,13 @@ public class ApprovalWorkflowService(
         DateTime timestamp,
         ApprovalRequestTaskStatus? previousStatus,
         ApprovalRequestTaskStatus status,
-        string? comment)
+        string? comment,
+        string? ipAddress = null,
+        string? browserData = null,
+        string? legalFirstName = null,
+        string? legalLastName = null,
+        DateOnly? dateOfBirth = null,
+        bool? signatureCaptured = null)
     {
         AddTaskLog(
             task,
@@ -334,7 +340,16 @@ public class ApprovalWorkflowService(
             GetOnBehalfOfActor(task, actor),
             timestamp,
             ApprovalRequestTaskLogEventType.StatusChanged,
-            new ApprovalRequestTaskStatusChangedDetails(previousStatus, status, comment));
+            new ApprovalRequestTaskStatusChangedDetails(
+                previousStatus,
+                status,
+                comment,
+                ipAddress,
+                browserData,
+                legalFirstName,
+                legalLastName,
+                dateOfBirth,
+                signatureCaptured));
     }
 
     private async Task<List<ApprovalRequestTask>> CreateTasksForApproverAsync(
@@ -367,6 +382,7 @@ public class ApprovalWorkflowService(
                 ApproverDisplayName = resolution.ApproverDisplayName,
                 TenantId = resolution.TenantId,
                 RevisionNumber = approvalRequest.RevisionNumber,
+                RequiresIdentityVerification = configuredApprover.RequiresIdentityVerification,
                 Status = ApprovalRequestTaskStatus.Pending,
                 CreatedAt = timestamp
             }, cancellationToken);

@@ -32,5 +32,12 @@ public class ApprovalRequestTask : DbEntity
     public required DateTime CreatedAt { get; set; }
     public string? Description { get; set; }
     public string? Comment { get; set; }
+    public bool RequiresIdentityVerification { get; set; }
+    public string? ApproverIpAddress { get; set; }
+    public string? ApproverBrowserData { get; set; }
+    public string? ApproverLegalFirstName { get; set; }
+    public string? ApproverLegalLastName { get; set; }
+    public DateOnly? ApproverDateOfBirth { get; set; }
+    public string? ApproverSignatureJson { get; set; }
     public List<ApprovalRequestTaskLogEntry> LogEntries { get; set; } = [];
 }

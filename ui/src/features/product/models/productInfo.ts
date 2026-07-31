@@ -10,4 +10,5 @@ export interface ProductCapabilities {
   teamApprovers: boolean;
   approvalStepTemplates: boolean;
   approvalRequestRevisions: boolean;
+  identityVerification?: boolean;
 }

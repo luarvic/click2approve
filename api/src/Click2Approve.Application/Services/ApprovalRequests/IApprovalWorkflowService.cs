@@ -74,5 +74,11 @@ public interface IApprovalWorkflowService
         DateTime timestamp,
         ApprovalRequestTaskStatus? previousStatus,
         ApprovalRequestTaskStatus status,
-        string? comment);
+        string? comment,
+        string? ipAddress = null,
+        string? browserData = null,
+        string? legalFirstName = null,
+        string? legalLastName = null,
+        DateOnly? dateOfBirth = null,
+        bool? signatureCaptured = null);
 }

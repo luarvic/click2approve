@@ -32,7 +32,8 @@ public class ProductController(IConfiguration configuration) : ControllerBase
                 EmployeeApprovers = _configuration.GetValue<bool>("Product:Capabilities:EmployeeApprovers"),
                 TeamApprovers = _configuration.GetValue<bool>("Product:Capabilities:TeamApprovers"),
                 ApprovalStepTemplates = _configuration.GetValue<bool>("Product:Capabilities:ApprovalStepTemplates"),
-                ApprovalRequestRevisions = _configuration.GetValue<bool>("Product:Capabilities:ApprovalRequestRevisions")
+                ApprovalRequestRevisions = _configuration.GetValue<bool>("Product:Capabilities:ApprovalRequestRevisions"),
+                IdentityVerification = _configuration.GetValue<bool>("Product:Capabilities:IdentityVerification")
             }
         });
     }

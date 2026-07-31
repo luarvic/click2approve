@@ -51,6 +51,8 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
     businessTenantIsSelected && stores.productStore.employeeApproversAreEnabled;
   const canUseTeams =
     businessTenantIsSelected && stores.productStore.teamApproversAreEnabled;
+  const canRequireIdentityVerification =
+    businessTenantIsSelected && stores.productStore.identityVerificationIsEnabled;
 
   useEffect(() => {
     setName(template?.name ?? "");
@@ -203,6 +205,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
         />
         <ApprovalStepEditor
           steps={steps}
+          canRequireIdentityVerification={canRequireIdentityVerification}
           canUseEmployees={canUseEmployees}
           canUseTeams={canUseTeams}
           employees={stores.employeeStore.employees}
