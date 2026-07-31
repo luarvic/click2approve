@@ -16,4 +16,5 @@ public class ApprovalRequestTaskCompleteDto
     public string? ApproverSignatureJson { get; set; }
     public string? ApproverIpAddress { get; set; }
     public string? ApproverBrowserData { get; set; }
+    public ApprovalRequestTaskClientAuditContextDto? ClientAuditContext { get; set; }
 }

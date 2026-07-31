@@ -277,4 +277,110 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         Assert.Equal("Original task title", completedTask.Title);
         Assert.Equal("Original task description", completedTask.Description);
     }
+
+    [Fact]
+    public async Task CompleteAsync_WithClientAuditContext_StoresBrowserData()
+    {
+        var requester = new Credentials { Email = $"requester-{Guid.NewGuid()}@example.com", Password = "ZAQ12wsx!" };
+        var approver = new Credentials { Email = $"approver-{Guid.NewGuid()}@example.com", Password = "ZAQ12wsx!" };
+        await _applicationFactory.CreateClient().RegisterAsync(requester, CancellationToken.None);
+        await _applicationFactory.CreateClient().RegisterAsync(approver, CancellationToken.None);
+
+        var requesterClient = _applicationFactory.CreateClient();
+        var requesterLogin = await requesterClient.LogInAsync(requester, CancellationToken.None);
+        requesterClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", requesterLogin.AccessToken);
+        var requesterTenantId = await requesterClient.GetCurrentTenantIdAsync(requesterLogin.AccessToken, CancellationToken.None);
+        var userFiles = await requesterClient.UploadTextFilesAsync(requesterLogin.AccessToken,
+            new Dictionary<string, string> { { "request.txt", "Approval request test file" } },
+            CancellationToken.None);
+        var response = await requesterClient.PostAsJsonAsync($"api/v1/tenants/{requesterTenantId}/requests", new ApprovalRequestSubmitDto
+        {
+            Title = "Browser audit request",
+            RequestFiles = [.. userFiles.Select((file, index) => new ApprovalRequestFileSubmitDto
+            {
+                UserFileGlobalId = file.GlobalId,
+                Sequence = index
+            })],
+            Steps =
+            [
+                new ApprovalRequestStepSubmitDto
+                {
+                    Sequence = 1,
+                    Mode = ApprovalStepMode.Any,
+                    Approvers =
+                    [
+                        new ApprovalRequestApproverSubmitDto
+                        {
+                            Type = ApprovalRecipientType.Email,
+                            Email = approver.Email
+                        }
+                    ]
+                }
+            ]
+        });
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+
+        var submittedRequestSummary = Assert.Single(await requesterClient.ListApprovalRequestsAsync(requesterLogin.AccessToken, CancellationToken.None));
+        var submittedRequest = await requesterClient.GetApprovalRequestAsync(
+            requesterLogin.AccessToken,
+            submittedRequestSummary.GlobalId,
+            CancellationToken.None);
+        var task = Assert.Single(Assert.Single(submittedRequest.Steps).Tasks);
+
+        var approverClient = _applicationFactory.CreateClient();
+        var approverLogin = await approverClient.LogInAsync(approver, CancellationToken.None);
+        approverClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", approverLogin.AccessToken);
+        approverClient.DefaultRequestHeaders.UserAgent.ParseAdd("Click2Approve.Tests/1.0");
+        approverClient.DefaultRequestHeaders.AcceptLanguage.ParseAdd("en-US");
+        var approverTenantId = await approverClient.GetCurrentTenantIdAsync(approverLogin.AccessToken, CancellationToken.None);
+
+        response = await approverClient.PostAsJsonAsync($"api/v1/tenants/{approverTenantId}/tasks/complete", new
+        {
+            GlobalId = task.GlobalId,
+            Status = ApprovalRequestTaskStatus.Approved,
+            ClientAuditContext = new
+            {
+                Language = "en-US",
+                Languages = new[] { "en-US", "en" },
+                TimeZone = "America/New_York",
+                Timestamp = "2026-07-31T12:00:00.000Z",
+                TimeZoneOffsetMinutes = 240,
+                ScreenWidth = 1920,
+                ScreenHeight = 1080,
+                ViewportWidth = 1280,
+                ViewportHeight = 720,
+                DevicePixelRatio = 2,
+                ColorDepth = 24,
+                TouchSupported = false,
+                Platform = "MacIntel",
+                UserAgentPlatform = "macOS",
+                UserAgentMobile = false,
+                ConnectionEffectiveType = "4g",
+                ConnectionDownlink = 10,
+                ConnectionRoundTripTime = 50,
+                ConnectionSaveData = false,
+                Route = "/inbox/test-task",
+                BuildVersion = "test-build"
+            }
+        });
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+
+        var completedTaskResponse = await approverClient.GetAsync($"api/v1/tenants/{approverTenantId}/tasks/{task.GlobalId}");
+        Assert.True(completedTaskResponse.IsSuccessStatusCode, await completedTaskResponse.Content.ReadAsStringAsync());
+        var completedTask = await completedTaskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
+        Assert.NotNull(completedTask);
+        var statusChangedEntry = Assert.Single(completedTask.LogEntries, entry =>
+            entry.EventType == ApprovalRequestTaskLogEventType.StatusChanged);
+        using var detailsDocument = JsonDocument.Parse(statusChangedEntry.Details);
+        var browserData = detailsDocument.RootElement.GetProperty("browserData").GetString();
+        Assert.NotNull(browserData);
+
+        using var browserDataDocument = JsonDocument.Parse(browserData);
+        Assert.Equal("Click2Approve.Tests/1.0", browserDataDocument.RootElement.GetProperty("serverUserAgent").GetString());
+        Assert.Equal("en-US", browserDataDocument.RootElement.GetProperty("serverAcceptLanguage").GetString());
+        var clientAuditContext = browserDataDocument.RootElement.GetProperty("client");
+        Assert.Equal("America/New_York", clientAuditContext.GetProperty("timeZone").GetString());
+        Assert.Equal(1280, clientAuditContext.GetProperty("viewportWidth").GetInt32());
+        Assert.Equal("test-build", clientAuditContext.GetProperty("buildVersion").GetString());
+    }
 }

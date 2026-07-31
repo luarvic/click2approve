@@ -9,6 +9,7 @@ import ApprovalRequestLog from "@/features/approvalRequests/components/ApprovalR
 import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestTaskSummaryBlock";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
+import { createApprovalRequestTaskClientAuditContext } from "@/features/approvalRequests/utils/approvalRequestTaskClientAuditContext";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import {
@@ -154,6 +155,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
             approverSignatureJson: signatureJson,
           }
         : undefined,
+      createApprovalRequestTaskClientAuditContext(),
     );
     if (didComplete) {
       showPersistenceSuccessToast(

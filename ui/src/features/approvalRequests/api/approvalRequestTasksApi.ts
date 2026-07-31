@@ -1,4 +1,5 @@
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
+import { ApprovalRequestTaskClientAuditContext } from "@/features/approvalRequests/models/approvalRequestTaskClientAuditContext";
 import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import axios from "@/shared/api/axios";
@@ -19,12 +20,14 @@ export const completeApprovalRequestTask = async (
     approverLegalLastName?: string;
     approverSignatureJson?: string;
   },
+  clientAuditContext?: ApprovalRequestTaskClientAuditContext,
 ): Promise<boolean> => {
   try {
     await axios.post(`api/v1/tenants/${tenantGlobalId}/tasks/complete`, {
       globalId: globalId,
       status: status,
       comment: comment,
+      clientAuditContext: clientAuditContext,
       ...identityVerification,
     });
     return true;

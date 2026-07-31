@@ -6,6 +6,8 @@ using Click2Approve.Application.Services.ApprovalRequests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Click2Approve.WebApi.Controllers;
 
@@ -25,6 +27,19 @@ public class ApprovalRequestTaskController(
     IApprovalRequestTaskService approvalRequestTaskService,
     UserManager<AppUser> userManager) : ControllerBase
 {
+    private const int MaxBrowserDataLength = 1024;
+    private const int MaxHeaderLength = 256;
+    private const int MaxLanguageCount = 5;
+    private const int MaxRouteLength = 192;
+    private const int MaxShortValueLength = 64;
+    private const int MaxTimestampLength = 40;
+
+    private static readonly JsonSerializerOptions BrowserDataJsonOptions = new()
+    {
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     private readonly ILogger<ApprovalRequestTaskController> _logger = logger;
     private readonly IApprovalRequestTaskService _approvalRequestTaskService = approvalRequestTaskService;
     private readonly UserManager<AppUser> _userManager = userManager;
@@ -39,7 +54,7 @@ public class ApprovalRequestTaskController(
     {
         var user = await _userManager.GetAppUserAsync(User);
         payload.ApproverIpAddress = GetClientIpAddress();
-        payload.ApproverBrowserData = Request.Headers.UserAgent.ToString();
+        payload.ApproverBrowserData = BuildBrowserData(payload.ClientAuditContext);
         await _approvalRequestTaskService.CompleteAsync(user, payload, cancellationToken);
         return Ok();
     }
@@ -90,4 +105,95 @@ public class ApprovalRequestTaskController(
 
         return HttpContext.Connection.RemoteIpAddress?.ToString();
     }
+
+    private string BuildBrowserData(ApprovalRequestTaskClientAuditContextDto? clientAuditContext)
+    {
+        var browserData = new ApprovalRequestTaskBrowserData(
+            TrimToNull(Request.Headers.UserAgent.ToString(), MaxHeaderLength),
+            TrimToNull(Request.Headers.AcceptLanguage.ToString(), MaxHeaderLength),
+            TrimToNull(Request.Headers.Origin.ToString(), MaxHeaderLength),
+            TrimToNull(Request.Headers.Referer.ToString(), MaxHeaderLength),
+            Sanitize(clientAuditContext));
+
+        var serialized = JsonSerializer.Serialize(browserData, BrowserDataJsonOptions);
+        if (serialized.Length <= MaxBrowserDataLength)
+        {
+            return serialized;
+        }
+
+        browserData = browserData with
+        {
+            ServerOrigin = null,
+            ServerReferer = null,
+            Client = Sanitize(clientAuditContext, includeOptionalNetworkData: false)
+        };
+        serialized = JsonSerializer.Serialize(browserData, BrowserDataJsonOptions);
+        if (serialized.Length <= MaxBrowserDataLength)
+        {
+            return serialized;
+        }
+
+        browserData = browserData with { Client = null };
+        return JsonSerializer.Serialize(browserData, BrowserDataJsonOptions);
+    }
+
+    private static ApprovalRequestTaskClientAuditContextDto? Sanitize(
+        ApprovalRequestTaskClientAuditContextDto? clientAuditContext,
+        bool includeOptionalNetworkData = true)
+    {
+        if (clientAuditContext is null)
+        {
+            return null;
+        }
+
+        return new ApprovalRequestTaskClientAuditContextDto
+        {
+            Language = TrimToNull(clientAuditContext.Language, MaxShortValueLength),
+            Languages = clientAuditContext.Languages?
+                .Select(language => TrimToNull(language, MaxShortValueLength))
+                .Where(language => language is not null)
+                .Take(MaxLanguageCount)
+                .Select(language => language!)
+                .ToArray(),
+            TimeZone = TrimToNull(clientAuditContext.TimeZone, MaxShortValueLength),
+            Timestamp = TrimToNull(clientAuditContext.Timestamp, MaxTimestampLength),
+            TimeZoneOffsetMinutes = clientAuditContext.TimeZoneOffsetMinutes,
+            ScreenWidth = clientAuditContext.ScreenWidth,
+            ScreenHeight = clientAuditContext.ScreenHeight,
+            ViewportWidth = clientAuditContext.ViewportWidth,
+            ViewportHeight = clientAuditContext.ViewportHeight,
+            DevicePixelRatio = clientAuditContext.DevicePixelRatio,
+            ColorDepth = clientAuditContext.ColorDepth,
+            TouchSupported = clientAuditContext.TouchSupported,
+            Platform = TrimToNull(clientAuditContext.Platform, MaxShortValueLength),
+            UserAgentPlatform = TrimToNull(clientAuditContext.UserAgentPlatform, MaxShortValueLength),
+            UserAgentMobile = clientAuditContext.UserAgentMobile,
+            ConnectionEffectiveType = includeOptionalNetworkData
+                ? TrimToNull(clientAuditContext.ConnectionEffectiveType, MaxShortValueLength)
+                : null,
+            ConnectionDownlink = includeOptionalNetworkData ? clientAuditContext.ConnectionDownlink : null,
+            ConnectionRoundTripTime = includeOptionalNetworkData ? clientAuditContext.ConnectionRoundTripTime : null,
+            ConnectionSaveData = includeOptionalNetworkData ? clientAuditContext.ConnectionSaveData : null,
+            Route = TrimToNull(clientAuditContext.Route, MaxRouteLength),
+            BuildVersion = TrimToNull(clientAuditContext.BuildVersion, MaxShortValueLength)
+        };
+    }
+
+    private static string? TrimToNull(string? value, int maxLength)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        value = value.Trim();
+        return value.Length <= maxLength ? value : value[..maxLength];
+    }
+
+    private sealed record ApprovalRequestTaskBrowserData(
+        string? ServerUserAgent,
+        string? ServerAcceptLanguage,
+        string? ServerOrigin,
+        string? ServerReferer,
+        ApprovalRequestTaskClientAuditContextDto? Client);
 }
