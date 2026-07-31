@@ -76,8 +76,6 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     businessTenantIsSelected && stores.productStore.employeeApproversAreEnabled;
   const canUseTeams =
     businessTenantIsSelected && stores.productStore.teamApproversAreEnabled;
-  const canRequireIdentityVerification =
-    stores.productStore.identityVerificationIsEnabled;
   const canUseTemplates =
     businessTenantIsSelected &&
     stores.productStore.approvalStepTemplatesAreEnabled &&
@@ -555,7 +553,6 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
           />
           <ApprovalStepEditor
             steps={steps}
-            canRequireIdentityVerification={canRequireIdentityVerification}
             canUseEmployees={canUseEmployees}
             canUseTeams={canUseTeams}
             employees={stores.employeeStore.employees}

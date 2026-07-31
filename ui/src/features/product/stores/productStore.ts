@@ -30,10 +30,6 @@ export class ProductStore {
     return this.productInfo?.capabilities.approvalRequestRevisions === true;
   }
 
-  get identityVerificationIsEnabled(): boolean {
-    return this.productInfo?.capabilities.identityVerification === true;
-  }
-
   get requiresConfirmedEmail(): boolean {
     return this.productInfo?.requiresConfirmedEmail === true;
   }

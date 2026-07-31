@@ -22,7 +22,6 @@ interface ApprovalStepApproverRowProps {
   approver: ApprovalStepApprover;
   canUseEmployees: boolean;
   canUseTeams: boolean;
-  canRequireIdentityVerification: boolean;
   employees: Employee[];
   teams: { globalId: string; name: string }[];
   disabled?: boolean;
@@ -40,7 +39,6 @@ const assigneeFieldSx: SxProps<Theme> = { flexGrow: 1, minWidth: 0 };
 
 const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
   approver,
-  canRequireIdentityVerification,
   canUseEmployees,
   canUseTeams,
   employees,
@@ -155,23 +153,21 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
           </span>
         </Tooltip>
       </Stack>
-      {canRequireIdentityVerification && (
-        <FormControlLabel
-          control={(
-            <Switch
-              checked={approver.requiresIdentityVerification === true}
-              disabled={disabled}
-              onChange={(event) =>
-                onChange({
-                  ...approver,
-                  requiresIdentityVerification: event.target.checked,
-                })
-              }
-            />
-          )}
-          label="Require identity verification"
-        />
-      )}
+      <FormControlLabel
+        control={(
+          <Switch
+            checked={approver.requiresIdentityVerification === true}
+            disabled={disabled}
+            onChange={(event) =>
+              onChange({
+                ...approver,
+                requiresIdentityVerification: event.target.checked,
+              })
+            }
+          />
+        )}
+        label="Require identity verification"
+      />
     </Stack>
   );
 };
