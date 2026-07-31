@@ -35,6 +35,7 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
         ApproverLegalLastName = source.ApproverLegalLastName;
         ApproverDateOfBirth = source.ApproverDateOfBirth;
         HasApproverSignature = source.HasApproverSignature;
+        ApproverSignatureJson = source.ApproverSignatureJson;
         LogEntries = source.LogEntries;
     }
 
@@ -53,5 +54,6 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
     public string? ApproverLegalLastName { get; init; }
     public DateOnly? ApproverDateOfBirth { get; init; }
     public bool HasApproverSignature { get; init; }
+    public string? ApproverSignatureJson { get; init; }
     public required List<ApprovalRequestTaskLogEntryDto> LogEntries { get; init; }
 }

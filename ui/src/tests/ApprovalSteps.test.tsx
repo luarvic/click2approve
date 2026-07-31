@@ -4,6 +4,7 @@ import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/ap
 import ApprovalSteps from "@/features/approvalWorkflow/components/ApprovalSteps";
 import { ApprovalRecipientType } from "@/features/approvalWorkflow/models/approvalStep";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, test } from "vitest";
 
 const createdAt = "2026-07-29T12:00:00Z";
@@ -105,7 +106,9 @@ describe("<ApprovalSteps />", () => {
     expect(screen.queryByText("Hidden task comment")).toBeNull();
   });
 
-  test("uses hidden-from-you wording when a hidden step has no visibility details", () => {
+  test("uses hidden-from-you wording as the icon tooltip when a hidden step has no visibility details", async () => {
+    const user = userEvent.setup();
+
     render(
       <ApprovalSteps
         approvalRequest={{
@@ -122,8 +125,41 @@ describe("<ApprovalSteps />", () => {
       />,
     );
 
-    expect(screen.getByText("Hidden from you")).toBeTruthy();
+    const hiddenVisibilityIcon = screen.getByLabelText("Hidden from you");
+    expect(hiddenVisibilityIcon).toBeTruthy();
+    expect(screen.queryByText("Hidden from you")).toBeNull();
+    await user.hover(hiddenVisibilityIcon);
+    expect(await screen.findByText("Hidden from you")).toBeTruthy();
     expect(screen.queryByText("Visible to all request approvers.")).toBeNull();
+  });
+
+  test("opens hidden-from-you wording in a popover from the visibility icon", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ApprovalSteps
+        approvalRequest={{
+          ...approvalRequest,
+          steps: [
+            {
+              approvers: [],
+              globalId: "hidden-without-visibility-id",
+              isVisible: false,
+              sequence: 1,
+            },
+          ],
+        }}
+      />,
+    );
+
+    const hiddenVisibilityIcon = screen.getByLabelText("Hidden from you");
+    expect(hiddenVisibilityIcon.getAttribute("aria-describedby")).toBeNull();
+
+    await user.click(hiddenVisibilityIcon);
+
+    const popoverId = hiddenVisibilityIcon.getAttribute("aria-describedby");
+    expect(popoverId).toBe("hidden-step-visibility-popover-hidden-without-visibility-id");
+    expect(document.getElementById(popoverId ?? "")?.textContent).toBe("Hidden from you");
   });
 
   test("can hide visible step visibility summaries while keeping hidden step visibility summaries", () => {
@@ -142,6 +178,7 @@ describe("<ApprovalSteps />", () => {
     );
 
     expect(screen.queryByText("Blocked Approver")).toBeNull();
-    expect(screen.getByText("Hidden from you")).toBeTruthy();
+    expect(screen.getByLabelText("Hidden from you")).toBeTruthy();
+    expect(screen.queryByText("Hidden from you")).toBeNull();
   });
 });

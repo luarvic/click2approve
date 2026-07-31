@@ -77,7 +77,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   const canUseTeams =
     businessTenantIsSelected && stores.productStore.teamApproversAreEnabled;
   const canRequireIdentityVerification =
-    businessTenantIsSelected && stores.productStore.identityVerificationIsEnabled;
+    stores.productStore.identityVerificationIsEnabled;
   const canUseTemplates =
     businessTenantIsSelected &&
     stores.productStore.approvalStepTemplatesAreEnabled &&

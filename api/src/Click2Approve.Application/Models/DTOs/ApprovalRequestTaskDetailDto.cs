@@ -19,5 +19,4 @@ public class ApprovalRequestTaskDetailDto : ApprovalRequestTaskDto
 
     public required List<ApprovalRequestFileDto> RequestFiles { get; init; }
     public ApprovalRequestDto? ApprovalRequest { get; init; }
-    public string? ApproverSignatureJson { get; init; }
 }

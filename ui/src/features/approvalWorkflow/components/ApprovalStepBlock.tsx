@@ -1,4 +1,5 @@
 import ApprovalRequestComment from "@/features/approvalRequests/components/ApprovalRequestComment";
+import ApprovalRequestIdentityVerificationView from "@/features/approvalRequests/components/ApprovalRequestIdentityVerificationView";
 import ApprovalRequestParticipantLine, {
   getApprovalRecipientIcon,
 } from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
@@ -28,6 +29,7 @@ import {
   ExpandMore,
   Person,
   RuleOutlined,
+  VerifiedUserOutlined,
 } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import {
@@ -100,6 +102,21 @@ const teamAccordionDetailsSx = {
 const teamTaskListSx: SxProps<Theme> = {
   pl: 3,
 };
+
+const identityVerificationIconSx: SxProps<Theme> = {
+  alignSelf: "center",
+};
+
+const renderIdentityVerificationIcon = (isRequested?: boolean) =>
+  isRequested === true ? (
+    <Tooltip title="Identity verification requested">
+      <VerifiedUserOutlined
+        color="secondary"
+        fontSize="small"
+        sx={identityVerificationIconSx}
+      />
+    </Tooltip>
+  ) : null;
 
 const getStepStatus = (
   step: ApprovalStep,
@@ -225,6 +242,10 @@ const getTaskCompletionDate = (task: ApprovalRequestTask) => {
     .sort((left, right) => right.getTime() - left.getTime())[0] ?? null;
 };
 
+const taskIdentityVerificationIsVisible = (task: ApprovalRequestTask) =>
+  task.requiresIdentityVerification === true &&
+  task.status !== ApprovalRequestTaskStatus.Pending;
+
 const getApproverTasks = (
   approver: ApprovalStep["approvers"][number],
   tasks: ApprovalRequestTask[],
@@ -259,10 +280,16 @@ const renderTaskDetails = (
         <ApprovalRequestParticipantLine
           icon={icon}
           label={label}
-          sx={Flex.growSx}
         />
+        {renderIdentityVerificationIcon(
+          task.requiresIdentityVerification === true &&
+          !taskIdentityVerificationIsVisible(task),
+        )}
       </Stack>
       <ApprovalRequestComment label="Comment" text={task.comment} />
+      {taskIdentityVerificationIsVisible(task) && (
+        <ApprovalRequestIdentityVerificationView task={task} />
+      )}
       <ApprovalRequestTimestampRow
         items={[
           {
@@ -287,11 +314,18 @@ const renderApproverWithoutTasks = (
   approver: ApprovalStepApprover,
   index: number,
 ) => (
-  <ApprovalRequestParticipantLine
+  <Stack
     key={approver.globalId ?? index}
-    label={getApproverLabel(approver)}
-    type={approver.type}
-  />
+    direction="row"
+    spacing={StackSpacing.tight}
+    alignItems="center"
+  >
+    <ApprovalRequestParticipantLine
+      label={getApproverLabel(approver)}
+      type={approver.type}
+    />
+    {renderIdentityVerificationIcon(approver.requiresIdentityVerification)}
+  </Stack>
 );
 
 const renderTeamApprover = (
@@ -319,6 +353,7 @@ const renderTeamApprover = (
           label={getApproverLabel(approver)}
           type={approver.type}
         />
+        {renderIdentityVerificationIcon(approver.requiresIdentityVerification)}
       </Stack>
     </AccordionSummary>
     <AccordionDetails sx={teamAccordionDetailsSx}>

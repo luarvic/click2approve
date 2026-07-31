@@ -238,6 +238,7 @@ internal static class ApprovalRequestMapper
             ApproverLegalLastName = task.ApproverLegalLastName,
             ApproverDateOfBirth = task.ApproverDateOfBirth,
             HasApproverSignature = !string.IsNullOrWhiteSpace(task.ApproverSignatureJson),
+            ApproverSignatureJson = task.ApproverSignatureJson,
             LogEntries = [.. task.LogEntries.Select(MapTaskLogEntry)]
         };
     }
