@@ -211,7 +211,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   const addStep = () => {
     setSteps((current) => [
       ...current,
-      createEmptyStep(current.length + 1, false),
+      createEmptyStep(current.length + 1),
     ]);
   };
 

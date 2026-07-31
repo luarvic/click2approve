@@ -2,6 +2,7 @@ import { stores } from "@/app/rootStore";
 import { EmployeeRole, TenantType } from "@/features/tenants/models/tenant";
 import { Api, Lists, Refresh, Routes, Shell } from "@/shared/constants/constants";
 import {
+  Add,
   Business,
   ChevronLeft,
   Description,
@@ -11,10 +12,10 @@ import {
   Inbox,
   Outbox,
   Person,
-  PlaylistAdd,
 } from "@mui/icons-material";
 import {
   Box,
+  Button,
   Divider,
   Drawer,
   IconButton,
@@ -140,18 +141,18 @@ const MainMenuDrawer = () => {
           <ListSubheader component="div" sx={Lists.actionSubheaderSx}>
             <span>Requests</span>
             <Tooltip title="Compose approval request">
-              <IconButton
+              <Button
                 aria-label="Compose approval request"
                 color="primary"
-                edge="end"
                 size="small"
+                startIcon={<Add />}
                 onClick={() => {
                   navigate(`${outboxPath}/new`);
                   closeTemporaryDrawer();
                 }}
               >
-                <PlaylistAdd fontSize="medium" />
-              </IconButton>
+                CREATE
+              </Button>
             </Tooltip>
           </ListSubheader>
         }
