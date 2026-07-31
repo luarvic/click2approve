@@ -6,13 +6,22 @@ import {
 import ApprovalRequestNumberText, { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
 import { ApprovalRequestListItem } from "@/features/approvalRequests/models/approvalRequestListItem";
+import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes, StackSpacing } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { getHumanReadableRelativeDate } from "@/shared/utils/helpers";
 import { Add } from "@mui/icons-material";
-import { Box, Button, LinearProgress, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  LinearProgress,
+  Stack,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -28,6 +37,12 @@ interface OutboxGridProps {
 
 const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestGlobalId }) => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const createdColumnIsVisible = useMediaQuery(theme.breakpoints.up("md"));
+  const createdByColumnIsVisible = useMediaQuery(theme.breakpoints.up("sm"));
+  const numberColumnIsVisible = useMediaQuery(
+    theme.breakpoints.up(DataGrids.approvalNumberColumnMinDisplayWidth),
+  );
   const tenantScopeIsReady =
     !stores.productStore.tenantsAreEnabled ||
     (stores.tenantStore.hasLoaded &&
@@ -105,6 +120,9 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestGlobalId 
       field: "createdByDisplayName",
       headerName: "Created by",
       flex: DataGrids.approvalColumnFlex.metadata,
+      renderCell: (params) => (
+        <OneLineDisplayName displayName={params.row.createdByDisplayName} />
+      ),
       valueGetter: (_value, row) => row.createdByDisplayName,
     },
     {
@@ -133,6 +151,11 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestGlobalId 
           const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
           const path = `/outbox/${(params.row as ApprovalRequestListItem).globalId}`;
           navigate(tenantGlobalId ? Routes.tenantPath(tenantGlobalId, path) : "/");
+        }}
+        columnVisibilityModel={{
+          globalId: numberColumnIsVisible,
+          createdByDisplayName: createdByColumnIsVisible,
+          createdAtDate: createdColumnIsVisible,
         }}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}

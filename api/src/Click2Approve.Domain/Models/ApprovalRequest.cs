@@ -12,6 +12,7 @@ public class ApprovalRequest : DbEntity
     public long? CreatedByEmployeeId { get; set; }
     public required string CreatedByEmail { get; set; }
     public required string CreatedByDisplayName { get; set; }
+    public required string CreatedByOrganizationDisplayName { get; set; }
     public long TenantId { get; set; }
     public Tenant? Tenant { get; set; }
     public required ApprovalRequestStatus Status { get; set; }

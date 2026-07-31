@@ -173,6 +173,11 @@ export const Dialogs = {
     borderRadius: 1,
     p: 2,
   } as SxProps<Theme>,
+  approvalBoxSx: {
+    bgcolor: "action.hover",
+    borderRadius: 1,
+    p: 2,
+  } as SxProps<Theme>,
   tenantMaxWidth: "sm",
 } as const;
 
@@ -410,6 +415,7 @@ export const Shell = {
 export const DataGrids = {
   defaultPageSize: 10,
   approvalNumberColumnWidth: 72,
+  approvalNumberColumnMinDisplayWidth: 420,
   containerSx: Flex.fullWidthOverflowHiddenSx,
   sx: {
     border: "none",

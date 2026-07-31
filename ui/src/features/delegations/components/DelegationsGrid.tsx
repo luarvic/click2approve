@@ -1,6 +1,7 @@
 import { stores } from "@/app/rootStore";
 import { listApprovalDelegations } from "@/features/delegations/api/approvalDelegationsApi";
 import { ApprovalDelegation } from "@/features/delegations/models/approvalDelegation";
+import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
@@ -47,10 +48,10 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({
     delegations,
     currentDelegationGlobalId,
   );
-  const employeeNames = new Map(
+  const employeesById = new Map(
     stores.employeeStore.employees.map((employee) => [
       employee.globalId,
-      employee.displayName,
+      employee,
     ]),
   );
 
@@ -69,7 +70,14 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({
   }, tenantGlobalId);
 
   const getEmployeeName = (employeeGlobalId: string) =>
-    employeeNames.get(employeeGlobalId) ?? unknownEmployeeLabel;
+    employeesById.get(employeeGlobalId)?.displayName ?? unknownEmployeeLabel;
+
+  const renderEmployee = (employeeGlobalId: string) => {
+    const employee = employeesById.get(employeeGlobalId);
+    return employee ? (
+      <OneLineDisplayName displayName={employee.displayName} />
+    ) : unknownEmployeeLabel;
+  };
 
   const customToolbar = () => {
     return (
@@ -92,12 +100,14 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({
       headerName: "Employee",
       ...DataGrids.delegationsColumnSizing.employee,
       valueGetter: (value) => getEmployeeName(value as string),
+      renderCell: (params) => renderEmployee(params.row.delegatorEmployeeGlobalId),
     },
     {
       field: "delegateEmployeeGlobalId",
       headerName: "Delegate",
       ...DataGrids.delegationsColumnSizing.delegate,
       valueGetter: (value) => getEmployeeName(value as string),
+      renderCell: (params) => renderEmployee(params.row.delegateEmployeeGlobalId),
     },
     {
       field: "createdAt",

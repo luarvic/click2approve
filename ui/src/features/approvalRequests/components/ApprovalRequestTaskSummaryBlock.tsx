@@ -1,12 +1,21 @@
+import { stores } from "@/app/rootStore";
 import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
 import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
 import type { ApprovalRequestTimestampType } from "@/features/approvalRequests/components/ApprovalRequestTimestamp";
 import ApprovalRequestTimestampRow from "@/features/approvalRequests/components/ApprovalRequestTimestampRow";
+import {
+  getApprovalRequestTaskStatusLabel,
+  getApprovalRequestTaskStatusLineColor,
+  getApprovalStatusBorderSx,
+} from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequestTaskLogEventType } from "@/features/approvalRequests/models/approvalRequestLogEntry";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
-import { StackSpacing } from "@/shared/constants/constants";
-import { Stack } from "@mui/material";
+import { TenantType } from "@/features/tenants/models/tenant";
+import DisplayName from "@/shared/components/identity/DisplayName";
+import { Dialogs, StackSpacing } from "@/shared/constants/constants";
+import { stripInlineEmail } from "@/shared/utils/displayNameHelpers";
+import { Box, Stack } from "@mui/material";
 
 interface ApprovalRequestTaskSummaryBlockProps {
   task: ApprovalRequestTask;
@@ -60,35 +69,57 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   task,
 }) => {
   const completedAt = getTaskCompletionDate(task);
+  const organizationIsVisible =
+    stores.tenantStore.currentTenant?.type === TenantType.Personal;
+  const requestedByName = stripInlineEmail(task.requestedByDisplayName);
+  const requestedByDisplayName = organizationIsVisible
+    ? `${requestedByName} · ${task.createdByOrganizationDisplayName}`
+    : requestedByName;
+  const requestedByEmail = task.requestedByEmail ?? task.approvalRequest?.createdByEmail;
 
   return (
-    <Stack spacing={StackSpacing.default}>
-      <ApprovalRequestSummary
-        title={task.title}
-        description={task.description}
-        approvalRequestTaskGlobalId={task.globalId}
-        requestFiles={task.requestFiles}
-        revisionNumber={task.revisionNumber}
-        showFileStateIndicators={false}
-      />
-      <ApprovalRequestParticipantLine label={task.requestedByDisplayName} />
-      <ApprovalRequestTimestampRow
-        items={[
-          {
-            date: task.createdAtDate,
-            label: "Created at",
-            type: "created",
-          },
-          completedAt
-            ? {
-              date: completedAt,
-              label: getTaskCompletionLabel(task),
-              type: getTaskCompletionTimestampType(task),
-            }
-            : null,
-        ]}
-      />
-    </Stack>
+    <Box
+      aria-label={getApprovalRequestTaskStatusLabel(task.status)}
+      sx={getApprovalStatusBorderSx(
+        getApprovalRequestTaskStatusLineColor(task.status),
+        Dialogs.approvalBoxSx,
+      )}
+    >
+      <Stack spacing={StackSpacing.default}>
+        <ApprovalRequestSummary
+          title={task.title}
+          description={task.description}
+          approvalRequestTaskGlobalId={task.globalId}
+          requestFiles={task.requestFiles}
+          revisionNumber={task.revisionNumber}
+          showFileStateIndicators={false}
+        />
+        <ApprovalRequestParticipantLine
+          label={(
+            <DisplayName
+              displayName={requestedByDisplayName}
+              email={requestedByEmail}
+            />
+          )}
+        />
+        <ApprovalRequestTimestampRow
+          items={[
+            {
+              date: task.createdAtDate,
+              label: "Created at",
+              type: "created",
+            },
+            completedAt
+              ? {
+                date: completedAt,
+                label: getTaskCompletionLabel(task),
+                type: getTaskCompletionTimestampType(task),
+              }
+              : null,
+          ]}
+        />
+      </Stack>
+    </Box>
   );
 };
 

@@ -250,22 +250,6 @@ const MainMenuDrawer = () => {
             </ListItemButton>
           </ListItem>
         )}
-        {teamsManagerIsVisible && (
-          <ListItem key="teams" disablePadding>
-            <ListItemButton
-              selected={location.pathname.startsWith(teamsPath)}
-              onClick={() => {
-                navigate(teamsPath);
-                closeTemporaryDrawer();
-              }}
-            >
-              <ListItemIcon sx={Lists.itemIconSx}>
-                <GroupsTwoTone />
-              </ListItemIcon>
-              <ListItemText primary="Teams" />
-            </ListItemButton>
-          </ListItem>
-        )}
         {employeeManagerIsVisible && (
           <ListItem key="employees" disablePadding>
             <ListItemButton
@@ -279,6 +263,22 @@ const MainMenuDrawer = () => {
                 <PersonTwoTone />
               </ListItemIcon>
               <ListItemText primary="Employees" />
+            </ListItemButton>
+          </ListItem>
+        )}
+        {teamsManagerIsVisible && (
+          <ListItem key="teams" disablePadding>
+            <ListItemButton
+              selected={location.pathname.startsWith(teamsPath)}
+              onClick={() => {
+                navigate(teamsPath);
+                closeTemporaryDrawer();
+              }}
+            >
+              <ListItemIcon sx={Lists.itemIconSx}>
+                <GroupsTwoTone />
+              </ListItemIcon>
+              <ListItemText primary="Teams" />
             </ListItemButton>
           </ListItem>
         )}

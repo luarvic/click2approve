@@ -1,7 +1,4 @@
 import {
-  ApprovalStatusLineSection,
-} from "@/features/approvalRequests/components/ApprovalStatusLines";
-import {
   ApprovalStep,
 } from "@/features/approvalWorkflow/models/approvalStep";
 import {
@@ -11,6 +8,7 @@ import {
 } from "@/shared/constants/constants";
 import type { SxProps } from "@mui/material";
 import {
+  Box,
   Stack,
   Typography,
 } from "@mui/material";
@@ -20,11 +18,6 @@ import ApprovalStepVisibilitySummary from "./ApprovalStepVisibilitySummary";
 interface ApprovalHiddenStepBlockProps {
   step: ApprovalStep;
 }
-
-const approvalHiddenStepBlockSx: SxProps<Theme> = {
-  px: Dialogs.stepStackSpacing,
-  py: 0,
-};
 
 const stepTitleRowSx: SxProps<Theme> = {
   alignItems: "center",
@@ -37,12 +30,7 @@ const ApprovalHiddenStepBlock: React.FC<ApprovalHiddenStepBlockProps> = ({
   step,
 }) => {
   return (
-    <ApprovalStatusLineSection
-      color="other"
-      label="Hidden"
-      lineVariant="dotted"
-      sx={approvalHiddenStepBlockSx}
-    >
+    <Box aria-label="Hidden" sx={Dialogs.approvalBoxSx}>
       <Stack
         direction="row"
         spacing={Dialogs.stepHeaderSpacing}
@@ -68,7 +56,7 @@ const ApprovalHiddenStepBlock: React.FC<ApprovalHiddenStepBlockProps> = ({
           </Stack>
         </Stack>
       </Stack>
-    </ApprovalStatusLineSection>
+    </Box>
   );
 };
 

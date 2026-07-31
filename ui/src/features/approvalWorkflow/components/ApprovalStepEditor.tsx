@@ -80,11 +80,20 @@ interface ApprovalStepEditorProps {
 const stepHeaderSx: SxProps<Theme> = { flexWrap: "nowrap" };
 const stepTitleSx: SxProps<Theme> = { flexShrink: 0 };
 const stepHeaderSpacerSx: SxProps<Theme> = { flexGrow: 1 };
+const stepContainerSx: SxProps<Theme> = {
+  bgcolor: "action.hover",
+  borderRadius: 1,
+  p: Dialogs.stepStackSpacing,
+};
 const addButtonSx: SxProps<Theme> = { alignSelf: "flex-start" };
 const stepAddButtonSx: SxProps<Theme> = {
   ...Dialogs.addStepButtonSx,
   alignSelf: "flex-start",
 };
+const getStepContainerSx = (sx?: SxProps<Theme>): SxProps<Theme> => [
+  stepContainerSx,
+  ...(Array.isArray(sx) ? sx : [sx]),
+];
 
 const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
   steps,
@@ -117,7 +126,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
           return (
             <CommentPaper
               key={step.globalId ?? `new-${step.sequence}`}
-              sx={state.sx}
+              sx={getStepContainerSx(state.sx)}
             >
               <Stack spacing={Dialogs.stepStackSpacing}>
                 <Stack
@@ -164,7 +173,6 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                     <span>
                       <IconButton
                         aria-label={`Remove step ${step.sequence}`}
-                        color="error"
                         disabled={!canRemove}
                         onClick={() => onRemoveStep(stepIndex)}
                       >

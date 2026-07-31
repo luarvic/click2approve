@@ -11,6 +11,7 @@ namespace Click2Approve.Application.Services.ApprovalRequests;
 /// </summary>
 public class ApprovalRequestService(
     IApprovalRequestRepository approvalRequestRepository,
+    ITenantRepository tenantRepository,
     IUserFileRepository userFileRepository,
     IUnitOfWork unitOfWork,
     IApprovalRequestApproverGlobalIdResolver approverGlobalIdResolver,
@@ -23,6 +24,7 @@ public class ApprovalRequestService(
     protected readonly IApprovalWorkflowService _workflowService = workflowService;
 
     private readonly IUserFileRepository _userFileRepository = userFileRepository;
+    private readonly ITenantRepository _tenantRepository = tenantRepository;
     private readonly IApprovalRequestApproverGlobalIdResolver _approverGlobalIdResolver = approverGlobalIdResolver;
     private readonly ITenantContext _tenantContext = tenantContext;
     private readonly IConfiguration _configuration = configuration;
@@ -57,6 +59,8 @@ public class ApprovalRequestService(
 
         var now = DateTime.UtcNow;
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        var tenant = await _tenantRepository.GetAsync(tenantId, cancellationToken)
+            ?? throw new NotFoundException("Tenant was not found.");
         var actor = await _workflowService.ResolveActorAsync(user, tenantId, cancellationToken);
         var steps = BuildSteps(payload.Steps);
         ApplyStepVisibility(steps, payload.StepVisibility);
@@ -74,7 +78,8 @@ public class ApprovalRequestService(
             CreatedByUser = user,
             CreatedByEmployeeId = actor.EmployeeId,
             CreatedByEmail = user.NormalizedEmail!,
-            CreatedByDisplayName = actor.DisplayName
+            CreatedByDisplayName = actor.DisplayName,
+            CreatedByOrganizationDisplayName = tenant.BusinessName
         }, cancellationToken);
         foreach (var requestFile in newApprovalRequest.RequestFiles)
         {

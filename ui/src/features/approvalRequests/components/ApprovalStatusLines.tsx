@@ -67,6 +67,15 @@ const approvalStatusLineLabelSx = (
   pl: statusLineOffset,
 });
 
+const approvalStatusBorderSx = (
+  color: ApprovalStatusLineColor,
+): SxProps<Theme> => ({
+  borderLeft: `${statusLineWidth} solid`,
+  borderLeftColor: color === "other"
+    ? "text.disabled"
+    : ApprovalStatusLineColors[color],
+});
+
 const getApprovalStatusLineSectionSx = (
   color: ApprovalStatusLineColor,
   lineVariant?: "solid" | "dotted",
@@ -74,6 +83,13 @@ const getApprovalStatusLineSectionSx = (
 ): SxProps<Theme> => sx
   ? ([approvalStatusLineSectionSx(color, lineVariant), sx] as SxProps<Theme>)
   : approvalStatusLineSectionSx(color, lineVariant);
+
+export const getApprovalStatusBorderSx = (
+  color: ApprovalStatusLineColor,
+  sx?: SxProps<Theme>,
+): SxProps<Theme> => sx
+  ? ([sx, approvalStatusBorderSx(color)] as SxProps<Theme>)
+  : approvalStatusBorderSx(color);
 
 export const getApprovalRequestStatusLineColor = (
   status: ApprovalRequestStatus,

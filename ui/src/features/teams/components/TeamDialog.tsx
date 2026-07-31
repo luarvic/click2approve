@@ -2,6 +2,7 @@ import { stores } from "@/app/rootStore";
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import { Team, UpsertTeamRequest } from "@/features/teams/models/team";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
+import DisplayName from "@/shared/components/identity/DisplayName";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import {
@@ -119,6 +120,14 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
               label="Employees"
               helperText="Assign active employees to this team."
             />
+          )}
+          renderOption={(props, option) => (
+            <li {...props}>
+              <DisplayName
+                displayName={option.displayName}
+                email={option.email}
+              />
+            </li>
           )}
         />
       </Stack>

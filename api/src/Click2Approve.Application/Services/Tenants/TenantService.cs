@@ -1,3 +1,4 @@
+using Click2Approve.Application.Constants;
 using Click2Approve.Application.Helpers;
 using Click2Approve.Application.Persistence;
 using Click2Approve.Domain.Models;
@@ -58,7 +59,7 @@ public class TenantService(
 
     protected static string GetDefaultBusinessName(AppUser user)
     {
-        return "Personal";
+        return TenantDisplayNames.Personal;
     }
 
     private async Task ClaimEmailTasksAsync(AppUser user, long personalTenantId, CancellationToken cancellationToken)

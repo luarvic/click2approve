@@ -3,6 +3,7 @@ import {
   ApprovalStepApprover,
 } from "@/features/approvalWorkflow/models/approvalStep";
 import { Employee } from "@/features/employees/models/employee";
+import DisplayName from "@/shared/components/identity/DisplayName";
 import { Dialogs } from "@/shared/constants/constants";
 import { Close } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
@@ -111,6 +112,14 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
             renderInput={(params) => (
               <TextField {...params} label="Employee" />
             )}
+            renderOption={(props, option) => (
+              <li {...props}>
+                <DisplayName
+                  displayName={option.displayName}
+                  email={option.email}
+                />
+              </li>
+            )}
             onChange={(_, value) =>
               onChange({
                 ...approver,
@@ -139,11 +148,10 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
             sx={assigneeFieldSx}
           />
         )}
-        <Tooltip title="Remove approver">
+        <Tooltip title="Remove assignee">
           <span>
             <IconButton
-              aria-label="Remove approver"
-              color="error"
+              aria-label="Remove assignee"
               disabled={removeDisabled}
               onClick={onRemove}
               sx={Dialogs.removeApproverButtonSx}

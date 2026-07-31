@@ -11,7 +11,9 @@ export interface ApprovalRequestTask extends ApprovalRequestTaskListItem {
   approverUserId?: string;
   approverEmail: string;
   approverDisplayName: string;
+  requestedByEmail: string;
   requestedByDisplayName: string;
+  createdByOrganizationDisplayName: string;
   description?: string;
   comment?: string;
   requiresIdentityVerification?: boolean;

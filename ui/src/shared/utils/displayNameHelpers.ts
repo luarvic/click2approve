@@ -3,6 +3,9 @@ import { UserProfile } from "@/shared/models/userProfile";
 export const normalizeEmailForDisplay = (email?: string): string =>
   email?.trim().toLowerCase() ?? "";
 
+export const stripInlineEmail = (displayName?: string | null): string =>
+  displayName?.replace(/\s+\([^()\s]+@[^()\s]+\)\s*$/, "").trim() ?? "";
+
 export const getUserProfileName = (
   profile: UserProfile | null,
   fallback = "User",

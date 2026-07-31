@@ -11,6 +11,8 @@ public class ApprovalRequestTaskListItemDto
     public required string Title { get; init; }
     public ApprovalRequestTaskStatus Status { get; init; }
     public DateTime CreatedAt { get; init; }
+    public required string RequestedByEmail { get; init; }
     public required string RequestedByDisplayName { get; init; }
+    public required string CreatedByOrganizationDisplayName { get; init; }
     public int RevisionNumber { get; init; }
 }

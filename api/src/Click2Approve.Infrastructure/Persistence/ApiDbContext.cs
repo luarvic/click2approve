@@ -91,6 +91,10 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequest>()
+            .Property(r => r.CreatedByOrganizationDisplayName)
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<ApprovalRequest>()
             .HasIndex(r => new { r.TenantId, r.CreatedByUserId, r.CreatedAt });
 
         modelBuilder.Entity<ApprovalRequest>()

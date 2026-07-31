@@ -19,7 +19,6 @@ const ApprovalRequestDetails: React.FC<ApprovalRequestDetailsProps> = ({
         approvalRequest={approvalRequest}
         leadingItem={<ApprovalRequestSummaryBlock approvalRequest={approvalRequest} />}
         showVisibleStepVisibility={showVisibleStepVisibility}
-        showDividers
       />
     )}
   </Stack>

@@ -15,7 +15,9 @@ internal static class ApprovalRequestMapper
         Title = approvalRequest.Title,
         Status = approvalRequest.Status,
         CreatedAt = approvalRequest.CreatedAt,
+        CreatedByEmail = approvalRequest.CreatedByEmail,
         CreatedByDisplayName = approvalRequest.CreatedByDisplayName,
+        CreatedByOrganizationDisplayName = approvalRequest.CreatedByOrganizationDisplayName,
         RevisionNumber = approvalRequest.RevisionNumber
     };
 
@@ -25,7 +27,9 @@ internal static class ApprovalRequestMapper
         Title = task.Title,
         Status = task.Status,
         CreatedAt = task.CreatedAt,
+        RequestedByEmail = task.ApprovalRequest.CreatedByEmail,
         RequestedByDisplayName = task.ApprovalRequest.CreatedByDisplayName,
+        CreatedByOrganizationDisplayName = task.ApprovalRequest.CreatedByOrganizationDisplayName,
         RevisionNumber = GetTaskRevisionNumber(task)
     };
 
@@ -50,6 +54,8 @@ internal static class ApprovalRequestMapper
                 step,
                 approvalRequest.GlobalId,
                 approvalRequest.CreatedByDisplayName,
+                approvalRequest.CreatedByEmail,
+                approvalRequest.CreatedByOrganizationDisplayName,
                 approverGlobalIdsById,
                 approverGlobalIdMaps))],
             Description = approvalRequest.Description,
@@ -57,6 +63,7 @@ internal static class ApprovalRequestMapper
             CreatedByUserId = approvalRequest.CreatedByUserId,
             CreatedByEmail = approvalRequest.CreatedByEmail,
             CreatedByDisplayName = approvalRequest.CreatedByDisplayName,
+            CreatedByOrganizationDisplayName = approvalRequest.CreatedByOrganizationDisplayName,
             Status = approvalRequest.Status,
             RevisionNumber = approvalRequest.RevisionNumber,
             PreviousRevisionApprovalRequestGlobalId = approvalRequest.PreviousRevisionApprovalRequest?.GlobalId,
@@ -105,6 +112,8 @@ internal static class ApprovalRequestMapper
                 step,
                 approvalRequest.GlobalId,
                 approvalRequest.CreatedByDisplayName,
+                approvalRequest.CreatedByEmail,
+                approvalRequest.CreatedByOrganizationDisplayName,
                 approvalRequestStepApproverId,
                 approverGlobalIdsById,
                 approverGlobalIdMaps))],
@@ -113,6 +122,7 @@ internal static class ApprovalRequestMapper
             CreatedByUserId = approvalRequest.CreatedByUserId,
             CreatedByEmail = approvalRequest.CreatedByEmail,
             CreatedByDisplayName = approvalRequest.CreatedByDisplayName,
+            CreatedByOrganizationDisplayName = approvalRequest.CreatedByOrganizationDisplayName,
             Status = approvalRequest.Status,
             RevisionNumber = approvalRequest.RevisionNumber,
             PreviousRevisionApprovalRequestGlobalId = approvalRequest.PreviousRevisionApprovalRequest?.GlobalId,
@@ -128,6 +138,8 @@ internal static class ApprovalRequestMapper
         ApprovalRequestStep step,
         Guid approvalRequestGlobalId,
         string createdByDisplayName,
+        string createdByEmail,
+        string createdByOrganizationDisplayName,
         IReadOnlyDictionary<long, Guid>? approverGlobalIdsById = null,
         ApprovalRequestApproverGlobalIdMaps? approverGlobalIdMaps = null,
         bool includeVisibility = true)
@@ -142,6 +154,8 @@ internal static class ApprovalRequestMapper
             Tasks = [.. step.Tasks.Select(task => MapTask(
                 task,
                 createdByDisplayName,
+                createdByEmail,
+                createdByOrganizationDisplayName,
                 approvalRequestGlobalId,
                 step.GlobalId,
                 approverGlobalIdsById is not null
@@ -173,6 +187,8 @@ internal static class ApprovalRequestMapper
         ApprovalRequestStep step,
         Guid approvalRequestGlobalId,
         string createdByDisplayName,
+        string createdByEmail,
+        string createdByOrganizationDisplayName,
         long? approvalRequestStepApproverId,
         IReadOnlyDictionary<long, Guid> approverGlobalIdsById,
         ApprovalRequestApproverGlobalIdMaps approverGlobalIdMaps)
@@ -190,6 +206,8 @@ internal static class ApprovalRequestMapper
             step,
             approvalRequestGlobalId,
             createdByDisplayName,
+            createdByEmail,
+            createdByOrganizationDisplayName,
             approverGlobalIdsById,
             approverGlobalIdMaps,
             includeVisibility: false);
@@ -211,6 +229,8 @@ internal static class ApprovalRequestMapper
     private static ApprovalRequestTaskDto MapTask(
         ApprovalRequestTask task,
         string? createdByDisplayName = null,
+        string? createdByEmail = null,
+        string? createdByOrganizationDisplayName = null,
         Guid? approvalRequestGlobalId = null,
         Guid? approvalRequestStepGlobalId = null,
         Guid? approvalRequestStepApproverGlobalId = null)
@@ -225,7 +245,9 @@ internal static class ApprovalRequestMapper
             ApproverUserId = task.ApproverUserId,
             ApproverEmail = task.ApproverEmail,
             ApproverDisplayName = task.ApproverDisplayName,
+            RequestedByEmail = createdByEmail ?? task.ApprovalRequest.CreatedByEmail,
             RequestedByDisplayName = createdByDisplayName ?? task.ApprovalRequest.CreatedByDisplayName,
+            CreatedByOrganizationDisplayName = createdByOrganizationDisplayName ?? task.ApprovalRequest.CreatedByOrganizationDisplayName,
             RevisionNumber = GetTaskRevisionNumber(task),
             Status = task.Status,
             CreatedAt = task.CreatedAt,

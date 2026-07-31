@@ -5,6 +5,7 @@ import {
 } from "@/features/delegations/models/approvalDelegation";
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
+import DisplayName from "@/shared/components/identity/DisplayName";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import {
@@ -136,7 +137,10 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           <MenuItem value={employeeSelectionDefault}>Select employee</MenuItem>
           {selectableEmployees.map((employee) => (
             <MenuItem key={employee.globalId} value={employee.globalId}>
-              {employee.displayName}
+              <DisplayName
+                displayName={employee.displayName}
+                email={employee.email}
+              />
             </MenuItem>
           ))}
         </TextField>
@@ -155,7 +159,10 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           <MenuItem value={employeeSelectionDefault}>Select delegate</MenuItem>
           {selectableEmployees.map((employee) => (
             <MenuItem key={employee.globalId} value={employee.globalId}>
-              {employee.displayName}
+              <DisplayName
+                displayName={employee.displayName}
+                email={employee.email}
+              />
             </MenuItem>
           ))}
         </TextField>

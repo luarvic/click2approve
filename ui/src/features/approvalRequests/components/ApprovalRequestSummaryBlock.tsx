@@ -1,23 +1,25 @@
+import { stores } from "@/app/rootStore";
 import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
 import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
 import type { ApprovalRequestTimestampType } from "@/features/approvalRequests/components/ApprovalRequestTimestamp";
 import ApprovalRequestTimestampRow from "@/features/approvalRequests/components/ApprovalRequestTimestampRow";
-import { ApprovalRequestStatusLineSection } from "@/features/approvalRequests/components/ApprovalStatusLines";
+import {
+  getApprovalRequestStatusLabel,
+  getApprovalRequestStatusLineColor,
+  getApprovalStatusBorderSx,
+} from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequestLogEventType } from "@/features/approvalRequests/models/approvalRequestLogEntry";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
-import { StackSpacing } from "@/shared/constants/constants";
-import type { SxProps } from "@mui/material";
-import { Stack } from "@mui/material";
-import type { Theme } from "@mui/material/styles";
+import { TenantType } from "@/features/tenants/models/tenant";
+import DisplayName from "@/shared/components/identity/DisplayName";
+import { Dialogs, StackSpacing } from "@/shared/constants/constants";
+import { stripInlineEmail } from "@/shared/utils/displayNameHelpers";
+import { Box, Stack } from "@mui/material";
 
 interface ApprovalRequestSummaryBlockProps {
   approvalRequest: ApprovalRequest;
 }
-
-const requestSummarySx: SxProps<Theme> = {
-  minWidth: 0,
-};
 
 const finalRequestStatuses = new Set<ApprovalRequestStatus>([
   ApprovalRequestStatus.Approved,
@@ -88,11 +90,20 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
   approvalRequest,
 }) => {
   const finalStatusChange = getFinalStatusChange(approvalRequest);
+  const organizationIsVisible =
+    stores.tenantStore.currentTenant?.type === TenantType.Personal;
+  const createdByName = stripInlineEmail(approvalRequest.createdByDisplayName);
+  const createdByDisplayName = organizationIsVisible
+    ? `${createdByName} · ${approvalRequest.createdByOrganizationDisplayName}`
+    : createdByName;
 
   return (
-    <ApprovalRequestStatusLineSection
-      status={approvalRequest.status}
-      sx={requestSummarySx}
+    <Box
+      aria-label={getApprovalRequestStatusLabel(approvalRequest.status)}
+      sx={getApprovalStatusBorderSx(
+        getApprovalRequestStatusLineColor(approvalRequest.status),
+        Dialogs.approvalBoxSx,
+      )}
     >
       <Stack spacing={StackSpacing.default}>
         <ApprovalRequestSummary
@@ -103,7 +114,14 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
           revisionNumber={approvalRequest.revisionNumber}
           compareFilesWithPrevious={(approvalRequest.revisionNumber ?? 1) > 1}
         />
-        <ApprovalRequestParticipantLine label={approvalRequest.createdByDisplayName} />
+        <ApprovalRequestParticipantLine
+          label={(
+            <DisplayName
+              displayName={createdByDisplayName}
+              email={approvalRequest.createdByEmail}
+            />
+          )}
+        />
         <ApprovalRequestTimestampRow
           items={[
             {
@@ -121,7 +139,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
           ]}
         />
       </Stack>
-    </ApprovalRequestStatusLineSection>
+    </Box>
   );
 };
 

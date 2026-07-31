@@ -6,6 +6,8 @@ export interface ApprovalRequestListItem {
   status: ApprovalRequestStatus;
   createdAt: string;
   createdAtDate: Date;
+  createdByEmail: string;
   createdByDisplayName: string;
+  createdByOrganizationDisplayName: string;
   revisionNumber: number;
 }

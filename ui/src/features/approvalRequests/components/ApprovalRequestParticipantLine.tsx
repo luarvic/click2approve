@@ -41,9 +41,11 @@ const ApprovalRequestParticipantLine: React.FC<ApprovalRequestParticipantLinePro
     sx={sx}
   >
     {icon ?? getApprovalRecipientIcon(type)}
-    <Typography variant="body1">
-      {label}
-    </Typography>
+    {typeof label === "string" || typeof label === "number" ? (
+      <Typography variant="body1">
+        {label}
+      </Typography>
+    ) : label}
   </Stack>
 );
 

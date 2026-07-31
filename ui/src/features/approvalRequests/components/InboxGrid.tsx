@@ -6,12 +6,21 @@ import {
 import ApprovalRequestNumberText, { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
 import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
+import { TenantType } from "@/features/tenants/models/tenant";
+import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes, StackSpacing } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { getHumanReadableRelativeDate } from "@/shared/utils/helpers";
-import { Box, LinearProgress, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  LinearProgress,
+  Stack,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { DataGrid, GridColDef, GridSlots } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
@@ -22,11 +31,19 @@ interface InboxGridProps {
 
 const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const createdColumnIsVisible = useMediaQuery(theme.breakpoints.up("md"));
+  const requestedByColumnIsVisible = useMediaQuery(theme.breakpoints.up("sm"));
+  const numberColumnIsVisible = useMediaQuery(
+    theme.breakpoints.up(DataGrids.approvalNumberColumnMinDisplayWidth),
+  );
   const tenantScopeIsReady =
     !stores.productStore.tenantsAreEnabled ||
     (stores.tenantStore.hasLoaded &&
       stores.tenantStore.currentTenantGlobalId !== null);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const organizationColumnIsVisible =
+    stores.tenantStore.currentTenant?.type === TenantType.Personal;
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     stores.approvalRequestTaskStore.tasks,
     currentTaskGlobalId,
@@ -79,7 +96,16 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
       field: "requestedByDisplayName",
       headerName: "Requested by",
       flex: DataGrids.approvalColumnFlex.metadata,
+      renderCell: (params) => (
+        <OneLineDisplayName displayName={params.row.requestedByDisplayName} />
+      ),
       valueGetter: (_value, row) => row.requestedByDisplayName,
+    },
+    {
+      field: "createdByOrganizationDisplayName",
+      headerName: "Organization",
+      flex: DataGrids.approvalColumnFlex.metadata,
+      valueGetter: (_value, row) => row.createdByOrganizationDisplayName,
     },
     {
       field: "createdAtDate",
@@ -101,6 +127,12 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
           const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
           const path = `/inbox/${(params.row as ApprovalRequestTaskListItem).globalId}`;
           navigate(tenantGlobalId ? Routes.tenantPath(tenantGlobalId, path) : "/");
+        }}
+        columnVisibilityModel={{
+          globalId: numberColumnIsVisible,
+          requestedByDisplayName: requestedByColumnIsVisible,
+          createdByOrganizationDisplayName: organizationColumnIsVisible,
+          createdAtDate: createdColumnIsVisible,
         }}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}

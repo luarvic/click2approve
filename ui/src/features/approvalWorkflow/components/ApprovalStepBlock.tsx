@@ -7,7 +7,7 @@ import type { ApprovalRequestTimestampType } from "@/features/approvalRequests/c
 import ApprovalRequestTimestampRow from "@/features/approvalRequests/components/ApprovalRequestTimestampRow";
 import {
   ApprovalStatusLineColor,
-  ApprovalStatusLineSection,
+  getApprovalStatusBorderSx,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequestTaskLogEventType } from "@/features/approvalRequests/models/approvalRequestLogEntry";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
@@ -18,6 +18,7 @@ import {
   ApprovalStepApprover,
   ApprovalStepMode,
 } from "@/features/approvalWorkflow/models/approvalStep";
+import DisplayName from "@/shared/components/identity/DisplayName";
 import {
   Dialogs,
   Flex,
@@ -51,18 +52,10 @@ import ApprovalStepVisibilitySummary from "./ApprovalStepVisibilitySummary";
 interface ApprovalStepBlockProps {
   contentSx?: SxProps<Theme>;
   headerAccessory?: ReactNode;
-  lineVariant?: "solid" | "dotted";
   showVisibility?: boolean;
-  statusColor?: ApprovalStatusLineColor;
-  statusLabel?: string;
   step: ApprovalStep;
   tasks: ApprovalRequestTask[];
 }
-
-const approvalStepBlockSx: SxProps<Theme> = {
-  px: Dialogs.stepStackSpacing,
-  py: 0,
-};
 
 const approvalStepHeaderSx = { mb: Dialogs.stepHeaderSpacing };
 const stepTitleRowSx: SxProps<Theme> = {
@@ -184,7 +177,7 @@ const getTaskCompletionTimestampType = (
   }
 };
 
-const getStepStatusLineColor = (status: string): ApprovalStatusLineColor => {
+const getStepStatusBorderColor = (status: string): ApprovalStatusLineColor => {
   switch (status) {
     case "Approved":
       return "approved";
@@ -207,14 +200,19 @@ const getStepStatusLabel = (status: string) => {
   }
 };
 
-const getApproverLabel = (approver: ApprovalStep["approvers"][number]) =>
-  approver.displayName;
+const getApproverLabel = (approver: ApprovalStep["approvers"][number]) => (
+  <DisplayName
+    displayName={approver.displayName}
+    email={approver.email}
+  />
+);
 
-const getTaskApproverLabel = (task: ApprovalRequestTask) =>
-  task.approverDisplayName;
-
-const getTeamTaskApproverLabel = (task: ApprovalRequestTask) =>
-  task.approverDisplayName;
+const getTaskApproverLabel = (task: ApprovalRequestTask) => (
+  <DisplayName
+    displayName={task.approverDisplayName}
+    email={task.approverEmail}
+  />
+);
 
 const getTaskApproverIcon = (step: ApprovalStep, task: ApprovalRequestTask) => {
   const approver = step.approvers.find((item) => item.globalId === task.approvalRequestStepApproverGlobalId);
@@ -265,7 +263,7 @@ const getUnassignedTasks = (
 
 const renderTaskDetails = (
   task: ApprovalRequestTask,
-  label: string,
+  label: ReactNode,
   icon: React.ReactNode,
 ) => {
   const completedAt = getTaskCompletionDate(task);
@@ -362,7 +360,7 @@ const renderTeamApprover = (
           {approverTasks.map((task) =>
             renderTaskDetails(
               task,
-              getTeamTaskApproverLabel(task),
+              getTaskApproverLabel(task),
               <Person color="action" fontSize="small" />,
             ),
           )}
@@ -403,25 +401,23 @@ const renderApprover = (
 const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
   contentSx,
   headerAccessory,
-  lineVariant,
   showVisibility = true,
-  statusColor,
-  statusLabel,
   step,
   tasks,
 }) => {
   const [modeAnchor, setModeAnchor] = useState<HTMLElement | null>(null);
   const approvers = (step.approvers ?? []).filter(Boolean);
-  const stepStatus = getStepStatus(step, tasks);
   const unassignedTasks = getUnassignedTasks(step, tasks);
+  const stepStatus = getStepStatus(step, tasks);
   const stepMode = step.mode ?? ApprovalStepMode.Any;
 
   return (
-    <ApprovalStatusLineSection
-      color={statusColor ?? getStepStatusLineColor(stepStatus)}
-      label={statusLabel ?? getStepStatusLabel(stepStatus)}
-      lineVariant={lineVariant}
-      sx={approvalStepBlockSx}
+    <Box
+      aria-label={getStepStatusLabel(stepStatus)}
+      sx={getApprovalStatusBorderSx(
+        getStepStatusBorderColor(stepStatus),
+        Dialogs.approvalBoxSx,
+      )}
     >
       <Stack spacing={Dialogs.stepStackSpacing}>
         <Stack
@@ -481,7 +477,7 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
           )}
         </Stack>
       </Stack>
-    </ApprovalStatusLineSection>
+    </Box>
   );
 };
 

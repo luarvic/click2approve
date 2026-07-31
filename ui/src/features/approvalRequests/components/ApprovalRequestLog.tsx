@@ -1,3 +1,4 @@
+import { stores } from "@/app/rootStore";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import {
   ApprovalLogActorType,
@@ -8,7 +9,9 @@ import {
 } from "@/features/approvalRequests/models/approvalRequestLogEntry";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
+import { TenantType } from "@/features/tenants/models/tenant";
 import { Dialogs, StackSpacing } from "@/shared/constants/constants";
+import { normalizeEmailForDisplay } from "@/shared/utils/displayNameHelpers";
 import { getLocaleDateTimeString } from "@/shared/utils/helpers";
 import { Box, Stack } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
@@ -19,11 +22,14 @@ interface ApprovalRequestLogProps {
 
 interface DisplayLogEntry {
   actor: string;
+  actorEmail: string;
   actorType: string;
   details: string;
   event: string;
   id: string;
   onBehalfOf?: string;
+  onBehalfOfEmail?: string;
+  organization: string;
   timestamp: Date;
 }
 
@@ -164,22 +170,33 @@ const formatTaskDetails = (entry: ApprovalRequestTaskLogEntry) => {
   ].filter(Boolean).join("\n");
 };
 
-const mapRequestEntry = (entry: ApprovalRequestLogEntry): DisplayLogEntry => ({
+const mapRequestEntry = (
+  entry: ApprovalRequestLogEntry,
+  organization: string,
+): DisplayLogEntry => ({
   actor: entry.actorDisplayName,
+  actorEmail: entry.actorEmail,
   actorType: getActorTypeLabel(entry.actorType),
   details: formatRequestDetails(entry),
   event: getRequestEventLabel(entry.eventType),
   id: `request-${entry.globalId}`,
+  organization,
   timestamp: entry.timestampDate,
 });
 
-const mapTaskEntry = (entry: ApprovalRequestTaskLogEntry): DisplayLogEntry => ({
+const mapTaskEntry = (
+  entry: ApprovalRequestTaskLogEntry,
+  organization: string,
+): DisplayLogEntry => ({
   actor: entry.actorDisplayName,
+  actorEmail: entry.actorEmail,
   actorType: getActorTypeLabel(entry.actorType),
   details: formatTaskDetails(entry),
   event: getTaskEventLabel(entry.eventType),
   id: `task-${entry.globalId}`,
   onBehalfOf: entry.onBehalfOfDisplayName,
+  onBehalfOfEmail: entry.onBehalfOfEmail,
+  organization,
   timestamp: entry.timestampDate,
 });
 
@@ -207,17 +224,36 @@ const getLogEntries = (approvalRequest: ApprovalRequest): DisplayLogEntry[] => {
     : (approvalRequest.taskLogEntries ?? []);
 
   return [
-    ...(approvalRequest.logEntries ?? []).map(mapRequestEntry),
-    ...taskLogEntries.map(mapTaskEntry),
+    ...(approvalRequest.logEntries ?? []).map((entry) =>
+      mapRequestEntry(entry, approvalRequest.createdByOrganizationDisplayName),
+    ),
+    ...taskLogEntries.map((entry) =>
+      mapTaskEntry(entry, approvalRequest.createdByOrganizationDisplayName),
+    ),
   ].sort((left, right) => left.timestamp.getTime() - right.timestamp.getTime());
 };
 
-const getRecordRows = (entry: DisplayLogEntry) => [
+const trimInlineEmail = (displayName: string) =>
+  displayName.replace(/\s+\([^()\s]+@[^()\s]+\)\s*$/, "").trim();
+
+const formatLogDisplayName = (displayName?: string | null, email?: string | null) => {
+  const normalizedEmail = normalizeEmailForDisplay(email ?? undefined);
+  const primary = trimInlineEmail(displayName?.trim() || normalizedEmail);
+  return normalizedEmail && normalizeEmailForDisplay(primary) !== normalizedEmail
+    ? `${primary} (${normalizedEmail})`
+    : primary;
+};
+
+const getRecordRows = (entry: DisplayLogEntry, organizationIsVisible: boolean) => [
   { label: "Timestamp", value: getLocaleDateTimeString(entry.timestamp) },
   { label: "Event", value: entry.event },
   { label: "Actor type", value: entry.actorType },
-  { label: "Actor", value: entry.actor },
-  entry.onBehalfOf ? { label: "On behalf of", value: entry.onBehalfOf } : null,
+  { label: "Actor", value: formatLogDisplayName(entry.actor, entry.actorEmail) },
+  entry.onBehalfOf ? {
+    label: "On behalf of",
+    value: formatLogDisplayName(entry.onBehalfOf, entry.onBehalfOfEmail),
+  } : null,
+  organizationIsVisible ? { label: "Organization", value: entry.organization } : null,
   { label: "Details", value: entry.details },
 ].filter(Boolean) as { label: string; value: string }[];
 
@@ -227,12 +263,14 @@ const ApprovalRequestLog: React.FC<ApprovalRequestLogProps> = ({ approvalRequest
   }
 
   const entries = getLogEntries(approvalRequest);
+  const organizationIsVisible =
+    stores.tenantStore.currentTenant?.type === TenantType.Personal;
 
   return (
     <Stack spacing={Dialogs.formStackSpacing} sx={approvalRequestLogRecordsSx}>
       {entries.map((entry) => (
         <Box key={entry.id} sx={approvalRequestLogRecordSx}>
-          {getRecordRows(entry).map((row) => (
+          {getRecordRows(entry, organizationIsVisible).map((row) => (
             <Stack key={row.label} direction="row" spacing={StackSpacing.default}>
               <Box component="span" sx={approvalRequestLogRecordLabelSx}>
                 {row.label}
