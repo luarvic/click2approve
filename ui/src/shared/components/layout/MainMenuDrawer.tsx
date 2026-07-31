@@ -2,18 +2,19 @@ import { stores } from "@/app/rootStore";
 import { EmployeeRole, TenantType } from "@/features/tenants/models/tenant";
 import { Api, Lists, Refresh, Routes, Shell } from "@/shared/constants/constants";
 import {
-  Add,
-  Business,
-  ChevronLeft,
-  Description,
-  Diversity3,
-  Groups,
-  HelpOutline,
-  Inbox,
-  Outbox,
-  Person,
+  AddTwoTone,
+  BusinessTwoTone,
+  ChevronLeftTwoTone,
+  DescriptionTwoTone,
+  Diversity3TwoTone,
+  GroupsTwoTone,
+  HelpOutlineTwoTone,
+  InboxTwoTone,
+  OutboxTwoTone,
+  PersonTwoTone,
 } from "@mui/icons-material";
 import {
+  Badge,
   Box,
   Button,
   Divider,
@@ -30,9 +31,19 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import type { SxProps, Theme } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+
+const inboxTextBadgeSx: SxProps<Theme> = {
+  display: "inline-flex",
+  "& .MuiBadge-badge": {
+    right: 0,
+    top: 0,
+    transform: "translate(100%, -50%)",
+  },
+};
 
 const MainMenuDrawer = () => {
   const location = useLocation();
@@ -131,7 +142,7 @@ const MainMenuDrawer = () => {
           aria-label="Collapse menu"
           onClick={() => stores.commonStore.setMainMenuDrawerIsOpen(false)}
         >
-          <ChevronLeft />
+          <ChevronLeftTwoTone />
         </IconButton>
       </Toolbar>
       <Divider />
@@ -145,7 +156,7 @@ const MainMenuDrawer = () => {
                 aria-label="Compose approval request"
                 color="primary"
                 size="small"
-                startIcon={<Add />}
+                startIcon={<AddTwoTone />}
                 onClick={() => {
                   navigate(`${outboxPath}/new`);
                   closeTemporaryDrawer();
@@ -166,17 +177,22 @@ const MainMenuDrawer = () => {
             }}
           >
             <ListItemIcon sx={Lists.itemIconSx}>
-              <Inbox />
+              <InboxTwoTone />
             </ListItemIcon>
             <ListItemText
-              primary={
+              primary={(
                 numberOfUncompletedTasks > 0
-                  ? `Inbox (${numberOfUncompletedTasks})`
+                  ? (
+                    <Badge
+                      badgeContent={numberOfUncompletedTasks}
+                      color="error"
+                      sx={inboxTextBadgeSx}
+                    >
+                      <span>Inbox</span>
+                    </Badge>
+                  )
                   : "Inbox"
-              }
-              primaryTypographyProps={{
-                fontWeight: numberOfUncompletedTasks > 0 ? "bold" : undefined,
-              }}
+              )}
             />
           </ListItemButton>
         </ListItem>
@@ -189,7 +205,7 @@ const MainMenuDrawer = () => {
             }}
           >
             <ListItemIcon sx={Lists.itemIconSx}>
-              <Outbox />
+              <OutboxTwoTone />
             </ListItemIcon>
             <ListItemText primary="Outbox" />
           </ListItemButton>
@@ -204,7 +220,7 @@ const MainMenuDrawer = () => {
               }}
             >
               <ListItemIcon sx={Lists.itemIconSx}>
-                <Description />
+                <DescriptionTwoTone />
               </ListItemIcon>
               <ListItemText primary="Templates" />
             </ListItemButton>
@@ -228,7 +244,7 @@ const MainMenuDrawer = () => {
               }}
             >
               <ListItemIcon sx={Lists.itemIconSx}>
-                <Business />
+                <BusinessTwoTone />
               </ListItemIcon>
               <ListItemText primary="Organizations" />
             </ListItemButton>
@@ -244,7 +260,7 @@ const MainMenuDrawer = () => {
               }}
             >
               <ListItemIcon sx={Lists.itemIconSx}>
-                <Groups />
+                <GroupsTwoTone />
               </ListItemIcon>
               <ListItemText primary="Teams" />
             </ListItemButton>
@@ -260,7 +276,7 @@ const MainMenuDrawer = () => {
               }}
             >
               <ListItemIcon sx={Lists.itemIconSx}>
-                <Person />
+                <PersonTwoTone />
               </ListItemIcon>
               <ListItemText primary="Employees" />
             </ListItemButton>
@@ -276,7 +292,7 @@ const MainMenuDrawer = () => {
               }}
             >
               <ListItemIcon sx={Lists.itemIconSx}>
-                <Diversity3 />
+                <Diversity3TwoTone />
               </ListItemIcon>
               <ListItemText primary="Delegations" />
             </ListItemButton>
@@ -297,7 +313,7 @@ const MainMenuDrawer = () => {
             onClick={closeTemporaryDrawer}
           >
             <ListItemIcon sx={Lists.itemIconSx}>
-              <HelpOutline />
+              <HelpOutlineTwoTone />
             </ListItemIcon>
             <ListItemText primary="Help" />
           </ListItemButton>
