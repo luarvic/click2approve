@@ -4,7 +4,8 @@ import ApprovalRequestLog from "@/features/approvalRequests/components/ApprovalR
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
-import { Replay } from "@mui/icons-material";
+import { PersistenceSuccessMessages, showPersistenceSuccessToast } from "@/shared/utils/toasts";
+import { BlockOutlined, Replay } from "@mui/icons-material";
 import {
   Button,
   Stack,
@@ -25,6 +26,11 @@ const resubmittableApprovalRequestStatuses = [
   ApprovalRequestStatus.Rejected,
 ];
 
+const cancelableApprovalRequestStatuses = [
+  ApprovalRequestStatus.Pending,
+  ApprovalRequestStatus.Started,
+];
+
 const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
   onClose,
 }) => {
@@ -33,11 +39,17 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
   const [selectedTab, setSelectedTab] = useState("request");
+  const [isCanceling, setIsCanceling] = useState(false);
   const canResubmit = Boolean(
     approvalRequest &&
     stores.productStore.approvalRequestRevisionsAreEnabled &&
     !approvalRequest.nextRevisionApprovalRequestGlobalId &&
     resubmittableApprovalRequestStatuses.includes(approvalRequest.status),
+  );
+  const canCancel = Boolean(
+    approvalRequest &&
+    tenantGlobalId &&
+    cancelableApprovalRequestStatuses.includes(approvalRequest.status),
   );
 
   useEffect(() => {
@@ -58,6 +70,21 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
         ? Routes.tenantPath(tenantGlobalId, `/outbox/${approvalRequest.globalId}/resubmit`)
         : "/",
     );
+  };
+
+  const handleCancel = async () => {
+    if (!approvalRequest || !tenantGlobalId) {
+      return;
+    }
+
+    setIsCanceling(true);
+    const isCanceled = await stores.approvalRequestStore
+      .cancel(tenantGlobalId, approvalRequest.globalId)
+      .finally(() => setIsCanceling(false));
+
+    if (isCanceled) {
+      showPersistenceSuccessToast(PersistenceSuccessMessages.approvalRequestCanceled);
+    }
   };
 
   return (
@@ -95,6 +122,17 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
         {canResubmit && (
           <Button startIcon={<Replay />} variant="outlined" onClick={handleResubmit}>
             Resubmit
+          </Button>
+        )}
+        {canCancel && (
+          <Button
+            color="warning"
+            disabled={isCanceling}
+            startIcon={<BlockOutlined />}
+            variant="outlined"
+            onClick={handleCancel}
+          >
+            Cancel
           </Button>
         )}
       </Stack>

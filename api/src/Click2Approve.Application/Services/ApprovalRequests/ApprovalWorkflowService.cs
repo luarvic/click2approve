@@ -181,6 +181,16 @@ public class ApprovalWorkflowService(
         }
     }
 
+    public void CancelPendingTasks(IEnumerable<ApprovalRequestTask> tasks, DateTime timestamp)
+    {
+        foreach (var task in tasks.Where(task => task.Status == ApprovalRequestTaskStatus.Pending))
+        {
+            var previousStatus = task.Status;
+            task.Status = ApprovalRequestTaskStatus.Canceled;
+            AddStatusLog(task, SystemActor, timestamp, previousStatus, ApprovalRequestTaskStatus.Canceled, task.Comment);
+        }
+    }
+
     public IEnumerable<ApprovalRequestTask> GetTasks(ApprovalRequest approvalRequest)
     {
         return approvalRequest.Steps.SelectMany(step => step.Tasks);

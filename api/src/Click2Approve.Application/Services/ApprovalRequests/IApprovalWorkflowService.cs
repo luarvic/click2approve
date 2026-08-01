@@ -41,6 +41,8 @@ public interface IApprovalWorkflowService
 
     void SkipPendingTasks(IEnumerable<ApprovalRequestTask> tasks, DateTime timestamp);
 
+    void CancelPendingTasks(IEnumerable<ApprovalRequestTask> tasks, DateTime timestamp);
+
     IEnumerable<ApprovalRequestTask> GetTasks(ApprovalRequest approvalRequest);
 
     Task NotifyApproversSentAsync(

@@ -31,6 +31,16 @@ export class ApprovalRequestStore {
 
   getDetail = (globalId: string): ApprovalRequest | null => this.details.get(globalId) ?? null;
 
+  cancel = async (tenantGlobalId: string, globalId: string): Promise<boolean> => {
+    const isCanceled = await approvalRequestApi.cancelApprovalRequest(tenantGlobalId, globalId);
+    if (!isCanceled) {
+      return false;
+    }
+
+    await this.loadDetails(tenantGlobalId, globalId);
+    return true;
+  };
+
   load = (tenantGlobalId: string): Promise<void> => {
     if (this.listRequest) {
       return this.listRequest;
@@ -66,6 +76,7 @@ export class ApprovalRequestStore {
         normalizeApprovalRequestDates(approvalRequest);
         runInAction(() => {
           this.details.set(approvalRequest.globalId, approvalRequest);
+          this.registry.set(approvalRequest.globalId, approvalRequest);
           if (this.currentApprovalRequest?.globalId === approvalRequest.globalId) {
             this.currentApprovalRequest = approvalRequest;
           }

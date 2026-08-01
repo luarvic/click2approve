@@ -116,9 +116,11 @@ public class ApprovalRequestService(
         var now = DateTime.UtcNow;
         var previousStatus = approvalRequest.Status;
         approvalRequest.Status = ApprovalRequestStatus.Canceled;
-        var notifiedTasks = _workflowService.GetTasks(approvalRequest).ToList();
+        var notifiedTasks = _workflowService.GetTasks(approvalRequest)
+            .Where(task => task.Status == ApprovalRequestTaskStatus.Pending)
+            .ToList();
         _workflowService.AddStatusLog(approvalRequest, now, previousStatus, ApprovalRequestStatus.Canceled);
-        _workflowService.SkipPendingTasks(notifiedTasks, now);
+        _workflowService.CancelPendingTasks(notifiedTasks, now);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         await _workflowService.NotifyApproversCancelledAsync(notifiedTasks, approvalRequest, cancellationToken);
