@@ -129,8 +129,4 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
             .LongCountAsync(cancellationToken);
     }
 
-    public virtual void Remove(ApprovalRequestTask approvalRequestTask)
-    {
-        Db.ApprovalRequestTasks.Remove(approvalRequestTask);
-    }
 }

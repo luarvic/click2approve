@@ -14,5 +14,4 @@ public interface IApprovalRequestTaskRepository
     Task<ApprovalRequest?> GetRequestForTaskAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task<ApprovalRequestTask?> GetForCompletionAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task<long> CountUncompletedAsync(AppUser user, CancellationToken cancellationToken);
-    void Remove(ApprovalRequestTask approvalRequestTask);
 }
