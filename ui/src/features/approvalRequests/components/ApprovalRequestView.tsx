@@ -2,6 +2,7 @@ import { stores } from "@/app/rootStore";
 import ApprovalRequestDetails from "@/features/approvalRequests/components/ApprovalRequestDetails";
 import ApprovalRequestLog from "@/features/approvalRequests/components/ApprovalRequestLog";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
+import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import { PersistenceSuccessMessages, showPersistenceSuccessToast } from "@/shared/utils/toasts";
@@ -39,6 +40,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
   const [selectedTab, setSelectedTab] = useState("request");
+  const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
   const canResubmit = Boolean(
     approvalRequest &&
@@ -72,9 +74,9 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
     );
   };
 
-  const handleCancel = async () => {
+  const handleCancel = async (): Promise<boolean> => {
     if (!approvalRequest || !tenantGlobalId) {
-      return;
+      return false;
     }
 
     setIsCanceling(true);
@@ -85,6 +87,8 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
     if (isCanceled) {
       showPersistenceSuccessToast(PersistenceSuccessMessages.approvalRequestCanceled);
     }
+
+    return isCanceled;
   };
 
   return (
@@ -130,12 +134,26 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
             disabled={isCanceling}
             startIcon={<BlockOutlined />}
             variant="outlined"
-            onClick={handleCancel}
+            onClick={() => setCancelDialogIsOpen(true)}
           >
             Cancel
           </Button>
         )}
       </Stack>
+      {approvalRequest && (
+        <ConfirmationDialog
+          cancelFirst
+          cancelLabel="No"
+          confirmColor="warning"
+          confirmDisabled={isCanceling}
+          confirmLabel="Yes"
+          message={`Are you sure you want to cancel ${approvalRequest.title}?`}
+          open={cancelDialogIsOpen}
+          title="Cancel request"
+          onClose={() => setCancelDialogIsOpen(false)}
+          onConfirm={handleCancel}
+        />
+      )}
     </>
   );
 };
