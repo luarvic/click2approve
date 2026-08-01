@@ -10,7 +10,9 @@ import ApprovalStepBlock from "./ApprovalStepBlock";
 
 interface ApprovalStepsProps {
   approvalRequest: ApprovalRequest;
+  highlightedTaskGlobalId?: string;
   leadingItem?: ReactNode;
+  onHighlightedTaskClick?: () => void;
   showVisibleStepVisibility?: boolean;
   showDividers?: boolean;
   sx?: SxProps<Theme>;
@@ -27,7 +29,9 @@ const getStepTasks = (
 
 const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
   approvalRequest,
+  highlightedTaskGlobalId,
   leadingItem,
+  onHighlightedTaskClick,
   showVisibleStepVisibility = true,
   showDividers = false,
   sx,
@@ -56,6 +60,8 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
         return (
           <ApprovalStepBlock
             key={step.globalId ?? step.sequence}
+            highlightedTaskGlobalId={highlightedTaskGlobalId}
+            onHighlightedTaskClick={onHighlightedTaskClick}
             showVisibility={showVisibleStepVisibility}
             step={step}
             tasks={getStepTasks(step)}

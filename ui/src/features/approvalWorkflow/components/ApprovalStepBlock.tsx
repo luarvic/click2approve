@@ -1,15 +1,7 @@
-import ApprovalRequestComment from "@/features/approvalRequests/components/ApprovalRequestComment";
-import ApprovalRequestIdentityVerificationView from "@/features/approvalRequests/components/ApprovalRequestIdentityVerificationView";
 import ApprovalRequestParticipantLine, {
   getApprovalRecipientIcon,
 } from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
-import type { ApprovalRequestTimestampType } from "@/features/approvalRequests/components/ApprovalRequestTimestamp";
-import ApprovalRequestTimestampRow from "@/features/approvalRequests/components/ApprovalRequestTimestampRow";
-import {
-  ApprovalStatusLineColor,
-  getApprovalStatusBorderSx,
-} from "@/features/approvalRequests/components/ApprovalStatusLines";
-import { ApprovalRequestTaskLogEventType } from "@/features/approvalRequests/models/approvalRequestLogEntry";
+import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestTaskSummaryBlock";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import {
@@ -52,6 +44,8 @@ import ApprovalStepVisibilitySummary from "./ApprovalStepVisibilitySummary";
 interface ApprovalStepBlockProps {
   contentSx?: SxProps<Theme>;
   headerAccessory?: ReactNode;
+  highlightedTaskGlobalId?: string;
+  onHighlightedTaskClick?: () => void;
   showVisibility?: boolean;
   step: ApprovalStep;
   tasks: ApprovalRequestTask[];
@@ -93,7 +87,7 @@ const teamAccordionDetailsSx = {
 };
 
 const teamTaskListSx: SxProps<Theme> = {
-  pl: 3,
+  pl: 0,
 };
 
 const identityVerificationIconSx: SxProps<Theme> = {
@@ -143,54 +137,6 @@ const getStepStatus = (
   return "Pending";
 };
 
-const getTaskCompletionLabel = (
-  task: ApprovalRequestTask,
-) => {
-  switch (task.status) {
-    case ApprovalRequestTaskStatus.Approved:
-      return "Approved at";
-    case ApprovalRequestTaskStatus.Rejected:
-      return "Rejected at";
-    case ApprovalRequestTaskStatus.Skipped:
-      return "Skipped at";
-    case ApprovalRequestTaskStatus.Canceled:
-      return "Canceled at";
-    default:
-      return "Completed at";
-  }
-};
-
-const getTaskCompletionTimestampType = (
-  task: ApprovalRequestTask,
-): ApprovalRequestTimestampType => {
-  switch (task.status) {
-    case ApprovalRequestTaskStatus.Approved:
-      return "approved";
-    case ApprovalRequestTaskStatus.Rejected:
-      return "rejected";
-    case ApprovalRequestTaskStatus.Skipped:
-      return "skipped";
-    case ApprovalRequestTaskStatus.Canceled:
-      return "canceled";
-    default:
-      return "completed";
-  }
-};
-
-const getStepStatusBorderColor = (status: string): ApprovalStatusLineColor => {
-  switch (status) {
-    case "Approved":
-      return "approved";
-    case "Rejected":
-      return "changeRequested";
-    case "Canceled":
-    case "Skipped":
-      return "canceled";
-    default:
-      return "other";
-  }
-};
-
 const getStepStatusLabel = (status: string) => {
   switch (status) {
     case "Rejected":
@@ -207,13 +153,6 @@ const getApproverLabel = (approver: ApprovalStep["approvers"][number]) => (
   />
 );
 
-const getTaskApproverLabel = (task: ApprovalRequestTask) => (
-  <DisplayName
-    displayName={task.approverDisplayName}
-    email={task.approverEmail}
-  />
-);
-
 const getTaskApproverIcon = (step: ApprovalStep, task: ApprovalRequestTask) => {
   const approver = step.approvers.find((item) => item.globalId === task.approvalRequestStepApproverGlobalId);
   return getApprovalRecipientIcon(approver?.type ?? ApprovalRecipientType.Email);
@@ -227,22 +166,6 @@ const getStepModeSummary = (mode: ApprovalStepMode) => {
       return "The first approval from any assigned approver completes this step.";
   }
 };
-
-const getTaskCompletionDate = (task: ApprovalRequestTask) => {
-  if (task.status === ApprovalRequestTaskStatus.Pending) {
-    return null;
-  }
-
-  return (task.logEntries ?? [])
-    .filter((entry) => entry.eventType === ApprovalRequestTaskLogEventType.StatusChanged)
-    .map((entry) => entry.timestampDate)
-    .filter(Boolean)
-    .sort((left, right) => right.getTime() - left.getTime())[0] ?? null;
-};
-
-const taskIdentityVerificationIsVisible = (task: ApprovalRequestTask) =>
-  task.requiresIdentityVerification === true &&
-  task.status !== ApprovalRequestTaskStatus.Pending;
 
 const getApproverTasks = (
   approver: ApprovalStep["approvers"][number],
@@ -263,50 +186,23 @@ const getUnassignedTasks = (
 
 const renderTaskDetails = (
   task: ApprovalRequestTask,
-  label: ReactNode,
   icon: React.ReactNode,
-) => {
-  const completedAt = getTaskCompletionDate(task);
-
-  return (
-    <Stack key={task.globalId} spacing={StackSpacing.default}>
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        spacing={StackSpacing.tight}
-        alignItems={{ xs: "flex-start", sm: "center" }}
-      >
-        <ApprovalRequestParticipantLine
-          icon={icon}
-          label={label}
-        />
-        {renderIdentityVerificationIcon(
-          task.requiresIdentityVerification === true &&
-          !taskIdentityVerificationIsVisible(task),
-        )}
-      </Stack>
-      <ApprovalRequestComment label="Comment" text={task.comment} />
-      {taskIdentityVerificationIsVisible(task) && (
-        <ApprovalRequestIdentityVerificationView task={task} />
-      )}
-      <ApprovalRequestTimestampRow
-        items={[
-          {
-            date: task.createdAtDate,
-            label: "Created at",
-            type: "created",
-          },
-          completedAt
-            ? {
-              date: completedAt,
-              label: getTaskCompletionLabel(task),
-              type: getTaskCompletionTimestampType(task),
-            }
-            : null,
-        ]}
-      />
-    </Stack>
-  );
-};
+  isCurrentTask: boolean,
+  onCurrentTaskClick?: () => void,
+) => (
+  <ApprovalRequestTaskSummaryBlock
+    key={task.globalId}
+    icon={icon}
+    onClick={isCurrentTask ? onCurrentTaskClick : undefined}
+    participant="approver"
+    showComment
+    showFiles={false}
+    showIdentityVerification
+    showRevision={false}
+    showTitle={false}
+    task={task}
+  />
+);
 
 const renderApproverWithoutTasks = (
   approver: ApprovalStepApprover,
@@ -330,6 +226,8 @@ const renderTeamApprover = (
   approver: ApprovalStepApprover,
   approverTasks: ApprovalRequestTask[],
   index: number,
+  highlightedTaskGlobalId?: string,
+  onHighlightedTaskClick?: () => void,
 ) => (
   <Accordion
     key={approver.globalId ?? index}
@@ -360,8 +258,9 @@ const renderTeamApprover = (
           {approverTasks.map((task) =>
             renderTaskDetails(
               task,
-              getTaskApproverLabel(task),
               <Person color="action" fontSize="small" />,
+              task.globalId === highlightedTaskGlobalId,
+              onHighlightedTaskClick,
             ),
           )}
         </Stack>
@@ -379,10 +278,18 @@ const renderApprover = (
   approver: ApprovalStepApprover,
   tasks: ApprovalRequestTask[],
   index: number,
+  highlightedTaskGlobalId?: string,
+  onHighlightedTaskClick?: () => void,
 ) => {
   const approverTasks = getApproverTasks(approver, tasks);
   if (approver.type === ApprovalRecipientType.Team) {
-    return renderTeamApprover(approver, approverTasks, index);
+    return renderTeamApprover(
+      approver,
+      approverTasks,
+      index,
+      highlightedTaskGlobalId,
+      onHighlightedTaskClick,
+    );
   }
 
   if (approverTasks.length === 0) {
@@ -392,8 +299,9 @@ const renderApprover = (
   return approverTasks.map((task) =>
     renderTaskDetails(
       task,
-      getTaskApproverLabel(task),
       getTaskApproverIcon(step, task),
+      task.globalId === highlightedTaskGlobalId,
+      onHighlightedTaskClick,
     ),
   );
 };
@@ -401,6 +309,8 @@ const renderApprover = (
 const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
   contentSx,
   headerAccessory,
+  highlightedTaskGlobalId,
+  onHighlightedTaskClick,
   showVisibility = true,
   step,
   tasks,
@@ -414,10 +324,7 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
   return (
     <Box
       aria-label={getStepStatusLabel(stepStatus)}
-      sx={getApprovalStatusBorderSx(
-        getStepStatusBorderColor(stepStatus),
-        Dialogs.approvalBoxSx,
-      )}
+      sx={Dialogs.approvalBoxSx}
     >
       <Stack spacing={Dialogs.stepStackSpacing}>
         <Stack
@@ -433,7 +340,7 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
               direction="row"
               sx={stepTitleRowSx}
             >
-              <Typography variant="subtitle2">
+              <Typography variant="subtitle1">
                 Step {step.sequence}
               </Typography>
               <Tooltip title="Completion rule">
@@ -466,13 +373,21 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
         </Stack>
         <Stack spacing={Dialogs.approverStackSpacing} sx={contentSx}>
           {approvers.map((approver, index) =>
-            renderApprover(step, approver, tasks, index),
+            renderApprover(
+              step,
+              approver,
+              tasks,
+              index,
+              highlightedTaskGlobalId,
+              onHighlightedTaskClick,
+            ),
           )}
           {unassignedTasks.map((task) =>
             renderTaskDetails(
               task,
-              getTaskApproverLabel(task),
               getTaskApproverIcon(step, task),
+              task.globalId === highlightedTaskGlobalId,
+              onHighlightedTaskClick,
             ),
           )}
         </Stack>

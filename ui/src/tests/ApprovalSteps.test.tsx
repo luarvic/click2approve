@@ -5,7 +5,7 @@ import ApprovalSteps from "@/features/approvalWorkflow/components/ApprovalSteps"
 import { ApprovalRecipientType } from "@/features/approvalWorkflow/models/approvalStep";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 const createdAt = "2026-07-29T12:00:00Z";
 const createdAtDate = new Date(createdAt);
@@ -183,5 +183,54 @@ describe("<ApprovalSteps />", () => {
     expect(screen.queryByText("Blocked Approver")).toBeNull();
     expect(screen.getByLabelText("Hidden from you")).toBeTruthy();
     expect(screen.queryByText("Hidden from you")).toBeNull();
+  });
+
+  test("shows task numbers and makes the current task row clickable", async () => {
+    const user = userEvent.setup();
+    const onHighlightedTaskClick = vi.fn();
+
+    render(
+      <ApprovalSteps
+        approvalRequest={{
+          ...approvalRequest,
+          steps: [
+            {
+              ...approvalRequest.steps[0],
+              tasks: [
+                {
+                  approvalRequestGlobalId: "request-id",
+                  approvalRequestStepApproverGlobalId: "visible-approver-id",
+                  approvalRequestStepGlobalId: "visible-step-id",
+                  approverDisplayName: "Visible Approver",
+                  approverEmail: "visible@example.com",
+                  createdAt,
+                  createdAtDate,
+                  createdByOrganizationDisplayName: "Personal",
+                  globalId: "visible-task-id",
+                  logEntries: [],
+                  requestedByDisplayName: "Requester",
+                  requestedByEmail: "requester@example.com",
+                  requestFiles: [],
+                  revisionNumber: 1,
+                  status: ApprovalRequestTaskStatus.Pending,
+                  title: "Visible task",
+                },
+              ],
+            },
+          ],
+        }}
+        highlightedTaskGlobalId="visible-task-id"
+        onHighlightedTaskClick={onHighlightedTaskClick}
+      />,
+    );
+
+    expect(screen.getByText("#visib")).toBeTruthy();
+    const currentTaskRow = screen.getByText("#visib").closest("[role='button']");
+    expect(currentTaskRow?.textContent).toContain("Visible Approver");
+    expect(screen.queryByLabelText("Current step approver")).toBeNull();
+
+    await user.click(currentTaskRow as HTMLElement);
+
+    expect(onHighlightedTaskClick).toHaveBeenCalledOnce();
   });
 });

@@ -6,18 +6,24 @@ import { Stack } from "@mui/material";
 
 interface ApprovalRequestDetailsProps {
   approvalRequest: ApprovalRequest | null;
+  highlightedTaskGlobalId?: string;
+  onHighlightedTaskClick?: () => void;
   showVisibleStepVisibility?: boolean;
 }
 
 const ApprovalRequestDetails: React.FC<ApprovalRequestDetailsProps> = ({
   approvalRequest,
+  highlightedTaskGlobalId,
+  onHighlightedTaskClick,
   showVisibleStepVisibility = true,
 }) => (
   <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
     {approvalRequest && (
       <ApprovalSteps
         approvalRequest={approvalRequest}
+        highlightedTaskGlobalId={highlightedTaskGlobalId}
         leadingItem={<ApprovalRequestSummaryBlock approvalRequest={approvalRequest} />}
+        onHighlightedTaskClick={onHighlightedTaskClick}
         showVisibleStepVisibility={showVisibleStepVisibility}
       />
     )}

@@ -1,10 +1,8 @@
 import { stores } from "@/app/rootStore";
 import { completeApprovalRequestTask } from "@/features/approvalRequests/api/approvalRequestTasksApi";
-import ApprovalRequestComment from "@/features/approvalRequests/components/ApprovalRequestComment";
 import ApprovalRequestDetails from "@/features/approvalRequests/components/ApprovalRequestDetails";
 import ApprovalRequestIdentityVerificationForm from "@/features/approvalRequests/components/ApprovalRequestIdentityVerificationForm";
 import type { IdentityVerificationErrors } from "@/features/approvalRequests/components/ApprovalRequestIdentityVerificationForm";
-import ApprovalRequestIdentityVerificationView from "@/features/approvalRequests/components/ApprovalRequestIdentityVerificationView";
 import ApprovalRequestLog from "@/features/approvalRequests/components/ApprovalRequestLog";
 import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestTaskSummaryBlock";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
@@ -194,77 +192,76 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
           spacing={Dialogs.formStackSpacing}
           sx={Dialogs.tabContentSx}
         >
-          {currentTask && <ApprovalRequestTaskSummaryBlock task={currentTask} />}
-          {isCompleted
-            ? (
-              <>
-                <ApprovalRequestComment label="Comment" text={currentTask?.comment} />
-                {currentTask && requiresIdentityVerification && (
-                  <ApprovalRequestIdentityVerificationView task={currentTask} />
-                )}
-              </>
-            )
-            : (
-              <>
-                <FormControl key="decision" error={decisionError}>
-                  <RadioGroup
-                    row
-                    name="decision"
-                    value={decision}
-                    onChange={(event) => {
-                      setDecision(event.target.value);
-                      setDecisionError(false);
-                    }}
-                  >
-                    <FormControlLabel
-                      value="approve"
-                      control={<Radio />}
-                      label="Approve"
-                    />
-                    <FormControlLabel
-                      value="reject"
-                      control={<Radio />}
-                      label="Reject"
-                    />
-                  </RadioGroup>
-                  {decisionError && (
-                    <FormHelperText sx={Dialogs.fieldHelperTextSx}>
-                      You should either approve or reject
-                    </FormHelperText>
-                  )}
-                </FormControl>
-                <TextField
-                  key="comment"
-                  id="comment"
-                  name="comment"
-                  margin="normal"
-                  fullWidth
-                  label="Comment"
-                  autoFocus
-                  multiline
-                  value={comment}
-                  onChange={(event) => setComment(event.target.value)}
-                />
-                {requiresIdentityVerification && (
-                  <ApprovalRequestIdentityVerificationForm
-                    dateOfBirth={dateOfBirth}
-                    errors={identityVerificationErrors}
-                    legalFirstName={legalFirstName}
-                    legalLastName={legalLastName}
-                    onDateOfBirthChange={setDateOfBirth}
-                    onFieldErrorClear={clearIdentityVerificationError}
-                    onLegalFirstNameChange={setLegalFirstName}
-                    onLegalLastNameChange={setLegalLastName}
-                    onSignatureChange={handleSignatureChange}
+          {currentTask && (
+            <ApprovalRequestTaskSummaryBlock
+              showComment
+              showIdentityVerification={requiresIdentityVerification}
+              task={currentTask}
+            />
+          )}
+          {!isCompleted && (
+            <>
+              <FormControl key="decision" error={decisionError}>
+                <RadioGroup
+                  row
+                  name="decision"
+                  value={decision}
+                  onChange={(event) => {
+                    setDecision(event.target.value);
+                    setDecisionError(false);
+                  }}
+                >
+                  <FormControlLabel
+                    value="approve"
+                    control={<Radio />}
+                    label="Approve"
                   />
+                  <FormControlLabel
+                    value="reject"
+                    control={<Radio />}
+                    label="Reject"
+                  />
+                </RadioGroup>
+                {decisionError && (
+                  <FormHelperText sx={Dialogs.fieldHelperTextSx}>
+                    You should either approve or reject
+                  </FormHelperText>
                 )}
-              </>
-            )}
+              </FormControl>
+              <TextField
+                key="comment"
+                id="comment"
+                name="comment"
+                margin="normal"
+                fullWidth
+                label="Comment"
+                autoFocus
+                multiline
+                value={comment}
+                onChange={(event) => setComment(event.target.value)}
+              />
+              {requiresIdentityVerification && (
+                <ApprovalRequestIdentityVerificationForm
+                  dateOfBirth={dateOfBirth}
+                  errors={identityVerificationErrors}
+                  legalFirstName={legalFirstName}
+                  legalLastName={legalLastName}
+                  onDateOfBirthChange={setDateOfBirth}
+                  onFieldErrorClear={clearIdentityVerificationError}
+                  onLegalFirstNameChange={setLegalFirstName}
+                  onLegalLastNameChange={setLegalLastName}
+                  onSignatureChange={handleSignatureChange}
+                />
+              )}
+            </>
+          )}
         </Stack>
       )}
       {selectedTab === "request" && (
         <ApprovalRequestDetails
           approvalRequest={approvalRequest}
+          highlightedTaskGlobalId={currentTask?.globalId}
+          onHighlightedTaskClick={() => setSelectedTab("task")}
           showVisibleStepVisibility={false}
         />
       )}
