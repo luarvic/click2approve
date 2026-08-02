@@ -3,6 +3,7 @@ import { Typography, TypographyProps } from "@mui/material";
 interface ApprovalRequestNumberTextProps {
   globalId?: string;
   includeHash?: boolean;
+  prefix?: string;
   variant?: TypographyProps["variant"];
 }
 
@@ -20,6 +21,7 @@ export const getApprovalRequestNumber = (
 const ApprovalRequestNumberText: React.FC<ApprovalRequestNumberTextProps> = ({
   globalId,
   includeHash = true,
+  prefix,
   variant = "body2",
 }) => {
   const number = getApprovalRequestNumber(globalId, includeHash);
@@ -33,7 +35,7 @@ const ApprovalRequestNumberText: React.FC<ApprovalRequestNumberTextProps> = ({
       component="span"
       variant={variant}
     >
-      {number}
+      {prefix ? `${prefix} ${number}` : number}
     </Typography>
   );
 };

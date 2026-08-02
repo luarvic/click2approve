@@ -224,8 +224,8 @@ describe("<ApprovalSteps />", () => {
       />,
     );
 
-    expect(screen.getByText("#visib")).toBeTruthy();
-    const currentTaskRow = screen.getByText("#visib").closest("[role='button']");
+    expect(screen.getByText("Task #visib")).toBeTruthy();
+    const currentTaskRow = screen.getByText("Task #visib").closest("[role='button']");
     expect(currentTaskRow?.textContent).toContain("Visible Approver");
     expect(screen.queryByLabelText("Current step approver")).toBeNull();
 

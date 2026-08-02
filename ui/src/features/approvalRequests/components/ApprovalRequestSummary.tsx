@@ -1,7 +1,7 @@
-import { ApprovalRequestFile } from "@/features/approvalRequests/models/approvalRequest";
 import ApprovalRequestFilesBox from "@/features/approvalRequests/components/ApprovalRequestFilesBox";
 import ApprovalRequestNumberText from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
+import { ApprovalRequestFile } from "@/features/approvalRequests/models/approvalRequest";
 import { StackSpacing } from "@/shared/constants/constants";
 import type { SxProps } from "@mui/material";
 import { Stack, Typography } from "@mui/material";
@@ -15,6 +15,7 @@ interface ApprovalRequestSummaryProps {
   requestFiles?: ApprovalRequestFile[];
   revisionNumber?: number;
   compareFilesWithPrevious?: boolean;
+  numberPrefix?: string;
   showFileStateIndicators?: boolean;
   showFiles?: boolean;
   showRevision?: boolean;
@@ -38,6 +39,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   requestFiles,
   revisionNumber,
   compareFilesWithPrevious = false,
+  numberPrefix,
   showFileStateIndicators = true,
   showFiles = true,
   showRevision = true,
@@ -63,7 +65,11 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
           </Typography>
         )}
         {showRevision && <ApprovalRequestRevisionChip revisionNumber={revisionNumber} />}
-        <ApprovalRequestNumberText globalId={numberGlobalId} variant="h6" />
+        <ApprovalRequestNumberText
+          globalId={numberGlobalId}
+          prefix={numberPrefix}
+          variant="h6"
+        />
       </Stack>
       {trimmedDescription && (
         <Typography

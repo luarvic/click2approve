@@ -33,6 +33,7 @@ interface ApprovalRequestTaskSummaryBlockProps {
   showTimeline?: boolean;
   showTitle?: boolean;
   task: ApprovalRequestTask;
+  taskNumberPrefix?: string;
 }
 
 const clickableTaskSx: SxProps<Theme> = {
@@ -120,6 +121,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   showTimeline = true,
   showTitle = true,
   task,
+  taskNumberPrefix,
 }) => {
   const completedAt = getTaskCompletionDate(task);
   const isClickable = Boolean(onClick);
@@ -159,6 +161,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
           title={task.title}
           description={task.description}
           approvalRequestTaskGlobalId={task.globalId}
+          numberPrefix={taskNumberPrefix}
           requestFiles={task.requestFiles}
           revisionNumber={task.revisionNumber}
           showFileStateIndicators={false}

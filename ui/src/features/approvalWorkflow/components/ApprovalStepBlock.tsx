@@ -201,6 +201,7 @@ const renderTaskDetails = (
     showRevision={false}
     showTitle={false}
     task={task}
+    taskNumberPrefix="Task"
   />
 );
 
