@@ -70,7 +70,7 @@ const approvalStatusLineLabelSx = (
 const approvalStatusBorderSx = (
   color: ApprovalStatusLineColor,
 ): SxProps<Theme> => ({
-  borderLeft: `${statusLineWidth} solid`,
+  borderLeft: `${statusLineWidth} ${color === "started" ? "dotted" : "solid"}`,
   borderLeftColor: color === "other"
     ? "text.disabled"
     : ApprovalStatusLineColors[color],
