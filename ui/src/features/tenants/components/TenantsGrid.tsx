@@ -104,8 +104,7 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
         loading={
           stores.commonStore.isLoading(`get_${tenantsLoaderPrefix}`) ||
           stores.commonStore.isLoading(`post_${tenantsLoaderPrefix}`) ||
-          stores.commonStore.isLoadingByPrefix(`put_${tenantsLoaderPrefix}/`) ||
-          stores.commonStore.isLoadingByPrefix(`delete_${tenantsLoaderPrefix}/`)
+          stores.commonStore.isLoadingByPrefix(`put_${tenantsLoaderPrefix}/`)
         }
       />
     </Box>

@@ -119,13 +119,3 @@ export const deleteTenantLogo = async (
     return null;
   }
 };
-
-export const deleteTenant = async (tenantGlobalId: string): Promise<boolean> => {
-  try {
-    await axios.delete(`api/v1/tenants/${tenantGlobalId}`);
-    return true;
-  } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
-    return false;
-  }
-};

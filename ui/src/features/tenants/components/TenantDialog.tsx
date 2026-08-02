@@ -1,6 +1,5 @@
 import TenantLogoPicker from "@/features/tenants/components/TenantLogoPicker";
 import { CreateTenantRequest, Tenant, UpdateTenantRequest } from "@/features/tenants/models/tenant";
-import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs } from "@/shared/constants/constants";
 import {
@@ -11,11 +10,9 @@ import {
 import { useCallback, useEffect, useState } from "react";
 
 interface TenantDialogProps {
-  canDelete: boolean;
   canEdit: boolean;
   tenant?: Tenant | null;
   onClose: (currentTenantGlobalId?: string) => void;
-  onDelete: (tenantGlobalId: string) => Promise<boolean>;
   onSubmit: (
     payload: CreateTenantRequest | UpdateTenantRequest,
     tenantGlobalId?: string,
@@ -26,10 +23,8 @@ interface TenantDialogProps {
 
 const TenantDialog: React.FC<TenantDialogProps> = ({
   tenant,
-  canDelete,
   canEdit,
   onClose,
-  onDelete,
   onSubmit,
   onLogoUpload,
   onLogoDelete,
@@ -41,7 +36,6 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoWasRemoved, setLogoWasRemoved] = useState(false);
-  const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const isNew = !tenant;
 
   const reset = useCallback(() => {
@@ -161,15 +155,6 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
         <Button variant="outlined" onClick={() => onClose(tenant?.globalId)}>
           Cancel
         </Button>
-        {!isNew && canDelete && (
-          <Button
-            color="error"
-            variant="outlined"
-            onClick={() => setDeleteDialogIsOpen(true)}
-          >
-            Delete
-          </Button>
-        )}
         {(isNew || canEdit) && (
           <Button
             variant="outlined"
@@ -180,15 +165,6 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
           </Button>
         )}
       </Stack>
-      {tenant && (
-        <DeleteConfirmationDialog
-          entityName={tenant.businessName}
-          open={deleteDialogIsOpen}
-          title="Delete organization"
-          onClose={() => setDeleteDialogIsOpen(false)}
-          onDelete={() => onDelete(tenant.globalId)}
-        />
-      )}
     </>
   );
 };

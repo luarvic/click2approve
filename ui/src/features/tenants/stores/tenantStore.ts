@@ -147,33 +147,6 @@ export class TenantStore {
     return true;
   };
 
-  delete = async (tenantGlobalId: string): Promise<boolean> => {
-    const requestVersion = this.requestVersion;
-    const deleted = await tenantApi.deleteTenant(tenantGlobalId);
-    if (!deleted || requestVersion !== this.requestVersion) {
-      return false;
-    }
-
-    let currentTenantGlobalId: string | null = null;
-    runInAction(() => {
-      this.tenants = this.tenants.filter((tenant) => tenant.globalId !== tenantGlobalId);
-      currentTenantGlobalId =
-        this.currentTenantGlobalId === tenantGlobalId
-          ? this.tenants[0]?.globalId ?? null
-          : this.currentTenantGlobalId;
-      this.currentTenantGlobalId = currentTenantGlobalId;
-      this.hasLoaded = true;
-    });
-
-    if (currentTenantGlobalId) {
-      writeCurrentTenantGlobalId(currentTenantGlobalId);
-    } else {
-      deleteCurrentTenantGlobalId();
-    }
-
-    return true;
-  };
-
   setCurrentGlobalId = (tenantGlobalId: string): void => {
     runInAction(() => {
       this.currentTenantGlobalId = tenantGlobalId;
