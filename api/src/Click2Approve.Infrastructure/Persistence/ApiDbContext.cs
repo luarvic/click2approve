@@ -65,7 +65,7 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasOne<Tenant>()
             .WithMany()
             .HasForeignKey(u => u.DefaultTenantId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Tenant>()
             .HasIndex(t => t.BusinessName);
@@ -111,7 +111,7 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasOne(r => r.Tenant)
             .WithMany(t => t.ApprovalRequests)
             .HasForeignKey(r => r.TenantId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequest>()
             .HasOne(r => r.PreviousRevisionApprovalRequest)
@@ -130,7 +130,7 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasOne(file => file.ApprovalRequest)
             .WithMany(request => request.RequestFiles)
             .HasForeignKey(file => file.ApprovalRequestId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestFile>()
             .HasOne(file => file.UserFile)
@@ -167,19 +167,19 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasOne(e => e.ApprovalRequest)
             .WithMany(r => r.LogEntries)
             .HasForeignKey(e => e.ApprovalRequestId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestLogEntry>()
             .HasOne(e => e.ActorUser)
             .WithMany()
             .HasForeignKey(e => e.ActorUserId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestLogEntry>()
             .HasOne(e => e.Tenant)
             .WithMany(t => t.ApprovalRequestLogEntries)
             .HasForeignKey(e => e.TenantId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestStep>()
             .Property(s => s.Mode)
@@ -193,7 +193,7 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasOne(s => s.ApprovalRequest)
             .WithMany(r => r.Steps)
             .HasForeignKey(s => s.ApprovalRequestId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestStepApprover>()
             .Property(a => a.Type)
@@ -215,7 +215,7 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasOne(a => a.ApprovalRequestStep)
             .WithMany(s => s.Approvers)
             .HasForeignKey(a => a.ApprovalRequestStepId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestStepVisibility>()
             .HasIndex(visibility => new { visibility.ApprovalRequestStepId, visibility.ApprovalRequestStepApproverId })
@@ -225,13 +225,13 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasOne(visibility => visibility.ApprovalRequestStep)
             .WithMany(step => step.StepVisibilities)
             .HasForeignKey(visibility => visibility.ApprovalRequestStepId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestStepVisibility>()
             .HasOne(visibility => visibility.ApprovalRequestStepApprover)
             .WithMany(approver => approver.StepVisibilities)
             .HasForeignKey(visibility => visibility.ApprovalRequestStepApproverId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestTask>()
             .Property(t => t.Status)
@@ -283,19 +283,19 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasOne(t => t.ApproverUser)
             .WithMany()
             .HasForeignKey(t => t.ApproverUserId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestTask>()
             .HasOne(t => t.ApprovalRequest)
             .WithMany()
             .HasForeignKey(t => t.ApprovalRequestId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestTask>()
             .HasOne(t => t.ApprovalRequestStep)
             .WithMany(s => s.Tasks)
             .HasForeignKey(t => t.ApprovalRequestStepId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestTask>()
             .HasOne(t => t.ApprovalRequestStepApprover)
@@ -307,7 +307,7 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasOne(t => t.Tenant)
             .WithMany(t => t.ApprovalRequestTasks)
             .HasForeignKey(t => t.TenantId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
             .Property(e => e.ActorType)
@@ -344,19 +344,19 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasOne(e => e.ApprovalRequestTask)
             .WithMany(t => t.LogEntries)
             .HasForeignKey(e => e.ApprovalRequestTaskId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
             .HasOne(e => e.ActorUser)
             .WithMany()
             .HasForeignKey(e => e.ActorUserId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
             .HasOne(e => e.Tenant)
             .WithMany(t => t.ApprovalRequestTaskLogEntries)
             .HasForeignKey(e => e.TenantId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<UserFile>()
             .HasIndex(f => new { f.TenantId, f.OwnerId });
@@ -365,13 +365,14 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasOne(f => f.Owner)
             .WithMany()
             .HasForeignKey(f => f.OwnerId)
-            .IsRequired();
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<UserFile>()
             .HasOne(f => f.Tenant)
             .WithMany(t => t.UserFiles)
             .HasForeignKey(f => f.TenantId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<UserNotificationPreference>()
             .Property(preference => preference.Type)
@@ -385,7 +386,7 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasOne(preference => preference.User)
             .WithMany(user => user.NotificationPreferences)
             .HasForeignKey(preference => preference.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<UserNotificationPreference>()
             .HasIndex(preference => new { preference.UserId, preference.Type, preference.Channel })
