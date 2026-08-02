@@ -1,4 +1,5 @@
 import { stores } from "@/app/rootStore";
+import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import {
   ApprovalLogActorType,
@@ -30,6 +31,8 @@ interface DisplayLogEntry {
   onBehalfOf?: string;
   onBehalfOfEmail?: string;
   organization: string;
+  sameTimestampOrder: number;
+  subject: string;
   timestamp: Date;
 }
 
@@ -170,8 +173,43 @@ const formatTaskDetails = (entry: ApprovalRequestTaskLogEntry) => {
   ].filter(Boolean).join("\n");
 };
 
+const formatSubject = (type: "Approval request" | "Task", globalId: string, title: string) =>
+  `${type} ${getApprovalRequestNumber(globalId)}: ${title}`;
+
+const getRequestSameTimestampOrder = (entry: ApprovalRequestLogEntry) => {
+  if (entry.eventType === ApprovalRequestLogEventType.Submitted) {
+    return 0;
+  }
+
+  const details = parseDetails(entry.details);
+  const status = details.status as ApprovalRequestStatus | undefined;
+  if (status === ApprovalRequestStatus.Canceled) {
+    return 1;
+  }
+
+  return 3;
+};
+
+const getTaskSameTimestampOrder = (entry: ApprovalRequestTaskLogEntry) => {
+  if (entry.eventType === ApprovalRequestTaskLogEventType.Submitted) {
+    return 1;
+  }
+
+  const details = parseDetails(entry.details);
+  const status = details.status as ApprovalRequestTaskStatus | undefined;
+  if (
+    status === ApprovalRequestTaskStatus.Canceled
+    || status === ApprovalRequestTaskStatus.Skipped
+  ) {
+    return 4;
+  }
+
+  return 2;
+};
+
 const mapRequestEntry = (
   entry: ApprovalRequestLogEntry,
+  approvalRequest: ApprovalRequest,
   organization: string,
 ): DisplayLogEntry => ({
   actor: entry.actorDisplayName,
@@ -181,11 +219,14 @@ const mapRequestEntry = (
   event: getRequestEventLabel(entry.eventType),
   id: `request-${entry.globalId}`,
   organization,
+  sameTimestampOrder: getRequestSameTimestampOrder(entry),
+  subject: formatSubject("Approval request", approvalRequest.globalId, approvalRequest.title),
   timestamp: entry.timestampDate,
 });
 
 const mapTaskEntry = (
   entry: ApprovalRequestTaskLogEntry,
+  taskSubjects: Map<string, string>,
   organization: string,
 ): DisplayLogEntry => ({
   actor: entry.actorDisplayName,
@@ -197,6 +238,9 @@ const mapTaskEntry = (
   onBehalfOf: entry.onBehalfOfDisplayName,
   onBehalfOfEmail: entry.onBehalfOfEmail,
   organization,
+  sameTimestampOrder: getTaskSameTimestampOrder(entry),
+  subject: taskSubjects.get(entry.approvalRequestTaskGlobalId)
+    ?? formatSubject("Task", entry.approvalRequestTaskGlobalId, "Unknown task"),
   timestamp: entry.timestampDate,
 });
 
@@ -215,8 +259,18 @@ const getVisibleTaskIds = (approvalRequest: ApprovalRequest) => {
   return visibleTaskGlobalIds;
 };
 
+const getTaskSubjects = (approvalRequest: ApprovalRequest) => new Map(
+  (approvalRequest.steps ?? [])
+    .flatMap((step) => step.tasks ?? [])
+    .map((task) => [
+      task.globalId,
+      formatSubject("Task", task.globalId, task.title),
+    ]),
+);
+
 const getLogEntries = (approvalRequest: ApprovalRequest): DisplayLogEntry[] => {
   const visibleTaskGlobalIds = getVisibleTaskIds(approvalRequest);
+  const taskSubjects = getTaskSubjects(approvalRequest);
   const taskLogEntries = visibleTaskGlobalIds
     ? (approvalRequest.taskLogEntries ?? []).filter((entry) =>
         visibleTaskGlobalIds.has(entry.approvalRequestTaskGlobalId),
@@ -225,12 +279,15 @@ const getLogEntries = (approvalRequest: ApprovalRequest): DisplayLogEntry[] => {
 
   return [
     ...(approvalRequest.logEntries ?? []).map((entry) =>
-      mapRequestEntry(entry, approvalRequest.createdByOrganizationDisplayName),
+      mapRequestEntry(entry, approvalRequest, approvalRequest.createdByOrganizationDisplayName),
     ),
     ...taskLogEntries.map((entry) =>
-      mapTaskEntry(entry, approvalRequest.createdByOrganizationDisplayName),
+      mapTaskEntry(entry, taskSubjects, approvalRequest.createdByOrganizationDisplayName),
     ),
-  ].sort((left, right) => left.timestamp.getTime() - right.timestamp.getTime());
+  ].sort((left, right) =>
+    left.timestamp.getTime() - right.timestamp.getTime()
+      || left.sameTimestampOrder - right.sameTimestampOrder
+      || left.id.localeCompare(right.id));
 };
 
 const trimInlineEmail = (displayName: string) =>
@@ -246,6 +303,7 @@ const formatLogDisplayName = (displayName?: string | null, email?: string | null
 
 const getRecordRows = (entry: DisplayLogEntry, organizationIsVisible: boolean) => [
   { label: "Timestamp", value: getLocaleDateTimeString(entry.timestamp) },
+  { label: "Subject", value: entry.subject },
   { label: "Event", value: entry.event },
   { label: "Actor type", value: entry.actorType },
   { label: "Actor", value: formatLogDisplayName(entry.actor, entry.actorEmail) },
