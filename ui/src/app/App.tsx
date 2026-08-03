@@ -84,6 +84,7 @@ const App = () => {
           }}
         >
           <Routes>
+            <Route path="/verification/:globalId" element={<SharedVerificationReceiptPage />} />
             <Route element={<PublicLayout />}>
               <Route element={<WrapperLayout />}>
                 <Route element={<AnonymousRoute />}>
@@ -98,7 +99,6 @@ const App = () => {
                 </Route>
                 <Route path="/confirmEmail" element={<ConfirmEmailPage />} />
                 <Route path="/information" element={<InformationPage />} />
-                <Route path="/verification/:globalId" element={<SharedVerificationReceiptPage />} />
               </Route>
             </Route>
             <Route element={<RouteGuard />}>

@@ -23,6 +23,7 @@ export interface SharedVerificationReceipt {
   tenantDisplayName: string;
   createdAt: Date;
   files: SharedVerificationFile[];
+  participants: SharedVerificationParticipant[];
 }
 
 export interface SharedVerificationFile {
@@ -34,4 +35,13 @@ export interface SharedVerificationFile {
   sequence: number;
   hashAlgorithm: string;
   hashValue: string;
+}
+
+export interface SharedVerificationParticipant {
+  role: string;
+  action: string;
+  displayName: string;
+  organizationDisplayName?: string;
+  completedAt?: Date;
+  result?: boolean;
 }

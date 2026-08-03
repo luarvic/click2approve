@@ -6,6 +6,7 @@ import axios from "@/shared/api/axios";
 import {
   getUserFriendlyApiErrorMessage,
   isResourceNotFoundOrForbiddenError,
+  parseUtcDateTime,
 } from "@/shared/utils/helpers";
 import { toast } from "react-toastify";
 
@@ -122,13 +123,20 @@ export const deleteSharedVerificationLinkForTask = async (
 };
 
 const normalizeListItemDates = (item: SharedVerificationLinkListItem): void => {
-  item.createdAt = new Date(item.createdAt);
+  item.createdAt = parseReceiptDate(item.createdAt);
 };
 
 const normalizeReceiptDates = (receipt: SharedVerificationReceipt): void => {
-  receipt.approvalRequestCreatedAt = new Date(receipt.approvalRequestCreatedAt);
+  receipt.approvalRequestCreatedAt = parseReceiptDate(receipt.approvalRequestCreatedAt);
   receipt.approvalRequestApprovedAt = receipt.approvalRequestApprovedAt
-    ? new Date(receipt.approvalRequestApprovedAt)
+    ? parseReceiptDate(receipt.approvalRequestApprovedAt)
     : undefined;
-  receipt.createdAt = new Date(receipt.createdAt);
+  receipt.createdAt = parseReceiptDate(receipt.createdAt);
+  receipt.participants?.forEach((participant) => {
+    participant.completedAt = participant.completedAt
+      ? parseReceiptDate(participant.completedAt)
+      : undefined;
+  });
 };
+
+const parseReceiptDate = (value: Date): Date => parseUtcDateTime(value as unknown as string);

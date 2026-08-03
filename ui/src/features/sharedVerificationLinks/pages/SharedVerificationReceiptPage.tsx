@@ -3,21 +3,27 @@ import {
   SharedVerificationFile,
   SharedVerificationReceipt,
 } from "@/features/sharedVerificationLinks/models/sharedVerificationLink";
-import { Dialogs, Files, StackSpacing } from "@/shared/constants/constants";
+import { Files, StackSpacing } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
-import { getLocaleDateTimeString } from "@/shared/utils/helpers";
 import { CheckCircleOutline, ErrorOutline, UploadFileOutlined } from "@mui/icons-material";
 import {
   Box,
   Button,
   Container,
+  GlobalStyles,
   Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
   Typography,
 } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
+import { QRCodeSVG } from "qrcode.react";
 import type { ChangeEvent } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 
 interface FileMatch {
@@ -26,49 +32,225 @@ interface FileMatch {
   matchedFile?: SharedVerificationFile;
 }
 
-const hashTextSx: SxProps<Theme> = {
-  fontFamily: "monospace",
-  overflowWrap: "anywhere",
+const baseUrl = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+const logoSrc = `${baseUrl}logo.svg`;
+const qrCodeSize = 120;
+
+const pageSx: SxProps<Theme> = {
+  minHeight: "100vh",
+  py: { xs: 2, md: 4 },
+  "@media print": {
+    minHeight: "auto",
+    py: 0,
+  },
+};
+
+const certificateSx: SxProps<Theme> = {
+  color: "text.primary",
+  mx: "auto",
+  p: { xs: 2, sm: 3 },
+  width: "100%",
+  "@media print": {
+    p: 0,
+  },
+};
+
+const headerSx: SxProps<Theme> = {
+  alignItems: "start",
+  display: "grid",
+  gap: 2,
+  gridTemplateColumns: { xs: "1fr", sm: "minmax(0, 1fr) auto" },
+};
+
+const logoSx: SxProps<Theme> = {
+  height: { xs: 44, sm: 60 },
+  width: "auto",
+};
+
+const titleLineSx: SxProps<Theme> = {
+  alignItems: "center",
+  display: "flex",
+  gap: 1.25,
+  minWidth: 0,
+  width: "100%",
+};
+
+const titleSx: SxProps<Theme> = {
+  fontSize: { xs: "1.35rem", sm: "1.85rem" },
+  fontWeight: 600,
+  lineHeight: 1.15,
 };
 
 const sectionSx: SxProps<Theme> = {
-  my: 3,
+  breakInside: "avoid",
 };
 
-const sectionHeaderSx: SxProps<Theme> = {
-  mt: 2,
+const sectionTitleSx: SxProps<Theme> = {
+  fontSize: "1.25rem",
+  fontWeight: 700,
+  letterSpacing: 0,
 };
 
-const certificateHeaderSx: SxProps<Theme> = {};
-
-const receiptRecordSx: SxProps<Theme> = {
-  border: "1px solid",
-  borderColor: "divider",
-  borderRadius: 1,
-  p: 1.5,
+const summaryGridSx: SxProps<Theme> = {
+  display: "grid",
+  gap: 2,
+  gridTemplateColumns: { xs: "1fr", sm: "repeat(2, minmax(0, 1fr))" },
 };
 
-const receiptRecordLabelSx: SxProps<Theme> = {
-  color: "text.secondary",
-  flexShrink: 0,
-  minWidth: "7rem",
-};
-
-const receiptRecordValueSx: SxProps<Theme> = {
+const fieldSx: SxProps<Theme> = {
   minWidth: 0,
+};
+
+const labelSx: SxProps<Theme> = {
+  color: "text.secondary",
+  display: "block",
+  fontSize: "1rem",
+  lineHeight: 1.35,
+};
+
+const valueSx: SxProps<Theme> = {
+  display: "block",
+  fontSize: "1rem",
+  lineHeight: 1.35,
   overflowWrap: "anywhere",
+};
+
+const successValueSx: SxProps<Theme> = {
+  ...valueSx,
+  alignItems: "center",
+  color: "success.main",
+  display: "flex",
+  fontWeight: 700,
+  gap: 0.5,
+};
+
+const hashTextSx: SxProps<Theme> = {
+  fontFamily: "monospace",
+  fontSize: "1rem",
+  lineHeight: 1.35,
+  overflowWrap: "anywhere",
+};
+
+const tableHeaderCellSx: SxProps<Theme> = {
+  color: "text.secondary",
+  fontSize: "1rem",
+  fontWeight: 400,
+  px: 0,
+  py: 0.75,
+};
+
+const tableCellSx: SxProps<Theme> = {
+  fontSize: "1rem",
+  px: 0,
+  py: 0.9,
+  verticalAlign: "top",
+};
+
+const tableLastCellSx: SxProps<Theme> = {
+  ...tableCellSx,
+  whiteSpace: "nowrap",
+};
+
+const tableLastRowSx: SxProps<Theme> = {
+  "& td": {
+    borderBottom: 0,
+  },
+};
+
+const responsiveTableSx: SxProps<Theme> = {
+  display: { xs: "none", sm: "table" },
+  "@media print": {
+    display: "table",
+  },
+};
+
+const mobileRecordStackSx: SxProps<Theme> = {
+  display: { xs: "flex", sm: "none" },
+  "@media print": {
+    display: "none",
+  },
+};
+
+const mobileRecordSx: SxProps<Theme> = {
+  borderBottom: "1px solid",
+  borderColor: "divider",
+  pb: 1.5,
+};
+
+const mobileLastRecordSx: SxProps<Theme> = {
+  borderBottom: 0,
+  pb: 0,
 };
 
 const verifyFileButtonSx: SxProps<Theme> = {
   alignSelf: "flex-start",
-  mt: 2,
 };
+
+const qrPanelSx: SxProps<Theme> = {
+  justifySelf: { xs: "start", sm: "end" },
+  textAlign: { xs: "left", sm: "center" },
+};
+
+const qrLabelSx: SxProps<Theme> = {
+  color: "text.secondary",
+  fontSize: "0.85rem",
+  lineHeight: 1.25,
+  mt: 0.75,
+  maxWidth: qrCodeSize,
+};
+
+const screenOnlySx: SxProps<Theme> = {
+  "@media print": {
+    display: "none",
+  },
+};
+
+const printStyles = (
+  <GlobalStyles
+    styles={{
+      "@page": {
+        margin: "10mm",
+        size: "A4",
+      },
+      "@media print": {
+        "html, body, #root": {
+          background: "#fff",
+        },
+        body: {
+          WebkitPrintColorAdjust: "exact",
+          printColorAdjust: "exact",
+        },
+      },
+    }}
+  />
+);
 
 const formatBytes = (size: number): string =>
   new Intl.NumberFormat(undefined, {
     maximumFractionDigits: 1,
     minimumFractionDigits: 0,
   }).format(size);
+
+const formatHash = (hashValue: string): string =>
+  hashValue.match(/.{1,8}/g)?.join(" ") ?? hashValue;
+
+const formatCertificateDateTime = (date: Date | undefined): string =>
+  date
+    ? date.toLocaleString(undefined, {
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      month: "numeric",
+      second: "2-digit",
+      timeZoneName: "short",
+      year: "numeric",
+    })
+    : "";
+
+const formatParticipantOrganization = (organizationDisplayName?: string): string =>
+  organizationDisplayName || "N/A";
 
 const computeSha256 = async (file: File): Promise<string> => {
   const buffer = await file.arrayBuffer();
@@ -78,31 +260,31 @@ const computeSha256 = async (file: File): Promise<string> => {
     .join("");
 };
 
-const renderReceiptAttribute = (
+const renderField = (
   label: string,
-  value: string,
-  valueSx?: SxProps<Theme>,
+  value?: string | React.ReactNode | null,
+  sx: SxProps<Theme> = valueSx,
 ) => (
-  <Stack key={label} direction="row" spacing={StackSpacing.default}>
-    <Box component="span" sx={receiptRecordLabelSx}>
+  <Box key={label} sx={fieldSx}>
+    <Box component="span" sx={labelSx}>
       {label}
     </Box>
-    <Box component="span" sx={[receiptRecordValueSx, ...(Array.isArray(valueSx) ? valueSx : valueSx ? [valueSx] : [])]}>
-      {value}
+    <Box component="span" sx={sx}>
+      {value || "Not recorded"}
     </Box>
-  </Stack>
-);
-
-const renderSectionHeader = (title: string, description: string) => (
-  <Box sx={sectionHeaderSx}>
-    <Typography variant="h6" component="h2">
-      {title}
-    </Typography>
-    <Typography color="text.secondary">
-      {description}
-    </Typography>
   </Box>
 );
+
+const renderSectionTitle = (title: string) => (
+  <Typography variant="h2" sx={sectionTitleSx}>
+    {title}
+  </Typography>
+);
+
+const getMobileRecordSx = (isLast: boolean): SxProps<Theme> => [
+  mobileRecordSx,
+  ...(isLast ? [mobileLastRecordSx] : []),
+];
 
 const SharedVerificationReceiptPage = () => {
   const { globalId } = useParams();
@@ -116,6 +298,8 @@ const SharedVerificationReceiptPage = () => {
     };
     load();
   }, [globalId]);
+
+  const verificationUrl = useMemo(() => window.location.href, []);
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -141,84 +325,195 @@ const SharedVerificationReceiptPage = () => {
   }
 
   return (
-    <Container component="main" maxWidth="lg">
-      <Stack spacing={Dialogs.formStackSpacing}>
-        <Box sx={certificateHeaderSx}>
-          <Typography variant="h4" component="h1">
-            Certificate of Completion
-          </Typography>
-          <Typography color="text.secondary">
-            This certificate confirms that the listed agreement was completed and identifies the files covered by that completion record.
-          </Typography>
-        </Box>
-        <Box sx={sectionSx}>
-          <Box sx={receiptRecordSx}>
-            {renderReceiptAttribute("ID", receipt.globalId)}
-            {renderReceiptAttribute("Created at", getLocaleDateTimeString(receipt.createdAt))}
-          </Box>
-        </Box>
-        {renderSectionHeader(
-          "Agreement summary",
-          "This section identifies the approval request represented by this certificate.",
-        )}
-        <Box sx={sectionSx}>
-          <Box sx={receiptRecordSx}>
-            {renderReceiptAttribute("Type", "Approval request")}
-            {renderReceiptAttribute("ID", receipt.approvalRequestGlobalId)}
-            {renderReceiptAttribute("Title", receipt.approvalRequestTitle)}
-            {renderReceiptAttribute("Status", "Approved")}
-            {renderReceiptAttribute("Organization", receipt.createdByOrganizationDisplayName)}
-            {renderReceiptAttribute("Requested at", getLocaleDateTimeString(receipt.approvalRequestCreatedAt))}
-            {receipt.approvalRequestApprovedAt && (
-              renderReceiptAttribute("Completed at", getLocaleDateTimeString(receipt.approvalRequestApprovedAt))
-            )}
-          </Box>
-        </Box>
-        {renderSectionHeader(
-          "Files",
-          "These files were attached to the approval request at completion time. File contents can be verified by matching SHA-256 hashes.",
-        )}
-        <Box sx={sectionSx}>
-          <Stack spacing={Dialogs.formStackSpacing}>
-            {receipt.files.map((file) => (
-              <Box key={file.globalId} sx={receiptRecordSx}>
-                {renderReceiptAttribute("Name", file.fileName)}
-                {renderReceiptAttribute("Size", `${formatBytes(file.size)} bytes`)}
-                {renderReceiptAttribute("SHA-256", file.hashValue, hashTextSx)}
-              </Box>
-            ))}
-            <Button
-              component="label"
-              startIcon={<UploadFileOutlined />}
-              sx={verifyFileButtonSx}
-              variant="outlined"
-            >
-              Verify file
-              <Box
-                component="input"
-                type="file"
-                sx={Files.inputStyle}
-                onChange={handleFileChange}
-              />
-            </Button>
-            {fileMatch && (
-              <Stack direction="row" spacing={StackSpacing.default} alignItems="center">
-                {fileMatch.matchedFile ? (
-                  <CheckCircleOutline color="success" />
-                ) : (
-                  <ErrorOutline color="error" />
-                )}
+    <>
+      {printStyles}
+      <Box sx={pageSx}>
+        <Container component="main" maxWidth="md" disableGutters>
+          <Stack spacing={StackSpacing.loose} sx={certificateSx}>
+            <Box sx={headerSx}>
+              <Stack spacing={StackSpacing.default}>
+                <Box sx={titleLineSx}>
+                  <Box component="img" src={logoSrc} alt="" aria-hidden="true" sx={logoSx} />
+                  <Typography component="h1" sx={titleSx}>
+                    Click2Approve Certificate of Completion
+                  </Typography>
+                </Box>
                 <Typography>
-                  {fileMatch.matchedFile
-                    ? `${fileMatch.fileName} matches ${fileMatch.matchedFile.fileName}.`
-                    : `${fileMatch.fileName} does not match any approved file hash.`}
+                  This certificate records the successful completion of the request identified below and the files associated with it at the time of completion.
                 </Typography>
+                {renderField("Certificate ID", receipt.globalId)}
+                {renderField("Generated at", formatCertificateDateTime(receipt.createdAt))}
               </Stack>
-            )}
+              <Box sx={qrPanelSx}>
+                <QRCodeSVG value={verificationUrl} size={qrCodeSize} />
+                <Typography sx={qrLabelSx}>
+                  Scan the QR code to verify this certificate
+                </Typography>
+              </Box>
+            </Box>
+
+            <Stack spacing={StackSpacing.default} sx={sectionSx}>
+              {renderSectionTitle("Summary")}
+              <Box sx={summaryGridSx}>
+                <Stack spacing={StackSpacing.default}>
+                  {renderField("Request title", receipt.approvalRequestTitle)}
+                  {renderField("Revision", String(receipt.revisionNumber))}
+                  {renderField("Request ID", receipt.approvalRequestGlobalId)}
+                  {renderField("Organization", receipt.createdByOrganizationDisplayName)}
+                </Stack>
+                <Stack spacing={StackSpacing.default}>
+                  {renderField(
+                    "Status",
+                    <>
+                      <CheckCircleOutline fontSize="small" />
+                      Completed successfully
+                    </>,
+                    successValueSx,
+                  )}
+                  {renderField("Submitted at", formatCertificateDateTime(receipt.approvalRequestCreatedAt))}
+                  {renderField("Completed at", receipt.approvalRequestApprovedAt
+                    ? formatCertificateDateTime(receipt.approvalRequestApprovedAt)
+                    : undefined)}
+                </Stack>
+              </Box>
+            </Stack>
+
+            <Stack spacing={StackSpacing.default} sx={sectionSx}>
+              {renderSectionTitle("Files")}
+              <Table size="small" sx={responsiveTableSx}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={tableHeaderCellSx}>Filename</TableCell>
+                    <TableCell sx={tableHeaderCellSx}>SHA-256</TableCell>
+                    <TableCell align="right" sx={tableHeaderCellSx}>Size</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {receipt.files.map((file, index) => (
+                    <TableRow
+                      key={file.globalId}
+                      sx={index === receipt.files.length - 1 ? tableLastRowSx : undefined}
+                    >
+                      <TableCell sx={tableCellSx}>{file.fileName}</TableCell>
+                      <TableCell sx={[tableCellSx, hashTextSx]}>
+                        {formatHash(file.hashValue)}
+                      </TableCell>
+                      <TableCell align="right" sx={tableLastCellSx}>
+                        {formatBytes(file.size)} bytes
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <Stack spacing={StackSpacing.default} sx={mobileRecordStackSx}>
+                {receipt.files.map((file, index) => (
+                  <Stack
+                    key={file.globalId}
+                    spacing={StackSpacing.default}
+                    sx={getMobileRecordSx(index === receipt.files.length - 1)}
+                  >
+                    {renderField("Filename", file.fileName)}
+                    {renderField("SHA-256", formatHash(file.hashValue), hashTextSx)}
+                    {renderField("Size", `${formatBytes(file.size)} bytes`)}
+                  </Stack>
+                ))}
+              </Stack>
+              <Stack spacing={StackSpacing.default} sx={screenOnlySx}>
+                <Button
+                  component="label"
+                  startIcon={<UploadFileOutlined />}
+                  sx={verifyFileButtonSx}
+                  variant="outlined"
+                >
+                  Verify file
+                  <Box
+                    component="input"
+                    type="file"
+                    sx={Files.inputStyle}
+                    onChange={handleFileChange}
+                  />
+                </Button>
+                {fileMatch && (
+                  <Stack direction="row" spacing={StackSpacing.default} alignItems="center">
+                    {fileMatch.matchedFile ? (
+                      <CheckCircleOutline color="success" />
+                    ) : (
+                      <ErrorOutline color="error" />
+                    )}
+                    <Typography>
+                      {fileMatch.matchedFile
+                        ? `${fileMatch.fileName} matches ${fileMatch.matchedFile.fileName}.`
+                        : `${fileMatch.fileName} does not match any approved file hash.`}
+                    </Typography>
+                  </Stack>
+                )}
+              </Stack>
+            </Stack>
+
+            <Stack spacing={StackSpacing.default} sx={sectionSx}>
+              {renderSectionTitle("Participants")}
+              <Table size="small" sx={responsiveTableSx}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={tableHeaderCellSx}>Participant</TableCell>
+                    <TableCell sx={tableHeaderCellSx}>Organization</TableCell>
+                    <TableCell sx={tableHeaderCellSx}>Relationship</TableCell>
+                    <TableCell sx={tableHeaderCellSx}>Action</TableCell>
+                    <TableCell align="right" sx={tableHeaderCellSx}>Performed at</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {(receipt.participants ?? []).map((participant, index) => (
+                    <TableRow
+                      key={`${participant.role}-${participant.displayName}-${index}`}
+                      sx={index === (receipt.participants ?? []).length - 1 ? tableLastRowSx : undefined}
+                    >
+                      <TableCell sx={tableCellSx}>
+                        {participant.displayName}
+                      </TableCell>
+                      <TableCell sx={tableCellSx}>
+                        {formatParticipantOrganization(participant.organizationDisplayName)}
+                      </TableCell>
+                      <TableCell sx={tableCellSx}>
+                        {participant.role}
+                      </TableCell>
+                      <TableCell sx={tableCellSx}>
+                        {participant.action}
+                      </TableCell>
+                      <TableCell align="right" sx={tableLastCellSx}>
+                        {participant.completedAt
+                          ? formatCertificateDateTime(participant.completedAt)
+                          : "Not recorded"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <Stack spacing={StackSpacing.default} sx={mobileRecordStackSx}>
+                {(receipt.participants ?? []).map((participant, index) => (
+                  <Stack
+                    key={`${participant.role}-${participant.displayName}-${index}`}
+                    spacing={StackSpacing.default}
+                    sx={getMobileRecordSx(index === (receipt.participants ?? []).length - 1)}
+                  >
+                    {renderField("Participant", participant.displayName)}
+                    {renderField("Organization", formatParticipantOrganization(participant.organizationDisplayName))}
+                    {renderField("Relationship", participant.role)}
+                    {renderField("Action", participant.action)}
+                    {renderField(
+                      "Performed at",
+                      participant.completedAt
+                        ? formatCertificateDateTime(participant.completedAt)
+                        : undefined,
+                    )}
+                  </Stack>
+                ))}
+              </Stack>
+            </Stack>
           </Stack>
-        </Box>
-      </Stack>
-    </Container>
+        </Container>
+      </Box>
+    </>
   );
 };
 
