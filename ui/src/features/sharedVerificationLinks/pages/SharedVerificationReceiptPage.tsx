@@ -3,7 +3,7 @@ import {
   SharedVerificationFile,
   SharedVerificationReceipt,
 } from "@/features/sharedVerificationLinks/models/sharedVerificationLink";
-import { Files, StackSpacing } from "@/shared/constants/constants";
+import { Files, Routes, Shell, StackSpacing } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { CheckCircleOutline, ErrorOutline, UploadFileOutlined } from "@mui/icons-material";
@@ -24,7 +24,7 @@ import type { SxProps, Theme } from "@mui/material/styles";
 import { QRCodeSVG } from "qrcode.react";
 import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link as RouterLink, useParams } from "react-router-dom";
 
 interface FileMatch {
   fileName: string;
@@ -40,20 +40,25 @@ const qrCodeSize = 120;
 
 const pageSx: SxProps<Theme> = {
   minHeight: "100vh",
-  py: { xs: 2, md: 4 },
+  pb: { xs: 2, md: 4 },
+  pt: 0,
   "@media print": {
     minHeight: "auto",
-    py: 0,
+    pb: 0,
   },
 };
 
 const certificateSx: SxProps<Theme> = {
   color: "text.primary",
   mx: "auto",
-  p: { xs: 2, sm: 3 },
+  pb: { xs: 2, sm: 3 },
+  pt: { xs: 2, sm: 3 },
+  px: { xs: 2, sm: 3 },
   width: "100%",
   "@media print": {
-    p: 0,
+    pb: 0,
+    pt: 0,
+    px: 0,
   },
 };
 
@@ -65,22 +70,28 @@ const headerSx: SxProps<Theme> = {
 };
 
 const logoSx: SxProps<Theme> = {
-  height: { xs: 44, sm: 60 },
-  width: "auto",
+  ...Shell.appBarLogoSx,
 };
 
 const titleLineSx: SxProps<Theme> = {
   alignItems: "center",
   display: "flex",
-  gap: 1.25,
   minWidth: 0,
   width: "100%",
 };
 
+const homeLinkSx: SxProps<Theme> = {
+  color: "inherit",
+  textDecoration: "none",
+  width: "fit-content",
+  "&:hover": {
+    textDecoration: "none",
+  },
+};
+
 const titleSx: SxProps<Theme> = {
-  fontSize: { xs: "1.35rem", sm: "1.85rem" },
-  fontWeight: 600,
-  lineHeight: 1.15,
+  ...Shell.appBarBrandTitleSx(true),
+  whiteSpace: "normal",
 };
 
 const sectionSx: SxProps<Theme> = {
@@ -88,9 +99,10 @@ const sectionSx: SxProps<Theme> = {
 };
 
 const sectionTitleSx: SxProps<Theme> = {
-  fontSize: "1.25rem",
-  fontWeight: 700,
-  letterSpacing: 0,
+  fontSize: "1.05rem",
+  fontWeight: 600,
+  letterSpacing: "0.04em",
+  textTransform: "uppercase",
 };
 
 const summaryGridSx: SxProps<Theme> = {
@@ -332,9 +344,14 @@ const SharedVerificationReceiptPage = () => {
           <Stack spacing={StackSpacing.loose} sx={certificateSx}>
             <Box sx={headerSx}>
               <Stack spacing={StackSpacing.default}>
-                <Box sx={titleLineSx}>
+                <Box
+                  component={RouterLink}
+                  to={Routes.defaultPath}
+                  aria-label="Click2Approve home"
+                  sx={[titleLineSx, homeLinkSx]}
+                >
                   <Box component="img" src={logoSrc} alt="" aria-hidden="true" sx={logoSx} />
-                  <Typography component="h1" sx={titleSx}>
+                  <Typography component="h1" variant="h6" sx={titleSx}>
                     Click2Approve Certificate of Completion
                   </Typography>
                 </Box>
