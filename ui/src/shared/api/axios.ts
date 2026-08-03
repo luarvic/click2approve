@@ -26,7 +26,9 @@ const shouldSendAuthentication = (url: string | undefined): boolean => {
   }
 
   return (
-    !anonymousUrls.includes(url) && !url.startsWith("api/v1/account/confirmEmail")
+    !anonymousUrls.includes(url) &&
+    !url.startsWith("api/v1/account/confirmEmail") &&
+    !url.startsWith("api/v1/sharedVerificationLinks/")
   );
 };
 
@@ -66,7 +68,8 @@ axiosInstance.interceptors.response.use(
       error.response.status &&
       error.response.status === 401 &&
       originalRequest.url !== "api/v1/account/refresh" &&
-      !originalRequest.url.startsWith("api/v1/account/confirmEmail")
+      !originalRequest.url.startsWith("api/v1/account/confirmEmail") &&
+      !originalRequest.url.startsWith("api/v1/sharedVerificationLinks/")
     ) {
       if (!originalRequest._retry) {
         originalRequest._retry = true;

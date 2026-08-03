@@ -49,7 +49,6 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddSwagger();
 
-builder.Services.AddScoped<IApprovalLogActorResolver, UserApprovalLogActorResolver>();
 builder.Services.AddScoped<IApprovalRecipientResolver, EmailOnlyApprovalRecipientResolver>();
 builder.Services.AddScoped<IApprovalRequestApproverGlobalIdResolver, DefaultApprovalRequestApproverGlobalIdResolver>();
 builder.Services.AddScoped<IApprovalRequestService, ApprovalRequestService>();

@@ -25,6 +25,7 @@ public class ApprovalRequestTask : DbEntity
     public long? ApproverEmployeeId { get; set; }
     public required string ApproverDisplayName { get; set; }
     public required string ApproverEmail { get; set; }
+    public string? ApproverOrganizationDisplayName { get; set; }
     public long TenantId { get; set; }
     public Tenant? Tenant { get; set; }
     public int RevisionNumber { get; set; } = 1;
@@ -35,9 +36,7 @@ public class ApprovalRequestTask : DbEntity
     public bool RequiresIdentityVerification { get; set; }
     public string? ApproverIpAddress { get; set; }
     public string? ApproverBrowserData { get; set; }
-    public string? ApproverLegalFirstName { get; set; }
-    public string? ApproverLegalLastName { get; set; }
+    public string? ApproverLegalName { get; set; }
     public DateOnly? ApproverDateOfBirth { get; set; }
     public string? ApproverSignatureJson { get; set; }
-    public List<ApprovalRequestTaskLogEntry> LogEntries { get; set; } = [];
 }

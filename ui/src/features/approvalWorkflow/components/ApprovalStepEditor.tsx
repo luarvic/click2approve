@@ -90,6 +90,7 @@ const stepAddButtonSx: SxProps<Theme> = {
   ...Dialogs.addStepButtonSx,
   alignSelf: "flex-start",
 };
+const approverBoxSx: SxProps<Theme> = { ...Dialogs.approvalBoxSx };
 const getStepContainerSx = (sx?: SxProps<Theme>): SxProps<Theme> => [
   stepContainerSx,
   ...(Array.isArray(sx) ? sx : [sx]),
@@ -212,30 +213,34 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                           approverIndex,
                         ) ?? {};
                       return (
-                        <ApprovalStepApproverRow
+                        <Box
                           key={approver.globalId ?? approverIndex}
-                          approver={approver}
-                          canUseEmployees={canUseEmployees}
-                          canUseTeams={canUseTeams}
-                          employees={employees}
-                          teams={teams}
-                          disabled={approverState.disabled ?? disabled}
-                          removeDisabled={
-                            approverState.removeDisabled ??
-                            disabled
-                          }
-                          muted={approverState.muted ?? state.isPassed ?? false}
-                          onChange={(nextApprover) =>
-                            onUpdateApprover(
-                              stepIndex,
-                              approverIndex,
-                              nextApprover,
-                            )
-                          }
-                          onRemove={() =>
-                            onRemoveApprover(stepIndex, approverIndex)
-                          }
-                        />
+                          sx={approverBoxSx}
+                        >
+                          <ApprovalStepApproverRow
+                            approver={approver}
+                            canUseEmployees={canUseEmployees}
+                            canUseTeams={canUseTeams}
+                            employees={employees}
+                            teams={teams}
+                            disabled={approverState.disabled ?? disabled}
+                            removeDisabled={
+                              approverState.removeDisabled ??
+                              disabled
+                            }
+                            muted={approverState.muted ?? state.isPassed ?? false}
+                            onChange={(nextApprover) =>
+                              onUpdateApprover(
+                                stepIndex,
+                                approverIndex,
+                                nextApprover,
+                              )
+                            }
+                            onRemove={() =>
+                              onRemoveApprover(stepIndex, approverIndex)
+                            }
+                          />
+                        </Box>
                       );
                     })(),
                   )}

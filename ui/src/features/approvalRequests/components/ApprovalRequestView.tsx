@@ -1,12 +1,13 @@
 import { stores } from "@/app/rootStore";
 import ApprovalRequestDetails from "@/features/approvalRequests/components/ApprovalRequestDetails";
-import ApprovalRequestLog from "@/features/approvalRequests/components/ApprovalRequestLog";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
+import { createSharedVerificationLinkForRequest } from "@/features/sharedVerificationLinks/api/sharedVerificationLinksApi";
+import SharedVerificationLinksPanel from "@/features/sharedVerificationLinks/components/SharedVerificationLinksPanel";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import { PersistenceSuccessMessages, showPersistenceSuccessToast } from "@/shared/utils/toasts";
-import { BlockOutlined, Replay } from "@mui/icons-material";
+import { BlockOutlined, LinkOutlined, Replay } from "@mui/icons-material";
 import {
   Button,
   Stack,
@@ -42,6 +43,9 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
   const [selectedTab, setSelectedTab] = useState("request");
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
+  const [hasSharedVerificationLink, setHasSharedVerificationLink] = useState(false);
+  const [isCreatingSharedVerificationLink, setIsCreatingSharedVerificationLink] = useState(false);
+  const [sharedVerificationLinksRefreshKey, setSharedVerificationLinksRefreshKey] = useState(0);
   const canResubmit = Boolean(
     approvalRequest &&
     stores.productStore.approvalRequestRevisionsAreEnabled &&
@@ -52,6 +56,11 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
     approvalRequest &&
     tenantGlobalId &&
     cancelableApprovalRequestStatuses.includes(approvalRequest.status),
+  );
+  const canManageSharedVerificationLinks = Boolean(
+    approvalRequest &&
+    stores.productStore.sharedVerificationLinksAreEnabled &&
+    approvalRequest.status === ApprovalRequestStatus.Approved,
   );
 
   useEffect(() => {
@@ -91,6 +100,21 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
     return isCanceled;
   };
 
+  const handleCreateSharedVerificationLink = async () => {
+    if (!approvalRequest || !tenantGlobalId || hasSharedVerificationLink) {
+      return;
+    }
+
+    setIsCreatingSharedVerificationLink(true);
+    const linkGlobalId = await createSharedVerificationLinkForRequest(tenantGlobalId, approvalRequest.globalId)
+      .finally(() => setIsCreatingSharedVerificationLink(false));
+    if (linkGlobalId) {
+      await navigator.clipboard?.writeText(`${window.location.origin}/app/verification/${linkGlobalId}`);
+      showPersistenceSuccessToast(PersistenceSuccessMessages.sharedVerificationLinkCreated);
+      setSharedVerificationLinksRefreshKey((current) => current + 1);
+    }
+  };
+
   return (
     <>
       <PageBreadcrumbs
@@ -109,11 +133,16 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
         aria-label="Request sections"
       >
         <Tab label="Request" value="request" />
-        <Tab label="Log" value="log" />
+        {canManageSharedVerificationLinks && <Tab label="Link" value="link" />}
       </Tabs>
       {selectedTab === "request" && <ApprovalRequestDetails approvalRequest={approvalRequest} />}
-      {selectedTab === "log" && (
-        <ApprovalRequestLog approvalRequest={approvalRequest} />
+      {selectedTab === "link" && canManageSharedVerificationLinks && (
+        <SharedVerificationLinksPanel
+          approvalRequestGlobalId={approvalRequest?.globalId}
+          onHasLinkChange={setHasSharedVerificationLink}
+          refreshKey={sharedVerificationLinksRefreshKey}
+          tenantGlobalId={tenantGlobalId}
+        />
       )}
       <Stack
         direction={{ xs: "column", sm: "row" }}
@@ -123,12 +152,12 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
         <Button variant="outlined" onClick={handleClose}>
           Close
         </Button>
-        {canResubmit && (
+        {selectedTab === "request" && canResubmit && (
           <Button startIcon={<Replay />} variant="outlined" onClick={handleResubmit}>
             Resubmit
           </Button>
         )}
-        {canCancel && (
+        {selectedTab === "request" && canCancel && (
           <Button
             color="warning"
             disabled={isCanceling}
@@ -137,6 +166,16 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
             onClick={() => setCancelDialogIsOpen(true)}
           >
             Cancel
+          </Button>
+        )}
+        {selectedTab === "link" && canManageSharedVerificationLinks && (
+          <Button
+            disabled={hasSharedVerificationLink || isCreatingSharedVerificationLink}
+            startIcon={<LinkOutlined />}
+            variant="outlined"
+            onClick={handleCreateSharedVerificationLink}
+          >
+            Create link
           </Button>
         )}
       </Stack>

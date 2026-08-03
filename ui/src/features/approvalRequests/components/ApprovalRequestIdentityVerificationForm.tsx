@@ -11,20 +11,17 @@ import dayjs from "dayjs";
 
 export interface IdentityVerificationErrors {
   dateOfBirth: string;
-  legalFirstName: string;
-  legalLastName: string;
+  legalName: string;
   signature: string;
 }
 
 interface ApprovalRequestIdentityVerificationFormProps {
   dateOfBirth: string;
   errors: IdentityVerificationErrors;
-  legalFirstName: string;
-  legalLastName: string;
+  legalName: string;
   onDateOfBirthChange: (value: string) => void;
   onFieldErrorClear: (field: keyof IdentityVerificationErrors) => void;
-  onLegalFirstNameChange: (value: string) => void;
-  onLegalLastNameChange: (value: string) => void;
+  onLegalNameChange: (value: string) => void;
   onSignatureChange: (value: string) => void;
 }
 
@@ -39,12 +36,10 @@ const identityVerificationFormSx: SxProps<Theme> = (theme) => ({
 const ApprovalRequestIdentityVerificationForm: React.FC<ApprovalRequestIdentityVerificationFormProps> = ({
   dateOfBirth,
   errors,
-  legalFirstName,
-  legalLastName,
+  legalName,
   onDateOfBirthChange,
   onFieldErrorClear,
-  onLegalFirstNameChange,
-  onLegalLastNameChange,
+  onLegalNameChange,
   onSignatureChange,
 }) => (
   <Box sx={identityVerificationFormSx}>
@@ -64,27 +59,15 @@ const ApprovalRequestIdentityVerificationForm: React.FC<ApprovalRequestIdentityV
         spacing={Dialogs.stepHeaderSpacing}
       >
         <TextField
-          error={Boolean(errors.legalFirstName)}
+          error={Boolean(errors.legalName)}
           fullWidth
-          helperText={errors.legalFirstName}
-          label="Legal first name"
+          helperText={errors.legalName}
+          label="Legal name"
           required
-          value={legalFirstName}
+          value={legalName}
           onChange={(event) => {
-            onLegalFirstNameChange(event.target.value);
-            onFieldErrorClear("legalFirstName");
-          }}
-        />
-        <TextField
-          error={Boolean(errors.legalLastName)}
-          fullWidth
-          helperText={errors.legalLastName}
-          label="Legal last name"
-          required
-          value={legalLastName}
-          onChange={(event) => {
-            onLegalLastNameChange(event.target.value);
-            onFieldErrorClear("legalLastName");
+            onLegalNameChange(event.target.value);
+            onFieldErrorClear("legalName");
           }}
         />
         <LocalizationProvider dateAdapter={AdapterDayjs}>

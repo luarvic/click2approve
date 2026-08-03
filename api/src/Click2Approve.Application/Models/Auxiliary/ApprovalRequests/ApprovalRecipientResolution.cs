@@ -5,4 +5,5 @@ public sealed record ApprovalRecipientResolution(
     string? ApproverUserId,
     long? ApproverEmployeeId,
     long TenantId,
-    string ApproverDisplayName);
+    string ApproverDisplayName,
+    string? ApproverOrganizationDisplayName);

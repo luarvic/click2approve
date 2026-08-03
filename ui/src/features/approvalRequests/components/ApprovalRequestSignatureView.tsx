@@ -15,12 +15,11 @@ const signaturePadContainerSx: SxProps<Theme> = {
   borderRadius: 1,
   overflow: "hidden",
   position: "relative",
-  width: "100%",
 };
 
 const signatureCanvasStyle: CSSProperties = {
   display: "block",
-  height: 180,
+  height: "100%",
   width: "100%",
 };
 
@@ -37,6 +36,44 @@ const parseSignature = (signatureJson?: string): PointGroup[] => {
   } catch {
     return [];
   }
+};
+
+const getSignatureBounds = (signatureData: PointGroup[]) => {
+  const points = signatureData.flatMap((group) => group.points ?? []);
+  if (points.length === 0) {
+    return null;
+  }
+
+  const minX = Math.min(...points.map((point) => point.x));
+  const minY = Math.min(...points.map((point) => point.y));
+  const maxX = Math.max(...points.map((point) => point.x));
+  const maxY = Math.max(...points.map((point) => point.y));
+  if (!Number.isFinite(minX) || !Number.isFinite(minY) || !Number.isFinite(maxX) || !Number.isFinite(maxY)) {
+    return null;
+  }
+
+  return {
+    height: Math.max(maxY - minY + normalizedSignatureInset * 2, normalizedSignatureInset * 2),
+    width: Math.max(maxX - minX + normalizedSignatureInset * 2, normalizedSignatureInset * 2),
+  };
+};
+
+const getSignaturePadContainerSx = (signatureJson?: string): SxProps<Theme> => {
+  const bounds = getSignatureBounds(parseSignature(signatureJson));
+  if (!bounds) {
+    return {
+      ...signaturePadContainerSx,
+      height: 180,
+      width: "100%",
+    };
+  }
+
+  return {
+    ...signaturePadContainerSx,
+    aspectRatio: `${bounds.width} / ${bounds.height}`,
+    maxWidth: "100%",
+    width: Math.ceil(bounds.width),
+  };
 };
 
 const normalizeSignaturePosition = (signatureData: PointGroup[]): PointGroup[] => {
@@ -111,7 +148,7 @@ const ApprovalRequestSignatureView: React.FC<ApprovalRequestSignatureViewProps> 
 
   return (
     <Stack spacing={1}>
-      <Box sx={signaturePadContainerSx}>
+      <Box sx={getSignaturePadContainerSx(signatureJson)}>
         <canvas ref={canvasRef} aria-label="Signature" style={signatureCanvasStyle} />
       </Box>
       {!signatureJson && <FormHelperText>Signature was not captured.</FormHelperText>}

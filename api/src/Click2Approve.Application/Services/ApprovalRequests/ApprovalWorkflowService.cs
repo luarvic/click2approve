@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Click2Approve.Application.Helpers;
 using Click2Approve.Application.Models.Auxiliary;
 using Click2Approve.Application.Models.Auxiliary.ApprovalRequests;
@@ -18,28 +17,13 @@ public class ApprovalWorkflowService(
     IEmailService emailService,
     IUserNotificationPreferenceService notificationPreferenceService,
     IApprovalRecipientResolver approvalRecipientResolver,
-    IApprovalLogActorResolver approvalLogActorResolver,
     IConfiguration configuration) : IApprovalWorkflowService
 {
     private readonly IApprovalRequestTaskRepository _approvalRequestTaskRepository = approvalRequestTaskRepository;
     private readonly IEmailService _emailService = emailService;
     private readonly IUserNotificationPreferenceService _notificationPreferenceService = notificationPreferenceService;
     private readonly IApprovalRecipientResolver _approvalRecipientResolver = approvalRecipientResolver;
-    private readonly IApprovalLogActorResolver _approvalLogActorResolver = approvalLogActorResolver;
     private readonly IConfiguration _configuration = configuration;
-    private static readonly JsonSerializerOptions LogDetailsJsonOptions = new(JsonSerializerDefaults.Web);
-
-    public ApprovalLogActor SystemActor { get; } = new(
-        Type: ApprovalLogActorType.System,
-        UserId: null,
-        EmployeeId: null,
-        Email: "system",
-        DisplayName: "System");
-
-    public Task<ApprovalLogActor> ResolveActorAsync(AppUser user, long tenantId, CancellationToken cancellationToken)
-    {
-        return _approvalLogActorResolver.ResolveAsync(user, tenantId, cancellationToken);
-    }
 
     public async Task<Dictionary<ApprovalRequestStepApprover, List<ApprovalRecipientResolution>>> ResolveApproversAsync(
         ApprovalRequest approvalRequest,
@@ -115,7 +99,6 @@ public class ApprovalWorkflowService(
 
     public async Task AdvanceAsync(
         ApprovalRequestTask approvalRequestTask,
-        ApprovalLogActor actor,
         DateTime timestamp,
         CancellationToken cancellationToken)
     {
@@ -148,9 +131,7 @@ public class ApprovalWorkflowService(
 
         if (nextStep is null)
         {
-            var previousStatus = approvalRequest.Status;
             approvalRequest.Status = ApprovalRequestStatus.Approved;
-            AddStatusLog(approvalRequest, timestamp, previousStatus, ApprovalRequestStatus.Approved);
             SkipPendingTasks(GetTasks(approvalRequest), timestamp);
             return;
         }
@@ -166,18 +147,14 @@ public class ApprovalWorkflowService(
             return;
         }
 
-        var previousStatus = approvalRequest.Status;
         approvalRequest.Status = ApprovalRequestStatus.Started;
-        AddStatusLog(approvalRequest, timestamp, previousStatus, ApprovalRequestStatus.Started);
     }
 
     public void SkipPendingTasks(IEnumerable<ApprovalRequestTask> tasks, DateTime timestamp)
     {
         foreach (var task in tasks.Where(task => task.Status == ApprovalRequestTaskStatus.Pending))
         {
-            var previousStatus = task.Status;
             task.Status = ApprovalRequestTaskStatus.Skipped;
-            AddStatusLog(task, SystemActor, timestamp, previousStatus, ApprovalRequestTaskStatus.Skipped, task.Comment);
         }
     }
 
@@ -185,9 +162,7 @@ public class ApprovalWorkflowService(
     {
         foreach (var task in tasks.Where(task => task.Status == ApprovalRequestTaskStatus.Pending))
         {
-            var previousStatus = task.Status;
             task.Status = ApprovalRequestTaskStatus.Canceled;
-            AddStatusLog(task, SystemActor, timestamp, previousStatus, ApprovalRequestTaskStatus.Canceled, task.Comment);
         }
     }
 
@@ -303,65 +278,6 @@ public class ApprovalWorkflowService(
         }, cancellationToken);
     }
 
-    public void AddSubmittedLog(
-        ApprovalRequest approvalRequest,
-        ApprovalLogActor actor,
-        DateTime timestamp)
-    {
-        AddRequestLog(
-            approvalRequest,
-            actor,
-            timestamp,
-            ApprovalRequestLogEventType.Submitted,
-            new ApprovalRequestSubmittedDetails(approvalRequest.Status));
-    }
-
-    public void AddStatusLog(
-        ApprovalRequest approvalRequest,
-        DateTime timestamp,
-        ApprovalRequestStatus? previousStatus,
-        ApprovalRequestStatus status)
-    {
-        AddRequestLog(
-            approvalRequest,
-            SystemActor,
-            timestamp,
-            ApprovalRequestLogEventType.StatusChanged,
-            new ApprovalRequestStatusChangedDetails(previousStatus, status));
-    }
-
-    public void AddStatusLog(
-        ApprovalRequestTask task,
-        ApprovalLogActor actor,
-        DateTime timestamp,
-        ApprovalRequestTaskStatus? previousStatus,
-        ApprovalRequestTaskStatus status,
-        string? comment,
-        string? ipAddress = null,
-        string? browserData = null,
-        string? legalFirstName = null,
-        string? legalLastName = null,
-        DateOnly? dateOfBirth = null,
-        bool? signatureCaptured = null)
-    {
-        AddTaskLog(
-            task,
-            actor,
-            GetOnBehalfOfActor(task, actor),
-            timestamp,
-            ApprovalRequestTaskLogEventType.StatusChanged,
-            new ApprovalRequestTaskStatusChangedDetails(
-                previousStatus,
-                status,
-                comment,
-                ipAddress,
-                browserData,
-                legalFirstName,
-                legalLastName,
-                dateOfBirth,
-                signatureCaptured));
-    }
-
     private async Task<List<ApprovalRequestTask>> CreateTasksForApproverAsync(
         ApprovalRequest approvalRequest,
         ApprovalRequestStep step,
@@ -390,13 +306,13 @@ public class ApprovalWorkflowService(
                 ApproverUserId = resolution.ApproverUserId,
                 ApproverEmployeeId = resolution.ApproverEmployeeId,
                 ApproverDisplayName = resolution.ApproverDisplayName,
+                ApproverOrganizationDisplayName = resolution.ApproverOrganizationDisplayName,
                 TenantId = resolution.TenantId,
                 RevisionNumber = approvalRequest.RevisionNumber,
                 RequiresIdentityVerification = configuredApprover.RequiresIdentityVerification,
                 Status = ApprovalRequestTaskStatus.Pending,
                 CreatedAt = timestamp
             }, cancellationToken);
-            AddTaskSubmittedLog(task, timestamp);
             step.Tasks.Add(task);
             tasks.Add(task);
         }
@@ -434,91 +350,6 @@ public class ApprovalWorkflowService(
             _configuration[$"Email:Templates:{templateName}Message"]!,
             _configuration[$"Email:Templates:{templateName}LinkText"]!,
             _configuration[$"Email:Templates:{templateName}Subject"]!);
-    }
-
-    private void AddTaskSubmittedLog(ApprovalRequestTask task, DateTime timestamp)
-    {
-        AddTaskLog(
-            task,
-            SystemActor,
-            null,
-            timestamp,
-            ApprovalRequestTaskLogEventType.Submitted,
-            new ApprovalRequestTaskSubmittedDetails(task.Status));
-    }
-
-    private static void AddTaskLog<TDetails>(
-        ApprovalRequestTask task,
-        ApprovalLogActor actor,
-        ApprovalLogActor? onBehalfOfActor,
-        DateTime timestamp,
-        ApprovalRequestTaskLogEventType eventType,
-        TDetails details)
-    {
-        task.LogEntries.Add(new ApprovalRequestTaskLogEntry
-        {
-            ApprovalRequestTaskId = task.Id,
-            ApprovalRequestTask = task,
-            Timestamp = timestamp,
-            ActorType = actor.Type,
-            ActorUserId = actor.UserId,
-            ActorEmployeeId = actor.EmployeeId,
-            ActorEmail = actor.Email,
-            ActorDisplayName = actor.DisplayName,
-            OnBehalfOfActorType = onBehalfOfActor?.Type,
-            OnBehalfOfUserId = onBehalfOfActor?.UserId,
-            OnBehalfOfEmployeeId = onBehalfOfActor?.EmployeeId,
-            OnBehalfOfEmail = onBehalfOfActor?.Email,
-            OnBehalfOfDisplayName = onBehalfOfActor?.DisplayName,
-            EventType = eventType,
-            Details = SerializeDetails(details),
-            TenantId = task.TenantId
-        });
-    }
-
-    private static void AddRequestLog<TDetails>(
-        ApprovalRequest approvalRequest,
-        ApprovalLogActor actor,
-        DateTime timestamp,
-        ApprovalRequestLogEventType eventType,
-        TDetails details)
-    {
-        approvalRequest.LogEntries.Add(new ApprovalRequestLogEntry
-        {
-            ApprovalRequestId = approvalRequest.Id,
-            ApprovalRequest = approvalRequest,
-            Timestamp = timestamp,
-            ActorType = actor.Type,
-            ActorUserId = actor.UserId,
-            ActorEmployeeId = actor.EmployeeId,
-            ActorEmail = actor.Email,
-            ActorDisplayName = actor.DisplayName,
-            EventType = eventType,
-            Details = SerializeDetails(details),
-            TenantId = approvalRequest.TenantId
-        });
-    }
-
-    private static ApprovalLogActor? GetOnBehalfOfActor(ApprovalRequestTask task, ApprovalLogActor actor)
-    {
-        if (actor.Type != ApprovalLogActorType.Employee
-            || task.ApproverEmployeeId is null
-            || task.ApproverEmployeeId == actor.EmployeeId)
-        {
-            return null;
-        }
-
-        return new ApprovalLogActor(
-            Type: ApprovalLogActorType.Employee,
-            UserId: task.ApproverUserId,
-            EmployeeId: task.ApproverEmployeeId,
-            Email: task.ApproverEmail,
-            DisplayName: task.ApproverDisplayName);
-    }
-
-    private static string SerializeDetails<TDetails>(TDetails details)
-    {
-        return JsonSerializer.Serialize(details, LogDetailsJsonOptions);
     }
 
     private sealed record ApproverNotificationTemplate(

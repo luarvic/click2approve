@@ -3,17 +3,20 @@ import { completeApprovalRequestTask } from "@/features/approvalRequests/api/app
 import ApprovalRequestDetails from "@/features/approvalRequests/components/ApprovalRequestDetails";
 import ApprovalRequestIdentityVerificationForm from "@/features/approvalRequests/components/ApprovalRequestIdentityVerificationForm";
 import type { IdentityVerificationErrors } from "@/features/approvalRequests/components/ApprovalRequestIdentityVerificationForm";
-import ApprovalRequestLog from "@/features/approvalRequests/components/ApprovalRequestLog";
 import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestTaskSummaryBlock";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
+import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { createApprovalRequestTaskClientAuditContext } from "@/features/approvalRequests/utils/approvalRequestTaskClientAuditContext";
+import { createSharedVerificationLinkForTask } from "@/features/sharedVerificationLinks/api/sharedVerificationLinksApi";
+import SharedVerificationLinksPanel from "@/features/sharedVerificationLinks/components/SharedVerificationLinksPanel";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessToast,
 } from "@/shared/utils/toasts";
+import { LinkOutlined } from "@mui/icons-material";
 import {
   Button,
   FormControl,
@@ -36,8 +39,7 @@ interface ApprovalRequestTaskProps {
 
 const emptyIdentityVerificationErrors: IdentityVerificationErrors = {
   dateOfBirth: "",
-  legalFirstName: "",
-  legalLastName: "",
+  legalName: "",
   signature: "",
 };
 
@@ -45,8 +47,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
   const [decisionError, setDecisionError] = useState(false);
   const [decision, setDecision] = useState("");
   const [comment, setComment] = useState("");
-  const [legalFirstName, setLegalFirstName] = useState("");
-  const [legalLastName, setLegalLastName] = useState("");
+  const [legalName, setLegalName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [signatureJson, setSignatureJson] = useState("");
   const [identityVerificationErrors, setIdentityVerificationErrors] = useState<IdentityVerificationErrors>(
@@ -54,11 +55,19 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
   );
   const [approvalRequest, setApprovalRequest] = useState<ApprovalRequest | null>(null);
   const [selectedTab, setSelectedTab] = useState("task");
+  const [hasSharedVerificationLink, setHasSharedVerificationLink] = useState(false);
+  const [isCreatingSharedVerificationLink, setIsCreatingSharedVerificationLink] = useState(false);
+  const [sharedVerificationLinksRefreshKey, setSharedVerificationLinksRefreshKey] = useState(0);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const inboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/inbox") : "/";
   const currentTask = stores.approvalRequestTaskStore.currentTask;
   const isCompleted = Boolean(currentTask && currentTask.status !== ApprovalRequestTaskStatus.Pending);
   const requiresIdentityVerification = currentTask?.requiresIdentityVerification === true;
+  const canManageSharedVerificationLinks = Boolean(
+    currentTask &&
+    stores.productStore.sharedVerificationLinksAreEnabled &&
+    approvalRequest?.status === ApprovalRequestStatus.Approved,
+  );
 
   useEffect(() => {
     setDecision(
@@ -69,8 +78,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
           : "",
     );
     setComment(currentTask?.comment ?? "");
-    setLegalFirstName(currentTask?.approverLegalFirstName ?? "");
-    setLegalLastName(currentTask?.approverLegalLastName ?? "");
+    setLegalName(currentTask?.approverLegalName ?? "");
     setDateOfBirth(currentTask?.approverDateOfBirth ?? "");
     setSignatureJson("");
     setIdentityVerificationErrors(emptyIdentityVerificationErrors);
@@ -82,8 +90,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
     setDecisionError(false);
     setDecision("");
     setComment("");
-    setLegalFirstName("");
-    setLegalLastName("");
+    setLegalName("");
     setDateOfBirth("");
     setSignatureJson("");
     setIdentityVerificationErrors(emptyIdentityVerificationErrors);
@@ -114,8 +121,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
           : !dateValue.isBefore(today)
             ? "Date of birth must be in the past."
             : "",
-      legalFirstName: legalFirstName.trim() ? "" : "Legal first name is required.",
-      legalLastName: legalLastName.trim() ? "" : "Legal last name is required.",
+      legalName: legalName.trim() ? "" : "Legal name is required.",
       signature: signatureJson ? "" : "Signature is required.",
     };
 
@@ -148,8 +154,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
       requiresIdentityVerification
         ? {
             approverDateOfBirth: dateOfBirth,
-            approverLegalFirstName: legalFirstName.trim(),
-            approverLegalLastName: legalLastName.trim(),
+            approverLegalName: legalName.trim(),
             approverSignatureJson: signatureJson,
           }
         : undefined,
@@ -163,6 +168,21 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
       stores.approvalRequestTaskStore.clear();
       stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
       onClose(currentTask.globalId);
+    }
+  };
+
+  const handleCreateSharedVerificationLink = async () => {
+    if (!currentTask || !tenantGlobalId || hasSharedVerificationLink) {
+      return;
+    }
+
+    setIsCreatingSharedVerificationLink(true);
+    const linkGlobalId = await createSharedVerificationLinkForTask(tenantGlobalId, currentTask.globalId)
+      .finally(() => setIsCreatingSharedVerificationLink(false));
+    if (linkGlobalId) {
+      await navigator.clipboard?.writeText(`${window.location.origin}/app/verification/${linkGlobalId}`);
+      showPersistenceSuccessToast(PersistenceSuccessMessages.sharedVerificationLinkCreated);
+      setSharedVerificationLinksRefreshKey((current) => current + 1);
     }
   };
 
@@ -185,7 +205,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
       >
         <Tab label="Task" value="task" />
         <Tab label="Request" value="request" />
-        <Tab label="Log" value="log" />
+        {canManageSharedVerificationLinks && <Tab label="Link" value="link" />}
       </Tabs>
       {selectedTab === "task" && (
         <Stack
@@ -244,12 +264,10 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
                 <ApprovalRequestIdentityVerificationForm
                   dateOfBirth={dateOfBirth}
                   errors={identityVerificationErrors}
-                  legalFirstName={legalFirstName}
-                  legalLastName={legalLastName}
+                  legalName={legalName}
                   onDateOfBirthChange={setDateOfBirth}
                   onFieldErrorClear={clearIdentityVerificationError}
-                  onLegalFirstNameChange={setLegalFirstName}
-                  onLegalLastNameChange={setLegalLastName}
+                  onLegalNameChange={setLegalName}
                   onSignatureChange={handleSignatureChange}
                 />
               )}
@@ -265,14 +283,29 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
           showVisibleStepVisibility={false}
         />
       )}
-      {selectedTab === "log" && (
-        <ApprovalRequestLog approvalRequest={approvalRequest} />
+      {selectedTab === "link" && canManageSharedVerificationLinks && (
+        <SharedVerificationLinksPanel
+          approvalRequestTaskGlobalId={currentTask?.globalId}
+          onHasLinkChange={setHasSharedVerificationLink}
+          refreshKey={sharedVerificationLinksRefreshKey}
+          tenantGlobalId={tenantGlobalId}
+        />
       )}
       <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
         <Button variant="outlined" onClick={handleClose}>
-          {isCompleted ? "Close" : "Cancel"}
+          {selectedTab === "task" && !isCompleted ? "Cancel" : "Close"}
         </Button>
-        {!isCompleted && <Button variant="outlined" onClick={handleSubmit}>Submit</Button>}
+        {selectedTab === "task" && !isCompleted && <Button variant="outlined" onClick={handleSubmit}>Submit</Button>}
+        {selectedTab === "link" && canManageSharedVerificationLinks && (
+          <Button
+            disabled={hasSharedVerificationLink || isCreatingSharedVerificationLink}
+            startIcon={<LinkOutlined />}
+            variant="outlined"
+            onClick={handleCreateSharedVerificationLink}
+          >
+            Create link
+          </Button>
+        )}
       </Stack>
     </>
   );

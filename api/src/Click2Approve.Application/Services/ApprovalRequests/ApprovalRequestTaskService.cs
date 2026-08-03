@@ -1,4 +1,3 @@
-using Click2Approve.Application.Models.Auxiliary.ApprovalRequests;
 using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Application.Persistence;
 using Click2Approve.Domain.Exceptions;
@@ -55,44 +54,23 @@ public class ApprovalRequestTaskService(
         }
 
         var now = DateTime.UtcNow;
-        var actor = await _workflowService.ResolveActorAsync(user, approvalRequestTask.TenantId, cancellationToken);
-        var previousTaskStatus = approvalRequestTask.Status;
         ApplyCompletionDetails(approvalRequestTask, payload);
         approvalRequestTask.Status = payload.Status;
         approvalRequestTask.Comment = payload.Comment;
-        _workflowService.AddStatusLog(
-            approvalRequestTask,
-            actor,
-            now,
-            previousTaskStatus,
-            payload.Status,
-            payload.Comment,
-            approvalRequestTask.ApproverIpAddress,
-            approvalRequestTask.ApproverBrowserData,
-            approvalRequestTask.ApproverLegalFirstName,
-            approvalRequestTask.ApproverLegalLastName,
-            approvalRequestTask.ApproverDateOfBirth,
-            !string.IsNullOrWhiteSpace(approvalRequestTask.ApproverSignatureJson));
 
         if (approvalRequestTask.ApprovalRequest.Status is ApprovalRequestStatus.Pending or ApprovalRequestStatus.Started)
         {
             switch (payload.Status)
             {
                 case ApprovalRequestTaskStatus.Rejected:
-                    var previousRequestStatus = approvalRequestTask.ApprovalRequest.Status;
                     approvalRequestTask.ApprovalRequest.Status = ApprovalRequestStatus.Rejected;
-                    _workflowService.AddStatusLog(
-                        approvalRequestTask.ApprovalRequest,
-                        now,
-                        previousRequestStatus,
-                        ApprovalRequestStatus.Rejected);
                     _workflowService.SkipPendingTasks(
                         _workflowService.GetTasks(approvalRequestTask.ApprovalRequest)
                             .Where(task => task.Id != approvalRequestTask.Id),
                         now);
                     break;
                 case ApprovalRequestTaskStatus.Approved:
-                    await _workflowService.AdvanceAsync(approvalRequestTask, actor, now, cancellationToken);
+                    await _workflowService.AdvanceAsync(approvalRequestTask, now, cancellationToken);
                     _workflowService.StartRequestIfNeeded(approvalRequestTask.ApprovalRequest, now);
                     break;
                 default:
@@ -123,17 +101,11 @@ public class ApprovalRequestTaskService(
             return;
         }
 
-        var legalFirstName = (payload.ApproverLegalFirstName ?? string.Empty).Trim();
-        var legalLastName = (payload.ApproverLegalLastName ?? string.Empty).Trim();
+        var legalName = (payload.ApproverLegalName ?? string.Empty).Trim();
         var signatureJson = (payload.ApproverSignatureJson ?? string.Empty).Trim();
-        if (legalFirstName.Length == 0)
+        if (legalName.Length == 0)
         {
-            throw new BusinessRuleException("Legal first name is required.");
-        }
-
-        if (legalLastName.Length == 0)
-        {
-            throw new BusinessRuleException("Legal last name is required.");
+            throw new BusinessRuleException("Legal name is required.");
         }
 
         if (payload.ApproverDateOfBirth is null)
@@ -156,8 +128,7 @@ public class ApprovalRequestTaskService(
             throw new BusinessRuleException("Signature is too large.");
         }
 
-        approvalRequestTask.ApproverLegalFirstName = TrimToLength(legalFirstName, 255);
-        approvalRequestTask.ApproverLegalLastName = TrimToLength(legalLastName, 255);
+        approvalRequestTask.ApproverLegalName = TrimToLength(legalName, 255);
         approvalRequestTask.ApproverDateOfBirth = payload.ApproverDateOfBirth;
         approvalRequestTask.ApproverSignatureJson = signatureJson;
     }

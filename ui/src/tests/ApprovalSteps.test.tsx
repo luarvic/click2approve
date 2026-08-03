@@ -19,7 +19,6 @@ const approvalRequest: ApprovalRequest = {
   createdByUserId: "requester-user-id",
   description: "Request description",
   globalId: "request-id",
-  logEntries: [],
   requestFiles: [],
   revisionNumber: 1,
   status: ApprovalRequestStatus.Pending,
@@ -67,7 +66,6 @@ const approvalRequest: ApprovalRequest = {
           createdAt,
           createdAtDate,
           globalId: "hidden-task-id",
-          logEntries: [],
           requestFiles: [],
           createdByOrganizationDisplayName: "Personal",
           requestedByEmail: "requester@example.com",
@@ -87,7 +85,6 @@ const approvalRequest: ApprovalRequest = {
       ],
     },
   ],
-  taskLogEntries: [],
   title: "Request title",
 };
 
@@ -206,8 +203,8 @@ describe("<ApprovalSteps />", () => {
                   createdAt,
                   createdAtDate,
                   createdByOrganizationDisplayName: "Personal",
+                  description: "Visible task description",
                   globalId: "visible-task-id",
-                  logEntries: [],
                   requestedByDisplayName: "Requester",
                   requestedByEmail: "requester@example.com",
                   requestFiles: [],
@@ -225,6 +222,7 @@ describe("<ApprovalSteps />", () => {
     );
 
     expect(screen.getByText("Task #visib")).toBeTruthy();
+    expect(screen.queryByText("Visible task description")).toBeNull();
     const currentTaskRow = screen.getByText("Task #visib").closest("[role='button']");
     expect(currentTaskRow?.textContent).toContain("Visible Approver");
     expect(screen.queryByLabelText("Current step approver")).toBeNull();

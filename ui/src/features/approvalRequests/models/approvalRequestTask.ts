@@ -1,6 +1,5 @@
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestFile } from "./approvalRequest";
-import { ApprovalRequestTaskLogEntry } from "./approvalRequestLogEntry";
 import { ApprovalRequestTaskListItem } from "./approvalRequestTaskListItem";
 
 export interface ApprovalRequestTask extends ApprovalRequestTaskListItem {
@@ -11,6 +10,7 @@ export interface ApprovalRequestTask extends ApprovalRequestTaskListItem {
   approverUserId?: string;
   approverEmail: string;
   approverDisplayName: string;
+  approverOrganizationDisplayName?: string;
   requestedByEmail: string;
   requestedByDisplayName: string;
   createdByOrganizationDisplayName: string;
@@ -19,11 +19,9 @@ export interface ApprovalRequestTask extends ApprovalRequestTaskListItem {
   requiresIdentityVerification?: boolean;
   approverIpAddress?: string;
   approverBrowserData?: string;
-  approverLegalFirstName?: string;
-  approverLegalLastName?: string;
+  approverLegalName?: string;
   approverDateOfBirth?: string;
   hasApproverSignature?: boolean;
   approverSignatureJson?: string;
   requestFiles: ApprovalRequestFile[];
-  logEntries: ApprovalRequestTaskLogEntry[];
 }

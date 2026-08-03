@@ -25,6 +25,7 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
         ApproverUserId = source.ApproverUserId;
         ApproverEmail = source.ApproverEmail;
         ApproverDisplayName = source.ApproverDisplayName;
+        ApproverOrganizationDisplayName = source.ApproverOrganizationDisplayName;
         RequestedByEmail = source.RequestedByEmail;
         RequestedByDisplayName = source.RequestedByDisplayName;
         CreatedByOrganizationDisplayName = source.CreatedByOrganizationDisplayName;
@@ -33,12 +34,10 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
         RequiresIdentityVerification = source.RequiresIdentityVerification;
         ApproverIpAddress = source.ApproverIpAddress;
         ApproverBrowserData = source.ApproverBrowserData;
-        ApproverLegalFirstName = source.ApproverLegalFirstName;
-        ApproverLegalLastName = source.ApproverLegalLastName;
+        ApproverLegalName = source.ApproverLegalName;
         ApproverDateOfBirth = source.ApproverDateOfBirth;
         HasApproverSignature = source.HasApproverSignature;
         ApproverSignatureJson = source.ApproverSignatureJson;
-        LogEntries = source.LogEntries;
     }
 
     public Guid ApprovalRequestGlobalId { get; init; }
@@ -47,15 +46,14 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
     public string? ApproverUserId { get; init; }
     public required string ApproverEmail { get; init; }
     public required string ApproverDisplayName { get; init; }
+    public string? ApproverOrganizationDisplayName { get; init; }
     public string? Description { get; init; }
     public string? Comment { get; init; }
     public bool RequiresIdentityVerification { get; init; }
     public string? ApproverIpAddress { get; init; }
     public string? ApproverBrowserData { get; init; }
-    public string? ApproverLegalFirstName { get; init; }
-    public string? ApproverLegalLastName { get; init; }
+    public string? ApproverLegalName { get; init; }
     public DateOnly? ApproverDateOfBirth { get; init; }
     public bool HasApproverSignature { get; init; }
     public string? ApproverSignatureJson { get; init; }
-    public required List<ApprovalRequestTaskLogEntryDto> LogEntries { get; init; }
 }

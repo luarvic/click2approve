@@ -66,13 +66,11 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
     protected static IQueryable<ApprovalRequest> IncludeDetails(IQueryable<ApprovalRequest> requests) => requests
         .Include(request => request.RequestFiles)
             .ThenInclude(file => file.UserFile)
-        .Include(request => request.LogEntries)
         .Include(request => request.Steps)
             .ThenInclude(step => step.Approvers)
         .Include(request => request.Steps)
             .ThenInclude(step => step.StepVisibilities)
                 .ThenInclude(visibility => visibility.ApprovalRequestStepApprover)
         .Include(request => request.Steps)
-            .ThenInclude(step => step.Tasks)
-                .ThenInclude(task => task.LogEntries);
+            .ThenInclude(step => step.Tasks);
 }

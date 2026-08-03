@@ -55,7 +55,6 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.ApprovalRequestTasks
             .AsNoTracking()
-            .Include(task => task.LogEntries)
             .Include(task => task.ApprovalRequestStep)
             .Include(task => task.ApprovalRequestStepApprover)
             .Include(task => task.ApprovalRequest)
@@ -74,14 +73,10 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
             .AsNoTracking()
             .Include(request => request.RequestFiles)
                 .ThenInclude(file => file.UserFile)
-            .Include(request => request.LogEntries)
             .Include(request => request.Steps)
                 .ThenInclude(step => step.Approvers)
             .Include(request => request.Steps)
                 .ThenInclude(step => step.StepVisibilities)
-            .Include(request => request.Steps)
-                .ThenInclude(step => step.Tasks)
-                    .ThenInclude(requestTask => requestTask.LogEntries)
             .Include(request => request.Steps)
                 .ThenInclude(step => step.Tasks)
                     .ThenInclude(requestTask => requestTask.ApprovalRequestStepApprover)
@@ -98,7 +93,6 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
             .Include(t => t.ApprovalRequest)
                 .ThenInclude(r => r.RequestFiles)
                     .ThenInclude(file => file.UserFile)
-            .Include(t => t.LogEntries)
             .Include(t => t.ApprovalRequestStep)
                 .ThenInclude(s => s.Tasks)
             .Include(t => t.ApprovalRequestStepApprover)
@@ -112,7 +106,6 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
                     .ThenInclude(task => task.ApprovalRequestStepApprover)
             .Include(t => t.ApprovalRequest.Steps)
                 .ThenInclude(s => s.Tasks)
-                    .ThenInclude(task => task.LogEntries)
                 .FirstOrDefaultAsync(t => t.GlobalId == globalId
                     && t.ApproverUserId == user.Id
                     && t.TenantId == tenantId,

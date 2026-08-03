@@ -16,8 +16,7 @@ export const completeApprovalRequestTask = async (
   comment: string | undefined,
   identityVerification?: {
     approverDateOfBirth?: string;
-    approverLegalFirstName?: string;
-    approverLegalLastName?: string;
+    approverLegalName?: string;
     approverSignatureJson?: string;
   },
   clientAuditContext?: ApprovalRequestTaskClientAuditContext,

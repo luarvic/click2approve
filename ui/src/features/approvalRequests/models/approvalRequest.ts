@@ -1,10 +1,6 @@
 import { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import { ApprovalRequestListItem } from "./approvalRequestListItem";
-import {
-  ApprovalRequestLogEntry,
-  ApprovalRequestTaskLogEntry,
-} from "./approvalRequestLogEntry";
 
 export interface ApprovalRequest extends ApprovalRequestListItem {
   requestFiles: ApprovalRequestFile[];
@@ -18,8 +14,6 @@ export interface ApprovalRequest extends ApprovalRequestListItem {
   previousRevisionApprovalRequestTitle?: string;
   nextRevisionApprovalRequestGlobalId?: string;
   nextRevisionApprovalRequestTitle?: string;
-  logEntries: ApprovalRequestLogEntry[];
-  taskLogEntries: ApprovalRequestTaskLogEntry[];
 }
 
 export enum ApprovalRequestFileRevisionAction {

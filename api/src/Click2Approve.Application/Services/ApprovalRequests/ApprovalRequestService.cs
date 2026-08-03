@@ -61,7 +61,7 @@ public class ApprovalRequestService(
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         var tenant = await _tenantRepository.GetAsync(tenantId, cancellationToken)
             ?? throw new NotFoundException("Tenant was not found.");
-        var actor = await _workflowService.ResolveActorAsync(user, tenantId, cancellationToken);
+        var creator = await ResolveCreatorAsync(user, tenantId, cancellationToken);
         var steps = BuildSteps(payload.Steps);
         ApplyStepVisibility(steps, payload.StepVisibility);
 
@@ -76,9 +76,9 @@ public class ApprovalRequestService(
             TenantId = tenantId,
             CreatedByUserId = user.Id,
             CreatedByUser = user,
-            CreatedByEmployeeId = actor.EmployeeId,
+            CreatedByEmployeeId = creator.EmployeeId,
             CreatedByEmail = user.NormalizedEmail!,
-            CreatedByDisplayName = actor.DisplayName,
+            CreatedByDisplayName = creator.DisplayName,
             CreatedByOrganizationDisplayName = tenant.BusinessName
         }, cancellationToken);
         foreach (var requestFile in newApprovalRequest.RequestFiles)
@@ -87,7 +87,6 @@ public class ApprovalRequestService(
         }
 
         var approverResolutions = await _workflowService.ResolveApproversAsync(newApprovalRequest, payload.Steps, cancellationToken);
-        _workflowService.AddSubmittedLog(newApprovalRequest, actor, now);
 
         var submittedTasks = await _workflowService.CreateTasksForStepAsync(
             newApprovalRequest,
@@ -114,12 +113,10 @@ public class ApprovalRequestService(
         }
 
         var now = DateTime.UtcNow;
-        var previousStatus = approvalRequest.Status;
         approvalRequest.Status = ApprovalRequestStatus.Canceled;
         var notifiedTasks = _workflowService.GetTasks(approvalRequest)
             .Where(task => task.Status == ApprovalRequestTaskStatus.Pending)
             .ToList();
-        _workflowService.AddStatusLog(approvalRequest, now, previousStatus, ApprovalRequestStatus.Canceled);
         _workflowService.CancelPendingTasks(notifiedTasks, now);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -144,6 +141,14 @@ public class ApprovalRequestService(
             ?? throw new NotFoundException("Approval request was not found.");
         var approverGlobalIdMaps = await _approverGlobalIdResolver.ResolveAsync(approvalRequest, cancellationToken);
         return ApprovalRequestMapper.MapApprovalRequest(approvalRequest, approverGlobalIdMaps);
+    }
+
+    protected virtual Task<ApprovalRequestCreator> ResolveCreatorAsync(
+        AppUser user,
+        long tenantId,
+        CancellationToken cancellationToken)
+    {
+        return Task.FromResult(new ApprovalRequestCreator(null, GetDisplayName(user)));
     }
 
     private async Task CheckLimitationsAsync(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
@@ -197,6 +202,13 @@ public class ApprovalRequestService(
                 };
             });
     }
+
+    private static string GetDisplayName(AppUser user)
+    {
+        return (user.Email ?? user.NormalizedEmail ?? string.Empty).ToLowerInvariant();
+    }
+
+    protected sealed record ApprovalRequestCreator(long? EmployeeId, string DisplayName);
 
     private static List<ApprovalRequestStep> BuildSteps(List<ApprovalRequestStepSubmitDto> stepDtos)
     {

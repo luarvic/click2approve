@@ -17,6 +17,7 @@ interface ApprovalRequestSummaryProps {
   compareFilesWithPrevious?: boolean;
   numberPrefix?: string;
   showFileStateIndicators?: boolean;
+  showDescription?: boolean;
   showFiles?: boolean;
   showRevision?: boolean;
   showTitle?: boolean;
@@ -41,6 +42,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   compareFilesWithPrevious = false,
   numberPrefix,
   showFileStateIndicators = true,
+  showDescription = true,
   showFiles = true,
   showRevision = true,
   showTitle = true,
@@ -71,7 +73,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
           variant="h6"
         />
       </Stack>
-      {trimmedDescription && (
+      {showDescription && trimmedDescription && (
         <Typography
           variant="body1"
           sx={summaryDescriptionSx}

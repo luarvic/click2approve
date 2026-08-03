@@ -196,6 +196,7 @@ const renderTaskDetails = (
     onClick={isCurrentTask ? onCurrentTaskClick : undefined}
     participant="approver"
     showComment
+    showDescription={false}
     showFiles={false}
     showIdentityVerification
     showRevision={false}

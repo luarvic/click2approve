@@ -12,12 +12,10 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
 {
     public DbSet<ApprovalRequest> ApprovalRequests { get; set; }
     public DbSet<ApprovalRequestFile> ApprovalRequestFiles { get; set; }
-    public DbSet<ApprovalRequestLogEntry> ApprovalRequestLogEntries { get; set; }
     public DbSet<ApprovalRequestStep> ApprovalRequestSteps { get; set; }
     public DbSet<ApprovalRequestStepApprover> ApprovalRequestStepApprovers { get; set; }
     public DbSet<ApprovalRequestStepVisibility> ApprovalRequestStepVisibilities { get; set; }
     public DbSet<ApprovalRequestTask> ApprovalRequestTasks { get; set; }
-    public DbSet<ApprovalRequestTaskLogEntry> ApprovalRequestTaskLogEntries { get; set; }
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<UserFile> UserFiles { get; set; }
     public DbSet<UserNotificationPreference> UserNotificationPreferences { get; set; }
@@ -144,43 +142,6 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasForeignKey(file => file.PreviousApprovalRequestFileId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<ApprovalRequestLogEntry>()
-            .Property(e => e.ActorType)
-            .HasConversion<int>();
-
-        modelBuilder.Entity<ApprovalRequestLogEntry>()
-            .Property(e => e.EventType)
-            .HasConversion<int>();
-
-        modelBuilder.Entity<ApprovalRequestLogEntry>()
-            .Property(e => e.ActorEmail)
-            .HasMaxLength(320);
-
-        modelBuilder.Entity<ApprovalRequestLogEntry>()
-            .Property(e => e.ActorDisplayName)
-            .HasMaxLength(255);
-
-        modelBuilder.Entity<ApprovalRequestLogEntry>()
-            .HasIndex(e => new { e.ApprovalRequestId, e.Timestamp });
-
-        modelBuilder.Entity<ApprovalRequestLogEntry>()
-            .HasOne(e => e.ApprovalRequest)
-            .WithMany(r => r.LogEntries)
-            .HasForeignKey(e => e.ApprovalRequestId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<ApprovalRequestLogEntry>()
-            .HasOne(e => e.ActorUser)
-            .WithMany()
-            .HasForeignKey(e => e.ActorUserId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<ApprovalRequestLogEntry>()
-            .HasOne(e => e.Tenant)
-            .WithMany(t => t.ApprovalRequestLogEntries)
-            .HasForeignKey(e => e.TenantId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         modelBuilder.Entity<ApprovalRequestStep>()
             .Property(s => s.Mode)
             .HasConversion<int>();
@@ -254,6 +215,10 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequestTask>()
+            .Property(t => t.ApproverOrganizationDisplayName)
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
             .Property(t => t.RequiresIdentityVerification)
             .HasDefaultValue(false);
 
@@ -266,11 +231,7 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasMaxLength(1024);
 
         modelBuilder.Entity<ApprovalRequestTask>()
-            .Property(t => t.ApproverLegalFirstName)
-            .HasMaxLength(255);
-
-        modelBuilder.Entity<ApprovalRequestTask>()
-            .Property(t => t.ApproverLegalLastName)
+            .Property(t => t.ApproverLegalName)
             .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequestTask>()
@@ -307,55 +268,6 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .HasOne(t => t.Tenant)
             .WithMany(t => t.ApprovalRequestTasks)
             .HasForeignKey(t => t.TenantId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
-            .Property(e => e.ActorType)
-            .HasConversion<int>();
-
-        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
-            .Property(e => e.EventType)
-            .HasConversion<int>();
-
-        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
-            .Property(e => e.ActorEmail)
-            .HasMaxLength(320);
-
-        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
-            .Property(e => e.ActorDisplayName)
-            .HasMaxLength(255);
-
-        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
-            .Property(e => e.OnBehalfOfActorType)
-            .HasConversion<int?>();
-
-        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
-            .Property(e => e.OnBehalfOfEmail)
-            .HasMaxLength(320);
-
-        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
-            .Property(e => e.OnBehalfOfDisplayName)
-            .HasMaxLength(255);
-
-        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
-            .HasIndex(e => new { e.ApprovalRequestTaskId, e.Timestamp });
-
-        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
-            .HasOne(e => e.ApprovalRequestTask)
-            .WithMany(t => t.LogEntries)
-            .HasForeignKey(e => e.ApprovalRequestTaskId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
-            .HasOne(e => e.ActorUser)
-            .WithMany()
-            .HasForeignKey(e => e.ActorUserId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<ApprovalRequestTaskLogEntry>()
-            .HasOne(e => e.Tenant)
-            .WithMany(t => t.ApprovalRequestTaskLogEntries)
-            .HasForeignKey(e => e.TenantId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<UserFile>()

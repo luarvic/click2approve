@@ -82,18 +82,10 @@ const ApprovalRequestIdentityVerificationView: React.FC<ApprovalRequestIdentityV
         >
           <Stack spacing={Dialogs.stepHeaderSpacing}>
             <Typography color="text.secondary" variant="caption">
-              Legal first name
+              Legal name
             </Typography>
             <Typography>
-              {task.approverLegalFirstName || "Not provided"}
-            </Typography>
-          </Stack>
-          <Stack spacing={Dialogs.stepHeaderSpacing}>
-            <Typography color="text.secondary" variant="caption">
-              Legal last name
-            </Typography>
-            <Typography>
-              {task.approverLegalLastName || "Not provided"}
+              {task.approverLegalName || "Not provided"}
             </Typography>
           </Stack>
           <Stack spacing={Dialogs.stepHeaderSpacing}>

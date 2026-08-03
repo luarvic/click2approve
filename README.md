@@ -25,15 +25,14 @@ review decisions, and tracking request history.
 - Compose approval requests with one or more files, a title, description, and
   email-based approvers.
 - Build multi-step approval workflows with serial or parallel approver steps.
-- Track sent approval requests in the outbox, inspect request details and audit
-  history, see in-progress request state, cancel pending requests, and delete
-  requests.
+- Track sent approval requests in the outbox, inspect request details, see
+  in-progress request state, cancel pending requests, and delete requests.
 - Review incoming approval tasks in the inbox, open task details, preview
   attached files, approve or reject with comments, and see the uncompleted task
   count.
 - Capture approver identity-verification evidence for capability-enabled
   deployments, including legal name, date of birth, signature strokes, IP
-  address, and browser data in the task audit log.
+  address, and browser data on completed tasks.
 - Maintain a user profile with display name, avatar, dark-mode preference, and
   email notification preferences.
 - Notify requesters and approvers by email when email delivery is enabled,

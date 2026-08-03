@@ -10,8 +10,7 @@ public class ApprovalRequestTaskCompleteDto
     public required Guid GlobalId { get; set; }
     public required ApprovalRequestTaskStatus Status { get; set; }
     public string? Comment { get; set; }
-    public string? ApproverLegalFirstName { get; set; }
-    public string? ApproverLegalLastName { get; set; }
+    public string? ApproverLegalName { get; set; }
     public DateOnly? ApproverDateOfBirth { get; set; }
     public string? ApproverSignatureJson { get; set; }
     public string? ApproverIpAddress { get; set; }

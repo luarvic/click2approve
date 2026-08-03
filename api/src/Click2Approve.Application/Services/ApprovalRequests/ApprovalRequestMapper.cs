@@ -40,11 +40,6 @@ internal static class ApprovalRequestMapper
         var approverGlobalIdsById = approvalRequest.Steps
             .SelectMany(step => step.Approvers)
             .ToDictionary(approver => approver.Id, approver => approver.GlobalId);
-        var tasks = approvalRequest.Steps
-            .SelectMany(step => step.Tasks)
-            .DistinctBy(task => task.Id)
-            .ToList();
-
         return new ApprovalRequestDto
         {
             GlobalId = approvalRequest.GlobalId,
@@ -69,9 +64,7 @@ internal static class ApprovalRequestMapper
             PreviousRevisionApprovalRequestGlobalId = approvalRequest.PreviousRevisionApprovalRequest?.GlobalId,
             PreviousRevisionApprovalRequestTitle = approvalRequest.PreviousRevisionApprovalRequest?.Title,
             NextRevisionApprovalRequestGlobalId = approvalRequest.NextRevisionApprovalRequest?.GlobalId,
-            NextRevisionApprovalRequestTitle = approvalRequest.NextRevisionApprovalRequest?.Title,
-            LogEntries = [.. approvalRequest.LogEntries.Select(MapLogEntry)],
-            TaskLogEntries = [.. tasks.SelectMany(task => task.LogEntries).Select(MapTaskLogEntry)]
+            NextRevisionApprovalRequestTitle = approvalRequest.NextRevisionApprovalRequest?.Title
         };
     }
 
@@ -94,10 +87,6 @@ internal static class ApprovalRequestMapper
     {
         var visibleSteps = approvalRequest.Steps
             .Where(step => StepIsVisibleToApprover(step, approvalRequestStepApproverId))
-            .ToList();
-        var tasks = visibleSteps
-            .SelectMany(step => step.Tasks)
-            .DistinctBy(task => task.Id)
             .ToList();
         var approverGlobalIdsById = approvalRequest.Steps
             .SelectMany(step => step.Approvers)
@@ -128,9 +117,7 @@ internal static class ApprovalRequestMapper
             PreviousRevisionApprovalRequestGlobalId = approvalRequest.PreviousRevisionApprovalRequest?.GlobalId,
             PreviousRevisionApprovalRequestTitle = approvalRequest.PreviousRevisionApprovalRequest?.Title,
             NextRevisionApprovalRequestGlobalId = approvalRequest.NextRevisionApprovalRequest?.GlobalId,
-            NextRevisionApprovalRequestTitle = approvalRequest.NextRevisionApprovalRequest?.Title,
-            LogEntries = [.. approvalRequest.LogEntries.Select(MapLogEntry)],
-            TaskLogEntries = [.. tasks.SelectMany(task => task.LogEntries).Select(MapTaskLogEntry)]
+            NextRevisionApprovalRequestTitle = approvalRequest.NextRevisionApprovalRequest?.Title
         };
     }
 
@@ -245,6 +232,7 @@ internal static class ApprovalRequestMapper
             ApproverUserId = task.ApproverUserId,
             ApproverEmail = task.ApproverEmail,
             ApproverDisplayName = task.ApproverDisplayName,
+            ApproverOrganizationDisplayName = task.ApproverOrganizationDisplayName,
             RequestedByEmail = createdByEmail ?? task.ApprovalRequest.CreatedByEmail,
             RequestedByDisplayName = createdByDisplayName ?? task.ApprovalRequest.CreatedByDisplayName,
             CreatedByOrganizationDisplayName = createdByOrganizationDisplayName ?? task.ApprovalRequest.CreatedByOrganizationDisplayName,
@@ -256,46 +244,12 @@ internal static class ApprovalRequestMapper
             RequiresIdentityVerification = task.RequiresIdentityVerification,
             ApproverIpAddress = task.ApproverIpAddress,
             ApproverBrowserData = task.ApproverBrowserData,
-            ApproverLegalFirstName = task.ApproverLegalFirstName,
-            ApproverLegalLastName = task.ApproverLegalLastName,
+            ApproverLegalName = task.ApproverLegalName,
             ApproverDateOfBirth = task.ApproverDateOfBirth,
             HasApproverSignature = !string.IsNullOrWhiteSpace(task.ApproverSignatureJson),
-            ApproverSignatureJson = task.ApproverSignatureJson,
-            LogEntries = [.. task.LogEntries.Select(MapTaskLogEntry)]
+            ApproverSignatureJson = task.ApproverSignatureJson
         };
     }
-
-    private static ApprovalRequestLogEntryDto MapLogEntry(ApprovalRequestLogEntry logEntry) => new()
-    {
-        GlobalId = logEntry.GlobalId,
-        Timestamp = logEntry.Timestamp,
-        ActorType = logEntry.ActorType,
-        ActorUserId = logEntry.ActorUserId,
-        ActorEmployeeId = logEntry.ActorEmployeeId,
-        ActorEmail = logEntry.ActorEmail,
-        ActorDisplayName = logEntry.ActorDisplayName,
-        EventType = logEntry.EventType,
-        Details = logEntry.Details
-    };
-
-    private static ApprovalRequestTaskLogEntryDto MapTaskLogEntry(ApprovalRequestTaskLogEntry logEntry) => new()
-    {
-        GlobalId = logEntry.GlobalId,
-        ApprovalRequestTaskGlobalId = logEntry.ApprovalRequestTask.GlobalId,
-        Timestamp = logEntry.Timestamp,
-        ActorType = logEntry.ActorType,
-        ActorUserId = logEntry.ActorUserId,
-        ActorEmployeeId = logEntry.ActorEmployeeId,
-        ActorEmail = logEntry.ActorEmail,
-        ActorDisplayName = logEntry.ActorDisplayName,
-        OnBehalfOfActorType = logEntry.OnBehalfOfActorType,
-        OnBehalfOfUserId = logEntry.OnBehalfOfUserId,
-        OnBehalfOfEmployeeId = logEntry.OnBehalfOfEmployeeId,
-        OnBehalfOfEmail = logEntry.OnBehalfOfEmail,
-        OnBehalfOfDisplayName = logEntry.OnBehalfOfDisplayName,
-        EventType = logEntry.EventType,
-        Details = logEntry.Details
-    };
 
     private static UserFileDto MapUserFile(UserFile userFile)
     {

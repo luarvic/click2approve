@@ -30,6 +30,10 @@ export class ProductStore {
     return this.productInfo?.capabilities.approvalRequestRevisions === true;
   }
 
+  get sharedVerificationLinksAreEnabled(): boolean {
+    return this.productInfo?.capabilities.sharedVerificationLinks === true;
+  }
+
   get requiresConfirmedEmail(): boolean {
     return this.productInfo?.requiresConfirmedEmail === true;
   }

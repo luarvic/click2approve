@@ -9,10 +9,6 @@ namespace Click2Approve.Application.Services.ApprovalRequests;
 /// </summary>
 public interface IApprovalWorkflowService
 {
-    ApprovalLogActor SystemActor { get; }
-
-    Task<ApprovalLogActor> ResolveActorAsync(AppUser user, long tenantId, CancellationToken cancellationToken);
-
     Task<Dictionary<ApprovalRequestStepApprover, List<ApprovalRecipientResolution>>> ResolveApproversAsync(
         ApprovalRequest approvalRequest,
         List<ApprovalRequestStepSubmitDto> submittedSteps,
@@ -33,7 +29,6 @@ public interface IApprovalWorkflowService
 
     Task AdvanceAsync(
         ApprovalRequestTask approvalRequestTask,
-        ApprovalLogActor actor,
         DateTime timestamp,
         CancellationToken cancellationToken);
 
@@ -59,28 +54,4 @@ public interface IApprovalWorkflowService
         ApprovalRequestTask approvalRequestTask,
         CancellationToken cancellationToken);
 
-    void AddSubmittedLog(
-        ApprovalRequest approvalRequest,
-        ApprovalLogActor actor,
-        DateTime timestamp);
-
-    void AddStatusLog(
-        ApprovalRequest approvalRequest,
-        DateTime timestamp,
-        ApprovalRequestStatus? previousStatus,
-        ApprovalRequestStatus status);
-
-    void AddStatusLog(
-        ApprovalRequestTask task,
-        ApprovalLogActor actor,
-        DateTime timestamp,
-        ApprovalRequestTaskStatus? previousStatus,
-        ApprovalRequestTaskStatus status,
-        string? comment,
-        string? ipAddress = null,
-        string? browserData = null,
-        string? legalFirstName = null,
-        string? legalLastName = null,
-        DateOnly? dateOfBirth = null,
-        bool? signatureCaptured = null);
 }

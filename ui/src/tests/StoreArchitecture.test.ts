@@ -62,8 +62,6 @@ const approvalRequest = (globalId: string): ApprovalRequest => ({
   createdByOrganizationDisplayName: "Personal",
   revisionNumber: 1,
   status: ApprovalRequestStatus.Pending,
-  logEntries: [],
-  taskLogEntries: [],
 });
 
 const approvalRequestTask = (
@@ -85,7 +83,6 @@ const approvalRequestTask = (
   createdAt: "2026-01-01T00:00:00",
   createdAtDate: new Date(),
   requestFiles: [],
-  logEntries: [],
 });
 
 describe("store architecture", () => {

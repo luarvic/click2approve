@@ -3,14 +3,12 @@ import ApprovalRequestComment from "@/features/approvalRequests/components/Appro
 import ApprovalRequestIdentityVerificationView from "@/features/approvalRequests/components/ApprovalRequestIdentityVerificationView";
 import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
 import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
-import type { ApprovalRequestTimestampType } from "@/features/approvalRequests/components/ApprovalRequestTimestamp";
 import ApprovalRequestTimestampRow from "@/features/approvalRequests/components/ApprovalRequestTimestampRow";
 import {
   ApprovalStatusLineColors,
   getApprovalRequestTaskStatusLabel,
   getApprovalRequestTaskStatusLineColor,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
-import { ApprovalRequestTaskLogEventType } from "@/features/approvalRequests/models/approvalRequestLogEntry";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { TenantType } from "@/features/tenants/models/tenant";
@@ -27,6 +25,7 @@ interface ApprovalRequestTaskSummaryBlockProps {
   onClick?: () => void;
   participant?: "approver" | "requester" | "none";
   showComment?: boolean;
+  showDescription?: boolean;
   showFiles?: boolean;
   showIdentityVerification?: boolean;
   showRevision?: boolean;
@@ -62,50 +61,6 @@ const getTaskBoxSx = (
   };
 };
 
-const getTaskCompletionLabel = (task: ApprovalRequestTask) => {
-  switch (task.status) {
-    case ApprovalRequestTaskStatus.Approved:
-      return "Approved at";
-    case ApprovalRequestTaskStatus.Rejected:
-      return "Rejected at";
-    case ApprovalRequestTaskStatus.Skipped:
-      return "Skipped at";
-    case ApprovalRequestTaskStatus.Canceled:
-      return "Canceled at";
-    default:
-      return "Completed at";
-  }
-};
-
-const getTaskCompletionTimestampType = (
-  task: ApprovalRequestTask,
-): ApprovalRequestTimestampType => {
-  switch (task.status) {
-    case ApprovalRequestTaskStatus.Approved:
-      return "approved";
-    case ApprovalRequestTaskStatus.Rejected:
-      return "rejected";
-    case ApprovalRequestTaskStatus.Skipped:
-      return "skipped";
-    case ApprovalRequestTaskStatus.Canceled:
-      return "canceled";
-    default:
-      return "completed";
-  }
-};
-
-const getTaskCompletionDate = (task: ApprovalRequestTask) => {
-  if (task.status === ApprovalRequestTaskStatus.Pending) {
-    return null;
-  }
-
-  return (task.logEntries ?? [])
-    .filter((entry) => entry.eventType === ApprovalRequestTaskLogEventType.StatusChanged)
-    .map((entry) => entry.timestampDate)
-    .filter(Boolean)
-    .sort((left, right) => right.getTime() - left.getTime())[0] ?? null;
-};
-
 const taskIdentityVerificationIsVisible = (task: ApprovalRequestTask) =>
   task.requiresIdentityVerification === true &&
   task.status !== ApprovalRequestTaskStatus.Pending;
@@ -115,6 +70,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   onClick,
   participant = "requester",
   showComment = false,
+  showDescription = true,
   showFiles = true,
   showIdentityVerification = false,
   showRevision = true,
@@ -123,7 +79,6 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   task,
   taskNumberPrefix,
 }) => {
-  const completedAt = getTaskCompletionDate(task);
   const isClickable = Boolean(onClick);
   const organizationIsVisible =
     stores.tenantStore.currentTenant?.type === TenantType.Personal;
@@ -131,9 +86,12 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   const requestedByDisplayName = organizationIsVisible
     ? `${requestedByName} · ${task.createdByOrganizationDisplayName}`
     : requestedByName;
+  const approverDisplayName = organizationIsVisible && task.approverOrganizationDisplayName
+    ? `${task.approverDisplayName} · ${task.approverOrganizationDisplayName}`
+    : task.approverDisplayName;
   const requestedByEmail = task.requestedByEmail ?? task.approvalRequest?.createdByEmail;
   const participantDisplayName = participant === "approver"
-    ? task.approverDisplayName
+    ? approverDisplayName
     : requestedByDisplayName;
   const participantEmail = participant === "approver"
     ? task.approverEmail
@@ -164,6 +122,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
           numberPrefix={taskNumberPrefix}
           requestFiles={task.requestFiles}
           revisionNumber={task.revisionNumber}
+          showDescription={showDescription}
           showFileStateIndicators={false}
           showFiles={showFiles}
           showRevision={showRevision}
@@ -187,18 +146,11 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
         {showTimeline && (
           <ApprovalRequestTimestampRow
             items={[
-              {
-                date: task.createdAtDate,
-                label: "Created at",
-                type: "created",
-              },
-              completedAt
-                ? {
-                  date: completedAt,
-                  label: getTaskCompletionLabel(task),
-                  type: getTaskCompletionTimestampType(task),
-                }
-                : null,
+            {
+              date: task.createdAtDate,
+              label: "Created at",
+              type: "created",
+            },
             ]}
           />
         )}

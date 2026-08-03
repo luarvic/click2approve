@@ -148,7 +148,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         Assert.Contains("\"approvalRequest\":{", taskJson);
         Assert.Contains("\"steps\"", taskJson);
         Assert.Contains("\"createdByEmail\"", taskJson);
-        Assert.Contains("\"taskLogEntries\"", taskJson);
+        Assert.DoesNotContain("\"taskLogEntries\"", taskJson);
 
         var task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
         Assert.NotNull(task);
@@ -174,9 +174,6 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                 Assert.Empty(step.Approvers);
                 Assert.Empty(step.Visibility);
             });
-        Assert.All(task.ApprovalRequest.TaskLogEntries, logEntry =>
-            Assert.Equal(task.GlobalId, logEntry.ApprovalRequestTaskGlobalId));
-
         response = await approverClient.PostAsJsonAsync($"api/v1/tenants/{approverTenantId}/tasks/complete", new
         {
             GlobalId = task.GlobalId,
@@ -189,8 +186,6 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
         Assert.NotNull(task);
         Assert.NotNull(task.ApprovalRequest);
-        Assert.All(task.ApprovalRequest.TaskLogEntries, logEntry =>
-            Assert.Equal(task.GlobalId, logEntry.ApprovalRequestTaskGlobalId));
         Assert.Collection(task.RequestFiles,
             file => Assert.Equal("request.txt", file.UserFile.Name));
     }
@@ -369,13 +364,9 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         Assert.True(completedTaskResponse.IsSuccessStatusCode, await completedTaskResponse.Content.ReadAsStringAsync());
         var completedTask = await completedTaskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
         Assert.NotNull(completedTask);
-        var statusChangedEntry = Assert.Single(completedTask.LogEntries, entry =>
-            entry.EventType == ApprovalRequestTaskLogEventType.StatusChanged);
-        using var detailsDocument = JsonDocument.Parse(statusChangedEntry.Details);
-        var browserData = detailsDocument.RootElement.GetProperty("browserData").GetString();
-        Assert.NotNull(browserData);
+        Assert.NotNull(completedTask.ApproverBrowserData);
 
-        using var browserDataDocument = JsonDocument.Parse(browserData);
+        using var browserDataDocument = JsonDocument.Parse(completedTask.ApproverBrowserData);
         Assert.Equal("Click2Approve.Tests/1.0", browserDataDocument.RootElement.GetProperty("serverUserAgent").GetString());
         Assert.Equal("en-US", browserDataDocument.RootElement.GetProperty("serverAcceptLanguage").GetString());
         var clientAuditContext = browserDataDocument.RootElement.GetProperty("client");

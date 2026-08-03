@@ -1,0 +1,134 @@
+import {
+  SharedVerificationLinkListItem,
+  SharedVerificationReceipt,
+} from "@/features/sharedVerificationLinks/models/sharedVerificationLink";
+import axios from "@/shared/api/axios";
+import {
+  getUserFriendlyApiErrorMessage,
+  isResourceNotFoundOrForbiddenError,
+} from "@/shared/utils/helpers";
+import { toast } from "react-toastify";
+
+export const createSharedVerificationLinkForRequest = async (
+  tenantGlobalId: string,
+  approvalRequestGlobalId: string,
+): Promise<string | null> => {
+  try {
+    const { data } = await axios.post<string>(
+      `api/v1/tenants/${tenantGlobalId}/requests/${approvalRequestGlobalId}/sharedVerificationLinks`,
+    );
+    return data;
+  } catch (e) {
+    toast.error(getUserFriendlyApiErrorMessage(e));
+    return null;
+  }
+};
+
+export const createSharedVerificationLinkForTask = async (
+  tenantGlobalId: string,
+  approvalRequestTaskGlobalId: string,
+): Promise<string | null> => {
+  try {
+    const { data } = await axios.post<string>(
+      `api/v1/tenants/${tenantGlobalId}/tasks/${approvalRequestTaskGlobalId}/sharedVerificationLinks`,
+    );
+    return data;
+  } catch (e) {
+    toast.error(getUserFriendlyApiErrorMessage(e));
+    return null;
+  }
+};
+
+export const getSharedVerificationReceipt = async (
+  globalId: string,
+): Promise<SharedVerificationReceipt | null> => {
+  try {
+    const { data } = await axios.get<SharedVerificationReceipt>(
+      `api/v1/sharedVerificationLinks/${globalId}`,
+    );
+    normalizeReceiptDates(data);
+    return data;
+  } catch (e) {
+    if (isResourceNotFoundOrForbiddenError(e)) {
+      return null;
+    }
+    toast.error(getUserFriendlyApiErrorMessage(e));
+    return null;
+  }
+};
+
+export const listSharedVerificationLinksForRequest = async (
+  tenantGlobalId: string,
+  approvalRequestGlobalId: string,
+): Promise<SharedVerificationLinkListItem[]> => {
+  try {
+    const { data } = await axios.get<SharedVerificationLinkListItem[]>(
+      `api/v1/tenants/${tenantGlobalId}/requests/${approvalRequestGlobalId}/sharedVerificationLinks`,
+    );
+    data.forEach(normalizeListItemDates);
+    return data;
+  } catch (e) {
+    toast.error(getUserFriendlyApiErrorMessage(e));
+    return [];
+  }
+};
+
+export const listSharedVerificationLinksForTask = async (
+  tenantGlobalId: string,
+  approvalRequestTaskGlobalId: string,
+): Promise<SharedVerificationLinkListItem[]> => {
+  try {
+    const { data } = await axios.get<SharedVerificationLinkListItem[]>(
+      `api/v1/tenants/${tenantGlobalId}/tasks/${approvalRequestTaskGlobalId}/sharedVerificationLinks`,
+    );
+    data.forEach(normalizeListItemDates);
+    return data;
+  } catch (e) {
+    toast.error(getUserFriendlyApiErrorMessage(e));
+    return [];
+  }
+};
+
+export const deleteSharedVerificationLinkForRequest = async (
+  tenantGlobalId: string,
+  approvalRequestGlobalId: string,
+  linkGlobalId: string,
+): Promise<boolean> => {
+  try {
+    await axios.delete(
+      `api/v1/tenants/${tenantGlobalId}/requests/${approvalRequestGlobalId}/sharedVerificationLinks/${linkGlobalId}`,
+    );
+    return true;
+  } catch (e) {
+    toast.error(getUserFriendlyApiErrorMessage(e));
+    return false;
+  }
+};
+
+export const deleteSharedVerificationLinkForTask = async (
+  tenantGlobalId: string,
+  approvalRequestTaskGlobalId: string,
+  linkGlobalId: string,
+): Promise<boolean> => {
+  try {
+    await axios.delete(
+      `api/v1/tenants/${tenantGlobalId}/tasks/${approvalRequestTaskGlobalId}/sharedVerificationLinks/${linkGlobalId}`,
+    );
+    return true;
+  } catch (e) {
+    toast.error(getUserFriendlyApiErrorMessage(e));
+    return false;
+  }
+};
+
+const normalizeListItemDates = (item: SharedVerificationLinkListItem): void => {
+  item.createdAt = new Date(item.createdAt);
+};
+
+const normalizeReceiptDates = (receipt: SharedVerificationReceipt): void => {
+  receipt.approvalRequestCreatedAt = new Date(receipt.approvalRequestCreatedAt);
+  receipt.approvalRequestApprovedAt = receipt.approvalRequestApprovedAt
+    ? new Date(receipt.approvalRequestApprovedAt)
+    : undefined;
+  receipt.createdAt = new Date(receipt.createdAt);
+};

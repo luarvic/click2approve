@@ -71,11 +71,12 @@ public class EmailOnlyApprovalRecipientResolver(ITenantRepository tenantReposito
         return
         [
             new ApprovalRecipientResolution(
-                email,
-                approverTenant?.Owner.Id,
+                ApproverEmail: email,
+                ApproverUserId: approverTenant?.Owner.Id,
                 ApproverEmployeeId: null,
-                approverTenant?.Id ?? approvalRequest.TenantId,
-                displayName)
+                TenantId: approverTenant?.Id ?? approvalRequest.TenantId,
+                ApproverDisplayName: displayName,
+                ApproverOrganizationDisplayName: approverTenant?.BusinessName)
         ];
     }
 }

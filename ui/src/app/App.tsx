@@ -17,6 +17,7 @@ import ResendConfirmationEmailPage from "@/features/identity/pages/ResendConfirm
 import ResetPasswordPage from "@/features/identity/pages/ResetPasswordPage";
 import SignInPage from "@/features/identity/pages/SignInPage";
 import SignUpPage from "@/features/identity/pages/SignUpPage";
+import SharedVerificationReceiptPage from "@/features/sharedVerificationLinks/pages/SharedVerificationReceiptPage";
 import TeamEditorPage from "@/features/teams/pages/TeamEditorPage";
 import TeamsPage from "@/features/teams/pages/TeamsPage";
 import { EmployeeRole, TenantType } from "@/features/tenants/models/tenant";
@@ -97,6 +98,7 @@ const App = () => {
                 </Route>
                 <Route path="/confirmEmail" element={<ConfirmEmailPage />} />
                 <Route path="/information" element={<InformationPage />} />
+                <Route path="/verification/:globalId" element={<SharedVerificationReceiptPage />} />
               </Route>
             </Route>
             <Route element={<RouteGuard />}>
