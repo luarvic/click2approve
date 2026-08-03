@@ -424,7 +424,6 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
         return [.. entry.Properties
             .Where(property => !property.Metadata.IsShadowProperty())
             .Where(property => property.Metadata.Name != nameof(DbEntity.Id))
-            .Where(property => property.Metadata.Name != nameof(DbEntity.GlobalId))
             .Where(property => entry.State != EntityState.Modified || property.IsModified)
             .Select(property => CreatePropertyChange(property, entry.State))];
     }

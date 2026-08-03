@@ -71,6 +71,7 @@ public class AuditLogTests
         Assert.Equal(EntityState.Added.ToString(), auditLog.EntityState);
 
         using var changes = JsonDocument.Parse(auditLog.ChangesJson);
+        Assert.Equal(userFile.GlobalId, changes.RootElement.GetProperty(nameof(UserFile.GlobalId)).GetProperty("newValue").GetGuid());
         Assert.Equal("contract.txt", changes.RootElement.GetProperty(nameof(UserFile.Name)).GetProperty("newValue").GetString());
     }
 
@@ -149,7 +150,72 @@ public class AuditLogTests
 
         using var changes = JsonDocument.Parse(auditLog.ChangesJson);
         Assert.Equal(
+            approvalRequestFile.GlobalId,
+            changes.RootElement.GetProperty(nameof(ApprovalRequestFile.GlobalId)).GetProperty("newValue").GetGuid());
+        Assert.Equal(
             approvalRequest.Id,
             changes.RootElement.GetProperty(nameof(ApprovalRequestFile.ApprovalRequestId)).GetProperty("newValue").GetInt64());
+    }
+
+    [Fact]
+    public async Task SaveChangesAsync_ModifiedAuditLogIncludesOnlyChangedProperties()
+    {
+        await using var connection = new SqliteConnection("DataSource=:memory:");
+        await connection.OpenAsync();
+
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseSqlite(connection)
+            .Options;
+        var userId = Guid.NewGuid().ToString();
+        var httpContextAccessor = new HttpContextAccessor
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(new ClaimsIdentity(
+                    [new Claim(ClaimTypes.NameIdentifier, userId)],
+                    authenticationType: "Test"))
+            }
+        };
+
+        await using var db = new ApiDbContext(options, httpContextAccessor);
+        await db.Database.EnsureCreatedAsync();
+
+        var owner = new AppUser
+        {
+            Id = userId,
+            UserName = "owner@example.com",
+            Email = "owner@example.com"
+        };
+        var tenant = new Tenant
+        {
+            BusinessName = "Personal",
+            Type = TenantType.Personal,
+            Owner = owner
+        };
+        var userFile = new UserFile
+        {
+            Name = "contract.txt",
+            Type = "text/plain",
+            CreatedAt = DateTime.UtcNow,
+            OwnerId = owner.Id,
+            Tenant = tenant,
+            Size = 42
+        };
+
+        db.UserFiles.Add(userFile);
+        await db.SaveChangesAsync();
+
+        userFile.Name = "updated-contract.txt";
+        await db.SaveChangesAsync();
+
+        var auditLog = await db.AuditLogs
+            .SingleAsync(log => log.EntityType == nameof(UserFile)
+                && log.EntityId == userFile.Id
+                && log.EntityState == EntityState.Modified.ToString());
+
+        using var changes = JsonDocument.Parse(auditLog.ChangesJson);
+        Assert.False(changes.RootElement.TryGetProperty(nameof(UserFile.GlobalId), out _));
+        Assert.Equal("contract.txt", changes.RootElement.GetProperty(nameof(UserFile.Name)).GetProperty("oldValue").GetString());
+        Assert.Equal("updated-contract.txt", changes.RootElement.GetProperty(nameof(UserFile.Name)).GetProperty("newValue").GetString());
     }
 }
