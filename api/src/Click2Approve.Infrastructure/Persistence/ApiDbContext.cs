@@ -1,15 +1,21 @@
+using System.Security.Claims;
+using System.Text.Json;
 using Click2Approve.Application.Persistence;
 using Click2Approve.Domain.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Click2Approve.Infrastructure.Persistence;
 
 /// <summary>
 /// Represents an entity framework database context.
 /// </summary>
-public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>(options), IUnitOfWork
+public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpContextAccessor) : IdentityDbContext<AppUser>(options), IUnitOfWork
 {
+    private static readonly JsonSerializerOptions AuditJsonOptions = new(JsonSerializerDefaults.Web);
+
+    public DbSet<AuditLog> AuditLogs { get; set; }
     public DbSet<ApprovalRequest> ApprovalRequests { get; set; }
     public DbSet<ApprovalRequestFile> ApprovalRequestFiles { get; set; }
     public DbSet<ApprovalRequestStep> ApprovalRequestSteps { get; set; }
@@ -24,6 +30,28 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
     {
         base.OnModelCreating(modelBuilder);
         ConfigureGlobalIdIndexes(modelBuilder);
+
+        modelBuilder.Entity<AuditLog>()
+            .Property(log => log.UserId)
+            .HasMaxLength(450);
+
+        modelBuilder.Entity<AuditLog>()
+            .Property(log => log.EntityType)
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<AuditLog>()
+            .Property(log => log.EntityState)
+            .HasMaxLength(32);
+
+        modelBuilder.Entity<AuditLog>()
+            .Property(log => log.ChangesJson)
+            .HasColumnType("longtext");
+
+        modelBuilder.Entity<AuditLog>()
+            .HasIndex(log => log.Timestamp);
+
+        modelBuilder.Entity<AuditLog>()
+            .HasIndex(log => new { log.EntityType, log.EntityId });
 
         modelBuilder.Entity<Tenant>()
             .Property(t => t.BusinessName)
@@ -305,6 +333,27 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
             .IsUnique();
     }
 
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        ChangeTracker.DetectChanges();
+
+        var pendingAuditLogs = CreatePendingAuditLogs();
+        if (pendingAuditLogs.Count == 0)
+        {
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        if (Database.CurrentTransaction is not null)
+        {
+            return await SaveChangesWithAuditAsync(pendingAuditLogs, cancellationToken);
+        }
+
+        await using var transaction = await Database.BeginTransactionAsync(cancellationToken);
+        var result = await SaveChangesWithAuditAsync(pendingAuditLogs, cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return result;
+    }
+
     protected static void ConfigureGlobalIdIndexes(ModelBuilder modelBuilder)
     {
         foreach (var entityType in modelBuilder.Model.GetEntityTypes()
@@ -319,4 +368,95 @@ public class ApiDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
                 .IsUnique();
         }
     }
+
+    private async Task<int> SaveChangesWithAuditAsync(List<PendingAuditLog> pendingAuditLogs, CancellationToken cancellationToken)
+    {
+        var result = await base.SaveChangesAsync(cancellationToken);
+
+        AuditLogs.AddRange(pendingAuditLogs.Select(CreateAuditLog));
+        await base.SaveChangesAsync(cancellationToken);
+
+        return result;
+    }
+
+    private List<PendingAuditLog> CreatePendingAuditLogs()
+    {
+        var userId = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        return [.. ChangeTracker
+            .Entries()
+            .Where(entry => entry.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
+            .Where(entry => entry.Entity is DbEntity and not AuditLog)
+            .Select(entry => CreatePendingAuditLog(entry, userId))];
+    }
+
+    private static PendingAuditLog CreatePendingAuditLog(EntityEntry entry, string? userId)
+    {
+        var entity = (DbEntity)entry.Entity;
+
+        return new PendingAuditLog(
+            UserId: userId,
+            EntityType: entry.Metadata.ClrType.Name,
+            Entity: entity,
+            EntityState: entry.State,
+            PropertyChanges: GetPropertyChanges(entry));
+    }
+
+    private static AuditLog CreateAuditLog(PendingAuditLog pendingAuditLog)
+    {
+        return new AuditLog
+        {
+            Timestamp = DateTime.UtcNow,
+            UserId = pendingAuditLog.UserId,
+            EntityType = pendingAuditLog.EntityType,
+            EntityId = pendingAuditLog.Entity.Id,
+            EntityState = pendingAuditLog.EntityState.ToString(),
+            ChangesJson = JsonSerializer.Serialize(
+                pendingAuditLog.PropertyChanges.ToDictionary(
+                    property => property.Name,
+                    property => property.ToAuditPropertyChange()),
+                AuditJsonOptions)
+        };
+    }
+
+    private static List<PendingAuditPropertyChange> GetPropertyChanges(EntityEntry entry)
+    {
+        return [.. entry.Properties
+            .Where(property => !property.Metadata.IsShadowProperty())
+            .Where(property => property.Metadata.Name != nameof(DbEntity.Id))
+            .Where(property => property.Metadata.Name != nameof(DbEntity.GlobalId))
+            .Where(property => entry.State != EntityState.Modified || property.IsModified)
+            .Select(property => CreatePropertyChange(property, entry.State))];
+    }
+
+    private static PendingAuditPropertyChange CreatePropertyChange(PropertyEntry property, EntityState entityState)
+    {
+        return entityState switch
+        {
+            EntityState.Added => new PendingAuditPropertyChange(property.Metadata.Name, OldValue: null, NewValue: null, property),
+            EntityState.Deleted => new PendingAuditPropertyChange(property.Metadata.Name, property.OriginalValue, NewValue: null, Property: null),
+            _ => new PendingAuditPropertyChange(property.Metadata.Name, property.OriginalValue, NewValue: null, property)
+        };
+    }
+
+    private sealed record PendingAuditLog(
+        string? UserId,
+        string EntityType,
+        DbEntity Entity,
+        EntityState EntityState,
+        List<PendingAuditPropertyChange> PropertyChanges);
+
+    private sealed record PendingAuditPropertyChange(
+        string Name,
+        object? OldValue,
+        object? NewValue,
+        PropertyEntry? Property)
+    {
+        public AuditPropertyChange ToAuditPropertyChange()
+        {
+            return new AuditPropertyChange(OldValue, Property?.CurrentValue ?? NewValue);
+        }
+    }
+
+    private sealed record AuditPropertyChange(object? OldValue, object? NewValue);
 }

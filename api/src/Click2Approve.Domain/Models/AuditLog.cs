@@ -1,0 +1,14 @@
+namespace Click2Approve.Domain.Models;
+
+/// <summary>
+/// Records a persisted domain entity change.
+/// </summary>
+public class AuditLog : DbEntity
+{
+    public required DateTime Timestamp { get; set; }
+    public string? UserId { get; set; }
+    public required string EntityType { get; set; }
+    public required long EntityId { get; set; }
+    public required string EntityState { get; set; }
+    public required string ChangesJson { get; set; }
+}
