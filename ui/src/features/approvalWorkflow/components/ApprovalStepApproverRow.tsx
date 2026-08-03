@@ -9,11 +9,9 @@ import { Close } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import {
   Autocomplete,
-  FormControlLabel,
   IconButton,
   MenuItem,
   Stack,
-  Switch,
   TextField,
   Tooltip,
 } from "@mui/material";
@@ -77,7 +75,6 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
               onChange({
                 globalId: approver.globalId,
                 type: Number(event.target.value) as ApprovalRecipientType,
-                requiresIdentityVerification: approver.requiresIdentityVerification,
               })
             }
           sx={Dialogs.approverTypeFieldSx}
@@ -161,21 +158,6 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
           </span>
         </Tooltip>
       </Stack>
-      <FormControlLabel
-        control={(
-          <Switch
-            checked={approver.requiresIdentityVerification === true}
-            disabled={disabled}
-            onChange={(event) =>
-              onChange({
-                ...approver,
-                requiresIdentityVerification: event.target.checked,
-              })
-            }
-          />
-        )}
-        label="Require identity verification"
-      />
     </Stack>
   );
 };

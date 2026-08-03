@@ -314,7 +314,6 @@ public class ApprovalWorkflowService(
                 TenantId = resolution.TenantId,
                 RevisionNumber = approvalRequest.RevisionNumber,
                 Action = step.Action,
-                RequiresIdentityVerification = configuredApprover.RequiresIdentityVerification,
                 Status = ApprovalRequestTaskStatus.Pending,
                 CreatedAt = timestamp
             }, cancellationToken);

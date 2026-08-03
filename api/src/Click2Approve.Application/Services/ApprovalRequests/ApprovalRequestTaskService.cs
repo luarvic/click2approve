@@ -105,7 +105,7 @@ public class ApprovalRequestTaskService(
     {
         approvalRequestTask.ApproverIpAddress = TrimToLength(payload.ApproverIpAddress, 128);
         approvalRequestTask.ApproverBrowserData = TrimToLength(payload.ApproverBrowserData, 1024);
-        if (!approvalRequestTask.RequiresIdentityVerification)
+        if (approvalRequestTask.Action != ApprovalRequestTaskAction.Sign)
         {
             return;
         }
@@ -115,16 +115,6 @@ public class ApprovalRequestTaskService(
         if (legalName.Length == 0)
         {
             throw new BusinessRuleException("Legal name is required.");
-        }
-
-        if (payload.ApproverDateOfBirth is null)
-        {
-            throw new BusinessRuleException("Date of birth is required.");
-        }
-
-        if (payload.ApproverDateOfBirth >= DateOnly.FromDateTime(DateTime.UtcNow))
-        {
-            throw new BusinessRuleException("Date of birth must be in the past.");
         }
 
         if (signatureJson.Length == 0)
@@ -138,7 +128,6 @@ public class ApprovalRequestTaskService(
         }
 
         approvalRequestTask.ApproverLegalName = TrimToLength(legalName, 255);
-        approvalRequestTask.ApproverDateOfBirth = payload.ApproverDateOfBirth;
         approvalRequestTask.ApproverSignatureJson = signatureJson;
     }
 

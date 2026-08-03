@@ -34,11 +34,9 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
         CreatedByOrganizationDisplayName = source.CreatedByOrganizationDisplayName;
         Description = source.Description;
         Comment = source.Comment;
-        RequiresIdentityVerification = source.RequiresIdentityVerification;
         ApproverIpAddress = source.ApproverIpAddress;
         ApproverBrowserData = source.ApproverBrowserData;
         ApproverLegalName = source.ApproverLegalName;
-        ApproverDateOfBirth = source.ApproverDateOfBirth;
         HasApproverSignature = source.HasApproverSignature;
         ApproverSignatureJson = source.ApproverSignatureJson;
     }
@@ -52,11 +50,9 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
     public string? ApproverOrganizationDisplayName { get; init; }
     public string? Description { get; init; }
     public string? Comment { get; init; }
-    public bool RequiresIdentityVerification { get; init; }
     public string? ApproverIpAddress { get; init; }
     public string? ApproverBrowserData { get; init; }
     public string? ApproverLegalName { get; init; }
-    public DateOnly? ApproverDateOfBirth { get; init; }
     public bool HasApproverSignature { get; init; }
     public string? ApproverSignatureJson { get; init; }
 }

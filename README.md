@@ -30,9 +30,8 @@ review decisions, and tracking request history.
 - Review incoming approval tasks in the inbox, open task details, preview
   attached files, approve or reject with comments, and see the uncompleted task
   count.
-- Capture approver identity-verification evidence for capability-enabled
-  deployments, including legal name, date of birth, signature strokes, IP
-  address, and browser data on completed tasks.
+- Capture electronic-signature evidence for sign tasks, including legal name,
+  signature strokes, IP address, and browser data on completed tasks.
 - Maintain a user profile with display name, avatar, dark-mode preference, and
   email notification preferences.
 - Notify requesters and approvers by email when email delivery is enabled,

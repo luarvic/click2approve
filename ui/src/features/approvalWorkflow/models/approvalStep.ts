@@ -19,7 +19,6 @@ export interface ApprovalStepApprover {
   employeeGlobalId?: string;
   teamGlobalId?: string;
   displayName?: string;
-  requiresIdentityVerification?: boolean;
 }
 
 export interface ApprovalStep {

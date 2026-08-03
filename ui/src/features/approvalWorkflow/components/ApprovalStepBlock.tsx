@@ -25,7 +25,6 @@ import {
   ExpandMore,
   Person,
   RuleOutlined,
-  VerifiedUserOutlined,
   VisibilityOffOutlined,
   VisibilityOutlined,
 } from "@mui/icons-material";
@@ -106,21 +105,6 @@ const teamAccordionDetailsSx = {
 const teamTaskListSx: SxProps<Theme> = {
   pl: 0,
 };
-
-const identityVerificationIconSx: SxProps<Theme> = {
-  alignSelf: "center",
-};
-
-const renderIdentityVerificationIcon = (isRequested?: boolean) =>
-  isRequested === true ? (
-    <Tooltip title="Identity verification requested">
-      <VerifiedUserOutlined
-        color="secondary"
-        fontSize="small"
-        sx={identityVerificationIconSx}
-      />
-    </Tooltip>
-  ) : null;
 
 const getStepStatus = (
   step: ApprovalStep,
@@ -303,7 +287,7 @@ const renderTaskDetails = (
     showComment
     showDescription={false}
     showFiles={false}
-    showIdentityVerification
+    showElectronicSignature
     showRevision={false}
     showTitle={false}
     task={task}
@@ -326,7 +310,6 @@ const renderApproverWithoutTasks = (
       email={approver.email}
       type={approver.type}
     />
-    {renderIdentityVerificationIcon(approver.requiresIdentityVerification)}
   </Stack>
 );
 
@@ -359,7 +342,6 @@ const renderTeamApprover = (
           email={approver.email}
           type={approver.type}
         />
-        {renderIdentityVerificationIcon(approver.requiresIdentityVerification)}
       </Stack>
     </AccordionSummary>
     {(approverTasks.length > 0 || showEmptyTeamTasksMessage) && (

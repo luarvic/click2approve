@@ -265,6 +265,8 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
             GlobalId = task.GlobalId,
             Result = true,
             Comment = "Approved",
+            ApproverLegalName = "Approver Person",
+            ApproverSignatureJson = """[{"points":[{"x":1,"y":2}]}]""",
             Title = "Modified task title",
             Description = "Modified task description"
         });
@@ -283,6 +285,8 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         Assert.NotNull(completedTask.CompletedAt);
         Assert.Equal("Original task title", completedTask.Title);
         Assert.Equal("Original task description", completedTask.Description);
+        Assert.Equal("Approver Person", completedTask.ApproverLegalName);
+        Assert.True(completedTask.HasApproverSignature);
     }
 
     [Fact]

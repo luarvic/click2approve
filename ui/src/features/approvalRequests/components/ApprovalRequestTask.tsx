@@ -1,11 +1,12 @@
 import { stores } from "@/app/rootStore";
 import { completeApprovalRequestTask } from "@/features/approvalRequests/api/approvalRequestTasksApi";
 import ApprovalRequestDetails from "@/features/approvalRequests/components/ApprovalRequestDetails";
-import ApprovalRequestIdentityVerificationForm from "@/features/approvalRequests/components/ApprovalRequestIdentityVerificationForm";
-import type { IdentityVerificationErrors } from "@/features/approvalRequests/components/ApprovalRequestIdentityVerificationForm";
+import ApprovalRequestElectronicSignatureForm from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureForm";
+import type { ElectronicSignatureErrors } from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureForm";
 import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestTaskSummaryBlock";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
+import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { createApprovalRequestTaskClientAuditContext } from "@/features/approvalRequests/utils/approvalRequestTaskClientAuditContext";
 import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
@@ -30,7 +31,6 @@ import {
   Tabs,
   TextField,
 } from "@mui/material";
-import dayjs from "dayjs";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 
@@ -38,8 +38,7 @@ interface ApprovalRequestTaskProps {
   onClose: (currentTaskGlobalId?: string) => void;
 }
 
-const emptyIdentityVerificationErrors: IdentityVerificationErrors = {
-  dateOfBirth: "",
+const emptyElectronicSignatureErrors: ElectronicSignatureErrors = {
   legalName: "",
   signature: "",
 };
@@ -50,10 +49,9 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
   const [decision, setDecision] = useState("");
   const [comment, setComment] = useState("");
   const [legalName, setLegalName] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
   const [signatureJson, setSignatureJson] = useState("");
-  const [identityVerificationErrors, setIdentityVerificationErrors] = useState<IdentityVerificationErrors>(
-    emptyIdentityVerificationErrors,
+  const [electronicSignatureErrors, setElectronicSignatureErrors] = useState<ElectronicSignatureErrors>(
+    emptyElectronicSignatureErrors,
   );
   const [approvalRequest, setApprovalRequest] = useState<ApprovalRequest | null>(null);
   const [selectedTab, setSelectedTab] = useState("task");
@@ -65,7 +63,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
   const currentTask = stores.approvalRequestTaskStore.currentTask;
   const isCompleted = Boolean(currentTask && currentTask.status !== ApprovalRequestTaskStatus.Pending);
   const actionLabels = getApprovalRequestTaskActionLabels(currentTask?.action);
-  const requiresIdentityVerification = currentTask?.requiresIdentityVerification === true;
+  const requiresElectronicSignature = currentTask?.action === ApprovalRequestTaskAction.Sign;
   const canManageSharedVerificationLinks = Boolean(
     currentTask &&
     stores.productStore.sharedVerificationLinksAreEnabled &&
@@ -83,9 +81,8 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
     );
     setComment(currentTask?.comment ?? "");
     setLegalName(currentTask?.approverLegalName ?? "");
-    setDateOfBirth(currentTask?.approverDateOfBirth ?? "");
     setSignatureJson("");
-    setIdentityVerificationErrors(emptyIdentityVerificationErrors);
+    setElectronicSignatureErrors(emptyElectronicSignatureErrors);
     setApprovalRequest(currentTask?.approvalRequest ?? null);
     setSelectedTab("task");
   }, [currentTask]);
@@ -96,9 +93,8 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
     setDecision("");
     setComment("");
     setLegalName("");
-    setDateOfBirth("");
     setSignatureJson("");
-    setIdentityVerificationErrors(emptyIdentityVerificationErrors);
+    setElectronicSignatureErrors(emptyElectronicSignatureErrors);
   };
 
   const handleClose = () => {
@@ -108,29 +104,20 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
 
   const handleSignatureChange = useCallback((value: string) => {
     setSignatureJson(value);
-    setIdentityVerificationErrors((current) => ({ ...current, signature: "" }));
+    setElectronicSignatureErrors((current) => ({ ...current, signature: "" }));
   }, []);
 
-  const clearIdentityVerificationError = (field: keyof IdentityVerificationErrors) => {
-    setIdentityVerificationErrors((current) => ({ ...current, [field]: "" }));
+  const clearElectronicSignatureError = (field: keyof ElectronicSignatureErrors) => {
+    setElectronicSignatureErrors((current) => ({ ...current, [field]: "" }));
   };
 
-  const validateIdentityVerification = (): boolean => {
-    const today = dayjs().startOf("day");
-    const dateValue = dateOfBirth ? dayjs(dateOfBirth) : null;
-    const nextErrors: IdentityVerificationErrors = {
-      dateOfBirth: !dateValue
-        ? "Date of birth is required."
-        : !dateValue.isValid()
-          ? "Enter a valid date of birth."
-          : !dateValue.isBefore(today)
-            ? "Date of birth must be in the past."
-            : "",
+  const validateElectronicSignature = (): boolean => {
+    const nextErrors: ElectronicSignatureErrors = {
       legalName: legalName.trim() ? "" : "Legal name is required.",
       signature: signatureJson ? "" : "Signature is required.",
     };
 
-    setIdentityVerificationErrors(nextErrors);
+    setElectronicSignatureErrors(nextErrors);
     return !Object.values(nextErrors).some(Boolean);
   };
 
@@ -147,8 +134,8 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
       setCommentError(true);
       return;
     }
-    if (requiresIdentityVerification) {
-      if (!validateIdentityVerification()) {
+    if (requiresElectronicSignature) {
+      if (!validateElectronicSignature()) {
         return;
       }
     }
@@ -158,9 +145,8 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
       currentTask.globalId,
       decision === "approve",
       comment,
-      requiresIdentityVerification
+      requiresElectronicSignature
         ? {
-            approverDateOfBirth: dateOfBirth,
             approverLegalName: legalName.trim(),
             approverSignatureJson: signatureJson,
           }
@@ -222,7 +208,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
           {currentTask && (
             <ApprovalRequestTaskSummaryBlock
               showComment
-              showIdentityVerification={requiresIdentityVerification}
+              showElectronicSignature={requiresElectronicSignature}
               task={currentTask}
             />
           )}
@@ -272,13 +258,11 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
                   setCommentError(false);
                 }}
               />
-              {requiresIdentityVerification && (
-                <ApprovalRequestIdentityVerificationForm
-                  dateOfBirth={dateOfBirth}
-                  errors={identityVerificationErrors}
+              {requiresElectronicSignature && (
+                <ApprovalRequestElectronicSignatureForm
+                  errors={electronicSignatureErrors}
                   legalName={legalName}
-                  onDateOfBirthChange={setDateOfBirth}
-                  onFieldErrorClear={clearIdentityVerificationError}
+                  onFieldErrorClear={clearElectronicSignatureError}
                   onLegalNameChange={setLegalName}
                   onSignatureChange={handleSignatureChange}
                 />

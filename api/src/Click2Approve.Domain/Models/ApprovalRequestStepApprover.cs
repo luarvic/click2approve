@@ -11,7 +11,6 @@ public class ApprovalRequestStepApprover : DbEntity
     public string? Email { get; set; }
     public long? EmployeeId { get; set; }
     public long? TeamId { get; set; }
-    public bool RequiresIdentityVerification { get; set; }
     public string? ApproverDisplayName { get; set; }
     public List<ApprovalRequestTask> Tasks { get; set; } = [];
     public List<ApprovalRequestStepVisibility> StepVisibilities { get; set; } = [];

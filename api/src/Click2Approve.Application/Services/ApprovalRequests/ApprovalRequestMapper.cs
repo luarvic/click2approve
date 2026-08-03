@@ -175,8 +175,7 @@ internal static class ApprovalRequestMapper
             Email = approver.Email,
             EmployeeGlobalId = GetEmployeeGlobalId(approver, approverGlobalIdMaps),
             TeamGlobalId = GetTeamGlobalId(approver, approverGlobalIdMaps),
-            DisplayName = approver.ApproverDisplayName,
-            RequiresIdentityVerification = approver.RequiresIdentityVerification
+            DisplayName = approver.ApproverDisplayName
         };
     }
 
@@ -254,11 +253,9 @@ internal static class ApprovalRequestMapper
             CompletedAt = task.CompletedAt,
             Description = task.Description,
             Comment = task.Comment,
-            RequiresIdentityVerification = task.RequiresIdentityVerification,
             ApproverIpAddress = task.ApproverIpAddress,
             ApproverBrowserData = task.ApproverBrowserData,
             ApproverLegalName = task.ApproverLegalName,
-            ApproverDateOfBirth = task.ApproverDateOfBirth,
             HasApproverSignature = !string.IsNullOrWhiteSpace(task.ApproverSignatureJson),
             ApproverSignatureJson = task.ApproverSignatureJson
         };

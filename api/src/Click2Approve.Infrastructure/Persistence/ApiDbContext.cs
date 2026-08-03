@@ -204,10 +204,6 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequestStepApprover>()
-            .Property(a => a.RequiresIdentityVerification)
-            .HasDefaultValue(false);
-
-        modelBuilder.Entity<ApprovalRequestStepApprover>()
             .HasOne(a => a.ApprovalRequestStep)
             .WithMany(s => s.Approvers)
             .HasForeignKey(a => a.ApprovalRequestStepId)
@@ -256,10 +252,6 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
         modelBuilder.Entity<ApprovalRequestTask>()
             .Property(t => t.ApproverOrganizationDisplayName)
             .HasMaxLength(255);
-
-        modelBuilder.Entity<ApprovalRequestTask>()
-            .Property(t => t.RequiresIdentityVerification)
-            .HasDefaultValue(false);
 
         modelBuilder.Entity<ApprovalRequestTask>()
             .Property(t => t.ApproverIpAddress)

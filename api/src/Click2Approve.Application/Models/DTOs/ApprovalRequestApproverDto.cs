@@ -13,5 +13,4 @@ public class ApprovalRequestApproverDto
     public Guid? EmployeeGlobalId { get; init; }
     public Guid? TeamGlobalId { get; init; }
     public string? DisplayName { get; init; }
-    public bool RequiresIdentityVerification { get; init; }
 }

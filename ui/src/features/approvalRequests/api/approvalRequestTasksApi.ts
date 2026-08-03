@@ -13,8 +13,7 @@ export const completeApprovalRequestTask = async (
   globalId: string,
   result: boolean,
   comment: string | undefined,
-  identityVerification?: {
-    approverDateOfBirth?: string;
+  electronicSignature?: {
     approverLegalName?: string;
     approverSignatureJson?: string;
   },
@@ -26,7 +25,7 @@ export const completeApprovalRequestTask = async (
       result: result,
       comment: comment,
       clientAuditContext: clientAuditContext,
-      ...identityVerification,
+      ...electronicSignature,
     });
     return true;
   } catch (e) {

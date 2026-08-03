@@ -1,6 +1,6 @@
 import { stores } from "@/app/rootStore";
 import ApprovalRequestComment from "@/features/approvalRequests/components/ApprovalRequestComment";
-import ApprovalRequestIdentityVerificationView from "@/features/approvalRequests/components/ApprovalRequestIdentityVerificationView";
+import ApprovalRequestElectronicSignatureView from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureView";
 import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
 import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
 import ApprovalRequestTimestampRow from "@/features/approvalRequests/components/ApprovalRequestTimestampRow";
@@ -27,8 +27,8 @@ interface ApprovalRequestTaskSummaryBlockProps {
   participantType?: ApprovalRecipientType;
   showComment?: boolean;
   showDescription?: boolean;
+  showElectronicSignature?: boolean;
   showFiles?: boolean;
-  showIdentityVerification?: boolean;
   showRevision?: boolean;
   showTimeline?: boolean;
   showTitle?: boolean;
@@ -63,8 +63,8 @@ const getTaskBoxSx = (
   };
 };
 
-const taskIdentityVerificationIsVisible = (task: ApprovalRequestTask) =>
-  task.requiresIdentityVerification === true &&
+const taskElectronicSignatureIsVisible = (task: ApprovalRequestTask) =>
+  task.hasApproverSignature === true &&
   task.status !== ApprovalRequestTaskStatus.Pending;
 
 const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockProps> = ({
@@ -74,8 +74,8 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   participantType,
   showComment = false,
   showDescription = true,
+  showElectronicSignature = false,
   showFiles = true,
-  showIdentityVerification = false,
   showRevision = true,
   showTimeline = true,
   showTitle = true,
@@ -142,8 +142,8 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
           />
         )}
         {showComment && <ApprovalRequestComment label="Comment" text={task.comment} />}
-        {showIdentityVerification && taskIdentityVerificationIsVisible(task) && (
-          <ApprovalRequestIdentityVerificationView task={task} />
+        {showElectronicSignature && taskElectronicSignatureIsVisible(task) && (
+          <ApprovalRequestElectronicSignatureView task={task} />
         )}
         {showTimeline && (
           <ApprovalRequestTimestampRow

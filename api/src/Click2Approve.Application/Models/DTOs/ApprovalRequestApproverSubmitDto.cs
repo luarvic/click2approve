@@ -11,5 +11,4 @@ public class ApprovalRequestApproverSubmitDto
     public string? Email { get; set; }
     public Guid? EmployeeGlobalId { get; set; }
     public Guid? TeamGlobalId { get; set; }
-    public bool RequiresIdentityVerification { get; set; }
 }

@@ -11,7 +11,6 @@ public class ApprovalRequestTaskCompleteDto
     public required bool Result { get; set; }
     public string? Comment { get; set; }
     public string? ApproverLegalName { get; set; }
-    public DateOnly? ApproverDateOfBirth { get; set; }
     public string? ApproverSignatureJson { get; set; }
     public string? ApproverIpAddress { get; set; }
     public string? ApproverBrowserData { get; set; }
