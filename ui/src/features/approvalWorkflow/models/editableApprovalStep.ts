@@ -1,3 +1,4 @@
+import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import {
   ApprovalRecipientType,
   ApprovalStep,
@@ -18,6 +19,7 @@ export const createEmptyStep = (
 ): EditableApprovalStep => ({
   sequence,
   mode: ApprovalStepMode.Any,
+  action: ApprovalRequestTaskAction.Approve,
   approvers: includeEmptyApprover ? [createEmptyApprover()] : [],
 });
 
@@ -27,12 +29,14 @@ export const createEditableSteps = (
   steps.map((step, index) => ({
     ...step,
     sequence: index + 1,
+    action: step.action ?? ApprovalRequestTaskAction.Approve,
     approvers: step.approvers.map((approver) => ({ ...approver })),
   }));
 
 const toApprovalStep = (step: EditableApprovalStep): ApprovalStep => ({
   sequence: step.sequence,
   mode: step.mode ?? ApprovalStepMode.Any,
+  action: step.action ?? ApprovalRequestTaskAction.Approve,
   approvers: step.approvers.map((approver) => ({
     type: approver.type,
     email: approver.email,

@@ -5,6 +5,7 @@ using Click2Approve.Domain.Models;
 using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.Application.Services.Email;
 using Click2Approve.Infrastructure.Services.Email;
+using Click2Approve.WebApi.Services.Identity;
 using FluentEmail.Core.Interfaces;
 using FluentEmail.Smtp;
 using Hangfire;
@@ -43,6 +44,7 @@ public static class ServiceCollectionExtensions
                 options.Lockout.AllowedForNewUsers = configuration.GetValue<bool>("Identity:Lockout:AllowedForNewUsers");
             })
             .AddEntityFrameworkStores<ApiDbContext>();
+        services.AddScoped<ILookupNormalizer, LowerInvariantLookupNormalizer>();
         return services;
     }
 

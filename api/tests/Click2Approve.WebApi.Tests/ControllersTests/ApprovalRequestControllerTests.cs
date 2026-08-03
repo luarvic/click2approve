@@ -49,7 +49,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var taskCompleteResponse = await client.PostAsJsonAsync($"api/v1/tenants/{tenantGlobalId}/tasks/complete", new
         {
             GlobalId = missingGlobalId,
-            Status = ApprovalRequestTaskStatus.Approved
+            Result = true
         });
         Assert.Equal(HttpStatusCode.NotFound, taskCompleteResponse.StatusCode);
     }
@@ -86,6 +86,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                 {
                     Sequence = 1,
                     Mode = ApprovalStepMode.Any,
+                    Action = ApprovalRequestTaskAction.Approve,
                     Approvers =
                     [
                         new ApprovalRequestApproverSubmitDto
@@ -99,6 +100,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                 {
                     Sequence = 2,
                     Mode = ApprovalStepMode.All,
+                    Action = ApprovalRequestTaskAction.Approve,
                     Approvers =
                     [
                         new ApprovalRequestApproverSubmitDto
@@ -177,7 +179,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         response = await approverClient.PostAsJsonAsync($"api/v1/tenants/{approverTenantId}/tasks/complete", new
         {
             GlobalId = task.GlobalId,
-            Status = ApprovalRequestTaskStatus.Approved
+            Result = true
         });
         Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
 
@@ -185,6 +187,9 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         Assert.True(taskResponse.IsSuccessStatusCode, await taskResponse.Content.ReadAsStringAsync());
         task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
         Assert.NotNull(task);
+        Assert.Equal(ApprovalRequestTaskStatus.Completed, task.Status);
+        Assert.True(task.Result);
+        Assert.NotNull(task.CompletedAt);
         Assert.NotNull(task.ApprovalRequest);
         Assert.Collection(task.RequestFiles,
             file => Assert.Equal("request.txt", file.UserFile.Name));
@@ -220,6 +225,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                 {
                     Sequence = 1,
                     Mode = ApprovalStepMode.Any,
+                    Action = ApprovalRequestTaskAction.Sign,
                     Approvers =
                     [
                         new ApprovalRequestApproverSubmitDto
@@ -239,6 +245,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
             submittedRequestSummary.GlobalId,
             CancellationToken.None);
         var task = Assert.Single(Assert.Single(submittedRequest.Steps).Tasks);
+        Assert.Equal(ApprovalRequestTaskAction.Sign, task.Action);
 
         var approverClient = _applicationFactory.CreateClient();
         var approverLogin = await approverClient.LogInAsync(approver, CancellationToken.None);
@@ -256,7 +263,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         response = await approverClient.PostAsJsonAsync($"api/v1/tenants/{approverTenantId}/tasks/complete", new
         {
             GlobalId = task.GlobalId,
-            Status = ApprovalRequestTaskStatus.Approved,
+            Result = true,
             Comment = "Approved",
             Title = "Modified task title",
             Description = "Modified task description"
@@ -269,6 +276,11 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
             completedRequestSummary.GlobalId,
             CancellationToken.None);
         var completedTask = Assert.Single(Assert.Single(completedRequest.Steps).Tasks);
+        Assert.Equal(ApprovalRequestStatus.Completed, completedRequest.Status);
+        Assert.True(completedRequest.Result);
+        Assert.NotNull(completedRequest.CompletedAt);
+        Assert.True(completedTask.Result);
+        Assert.NotNull(completedTask.CompletedAt);
         Assert.Equal("Original task title", completedTask.Title);
         Assert.Equal("Original task description", completedTask.Description);
     }
@@ -302,6 +314,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                 {
                     Sequence = 1,
                     Mode = ApprovalStepMode.Any,
+                    Action = ApprovalRequestTaskAction.Approve,
                     Approvers =
                     [
                         new ApprovalRequestApproverSubmitDto
@@ -332,7 +345,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         response = await approverClient.PostAsJsonAsync($"api/v1/tenants/{approverTenantId}/tasks/complete", new
         {
             GlobalId = task.GlobalId,
-            Status = ApprovalRequestTaskStatus.Approved,
+            Result = true,
             ClientAuditContext = new
             {
                 Language = "en-US",

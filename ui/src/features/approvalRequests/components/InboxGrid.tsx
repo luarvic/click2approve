@@ -88,9 +88,9 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
       headerName: "Status",
       flex: DataGrids.approvalColumnFlex.metadata,
       renderCell: (params) => (
-        <ApprovalRequestTaskStatusLineLabel status={params.row.status} />
+        <ApprovalRequestTaskStatusLineLabel result={params.row.result} status={params.row.status} />
       ),
-      valueGetter: (_value, row) => getApprovalRequestTaskStatusLabel(row.status),
+      valueGetter: (_value, row) => getApprovalRequestTaskStatusLabel(row.status, row.result),
     },
     {
       field: "requestedByDisplayName",

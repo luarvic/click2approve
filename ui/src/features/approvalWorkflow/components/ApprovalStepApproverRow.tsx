@@ -73,13 +73,13 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
           label="Type"
           value={approver.type}
           disabled={disabled}
-          onChange={(event) =>
-            onChange({
-              globalId: approver.globalId,
-              type: Number(event.target.value) as ApprovalRecipientType,
-              requiresIdentityVerification: approver.requiresIdentityVerification,
-            })
-          }
+            onChange={(event) =>
+              onChange({
+                globalId: approver.globalId,
+                type: Number(event.target.value) as ApprovalRecipientType,
+                requiresIdentityVerification: approver.requiresIdentityVerification,
+              })
+            }
           sx={Dialogs.approverTypeFieldSx}
         >
           {recipientTypes.map((type) => (

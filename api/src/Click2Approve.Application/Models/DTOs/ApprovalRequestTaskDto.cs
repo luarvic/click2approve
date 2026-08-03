@@ -16,8 +16,11 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
     {
         GlobalId = source.GlobalId;
         Title = source.Title;
+        Action = source.Action;
         Status = source.Status;
+        Result = source.Result;
         CreatedAt = source.CreatedAt;
+        CompletedAt = source.CompletedAt;
         RevisionNumber = source.RevisionNumber;
         ApprovalRequestGlobalId = source.ApprovalRequestGlobalId;
         ApprovalRequestStepGlobalId = source.ApprovalRequestStepGlobalId;

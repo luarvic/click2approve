@@ -112,9 +112,9 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestGlobalId 
       headerName: "Status",
       flex: DataGrids.approvalColumnFlex.metadata,
       renderCell: (params) => (
-        <ApprovalRequestStatusLineLabel status={params.row.status} />
+        <ApprovalRequestStatusLineLabel result={params.row.result} status={params.row.status} />
       ),
-      valueGetter: (_value, row) => getApprovalRequestStatusLabel(row.status),
+      valueGetter: (_value, row) => getApprovalRequestStatusLabel(row.status, row.result),
     },
     {
       field: "createdByDisplayName",

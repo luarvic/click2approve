@@ -8,7 +8,7 @@ namespace Click2Approve.Application.Models.DTOs;
 public class ApprovalRequestTaskCompleteDto
 {
     public required Guid GlobalId { get; set; }
-    public required ApprovalRequestTaskStatus Status { get; set; }
+    public required bool Result { get; set; }
     public string? Comment { get; set; }
     public string? ApproverLegalName { get; set; }
     public DateOnly? ApproverDateOfBirth { get; set; }

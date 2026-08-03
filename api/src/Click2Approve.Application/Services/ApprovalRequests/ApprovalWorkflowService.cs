@@ -108,13 +108,13 @@ public class ApprovalWorkflowService(
             .Where(task => task.ApprovalRequestStepId == currentStep.Id || task.ApprovalRequestStep == currentStep)
             .ToList();
 
-        var stepIsApproved = currentStep.Mode switch
+        var stepIsCompletedSuccessfully = currentStep.Mode switch
         {
-            ApprovalStepMode.Any => currentStepTasks.Any(task => task.Status == ApprovalRequestTaskStatus.Approved),
-            ApprovalStepMode.All => currentStepTasks.All(task => task.Status == ApprovalRequestTaskStatus.Approved),
+            ApprovalStepMode.Any => currentStepTasks.Any(task => task.Status == ApprovalRequestTaskStatus.Completed && task.Result == true),
+            ApprovalStepMode.All => currentStepTasks.All(task => task.Status == ApprovalRequestTaskStatus.Completed && task.Result == true),
             _ => false
         };
-        if (!stepIsApproved)
+        if (!stepIsCompletedSuccessfully)
         {
             return;
         }
@@ -131,7 +131,9 @@ public class ApprovalWorkflowService(
 
         if (nextStep is null)
         {
-            approvalRequest.Status = ApprovalRequestStatus.Approved;
+            approvalRequest.Status = ApprovalRequestStatus.Completed;
+            approvalRequest.Result = true;
+            approvalRequest.CompletedAt = timestamp;
             SkipPendingTasks(GetTasks(approvalRequest), timestamp);
             return;
         }
@@ -155,6 +157,7 @@ public class ApprovalWorkflowService(
         foreach (var task in tasks.Where(task => task.Status == ApprovalRequestTaskStatus.Pending))
         {
             task.Status = ApprovalRequestTaskStatus.Skipped;
+            task.CompletedAt = timestamp;
         }
     }
 
@@ -163,6 +166,7 @@ public class ApprovalWorkflowService(
         foreach (var task in tasks.Where(task => task.Status == ApprovalRequestTaskStatus.Pending))
         {
             task.Status = ApprovalRequestTaskStatus.Canceled;
+            task.CompletedAt = timestamp;
         }
     }
 
@@ -309,6 +313,7 @@ public class ApprovalWorkflowService(
                 ApproverOrganizationDisplayName = resolution.ApproverOrganizationDisplayName,
                 TenantId = resolution.TenantId,
                 RevisionNumber = approvalRequest.RevisionNumber,
+                Action = step.Action,
                 RequiresIdentityVerification = configuredApprover.RequiresIdentityVerification,
                 Status = ApprovalRequestTaskStatus.Pending,
                 CreatedAt = timestamp

@@ -17,9 +17,9 @@ describe("approval status line styles", () => {
     });
   });
 
-  test("keeps approved approval requests on a solid green border", () => {
+  test("keeps successfully completed approval requests on a solid green border", () => {
     const sx = getApprovalStatusBorderSx(
-      getApprovalRequestStatusLineColor(ApprovalRequestStatus.Approved),
+      getApprovalRequestStatusLineColor(ApprovalRequestStatus.Completed, true),
     );
 
     expect(sx).toMatchObject({

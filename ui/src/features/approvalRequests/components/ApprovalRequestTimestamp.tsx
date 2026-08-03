@@ -1,25 +1,10 @@
-import { Icons, StackSpacing } from "@/shared/constants/constants";
-import { getLocaleDateTimeString } from "@/shared/utils/helpers";
 import {
-  BlockOutlined,
-  CancelOutlined,
-  CheckCircleOutlineOutlined,
-  DoNotDisturbOnOutlined,
-  PendingOutlined,
-  ReplayOutlined,
-  TimerOutlined,
-} from "@mui/icons-material";
+  ApprovalRequestTimestampType,
+  getApprovalRequestTimestampIcon,
+} from "@/features/approvalRequests/components/approvalRequestTimestampDisplay";
+import { StackSpacing } from "@/shared/constants/constants";
+import { getLocaleDateTimeString } from "@/shared/utils/helpers";
 import { Stack, Tooltip, Typography } from "@mui/material";
-
-export type ApprovalRequestTimestampType =
-  | "approved"
-  | "canceled"
-  | "completed"
-  | "created"
-  | "pending"
-  | "rejected"
-  | "skipped"
-  | "superseded";
 
 interface ApprovalRequestTimestampProps {
   date: Date;
@@ -27,32 +12,12 @@ interface ApprovalRequestTimestampProps {
   type: ApprovalRequestTimestampType;
 }
 
-const getTimestampIcon = (type: ApprovalRequestTimestampType) => {
-  switch (type) {
-    case "created":
-      return <TimerOutlined color={Icons.secondaryColor} fontSize="inherit" />;
-    case "pending":
-      return <PendingOutlined color={Icons.secondaryColor} fontSize="inherit" />;
-    case "rejected":
-      return <CancelOutlined color="error" fontSize="inherit" />;
-    case "canceled":
-      return <BlockOutlined color="warning" fontSize="inherit" />;
-    case "skipped":
-      return <DoNotDisturbOnOutlined color="warning" fontSize="inherit" />;
-    case "superseded":
-      return <ReplayOutlined color="warning" fontSize="inherit" />;
-    case "approved":
-    case "completed":
-      return <CheckCircleOutlineOutlined color="success" fontSize="inherit" />;
-  }
-};
-
 const ApprovalRequestTimestamp: React.FC<ApprovalRequestTimestampProps> = ({
   date,
   label,
   type,
 }) => {
-  const icon = getTimestampIcon(type);
+  const icon = getApprovalRequestTimestampIcon(type);
 
   return (
     <Stack

@@ -9,6 +9,7 @@ public class ApprovalRequestStep : DbEntity
     public ApprovalRequest ApprovalRequest { get; set; } = null!;
     public required int Sequence { get; set; }
     public required ApprovalStepMode Mode { get; set; }
+    public required ApprovalRequestTaskAction Action { get; set; }
     public required List<ApprovalRequestStepApprover> Approvers { get; set; }
     public required List<ApprovalRequestTask> Tasks { get; set; }
     public List<ApprovalRequestStepVisibility> StepVisibilities { get; set; } = [];

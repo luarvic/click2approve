@@ -1,3 +1,4 @@
+import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import {
   ApprovalRecipientType,
   ApprovalStepMode,
@@ -10,6 +11,7 @@ describe("editable approval steps", () => {
     expect(createEmptyStep(2)).toEqual({
       sequence: 2,
       mode: ApprovalStepMode.Any,
+      action: ApprovalRequestTaskAction.Approve,
       approvers: [
         {
           type: ApprovalRecipientType.Email,

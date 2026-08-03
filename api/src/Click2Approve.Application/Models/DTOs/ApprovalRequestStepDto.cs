@@ -10,6 +10,7 @@ public class ApprovalRequestStepDto
     public Guid? GlobalId { get; init; }
     public int Sequence { get; init; }
     public ApprovalStepMode? Mode { get; init; }
+    public ApprovalRequestTaskAction Action { get; init; }
     public bool IsVisible { get; init; } = true;
     public List<ApprovalRequestApproverDto> Approvers { get; init; } = [];
     public List<ApprovalRequestTaskDto> Tasks { get; init; } = [];

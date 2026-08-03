@@ -101,6 +101,9 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasConversion<int>();
 
         modelBuilder.Entity<ApprovalRequest>()
+            .HasIndex(r => new { r.TenantId, r.Status, r.Result });
+
+        modelBuilder.Entity<ApprovalRequest>()
             .Property(r => r.RevisionNumber)
             .HasDefaultValue(1);
 
@@ -184,6 +187,10 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasForeignKey(s => s.ApprovalRequestId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<ApprovalRequestStep>()
+            .Property(s => s.Action)
+            .HasConversion<int>();
+
         modelBuilder.Entity<ApprovalRequestStepApprover>()
             .Property(a => a.Type)
             .HasConversion<int>();
@@ -224,6 +231,10 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
 
         modelBuilder.Entity<ApprovalRequestTask>()
             .Property(t => t.Status)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .Property(t => t.Action)
             .HasConversion<int>();
 
         modelBuilder.Entity<ApprovalRequestTask>()

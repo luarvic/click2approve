@@ -8,19 +8,20 @@ import { Tooltip } from "@mui/material";
 import React from "react";
 
 interface StatusIconProps {
+  result?: boolean;
   status: ApprovalRequestStatus;
 }
 
-const StatusIcon: React.FC<StatusIconProps> = ({ status }) => {
+const StatusIcon: React.FC<StatusIconProps> = ({ result, status }) => {
   const renderStatus = () => {
     switch (status) {
       case ApprovalRequestStatus.Pending:
       case ApprovalRequestStatus.Started:
         return <Loop sx={Icons.verticalAlignSx} color="disabled" />;
-      case ApprovalRequestStatus.Approved:
-        return <Check sx={Icons.verticalAlignSx} color="success" />;
-      case ApprovalRequestStatus.Rejected:
-        return <Close sx={Icons.verticalAlignSx} color="error" />;
+      case ApprovalRequestStatus.Completed:
+        return result === false
+          ? <Close sx={Icons.verticalAlignSx} color="error" />
+          : <Check sx={Icons.verticalAlignSx} color="success" />;
       case ApprovalRequestStatus.Canceled:
         return <Close sx={Icons.verticalAlignSx} color="warning" />;
       case ApprovalRequestStatus.Superseded:

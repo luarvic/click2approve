@@ -8,6 +8,7 @@ import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequ
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { createApprovalRequestTaskClientAuditContext } from "@/features/approvalRequests/utils/approvalRequestTaskClientAuditContext";
+import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
 import { createSharedVerificationLinkForTask } from "@/features/sharedVerificationLinks/api/sharedVerificationLinksApi";
 import SharedVerificationLinksPanel from "@/features/sharedVerificationLinks/components/SharedVerificationLinksPanel";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
@@ -45,6 +46,7 @@ const emptyIdentityVerificationErrors: IdentityVerificationErrors = {
 
 const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) => {
   const [decisionError, setDecisionError] = useState(false);
+  const [commentError, setCommentError] = useState(false);
   const [decision, setDecision] = useState("");
   const [comment, setComment] = useState("");
   const [legalName, setLegalName] = useState("");
@@ -62,18 +64,20 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
   const inboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/inbox") : "/";
   const currentTask = stores.approvalRequestTaskStore.currentTask;
   const isCompleted = Boolean(currentTask && currentTask.status !== ApprovalRequestTaskStatus.Pending);
+  const actionLabels = getApprovalRequestTaskActionLabels(currentTask?.action);
   const requiresIdentityVerification = currentTask?.requiresIdentityVerification === true;
   const canManageSharedVerificationLinks = Boolean(
     currentTask &&
     stores.productStore.sharedVerificationLinksAreEnabled &&
-    approvalRequest?.status === ApprovalRequestStatus.Approved,
+    approvalRequest?.status === ApprovalRequestStatus.Completed &&
+    approvalRequest.result === true,
   );
 
   useEffect(() => {
     setDecision(
-      currentTask?.status === ApprovalRequestTaskStatus.Approved
+      currentTask?.result === true
         ? "approve"
-        : currentTask?.status === ApprovalRequestTaskStatus.Rejected
+        : currentTask?.result === false
           ? "reject"
           : "",
     );
@@ -88,6 +92,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
 
   const cleanUp = () => {
     setDecisionError(false);
+    setCommentError(false);
     setDecision("");
     setComment("");
     setLegalName("");
@@ -138,6 +143,10 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
     if (!currentTask || !stores.userAccountStore.currentUser) return;
     const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
     if (!tenantGlobalId) return;
+    if (decision === "reject" && !comment.trim()) {
+      setCommentError(true);
+      return;
+    }
     if (requiresIdentityVerification) {
       if (!validateIdentityVerification()) {
         return;
@@ -147,9 +156,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
     const didComplete = await completeApprovalRequestTask(
       tenantGlobalId,
       currentTask.globalId,
-      decision === "approve"
-        ? ApprovalRequestTaskStatus.Approved
-        : ApprovalRequestTaskStatus.Rejected,
+      decision === "approve",
       comment,
       requiresIdentityVerification
         ? {
@@ -234,17 +241,17 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
                   <FormControlLabel
                     value="approve"
                     control={<Radio />}
-                    label="Approve"
+                    label={actionLabels.positive}
                   />
                   <FormControlLabel
                     value="reject"
                     control={<Radio />}
-                    label="Reject"
+                    label={actionLabels.negative}
                   />
                 </RadioGroup>
                 {decisionError && (
                   <FormHelperText sx={Dialogs.fieldHelperTextSx}>
-                    You should either approve or reject
+                    {actionLabels.missing}
                   </FormHelperText>
                 )}
               </FormControl>
@@ -258,7 +265,12 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
                 autoFocus
                 multiline
                 value={comment}
-                onChange={(event) => setComment(event.target.value)}
+                error={commentError}
+                helperText={commentError ? "Comment is required." : undefined}
+                onChange={(event) => {
+                  setComment(event.target.value);
+                  setCommentError(false);
+                }}
               />
               {requiresIdentityVerification && (
                 <ApprovalRequestIdentityVerificationForm

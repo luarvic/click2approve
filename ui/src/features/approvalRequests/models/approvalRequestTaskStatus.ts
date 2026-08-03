@@ -1,7 +1,6 @@
 export enum ApprovalRequestTaskStatus {
   Pending = 0,
-  Approved = 1,
-  Rejected = 2,
+  Completed = 1,
   Skipped = 3,
   Canceled = 4,
 }

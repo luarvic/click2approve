@@ -14,11 +14,11 @@ public class EmailHelpersTests
     }
 
     [Fact]
-    public void NormalizeIdentityEmailKey_ShouldTrimAndReturnUpperInvariant()
+    public void NormalizeIdentityEmailKey_ShouldTrimAndReturnLowerInvariant()
     {
         var email = EmailHelpers.NormalizeIdentityEmailKey("  Person@Example.COM  ");
 
-        Assert.Equal("PERSON@EXAMPLE.COM", email);
+        Assert.Equal("person@example.com", email);
     }
 
     [Fact]

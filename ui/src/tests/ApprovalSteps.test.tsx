@@ -1,5 +1,6 @@
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
+import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import ApprovalSteps from "@/features/approvalWorkflow/components/ApprovalSteps";
 import { ApprovalRecipientType } from "@/features/approvalWorkflow/models/approvalStep";
@@ -24,6 +25,7 @@ const approvalRequest: ApprovalRequest = {
   status: ApprovalRequestStatus.Pending,
   steps: [
     {
+      action: ApprovalRequestTaskAction.Approve,
       approvers: [
         {
           displayName: "Visible Approver",
@@ -44,6 +46,7 @@ const approvalRequest: ApprovalRequest = {
       ],
     },
     {
+      action: ApprovalRequestTaskAction.Approve,
       approvers: [
         {
           displayName: "Hidden Approver",
@@ -57,6 +60,7 @@ const approvalRequest: ApprovalRequest = {
       sequence: 2,
       tasks: [
         {
+          action: ApprovalRequestTaskAction.Approve,
           approvalRequestGlobalId: "request-id",
           approvalRequestStepApproverGlobalId: "hidden-approver-id",
           approvalRequestStepGlobalId: "hidden-step-id",
@@ -93,12 +97,14 @@ describe("<ApprovalSteps />", () => {
     render(<ApprovalSteps approvalRequest={approvalRequest} />);
 
     expect(screen.getByText("Step 1")).toBeTruthy();
-    expect(screen.getByText("Visible Approver")).toBeTruthy();
+    expect(screen.getByLabelText("Step 1 action Approve")).toBeTruthy();
+    expect(screen.getByLabelText("Step 1 completion rule Any assignee")).toBeTruthy();
+    expect(screen.getByLabelText("Step 1 visibility Hidden from Blocked Approver")).toBeTruthy();
+    expect(screen.getByText("visible@example.com")).toBeTruthy();
     expect(screen.getAllByText(/Hidden from/)).toHaveLength(2);
-    expect(screen.getByText("Blocked Approver")).toBeTruthy();
+    expect(screen.getByText("Hidden from Blocked Approver")).toBeTruthy();
     expect(screen.getByText("Step 2")).toBeTruthy();
     expect(screen.getByLabelText("Hidden")).toBeTruthy();
-    expect(screen.getAllByTestId("VisibilityOffIcon")).toHaveLength(2);
     expect(screen.getByText("Current Approver")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Step 1 visibility" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Step 2 completion rule" })).toBeNull();
@@ -115,6 +121,7 @@ describe("<ApprovalSteps />", () => {
           ...approvalRequest,
           steps: [
             {
+              action: ApprovalRequestTaskAction.Approve,
               approvers: [],
               globalId: "hidden-without-visibility-id",
               isVisible: false,
@@ -142,6 +149,7 @@ describe("<ApprovalSteps />", () => {
           ...approvalRequest,
           steps: [
             {
+              action: ApprovalRequestTaskAction.Approve,
               approvers: [],
               globalId: "hidden-without-visibility-id",
               isVisible: false,
@@ -195,6 +203,7 @@ describe("<ApprovalSteps />", () => {
               ...approvalRequest.steps[0],
               tasks: [
                 {
+                  action: ApprovalRequestTaskAction.Approve,
                   approvalRequestGlobalId: "request-id",
                   approvalRequestStepApproverGlobalId: "visible-approver-id",
                   approvalRequestStepGlobalId: "visible-step-id",
@@ -224,7 +233,7 @@ describe("<ApprovalSteps />", () => {
     expect(screen.getByText("Task #visib")).toBeTruthy();
     expect(screen.queryByText("Visible task description")).toBeNull();
     const currentTaskRow = screen.getByText("Task #visib").closest("[role='button']");
-    expect(currentTaskRow?.textContent).toContain("Visible Approver");
+    expect(currentTaskRow?.textContent).toContain("visible@example.com");
     expect(screen.queryByLabelText("Current step approver")).toBeNull();
 
     await user.click(currentTaskRow as HTMLElement);

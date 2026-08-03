@@ -16,6 +16,8 @@ public class ApprovalRequest : DbEntity
     public long TenantId { get; set; }
     public Tenant? Tenant { get; set; }
     public required ApprovalRequestStatus Status { get; set; }
+    public bool? Result { get; set; }
+    public DateTime? CompletedAt { get; set; }
     public int RevisionNumber { get; set; } = 1;
     public long? PreviousRevisionApprovalRequestId { get; set; }
     public ApprovalRequest? PreviousRevisionApprovalRequest { get; set; }

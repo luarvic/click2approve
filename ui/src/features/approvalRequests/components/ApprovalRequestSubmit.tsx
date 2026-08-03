@@ -7,13 +7,20 @@ import ApprovalRequestFilesList, {
   RevisionExistingFile,
 } from "@/features/approvalRequests/components/ApprovalRequestFilesList";
 import {
+  getApprovalRecipientIcon,
+} from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
+import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
+import {
+  ApprovalRequestFile,
   ApprovalRequestFileRevisionAction,
   ApprovalRequestFileSubmission,
   ApprovalRequestStepVisibilitySubmission,
 } from "@/features/approvalRequests/models/approvalRequest";
+import ApprovalStepBlock from "@/features/approvalWorkflow/components/ApprovalStepBlock";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
 import {
   ApprovalRecipientType,
+  ApprovalStep,
   ApprovalStepApprover,
 } from "@/features/approvalWorkflow/models/approvalStep";
 import {
@@ -33,15 +40,17 @@ import {
 } from "@/shared/utils/toasts";
 import { validateEmails } from "@/shared/utils/validators";
 import { Add, ArrowBack, ArrowForward, AttachFile } from "@mui/icons-material";
+import type { SxProps } from "@mui/material";
 import {
+  Autocomplete,
   Box,
   Button,
-  Checkbox,
-  FormControlLabel,
+  Chip,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
+import type { Theme } from "@mui/material/styles";
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
@@ -50,6 +59,41 @@ interface ApprovalRequestSubmitProps {
   initialTemplateGlobalId?: string;
   onClose: (currentApprovalRequestGlobalId?: string) => void;
 }
+
+interface RequestApproverOption {
+  approverIndex: number;
+  key: string;
+  label: string;
+  stepSequence: number;
+  type: ApprovalRecipientType;
+}
+
+const visibilityOptionSx: SxProps<Theme> = { minWidth: 0 };
+const visibilitySummarySx: SxProps<Theme> = { ...Dialogs.approvalBoxSx };
+
+const toDraftRequestFile = (
+  file: File,
+  sequence: number,
+  revisionAction: ApprovalRequestFileRevisionAction,
+  previousApprovalRequestFileGlobalId?: string,
+): ApprovalRequestFile => {
+  const globalId = `draft-${sequence}-${file.name}-${file.lastModified}`;
+  return {
+    globalId,
+    userFile: {
+      globalId,
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      checked: false,
+      createdAt: "",
+      createdAtDate: new Date(),
+    },
+    sequence,
+    revisionAction,
+    previousApprovalRequestFileGlobalId,
+  };
+};
 
 const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   initialTemplateGlobalId,
@@ -323,13 +367,18 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     approverIndex: number,
   ) => `${stepSequence}:${approverStepSequence}:${approverIndex}`;
 
-  const getRequestApprovers = () =>
+  const getRequestApprovers = (): RequestApproverOption[] =>
     steps.flatMap((step) =>
-      step.approvers.map((approver, approverIndex) => ({
-        approver,
-        approverIndex,
-        stepSequence: step.sequence,
-      })),
+      step.approvers.map((approver, approverIndex) => {
+        const label = getApproverLabel(approver);
+        return {
+          approverIndex,
+          key: `${step.sequence}:${approverIndex}`,
+          label,
+          stepSequence: step.sequence,
+          type: approver.type,
+        };
+      }),
     );
 
   const getApproverLabel = (
@@ -353,17 +402,78 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     approverIndex: number,
   ) => stepVisibility[getApproverVisibilityKey(stepSequence, approverStepSequence, approverIndex)] ?? true;
 
-  const setStepVisibilityValue = (
+  const getVisibleApprovers = (
     stepSequence: number,
-    approverStepSequence: number,
-    approverIndex: number,
-    isVisible: boolean,
+    requestApprovers: RequestApproverOption[],
+  ) =>
+    requestApprovers.filter(
+      (approver) =>
+        stepSequence === approver.stepSequence ||
+        getStepVisibilityValue(
+          stepSequence,
+          approver.stepSequence,
+          approver.approverIndex,
+        ),
+    );
+
+  const getAdditionalViewerOptions = (
+    stepSequence: number,
+    requestApprovers: RequestApproverOption[],
+  ) => requestApprovers.filter((approver) => approver.stepSequence !== stepSequence);
+
+  const setVisibleApprovers = (
+    stepSequence: number,
+    requestApprovers: RequestApproverOption[],
+    visibleApprovers: RequestApproverOption[],
   ) => {
-    setStepVisibility((current) => ({
-      ...current,
-      [getApproverVisibilityKey(stepSequence, approverStepSequence, approverIndex)]: isVisible,
-    }));
+    const visibleApproverKeys = new Set(
+      visibleApprovers.map((approver) => approver.key),
+    );
+    setStepVisibility((current) => {
+      const next = { ...current };
+      requestApprovers.forEach((approver) => {
+        if (approver.stepSequence === stepSequence) {
+          return;
+        }
+        next[
+          getApproverVisibilityKey(
+            stepSequence,
+            approver.stepSequence,
+            approver.approverIndex,
+          )
+        ] = visibleApproverKeys.has(approver.key);
+      });
+      return next;
+    });
   };
+
+  const getDisplayStep = (step: EditableApprovalStep): ApprovalStep => ({
+    ...step,
+    approvers: step.approvers.map((approver) => {
+      if (approver.type === ApprovalRecipientType.Employee) {
+        const employee = stores.employeeStore.employees.find(
+          (item) => item.globalId === approver.employeeGlobalId,
+        );
+        return {
+          ...approver,
+          displayName: approver.displayName ?? employee?.displayName,
+          email: approver.email ?? employee?.email,
+        };
+      }
+
+      if (approver.type === ApprovalRecipientType.Team) {
+        const team = stores.teamStore.teams.find(
+          (item) => item.globalId === approver.teamGlobalId,
+        );
+        return {
+          ...approver,
+          displayName: approver.displayName ?? team?.name,
+        };
+      }
+
+      return approver;
+    }),
+  });
 
   const createStepVisibilitySubmissions = (): ApprovalRequestStepVisibilitySubmission[] =>
     steps.flatMap((step) =>
@@ -479,6 +589,37 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     }
   };
 
+  const requestApprovers = getRequestApprovers();
+  const draftRequestFiles: ApprovalRequestFile[] = [
+    ...existingFiles.map((file, index) =>
+      file.replacement
+        ? toDraftRequestFile(
+            file.replacement,
+            index,
+            ApprovalRequestFileRevisionAction.Replaced,
+            file.requestFileGlobalId,
+          )
+        : {
+            globalId: file.requestFileGlobalId ?? file.file.globalId,
+            userFile: file.file,
+            sequence: index,
+            revisionAction: isRevision
+              ? ApprovalRequestFileRevisionAction.Unchanged
+              : ApprovalRequestFileRevisionAction.Added,
+            previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
+          },
+    ),
+    ...newFiles.map((file, index) =>
+      toDraftRequestFile(
+        file,
+        existingFiles.length + index,
+        isRevision
+          ? ApprovalRequestFileRevisionAction.Added
+          : ApprovalRequestFileRevisionAction.Unchanged,
+      ),
+    ),
+  ];
+
   return (
     <>
       <PageBreadcrumbs
@@ -589,47 +730,79 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       {submitPage === "visibility" && (
         <>
           <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
-            <Typography component="h1" variant="h5">
-              Visibility
-            </Typography>
             <Stack spacing={Dialogs.stepStackSpacing}>
-              {steps.map((step) => (
-                <Stack key={step.sequence} spacing={Dialogs.approverStackSpacing}>
-                  <Typography variant="subtitle1">
-                    Step {step.sequence}
-                  </Typography>
-                  <Stack spacing={Dialogs.approverStackSpacing}>
-                    {getRequestApprovers().map((approver) => {
-                      const isStepApprover = step.sequence === approver.stepSequence;
-                      return (
-                        <FormControlLabel
-                          key={`${step.sequence}-${approver.stepSequence}-${approver.approverIndex}`}
-                          control={
-                            <Checkbox
-                              checked={isStepApprover ||
-                                getStepVisibilityValue(
-                                  step.sequence,
-                                  approver.stepSequence,
-                                  approver.approverIndex,
-                                )}
-                              disabled={isStepApprover}
-                              onChange={(_, checked) =>
-                                setStepVisibilityValue(
-                                  step.sequence,
-                                  approver.stepSequence,
-                                  approver.approverIndex,
-                                  checked,
-                                )
-                              }
+              <Box sx={visibilitySummarySx}>
+                <ApprovalRequestSummary
+                  title={title}
+                  description={description}
+                  requestFiles={draftRequestFiles}
+                  showRevision={false}
+                />
+              </Box>
+              {steps.map((step) => {
+                const additionalViewerOptions = getAdditionalViewerOptions(
+                  step.sequence,
+                  requestApprovers,
+                );
+                const visibleApprovers = getVisibleApprovers(
+                  step.sequence,
+                  additionalViewerOptions,
+                );
+                return (
+                  <ApprovalStepBlock
+                    key={step.sequence}
+                    showEmptyTeamTasksMessage={false}
+                    showVisibility={false}
+                    step={getDisplayStep(step)}
+                    tasks={[]}
+                    footerContent={(
+                      <Autocomplete
+                        multiple
+                        options={additionalViewerOptions}
+                        value={visibleApprovers}
+                        getOptionLabel={(option) => `${option.label} (Step ${option.stepSequence})`}
+                        isOptionEqualToValue={(option, value) => option.key === value.key}
+                        disableCloseOnSelect
+                        onChange={(_, value) =>
+                          setVisibleApprovers(
+                            step.sequence,
+                            additionalViewerOptions,
+                            value,
+                          )
+                        }
+                        renderTags={(value, getTagProps) =>
+                          value.map((option, index) => (
+                            <Chip
+                              icon={getApprovalRecipientIcon(option.type)}
+                              label={option.label}
+                              {...getTagProps({ index })}
                             />
-                          }
-                          label={`${getApproverLabel(approver.approver)} (Step ${approver.stepSequence})`}
-                        />
-                      );
-                    })}
-                  </Stack>
-                </Stack>
-              ))}
+                          ))
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Also visible to"
+                            helperText="Selected approvers can view this step in addition to its own approvers."
+                          />
+                        )}
+                        renderOption={(props, option) => (
+                          <li {...props}>
+                            <Stack sx={visibilityOptionSx}>
+                              <Typography variant="body2">
+                                {option.label}
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary">
+                                Step {option.stepSequence}
+                              </Typography>
+                            </Stack>
+                          </li>
+                        )}
+                      />
+                    )}
+                  />
+                );
+              })}
             </Stack>
           </Stack>
           <Stack

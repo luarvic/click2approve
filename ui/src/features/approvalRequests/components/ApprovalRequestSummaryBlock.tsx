@@ -1,17 +1,17 @@
 import { stores } from "@/app/rootStore";
-import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
+import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
 import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
 import ApprovalRequestTimestampRow from "@/features/approvalRequests/components/ApprovalRequestTimestampRow";
+import { getRequestCompletedTimestamp } from "@/features/approvalRequests/components/approvalRequestCompletionTimestamps";
 import {
   getApprovalRequestStatusLabel,
   getApprovalRequestStatusLineColor,
   getApprovalStatusBorderSx,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
+import { ApprovalRecipientType } from "@/features/approvalWorkflow/models/approvalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
-import DisplayName from "@/shared/components/identity/DisplayName";
 import { Dialogs, StackSpacing } from "@/shared/constants/constants";
-import { stripInlineEmail } from "@/shared/utils/displayNameHelpers";
 import { Box, Stack } from "@mui/material";
 
 interface ApprovalRequestSummaryBlockProps {
@@ -23,16 +23,12 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
 }) => {
   const organizationIsVisible =
     stores.tenantStore.currentTenant?.type === TenantType.Personal;
-  const createdByName = stripInlineEmail(approvalRequest.createdByDisplayName);
-  const createdByDisplayName = organizationIsVisible
-    ? `${createdByName} · ${approvalRequest.createdByOrganizationDisplayName}`
-    : createdByName;
 
   return (
     <Box
-      aria-label={getApprovalRequestStatusLabel(approvalRequest.status)}
+      aria-label={getApprovalRequestStatusLabel(approvalRequest.status, approvalRequest.result)}
       sx={getApprovalStatusBorderSx(
-        getApprovalRequestStatusLineColor(approvalRequest.status),
+        getApprovalRequestStatusLineColor(approvalRequest.status, approvalRequest.result),
         Dialogs.approvalBoxSx,
       )}
     >
@@ -45,13 +41,12 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
           revisionNumber={approvalRequest.revisionNumber}
           compareFilesWithPrevious={(approvalRequest.revisionNumber ?? 1) > 1}
         />
-        <ApprovalRequestParticipantLine
-          label={(
-            <DisplayName
-              displayName={createdByDisplayName}
-              email={approvalRequest.createdByEmail}
-            />
-          )}
+        <ApprovalRequestParticipant
+          displayName={approvalRequest.createdByDisplayName}
+          email={approvalRequest.createdByEmail}
+          organizationDisplayName={approvalRequest.createdByOrganizationDisplayName}
+          showOrganization={organizationIsVisible}
+          type={ApprovalRecipientType.Employee}
         />
         <ApprovalRequestTimestampRow
           items={[
@@ -60,6 +55,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
               label: "Created at",
               type: "created",
             },
+            getRequestCompletedTimestamp(approvalRequest),
           ]}
         />
       </Stack>

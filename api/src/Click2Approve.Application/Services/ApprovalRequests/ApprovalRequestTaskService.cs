@@ -55,26 +55,35 @@ public class ApprovalRequestTaskService(
 
         var now = DateTime.UtcNow;
         ApplyCompletionDetails(approvalRequestTask, payload);
-        approvalRequestTask.Status = payload.Status;
+        if (!payload.Result && string.IsNullOrWhiteSpace(payload.Comment))
+        {
+            throw new BusinessRuleException("Comment is required.");
+        }
+
+        approvalRequestTask.Status = ApprovalRequestTaskStatus.Completed;
+        approvalRequestTask.Result = payload.Result;
+        approvalRequestTask.CompletedAt = now;
         approvalRequestTask.Comment = payload.Comment;
 
         if (approvalRequestTask.ApprovalRequest.Status is ApprovalRequestStatus.Pending or ApprovalRequestStatus.Started)
         {
-            switch (payload.Status)
+            switch (approvalRequestTask.Result)
             {
-                case ApprovalRequestTaskStatus.Rejected:
-                    approvalRequestTask.ApprovalRequest.Status = ApprovalRequestStatus.Rejected;
+                case false:
+                    approvalRequestTask.ApprovalRequest.Status = ApprovalRequestStatus.Completed;
+                    approvalRequestTask.ApprovalRequest.Result = false;
+                    approvalRequestTask.ApprovalRequest.CompletedAt = now;
                     _workflowService.SkipPendingTasks(
                         _workflowService.GetTasks(approvalRequestTask.ApprovalRequest)
                             .Where(task => task.Id != approvalRequestTask.Id),
                         now);
                     break;
-                case ApprovalRequestTaskStatus.Approved:
+                case true:
                     await _workflowService.AdvanceAsync(approvalRequestTask, now, cancellationToken);
                     _workflowService.StartRequestIfNeeded(approvalRequestTask.ApprovalRequest, now);
                     break;
                 default:
-                    throw new BusinessRuleException("A task can only be approved or rejected.");
+                    throw new BusinessRuleException("A task can only be completed with a positive or negative result.");
             }
         }
 

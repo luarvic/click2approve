@@ -1,4 +1,5 @@
 import ApprovalStepApproverRow from "@/features/approvalWorkflow/components/ApprovalStepApproverRow";
+import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import {
   ApprovalStepApprover,
   ApprovalStepMode,
@@ -91,6 +92,12 @@ const stepAddButtonSx: SxProps<Theme> = {
   alignSelf: "flex-start",
 };
 const approverBoxSx: SxProps<Theme> = { ...Dialogs.approvalBoxSx };
+const actionOptions = [
+  { value: ApprovalRequestTaskAction.Approve, label: "Approve" },
+  { value: ApprovalRequestTaskAction.Sign, label: "Sign" },
+  { value: ApprovalRequestTaskAction.Confirm, label: "Confirm" },
+  { value: ApprovalRequestTaskAction.Acknowledge, label: "Acknowledge" },
+];
 const getStepContainerSx = (sx?: SxProps<Theme>): SxProps<Theme> => [
   stepContainerSx,
   ...(Array.isArray(sx) ? sx : [sx]),
@@ -201,6 +208,25 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                   <MenuItem value={ApprovalStepMode.All}>
                     All assignees must complete
                   </MenuItem>
+                </TextField>
+                <TextField
+                  select
+                  fullWidth
+                  label="Action"
+                  value={step.action ?? ApprovalRequestTaskAction.Approve}
+                  disabled={disabled}
+                  onChange={(event) =>
+                    onUpdateStep(stepIndex, (current) => ({
+                      ...current,
+                      action: Number(event.target.value) as ApprovalRequestTaskAction,
+                    }))
+                  }
+                >
+                  {actionOptions.map((action) => (
+                    <MenuItem key={action.value} value={action.value}>
+                      {action.label}
+                    </MenuItem>
+                  ))}
                 </TextField>
                 <Stack spacing={Dialogs.approverStackSpacing}>
                   {step.approvers.map((approver, approverIndex) =>

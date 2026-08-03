@@ -9,5 +9,6 @@ public class ApprovalRequestStepSubmitDto
 {
     public required int Sequence { get; set; }
     public required ApprovalStepMode Mode { get; set; }
+    public required ApprovalRequestTaskAction Action { get; set; }
     public required List<ApprovalRequestApproverSubmitDto> Approvers { get; set; }
 }

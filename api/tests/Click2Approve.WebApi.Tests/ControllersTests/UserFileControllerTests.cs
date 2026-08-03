@@ -129,7 +129,7 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
         foreach (var testDataEntry in testData)
         {
             var loginData = await _client.LogInAsync(testDataEntry.Credentials, CancellationToken.None);
-            var normalizedEmail = testDataEntry.Credentials.Email.ToUpperInvariant();
+            var normalizedEmail = testDataEntry.Credentials.Email.ToLowerInvariant();
 
             var filesOwnedByUser = _db.UserFiles
                 .Where(x => x.Owner != null && x.Owner.NormalizedEmail == normalizedEmail)
@@ -151,7 +151,7 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
         foreach (var testDataEntry in testData)
         {
             var loginData = await _client.LogInAsync(testDataEntry.Credentials, CancellationToken.None);
-            var normalizedEmail = testDataEntry.Credentials.Email.ToUpperInvariant();
+            var normalizedEmail = testDataEntry.Credentials.Email.ToLowerInvariant();
 
             var filesOwnedByOtherUsers = _db.UserFiles
                 .Where(x => x.Owner != null && x.Owner.NormalizedEmail != normalizedEmail)
@@ -168,7 +168,7 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
 
         var requester = testData.First();
         var approver = testData.First(x => x.Credentials.Email != requester.Credentials.Email);
-        var requesterNormalizedEmail = requester.Credentials.Email.ToUpperInvariant();
+        var requesterNormalizedEmail = requester.Credentials.Email.ToLowerInvariant();
         var filesOwnedByRequester = _db.UserFiles
             .Where(x => x.Owner != null && x.Owner.NormalizedEmail == requesterNormalizedEmail)
             .ToList();
@@ -191,6 +191,7 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
                 {
                     Sequence = 1,
                     Mode = ApprovalStepMode.Any,
+                    Action = ApprovalRequestTaskAction.Approve,
                     Approvers =
                     [
                         new ApprovalRequestApproverSubmitDto
@@ -250,7 +251,7 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
         foreach (var testDataEntry in testData)
         {
             var loginData = await _client.LogInAsync(testDataEntry.Credentials, CancellationToken.None);
-            var normalizedEmail = testDataEntry.Credentials.Email.ToUpperInvariant();
+            var normalizedEmail = testDataEntry.Credentials.Email.ToLowerInvariant();
 
             var filesOwnedByUser = _db.UserFiles
                 .Where(x => x.Owner != null && x.Owner.NormalizedEmail == normalizedEmail)

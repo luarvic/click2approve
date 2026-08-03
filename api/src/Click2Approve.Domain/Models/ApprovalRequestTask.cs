@@ -29,8 +29,11 @@ public class ApprovalRequestTask : DbEntity
     public long TenantId { get; set; }
     public Tenant? Tenant { get; set; }
     public int RevisionNumber { get; set; } = 1;
+    public required ApprovalRequestTaskAction Action { get; set; }
     public ApprovalRequestTaskStatus Status { get; set; }
+    public bool? Result { get; set; }
     public required DateTime CreatedAt { get; set; }
+    public DateTime? CompletedAt { get; set; }
     public string? Description { get; set; }
     public string? Comment { get; set; }
     public bool RequiresIdentityVerification { get; set; }

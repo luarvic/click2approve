@@ -114,6 +114,7 @@ public class ApprovalRequestService(
 
         var now = DateTime.UtcNow;
         approvalRequest.Status = ApprovalRequestStatus.Canceled;
+        approvalRequest.CompletedAt = now;
         var notifiedTasks = _workflowService.GetTasks(approvalRequest)
             .Where(task => task.Status == ApprovalRequestTaskStatus.Pending)
             .ToList();
@@ -241,6 +242,7 @@ public class ApprovalRequestService(
         {
             Sequence = sequence,
             Mode = stepDto.Mode,
+            Action = stepDto.Action,
             Approvers = [.. stepDto.Approvers.Select(BuildApprover)],
             ApprovalRequest = null!,
             Tasks = []

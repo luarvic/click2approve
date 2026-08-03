@@ -4,6 +4,7 @@ import * as approvalRequestTaskApi from "@/features/approvalRequests/api/approva
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
+import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { ApprovalRequestStore } from "@/features/approvalRequests/stores/approvalRequestStore";
 import { ApprovalRequestTaskStore } from "@/features/approvalRequests/stores/approvalRequestTaskStore";
@@ -67,18 +68,21 @@ const approvalRequest = (globalId: string): ApprovalRequest => ({
 const approvalRequestTask = (
   globalId: string,
   status: ApprovalRequestTaskStatus,
+  result?: boolean,
 ): ApprovalRequestTask => ({
   globalId,
   title: `Task `,
   approvalRequest: approvalRequest(globalId),
   approvalRequestGlobalId: globalId,
   approvalRequestStepGlobalId: globalId,
+  action: ApprovalRequestTaskAction.Approve,
   approverEmail: "approver@example.com",
   approverDisplayName: "approver@example.com",
   requestedByEmail: "user@example.com",
   requestedByDisplayName: "user@example.com",
   createdByOrganizationDisplayName: "Personal",
   revisionNumber: 1,
+  result,
   status,
   createdAt: "2026-01-01T00:00:00",
   createdAtDate: new Date(),
@@ -180,8 +184,8 @@ describe("store architecture", () => {
   test("incoming tasks retain every status returned by the API", async () => {
     vi.mocked(approvalRequestTaskApi.listApprovalRequestTasks).mockResolvedValue([
       approvalRequestTask("11111111-1111-4111-8111-111111111111", ApprovalRequestTaskStatus.Pending),
-      approvalRequestTask("22222222-2222-4222-8222-222222222222", ApprovalRequestTaskStatus.Approved),
-      approvalRequestTask("33333333-3333-4333-8333-333333333333", ApprovalRequestTaskStatus.Rejected),
+      approvalRequestTask("22222222-2222-4222-8222-222222222222", ApprovalRequestTaskStatus.Completed, true),
+      approvalRequestTask("33333333-3333-4333-8333-333333333333", ApprovalRequestTaskStatus.Completed, false),
       approvalRequestTask("44444444-4444-4444-8444-444444444444", ApprovalRequestTaskStatus.Skipped),
     ]);
     const store = new ApprovalRequestTaskStore();
@@ -190,9 +194,15 @@ describe("store architecture", () => {
 
     expect(store.tasks.map(({ status }) => status)).toEqual([
       ApprovalRequestTaskStatus.Pending,
-      ApprovalRequestTaskStatus.Approved,
-      ApprovalRequestTaskStatus.Rejected,
+      ApprovalRequestTaskStatus.Completed,
+      ApprovalRequestTaskStatus.Completed,
       ApprovalRequestTaskStatus.Skipped,
+    ]);
+    expect(store.tasks.map(({ result }) => result)).toEqual([
+      undefined,
+      true,
+      false,
+      undefined,
     ]);
   });
 
@@ -215,15 +225,17 @@ describe("store architecture", () => {
     vi.mocked(approvalRequestTaskApi.getApprovalRequestTask)
       .mockClear()
       .mockResolvedValueOnce(approvalRequestTask("11111111-1111-4111-8111-111111111111", ApprovalRequestTaskStatus.Pending))
-      .mockResolvedValueOnce(approvalRequestTask("11111111-1111-4111-8111-111111111111", ApprovalRequestTaskStatus.Approved));
+      .mockResolvedValueOnce(approvalRequestTask("11111111-1111-4111-8111-111111111111", ApprovalRequestTaskStatus.Completed, true));
     const store = new ApprovalRequestTaskStore();
 
     await store.loadDetails("11111111-1111-4111-8111-111111111111", "11111111-1111-4111-8111-111111111111");
     const latest = await store.loadDetails("11111111-1111-4111-8111-111111111111", "11111111-1111-4111-8111-111111111111");
 
     expect(approvalRequestTaskApi.getApprovalRequestTask).toHaveBeenCalledTimes(2);
-    expect(latest?.status).toBe(ApprovalRequestTaskStatus.Approved);
-    expect(store.getDetail("11111111-1111-4111-8111-111111111111")?.status).toBe(ApprovalRequestTaskStatus.Approved);
+    expect(latest?.status).toBe(ApprovalRequestTaskStatus.Completed);
+    expect(latest?.result).toBe(true);
+    expect(store.getDetail("11111111-1111-4111-8111-111111111111")?.status).toBe(ApprovalRequestTaskStatus.Completed);
+    expect(store.getDetail("11111111-1111-4111-8111-111111111111")?.result).toBe(true);
   });
 
   test("signing out clears all session-scoped stores", () => {

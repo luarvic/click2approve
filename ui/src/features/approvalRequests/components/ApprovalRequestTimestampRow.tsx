@@ -1,6 +1,5 @@
-import ApprovalRequestTimestamp, {
-  type ApprovalRequestTimestampType,
-} from "@/features/approvalRequests/components/ApprovalRequestTimestamp";
+import ApprovalRequestTimestamp from "@/features/approvalRequests/components/ApprovalRequestTimestamp";
+import { ApprovalRequestTimestampType } from "@/features/approvalRequests/components/approvalRequestTimestampDisplay";
 import { StackSpacing } from "@/shared/constants/constants";
 import { Divider, Stack } from "@mui/material";
 

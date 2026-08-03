@@ -10,7 +10,9 @@ public class ApprovalRequestListItemDto
     public Guid GlobalId { get; init; }
     public required string Title { get; init; }
     public ApprovalRequestStatus Status { get; init; }
+    public bool? Result { get; init; }
     public DateTime CreatedAt { get; init; }
+    public DateTime? CompletedAt { get; init; }
     public required string CreatedByEmail { get; init; }
     public required string CreatedByDisplayName { get; init; }
     public required string CreatedByOrganizationDisplayName { get; init; }

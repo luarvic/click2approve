@@ -36,7 +36,7 @@ public static class EmailHelpers
             throw new BusinessRuleException(requiredMessage);
         }
 
-        return normalizedEmail.ToUpperInvariant();
+        return normalizedEmail.ToLowerInvariant();
     }
 
     /// <summary>

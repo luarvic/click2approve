@@ -1,4 +1,5 @@
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
+import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 
 export enum ApprovalStepMode {
   Any = 0,
@@ -25,6 +26,7 @@ export interface ApprovalStep {
   globalId?: string;
   sequence: number;
   mode?: ApprovalStepMode;
+  action: ApprovalRequestTaskAction;
   isVisible?: boolean;
   approvers: ApprovalStepApprover[];
   tasks?: ApprovalRequestTask[];

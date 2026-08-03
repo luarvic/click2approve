@@ -25,7 +25,7 @@ interface ApprovalRequestViewProps {
 const resubmittableApprovalRequestStatuses = [
   ApprovalRequestStatus.Pending,
   ApprovalRequestStatus.Started,
-  ApprovalRequestStatus.Rejected,
+  ApprovalRequestStatus.Completed,
 ];
 
 const cancelableApprovalRequestStatuses = [
@@ -50,7 +50,8 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
     approvalRequest &&
     stores.productStore.approvalRequestRevisionsAreEnabled &&
     !approvalRequest.nextRevisionApprovalRequestGlobalId &&
-    resubmittableApprovalRequestStatuses.includes(approvalRequest.status),
+    resubmittableApprovalRequestStatuses.includes(approvalRequest.status) &&
+    approvalRequest.result !== true,
   );
   const canCancel = Boolean(
     approvalRequest &&
@@ -60,7 +61,8 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
   const canManageSharedVerificationLinks = Boolean(
     approvalRequest &&
     stores.productStore.sharedVerificationLinksAreEnabled &&
-    approvalRequest.status === ApprovalRequestStatus.Approved,
+    approvalRequest.status === ApprovalRequestStatus.Completed &&
+    approvalRequest.result === true,
   );
 
   useEffect(() => {

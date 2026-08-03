@@ -1,9 +1,10 @@
 import { stores } from "@/app/rootStore";
 import ApprovalRequestComment from "@/features/approvalRequests/components/ApprovalRequestComment";
 import ApprovalRequestIdentityVerificationView from "@/features/approvalRequests/components/ApprovalRequestIdentityVerificationView";
-import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
+import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
 import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
 import ApprovalRequestTimestampRow from "@/features/approvalRequests/components/ApprovalRequestTimestampRow";
+import { getTaskCompletedTimestamp } from "@/features/approvalRequests/components/approvalRequestCompletionTimestamps";
 import {
   ApprovalStatusLineColors,
   getApprovalRequestTaskStatusLabel,
@@ -11,10 +12,9 @@ import {
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
+import { ApprovalRecipientType } from "@/features/approvalWorkflow/models/approvalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
-import DisplayName from "@/shared/components/identity/DisplayName";
 import { Dialogs, StackSpacing } from "@/shared/constants/constants";
-import { stripInlineEmail } from "@/shared/utils/displayNameHelpers";
 import { Box, Stack } from "@mui/material";
 import type { SxProps } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
@@ -24,6 +24,7 @@ interface ApprovalRequestTaskSummaryBlockProps {
   icon?: ReactNode;
   onClick?: () => void;
   participant?: "approver" | "requester" | "none";
+  participantType?: ApprovalRecipientType;
   showComment?: boolean;
   showDescription?: boolean;
   showFiles?: boolean;
@@ -47,9 +48,10 @@ const clickableTaskSx: SxProps<Theme> = {
 
 const getTaskBoxSx = (
   status: ApprovalRequestTaskStatus,
+  result: boolean | undefined,
   isClickable: boolean,
 ): SxProps<Theme> => {
-  const lineColor = getApprovalRequestTaskStatusLineColor(status);
+  const lineColor = getApprovalRequestTaskStatusLineColor(status, result);
 
   return {
     ...Dialogs.approvalBoxSx,
@@ -69,6 +71,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   icon,
   onClick,
   participant = "requester",
+  participantType,
   showComment = false,
   showDescription = true,
   showFiles = true,
@@ -82,25 +85,25 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   const isClickable = Boolean(onClick);
   const organizationIsVisible =
     stores.tenantStore.currentTenant?.type === TenantType.Personal;
-  const requestedByName = stripInlineEmail(task.requestedByDisplayName);
-  const requestedByDisplayName = organizationIsVisible
-    ? `${requestedByName} · ${task.createdByOrganizationDisplayName}`
-    : requestedByName;
-  const approverDisplayName = organizationIsVisible && task.approverOrganizationDisplayName
-    ? `${task.approverDisplayName} · ${task.approverOrganizationDisplayName}`
-    : task.approverDisplayName;
   const requestedByEmail = task.requestedByEmail ?? task.approvalRequest?.createdByEmail;
   const participantDisplayName = participant === "approver"
-    ? approverDisplayName
-    : requestedByDisplayName;
+    ? task.approverDisplayName
+    : task.requestedByDisplayName;
   const participantEmail = participant === "approver"
     ? task.approverEmail
     : requestedByEmail;
-  const taskBoxSx = getTaskBoxSx(task.status, isClickable);
+  const participantOrganizationDisplayName = participant === "approver"
+    ? task.approverOrganizationDisplayName
+    : task.createdByOrganizationDisplayName;
+  const resolvedParticipantType = participantType ??
+    (participant === "approver" && !task.approverUserId
+      ? ApprovalRecipientType.Email
+      : ApprovalRecipientType.Employee);
+  const taskBoxSx = getTaskBoxSx(task.status, task.result, isClickable);
 
   return (
     <Box
-      aria-label={getApprovalRequestTaskStatusLabel(task.status)}
+      aria-label={getApprovalRequestTaskStatusLabel(task.status, task.result)}
       onClick={isClickable ? onClick : undefined}
       onKeyDown={isClickable
         ? (event) => {
@@ -129,14 +132,13 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
           showTitle={showTitle}
         />
         {participant !== "none" && (
-          <ApprovalRequestParticipantLine
+          <ApprovalRequestParticipant
             icon={icon}
-            label={(
-              <DisplayName
-                displayName={participantDisplayName}
-                email={participantEmail}
-              />
-            )}
+            displayName={participantDisplayName}
+            email={participantEmail}
+            organizationDisplayName={participantOrganizationDisplayName}
+            showOrganization={organizationIsVisible}
+            type={resolvedParticipantType}
           />
         )}
         {showComment && <ApprovalRequestComment label="Comment" text={task.comment} />}
@@ -151,6 +153,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
               label: "Created at",
               type: "created",
             },
+            getTaskCompletedTimestamp(task),
             ]}
           />
         )}
