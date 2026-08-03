@@ -374,6 +374,7 @@ const SharedVerificationReceiptPage = () => {
               <Box sx={summaryGridSx}>
                 <Stack spacing={StackSpacing.default}>
                   {renderField("Request title", receipt.approvalRequestTitle)}
+                  {renderField("Request description", receipt.approvalRequestDescription)}
                   {renderField("Revision", String(receipt.revisionNumber))}
                   {renderField("Request ID", receipt.approvalRequestGlobalId)}
                   {renderField("Organization", receipt.createdByOrganizationDisplayName)}

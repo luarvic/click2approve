@@ -12,6 +12,7 @@ export interface SharedVerificationReceipt {
   globalId: string;
   approvalRequestGlobalId: string;
   approvalRequestTitle: string;
+  approvalRequestDescription?: string;
   approvalRequestStatus: ApprovalRequestStatus;
   revisionNumber: number;
   approvalRequestCreatedAt: Date;
