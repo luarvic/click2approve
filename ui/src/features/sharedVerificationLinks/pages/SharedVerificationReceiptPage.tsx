@@ -190,6 +190,23 @@ const responsiveTableSx: SxProps<Theme> = {
   },
 };
 
+const filesTableSx: SxProps<Theme> = {
+  ...responsiveTableSx,
+  tableLayout: "fixed",
+};
+
+const fileNameColumnSx: SxProps<Theme> = {
+  width: "30%",
+};
+
+const fileHashColumnSx: SxProps<Theme> = {
+  width: "50%",
+};
+
+const fileSizeColumnSx: SxProps<Theme> = {
+  width: "20%",
+};
+
 const participantTableSx: SxProps<Theme> = {
   ...responsiveTableSx,
   tableLayout: "fixed",
@@ -442,12 +459,12 @@ const SharedVerificationReceiptPage = () => {
 
             <Stack spacing={StackSpacing.default} sx={sectionSx}>
               {renderSectionTitle("Files")}
-              <Table size="small" sx={responsiveTableSx}>
+              <Table size="small" sx={filesTableSx}>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={tableHeaderCellSx}>Filename</TableCell>
-                    <TableCell sx={tableHeaderCellSx}>SHA-256</TableCell>
-                    <TableCell align="right" sx={tableHeaderCellSx}>Size</TableCell>
+                    <TableCell sx={[tableHeaderCellSx, fileNameColumnSx]}>Filename</TableCell>
+                    <TableCell sx={[tableHeaderCellSx, fileHashColumnSx]}>SHA-256</TableCell>
+                    <TableCell align="right" sx={[tableHeaderCellSx, fileSizeColumnSx]}>Size</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -456,11 +473,11 @@ const SharedVerificationReceiptPage = () => {
                       key={file.globalId}
                       sx={index === receipt.files.length - 1 ? tableLastRowSx : undefined}
                     >
-                      <TableCell sx={tableCellSx}>{file.fileName}</TableCell>
-                      <TableCell sx={[tableCellSx, hashTextSx]}>
+                      <TableCell sx={[tableCellSx, fileNameColumnSx]}>{file.fileName}</TableCell>
+                      <TableCell sx={[tableCellSx, hashTextSx, fileHashColumnSx]}>
                         {formatHash(file.hashValue)}
                       </TableCell>
-                      <TableCell align="right" sx={tableLastCellSx}>
+                      <TableCell align="right" sx={[tableLastCellSx, fileSizeColumnSx]}>
                         {formatBytes(file.size)} bytes
                       </TableCell>
                     </TableRow>

@@ -16,10 +16,12 @@ import { Box, Stack } from "@mui/material";
 
 interface ApprovalRequestSummaryBlockProps {
   approvalRequest: ApprovalRequest;
+  approvalRequestTaskGlobalId?: string;
 }
 
 const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = ({
   approvalRequest,
+  approvalRequestTaskGlobalId,
 }) => {
   const organizationIsVisible =
     stores.tenantStore.currentTenant?.type === TenantType.Personal;
@@ -37,6 +39,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
           title={approvalRequest.title}
           description={approvalRequest.description}
           approvalRequestGlobalId={approvalRequest.globalId}
+          approvalRequestTaskGlobalId={approvalRequestTaskGlobalId}
           requestFiles={approvalRequest.requestFiles}
           revisionNumber={approvalRequest.revisionNumber}
           compareFilesWithPrevious={(approvalRequest.revisionNumber ?? 1) > 1}
