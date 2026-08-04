@@ -21,18 +21,14 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
 
     public virtual async Task<int> ClaimEmailTasksAsync(AppUser user, long personalTenantId, CancellationToken cancellationToken)
     {
-        if (user.NormalizedEmail is null)
-        {
-            return 0;
-        }
-
         var tasks = await Db.ApprovalRequestTasks
-            .Where(t => t.ApproverUserId == null && t.ApproverEmail == user.NormalizedEmail)
+            .Where(t => t.ApproverUserId == user.Id
+                && t.ApproverEmployeeId == null
+                && t.TenantId != personalTenantId)
             .ToListAsync(cancellationToken);
 
         foreach (var task in tasks)
         {
-            task.ApproverUserId = user.Id;
             task.TenantId = personalTenantId;
         }
 
@@ -44,7 +40,9 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.ApprovalRequestTasks
             .AsNoTracking()
+            .Include(task => task.ApproverUser)
             .Include(task => task.ApprovalRequest)
+                .ThenInclude(request => request.CreatedByUser)
             .Where(t => t.ApproverUserId == user.Id
                 && t.TenantId == tenantId)
             .ToListAsync(cancellationToken);
@@ -55,8 +53,12 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.ApprovalRequestTasks
             .AsNoTracking()
+            .Include(task => task.ApproverUser)
             .Include(task => task.ApprovalRequestStep)
             .Include(task => task.ApprovalRequestStepApprover)
+                .ThenInclude(approver => approver!.User)
+            .Include(task => task.ApprovalRequest)
+                .ThenInclude(request => request.CreatedByUser)
             .Include(task => task.ApprovalRequest)
                 .ThenInclude(request => request.RequestFiles)
                     .ThenInclude(file => file.UserFile)
@@ -71,15 +73,25 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.ApprovalRequests
             .AsNoTracking()
+            .Include(request => request.CreatedByUser)
             .Include(request => request.RequestFiles)
                 .ThenInclude(file => file.UserFile)
             .Include(request => request.Steps)
                 .ThenInclude(step => step.Approvers)
+                    .ThenInclude(approver => approver.User)
+            .Include(request => request.Steps)
+                .ThenInclude(step => step.StepVisibilities)
+                    .ThenInclude(visibility => visibility.ApprovalRequestStepApprover)
+                        .ThenInclude(approver => approver.User)
             .Include(request => request.Steps)
                 .ThenInclude(step => step.StepVisibilities)
             .Include(request => request.Steps)
                 .ThenInclude(step => step.Tasks)
                     .ThenInclude(requestTask => requestTask.ApprovalRequestStepApprover)
+                        .ThenInclude(approver => approver!.User)
+            .Include(request => request.Steps)
+                .ThenInclude(step => step.Tasks)
+                    .ThenInclude(requestTask => requestTask.ApproverUser)
             .FirstOrDefaultAsync(request => request.Steps.Any(step => step.Tasks.Any(task => task.GlobalId == globalId
                 && task.ApproverUserId == user.Id
                 && task.TenantId == tenantId)),
@@ -91,21 +103,29 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.ApprovalRequestTasks
             .Include(t => t.ApprovalRequest)
+                .ThenInclude(r => r.CreatedByUser)
+            .Include(t => t.ApprovalRequest)
                 .ThenInclude(r => r.RequestFiles)
                     .ThenInclude(file => file.UserFile)
             .Include(t => t.ApprovalRequestStep)
                 .ThenInclude(s => s.Tasks)
             .Include(t => t.ApprovalRequestStepApprover)
+                .ThenInclude(approver => approver!.User)
             .Include(t => t.ApprovalRequest.Steps)
                 .ThenInclude(s => s.Approvers)
+                    .ThenInclude(approver => approver.User)
             .Include(t => t.ApprovalRequest.Steps)
                 .ThenInclude(s => s.StepVisibilities)
                     .ThenInclude(visibility => visibility.ApprovalRequestStepApprover)
+                        .ThenInclude(approver => approver.User)
             .Include(t => t.ApprovalRequest.Steps)
                 .ThenInclude(s => s.Tasks)
                     .ThenInclude(task => task.ApprovalRequestStepApprover)
+                        .ThenInclude(approver => approver!.User)
             .Include(t => t.ApprovalRequest.Steps)
                 .ThenInclude(s => s.Tasks)
+                    .ThenInclude(task => task.ApproverUser)
+            .Include(t => t.ApproverUser)
                 .FirstOrDefaultAsync(t => t.GlobalId == globalId
                     && t.ApproverUserId == user.Id
                     && t.TenantId == tenantId,

@@ -77,7 +77,6 @@ public class ApprovalRequestService(
             CreatedByUserId = user.Id,
             CreatedByUser = user,
             CreatedByEmployeeId = creator.EmployeeId,
-            CreatedByEmail = user.NormalizedEmail!,
             CreatedByDisplayName = creator.DisplayName,
             CreatedByOrganizationDisplayName = tenant.BusinessName
         }, cancellationToken);
@@ -206,7 +205,7 @@ public class ApprovalRequestService(
 
     private static string GetDisplayName(AppUser user)
     {
-        return (user.Email ?? user.NormalizedEmail ?? string.Empty).ToLowerInvariant();
+        return user.NormalizedEmail ?? string.Empty;
     }
 
     protected sealed record ApprovalRequestCreator(long? EmployeeId, string DisplayName);
@@ -254,7 +253,6 @@ public class ApprovalRequestService(
         return new ApprovalRequestStepApprover
         {
             Type = approver.Type,
-            Email = approver.Email
         };
     }
 

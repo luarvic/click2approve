@@ -29,7 +29,7 @@ public class TenantService(
         {
             BusinessName = GetDefaultBusinessName(user),
             Type = TenantType.Personal,
-            Email = EmailHelpers.NormalizeEmailAddress(user.Email),
+            Email = EmailHelpers.NormalizeEmailAddress(user.NormalizedEmail),
             Owner = user
         }, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

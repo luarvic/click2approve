@@ -12,5 +12,6 @@ public class AppUser : IdentityUser
     public string? Avatar { get; set; }
     public long? DefaultTenantId { get; set; }
     public bool HasLoggedIn { get; set; }
+    public bool IsPlaceholder { get; set; }
     public List<UserNotificationPreference> NotificationPreferences { get; set; } = [];
 }

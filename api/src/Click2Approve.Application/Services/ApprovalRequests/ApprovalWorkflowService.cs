@@ -41,6 +41,7 @@ public class ApprovalWorkflowService(
                 return new ApprovalRecipientResolveItem(
                     step,
                     approver,
+                    submittedApprover?.Email,
                     submittedApprover?.EmployeeGlobalId,
                     submittedApprover?.TeamGlobalId);
             }))
@@ -211,15 +212,20 @@ public class ApprovalWorkflowService(
 
         var notificationType = GetNotificationType(notification);
         var recipients = taskList
-            .GroupBy(task => task.ApproverEmail, StringComparer.OrdinalIgnoreCase)
+            .GroupBy(task => task.ApproverUserId)
             .Select(group => new
             {
-                Email = group.Key,
-                UserId = group.Select(task => task.ApproverUserId).FirstOrDefault(id => !string.IsNullOrWhiteSpace(id))
+                UserId = group.Key,
+                Email = group.Select(task => task.ApproverUser?.NormalizedEmail).FirstOrDefault(email => !string.IsNullOrWhiteSpace(email))
             });
 
         foreach (var recipient in recipients)
         {
+            if (string.IsNullOrWhiteSpace(recipient.UserId) || string.IsNullOrWhiteSpace(recipient.Email))
+            {
+                continue;
+            }
+
             if (!await _notificationPreferenceService.IsEnabledAsync(
                 recipient.UserId,
                 notificationType,
@@ -231,12 +237,12 @@ public class ApprovalWorkflowService(
 
             await _emailService.SendAsync(new EmailMessage
             {
-                ToAddress = recipient.Email.ToLower(),
+                ToAddress = recipient.Email,
                 Subject = template.Subject,
                 Body = EmailHelpers.BuildHtmlEmail(
                     template.Heading,
                     string.Format(template.Message,
-                        approvalRequest.CreatedByEmail.ToLower(),
+                        approvalRequest.CreatedByUser.NormalizedEmail ?? string.Empty,
                         GetActiveFileNames(approvalRequest)),
                     link,
                     template.LinkText)
@@ -270,12 +276,12 @@ public class ApprovalWorkflowService(
 
         await _emailService.SendAsync(new EmailMessage
         {
-            ToAddress = approvalRequest.CreatedByEmail.ToLower(),
+            ToAddress = approvalRequest.CreatedByUser.NormalizedEmail ?? string.Empty,
             Subject = reviewedSubject,
             Body = EmailHelpers.BuildHtmlEmail(
                 reviewedHeadingTemplate,
                 string.Format(reviewedMessageTemplate,
-                    reviewer.Email!.ToLower(),
+                    reviewer.NormalizedEmail ?? string.Empty,
                     GetActiveFileNames(approvalRequest)),
                 reviewedLink,
                 reviewedLinkText)
@@ -306,8 +312,8 @@ public class ApprovalWorkflowService(
                 ApprovalRequest = approvalRequest,
                 ApprovalRequestStep = step,
                 ApprovalRequestStepApprover = configuredApprover,
-                ApproverEmail = resolution.ApproverEmail,
-                ApproverUserId = resolution.ApproverUserId,
+                ApproverUser = resolution.ApproverUser,
+                ApproverUserId = resolution.ApproverUser.Id,
                 ApproverEmployeeId = resolution.ApproverEmployeeId,
                 ApproverDisplayName = resolution.ApproverDisplayName,
                 ApproverOrganizationDisplayName = resolution.ApproverOrganizationDisplayName,

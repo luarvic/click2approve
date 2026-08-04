@@ -8,5 +8,6 @@ namespace Click2Approve.Application.Models.Auxiliary.ApprovalRequests;
 public sealed record ApprovalRecipientResolveItem(
     ApprovalRequestStep Step,
     ApprovalRequestStepApprover Approver,
+    string? Email = null,
     Guid? EmployeeGlobalId = null,
     Guid? TeamGlobalId = null);

@@ -10,7 +10,6 @@ public class ApprovalRequest : DbEntity
     public required string CreatedByUserId { get; set; }
     public AppUser CreatedByUser { get; set; } = null!;
     public long? CreatedByEmployeeId { get; set; }
-    public required string CreatedByEmail { get; set; }
     public required string CreatedByDisplayName { get; set; }
     public required string CreatedByOrganizationDisplayName { get; set; }
     public long TenantId { get; set; }

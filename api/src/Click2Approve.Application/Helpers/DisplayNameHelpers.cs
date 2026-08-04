@@ -12,7 +12,7 @@ public static class DisplayNameHelpers
     /// </summary>
     public static string FormatUser(AppUser user)
     {
-        return FormatUser(user.FirstName, user.LastName, user.Email ?? user.NormalizedEmail ?? string.Empty);
+        return FormatUser(user.FirstName, user.LastName, user.NormalizedEmail ?? string.Empty);
     }
 
     /// <summary>

@@ -50,6 +50,7 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.ApprovalRequests
             .AsNoTracking()
+            .Include(r => r.CreatedByUser)
             .Where(r => r.TenantId == tenantId && r.CreatedByUserId == user.Id)
             .ToListAsync(cancellationToken);
     }
@@ -64,13 +65,17 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
     }
 
     protected static IQueryable<ApprovalRequest> IncludeDetails(IQueryable<ApprovalRequest> requests) => requests
+        .Include(request => request.CreatedByUser)
         .Include(request => request.RequestFiles)
             .ThenInclude(file => file.UserFile)
         .Include(request => request.Steps)
             .ThenInclude(step => step.Approvers)
+                .ThenInclude(approver => approver.User)
         .Include(request => request.Steps)
             .ThenInclude(step => step.StepVisibilities)
                 .ThenInclude(visibility => visibility.ApprovalRequestStepApprover)
+                    .ThenInclude(approver => approver.User)
         .Include(request => request.Steps)
-            .ThenInclude(step => step.Tasks);
+            .ThenInclude(step => step.Tasks)
+                .ThenInclude(task => task.ApproverUser);
 }

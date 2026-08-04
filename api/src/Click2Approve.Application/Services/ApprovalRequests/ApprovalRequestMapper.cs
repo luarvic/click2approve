@@ -17,7 +17,7 @@ internal static class ApprovalRequestMapper
         Result = approvalRequest.Result,
         CreatedAt = approvalRequest.CreatedAt,
         CompletedAt = approvalRequest.CompletedAt,
-        CreatedByEmail = approvalRequest.CreatedByEmail,
+        CreatedByEmail = GetEmail(approvalRequest.CreatedByUser),
         CreatedByDisplayName = approvalRequest.CreatedByDisplayName,
         CreatedByOrganizationDisplayName = approvalRequest.CreatedByOrganizationDisplayName,
         RevisionNumber = approvalRequest.RevisionNumber
@@ -32,7 +32,7 @@ internal static class ApprovalRequestMapper
         Result = task.Result,
         CreatedAt = task.CreatedAt,
         CompletedAt = task.CompletedAt,
-        RequestedByEmail = task.ApprovalRequest.CreatedByEmail,
+        RequestedByEmail = GetEmail(task.ApprovalRequest.CreatedByUser),
         RequestedByDisplayName = task.ApprovalRequest.CreatedByDisplayName,
         CreatedByOrganizationDisplayName = task.ApprovalRequest.CreatedByOrganizationDisplayName,
         RevisionNumber = GetTaskRevisionNumber(task)
@@ -45,6 +45,7 @@ internal static class ApprovalRequestMapper
         var approverGlobalIdsById = approvalRequest.Steps
             .SelectMany(step => step.Approvers)
             .ToDictionary(approver => approver.Id, approver => approver.GlobalId);
+        var createdByEmail = GetEmail(approvalRequest.CreatedByUser);
         return new ApprovalRequestDto
         {
             GlobalId = approvalRequest.GlobalId,
@@ -54,7 +55,7 @@ internal static class ApprovalRequestMapper
                 step,
                 approvalRequest.GlobalId,
                 approvalRequest.CreatedByDisplayName,
-                approvalRequest.CreatedByEmail,
+                createdByEmail,
                 approvalRequest.CreatedByOrganizationDisplayName,
                 approverGlobalIdsById,
                 approverGlobalIdMaps))],
@@ -62,7 +63,7 @@ internal static class ApprovalRequestMapper
             CreatedAt = approvalRequest.CreatedAt,
             CompletedAt = approvalRequest.CompletedAt,
             CreatedByUserId = approvalRequest.CreatedByUserId,
-            CreatedByEmail = approvalRequest.CreatedByEmail,
+            CreatedByEmail = createdByEmail,
             CreatedByDisplayName = approvalRequest.CreatedByDisplayName,
             CreatedByOrganizationDisplayName = approvalRequest.CreatedByOrganizationDisplayName,
             Status = approvalRequest.Status,
@@ -99,6 +100,7 @@ internal static class ApprovalRequestMapper
             .SelectMany(step => step.Approvers)
             .ToDictionary(approver => approver.Id, approver => approver.GlobalId);
 
+        var createdByEmail = GetEmail(approvalRequest.CreatedByUser);
         return new ApprovalRequestDto
         {
             GlobalId = approvalRequest.GlobalId,
@@ -108,7 +110,7 @@ internal static class ApprovalRequestMapper
                 step,
                 approvalRequest.GlobalId,
                 approvalRequest.CreatedByDisplayName,
-                approvalRequest.CreatedByEmail,
+                createdByEmail,
                 approvalRequest.CreatedByOrganizationDisplayName,
                 approvalRequestStepApproverId,
                 approverGlobalIdsById,
@@ -117,7 +119,7 @@ internal static class ApprovalRequestMapper
             CreatedAt = approvalRequest.CreatedAt,
             CompletedAt = approvalRequest.CompletedAt,
             CreatedByUserId = approvalRequest.CreatedByUserId,
-            CreatedByEmail = approvalRequest.CreatedByEmail,
+            CreatedByEmail = createdByEmail,
             CreatedByDisplayName = approvalRequest.CreatedByDisplayName,
             CreatedByOrganizationDisplayName = approvalRequest.CreatedByOrganizationDisplayName,
             Status = approvalRequest.Status,
@@ -172,7 +174,7 @@ internal static class ApprovalRequestMapper
         {
             GlobalId = approver.GlobalId,
             Type = approver.Type,
-            Email = approver.Email,
+            Email = GetEmail(approver.User),
             EmployeeGlobalId = GetEmployeeGlobalId(approver, approverGlobalIdMaps),
             TeamGlobalId = GetTeamGlobalId(approver, approverGlobalIdMaps),
             DisplayName = approver.ApproverDisplayName
@@ -216,7 +218,7 @@ internal static class ApprovalRequestMapper
             ApproverGlobalId = visibility.ApprovalRequestStepApprover.GlobalId,
             ApproverType = visibility.ApprovalRequestStepApprover.Type,
             ApproverDisplayName = visibility.ApprovalRequestStepApprover.ApproverDisplayName,
-            ApproverEmail = visibility.ApprovalRequestStepApprover.Email,
+            ApproverEmail = GetEmail(visibility.ApprovalRequestStepApprover.User),
             ApproverEmployeeGlobalId = GetEmployeeGlobalId(visibility.ApprovalRequestStepApprover, approverGlobalIdMaps),
             ApproverTeamGlobalId = GetTeamGlobalId(visibility.ApprovalRequestStepApprover, approverGlobalIdMaps),
             IsVisible = visibility.IsVisible
@@ -239,12 +241,12 @@ internal static class ApprovalRequestMapper
             ApprovalRequestStepGlobalId = approvalRequestStepGlobalId ?? task.ApprovalRequestStep.GlobalId,
             ApprovalRequestStepApproverGlobalId = approvalRequestStepApproverGlobalId ?? task.ApprovalRequestStepApprover?.GlobalId,
             ApproverUserId = task.ApproverUserId,
-            ApproverEmail = task.ApproverEmail,
+            ApproverEmail = GetEmail(task.ApproverUser),
             ApproverDisplayName = task.ApproverDisplayName,
             ApproverOrganizationDisplayName = task.ApproverOrganizationDisplayName,
             Action = task.Action,
             Result = task.Result,
-            RequestedByEmail = createdByEmail ?? task.ApprovalRequest.CreatedByEmail,
+            RequestedByEmail = createdByEmail ?? GetEmail(task.ApprovalRequest.CreatedByUser),
             RequestedByDisplayName = createdByDisplayName ?? task.ApprovalRequest.CreatedByDisplayName,
             CreatedByOrganizationDisplayName = createdByOrganizationDisplayName ?? task.ApprovalRequest.CreatedByOrganizationDisplayName,
             RevisionNumber = GetTaskRevisionNumber(task),
@@ -320,6 +322,11 @@ internal static class ApprovalRequestMapper
 
     private static IEnumerable<ApprovalRequestFile> OrderRequestFiles(ApprovalRequest approvalRequest) =>
         approvalRequest.RequestFiles.OrderBy(file => file.Sequence);
+
+    private static string GetEmail(AppUser? user)
+    {
+        return user?.NormalizedEmail ?? string.Empty;
+    }
 
     private static bool StepIsVisibleToApprover(ApprovalRequestStep step, long? approvalRequestStepApproverId)
     {

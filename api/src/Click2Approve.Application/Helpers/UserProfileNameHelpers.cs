@@ -17,7 +17,7 @@ public static class UserProfileNameHelpers
             return;
         }
 
-        var (firstName, lastName) = ResolveFromEmail(user.Email);
+        var (firstName, lastName) = ResolveFromEmail(user.NormalizedEmail);
         user.FirstName = string.IsNullOrWhiteSpace(user.FirstName) ? firstName : user.FirstName;
         user.LastName = string.IsNullOrWhiteSpace(user.LastName) ? lastName : user.LastName;
     }

@@ -24,7 +24,6 @@ public class ApprovalRequestTask : DbEntity
     public AppUser? ApproverUser { get; set; }
     public long? ApproverEmployeeId { get; set; }
     public required string ApproverDisplayName { get; set; }
-    public required string ApproverEmail { get; set; }
     public string? ApproverOrganizationDisplayName { get; set; }
     public long TenantId { get; set; }
     public Tenant? Tenant { get; set; }

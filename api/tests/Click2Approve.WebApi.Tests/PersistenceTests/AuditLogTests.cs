@@ -126,7 +126,6 @@ public class AuditLogTests
             CreatedAt = DateTime.UtcNow,
             CreatedByUser = owner,
             CreatedByUserId = owner.Id,
-            CreatedByEmail = owner.Email,
             CreatedByDisplayName = "Owner",
             CreatedByOrganizationDisplayName = "Personal",
             Tenant = tenant,

@@ -88,6 +88,9 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasMaxLength(255);
 
         modelBuilder.Entity<AppUser>()
+            .HasIndex(u => u.IsPlaceholder);
+
+        modelBuilder.Entity<AppUser>()
             .HasOne<Tenant>()
             .WithMany()
             .HasForeignKey(u => u.DefaultTenantId)
@@ -110,10 +113,6 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
         modelBuilder.Entity<ApprovalRequest>()
             .Property(r => r.Title)
             .HasMaxLength(255);
-
-        modelBuilder.Entity<ApprovalRequest>()
-            .Property(r => r.CreatedByEmail)
-            .HasMaxLength(320);
 
         modelBuilder.Entity<ApprovalRequest>()
             .Property(r => r.CreatedByDisplayName)
@@ -196,10 +195,6 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasConversion<int>();
 
         modelBuilder.Entity<ApprovalRequestStepApprover>()
-            .Property(a => a.Email)
-            .HasMaxLength(320);
-
-        modelBuilder.Entity<ApprovalRequestStepApprover>()
             .Property(a => a.ApproverDisplayName)
             .HasMaxLength(255);
 
@@ -207,6 +202,12 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasOne(a => a.ApprovalRequestStep)
             .WithMany(s => s.Approvers)
             .HasForeignKey(a => a.ApprovalRequestStepId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequestStepApprover>()
+            .HasOne(a => a.User)
+            .WithMany()
+            .HasForeignKey(a => a.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestStepVisibility>()
@@ -242,10 +243,6 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequestTask>()
-            .Property(t => t.ApproverEmail)
-            .HasMaxLength(320);
-
-        modelBuilder.Entity<ApprovalRequestTask>()
             .Property(t => t.ApproverDisplayName)
             .HasMaxLength(255);
 
@@ -264,9 +261,6 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
         modelBuilder.Entity<ApprovalRequestTask>()
             .Property(t => t.ApproverLegalName)
             .HasMaxLength(255);
-
-        modelBuilder.Entity<ApprovalRequestTask>()
-            .HasIndex(t => new { t.ApproverEmail, t.ApproverUserId });
 
         modelBuilder.Entity<ApprovalRequestTask>()
             .HasIndex(t => new { t.TenantId, t.ApproverUserId, t.Status });

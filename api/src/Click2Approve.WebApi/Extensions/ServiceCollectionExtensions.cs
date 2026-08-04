@@ -4,7 +4,9 @@ using Azure.Core;
 using Click2Approve.Domain.Models;
 using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.Application.Services.Email;
+using Click2Approve.Application.Services.Identity;
 using Click2Approve.Infrastructure.Services.Email;
+using Click2Approve.Infrastructure.Services.Identity;
 using Click2Approve.WebApi.Services.Identity;
 using FluentEmail.Core.Interfaces;
 using FluentEmail.Smtp;
@@ -44,6 +46,9 @@ public static class ServiceCollectionExtensions
                 options.Lockout.AllowedForNewUsers = configuration.GetValue<bool>("Identity:Lockout:AllowedForNewUsers");
             })
             .AddEntityFrameworkStores<ApiDbContext>();
+        services.AddScoped<IUserStore<AppUser>, PlaceholderAwareUserStore>();
+        services.AddScoped<IUserValidator<AppUser>, PlaceholderAwareUserValidator>();
+        services.AddScoped<IUserProvisioningService, UserProvisioningService>();
         services.AddScoped<ILookupNormalizer, LowerInvariantLookupNormalizer>();
         return services;
     }

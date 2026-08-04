@@ -50,7 +50,7 @@ public class IdentityEmailService(IEmailService emailService, IConfiguration con
     public async Task SendPasswordResetCodeAsync(AppUser user, string email, string resetCode)
     {
         var derivedResetLink = UriHelpers.GetDerivedPasswordResetLink(
-            user.Email!.ToLower(),
+            user.NormalizedEmail!,
             resetCode,
             _configuration.GetValue<Uri>("UI:BaseUrl"),
             _configuration["UI:AppPath"]
