@@ -42,6 +42,7 @@ export interface SharedVerificationParticipant {
   role: string;
   action: string;
   displayName: string;
+  email: string;
   organizationDisplayName?: string;
   completedAt?: Date;
   result?: boolean;

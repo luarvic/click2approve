@@ -37,6 +37,7 @@ const baseUrl = import.meta.env.BASE_URL.endsWith("/")
   : `${import.meta.env.BASE_URL}/`;
 const logoSrc = `${baseUrl}logo.svg`;
 const qrCodeSize = 120;
+const tableStackContainerMaxWidth = 850;
 
 const pageSx: SxProps<Theme> = {
   minHeight: "100vh",
@@ -96,6 +97,7 @@ const titleSx: SxProps<Theme> = {
 
 const sectionSx: SxProps<Theme> = {
   breakInside: "avoid",
+  containerType: "inline-size",
 };
 
 const sectionTitleSx: SxProps<Theme> = {
@@ -173,20 +175,55 @@ const tableLastRowSx: SxProps<Theme> = {
 };
 
 const responsiveTableSx: SxProps<Theme> = {
-  display: { xs: "none", sm: "table" },
+  display: "table",
   "& th:not(:first-of-type), & td:not(:first-of-type)": {
     pl: 2,
   },
   "& th:not(:last-child), & td:not(:last-child)": {
     pr: 2,
   },
+  [`@container (max-width: ${tableStackContainerMaxWidth}px)`]: {
+    display: "none",
+  },
   "@media print": {
     display: "table",
   },
 };
 
+const participantTableSx: SxProps<Theme> = {
+  ...responsiveTableSx,
+  tableLayout: "fixed",
+};
+
+const participantNameColumnSx: SxProps<Theme> = {
+  width: "15%",
+};
+
+const participantEmailColumnSx: SxProps<Theme> = {
+  width: "25%",
+};
+
+const participantOrganizationColumnSx: SxProps<Theme> = {
+  width: "15%",
+};
+
+const participantRelationshipColumnSx: SxProps<Theme> = {
+  width: "15%",
+};
+
+const participantActionColumnSx: SxProps<Theme> = {
+  width: "15%",
+};
+
+const participantPerformedAtColumnSx: SxProps<Theme> = {
+  width: "15%",
+};
+
 const mobileRecordStackSx: SxProps<Theme> = {
-  display: { xs: "flex", sm: "none" },
+  display: "none",
+  [`@container (max-width: ${tableStackContainerMaxWidth}px)`]: {
+    display: "flex",
+  },
   "@media print": {
     display: "none",
   },
@@ -477,14 +514,17 @@ const SharedVerificationReceiptPage = () => {
 
             <Stack spacing={StackSpacing.default} sx={sectionSx}>
               {renderSectionTitle("Participants")}
-              <Table size="small" sx={responsiveTableSx}>
+              <Table size="small" sx={participantTableSx}>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={tableHeaderCellSx}>Participant</TableCell>
-                    <TableCell sx={tableHeaderCellSx}>Organization</TableCell>
-                    <TableCell sx={tableHeaderCellSx}>Relationship</TableCell>
-                    <TableCell sx={tableHeaderCellSx}>Action</TableCell>
-                    <TableCell align="right" sx={tableHeaderCellSx}>Performed at</TableCell>
+                    <TableCell sx={[tableHeaderCellSx, participantNameColumnSx]}>Participant</TableCell>
+                    <TableCell sx={[tableHeaderCellSx, participantEmailColumnSx]}>Email</TableCell>
+                    <TableCell sx={[tableHeaderCellSx, participantOrganizationColumnSx]}>Organization</TableCell>
+                    <TableCell sx={[tableHeaderCellSx, participantRelationshipColumnSx]}>Relationship</TableCell>
+                    <TableCell sx={[tableHeaderCellSx, participantActionColumnSx]}>Action</TableCell>
+                    <TableCell align="right" sx={[tableHeaderCellSx, participantPerformedAtColumnSx]}>
+                      Performed at
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -493,19 +533,22 @@ const SharedVerificationReceiptPage = () => {
                       key={`${participant.role}-${participant.displayName}-${index}`}
                       sx={index === (receipt.participants ?? []).length - 1 ? tableLastRowSx : undefined}
                     >
-                      <TableCell sx={tableCellSx}>
+                      <TableCell sx={[tableCellSx, participantNameColumnSx]}>
                         {participant.displayName}
                       </TableCell>
-                      <TableCell sx={tableCellSx}>
+                      <TableCell sx={[tableCellSx, participantEmailColumnSx]}>
+                        {participant.email}
+                      </TableCell>
+                      <TableCell sx={[tableCellSx, participantOrganizationColumnSx]}>
                         {formatParticipantOrganization(participant.organizationDisplayName)}
                       </TableCell>
-                      <TableCell sx={tableCellSx}>
+                      <TableCell sx={[tableCellSx, participantRelationshipColumnSx]}>
                         {participant.role}
                       </TableCell>
-                      <TableCell sx={tableCellSx}>
+                      <TableCell sx={[tableCellSx, participantActionColumnSx]}>
                         {participant.action}
                       </TableCell>
-                      <TableCell align="right" sx={tableLastCellSx}>
+                      <TableCell align="right" sx={[tableCellSx, participantPerformedAtColumnSx]}>
                         {participant.completedAt
                           ? formatCertificateDateTime(participant.completedAt)
                           : "Not recorded"}
@@ -522,6 +565,7 @@ const SharedVerificationReceiptPage = () => {
                     sx={getMobileRecordSx(index === (receipt.participants ?? []).length - 1)}
                   >
                     {renderField("Participant", participant.displayName)}
+                    {renderField("Email", participant.email)}
                     {renderField("Organization", formatParticipantOrganization(participant.organizationDisplayName))}
                     {renderField("Relationship", participant.role)}
                     {renderField("Action", participant.action)}
