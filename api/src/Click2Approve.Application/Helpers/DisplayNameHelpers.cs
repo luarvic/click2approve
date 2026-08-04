@@ -1,5 +1,3 @@
-using Click2Approve.Domain.Models;
-
 namespace Click2Approve.Application.Helpers;
 
 /// <summary>
@@ -7,14 +5,6 @@ namespace Click2Approve.Application.Helpers;
 /// </summary>
 public static class DisplayNameHelpers
 {
-    /// <summary>
-    /// Formats a user display name as "FirstName LastName (email)".
-    /// </summary>
-    public static string FormatUser(AppUser user)
-    {
-        return FormatUser(user.FirstName, user.LastName, user.NormalizedEmail ?? string.Empty);
-    }
-
     /// <summary>
     /// Formats a user display name as "FirstName LastName (email)".
     /// </summary>

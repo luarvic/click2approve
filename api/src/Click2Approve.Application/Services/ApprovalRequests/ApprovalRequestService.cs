@@ -1,3 +1,4 @@
+using Click2Approve.Application.Extensions;
 using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Application.Persistence;
 using Click2Approve.Application.Services.TenantContext;
@@ -148,8 +149,10 @@ public class ApprovalRequestService(
         long tenantId,
         CancellationToken cancellationToken)
     {
-        return Task.FromResult(new ApprovalRequestCreator(null, GetDisplayName(user)));
+        return Task.FromResult(new ApprovalRequestCreator(null, user.NormalizedEmailOrEmpty()));
     }
+
+    protected sealed record ApprovalRequestCreator(long? EmployeeId, string DisplayName);
 
     private async Task CheckLimitationsAsync(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
     {
@@ -202,13 +205,6 @@ public class ApprovalRequestService(
                 };
             });
     }
-
-    private static string GetDisplayName(AppUser user)
-    {
-        return user.NormalizedEmail ?? string.Empty;
-    }
-
-    protected sealed record ApprovalRequestCreator(long? EmployeeId, string DisplayName);
 
     private static List<ApprovalRequestStep> BuildSteps(List<ApprovalRequestStepSubmitDto> stepDtos)
     {

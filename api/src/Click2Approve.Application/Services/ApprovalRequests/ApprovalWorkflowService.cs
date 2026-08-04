@@ -1,3 +1,4 @@
+using Click2Approve.Application.Extensions;
 using Click2Approve.Application.Helpers;
 using Click2Approve.Application.Models.Auxiliary;
 using Click2Approve.Application.Models.Auxiliary.ApprovalRequests;
@@ -242,7 +243,7 @@ public class ApprovalWorkflowService(
                 Body = EmailHelpers.BuildHtmlEmail(
                     template.Heading,
                     string.Format(template.Message,
-                        approvalRequest.CreatedByUser.NormalizedEmail ?? string.Empty,
+                        approvalRequest.CreatedByUser.NormalizedEmailOrEmpty(),
                         GetActiveFileNames(approvalRequest)),
                     link,
                     template.LinkText)
@@ -276,12 +277,12 @@ public class ApprovalWorkflowService(
 
         await _emailService.SendAsync(new EmailMessage
         {
-            ToAddress = approvalRequest.CreatedByUser.NormalizedEmail ?? string.Empty,
+            ToAddress = approvalRequest.CreatedByUser.NormalizedEmailOrEmpty(),
             Subject = reviewedSubject,
             Body = EmailHelpers.BuildHtmlEmail(
                 reviewedHeadingTemplate,
                 string.Format(reviewedMessageTemplate,
-                    reviewer.NormalizedEmail ?? string.Empty,
+                    reviewer.NormalizedEmailOrEmpty(),
                     GetActiveFileNames(approvalRequest)),
                 reviewedLink,
                 reviewedLinkText)
