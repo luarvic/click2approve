@@ -5,9 +5,14 @@ namespace Click2Approve.Domain.Models;
 /// </summary>
 public class ApprovalRequestStepVisibility : DbEntity
 {
-    public long ApprovalRequestStepId { get; set; }
-    public ApprovalRequestStep ApprovalRequestStep { get; set; } = null!;
+    // Foreign key identifiers
     public long ApprovalRequestStepApproverId { get; set; }
-    public ApprovalRequestStepApprover ApprovalRequestStepApprover { get; set; } = null!;
+    public long ApprovalRequestStepId { get; set; }
+
+    // Scalar properties
     public required bool IsVisible { get; set; }
+
+    // Navigation properties
+    public ApprovalRequestStepApprover ApprovalRequestStepApprover { get; set; } = null!;
+    public ApprovalRequestStep ApprovalRequestStep { get; set; } = null!;
 }

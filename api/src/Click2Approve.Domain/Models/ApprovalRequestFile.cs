@@ -5,12 +5,17 @@ namespace Click2Approve.Domain.Models;
 /// </summary>
 public class ApprovalRequestFile : DbEntity
 {
+    // Foreign key identifiers
     public long ApprovalRequestId { get; set; }
-    public ApprovalRequest ApprovalRequest { get; set; } = null!;
-    public long UserFileId { get; set; }
-    public UserFile UserFile { get; set; } = null!;
-    public int Sequence { get; set; }
-    public ApprovalRequestFileRevisionAction RevisionAction { get; set; }
     public long? PreviousApprovalRequestFileId { get; set; }
+    public long UserFileId { get; set; }
+
+    // Scalar properties
+    public ApprovalRequestFileRevisionAction RevisionAction { get; set; }
+    public int Sequence { get; set; }
+
+    // Navigation properties
+    public ApprovalRequest ApprovalRequest { get; set; } = null!;
     public ApprovalRequestFile? PreviousApprovalRequestFile { get; set; }
+    public UserFile UserFile { get; set; } = null!;
 }

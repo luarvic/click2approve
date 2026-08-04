@@ -1,5 +1,5 @@
 import { stores } from "@/app/rootStore";
-import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
+import { Employee } from "@/features/employees/models/employee";
 import { Team, UpsertTeamRequest } from "@/features/teams/models/team";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import DisplayName from "@/shared/components/identity/DisplayName";
@@ -42,9 +42,6 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
   const isNew = team === null;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const teamsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/teams") : "/";
-  const activeEmployees = employees.filter(
-    (employee) => employee.status === EmployeeStatus.Active,
-  );
   const nameHasError = nameTouched && !name.trim();
 
   useEffect(() => {
@@ -100,7 +97,7 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
         />
         <Autocomplete
           multiple
-          options={activeEmployees}
+          options={employees}
           value={members}
           getOptionLabel={getEmployeeLabel}
           isOptionEqualToValue={(option, value) => option.globalId === value.globalId}
@@ -118,7 +115,7 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
             <TextField
               {...params}
               label="Employees"
-              helperText="Assign active employees to this team."
+              helperText="Assign employees to this team."
             />
           )}
           renderOption={(props, option) => (

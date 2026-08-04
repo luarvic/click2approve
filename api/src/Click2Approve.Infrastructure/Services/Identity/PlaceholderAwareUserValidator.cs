@@ -25,7 +25,8 @@ public class PlaceholderAwareUserValidator(IdentityErrorDescriber? errors = null
         }
 
         var remainingErrors = result.Errors
-            .Where(error => error.Code != nameof(IdentityErrorDescriber.DuplicateEmail))
+            .Where(error => error.Code != nameof(IdentityErrorDescriber.DuplicateEmail)
+                && error.Code != nameof(IdentityErrorDescriber.DuplicateUserName))
             .ToArray();
         return remainingErrors.Length == 0
             ? IdentityResult.Success

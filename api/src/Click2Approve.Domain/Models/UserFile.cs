@@ -5,13 +5,18 @@ namespace Click2Approve.Domain.Models;
 /// </summary>
 public class UserFile : DbEntity
 {
-    public required string Name { get; set; }
-    public required string Type { get; set; }
-    public required DateTime CreatedAt { get; set; }
+    // Foreign key identifiers
     public required string OwnerId { get; set; }
-    public AppUser? Owner { get; set; }
     public long TenantId { get; set; }
-    public Tenant? Tenant { get; set; }
+
+    // Scalar properties
+    public required DateTime CreatedAt { get; set; }
+    public required string Name { get; set; }
     public required long Size { get; set; }
+    public required string Type { get; set; }
+
+    // Navigation properties
     public List<ApprovalRequestFile> ApprovalRequestFiles { get; set; } = [];
+    public AppUser? Owner { get; set; }
+    public Tenant? Tenant { get; set; }
 }

@@ -3,7 +3,7 @@ import {
   ApprovalDelegation,
   ApprovalDelegationUpsert,
 } from "@/features/delegations/models/approvalDelegation";
-import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
+import { Employee } from "@/features/employees/models/employee";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import DisplayName from "@/shared/components/identity/DisplayName";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
@@ -53,12 +53,6 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
   const delegationsPath = tenantGlobalId
     ? Routes.tenantPath(tenantGlobalId, "/delegations")
     : "/";
-  const selectableEmployees = employees.filter(
-    (employee) =>
-      employee.status === EmployeeStatus.Active ||
-      employee.globalId === delegatorEmployeeId ||
-      employee.globalId === delegateEmployeeId,
-  );
   const selectionsAreMissing =
     !delegatorEmployeeId || !delegateEmployeeId;
   const employeesMatch =
@@ -135,7 +129,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           disabled={!isNew && !canEdit}
         >
           <MenuItem value={employeeSelectionDefault}>Select employee</MenuItem>
-          {selectableEmployees.map((employee) => (
+          {employees.map((employee) => (
             <MenuItem key={employee.globalId} value={employee.globalId}>
               <DisplayName
                 displayName={employee.displayName}
@@ -157,7 +151,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           disabled={!isNew && !canEdit}
         >
           <MenuItem value={employeeSelectionDefault}>Select delegate</MenuItem>
-          {selectableEmployees.map((employee) => (
+          {employees.map((employee) => (
             <MenuItem key={employee.globalId} value={employee.globalId}>
               <DisplayName
                 displayName={employee.displayName}

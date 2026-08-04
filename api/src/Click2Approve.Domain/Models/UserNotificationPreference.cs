@@ -5,9 +5,14 @@ namespace Click2Approve.Domain.Models;
 /// </summary>
 public class UserNotificationPreference : DbEntity
 {
+    // Foreign key identifiers
     public required string UserId { get; set; }
-    public AppUser User { get; set; } = null!;
-    public required NotificationType Type { get; set; }
+
+    // Scalar properties
     public required NotificationChannel Channel { get; set; }
     public required bool IsEnabled { get; set; }
+    public required NotificationType Type { get; set; }
+
+    // Navigation properties
+    public AppUser User { get; set; } = null!;
 }

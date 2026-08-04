@@ -14,6 +14,7 @@ using Hangfire;
 using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Azure;
 using Microsoft.OpenApi;
 
@@ -47,6 +48,7 @@ public static class ServiceCollectionExtensions
             })
             .AddEntityFrameworkStores<ApiDbContext>();
         services.AddScoped<IUserStore<AppUser>, PlaceholderAwareUserStore>();
+        services.RemoveAll<IUserValidator<AppUser>>();
         services.AddScoped<IUserValidator<AppUser>, PlaceholderAwareUserValidator>();
         services.AddScoped<IUserProvisioningService, UserProvisioningService>();
         services.AddScoped<ILookupNormalizer, LowerInvariantLookupNormalizer>();
