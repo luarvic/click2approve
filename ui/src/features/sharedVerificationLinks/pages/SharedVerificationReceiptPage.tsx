@@ -155,6 +155,7 @@ const tableHeaderCellSx: SxProps<Theme> = {
 
 const tableCellSx: SxProps<Theme> = {
   fontSize: "1rem",
+  overflowWrap: "anywhere",
   px: 0,
   py: 0.9,
   verticalAlign: "top",
@@ -173,6 +174,12 @@ const tableLastRowSx: SxProps<Theme> = {
 
 const responsiveTableSx: SxProps<Theme> = {
   display: { xs: "none", sm: "table" },
+  "& th:not(:first-of-type), & td:not(:first-of-type)": {
+    pl: 2,
+  },
+  "& th:not(:last-child), & td:not(:last-child)": {
+    pr: 2,
+  },
   "@media print": {
     display: "table",
   },

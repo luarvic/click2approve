@@ -275,7 +275,6 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
         <ApprovalRequestDetails
           approvalRequest={approvalRequest}
           highlightedTaskGlobalId={currentTask?.globalId}
-          onHighlightedTaskClick={() => setSelectedTab("task")}
           showVisibleStepVisibility={false}
         />
       )}
