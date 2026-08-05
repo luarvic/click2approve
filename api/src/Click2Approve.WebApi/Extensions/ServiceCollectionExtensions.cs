@@ -3,7 +3,6 @@ using System.Net.Mail;
 using Azure.Core;
 using Click2Approve.Application.Abstractions.Email;
 using Click2Approve.Application.Abstractions.Identity;
-using Click2Approve.Application.Services.Identity;
 using Click2Approve.Domain.Models;
 using Click2Approve.Infrastructure.Email;
 using Click2Approve.Infrastructure.Identity;
@@ -51,6 +50,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserStore<AppUser>, PlaceholderAwareUserStore>();
         services.RemoveAll<IUserValidator<AppUser>>();
         services.AddScoped<IUserValidator<AppUser>, PlaceholderAwareUserValidator>();
+        services.AddScoped<IUserIdentityService, UserIdentityService>();
         services.AddScoped<IUserProvisioningService, UserProvisioningService>();
         services.AddScoped<ILookupNormalizer, LowerInvariantLookupNormalizer>();
         return services;

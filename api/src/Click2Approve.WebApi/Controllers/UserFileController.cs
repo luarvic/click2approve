@@ -36,7 +36,7 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     public async Task<ActionResult<List<UserFileDto>>> UploadAsync(IFormFileCollection files, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        var userFiles = await _userFileService.UploadAsync(user, files, cancellationToken);
+        var userFiles = await _userFileService.UploadAsync(user, await files.ToUploadedFilesAsync(cancellationToken), cancellationToken);
         return Ok(userFiles);
     }
 

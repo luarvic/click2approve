@@ -1,4 +1,4 @@
-using Click2Approve.Application.Extensions;
+using Click2Approve.Application.Models.Auxiliary;
 using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
@@ -28,7 +28,7 @@ public class UserFileService(
     /// <summary>
     /// Uploads a user file.
     /// </summary>
-    public async Task<IList<UserFileDto>> UploadAsync(AppUser user, IFormFileCollection files, CancellationToken cancellationToken)
+    public async Task<IList<UserFileDto>> UploadAsync(AppUser user, IReadOnlyCollection<UploadedFile> files, CancellationToken cancellationToken)
     {
         await CheckLimitations(user, files, cancellationToken);
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
@@ -56,8 +56,7 @@ public class UserFileService(
             var id = savedUserFile.Id.ToString();
 
             // Save the file.
-            var bytes = await file.ToBytesAsync(cancellationToken);
-            await _fileStorage.SaveAsync(GetFilePath(user.Id, id, Path.GetFileName(file.FileName)), bytes, cancellationToken);
+            await _fileStorage.SaveAsync(GetFilePath(user.Id, id, Path.GetFileName(file.FileName)), file.Bytes, cancellationToken);
         }
 
         return [.. userFiles.Select(UserFileMapper.MapUserFile)];
@@ -135,7 +134,7 @@ public class UserFileService(
     /// Checks the limitations defined for user files and throws
     /// when any of them is exceeded.
     /// </summary>
-    private async Task CheckLimitations(AppUser user, IFormFileCollection files, CancellationToken cancellationToken)
+    private async Task CheckLimitations(AppUser user, IReadOnlyCollection<UploadedFile> files, CancellationToken cancellationToken)
     {
         var maxFiles = _configuration.GetValue<int>("Limitations:MaxFiles");
         if (maxFiles > 0)

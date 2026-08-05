@@ -1,9 +1,8 @@
-using Click2Approve.Application.Extensions;
 using Click2Approve.Application.Helpers;
+using Click2Approve.Application.Models.Auxiliary;
 using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
-using Microsoft.AspNetCore.Identity;
 
 namespace Click2Approve.Application.Services.UserProfiles;
 
@@ -11,7 +10,7 @@ namespace Click2Approve.Application.Services.UserProfiles;
 /// Implements user profile operations.
 /// </summary>
 public class UserProfileService(
-    UserManager<AppUser> userManager,
+    IUserIdentityService userIdentityService,
     ITenantRepository tenantRepository,
     IUserNotificationPreferenceService notificationPreferenceService,
     IUserProfileAccessService profileAccessService,
@@ -20,7 +19,7 @@ public class UserProfileService(
 {
     private const string AllowedAvatarExtensionsConfigurationKey = "Limitations:AllowedAvatarExtensions";
 
-    private readonly UserManager<AppUser> _userManager = userManager;
+    private readonly IUserIdentityService _userIdentityService = userIdentityService;
     private readonly ITenantRepository _tenantRepository = tenantRepository;
     private readonly IUserNotificationPreferenceService _notificationPreferenceService = notificationPreferenceService;
     private readonly IUserProfileAccessService _profileAccessService = profileAccessService;
@@ -55,7 +54,7 @@ public class UserProfileService(
         user.LastName = UserProfileNameHelpers.NormalizeOptional(payload.LastName);
         user.DefaultTenantId = defaultTenantId;
         await _notificationPreferenceService.ReplaceAsync(user, payload.NotificationPreferences, cancellationToken);
-        await UpdateUserAsync(user);
+        await UpdateUserAsync(user, cancellationToken);
         return await UserProfileMapper.MapUserProfileAsync(
             user,
             _tenantRepository,
@@ -63,18 +62,17 @@ public class UserProfileService(
             cancellationToken);
     }
 
-    public async Task<UserProfileDto> UploadAvatarAsync(AppUser user, IFormFile avatar, CancellationToken cancellationToken)
+    public async Task<UserProfileDto> UploadAvatarAsync(AppUser user, UploadedFile avatar, CancellationToken cancellationToken)
     {
         EnsureAvatarFile(avatar);
 
         var oldAvatarPath = user.Avatar;
         var extension = Path.GetExtension(avatar.FileName).ToLowerInvariant();
         var avatarPath = GetAvatarPath(user.Id, extension);
-        var bytes = await avatar.ToBytesAsync(cancellationToken);
-        await _fileStorage.SaveAsync(avatarPath, bytes, cancellationToken);
+        await _fileStorage.SaveAsync(avatarPath, avatar.Bytes, cancellationToken);
 
         user.Avatar = avatarPath;
-        await UpdateUserAsync(user);
+        await UpdateUserAsync(user, cancellationToken);
 
         if (!string.IsNullOrWhiteSpace(oldAvatarPath))
         {
@@ -90,7 +88,7 @@ public class UserProfileService(
 
     public async Task<(string Filename, byte[] Bytes)> DownloadAvatarAsync(string userId, CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByIdAsync(userId)
+        var user = await _userIdentityService.FindByIdAsync(userId, cancellationToken)
             ?? throw new NotFoundException("User was not found.");
         var avatarPath = user.Avatar;
         if (string.IsNullOrWhiteSpace(avatarPath))
@@ -114,7 +112,7 @@ public class UserProfileService(
         }
 
         user.Avatar = null;
-        await UpdateUserAsync(user);
+        await UpdateUserAsync(user, cancellationToken);
         await _fileStorage.DeleteAsync(avatarPath, cancellationToken);
         return await UserProfileMapper.MapUserProfileAsync(
             user,
@@ -123,16 +121,12 @@ public class UserProfileService(
             cancellationToken);
     }
 
-    private async Task UpdateUserAsync(AppUser user)
+    private async Task UpdateUserAsync(AppUser user, CancellationToken cancellationToken)
     {
-        var result = await _userManager.UpdateAsync(user);
-        if (!result.Succeeded)
-        {
-            throw new InvalidOperationException("Failed to update the user profile.");
-        }
+        await _userIdentityService.UpdateAsync(user, cancellationToken);
     }
 
-    private void EnsureAvatarFile(IFormFile avatar)
+    private void EnsureAvatarFile(UploadedFile avatar)
     {
         if (avatar.Length == 0)
         {
@@ -152,7 +146,7 @@ public class UserProfileService(
         }
     }
 
-    private static bool HasImageContentType(IFormFile avatar)
+    private static bool HasImageContentType(UploadedFile avatar)
     {
         return string.IsNullOrWhiteSpace(avatar.ContentType)
             || string.Equals(avatar.ContentType, "application/octet-stream", StringComparison.OrdinalIgnoreCase)

@@ -1,8 +1,9 @@
+using Click2Approve.Application.Abstractions.Identity;
 using Click2Approve.Application.Helpers;
 using Click2Approve.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace Click2Approve.Application.Services.Identity;
+namespace Click2Approve.Infrastructure.Identity;
 
 /// <summary>
 /// Provisions Identity users for addresses that can be assigned before registration.

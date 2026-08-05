@@ -1,3 +1,4 @@
+using Click2Approve.Application.Models.Auxiliary;
 using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Models;
 
@@ -8,7 +9,7 @@ namespace Click2Approve.Application.Abstractions.Services.UserFiles;
 /// </summary>
 public interface IUserFileService
 {
-    Task<IList<UserFileDto>> UploadAsync(AppUser user, IFormFileCollection files, CancellationToken cancellationToken);
+    Task<IList<UserFileDto>> UploadAsync(AppUser user, IReadOnlyCollection<UploadedFile> files, CancellationToken cancellationToken);
     Task<(string Filename, byte[] Bytes)> DownloadAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestFileAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken);
     Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestTaskFileAsync(AppUser user, Guid globalId, Guid approvalRequestTaskGlobalId, CancellationToken cancellationToken);
