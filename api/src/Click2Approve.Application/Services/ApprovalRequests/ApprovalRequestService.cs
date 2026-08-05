@@ -150,6 +150,9 @@ public class ApprovalRequestService(
         return Task.FromResult(new ApprovalRequestCreator(null, user.NormalizedEmailOrEmpty()));
     }
 
+    /// <summary>
+    /// Contains resolved creator information for an approval request.
+    /// </summary>
     protected sealed record ApprovalRequestCreator(long? EmployeeId, string DisplayName);
 
     private async Task CheckLimitationsAsync(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)

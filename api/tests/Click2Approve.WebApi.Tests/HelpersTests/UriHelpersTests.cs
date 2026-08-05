@@ -2,6 +2,9 @@ using Click2Approve.Application.Helpers;
 
 namespace Click2Approve.WebApi.Tests.HelpersTests;
 
+/// <summary>
+/// Tests URI helper behavior.
+/// </summary>
 public class UriHelpersTests
 {
     [Fact]

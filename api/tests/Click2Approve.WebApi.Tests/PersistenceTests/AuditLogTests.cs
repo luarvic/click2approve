@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Click2Approve.WebApi.Tests.PersistenceTests;
 
+/// <summary>
+/// Tests audit log persistence behavior.
+/// </summary>
 public class AuditLogTests
 {
     [Fact]

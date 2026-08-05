@@ -9,6 +9,9 @@ using Click2Approve.WebApi.Tests.Models;
 
 namespace Click2Approve.WebApi.Tests.ControllersTests;
 
+/// <summary>
+/// Tests approval request API endpoints.
+/// </summary>
 public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program> applicationFactory) : IClassFixture<CustomWebApplicationFactory<Program>>
 {
     private readonly CustomWebApplicationFactory<Program> _applicationFactory = applicationFactory;

@@ -3,6 +3,9 @@ using System.Text.Json.Serialization;
 
 namespace Click2Approve.Domain.Models;
 
+/// <summary>
+/// Provides common identifiers for persisted entities.
+/// </summary>
 public abstract class DbEntity
 {
     private static readonly JsonSerializerOptions JsonOptions = new()

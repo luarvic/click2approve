@@ -190,6 +190,9 @@ public class ApprovalRequestTaskController(
         return value.Length <= maxLength ? value : value[..maxLength];
     }
 
+    /// <summary>
+    /// Contains browser metadata submitted with an approval request task action.
+    /// </summary>
     private sealed record ApprovalRequestTaskBrowserData(
         string? ServerUserAgent,
         string? ServerAcceptLanguage,

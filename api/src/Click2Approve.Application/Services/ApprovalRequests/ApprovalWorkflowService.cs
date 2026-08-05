@@ -360,6 +360,9 @@ public class ApprovalWorkflowService(
             _configuration[$"Email:Templates:{templateName}Subject"]!);
     }
 
+    /// <summary>
+    /// Contains email template text for approver notifications.
+    /// </summary>
     private sealed record ApproverNotificationTemplate(
         string Heading,
         string Message,

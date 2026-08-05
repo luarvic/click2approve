@@ -3,6 +3,9 @@ using Click2Approve.Domain.Exceptions;
 
 namespace Click2Approve.WebApi.Tests.HelpersTests;
 
+/// <summary>
+/// Tests email helper behavior.
+/// </summary>
 public class EmailHelpersTests
 {
     [Fact]

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace Click2Approve.WebApi.Services.Identity;
+namespace Click2Approve.WebApi.Identity;
 
 /// <summary>
 /// Normalizes identity lookup keys using lower invariant casing.

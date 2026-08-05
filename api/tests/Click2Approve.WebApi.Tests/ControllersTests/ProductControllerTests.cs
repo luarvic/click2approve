@@ -4,6 +4,9 @@ using Click2Approve.WebApi.Models.DTOs;
 
 namespace Click2Approve.WebApi.Tests.ControllersTests;
 
+/// <summary>
+/// Tests product API endpoints.
+/// </summary>
 public class ProductControllerTests(CustomWebApplicationFactory<Program> applicationFactory) : IClassFixture<CustomWebApplicationFactory<Program>>
 {
     private readonly HttpClient _client = applicationFactory.CreateClient();

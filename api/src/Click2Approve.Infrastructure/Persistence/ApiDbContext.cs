@@ -435,6 +435,9 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
         };
     }
 
+    /// <summary>
+    /// Contains audit log data waiting to be persisted.
+    /// </summary>
     private sealed record PendingAuditLog(
         string? UserId,
         string EntityType,
@@ -442,6 +445,9 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
         EntityState EntityState,
         List<PendingAuditPropertyChange> PropertyChanges);
 
+    /// <summary>
+    /// Contains pending audit data for one changed property.
+    /// </summary>
     private sealed record PendingAuditPropertyChange(
         string Name,
         object? OldValue,
@@ -454,5 +460,8 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
         }
     }
 
+    /// <summary>
+    /// Contains old and new values for an audited property.
+    /// </summary>
     private sealed record AuditPropertyChange(object? OldValue, object? NewValue);
 }

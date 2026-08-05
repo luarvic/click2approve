@@ -1,7 +1,10 @@
-using Click2Approve.WebApi.Services.Identity;
+using Click2Approve.WebApi.Identity;
 
-namespace Click2Approve.WebApi.Tests.Services;
+namespace Click2Approve.WebApi.Tests.Identity;
 
+/// <summary>
+/// Tests lower-invariant lookup normalization.
+/// </summary>
 public class LowerInvariantLookupNormalizerTests
 {
     [Fact]

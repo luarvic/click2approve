@@ -2,7 +2,7 @@ using Click2Approve.Application.Abstractions.TenantContext;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 
-namespace Click2Approve.WebApi.Services.TenantContext;
+namespace Click2Approve.WebApi.TenantContext;
 
 /// <summary>
 /// Stores the validated tenant scope for the current request.

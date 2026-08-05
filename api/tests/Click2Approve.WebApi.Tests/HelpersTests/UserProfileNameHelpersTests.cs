@@ -3,6 +3,9 @@ using Click2Approve.Domain.Models;
 
 namespace Click2Approve.WebApi.Tests.HelpersTests;
 
+/// <summary>
+/// Tests user profile name helper behavior.
+/// </summary>
 public class UserProfileNameHelpersTests
 {
     [Theory]

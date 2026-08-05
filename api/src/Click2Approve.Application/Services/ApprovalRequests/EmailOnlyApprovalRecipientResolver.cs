@@ -5,6 +5,9 @@ using Click2Approve.Domain.Models;
 
 namespace Click2Approve.Application.Services.ApprovalRequests;
 
+/// <summary>
+/// Resolves approval recipients for email-only approval workflows.
+/// </summary>
 public class EmailOnlyApprovalRecipientResolver(
     ITenantRepository tenantRepository,
     IUserProvisioningService userProvisioningService) : IApprovalRecipientResolver

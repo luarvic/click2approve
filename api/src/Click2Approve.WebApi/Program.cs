@@ -18,7 +18,7 @@ using Click2Approve.Infrastructure.FileStorage;
 using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.WebApi.Extensions;
 using Click2Approve.WebApi.Middlewares;
-using Click2Approve.WebApi.Services.TenantContext;
+using Click2Approve.WebApi.TenantContext;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 

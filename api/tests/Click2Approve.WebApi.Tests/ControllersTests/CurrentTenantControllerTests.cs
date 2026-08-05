@@ -7,6 +7,9 @@ using Click2Approve.WebApi.Tests.Models;
 
 namespace Click2Approve.WebApi.Tests.ControllersTests;
 
+/// <summary>
+/// Tests current tenant API endpoints.
+/// </summary>
 public class CurrentTenantControllerTests(CustomWebApplicationFactory<Program> applicationFactory) : IClassFixture<CustomWebApplicationFactory<Program>>
 {
     private readonly CustomWebApplicationFactory<Program> _applicationFactory = applicationFactory;

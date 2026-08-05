@@ -1,13 +1,15 @@
 using System.Net.Http.Json;
 using Click2Approve.Application.Abstractions.Identity;
 using Click2Approve.Infrastructure.Persistence;
-using Click2Approve.WebApi.Tests.Extensions;
 using Click2Approve.WebApi.Tests.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Click2Approve.WebApi.Tests.ControllersTests;
 
+/// <summary>
+/// Tests account API endpoints.
+/// </summary>
 public class AccountControllerTests(CustomWebApplicationFactory<Program> applicationFactory) : IClassFixture<CustomWebApplicationFactory<Program>>
 {
     private readonly CustomWebApplicationFactory<Program> _applicationFactory = applicationFactory;
