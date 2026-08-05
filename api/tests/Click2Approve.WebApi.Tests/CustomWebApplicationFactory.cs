@@ -1,6 +1,6 @@
 using System.Data.Common;
+using Click2Approve.Application.Abstractions.FileStorage;
 using Click2Approve.Infrastructure.Persistence;
-using Click2Approve.Application.Services.FileStorage;
 using Click2Approve.WebApi.Tests.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;

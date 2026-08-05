@@ -1,5 +1,4 @@
 using Click2Approve.Application.Models.DTOs;
-using Click2Approve.Application.Persistence;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 

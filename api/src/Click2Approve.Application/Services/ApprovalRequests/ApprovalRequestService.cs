@@ -1,7 +1,5 @@
 using Click2Approve.Application.Extensions;
 using Click2Approve.Application.Models.DTOs;
-using Click2Approve.Application.Persistence;
-using Click2Approve.Application.Services.TenantContext;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 

@@ -1,4 +1,4 @@
-using Click2Approve.Application.Services.FileStorage;
+using Click2Approve.Application.Abstractions.FileStorage;
 using Microsoft.Extensions.Configuration;
 
 namespace Click2Approve.WebApi.Tests.Services;

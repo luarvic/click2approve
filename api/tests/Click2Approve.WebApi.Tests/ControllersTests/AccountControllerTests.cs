@@ -1,5 +1,5 @@
 using System.Net.Http.Json;
-using Click2Approve.Application.Services.Identity;
+using Click2Approve.Application.Abstractions.Identity;
 using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.WebApi.Tests.Extensions;
 using Click2Approve.WebApi.Tests.Models;

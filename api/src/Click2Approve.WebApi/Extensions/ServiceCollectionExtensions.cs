@@ -1,12 +1,13 @@
 using System.Net;
 using System.Net.Mail;
 using Azure.Core;
-using Click2Approve.Domain.Models;
-using Click2Approve.Infrastructure.Persistence;
-using Click2Approve.Application.Services.Email;
+using Click2Approve.Application.Abstractions.Email;
+using Click2Approve.Application.Abstractions.Identity;
 using Click2Approve.Application.Services.Identity;
-using Click2Approve.Infrastructure.Services.Email;
-using Click2Approve.Infrastructure.Services.Identity;
+using Click2Approve.Domain.Models;
+using Click2Approve.Infrastructure.Email;
+using Click2Approve.Infrastructure.Identity;
+using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.WebApi.Services.Identity;
 using FluentEmail.Core.Interfaces;
 using FluentEmail.Smtp;
@@ -14,8 +15,8 @@ using Hangfire;
 using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Azure;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi;
 
 namespace Click2Approve.WebApi.Extensions;

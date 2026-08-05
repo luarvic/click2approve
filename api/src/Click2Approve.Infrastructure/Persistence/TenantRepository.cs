@@ -1,4 +1,4 @@
-using Click2Approve.Application.Persistence;
+using Click2Approve.Application.Abstractions.Persistence;
 using Click2Approve.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 

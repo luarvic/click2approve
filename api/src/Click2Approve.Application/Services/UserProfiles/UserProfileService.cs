@@ -1,9 +1,6 @@
 using Click2Approve.Application.Extensions;
 using Click2Approve.Application.Helpers;
 using Click2Approve.Application.Models.DTOs;
-using Click2Approve.Application.Persistence;
-using Click2Approve.Application.Services.FileStorage;
-using Click2Approve.Application.Services.Notifications;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 using Microsoft.AspNetCore.Identity;

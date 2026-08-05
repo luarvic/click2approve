@@ -1,5 +1,5 @@
-using Click2Approve.Application.Services.Tenants;
-using Click2Approve.Application.Services.TenantContext;
+using Click2Approve.Application.Abstractions.Services.Tenants;
+using Click2Approve.Application.Abstractions.TenantContext;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 using Microsoft.AspNetCore.Identity;

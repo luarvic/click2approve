@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using System.Text.Json;
-using Click2Approve.Application.Persistence;
+using Click2Approve.Application.Abstractions.Persistence;
 using Click2Approve.Domain.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

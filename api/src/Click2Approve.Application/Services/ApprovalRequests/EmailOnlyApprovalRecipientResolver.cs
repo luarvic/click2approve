@@ -1,7 +1,5 @@
 using Click2Approve.Application.Helpers;
 using Click2Approve.Application.Models.Auxiliary.ApprovalRequests;
-using Click2Approve.Application.Persistence;
-using Click2Approve.Application.Services.Identity;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 

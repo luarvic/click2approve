@@ -3,9 +3,6 @@ using Click2Approve.Application.Helpers;
 using Click2Approve.Application.Models.Auxiliary;
 using Click2Approve.Application.Models.Auxiliary.ApprovalRequests;
 using Click2Approve.Application.Models.DTOs;
-using Click2Approve.Application.Persistence;
-using Click2Approve.Application.Services.Email;
-using Click2Approve.Application.Services.Notifications;
 using Click2Approve.Domain.Models;
 
 namespace Click2Approve.Application.Services.ApprovalRequests;
