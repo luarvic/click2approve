@@ -8,9 +8,9 @@ export const showPersistenceSuccessToast = (message: string): void => {
 };
 
 export const PersistenceSuccessMessages = {
-  approvalDecisionSubmitted: "Approval decision submitted successfully.",
-  approvalRequestCanceled: "Approval request canceled successfully.",
-  approvalRequestSubmitted: "Approval request submitted successfully.",
+  approvalDecisionSubmitted: "Decision submitted successfully.",
+  approvalRequestCanceled: "Request canceled successfully.",
+  approvalRequestSubmitted: "Request submitted successfully.",
   delegationDeleted: "Delegation deleted successfully.",
   delegationSaved: "Delegation saved successfully.",
   employeeDeleted: "Employee deleted successfully.",

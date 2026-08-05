@@ -13,6 +13,7 @@ import {
   OutboxTwoTone,
   PersonTwoTone,
 } from "@mui/icons-material";
+import type { SxProps, Theme } from "@mui/material";
 import {
   Badge,
   Box,
@@ -31,7 +32,6 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import type { SxProps, Theme } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -151,9 +151,9 @@ const MainMenuDrawer = () => {
         subheader={
           <ListSubheader component="div" sx={Lists.actionSubheaderSx}>
             <span>Requests</span>
-            <Tooltip title="Compose approval request">
+            <Tooltip title="Compose request">
               <Button
-                aria-label="Compose approval request"
+                aria-label="Compose request"
                 color="primary"
                 size="small"
                 startIcon={<AddTwoTone />}
@@ -172,6 +172,9 @@ const MainMenuDrawer = () => {
           <ListItemButton
             selected={inboxIsSelected}
             onClick={() => {
+              if (currentTenantGlobalId) {
+                stores.approvalRequestTaskStore.loadUncompletedCount(currentTenantGlobalId);
+              }
               navigate(inboxPath);
               closeTemporaryDrawer();
             }}

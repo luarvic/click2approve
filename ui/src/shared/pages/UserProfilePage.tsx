@@ -5,12 +5,12 @@ import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { AuthForms, Dialogs, Files, Flex, Pages, StackSpacing } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
-import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   NotificationChannel,
   NotificationType,
   UserNotificationPreference,
 } from "@/shared/models/userProfile";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessToast,
@@ -43,9 +43,9 @@ import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 const AVATAR_PICKER_SIZE = 96;
 
 const notificationLabels: Record<NotificationType, string> = {
-  [NotificationType.ApprovalRequestTaskCreated]: "New approval request task",
-  [NotificationType.ApprovalRequestCancelled]: "Approval request cancelled",
-  [NotificationType.ApprovalRequestReviewed]: "Approval request reviewed",
+  [NotificationType.ApprovalRequestTaskCreated]: "New  request task",
+  [NotificationType.ApprovalRequestCancelled]: "Request cancelled",
+  [NotificationType.ApprovalRequestReviewed]: "Request reviewed",
 };
 
 const avatarPickerContainerSx: SxProps<Theme> = {
