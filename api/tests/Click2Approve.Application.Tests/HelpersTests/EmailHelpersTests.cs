@@ -1,7 +1,7 @@
 using Click2Approve.Application.Helpers;
 using Click2Approve.Domain.Exceptions;
 
-namespace Click2Approve.WebApi.Tests.HelpersTests;
+namespace Click2Approve.Application.Tests.HelpersTests;
 
 /// <summary>
 /// Tests email helper behavior.

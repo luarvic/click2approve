@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
-namespace Click2Approve.WebApi.Tests.PersistenceTests;
+namespace Click2Approve.Infrastructure.Tests.PersistenceTests;
 
 /// <summary>
 /// Tests audit log persistence behavior.

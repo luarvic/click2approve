@@ -1,6 +1,6 @@
 using Click2Approve.Application.Helpers;
 
-namespace Click2Approve.WebApi.Tests.HelpersTests;
+namespace Click2Approve.Application.Tests.HelpersTests;
 
 /// <summary>
 /// Tests URI helper behavior.
