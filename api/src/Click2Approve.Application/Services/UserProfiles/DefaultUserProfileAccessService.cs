@@ -1,4 +1,3 @@
-using Click2Approve.Application.Abstractions.Persistence;
 using Click2Approve.Domain.Models;
 
 namespace Click2Approve.Application.Services.UserProfiles;
