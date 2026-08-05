@@ -2,8 +2,8 @@ import { ApprovalRequestTimestampRowItem } from "@/features/approvalRequests/com
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
-import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
+import { getApprovalRequestTaskCompletedActionLabel } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
 
 const getCompletedTimestampType = (
   result?: boolean,
@@ -12,33 +12,6 @@ const getCompletedTimestampType = (
 
 const getGenericCompletedTimestampLabel = (result?: boolean) =>
   result === false ? "Completed unsuccessfully at" : "Completed successfully at";
-
-const getTaskCompletedTimestampLabel = (
-  action: ApprovalRequestTaskAction,
-  result?: boolean,
-) => {
-  if (result === false) {
-    switch (action) {
-      case ApprovalRequestTaskAction.Sign:
-        return "Declined at";
-      case ApprovalRequestTaskAction.Acknowledge:
-        return "Disputed at";
-      default:
-        return "Rejected at";
-    }
-  }
-
-  switch (action) {
-    case ApprovalRequestTaskAction.Sign:
-      return "Signed at";
-    case ApprovalRequestTaskAction.Confirm:
-      return "Confirmed at";
-    case ApprovalRequestTaskAction.Acknowledge:
-      return "Acknowledged at";
-    default:
-      return "Approved at";
-  }
-};
 
 export const getRequestCompletedTimestamp = (
   approvalRequest: ApprovalRequest,
@@ -82,7 +55,7 @@ export const getTaskCompletedTimestamp = (
     case ApprovalRequestTaskStatus.Completed:
       return {
         date: task.completedAtDate,
-        label: getTaskCompletedTimestampLabel(task.action, task.result),
+        label: `${getApprovalRequestTaskCompletedActionLabel(task.action, task.result)} at`,
         type: getCompletedTimestampType(task.result),
       };
     case ApprovalRequestTaskStatus.Skipped:

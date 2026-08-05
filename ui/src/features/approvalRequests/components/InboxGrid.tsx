@@ -1,10 +1,10 @@
 import { stores } from "@/app/rootStore";
+import ApprovalRequestNumberText, { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
+import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
 import {
   ApprovalRequestTaskStatusLineLabel,
   getApprovalRequestTaskStatusLabel,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
-import ApprovalRequestNumberText, { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
-import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
 import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
 import { TenantType } from "@/features/tenants/models/tenant";
 import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
@@ -88,9 +88,13 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
       headerName: "Status",
       flex: DataGrids.approvalColumnFlex.metadata,
       renderCell: (params) => (
-        <ApprovalRequestTaskStatusLineLabel result={params.row.result} status={params.row.status} />
+        <ApprovalRequestTaskStatusLineLabel
+          action={params.row.action}
+          result={params.row.result}
+          status={params.row.status}
+        />
       ),
-      valueGetter: (_value, row) => getApprovalRequestTaskStatusLabel(row.status, row.result),
+      valueGetter: (_value, row) => getApprovalRequestTaskStatusLabel(row.status, row.action, row.result),
     },
     {
       field: "requestedByDisplayName",

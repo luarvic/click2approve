@@ -1,8 +1,11 @@
 import {
   getApprovalRequestStatusLineColor,
+  getApprovalRequestTaskStatusLabel,
   getApprovalStatusBorderSx,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
+import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
+import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { describe, expect, test } from "vitest";
 
 describe("approval status line styles", () => {
@@ -26,5 +29,20 @@ describe("approval status line styles", () => {
       borderLeft: "3px solid",
       borderLeftColor: "success.main",
     });
+  });
+
+  test.each([
+    [ApprovalRequestTaskAction.Approve, true, "Approved"],
+    [ApprovalRequestTaskAction.Sign, true, "Signed"],
+    [ApprovalRequestTaskAction.Confirm, true, "Confirmed"],
+    [ApprovalRequestTaskAction.Acknowledge, true, "Acknowledged"],
+    [ApprovalRequestTaskAction.Approve, false, "Rejected"],
+    [ApprovalRequestTaskAction.Sign, false, "Declined"],
+    [ApprovalRequestTaskAction.Confirm, false, "Rejected"],
+    [ApprovalRequestTaskAction.Acknowledge, false, "Disputed"],
+  ])("uses action-specific completed task label %#", (action, result, expectedLabel) => {
+    expect(
+      getApprovalRequestTaskStatusLabel(ApprovalRequestTaskStatus.Completed, action, result),
+    ).toBe(expectedLabel);
   });
 });

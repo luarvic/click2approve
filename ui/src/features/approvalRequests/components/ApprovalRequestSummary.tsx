@@ -48,7 +48,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   showTitle = true,
 }) => {
   const trimmedDescription = description?.trim();
-  const numberGlobalId = approvalRequestTaskGlobalId ?? approvalRequestGlobalId;
+  const numberGlobalId = approvalRequestGlobalId ?? approvalRequestTaskGlobalId;
 
   return (
     <Stack spacing={StackSpacing.default}>

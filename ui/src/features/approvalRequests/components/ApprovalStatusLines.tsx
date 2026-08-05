@@ -1,5 +1,7 @@
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
+import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
+import { getApprovalRequestTaskCompletedActionLabel } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
 import { StackSpacing } from "@/shared/constants/constants";
 import type { SxProps } from "@mui/material";
 import { Box, Stack, Typography } from "@mui/material";
@@ -32,6 +34,7 @@ interface ApprovalRequestStatusLineLabelProps {
 }
 
 interface ApprovalRequestTaskStatusLineLabelProps {
+  action: ApprovalRequestTaskAction;
   result?: boolean;
   status: ApprovalRequestTaskStatus;
 }
@@ -147,9 +150,10 @@ export const getApprovalRequestStatusLabel = (
 
 export const getApprovalRequestTaskStatusLabel = (
   status: ApprovalRequestTaskStatus,
+  action: ApprovalRequestTaskAction,
   result?: boolean,
 ) => status === ApprovalRequestTaskStatus.Completed
-  ? getCompletedStatusLabel(result)
+  ? getApprovalRequestTaskCompletedActionLabel(action, result)
   : ApprovalRequestTaskStatus[status];
 
 export const ApprovalStatusLineSection: React.FC<ApprovalStatusLineSectionProps> = ({
@@ -207,11 +211,12 @@ export const ApprovalRequestStatusLineLabel: React.FC<ApprovalRequestStatusLineL
 );
 
 export const ApprovalRequestTaskStatusLineLabel: React.FC<ApprovalRequestTaskStatusLineLabelProps> = ({
+  action,
   result,
   status,
 }) => (
   <ApprovalStatusLineLabel
     color={getApprovalRequestTaskStatusLineColor(status, result)}
-    label={getApprovalRequestTaskStatusLabel(status, result)}
+    label={getApprovalRequestTaskStatusLabel(status, action, result)}
   />
 );

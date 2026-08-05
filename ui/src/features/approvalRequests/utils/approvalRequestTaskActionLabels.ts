@@ -30,3 +30,30 @@ export const getApprovalRequestTaskActionLabels = (
       };
   }
 };
+
+export const getApprovalRequestTaskCompletedActionLabel = (
+  action: ApprovalRequestTaskAction,
+  result?: boolean,
+) => {
+  if (result === false) {
+    switch (action) {
+      case ApprovalRequestTaskAction.Sign:
+        return "Declined";
+      case ApprovalRequestTaskAction.Acknowledge:
+        return "Disputed";
+      default:
+        return "Rejected";
+    }
+  }
+
+  switch (action) {
+    case ApprovalRequestTaskAction.Sign:
+      return "Signed";
+    case ApprovalRequestTaskAction.Confirm:
+      return "Confirmed";
+    case ApprovalRequestTaskAction.Acknowledge:
+      return "Acknowledged";
+    default:
+      return "Approved";
+  }
+};

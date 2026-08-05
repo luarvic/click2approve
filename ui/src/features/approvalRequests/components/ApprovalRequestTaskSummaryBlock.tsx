@@ -103,7 +103,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
 
   return (
     <Box
-      aria-label={getApprovalRequestTaskStatusLabel(task.status, task.result)}
+      aria-label={getApprovalRequestTaskStatusLabel(task.status, task.action, task.result)}
       onClick={isClickable ? onClick : undefined}
       onKeyDown={isClickable
         ? (event) => {
