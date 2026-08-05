@@ -1,10 +1,8 @@
 interface RequestContext {
-  onLoadingChange: (loader: string, delta: number) => void;
   onUnauthorized: () => void;
 }
 
 const defaultContext: RequestContext = {
-  onLoadingChange: () => undefined,
   onUnauthorized: () => undefined,
 };
 

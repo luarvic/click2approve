@@ -8,6 +8,9 @@ import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirma
 import DisplayName from "@/shared/components/identity/DisplayName";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Button,
   MenuItem,
@@ -48,6 +51,8 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
   const [delegateTouched, setDelegateTouched] = useState(false);
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
+  const saveLoader = ActionLoaders.delegations.save(delegation?.globalId);
+  const saveAction = useAsyncAction(saveLoader);
   const isNew = delegation === null;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const delegationsPath = tenantGlobalId
@@ -67,6 +72,9 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
   const delegateHelperText = employeesMatch
     ? "Delegator and delegate must be different employees."
     : "Select a delegate.";
+  const saveIsLoading =
+    saveAction.isRunning ||
+    stores.commonStore.isActionLoading(saveLoader);
   const delegationName = `${getEmployeeName(
     employees,
     delegatorEmployeeId,
@@ -90,17 +98,19 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
       return;
     }
 
-    const savedDelegation = await onSubmit(
-      {
-        delegateEmployeeGlobalId: delegateEmployeeId,
-        delegatorEmployeeGlobalId: delegatorEmployeeId,
-      },
-      delegation?.globalId,
-    );
+    await saveAction.run(async () => {
+      const savedDelegation = await onSubmit(
+        {
+          delegateEmployeeGlobalId: delegateEmployeeId,
+          delegatorEmployeeGlobalId: delegatorEmployeeId,
+        },
+        delegation?.globalId,
+      );
 
-    if (savedDelegation) {
-      onClose(savedDelegation.globalId);
-    }
+      if (savedDelegation) {
+        onClose(savedDelegation.globalId);
+      }
+    });
   };
 
   return (
@@ -179,9 +189,9 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           </Button>
         )}
         {(isNew || canEdit) && (
-          <Button variant="outlined" onClick={handleSubmit}>
+          <LoadingButton loading={saveIsLoading} variant="outlined" onClick={handleSubmit}>
             Save
-          </Button>
+          </LoadingButton>
         )}
       </Stack>
       {delegation && (

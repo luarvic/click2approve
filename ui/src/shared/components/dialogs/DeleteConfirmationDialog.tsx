@@ -1,3 +1,6 @@
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Button,
   Dialog,
@@ -28,10 +31,14 @@ const DeleteConfirmationDialog: React.FC<
   onClose,
   onDelete,
 }) => {
+    const deleteAction = useAsyncAction(ActionLoaders.dialogs.delete());
+
     const handleDelete = async () => {
-      if (await onDelete()) {
-        onClose();
-      }
+      await deleteAction.run(async () => {
+        if (await onDelete()) {
+          onClose();
+        }
+      });
     };
 
     return (
@@ -48,11 +55,11 @@ const DeleteConfirmationDialog: React.FC<
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          {cancelFirst && <Button onClick={onClose}>{cancelLabel}</Button>}
-          <Button color="error" onClick={handleDelete}>
+          {cancelFirst && <Button disabled={deleteAction.isRunning} onClick={onClose}>{cancelLabel}</Button>}
+          <LoadingButton color="error" loading={deleteAction.isRunning} onClick={handleDelete}>
             Delete
-          </Button>
-          {!cancelFirst && <Button onClick={onClose}>{cancelLabel}</Button>}
+          </LoadingButton>
+          {!cancelFirst && <Button disabled={deleteAction.isRunning} onClick={onClose}>{cancelLabel}</Button>}
         </DialogActions>
       </Dialog>
     );

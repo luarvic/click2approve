@@ -3,7 +3,9 @@ import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { AuthForms, Dialogs, Files, Flex, Pages, StackSpacing } from "@/shared/constants/constants";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   NotificationChannel,
   NotificationType,
@@ -14,11 +16,11 @@ import {
   showPersistenceSuccessToast,
 } from "@/shared/utils/toasts";
 import { AddAPhoto, DeleteOutline, Person } from "@mui/icons-material";
+import LoadingButton from "@mui/lab/LoadingButton";
 import type { SxProps } from "@mui/material";
 import {
   Avatar,
   Box,
-  Button,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -84,6 +86,8 @@ const UserProfilePage = () => {
   const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
   const [selectedAvatarUrl, setSelectedAvatarUrl] = useState<string>();
   const [selectedTab, setSelectedTab] = useState("profile");
+  const removeAvatarAction = useAsyncAction(ActionLoaders.userProfile.removeAvatar());
+  const saveAction = useAsyncAction(ActionLoaders.userProfile.save());
 
   useEffect(() => {
     if (!stores.userProfileStore.hasLoaded) {
@@ -138,32 +142,36 @@ const UserProfilePage = () => {
   };
 
   const handleSave = async () => {
-    const saved = await stores.userProfileStore.update({
-      firstName: firstName.trim() || undefined,
-      lastName: lastName.trim() || undefined,
-      defaultTenantGlobalId: defaultTenantGlobalId === "" ? undefined : defaultTenantGlobalId,
-      notificationPreferences,
-    });
-    if (!saved) {
-      return;
-    }
-
-    if (selectedAvatar) {
-      const uploaded = await stores.userProfileStore.uploadAvatar(selectedAvatar);
-      if (!uploaded) {
+    await saveAction.run(async () => {
+      const saved = await stores.userProfileStore.update({
+        firstName: firstName.trim() || undefined,
+        lastName: lastName.trim() || undefined,
+        defaultTenantGlobalId: defaultTenantGlobalId === "" ? undefined : defaultTenantGlobalId,
+        notificationPreferences,
+      });
+      if (!saved) {
         return;
       }
-      setSelectedAvatar(null);
-    }
-    showPersistenceSuccessToast(PersistenceSuccessMessages.profileSaved);
+
+      if (selectedAvatar) {
+        const uploaded = await stores.userProfileStore.uploadAvatar(selectedAvatar);
+        if (!uploaded) {
+          return;
+        }
+        setSelectedAvatar(null);
+      }
+      showPersistenceSuccessToast(PersistenceSuccessMessages.profileSaved);
+    });
   };
 
   const handleRemoveAvatar = async () => {
-    setSelectedAvatar(null);
-    const deleted = await stores.userProfileStore.deleteAvatar();
-    if (deleted) {
-      showPersistenceSuccessToast(PersistenceSuccessMessages.profileSaved);
-    }
+    await removeAvatarAction.run(async () => {
+      setSelectedAvatar(null);
+      const deleted = await stores.userProfileStore.deleteAvatar();
+      if (deleted) {
+        showPersistenceSuccessToast(PersistenceSuccessMessages.profileSaved);
+      }
+    });
   };
 
   const avatarUrl = selectedAvatarUrl ?? getPublicApiUrl(profile.avatar);
@@ -213,7 +221,7 @@ const UserProfilePage = () => {
                     <span>
                       <IconButton
                         aria-label="Remove avatar"
-                        disabled={!profile.avatar && !selectedAvatar}
+                        disabled={removeAvatarAction.isRunning || (!profile.avatar && !selectedAvatar)}
                         onClick={handleRemoveAvatar}
                         size="small"
                       >
@@ -294,9 +302,9 @@ const UserProfilePage = () => {
           </Stack>
         )}
         <Box>
-          <Button variant="outlined" onClick={handleSave}>
+          <LoadingButton loading={saveAction.isRunning} variant="outlined" onClick={handleSave}>
             Save
-          </Button>
+          </LoadingButton>
         </Box>
       </Stack>
     </Box>

@@ -90,36 +90,34 @@ const approvalRequestTask = (
 });
 
 describe("store architecture", () => {
-  test("unrelated requests do not invalidate a feature loading subscription", () => {
+  test("unrelated action loaders do not invalidate a feature loading subscription", () => {
     const store = new CommonStore();
     let reactions = 0;
     const dispose = autorun(() => {
-      store.isLoadingByPrefix("put_api/v1/tenants/1/users/");
+      store.isActionLoading("employees.save.employee-1");
       reactions += 1;
     });
 
-    store.updateLoadingCounter("get_api/v1/tenants/1/tasks/uncompleted/count", 1);
-    store.updateLoadingCounter("get_api/v1/tenants/1/tasks/uncompleted/count", -1);
+    store.updateActionLoadingCounter("approvalRequestTasks.count", 1);
+    store.updateActionLoadingCounter("approvalRequestTasks.count", -1);
 
     expect(reactions).toBe(1);
-    expect(store.loadingCounter).toEqual({});
-    expect(store.loadingPrefixCounter).toEqual({});
+    expect(store.actionLoadingCounter).toEqual({});
     dispose();
   });
 
-  test("loading counters support concurrent requests and remove completed entries", () => {
+  test("action loading counters support concurrent work and remove completed entries", () => {
     const store = new CommonStore();
-    const loader = "get_api/v1/tenants/1/users";
+    const loader = "employees.save.employee-1";
 
-    store.updateLoadingCounter(loader, 1);
-    store.updateLoadingCounter(loader, 1);
-    store.updateLoadingCounter(loader, -1);
+    store.updateActionLoadingCounter(loader, 1);
+    store.updateActionLoadingCounter(loader, 1);
+    store.updateActionLoadingCounter(loader, -1);
 
-    expect(store.isLoading(loader)).toBe(true);
-    store.updateLoadingCounter(loader, -1);
-    expect(store.isLoading(loader)).toBe(false);
-    expect(store.loadingCounter).toEqual({});
-    expect(store.loadingPrefixCounter).toEqual({});
+    expect(store.isActionLoading(loader)).toBe(true);
+    store.updateActionLoadingCounter(loader, -1);
+    expect(store.isActionLoading(loader)).toBe(false);
+    expect(store.actionLoadingCounter).toEqual({});
   });
 
   test("an obsolete tenant response cannot replace current employees", async () => {

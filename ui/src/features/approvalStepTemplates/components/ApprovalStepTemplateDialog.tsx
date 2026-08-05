@@ -21,6 +21,9 @@ import {
   showPersistenceSuccessToast,
 } from "@/shared/utils/toasts";
 import { validateEmails } from "@/shared/utils/validators";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import LoadingButton from "@mui/lab/LoadingButton";
 import { Button, Stack, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -38,6 +41,8 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
 }) => {
   const [name, setName] = useState("");
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
+  const saveLoader = ActionLoaders.approvalStepTemplates.save(template?.globalId);
+  const saveAction = useAsyncAction(saveLoader);
   const [steps, setSteps] = useState<EditableApprovalStep[]>([
     createEmptyStep(1),
   ]);
@@ -166,19 +171,21 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
       return;
     }
 
-    const saved = template
-      ? await stores.approvalStepTemplateStore.update(tenantGlobalId, template.globalId, {
-          name: name.trim(),
-          steps: toApprovalStepSubmissions(steps),
-        })
-      : await stores.approvalStepTemplateStore.create(tenantGlobalId, {
-          name: name.trim(),
-          steps: toApprovalStepSubmissions(steps),
-        });
-    if (saved) {
-      showPersistenceSuccessToast(PersistenceSuccessMessages.templateSaved);
-      onClose(saved.globalId);
-    }
+    await saveAction.run(async () => {
+      const saved = template
+        ? await stores.approvalStepTemplateStore.update(tenantGlobalId, template.globalId, {
+            name: name.trim(),
+            steps: toApprovalStepSubmissions(steps),
+          })
+        : await stores.approvalStepTemplateStore.create(tenantGlobalId, {
+            name: name.trim(),
+            steps: toApprovalStepSubmissions(steps),
+          });
+      if (saved) {
+        showPersistenceSuccessToast(PersistenceSuccessMessages.templateSaved);
+        onClose(saved.globalId);
+      }
+    });
   };
 
   return (
@@ -248,9 +255,9 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
             Delete
           </Button>
         )}
-        <Button variant="outlined" onClick={handleSubmit}>
+        <LoadingButton loading={saveAction.isRunning} variant="outlined" onClick={handleSubmit}>
           Save
-        </Button>
+        </LoadingButton>
       </Stack>
       {template && (
         <DeleteConfirmationDialog

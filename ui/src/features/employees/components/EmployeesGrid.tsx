@@ -5,6 +5,7 @@ import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add } from "@mui/icons-material";
 import {
   Box,
@@ -36,7 +37,7 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
   const theme = useTheme();
   const isSmallDisplay = useMediaQuery(theme.breakpoints.down("sm"));
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const employeesLoaderPrefix = tenantGlobalId ? `api/v1/tenants/${tenantGlobalId}/users` : "";
+  const gridLoader = ActionLoaders.grids.employees(tenantGlobalId);
   const canModifyEmployees =
     stores.tenantStore.currentTenant?.role === EmployeeRole.Admin ||
     stores.tenantStore.currentTenant?.isOwner === true;
@@ -50,14 +51,14 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
     stores.teamStore.clear();
   }, [tenantGlobalId]);
 
-  useGridRefresh(() => {
+  const gridIsLoading = useGridRefresh(() => {
     if (tenantGlobalId) {
       return Promise.all([
         stores.employeeStore.load(tenantGlobalId, true),
         stores.teamStore.load(tenantGlobalId, true),
       ]).then(() => undefined);
     }
-  }, tenantGlobalId);
+  }, tenantGlobalId, gridLoader);
 
   const customToolbar = () => {
     return (
@@ -150,16 +151,7 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
         }}
         sx={DataGrids.sx}
         autoHeight
-        loading={
-          stores.commonStore.isLoading(`get_${employeesLoaderPrefix}`) ||
-          stores.commonStore.isLoading(`post_${employeesLoaderPrefix}`) ||
-          stores.commonStore.isLoadingByPrefix(
-            `put_${employeesLoaderPrefix}/`,
-          ) ||
-          stores.commonStore.isLoadingByPrefix(
-            `delete_${employeesLoaderPrefix}/`,
-          )
-        }
+        loading={gridIsLoading}
       />
     </Box>
   );

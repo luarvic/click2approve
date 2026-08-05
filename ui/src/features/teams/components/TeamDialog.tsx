@@ -5,6 +5,9 @@ import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirma
 import DisplayName from "@/shared/components/identity/DisplayName";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Autocomplete,
   Button,
@@ -39,10 +42,15 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
   const [members, setMembers] = useState<Employee[]>([]);
   const [nameTouched, setNameTouched] = useState(false);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
+  const saveLoader = ActionLoaders.teams.save(team?.globalId);
+  const saveAction = useAsyncAction(saveLoader);
   const isNew = team === null;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const teamsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/teams") : "/";
   const nameHasError = nameTouched && !name.trim();
+  const saveIsLoading =
+    saveAction.isRunning ||
+    stores.commonStore.isActionLoading(saveLoader);
 
   useEffect(() => {
     setName(team?.name ?? "");
@@ -56,17 +64,19 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
       return;
     }
 
-    const savedTeam = await onSubmit(
-      {
-        name: name.trim(),
-        employeeGlobalIds: members.map((member) => member.globalId),
-      },
-      team?.globalId,
-    );
+    await saveAction.run(async () => {
+      const savedTeam = await onSubmit(
+        {
+          name: name.trim(),
+          employeeGlobalIds: members.map((member) => member.globalId),
+        },
+        team?.globalId,
+      );
 
-    if (savedTeam) {
-      onClose(savedTeam.globalId);
-    }
+      if (savedTeam) {
+        onClose(savedTeam.globalId);
+      }
+    });
   };
 
   return (
@@ -146,9 +156,9 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
           </Button>
         )}
         {(isNew || canEdit) && (
-          <Button variant="outlined" onClick={handleSubmit}>
+          <LoadingButton loading={saveIsLoading} variant="outlined" onClick={handleSubmit}>
             Save
-          </Button>
+          </LoadingButton>
         )}
       </Stack>
       {team && (

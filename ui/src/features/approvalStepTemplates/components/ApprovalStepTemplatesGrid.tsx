@@ -4,6 +4,7 @@ import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add } from "@mui/icons-material";
 import { Box, Button, LinearProgress } from "@mui/material";
 import {
@@ -25,9 +26,7 @@ const ApprovalStepTemplatesGrid: React.FC<ApprovalStepTemplatesGridProps> = ({
 }) => {
   const navigate = useNavigate();
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const loaderPrefix = tenantGlobalId
-    ? `api/v1/tenants/${tenantGlobalId}/approvalStepTemplates`
-    : "";
+  const gridLoader = ActionLoaders.grids.approvalStepTemplates(tenantGlobalId);
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     stores.approvalStepTemplateStore.templates,
     currentTemplateGlobalId,
@@ -37,11 +36,11 @@ const ApprovalStepTemplatesGrid: React.FC<ApprovalStepTemplatesGridProps> = ({
     stores.approvalStepTemplateStore.clear();
   }, [tenantGlobalId]);
 
-  useGridRefresh(() => {
+  const gridIsLoading = useGridRefresh(() => {
     if (tenantGlobalId) {
       return stores.approvalStepTemplateStore.load(tenantGlobalId);
     }
-  }, tenantGlobalId);
+  }, tenantGlobalId, gridLoader);
 
   const customToolbar = () => {
     return (
@@ -96,12 +95,7 @@ const ApprovalStepTemplatesGrid: React.FC<ApprovalStepTemplatesGridProps> = ({
         }}
         sx={DataGrids.sx}
         autoHeight
-        loading={
-          stores.commonStore.isLoading(`get_${loaderPrefix}`) ||
-          stores.commonStore.isLoading(`post_${loaderPrefix}`) ||
-          stores.commonStore.isLoadingByPrefix(`put_${loaderPrefix}/`) ||
-          stores.commonStore.isLoadingByPrefix(`delete_${loaderPrefix}/`)
-        }
+        loading={gridIsLoading}
       />
     </Box>
   );

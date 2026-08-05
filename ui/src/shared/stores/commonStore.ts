@@ -2,8 +2,7 @@ import { Dictionary } from "@/shared/models/dictionary";
 import { makeAutoObservable, runInAction } from "mobx";
 
 export class CommonStore {
-  loadingCounter: Dictionary<number>;
-  loadingPrefixCounter: Dictionary<number>;
+  actionLoadingCounter: Dictionary<number>;
   approvalRequestSubmitDialogIsOpen: boolean;
   approvalRequestTrackDialogIsOpen: boolean;
   approvalRequestViewDialogIsOpen: boolean;
@@ -14,7 +13,6 @@ export class CommonStore {
   tenantCreateDialogIsOpen: boolean;
 
   constructor(
-    loadingCounter: Dictionary<number> = {},
     approvalRequestSubmitDialogIsOpen: boolean = false,
     approvalRequestTrackDialogIsOpen: boolean = false,
     approvalRequestViewDialogIsOpen: boolean = false,
@@ -23,10 +21,9 @@ export class CommonStore {
     mainMenuDrawerIsOpen: boolean = false,
     profileDrawerIsOpen: boolean = false,
     tenantCreateDialogIsOpen: boolean = false,
-    loadingPrefixCounter: Dictionary<number> = {},
+    actionLoadingCounter: Dictionary<number> = {},
   ) {
-    this.loadingCounter = loadingCounter;
-    this.loadingPrefixCounter = loadingPrefixCounter;
+    this.actionLoadingCounter = actionLoadingCounter;
     this.approvalRequestSubmitDialogIsOpen = approvalRequestSubmitDialogIsOpen;
     this.approvalRequestTrackDialogIsOpen = approvalRequestTrackDialogIsOpen;
     this.approvalRequestViewDialogIsOpen = approvalRequestViewDialogIsOpen;
@@ -38,21 +35,14 @@ export class CommonStore {
     makeAutoObservable(this);
   }
 
-  updateLoadingCounter = (loader: string, delta: number): void => {
+  updateActionLoadingCounter = (loader: string, delta: number): void => {
     runInAction(() => {
-      this.updateCounter(this.loadingCounter, loader, delta);
-      this.getLoaderPrefixes(loader).forEach((prefix) =>
-        this.updateCounter(this.loadingPrefixCounter, prefix, delta),
-      );
+      this.updateCounter(this.actionLoadingCounter, loader, delta);
     });
   };
 
-  isLoading = (loader: string): boolean => {
-    return (this.loadingCounter[loader] ?? 0) > 0;
-  };
-
-  isLoadingByPrefix = (loaderPrefix: string): boolean => {
-    return (this.loadingPrefixCounter[loaderPrefix] ?? 0) > 0;
+  isActionLoading = (loader: string): boolean => {
+    return (this.actionLoadingCounter[loader] ?? 0) > 0;
   };
 
   setApprovalRequestSubmitDialogIsOpen = (isOpen: boolean) => {
@@ -113,19 +103,8 @@ export class CommonStore {
       this.mainMenuDrawerIsOpen = false;
       this.profileDrawerIsOpen = false;
       this.tenantCreateDialogIsOpen = false;
+      this.actionLoadingCounter = {};
     });
-  };
-
-  private getLoaderPrefixes = (loader: string): string[] => {
-    const prefixes: string[] = [];
-    for (
-      let index = loader.indexOf("/");
-      index >= 0;
-      index = loader.indexOf("/", index + 1)
-    ) {
-      prefixes.push(loader.substring(0, index + 1));
-    }
-    return prefixes;
   };
 
   private updateCounter = (

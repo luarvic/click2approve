@@ -6,8 +6,11 @@ import SharedVerificationLinksPanel from "@/features/sharedVerificationLinks/com
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { PersistenceSuccessMessages, showPersistenceSuccessToast } from "@/shared/utils/toasts";
 import { BlockOutlined, LinkOutlined, Replay } from "@mui/icons-material";
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Button,
   Stack,
@@ -42,10 +45,14 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
   const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
   const [selectedTab, setSelectedTab] = useState("request");
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
-  const [isCanceling, setIsCanceling] = useState(false);
   const [hasSharedVerificationLink, setHasSharedVerificationLink] = useState(false);
-  const [isCreatingSharedVerificationLink, setIsCreatingSharedVerificationLink] = useState(false);
   const [sharedVerificationLinksRefreshKey, setSharedVerificationLinksRefreshKey] = useState(0);
+  const cancelLoader = ActionLoaders.approvalRequests.cancel(approvalRequest?.globalId);
+  const cancelAction = useAsyncAction(cancelLoader);
+  const createSharedVerificationLinkLoader = ActionLoaders.sharedVerificationLinks.createForRequest(
+    approvalRequest?.globalId,
+  );
+  const createSharedVerificationLinkAction = useAsyncAction(createSharedVerificationLinkLoader);
   const canResubmit = Boolean(
     approvalRequest &&
     stores.productStore.approvalRequestRevisionsAreEnabled &&
@@ -64,6 +71,12 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
     approvalRequest.status === ApprovalRequestStatus.Completed &&
     approvalRequest.result === true,
   );
+  const approvalRequestIsCanceling =
+    cancelAction.isRunning ||
+    stores.commonStore.isActionLoading(cancelLoader);
+  const sharedVerificationLinkIsCreating =
+    createSharedVerificationLinkAction.isRunning ||
+    stores.commonStore.isActionLoading(createSharedVerificationLinkLoader);
 
   useEffect(() => {
     setSelectedTab("request");
@@ -90,16 +103,14 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
       return false;
     }
 
-    setIsCanceling(true);
-    const isCanceled = await stores.approvalRequestStore
-      .cancel(tenantGlobalId, approvalRequest.globalId)
-      .finally(() => setIsCanceling(false));
-
-    if (isCanceled) {
-      showPersistenceSuccessToast(PersistenceSuccessMessages.approvalRequestCanceled);
-    }
-
-    return isCanceled;
+    const isCanceled = await cancelAction.run(async () => {
+      const canceled = await stores.approvalRequestStore.cancel(tenantGlobalId, approvalRequest.globalId);
+      if (canceled) {
+        showPersistenceSuccessToast(PersistenceSuccessMessages.approvalRequestCanceled);
+      }
+      return canceled;
+    });
+    return isCanceled === true;
   };
 
   const handleCreateSharedVerificationLink = async () => {
@@ -107,14 +118,14 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
       return;
     }
 
-    setIsCreatingSharedVerificationLink(true);
-    const linkGlobalId = await createSharedVerificationLinkForRequest(tenantGlobalId, approvalRequest.globalId)
-      .finally(() => setIsCreatingSharedVerificationLink(false));
-    if (linkGlobalId) {
-      await navigator.clipboard?.writeText(`${window.location.origin}/app/verification/${linkGlobalId}`);
-      showPersistenceSuccessToast(PersistenceSuccessMessages.sharedVerificationLinkCreated);
-      setSharedVerificationLinksRefreshKey((current) => current + 1);
-    }
+    await createSharedVerificationLinkAction.run(async () => {
+      const linkGlobalId = await createSharedVerificationLinkForRequest(tenantGlobalId, approvalRequest.globalId);
+      if (linkGlobalId) {
+        await navigator.clipboard?.writeText(`${window.location.origin}/app/verification/${linkGlobalId}`);
+        showPersistenceSuccessToast(PersistenceSuccessMessages.sharedVerificationLinkCreated);
+        setSharedVerificationLinksRefreshKey((current) => current + 1);
+      }
+    });
   };
 
   return (
@@ -160,25 +171,26 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
           </Button>
         )}
         {selectedTab === "request" && canCancel && (
-          <Button
+          <LoadingButton
             color="warning"
-            disabled={isCanceling}
+            loading={approvalRequestIsCanceling}
             startIcon={<BlockOutlined />}
             variant="outlined"
             onClick={() => setCancelDialogIsOpen(true)}
           >
             Cancel
-          </Button>
+          </LoadingButton>
         )}
         {selectedTab === "link" && canManageSharedVerificationLinks && (
-          <Button
-            disabled={hasSharedVerificationLink || isCreatingSharedVerificationLink}
+          <LoadingButton
+            disabled={hasSharedVerificationLink || sharedVerificationLinkIsCreating}
+            loading={sharedVerificationLinkIsCreating}
             startIcon={<LinkOutlined />}
             variant="outlined"
             onClick={handleCreateSharedVerificationLink}
           >
             Create link
-          </Button>
+          </LoadingButton>
         )}
       </Stack>
       {approvalRequest && (
@@ -186,7 +198,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
           cancelFirst
           cancelLabel="No"
           confirmColor="warning"
-          confirmDisabled={isCanceling}
+          confirmDisabled={approvalRequestIsCanceling}
           confirmLabel="Yes"
           message={`Are you sure you want to cancel ${approvalRequest.title}?`}
           open={cancelDialogIsOpen}

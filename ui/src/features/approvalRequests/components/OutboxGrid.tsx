@@ -11,6 +11,7 @@ import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes, StackSpacing } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate } from "@/shared/utils/helpers";
 import { Add } from "@mui/icons-material";
 import {
@@ -48,16 +49,17 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestGlobalId 
     (stores.tenantStore.hasLoaded &&
       stores.tenantStore.currentTenantGlobalId !== null);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const gridLoader = ActionLoaders.grids.outbox(tenantGlobalId);
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     stores.approvalRequestStore.approvalRequests,
     currentApprovalRequestGlobalId,
   );
 
-  useGridRefresh(() => {
+  const gridIsLoading = useGridRefresh(() => {
     if (tenantScopeIsReady && tenantGlobalId) {
       return stores.approvalRequestStore.load(tenantGlobalId);
     }
-  }, tenantScopeIsReady && tenantGlobalId !== null);
+  }, tenantScopeIsReady && tenantGlobalId !== null, gridLoader);
 
   const customToolbar = () => {
     return (
@@ -169,18 +171,7 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestGlobalId 
         }}
         sx={DataGrids.sx}
         autoHeight
-        loading={
-          tenantGlobalId !== null &&
-          (stores.commonStore.isLoading(
-            `get_api/v1/tenants/${tenantGlobalId}/requests`,
-          ) ||
-            stores.commonStore.isLoading(
-              `post_api/v1/tenants/${tenantGlobalId}/requests`,
-            ) ||
-            stores.commonStore.isLoadingByPrefix(
-              `post_api/v1/tenants/${tenantGlobalId}/requests/`,
-            ))
-        }
+        loading={gridIsLoading}
       />
     </Box>
   );

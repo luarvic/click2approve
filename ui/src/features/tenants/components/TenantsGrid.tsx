@@ -4,6 +4,7 @@ import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add } from "@mui/icons-material";
 import {
   Box,
@@ -32,7 +33,7 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isSmallDisplay = useMediaQuery(theme.breakpoints.down("sm"));
-  const tenantsLoaderPrefix = "api/v1/tenants";
+  const gridLoader = ActionLoaders.grids.tenants();
   const businessTenants = stores.tenantStore.tenants.filter(
     (tenant) => tenant.type === TenantType.Business,
   );
@@ -41,7 +42,11 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
     currentTenantGlobalId,
   );
 
-  useGridRefresh(() => stores.tenantStore.load(), "tenants");
+  const gridIsLoading = useGridRefresh(
+    () => stores.tenantStore.load(),
+    "tenants",
+    gridLoader,
+  );
 
   const customToolbar = () => {
     return (
@@ -101,11 +106,7 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
         }}
         sx={DataGrids.sx}
         autoHeight
-        loading={
-          stores.commonStore.isLoading(`get_${tenantsLoaderPrefix}`) ||
-          stores.commonStore.isLoading(`post_${tenantsLoaderPrefix}`) ||
-          stores.commonStore.isLoadingByPrefix(`put_${tenantsLoaderPrefix}/`)
-        }
+        loading={gridIsLoading}
       />
     </Box>
   );

@@ -5,6 +5,7 @@ import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add } from "@mui/icons-material";
 import { Box, Button, LinearProgress } from "@mui/material";
 import {
@@ -24,8 +25,7 @@ interface TeamsGridProps {
 const TeamsGrid: React.FC<TeamsGridProps> = ({ currentTeamGlobalId }) => {
   const navigate = useNavigate();
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const teamsLoaderPrefix = tenantGlobalId ? `api/v1/tenants/${tenantGlobalId}/teams` : "";
-  const employeesLoaderPrefix = tenantGlobalId ? `api/v1/tenants/${tenantGlobalId}/users` : "";
+  const gridLoader = ActionLoaders.grids.teams(tenantGlobalId);
   const canModifyTeams =
     stores.tenantStore.currentTenant?.role === EmployeeRole.Admin ||
     stores.tenantStore.currentTenant?.isOwner === true;
@@ -39,14 +39,14 @@ const TeamsGrid: React.FC<TeamsGridProps> = ({ currentTeamGlobalId }) => {
     stores.employeeStore.clear();
   }, [tenantGlobalId]);
 
-  useGridRefresh(() => {
+  const gridIsLoading = useGridRefresh(() => {
     if (tenantGlobalId) {
       return Promise.all([
         stores.teamStore.load(tenantGlobalId, true),
         stores.employeeStore.load(tenantGlobalId, true),
       ]).then(() => undefined);
     }
-  }, tenantGlobalId);
+  }, tenantGlobalId, gridLoader);
 
   const customToolbar = () => {
     return (
@@ -92,13 +92,7 @@ const TeamsGrid: React.FC<TeamsGridProps> = ({ currentTeamGlobalId }) => {
         }}
         sx={DataGrids.sx}
         autoHeight
-        loading={
-          stores.commonStore.isLoading(`get_${teamsLoaderPrefix}`) ||
-          stores.commonStore.isLoading(`get_${employeesLoaderPrefix}`) ||
-          stores.commonStore.isLoading(`post_${teamsLoaderPrefix}`) ||
-          stores.commonStore.isLoadingByPrefix(`put_${teamsLoaderPrefix}/`) ||
-          stores.commonStore.isLoadingByPrefix(`delete_${teamsLoaderPrefix}/`)
-        }
+        loading={gridIsLoading}
       />
     </Box>
   );

@@ -9,6 +9,9 @@ import { EmployeeRole } from "@/features/tenants/models/tenant";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes, Validation } from "@/shared/constants/constants";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Autocomplete,
   Button,
@@ -59,6 +62,8 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
   const [selectedTeams, setSelectedTeams] = useState<Team[]>([]);
   const [emailTouched, setEmailTouched] = useState(false);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
+  const saveLoader = ActionLoaders.employees.save(employee?.globalId);
+  const saveAction = useAsyncAction(saveLoader);
   const isNew = employee === null;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const employeesPath = tenantGlobalId
@@ -66,6 +71,9 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
     : "/";
   const emailHasError =
     isNew && emailTouched && !Validation.emailRegex.test(email);
+  const saveIsLoading =
+    saveAction.isRunning ||
+    stores.commonStore.isActionLoading(saveLoader);
 
   useEffect(() => {
     setEmail(employee?.email ?? "");
@@ -89,20 +97,22 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
       position: position.trim() || undefined,
       role,
     };
-    const savedEmployee = !isNew
-      ? await onSubmit(
-        payload,
-        selectedTeams.map((team) => team.globalId),
-        employee.globalId,
-      )
-      : await onSubmit(
-        { ...payload, email: email.trim() },
-        selectedTeams.map((team) => team.globalId),
-      );
+    await saveAction.run(async () => {
+      const savedEmployee = !isNew
+        ? await onSubmit(
+          payload,
+          selectedTeams.map((team) => team.globalId),
+          employee.globalId,
+        )
+        : await onSubmit(
+          { ...payload, email: email.trim() },
+          selectedTeams.map((team) => team.globalId),
+        );
 
-    if (savedEmployee) {
-      onClose(savedEmployee.globalId);
-    }
+      if (savedEmployee) {
+        onClose(savedEmployee.globalId);
+      }
+    });
   };
 
   return (
@@ -204,9 +214,9 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
           </Button>
         )}
         {(isNew || canEdit) && (
-          <Button variant="outlined" onClick={handleSubmit}>
+          <LoadingButton loading={saveIsLoading} variant="outlined" onClick={handleSubmit}>
             Save
-          </Button>
+          </LoadingButton>
         )}
       </Stack>
       {employee && (

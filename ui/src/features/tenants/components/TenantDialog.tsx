@@ -2,6 +2,9 @@ import TenantLogoPicker from "@/features/tenants/components/TenantLogoPicker";
 import { CreateTenantRequest, Tenant, UpdateTenantRequest } from "@/features/tenants/models/tenant";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs } from "@/shared/constants/constants";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Button,
   Stack,
@@ -36,7 +39,10 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoWasRemoved, setLogoWasRemoved] = useState(false);
+  const saveLoader = ActionLoaders.tenants.save(tenant?.globalId);
+  const saveAction = useAsyncAction(saveLoader);
   const isNew = !tenant;
+  const saveIsLoading = saveAction.isRunning;
 
   const reset = useCallback(() => {
     setBusinessName(tenant?.businessName ?? "");
@@ -53,36 +59,38 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
   }, [reset]);
 
   const handleSubmit = async () => {
-    const savedTenant = await onSubmit(
-      {
-        businessName: businessName.trim(),
-        email: email.trim() || undefined,
-        phone: phone.trim() || undefined,
-        address: address.trim() || undefined,
-        websiteUrl: websiteUrl.trim() || undefined,
-      },
-      tenant?.globalId,
-    );
+    await saveAction.run(async () => {
+      const savedTenant = await onSubmit(
+        {
+          businessName: businessName.trim(),
+          email: email.trim() || undefined,
+          phone: phone.trim() || undefined,
+          address: address.trim() || undefined,
+          websiteUrl: websiteUrl.trim() || undefined,
+        },
+        tenant?.globalId,
+      );
 
-    if (!savedTenant) {
-      return;
-    }
-
-    if (logoWasRemoved) {
-      const deleted = await onLogoDelete(savedTenant.globalId);
-      if (!deleted) {
+      if (!savedTenant) {
         return;
       }
-    }
 
-    if (logoFile) {
-      const uploaded = await onLogoUpload(savedTenant.globalId, logoFile);
-      if (!uploaded) {
-        return;
+      if (logoWasRemoved) {
+        const deleted = await onLogoDelete(savedTenant.globalId);
+        if (!deleted) {
+          return;
+        }
       }
-    }
 
-    onClose(savedTenant.globalId);
+      if (logoFile) {
+        const uploaded = await onLogoUpload(savedTenant.globalId, logoFile);
+        if (!uploaded) {
+          return;
+        }
+      }
+
+      onClose(savedTenant.globalId);
+    });
   };
 
   const handleLogoSelect = (file: File | null) => {
@@ -156,13 +164,14 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
           Cancel
         </Button>
         {(isNew || canEdit) && (
-          <Button
+          <LoadingButton
             variant="outlined"
             disabled={!businessName.trim()}
+            loading={saveIsLoading}
             onClick={handleSubmit}
           >
             Save
-          </Button>
+          </LoadingButton>
         )}
       </Stack>
     </>

@@ -14,11 +14,14 @@ import { createSharedVerificationLinkForTask } from "@/features/sharedVerificati
 import SharedVerificationLinksPanel from "@/features/sharedVerificationLinks/components/SharedVerificationLinksPanel";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessToast,
 } from "@/shared/utils/toasts";
 import { LinkOutlined } from "@mui/icons-material";
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Button,
   FormControl,
@@ -56,13 +59,18 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
   const [approvalRequest, setApprovalRequest] = useState<ApprovalRequest | null>(null);
   const [selectedTab, setSelectedTab] = useState("task");
   const [hasSharedVerificationLink, setHasSharedVerificationLink] = useState(false);
-  const [isCreatingSharedVerificationLink, setIsCreatingSharedVerificationLink] = useState(false);
   const [sharedVerificationLinksRefreshKey, setSharedVerificationLinksRefreshKey] = useState(0);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const inboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/inbox") : "/";
   const currentTask = stores.approvalRequestTaskStore.currentTask;
   const isCompleted = Boolean(currentTask && currentTask.status !== ApprovalRequestTaskStatus.Pending);
   const actionLabels = getApprovalRequestTaskActionLabels(currentTask?.action);
+  const completeTaskLoader = ActionLoaders.approvalRequestTasks.complete(currentTask?.globalId);
+  const createSharedVerificationLinkLoader = ActionLoaders.sharedVerificationLinks.createForTask(
+    currentTask?.globalId,
+  );
+  const createSharedVerificationLinkAction = useAsyncAction(createSharedVerificationLinkLoader);
+  const submitAction = useAsyncAction(completeTaskLoader);
   const requiresElectronicSignature = currentTask?.action === ApprovalRequestTaskAction.Sign;
   const canManageSharedVerificationLinks = Boolean(
     currentTask &&
@@ -70,6 +78,12 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
     approvalRequest?.status === ApprovalRequestStatus.Completed &&
     approvalRequest.result === true,
   );
+  const taskIsSubmitting =
+    submitAction.isRunning ||
+    stores.commonStore.isActionLoading(completeTaskLoader);
+  const sharedVerificationLinkIsCreating =
+    createSharedVerificationLinkAction.isRunning ||
+    stores.commonStore.isActionLoading(createSharedVerificationLinkLoader);
 
   useEffect(() => {
     setDecision(
@@ -140,28 +154,30 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
       }
     }
 
-    const didComplete = await completeApprovalRequestTask(
-      tenantGlobalId,
-      currentTask.globalId,
-      decision === "approve",
-      comment,
-      requiresElectronicSignature
-        ? {
-            approverLegalName: legalName.trim(),
-            approverSignatureJson: signatureJson,
-          }
-        : undefined,
-      createApprovalRequestTaskClientAuditContext(),
-    );
-    if (didComplete) {
-      showPersistenceSuccessToast(
-        PersistenceSuccessMessages.approvalDecisionSubmitted,
+    await submitAction.run(async () => {
+      const didComplete = await completeApprovalRequestTask(
+        tenantGlobalId,
+        currentTask.globalId,
+        decision === "approve",
+        comment,
+        requiresElectronicSignature
+          ? {
+              approverLegalName: legalName.trim(),
+              approverSignatureJson: signatureJson,
+            }
+          : undefined,
+        createApprovalRequestTaskClientAuditContext(),
       );
-      cleanUp();
-      stores.approvalRequestTaskStore.clear();
-      stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
-      onClose(currentTask.globalId);
-    }
+      if (didComplete) {
+        showPersistenceSuccessToast(
+          PersistenceSuccessMessages.approvalDecisionSubmitted,
+        );
+        cleanUp();
+        stores.approvalRequestTaskStore.clear();
+        stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
+        onClose(currentTask.globalId);
+      }
+    });
   };
 
   const handleCreateSharedVerificationLink = async () => {
@@ -169,14 +185,14 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
       return;
     }
 
-    setIsCreatingSharedVerificationLink(true);
-    const linkGlobalId = await createSharedVerificationLinkForTask(tenantGlobalId, currentTask.globalId)
-      .finally(() => setIsCreatingSharedVerificationLink(false));
-    if (linkGlobalId) {
-      await navigator.clipboard?.writeText(`${window.location.origin}/app/verification/${linkGlobalId}`);
-      showPersistenceSuccessToast(PersistenceSuccessMessages.sharedVerificationLinkCreated);
-      setSharedVerificationLinksRefreshKey((current) => current + 1);
-    }
+    await createSharedVerificationLinkAction.run(async () => {
+      const linkGlobalId = await createSharedVerificationLinkForTask(tenantGlobalId, currentTask.globalId);
+      if (linkGlobalId) {
+        await navigator.clipboard?.writeText(`${window.location.origin}/app/verification/${linkGlobalId}`);
+        showPersistenceSuccessToast(PersistenceSuccessMessages.sharedVerificationLinkCreated);
+        setSharedVerificationLinksRefreshKey((current) => current + 1);
+      }
+    });
   };
 
   return (
@@ -291,16 +307,21 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
         <Button variant="outlined" onClick={handleClose}>
           {selectedTab === "task" && !isCompleted ? "Cancel" : "Close"}
         </Button>
-        {selectedTab === "task" && !isCompleted && <Button variant="outlined" onClick={handleSubmit}>Submit</Button>}
+        {selectedTab === "task" && !isCompleted && (
+          <LoadingButton loading={taskIsSubmitting} variant="outlined" onClick={handleSubmit}>
+            Submit
+          </LoadingButton>
+        )}
         {selectedTab === "link" && canManageSharedVerificationLinks && (
-          <Button
-            disabled={hasSharedVerificationLink || isCreatingSharedVerificationLink}
+          <LoadingButton
+            disabled={hasSharedVerificationLink || sharedVerificationLinkIsCreating}
+            loading={sharedVerificationLinkIsCreating}
             startIcon={<LinkOutlined />}
             variant="outlined"
             onClick={handleCreateSharedVerificationLink}
           >
             Create link
-          </Button>
+          </LoadingButton>
         )}
       </Stack>
     </>

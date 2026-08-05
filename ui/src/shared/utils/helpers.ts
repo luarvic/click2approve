@@ -1,5 +1,5 @@
 import { AccountSecurity, Errors } from "@/shared/constants/constants";
-import { AxiosError, InternalAxiosRequestConfig } from "axios";
+import { AxiosError } from "axios";
 import ago from "s-ago";
 
 export const getHumanReadableRelativeDate = (date: Date): string => {
@@ -101,12 +101,3 @@ export const getUserFriendlyApiErrorMessage = (error: any): string => {
 export const isResourceNotFoundOrForbiddenError = (error: any): boolean =>
   error instanceof AxiosError &&
   (error.response?.status === 403 || error.response?.status === 404);
-
-export const getLoaderName = (
-  request: InternalAxiosRequestConfig<any>,
-): string => {
-  const parametersStartIndex = request.url?.indexOf("?");
-  return parametersStartIndex && parametersStartIndex > 0
-    ? `${request.method}_${request.url?.substring(0, request.url.indexOf("?"))}`
-    : `${request.method}_${request.url}`;
-};

@@ -12,6 +12,7 @@ import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes, StackSpacing } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate } from "@/shared/utils/helpers";
 import {
   Box,
@@ -42,6 +43,7 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
     (stores.tenantStore.hasLoaded &&
       stores.tenantStore.currentTenantGlobalId !== null);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const gridLoader = ActionLoaders.grids.inbox(tenantGlobalId);
   const organizationColumnIsVisible =
     stores.tenantStore.currentTenant?.type === TenantType.Personal;
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
@@ -49,11 +51,11 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
     currentTaskGlobalId,
   );
 
-  useGridRefresh(() => {
+  const gridIsLoading = useGridRefresh(() => {
     if (tenantScopeIsReady && tenantGlobalId) {
       return stores.approvalRequestTaskStore.loadIncoming(tenantGlobalId);
     }
-  }, tenantScopeIsReady && tenantGlobalId !== null);
+  }, tenantScopeIsReady && tenantGlobalId !== null, gridLoader);
 
   const columns: GridColDef[] = [
     {
@@ -149,15 +151,7 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
         }}
         sx={DataGrids.sx}
         autoHeight
-        loading={
-          tenantGlobalId !== null &&
-          (stores.commonStore.isLoading(
-            `get_api/v1/tenants/${tenantGlobalId}/tasks`,
-          ) ||
-            stores.commonStore.isLoading(
-              `post_api/v1/tenants/${tenantGlobalId}/tasks/complete`,
-            ))
-        }
+        loading={gridIsLoading}
       />
     </Box>
   );

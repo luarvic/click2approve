@@ -6,6 +6,7 @@ import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add } from "@mui/icons-material";
 import {
   Box,
@@ -37,12 +38,7 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({
   const theme = useTheme();
   const isSmallDisplay = useMediaQuery(theme.breakpoints.down("sm"));
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const delegationsLoaderPrefix = tenantGlobalId
-    ? `api/v1/tenants/${tenantGlobalId}/delegations`
-    : "";
-  const employeesLoaderPrefix = tenantGlobalId
-    ? `api/v1/tenants/${tenantGlobalId}/users`
-    : "";
+  const gridLoader = ActionLoaders.grids.delegations(tenantGlobalId);
   const [delegations, setDelegations] = useState<ApprovalDelegation[]>([]);
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     delegations,
@@ -60,14 +56,14 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({
     stores.employeeStore.clear();
   }, [tenantGlobalId]);
 
-  useGridRefresh(() => {
+  const gridIsLoading = useGridRefresh(() => {
     if (tenantGlobalId) {
       return Promise.all([
         stores.employeeStore.load(tenantGlobalId, true),
         listApprovalDelegations(tenantGlobalId).then(setDelegations),
       ]).then(() => undefined);
     }
-  }, tenantGlobalId);
+  }, tenantGlobalId, gridLoader);
 
   const getEmployeeName = (employeeGlobalId: string) =>
     employeesById.get(employeeGlobalId)?.displayName ?? unknownEmployeeLabel;
@@ -151,17 +147,7 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({
         }}
         sx={DataGrids.sx}
         autoHeight
-        loading={
-          stores.commonStore.isLoading(`get_${delegationsLoaderPrefix}`) ||
-          stores.commonStore.isLoading(`get_${employeesLoaderPrefix}`) ||
-          stores.commonStore.isLoading(`post_${delegationsLoaderPrefix}`) ||
-          stores.commonStore.isLoadingByPrefix(
-            `put_${delegationsLoaderPrefix}/`,
-          ) ||
-          stores.commonStore.isLoadingByPrefix(
-            `delete_${delegationsLoaderPrefix}/`,
-          )
-        }
+        loading={gridIsLoading}
       />
     </Box>
   );

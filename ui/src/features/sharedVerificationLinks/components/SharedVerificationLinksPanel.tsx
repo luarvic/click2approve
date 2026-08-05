@@ -1,3 +1,4 @@
+import { stores } from "@/app/rootStore";
 import {
   deleteSharedVerificationLinkForRequest,
   deleteSharedVerificationLinkForTask,
@@ -6,6 +7,8 @@ import {
 } from "@/features/sharedVerificationLinks/api/sharedVerificationLinksApi";
 import { SharedVerificationLinkListItem } from "@/features/sharedVerificationLinks/models/sharedVerificationLink";
 import { Dialogs, StackSpacing } from "@/shared/constants/constants";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getLocaleDateTimeString } from "@/shared/utils/helpers";
 import { PersistenceSuccessMessages, showPersistenceSuccessToast } from "@/shared/utils/toasts";
 import { ContentCopyOutlined, DeleteOutline } from "@mui/icons-material";
@@ -20,6 +23,7 @@ import {
   Typography,
 } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
+import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 
 interface SharedVerificationLinksPanelProps {
@@ -48,15 +52,17 @@ const SharedVerificationLinksPanel: React.FC<SharedVerificationLinksPanelProps> 
   refreshKey,
   tenantGlobalId,
 }) => {
-  const [links, setLinks] = useState<SharedVerificationLinkListItem[]>([]);
-  const [isBusy, setIsBusy] = useState(false);
+  const [links, setLinks] = useState<SharedVerificationLinkListItem[] | null>(null);
+  const deleteAction = useAsyncAction();
 
   const loadLinks = useCallback(async () => {
     if (!tenantGlobalId) {
       setLinks([]);
+      onHasLinkChange?.(false);
       return;
     }
 
+    setLinks(null);
     const loadedLinks = approvalRequestGlobalId
       ? await listSharedVerificationLinksForRequest(tenantGlobalId, approvalRequestGlobalId)
       : approvalRequestTaskGlobalId
@@ -80,27 +86,32 @@ const SharedVerificationLinksPanel: React.FC<SharedVerificationLinksPanelProps> 
       return;
     }
 
-    setIsBusy(true);
-    const deleted = approvalRequestGlobalId
-      ? await deleteSharedVerificationLinkForRequest(tenantGlobalId, approvalRequestGlobalId, linkGlobalId)
-      : approvalRequestTaskGlobalId
-        ? await deleteSharedVerificationLinkForTask(tenantGlobalId, approvalRequestTaskGlobalId, linkGlobalId)
-        : false;
-    if (deleted) {
-      showPersistenceSuccessToast(PersistenceSuccessMessages.sharedVerificationLinkDeleted);
-      await loadLinks();
-    }
-    setIsBusy(false);
+    const deleteLoader = ActionLoaders.sharedVerificationLinks.delete(linkGlobalId);
+    await deleteAction.run(async () => {
+      const deleted = approvalRequestGlobalId
+        ? await deleteSharedVerificationLinkForRequest(tenantGlobalId, approvalRequestGlobalId, linkGlobalId)
+        : approvalRequestTaskGlobalId
+          ? await deleteSharedVerificationLinkForTask(tenantGlobalId, approvalRequestTaskGlobalId, linkGlobalId)
+          : false;
+      if (deleted) {
+        showPersistenceSuccessToast(PersistenceSuccessMessages.sharedVerificationLinkDeleted);
+        await loadLinks();
+      }
+    }, deleteLoader);
   };
 
   return (
     <Stack spacing={Dialogs.formStackSpacing} sx={linksPanelSx}>
-      {links.length === 0 ? (
+      {links === null ? null : links.length === 0 ? (
         <Typography color="text.secondary">No verification link.</Typography>
       ) : (
         <List disablePadding>
           {links.map((link) => {
             const verificationUrl = getVerificationUrl(link.globalId);
+            const deleteLoader = ActionLoaders.sharedVerificationLinks.delete(link.globalId);
+            const deleteIsLoading =
+              deleteAction.isRunning ||
+              stores.commonStore.isActionLoading(deleteLoader);
             return (
               <ListItem
                 key={link.globalId}
@@ -114,7 +125,7 @@ const SharedVerificationLinksPanel: React.FC<SharedVerificationLinksPanelProps> 
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Delete link">
-                      <IconButton edge="end" disabled={isBusy} onClick={() => handleDelete(link.globalId)}>
+                      <IconButton edge="end" disabled={deleteIsLoading} onClick={() => handleDelete(link.globalId)}>
                         <DeleteOutline />
                       </IconButton>
                     </Tooltip>
@@ -141,4 +152,4 @@ const SharedVerificationLinksPanel: React.FC<SharedVerificationLinksPanelProps> 
   );
 };
 
-export default SharedVerificationLinksPanel;
+export default observer(SharedVerificationLinksPanel);

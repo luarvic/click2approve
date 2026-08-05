@@ -1,3 +1,6 @@
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import LoadingButton from "@mui/lab/LoadingButton";
 import type { ButtonProps } from "@mui/material";
 import {
   Button,
@@ -33,10 +36,14 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   onClose,
   onConfirm,
 }) => {
+  const confirmAction = useAsyncAction(ActionLoaders.dialogs.confirm());
+
   const handleConfirm = async () => {
-    if (await onConfirm()) {
-      onClose();
-    }
+    await confirmAction.run(async () => {
+      if (await onConfirm()) {
+        onClose();
+      }
+    });
   };
 
   return (
@@ -53,16 +60,17 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        {cancelFirst && <Button variant="outlined" onClick={onClose}>{cancelLabel}</Button>}
-        <Button
+        {cancelFirst && <Button disabled={confirmAction.isRunning} variant="outlined" onClick={onClose}>{cancelLabel}</Button>}
+        <LoadingButton
           color={confirmColor}
           disabled={confirmDisabled}
+          loading={confirmAction.isRunning}
           variant="outlined"
           onClick={handleConfirm}
         >
           {confirmLabel}
-        </Button>
-        {!cancelFirst && <Button variant="outlined" onClick={onClose}>{cancelLabel}</Button>}
+        </LoadingButton>
+        {!cancelFirst && <Button disabled={confirmAction.isRunning} variant="outlined" onClick={onClose}>{cancelLabel}</Button>}
       </DialogActions>
     </Dialog>
   );

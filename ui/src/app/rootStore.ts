@@ -62,7 +62,6 @@ export class RootStore {
       this.clearSession,
     );
     configureRequestContext({
-      onLoadingChange: this.commonStore.updateLoadingCounter,
       onUnauthorized: this.userAccountStore.signOut,
     });
   }

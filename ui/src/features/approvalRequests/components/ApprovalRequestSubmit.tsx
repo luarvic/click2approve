@@ -34,12 +34,15 @@ import { TenantType } from "@/features/tenants/models/tenant";
 import { uploadUserFiles } from "@/features/userFiles/api/userFilesApi";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Files, Routes } from "@/shared/constants/constants";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessToast,
 } from "@/shared/utils/toasts";
 import { validateEmails } from "@/shared/utils/validators";
 import { Add, ArrowBack, ArrowForward, AttachFile } from "@mui/icons-material";
+import LoadingButton from "@mui/lab/LoadingButton";
 import type { SxProps } from "@mui/material";
 import {
   Autocomplete,
@@ -110,6 +113,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   const [replacementFileIndex, setReplacementFileIndex] = useState<number | null>(null);
   const [submitPage, setSubmitPage] = useState<"compose" | "visibility">("compose");
   const [stepVisibility, setStepVisibility] = useState<Record<string, boolean>>({});
+  const submitAction = useAsyncAction(ActionLoaders.approvalRequests.submit());
   const initialTemplateHasBeenApplied = useRef(false);
 
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
@@ -499,94 +503,96 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       return;
     }
 
-    const replacementFiles = existingFiles
-      .map((file) => file.replacement)
-      .filter((file): file is File => Boolean(file));
-    const filesToUpload = [...replacementFiles, ...newFiles];
-    const uploadedFiles = await uploadUserFiles(tenantGlobalId, filesToUpload);
-    if (uploadedFiles.length !== filesToUpload.length) {
-      toast.error("One or more files could not be uploaded.");
-      return;
-    }
-
-    const uploadedReplacements = uploadedFiles.slice(0, replacementFiles.length);
-    const uploadedNewFiles = uploadedFiles.slice(replacementFiles.length);
-    let replacementIndex = 0;
-    const requestFiles: ApprovalRequestFileSubmission[] = [];
-
-    existingFiles.forEach((file, index) => {
-      if (file.replacement) {
-        const replacement = uploadedReplacements[replacementIndex++];
-        requestFiles.push({
-          userFileGlobalId: replacement.globalId,
-          sequence: index,
-          revisionAction: ApprovalRequestFileRevisionAction.Replaced,
-          previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
-        });
+    await submitAction.run(async () => {
+      const replacementFiles = existingFiles
+        .map((file) => file.replacement)
+        .filter((file): file is File => Boolean(file));
+      const filesToUpload = [...replacementFiles, ...newFiles];
+      const uploadedFiles = await uploadUserFiles(tenantGlobalId, filesToUpload);
+      if (uploadedFiles.length !== filesToUpload.length) {
+        toast.error("One or more files could not be uploaded.");
         return;
       }
 
-      requestFiles.push({
-        userFileGlobalId: file.file.globalId,
-        sequence: index,
-        revisionAction: isRevision
-          ? ApprovalRequestFileRevisionAction.Unchanged
-          : ApprovalRequestFileRevisionAction.Added,
-        previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
-      });
-    });
+      const uploadedReplacements = uploadedFiles.slice(0, replacementFiles.length);
+      const uploadedNewFiles = uploadedFiles.slice(replacementFiles.length);
+      let replacementIndex = 0;
+      const requestFiles: ApprovalRequestFileSubmission[] = [];
 
-    uploadedNewFiles.forEach((file, index) => {
-      requestFiles.push({
-        userFileGlobalId: file.globalId,
-        sequence: existingFiles.length + index,
-        revisionAction: isRevision
-          ? ApprovalRequestFileRevisionAction.Added
-          : ApprovalRequestFileRevisionAction.Unchanged,
-      });
-    });
+      existingFiles.forEach((file, index) => {
+        if (file.replacement) {
+          const replacement = uploadedReplacements[replacementIndex++];
+          requestFiles.push({
+            userFileGlobalId: replacement.globalId,
+            sequence: index,
+            revisionAction: ApprovalRequestFileRevisionAction.Replaced,
+            previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
+          });
+          return;
+        }
 
-    removedExistingFiles.forEach((file, index) => {
-      requestFiles.push({
-        userFileGlobalId: file.file.globalId,
-        sequence: existingFiles.length + uploadedNewFiles.length + index,
-        revisionAction: ApprovalRequestFileRevisionAction.Removed,
-        previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
+        requestFiles.push({
+          userFileGlobalId: file.file.globalId,
+          sequence: index,
+          revisionAction: isRevision
+            ? ApprovalRequestFileRevisionAction.Unchanged
+            : ApprovalRequestFileRevisionAction.Added,
+          previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
+        });
       });
-    });
 
-    const approvalRequestGlobalId = isRevision && requestToClone
-      ? await resubmitApprovalRequest(
-        tenantGlobalId,
-        requestToClone.globalId,
-        toApprovalStepSubmissions(steps),
-        createStepVisibilitySubmissions(),
-        description,
-        requestFiles,
-      )
-      : await submitApprovalRequest(
-        tenantGlobalId,
-        trimmedTitle,
-        toApprovalStepSubmissions(steps),
-        createStepVisibilitySubmissions(),
-        description,
-        undefined,
-        requestFiles,
-      );
-    if (approvalRequestGlobalId) {
-      showPersistenceSuccessToast(
-        PersistenceSuccessMessages.approvalRequestSubmitted,
-      );
-      cleanUp();
-      stores.approvalRequestStore.clear();
-      const [, createdRequest] = await Promise.all([
-        stores.approvalRequestStore.load(tenantGlobalId),
-        stores.approvalRequestStore.loadDetails(tenantGlobalId, approvalRequestGlobalId),
-      ]);
-      stores.approvalRequestStore.setCurrent(createdRequest ?? null);
-      stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
-      onClose(createdRequest?.globalId);
-    }
+      uploadedNewFiles.forEach((file, index) => {
+        requestFiles.push({
+          userFileGlobalId: file.globalId,
+          sequence: existingFiles.length + index,
+          revisionAction: isRevision
+            ? ApprovalRequestFileRevisionAction.Added
+            : ApprovalRequestFileRevisionAction.Unchanged,
+        });
+      });
+
+      removedExistingFiles.forEach((file, index) => {
+        requestFiles.push({
+          userFileGlobalId: file.file.globalId,
+          sequence: existingFiles.length + uploadedNewFiles.length + index,
+          revisionAction: ApprovalRequestFileRevisionAction.Removed,
+          previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
+        });
+      });
+
+      const approvalRequestGlobalId = isRevision && requestToClone
+        ? await resubmitApprovalRequest(
+          tenantGlobalId,
+          requestToClone.globalId,
+          toApprovalStepSubmissions(steps),
+          createStepVisibilitySubmissions(),
+          description,
+          requestFiles,
+        )
+        : await submitApprovalRequest(
+          tenantGlobalId,
+          trimmedTitle,
+          toApprovalStepSubmissions(steps),
+          createStepVisibilitySubmissions(),
+          description,
+          undefined,
+          requestFiles,
+        );
+      if (approvalRequestGlobalId) {
+        showPersistenceSuccessToast(
+          PersistenceSuccessMessages.approvalRequestSubmitted,
+        );
+        cleanUp();
+        stores.approvalRequestStore.clear();
+        const [, createdRequest] = await Promise.all([
+          stores.approvalRequestStore.load(tenantGlobalId),
+          stores.approvalRequestStore.loadDetails(tenantGlobalId, approvalRequestGlobalId),
+        ]);
+        stores.approvalRequestStore.setCurrent(createdRequest ?? null);
+        stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
+        onClose(createdRequest?.globalId);
+      }
+    });
   };
 
   const requestApprovers = getRequestApprovers();
@@ -816,9 +822,9 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
             >
               BACK
             </Button>
-            <Button variant="outlined" onClick={handleSubmit}>
+            <LoadingButton loading={submitAction.isRunning} variant="outlined" onClick={handleSubmit}>
               Submit
-            </Button>
+            </LoadingButton>
           </Stack>
         </>
       )}

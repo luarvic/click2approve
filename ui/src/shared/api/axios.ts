@@ -2,13 +2,14 @@ import { refreshAuthSession } from "@/features/identity/api/authApi";
 import { getRequestContext } from "@/shared/api/requestContext";
 import { Api } from "@/shared/constants/constants";
 import { readTokens } from "@/shared/session/session";
-import { getLoaderName } from "@/shared/utils/helpers";
 import axios from "axios";
 
 const axiosInstance = axios.create({
   baseURL: Api.baseUri,
   timeout: Api.timeoutMs,
 });
+
+const apiDelayMs = Number(import.meta.env.VITE_API_DELAY_MS ?? 0);
 
 const anonymousUrls = [
   "api/v1/account/forgotPassword",
@@ -32,10 +33,17 @@ const shouldSendAuthentication = (url: string | undefined): boolean => {
   );
 };
 
+const delayRequest = async (): Promise<void> => {
+  if (!import.meta.env.DEV || apiDelayMs <= 0) {
+    return;
+  }
+
+  await new Promise((resolve) => window.setTimeout(resolve, apiDelayMs));
+};
+
 axiosInstance.defaults.baseURL = Api.baseUri;
 axiosInstance.interceptors.request.use(async (config) => {
-  const context = getRequestContext();
-  config.url && context.onLoadingChange(getLoaderName(config), 1);
+  await delayRequest();
   const tokens = readTokens();
   const sendAuthentication = shouldSendAuthentication(config.url);
   if (tokens && sendAuthentication) {
@@ -44,32 +52,18 @@ axiosInstance.interceptors.request.use(async (config) => {
   return config;
 });
 axiosInstance.interceptors.response.use(
-  async (response) => {
-    const context = getRequestContext();
-    response.config.url &&
-      context.onLoadingChange(
-        getLoaderName(response.config),
-        -1,
-      );
-    return response;
-  },
+  async (response) => response,
   async (error) => {
     const context = getRequestContext();
     const originalRequest = error.config;
-    if (originalRequest?.url) {
-      context.onLoadingChange(
-        getLoaderName(originalRequest),
-        -1,
-      );
-    }
     // Try refreshing access token on 401 status code.
     if (
       error.response &&
       error.response.status &&
       error.response.status === 401 &&
-      originalRequest.url !== "api/v1/account/refresh" &&
-      !originalRequest.url.startsWith("api/v1/account/confirmEmail") &&
-      !originalRequest.url.startsWith("api/v1/sharedVerificationLinks/")
+      originalRequest?.url !== "api/v1/account/refresh" &&
+      !originalRequest?.url.startsWith("api/v1/account/confirmEmail") &&
+      !originalRequest?.url.startsWith("api/v1/sharedVerificationLinks/")
     ) {
       if (!originalRequest._retry) {
         originalRequest._retry = true;
