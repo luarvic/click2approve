@@ -52,9 +52,9 @@ const pageSx: SxProps<Theme> = {
 const certificateSx: SxProps<Theme> = {
   color: "text.primary",
   mx: "auto",
-  pb: { xs: 2, sm: 3 },
-  pt: { xs: 2, sm: 3 },
-  px: { xs: 2, sm: 3 },
+  pb: 3,
+  pt: 3,
+  px: 3,
   width: "100%",
   "@media print": {
     pb: 0,
@@ -72,10 +72,13 @@ const headerSx: SxProps<Theme> = {
 
 const logoSx: SxProps<Theme> = {
   ...Shell.appBarLogoSx,
+  height: 64,
+  mr: 1,
+  width: 64,
 };
 
 const titleLineSx: SxProps<Theme> = {
-  alignItems: "center",
+  alignItems: "flex-start",
   display: "flex",
   minWidth: 0,
   width: "100%",
@@ -90,9 +93,19 @@ const homeLinkSx: SxProps<Theme> = {
   },
 };
 
-const titleSx: SxProps<Theme> = {
-  ...Shell.appBarBrandTitleSx(true),
-  whiteSpace: "normal",
+const titleTextSx: SxProps<Theme> = {
+  minWidth: 0,
+};
+
+const brandTitleSx: SxProps<Theme> = {
+  color: "text.secondary",
+  display: "block",
+};
+
+const certificateTitleSx: SxProps<Theme> = {
+  color: "inherit",
+  fontWeight: 700,
+  overflowWrap: "anywhere",
 };
 
 const sectionSx: SxProps<Theme> = {
@@ -412,9 +425,14 @@ const SharedVerificationReceiptPage = () => {
                   sx={[titleLineSx, homeLinkSx]}
                 >
                   <Box component="img" src={logoSrc} alt="" aria-hidden="true" sx={logoSx} />
-                  <Typography component="h1" variant="h6" sx={titleSx}>
-                    Click2Approve Certificate of Completion
-                  </Typography>
+                  <Box sx={titleTextSx}>
+                    <Typography component="h1" variant="h4" sx={certificateTitleSx}>
+                      Certificate of Completion
+                    </Typography>
+                    <Typography component="p" variant="subtitle1" sx={brandTitleSx}>
+                      Click2Approve
+                    </Typography>
+                  </Box>
                 </Box>
                 <Typography>
                   This certificate records the successful completion of the request identified below and the files associated with it at the time of completion.

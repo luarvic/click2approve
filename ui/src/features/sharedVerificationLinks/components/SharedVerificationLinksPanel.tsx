@@ -85,7 +85,7 @@ const SharedVerificationLinksPanel: React.FC<SharedVerificationLinksPanelProps> 
   };
 
   return (
-    <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
+    <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.contentStackSx}>
       {links.length === 0 ? (
         <Typography color="text.secondary">No verification link.</Typography>
       ) : (
