@@ -19,12 +19,12 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
         return entry.Entity;
     }
 
-    public Task<UserFile?> GetForDownloadAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    public virtual Task<UserFile?> GetForDownloadAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
         return GetForDownloadCoreAsync(user, globalId, cancellationToken);
     }
 
-    public async Task<UserFile?> GetForDeleteAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    public virtual async Task<UserFile?> GetForDeleteAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.UserFiles
@@ -57,7 +57,7 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
                         && task.ApproverUserId == user.Id))), cancellationToken);
     }
 
-    public async Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken)
+    public virtual async Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.UserFiles
@@ -65,7 +65,7 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<UserFile>> ListAsync(AppUser user, IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken)
+    public virtual async Task<List<UserFile>> ListAsync(AppUser user, IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.UserFiles

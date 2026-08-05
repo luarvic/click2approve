@@ -127,7 +127,7 @@ public class UserFileService(
             ?? throw new NotFoundException("File was not found.");
         _userFileRepository.Remove(userFile);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        await _fileStorage.DeleteAsync(GetFilePath(user.Id, userFile.Id.ToString(), userFile.Name), cancellationToken);
+        await _fileStorage.DeleteAsync(GetFilePath(userFile.OwnerId, userFile.Id.ToString(), userFile.Name), cancellationToken);
     }
 
     /// <summary>
