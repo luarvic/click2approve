@@ -1,9 +1,9 @@
 global using Click2Approve.Application.Abstractions.Email;
 global using Click2Approve.Application.Abstractions.FileStorage;
 global using Click2Approve.Application.Abstractions.Identity;
-global using Click2Approve.Application.Abstractions.Notifications;
 global using Click2Approve.Application.Abstractions.Persistence;
 global using Click2Approve.Application.Abstractions.Services.ApprovalRequests;
+global using Click2Approve.Application.Abstractions.Services.Notifications;
 global using Click2Approve.Application.Abstractions.Services.Tenants;
 global using Click2Approve.Application.Abstractions.Services.UserFiles;
 global using Click2Approve.Application.Abstractions.Services.UserProfiles;

@@ -1,4 +1,3 @@
-using Click2Approve.Application.Constants;
 using Click2Approve.Application.Helpers;
 using Click2Approve.Domain.Models;
 
@@ -12,6 +11,8 @@ public class TenantService(
     IApprovalRequestTaskRepository approvalRequestTaskRepository,
     IUnitOfWork unitOfWork) : ITenantService
 {
+    private const string PersonalTenantDisplayName = "Personal";
+
     private readonly ITenantRepository _tenantRepository = tenantRepository;
     private readonly IApprovalRequestTaskRepository _approvalRequestTaskRepository = approvalRequestTaskRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
@@ -58,7 +59,7 @@ public class TenantService(
 
     protected static string GetDefaultBusinessName(AppUser user)
     {
-        return TenantDisplayNames.Personal;
+        return PersonalTenantDisplayName;
     }
 
     private async Task ClaimEmailTasksAsync(AppUser user, long personalTenantId, CancellationToken cancellationToken)

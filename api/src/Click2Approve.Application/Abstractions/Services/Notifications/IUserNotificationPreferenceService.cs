@@ -1,7 +1,7 @@
 using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Models;
 
-namespace Click2Approve.Application.Abstractions.Notifications;
+namespace Click2Approve.Application.Abstractions.Services.Notifications;
 
 /// <summary>
 /// Defines user notification preference operations.
