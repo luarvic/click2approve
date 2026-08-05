@@ -19,6 +19,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import type { SxProps, Theme } from "@mui/material/styles";
 import { useCallback, useEffect, useState } from "react";
 
 interface SharedVerificationLinksPanelProps {
@@ -31,6 +32,14 @@ interface SharedVerificationLinksPanelProps {
 
 const getVerificationUrl = (globalId: string): string =>
   `${window.location.origin}/app/verification/${globalId}`;
+
+const linksPanelSx: SxProps<Theme> = {
+  mt: Dialogs.formStackSpacing,
+};
+
+const linkListItemTextSx: SxProps<Theme> = {
+  my: 0,
+};
 
 const SharedVerificationLinksPanel: React.FC<SharedVerificationLinksPanelProps> = ({
   approvalRequestGlobalId,
@@ -85,7 +94,7 @@ const SharedVerificationLinksPanel: React.FC<SharedVerificationLinksPanelProps> 
   };
 
   return (
-    <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.contentStackSx}>
+    <Stack spacing={Dialogs.formStackSpacing} sx={linksPanelSx}>
       {links.length === 0 ? (
         <Typography color="text.secondary">No verification link.</Typography>
       ) : (
@@ -96,6 +105,7 @@ const SharedVerificationLinksPanel: React.FC<SharedVerificationLinksPanelProps> 
               <ListItem
                 key={link.globalId}
                 disableGutters
+                disablePadding
                 secondaryAction={
                   <Stack direction="row" spacing={StackSpacing.tight}>
                     <Tooltip title="Copy link">
@@ -112,6 +122,7 @@ const SharedVerificationLinksPanel: React.FC<SharedVerificationLinksPanelProps> 
                 }
               >
                 <ListItemText
+                  sx={linkListItemTextSx}
                   primary={
                     <Stack direction="row" spacing={StackSpacing.default} alignItems="center">
                       <Link href={verificationUrl} target="_blank" rel="noreferrer">
