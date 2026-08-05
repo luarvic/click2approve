@@ -1,4 +1,5 @@
 import { stores } from "@/app/rootStore";
+import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestView from "@/features/approvalRequests/components/ApprovalRequestView";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
@@ -9,9 +10,9 @@ import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 
 const ApprovalRequestViewPage = () => {
-  usePageTitle("Request");
   const navigate = useNavigate();
   const { approvalRequestGlobalId } = useParams<{ approvalRequestGlobalId: string }>();
+  usePageTitle(`Request ${getApprovalRequestNumber(approvalRequestGlobalId)}`);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
   const approvalRequest = approvalRequestGlobalId ? stores.approvalRequestStore.getDetail(approvalRequestGlobalId) : null;

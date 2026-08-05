@@ -1,4 +1,5 @@
 import { stores } from "@/app/rootStore";
+import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestTask from "@/features/approvalRequests/components/ApprovalRequestTask";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
@@ -9,9 +10,9 @@ import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 
 const ApprovalRequestTaskPage = () => {
-  usePageTitle("Task");
   const navigate = useNavigate();
   const { taskGlobalId } = useParams<{ taskGlobalId: string }>();
+  usePageTitle(`Task ${getApprovalRequestNumber(taskGlobalId)}`);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const inboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/inbox") : "/";
   const task = taskGlobalId ? stores.approvalRequestTaskStore.getDetail(taskGlobalId) : null;
