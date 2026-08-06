@@ -56,6 +56,7 @@ builder.Services.AddSwagger();
 builder.Services.AddScoped<IAssigneeResolver, EmailOnlyAssigneeResolver>();
 builder.Services.AddScoped<IApprovalRequestAssigneeGlobalIdResolver, DefaultApprovalRequestAssigneeGlobalIdResolver>();
 builder.Services.AddScoped<IApprovalRequestService, ApprovalRequestService>();
+builder.Services.AddScoped<IApprovalRequestCompletionAttributor, ApprovalRequestCompletionAttributor>();
 builder.Services.AddScoped<IApprovalRequestTaskService, ApprovalRequestTaskService>();
 builder.Services.AddScoped<IApprovalRequestTaskCompletionAttributor, ApprovalRequestTaskCompletionAttributor>();
 builder.Services.AddScoped<IApprovalWorkflowService, ApprovalWorkflowService>();

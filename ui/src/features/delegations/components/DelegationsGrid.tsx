@@ -1,6 +1,7 @@
 import { stores } from "@/app/rootStore";
 import { listApprovalDelegations } from "@/features/delegations/api/approvalDelegationsApi";
 import { ApprovalDelegation } from "@/features/delegations/models/approvalDelegation";
+import { EmployeeRole } from "@/features/tenants/models/tenant";
 import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
@@ -8,13 +9,7 @@ import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow"
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add } from "@mui/icons-material";
-import {
-  Box,
-  Button,
-  LinearProgress,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, Button, LinearProgress } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -35,9 +30,9 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({
   currentDelegationGlobalId,
 }) => {
   const navigate = useNavigate();
-  const theme = useTheme();
-  const isSmallDisplay = useMediaQuery(theme.breakpoints.down("sm"));
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const canManageDelegations =
+    stores.tenantStore.currentTenant?.role === EmployeeRole.Admin;
   const gridLoader = ActionLoaders.grids.delegations(tenantGlobalId);
   const [delegations, setDelegations] = useState<ApprovalDelegation[]>([]);
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
@@ -71,7 +66,7 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({
   const renderEmployee = (employeeGlobalId: string) => {
     const employee = employeesById.get(employeeGlobalId);
     return employee ? (
-      <OneLineDisplayName displayName={employee.displayName} />
+      <OneLineDisplayName displayName={employee.displayName} variant="body2" />
     ) : unknownEmployeeLabel;
   };
 
@@ -105,13 +100,6 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({
       valueGetter: (value) => getEmployeeName(value as string),
       renderCell: (params) => renderEmployee(params.row.delegateEmployeeGlobalId),
     },
-    {
-      field: "createdAt",
-      headerName: "Created",
-      ...DataGrids.delegationsColumnSizing.createdAt,
-      valueFormatter: (value) =>
-        value ? new Date(value as string).toLocaleDateString() : "",
-    },
   ];
 
   return (
@@ -132,16 +120,13 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({
             ),
           )
         }
-        columnVisibilityModel={{
-          createdAt: !isSmallDisplay,
-        }}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
         pageSizeOptions={[DataGrids.defaultPageSize]}
         disableColumnFilter
         disableRowSelectionOnClick
         slots={{
-          toolbar: customToolbar,
+          toolbar: canManageDelegations ? customToolbar : undefined,
           noRowsOverlay: NoRowsOverlay,
           loadingOverlay: LinearProgress as GridSlots["loadingOverlay"],
         }}

@@ -104,6 +104,7 @@ describe("<ApprovalSteps />", () => {
     expect(screen.getAllByText(/Hidden from/)).toHaveLength(2);
     expect(screen.getByText("Hidden from Blocked Assignee")).toBeTruthy();
     expect(screen.getByText("Step 2")).toBeTruthy();
+    expect(screen.getByText("Step 2").className).toBe(screen.getByText("Step 1").className);
     expect(screen.getByLabelText("Hidden")).toBeTruthy();
     expect(screen.getByText("Current Assignee")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Step 1 visibility" })).toBeNull();

@@ -119,6 +119,10 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequest>()
+            .Property(r => r.CompletedByDisplayName)
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<ApprovalRequest>()
             .Property(r => r.OrganizationDisplayName)
             .HasMaxLength(255);
 
@@ -133,6 +137,12 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasOne(r => r.CreatedByUser)
             .WithMany()
             .HasForeignKey(r => r.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequest>()
+            .HasOne(r => r.CompletedByUser)
+            .WithMany()
+            .HasForeignKey(r => r.CompletedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequest>()
@@ -247,7 +257,7 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequestTask>()
-            .Property(t => t.CompletedByDelegateEmployeeDisplayName)
+            .Property(t => t.CompletedByDisplayName)
             .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequestTask>()
@@ -276,9 +286,9 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestTask>()
-            .HasOne(task => task.CompletedByDelegateUser)
+            .HasOne(task => task.CompletedByUser)
             .WithMany()
-            .HasForeignKey(task => task.CompletedByDelegateUserId)
+            .HasForeignKey(task => task.CompletedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestTask>()

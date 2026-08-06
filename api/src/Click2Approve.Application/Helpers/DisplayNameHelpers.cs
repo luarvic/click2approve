@@ -5,6 +5,13 @@ namespace Click2Approve.Application.Helpers;
 /// </summary>
 public static class DisplayNameHelpers
 {
+    public const string PrivatePersonDisplayName = "Private person";
+
+    public static string FormatParticipantName(string? firstName, string? lastName)
+    {
+        var name = JoinNonEmpty(firstName, lastName);
+        return string.IsNullOrWhiteSpace(name) ? PrivatePersonDisplayName : name;
+    }
     /// <summary>
     /// Formats a user display name as "FirstName LastName (email)".
     /// </summary>

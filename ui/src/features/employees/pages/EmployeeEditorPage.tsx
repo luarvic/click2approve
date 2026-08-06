@@ -85,6 +85,7 @@ const EmployeeEditorPage = () => {
       if (!saved || !(await syncTeams(saved.globalId, teamGlobalIds))) {
         return null;
       }
+      await stores.tenantStore.load(tenantGlobalId);
       showPersistenceSuccessToast(PersistenceSuccessMessages.employeeSaved);
       return saved;
     }}

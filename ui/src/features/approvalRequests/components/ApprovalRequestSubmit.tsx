@@ -31,8 +31,10 @@ import {
   toApprovalStepSubmissions,
 } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
+import { getIncompleteParticipantNameWarning } from "@/features/approvalRequests/utils/incompleteParticipantNameWarning";
 import { uploadUserFiles } from "@/features/userFiles/api/userFilesApi";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import { Dialogs, Files, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
@@ -113,6 +115,8 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   const [replacementFileIndex, setReplacementFileIndex] = useState<number | null>(null);
   const [submitPage, setSubmitPage] = useState<"compose" | "visibility">("compose");
   const [stepVisibility, setStepVisibility] = useState<Record<string, boolean>>({});
+  const [nameWarningDialogIsOpen, setNameWarningDialogIsOpen] = useState(false);
+  const nameWarning = getIncompleteParticipantNameWarning(stores.tenantStore.currentTenant?.type);
   const submitAction = useAsyncAction(ActionLoaders.approvalRequests.submit());
   const initialTemplateHasBeenApplied = useRef(false);
 
@@ -169,6 +173,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
             (item) => item.globalId === initialTemplateGlobalId,
           );
           if (template) {
+            setTitle(template.name);
             setSteps(createEditableSteps(template.steps));
           }
           initialTemplateHasBeenApplied.current = true;
@@ -357,14 +362,6 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     return validateSteps();
   };
 
-  const handleConfigureVisibility = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!validateDraft()) {
-      return;
-    }
-    setSubmitPage("visibility");
-  };
-
   const getAssigneeVisibilityKey = (
     stepSequence: number,
     assigneeStepSequence: number,
@@ -494,7 +491,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       })),
     );
 
-  const handleSubmit = async () => {
+  const submit = async () => {
     const trimmedTitle = title.trim();
     if (!validateDraft()) {
       return;
@@ -595,6 +592,34 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     });
   };
 
+  const handleSubmit = () => {
+    const currentTenant = stores.tenantStore.currentTenant;
+    const firstName = currentTenant?.type === TenantType.Business
+      ? currentTenant.currentEmployeeFirstName
+      : stores.userProfileStore.profile?.firstName;
+    const lastName = currentTenant?.type === TenantType.Business
+      ? currentTenant.currentEmployeeLastName
+      : stores.userProfileStore.profile?.lastName;
+    if (!firstName?.trim() || !lastName?.trim()) {
+      setNameWarningDialogIsOpen(true);
+      return;
+    }
+
+    void submit();
+  };
+
+  const handleComposeSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (steps.length < 2) {
+      handleSubmit();
+      return;
+    }
+    if (!validateDraft()) {
+      return;
+    }
+    setSubmitPage("visibility");
+  };
+
   const requestAssignees = getRequestAssignees();
   const draftRequestFiles: ApprovalRequestFile[] = [
     ...existingFiles.map((file, index) =>
@@ -639,7 +664,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
         ]}
       />
       {submitPage === "compose" && (
-      <Box component="form" onSubmit={handleConfigureVisibility}>
+      <Box component="form" onSubmit={handleComposeSubmit}>
         <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
           <TextField
             autoFocus
@@ -727,9 +752,15 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
           <Button variant="outlined" onClick={handleClose}>
             Cancel
           </Button>
-          <Button type="submit" endIcon={<ArrowForward />}>
-            VISIBILITY
-          </Button>
+          {steps.length >= 2 ? (
+            <Button type="submit" endIcon={<ArrowForward />}>
+              Steps visibility
+            </Button>
+          ) : (
+            <LoadingButton loading={submitAction.isRunning} type="submit" variant="outlined">
+              Submit
+            </LoadingButton>
+          )}
         </Stack>
       </Box>
       )}
@@ -828,6 +859,19 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
           </Stack>
         </>
       )}
+      <ConfirmationDialog
+        cancelFirst
+        cancelLabel="Go back"
+        confirmLabel="Proceed anyway"
+        message={nameWarning.message}
+        open={nameWarningDialogIsOpen}
+        title={nameWarning.title}
+        onClose={() => setNameWarningDialogIsOpen(false)}
+        onConfirm={async () => {
+          await submit();
+          return true;
+        }}
+      />
     </>
   );
 };

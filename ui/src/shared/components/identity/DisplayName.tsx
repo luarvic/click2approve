@@ -10,6 +10,7 @@ interface DisplayNameProps {
   displayName?: string | null;
   email?: string | null;
   fallback?: string;
+  showEmailAddress?: boolean;
   sx?: SxProps<Theme>;
 }
 
@@ -26,6 +27,7 @@ const DisplayName: React.FC<DisplayNameProps> = ({
   displayName,
   email,
   fallback = "Unknown user",
+  showEmailAddress = true,
   sx,
 }) => {
   const primary = stripInlineEmail(displayName) || fallback;
@@ -38,7 +40,7 @@ const DisplayName: React.FC<DisplayNameProps> = ({
       <Typography noWrap sx={textSx} variant="body1">
         {primary}
       </Typography>
-      {secondaryIsVisible && (
+      {showEmailAddress && secondaryIsVisible && (
         <Typography
           color="text.secondary"
           noWrap

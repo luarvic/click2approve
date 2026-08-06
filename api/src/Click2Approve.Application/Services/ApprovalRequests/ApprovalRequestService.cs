@@ -1,4 +1,5 @@
 using Click2Approve.Application.Extensions;
+using Click2Approve.Application.Helpers;
 using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
@@ -16,9 +17,11 @@ public class ApprovalRequestService(
     IApprovalRequestAssigneeGlobalIdResolver assigneeGlobalIdResolver,
     IApprovalWorkflowService workflowService,
     ITenantContext tenantContext,
+    IApprovalRequestCompletionAttributor completionAttributor,
     IConfiguration configuration) : IApprovalRequestService
 {
     protected readonly IApprovalRequestRepository _approvalRequestRepository = approvalRequestRepository;
+    protected readonly IApprovalRequestCompletionAttributor _completionAttributor = completionAttributor;
     protected readonly IUnitOfWork _unitOfWork = unitOfWork;
     protected readonly IApprovalWorkflowService _workflowService = workflowService;
 
@@ -113,6 +116,7 @@ public class ApprovalRequestService(
         var now = DateTime.UtcNow;
         approvalRequest.Status = ApprovalRequestStatus.Canceled;
         approvalRequest.CompletedAt = now;
+        await _completionAttributor.AttributeAsync(user, approvalRequest, cancellationToken);
         var notifiedTasks = _workflowService.GetTasks(approvalRequest)
             .Where(task => task.Status == ApprovalRequestTaskStatus.Pending)
             .ToList();
@@ -147,7 +151,9 @@ public class ApprovalRequestService(
         long tenantId,
         CancellationToken cancellationToken)
     {
-        return Task.FromResult(new ApprovalRequestCreator(null, user.NormalizedEmailOrEmpty()));
+        return Task.FromResult(new ApprovalRequestCreator(
+            EmployeeId: null,
+            DisplayName: DisplayNameHelpers.FormatParticipantName(user.FirstName, user.LastName)));
     }
 
     /// <summary>

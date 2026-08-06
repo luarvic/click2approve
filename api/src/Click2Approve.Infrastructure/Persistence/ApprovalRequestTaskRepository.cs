@@ -41,7 +41,7 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
         return await Db.ApprovalRequestTasks
             .AsNoTracking()
             .Include(task => task.AssigneeUser)
-            .Include(task => task.CompletedByDelegateUser)
+            .Include(task => task.CompletedByUser)
             .Include(task => task.ApprovalRequest)
                 .ThenInclude(request => request.CreatedByUser)
             .Where(t => t.AssigneeUserId == user.Id
@@ -55,7 +55,7 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
         return await Db.ApprovalRequestTasks
             .AsNoTracking()
             .Include(task => task.AssigneeUser)
-            .Include(task => task.CompletedByDelegateUser)
+            .Include(task => task.CompletedByUser)
             .Include(task => task.ApprovalRequestStep)
             .Include(task => task.ApprovalRequestStepAssignee)
                 .ThenInclude(assignee => assignee!.User)
@@ -76,6 +76,9 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
         return await Db.ApprovalRequests
             .AsNoTracking()
             .Include(request => request.CreatedByUser)
+            .Include(request => request.CompletedByUser)
+            .Include(request => request.NextRevisionApprovalRequest)
+                .ThenInclude(nextRevision => nextRevision!.CreatedByUser)
             .Include(request => request.RequestFiles)
                 .ThenInclude(file => file.UserFile)
             .Include(request => request.Steps)
@@ -96,7 +99,7 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
                     .ThenInclude(requestTask => requestTask.AssigneeUser)
             .Include(request => request.Steps)
                 .ThenInclude(step => step.Tasks)
-                    .ThenInclude(requestTask => requestTask.CompletedByDelegateUser)
+                    .ThenInclude(requestTask => requestTask.CompletedByUser)
             .FirstOrDefaultAsync(request => request.Steps.Any(step => step.Tasks.Any(task => task.GlobalId == globalId
                 && task.AssigneeUserId == user.Id
                 && task.TenantId == tenantId)),
@@ -132,9 +135,9 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
                     .ThenInclude(task => task.AssigneeUser)
             .Include(t => t.ApprovalRequest.Steps)
                 .ThenInclude(s => s.Tasks)
-                    .ThenInclude(task => task.CompletedByDelegateUser)
+                    .ThenInclude(task => task.CompletedByUser)
             .Include(t => t.AssigneeUser)
-            .Include(t => t.CompletedByDelegateUser)
+            .Include(t => t.CompletedByUser)
                 .FirstOrDefaultAsync(t => t.GlobalId == globalId
                     && t.AssigneeUserId == user.Id
                     && t.TenantId == tenantId,

@@ -2,6 +2,7 @@ import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import LoadingButton from "@mui/lab/LoadingButton";
 import type { ButtonProps } from "@mui/material";
+import type { ReactNode } from "react";
 import {
   Button,
   Dialog,
@@ -17,7 +18,7 @@ interface ConfirmationDialogProps {
   confirmColor?: ButtonProps["color"];
   confirmDisabled?: boolean;
   confirmLabel: string;
-  message: string;
+  message: ReactNode;
   open: boolean;
   title: string;
   onClose: () => void;

@@ -193,9 +193,9 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         Assert.Equal(ApprovalRequestTaskStatus.Completed, task.Status);
         Assert.True(task.Result);
         Assert.NotNull(task.CompletedAt);
+        Assert.Equal(assignee.Email, task.AssigneeEmail);
         Assert.NotNull(task.ApprovalRequest);
-        Assert.Collection(task.RequestFiles,
-            file => Assert.Equal("request.txt", file.UserFile.Name));
+        Assert.Equal("request.txt", Assert.Single(task.RequestFiles).UserFile.Name);
     }
 
     [Fact]

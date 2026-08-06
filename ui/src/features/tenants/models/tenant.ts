@@ -21,6 +21,8 @@ export interface Tenant {
   ownerId: string;
   isOwner: boolean;
   role: EmployeeRole;
+  currentEmployeeFirstName?: string;
+  currentEmployeeLastName?: string;
 }
 
 export interface CreateTenantRequest {

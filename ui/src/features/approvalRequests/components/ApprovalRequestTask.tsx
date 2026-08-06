@@ -8,10 +8,13 @@ import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequ
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
+import { TenantType } from "@/features/tenants/models/tenant";
 import { createApprovalRequestTaskClientAuditContext } from "@/features/approvalRequests/utils/approvalRequestTaskClientAuditContext";
 import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
+import { getIncompleteParticipantNameWarning } from "@/features/approvalRequests/utils/incompleteParticipantNameWarning";
 import { createSharedVerificationLinkForTask } from "@/features/sharedVerificationLinks/api/sharedVerificationLinksApi";
 import SharedVerificationLinksPanel from "@/features/sharedVerificationLinks/components/SharedVerificationLinksPanel";
+import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
@@ -60,9 +63,15 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
   const [selectedTab, setSelectedTab] = useState("task");
   const [hasSharedVerificationLink, setHasSharedVerificationLink] = useState(false);
   const [sharedVerificationLinksRefreshKey, setSharedVerificationLinksRefreshKey] = useState(0);
+  const [nameWarningDialogIsOpen, setNameWarningDialogIsOpen] = useState(false);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const nameWarning = getIncompleteParticipantNameWarning(stores.tenantStore.currentTenant?.type);
   const inboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/inbox") : "/";
   const currentTask = stores.approvalRequestTaskStore.currentTask;
+  const currentTaskAssigneeType = approvalRequest?.steps
+    .find((step) => step.globalId === currentTask?.approvalRequestStepGlobalId)
+    ?.assignees.find((assignee) => assignee.globalId === currentTask?.approvalRequestStepAssigneeGlobalId)
+    ?.type;
   const isCompleted = Boolean(currentTask && currentTask.status !== ApprovalRequestTaskStatus.Pending);
   const actionLabels = getApprovalRequestTaskActionLabels(currentTask?.action);
   const completeTaskLoader = ActionLoaders.approvalRequestTasks.complete(currentTask?.globalId);
@@ -135,7 +144,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
     return !Object.values(nextErrors).some(Boolean);
   };
 
-  const handleSubmit = async () => {
+  const submit = async () => {
     if (isCompleted) return;
     if (!decision) {
       setDecisionError(true);
@@ -178,6 +187,22 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
         onClose(currentTask.globalId);
       }
     });
+  };
+
+  const handleSubmit = () => {
+    const currentTenant = stores.tenantStore.currentTenant;
+    const firstName = currentTenant?.type === TenantType.Business
+      ? currentTenant.currentEmployeeFirstName
+      : stores.userProfileStore.profile?.firstName;
+    const lastName = currentTenant?.type === TenantType.Business
+      ? currentTenant.currentEmployeeLastName
+      : stores.userProfileStore.profile?.lastName;
+    if (!firstName?.trim() || !lastName?.trim()) {
+      setNameWarningDialogIsOpen(true);
+      return;
+    }
+
+    void submit();
   };
 
   const handleCreateSharedVerificationLink = async () => {
@@ -224,6 +249,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
           {currentTask && (
             <ApprovalRequestTaskSummaryBlock
               participant="assignee"
+              participantType={currentTaskAssigneeType}
               showComment
               showElectronicSignature={requiresElectronicSignature}
               task={currentTask}
@@ -325,6 +351,19 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
           </LoadingButton>
         )}
       </Stack>
+      <ConfirmationDialog
+        cancelFirst
+        cancelLabel="Go back"
+        confirmLabel="Proceed anyway"
+        message={nameWarning.message}
+        open={nameWarningDialogIsOpen}
+        title={nameWarning.title}
+        onClose={() => setNameWarningDialogIsOpen(false)}
+        onConfirm={async () => {
+          await submit();
+          return true;
+        }}
+      />
     </>
   );
 };

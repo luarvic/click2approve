@@ -84,7 +84,7 @@ public class EmailOnlyAssigneeResolver(
         var email = assigneeUser.NormalizedEmail!;
         assignee.User = assigneeUser;
         assignee.UserId = assigneeUser.Id;
-        var displayName = assignee.AssigneeDisplayName ?? DisplayNameHelpers.NormalizeEmailForDisplay(email);
+        var displayName = DisplayNameHelpers.FormatParticipantName(assigneeUser.FirstName, assigneeUser.LastName);
         tenantByEmail.TryGetValue(email, out var assigneeTenant);
         return
         [

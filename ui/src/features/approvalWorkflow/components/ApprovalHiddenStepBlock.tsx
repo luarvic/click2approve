@@ -10,9 +10,9 @@ import type { SxProps } from "@mui/material";
 import {
   Box,
   Stack,
-  Typography,
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
+import ApprovalStepTitle from "./ApprovalStepTitle";
 import ApprovalStepVisibilitySummary from "./ApprovalStepVisibilitySummary";
 
 interface ApprovalHiddenStepBlockProps {
@@ -45,9 +45,7 @@ const ApprovalHiddenStepBlock: React.FC<ApprovalHiddenStepBlockProps> = ({
             direction="row"
             sx={stepTitleRowSx}
           >
-            <Typography variant="subtitle2">
-              Step {step.sequence}
-            </Typography>
+            <ApprovalStepTitle sequence={step.sequence} />
             <ApprovalStepVisibilitySummary
               emptyMessage="Hidden from you"
               inline

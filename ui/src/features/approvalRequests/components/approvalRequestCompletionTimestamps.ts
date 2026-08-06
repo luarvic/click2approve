@@ -36,7 +36,7 @@ export const getRequestCompletedTimestamp = (
     case ApprovalRequestStatus.Superseded:
       return {
         date: approvalRequest.completedAtDate,
-        label: "Superseded at",
+        label: "Resubmitted at",
         type: "superseded",
       };
     default:

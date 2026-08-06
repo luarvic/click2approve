@@ -1,5 +1,5 @@
 import { stores } from "@/app/rootStore";
-import { EmployeeRole, TenantType } from "@/features/tenants/models/tenant";
+import { TenantType } from "@/features/tenants/models/tenant";
 import { Api, Lists, Refresh, Routes, Shell } from "@/shared/constants/constants";
 import {
   AddTwoTone,
@@ -61,7 +61,7 @@ const MainMenuDrawer = () => {
     currentTenant?.role !== undefined;
   const delegationsIsVisible =
     currentTenant?.type === TenantType.Business &&
-    currentTenant.role === EmployeeRole.Admin;
+    currentTenant.role !== undefined;
   const teamsManagerIsVisible =
     employeeManagerIsVisible && stores.productStore.teamAssigneesAreEnabled;
   const templatesIsVisible =

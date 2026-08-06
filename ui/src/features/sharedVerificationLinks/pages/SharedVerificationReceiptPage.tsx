@@ -4,6 +4,7 @@ import {
   SharedVerificationParticipantRole,
   SharedVerificationReceipt,
 } from "@/features/sharedVerificationLinks/models/sharedVerificationLink";
+import DisplayName from "@/shared/components/identity/DisplayName";
 import { Files, Routes, Shell, StackSpacing } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
@@ -226,36 +227,24 @@ const participantTableSx: SxProps<Theme> = {
   tableLayout: "fixed",
 };
 
-const participantDisplayNameColumnSx: SxProps<Theme> = {
-  width: "14%",
-};
-
-const participantDelegateDisplayNameColumnSx: SxProps<Theme> = {
-  width: "14%",
-};
-
-const participantEmailColumnSx: SxProps<Theme> = {
-  width: "18%",
-};
-
-const participantDelegateEmailColumnSx: SxProps<Theme> = {
-  width: "18%",
+const participantColumnSx: SxProps<Theme> = {
+  width: "25%",
 };
 
 const participantOrganizationColumnSx: SxProps<Theme> = {
-  width: "12%",
+  width: "25%",
 };
 
 const participantRelationshipColumnSx: SxProps<Theme> = {
-  width: "12%",
+  width: "15%",
 };
 
 const participantActionColumnSx: SxProps<Theme> = {
-  width: "14%",
+  width: "20%",
 };
 
 const participantPerformedAtColumnSx: SxProps<Theme> = {
-  width: "16%",
+  width: "15%",
 };
 
 const mobileRecordStackSx: SxProps<Theme> = {
@@ -354,6 +343,32 @@ const getParticipantRoleLabel = (role: SharedVerificationParticipantRole) => {
     case SharedVerificationParticipantRole.Assignee:
       return "Assignee";
   }
+};
+
+const renderParticipant = (participant: SharedVerificationReceipt["participants"][number]) => {
+  const assignee = (
+    <DisplayName
+      displayName={participant.displayName}
+      email={participant.email}
+    />
+  );
+
+  if (!participant.delegateDisplayName && !participant.delegateEmail) {
+    return assignee;
+  }
+
+  return (
+    <Stack spacing={StackSpacing.tight}>
+      <DisplayName
+        displayName={participant.delegateDisplayName}
+        email={participant.delegateEmail}
+      />
+      <Typography variant="body1">
+        on behalf of
+      </Typography>
+      {assignee}
+    </Stack>
+  );
 };
 
 const computeSha256 = async (file: File): Promise<string> => {
@@ -570,10 +585,7 @@ const SharedVerificationReceiptPage = () => {
               <Table size="small" sx={participantTableSx}>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={[tableHeaderCellSx, participantDisplayNameColumnSx]}>Participant</TableCell>
-                    <TableCell sx={[tableHeaderCellSx, participantEmailColumnSx]}>Email</TableCell>
-                    <TableCell sx={[tableHeaderCellSx, participantDelegateDisplayNameColumnSx]}>Delegate</TableCell>
-                    <TableCell sx={[tableHeaderCellSx, participantDelegateEmailColumnSx]}>Delegate email</TableCell>
+                    <TableCell sx={[tableHeaderCellSx, participantColumnSx]}>Participant</TableCell>
                     <TableCell sx={[tableHeaderCellSx, participantOrganizationColumnSx]}>Organization</TableCell>
                     <TableCell sx={[tableHeaderCellSx, participantRelationshipColumnSx]}>Relationship</TableCell>
                     <TableCell sx={[tableHeaderCellSx, participantActionColumnSx]}>Action</TableCell>
@@ -588,17 +600,8 @@ const SharedVerificationReceiptPage = () => {
                       key={`${participant.role}-${participant.displayName}-${index}`}
                       sx={index === (receipt.participants ?? []).length - 1 ? tableLastRowSx : undefined}
                     >
-                      <TableCell sx={[tableCellSx, participantDisplayNameColumnSx]}>
-                        {participant.displayName}
-                      </TableCell>
-                      <TableCell sx={[tableCellSx, participantEmailColumnSx]}>
-                        {participant.email}
-                      </TableCell>
-                      <TableCell sx={[tableCellSx, participantDelegateDisplayNameColumnSx]}>
-                        {participant.delegateDisplayName ?? "—"}
-                      </TableCell>
-                      <TableCell sx={[tableCellSx, participantDelegateEmailColumnSx]}>
-                        {participant.delegateEmail ?? "—"}
+                      <TableCell sx={[tableCellSx, participantColumnSx]}>
+                        {renderParticipant(participant)}
                       </TableCell>
                       <TableCell sx={[tableCellSx, participantOrganizationColumnSx]}>
                         {formatParticipantOrganization(participant.organizationDisplayName)}
@@ -625,10 +628,7 @@ const SharedVerificationReceiptPage = () => {
                     spacing={StackSpacing.default}
                     sx={getMobileRecordSx(index === (receipt.participants ?? []).length - 1)}
                   >
-                    {renderField("Participant", participant.displayName)}
-                    {renderField("Email", participant.email)}
-                    {renderField("Delegate", participant.delegateDisplayName)}
-                    {renderField("Delegate email", participant.delegateEmail)}
+                    {renderField("Participant", renderParticipant(participant))}
                     {renderField("Organization", formatParticipantOrganization(participant.organizationDisplayName))}
                     {renderField("Relationship", getParticipantRoleLabel(participant.role))}
                     {renderField("Action", participant.action)}

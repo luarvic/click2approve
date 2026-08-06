@@ -61,6 +61,9 @@ const App = () => {
   const canManageDelegations =
     currentTenant?.type === TenantType.Business &&
     currentTenant.role === EmployeeRole.Admin;
+  const canViewDelegations =
+    currentTenant?.type === TenantType.Business &&
+    currentTenant.role !== undefined;
 
   useEffect(() => {
     const load = async () => {
@@ -136,10 +139,12 @@ const App = () => {
                     <Route element={<RouteGuard isAllowed={canManageEmployees} />}>
                       <Route path="employees" element={<EmployeesPage />} />
                     </Route>
-                    <Route element={<RouteGuard isAllowed={canManageDelegations} />}>
+                    <Route element={<RouteGuard isAllowed={canViewDelegations} />}>
                       <Route path="delegations" element={<DelegationsPage />} />
-                      <Route path="delegations/new" element={<DelegationEditorPage />} />
                       <Route path="delegations/:delegationGlobalId" element={<DelegationEditorPage />} />
+                    </Route>
+                    <Route element={<RouteGuard isAllowed={canManageDelegations} />}>
+                      <Route path="delegations/new" element={<DelegationEditorPage />} />
                     </Route>
                     <Route path="approvalStepTemplates/new" element={<ApprovalStepTemplateEditorPage />} />
                     <Route path="approvalStepTemplates/:templateGlobalId" element={<ApprovalStepTemplateEditorPage />} />

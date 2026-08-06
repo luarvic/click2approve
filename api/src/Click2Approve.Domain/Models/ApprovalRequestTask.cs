@@ -11,8 +11,8 @@ public class ApprovalRequestTask : DbEntity
     public long ApprovalRequestStepId { get; set; }
     public long? AssigneeEmployeeId { get; set; }
     public string? AssigneeUserId { get; set; }
-    public long? CompletedByDelegateEmployeeId { get; set; }
-    public string? CompletedByDelegateUserId { get; set; }
+    public long? CompletedByEmployeeId { get; set; }
+    public string? CompletedByUserId { get; set; }
     public long TenantId { get; set; }
 
     // Scalar properties
@@ -23,7 +23,7 @@ public class ApprovalRequestTask : DbEntity
     public string? AssigneeLegalName { get; set; }
     public string? AssigneeSignatureJson { get; set; }
     public string? Comment { get; set; }
-    public string? CompletedByDelegateEmployeeDisplayName { get; set; }
+    public string? CompletedByDisplayName { get; set; }
     public DateTime? CompletedAt { get; set; }
     public required DateTime CreatedAt { get; set; }
     public string? Description { get; set; }
@@ -48,6 +48,6 @@ public class ApprovalRequestTask : DbEntity
 
     public ApprovalRequestStepAssignee? ApprovalRequestStepAssignee { get; set; }
     public AppUser? AssigneeUser { get; set; }
-    public AppUser? CompletedByDelegateUser { get; set; }
+    public AppUser? CompletedByUser { get; set; }
     public Tenant? Tenant { get; set; }
 }

@@ -9,6 +9,8 @@ export interface ApprovalRequest extends ApprovalRequestListItem {
   createdByUserId: string;
   createdByEmail: string;
   createdByDisplayName: string;
+  completedByDisplayName?: string;
+  completedByEmail?: string;
   organizationDisplayName: string;
   previousRevisionApprovalRequestGlobalId?: string;
   previousRevisionApprovalRequestTitle?: string;

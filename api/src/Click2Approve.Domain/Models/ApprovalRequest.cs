@@ -6,6 +6,8 @@ namespace Click2Approve.Domain.Models;
 public class ApprovalRequest : DbEntity
 {
     // Foreign key identifiers
+    public long? CompletedByEmployeeId { get; set; }
+    public string? CompletedByUserId { get; set; }
     public long? CreatedByEmployeeId { get; set; }
     public required string CreatedByUserId { get; set; }
     public long? PreviousRevisionApprovalRequestId { get; set; }
@@ -13,6 +15,7 @@ public class ApprovalRequest : DbEntity
 
     // Scalar properties
     public DateTime? CompletedAt { get; set; }
+    public string? CompletedByDisplayName { get; set; }
     public required DateTime CreatedAt { get; set; }
     public required string CreatedByDisplayName { get; set; }
     public required string OrganizationDisplayName { get; set; }
@@ -23,6 +26,7 @@ public class ApprovalRequest : DbEntity
     public required string Title { get; set; }
 
     // Navigation properties
+    public AppUser? CompletedByUser { get; set; }
     public AppUser CreatedByUser { get; set; } = null!;
     public ApprovalRequest? NextRevisionApprovalRequest { get; set; }
     public ApprovalRequest? PreviousRevisionApprovalRequest { get; set; }

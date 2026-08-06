@@ -1,8 +1,10 @@
 import { stores } from "@/app/rootStore";
 import ApprovalRequestDetails from "@/features/approvalRequests/components/ApprovalRequestDetails";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
+import { getIncompleteParticipantNameWarning } from "@/features/approvalRequests/utils/incompleteParticipantNameWarning";
 import { createSharedVerificationLinkForRequest } from "@/features/sharedVerificationLinks/api/sharedVerificationLinksApi";
 import SharedVerificationLinksPanel from "@/features/sharedVerificationLinks/components/SharedVerificationLinksPanel";
+import { TenantType } from "@/features/tenants/models/tenant";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
@@ -42,9 +44,11 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
   const navigate = useNavigate();
   const approvalRequest = stores.approvalRequestStore.currentApprovalRequest;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const nameWarning = getIncompleteParticipantNameWarning(stores.tenantStore.currentTenant?.type);
   const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
   const [selectedTab, setSelectedTab] = useState("request");
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
+  const [nameWarningDialogIsOpen, setNameWarningDialogIsOpen] = useState(false);
   const [hasSharedVerificationLink, setHasSharedVerificationLink] = useState(false);
   const [sharedVerificationLinksRefreshKey, setSharedVerificationLinksRefreshKey] = useState(0);
   const cancelLoader = ActionLoaders.approvalRequests.cancel(approvalRequest?.globalId);
@@ -98,7 +102,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
     );
   };
 
-  const handleCancel = async (): Promise<boolean> => {
+  const cancel = async (): Promise<boolean> => {
     if (!approvalRequest || !tenantGlobalId) {
       return false;
     }
@@ -111,6 +115,23 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
       return canceled;
     });
     return isCanceled === true;
+  };
+
+  const handleCancel = async (): Promise<boolean> => {
+    const currentTenant = stores.tenantStore.currentTenant;
+    const firstName = currentTenant?.type === TenantType.Business
+      ? currentTenant.currentEmployeeFirstName
+      : stores.userProfileStore.profile?.firstName;
+    const lastName = currentTenant?.type === TenantType.Business
+      ? currentTenant.currentEmployeeLastName
+      : stores.userProfileStore.profile?.lastName;
+    if (!firstName?.trim() || !lastName?.trim()) {
+      setCancelDialogIsOpen(false);
+      setNameWarningDialogIsOpen(true);
+      return false;
+    }
+
+    return cancel();
   };
 
   const handleCreateSharedVerificationLink = async () => {
@@ -207,6 +228,16 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
           onConfirm={handleCancel}
         />
       )}
+      <ConfirmationDialog
+        cancelFirst
+        cancelLabel="Go back"
+        confirmLabel="Proceed anyway"
+        message={nameWarning.message}
+        open={nameWarningDialogIsOpen}
+        title={nameWarning.title}
+        onClose={() => setNameWarningDialogIsOpen(false)}
+        onConfirm={cancel}
+      />
     </>
   );
 };

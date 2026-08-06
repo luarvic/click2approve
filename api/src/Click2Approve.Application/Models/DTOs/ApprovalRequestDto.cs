@@ -9,6 +9,8 @@ public class ApprovalRequestDto : ApprovalRequestListItemDto
     public required List<ApprovalRequestStepDto> Steps { get; init; }
     public string? Description { get; init; }
     public required string CreatedByUserId { get; init; }
+    public string? CompletedByDisplayName { get; init; }
+    public string? CompletedByEmail { get; init; }
     public Guid? PreviousRevisionApprovalRequestGlobalId { get; init; }
     public string? PreviousRevisionApprovalRequestTitle { get; init; }
     public Guid? NextRevisionApprovalRequestGlobalId { get; init; }

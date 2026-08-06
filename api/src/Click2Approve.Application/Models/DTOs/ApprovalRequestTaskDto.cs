@@ -28,8 +28,8 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
         AssigneeUserId = source.AssigneeUserId;
         AssigneeEmail = source.AssigneeEmail;
         AssigneeDisplayName = source.AssigneeDisplayName;
-        CompletedByDelegateEmployeeDisplayName = source.CompletedByDelegateEmployeeDisplayName;
-        CompletedByDelegateEmployeeEmail = source.CompletedByDelegateEmployeeEmail;
+        CompletedByDisplayName = source.CompletedByDisplayName;
+        CompletedByEmail = source.CompletedByEmail;
         RequestedByEmail = source.RequestedByEmail;
         RequestedByDisplayName = source.RequestedByDisplayName;
         OrganizationDisplayName = source.OrganizationDisplayName;
@@ -48,8 +48,8 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
     public string? AssigneeUserId { get; init; }
     public required string AssigneeEmail { get; init; }
     public required string AssigneeDisplayName { get; init; }
-    public string? CompletedByDelegateEmployeeDisplayName { get; init; }
-    public string? CompletedByDelegateEmployeeEmail { get; init; }
+    public string? CompletedByDisplayName { get; init; }
+    public string? CompletedByEmail { get; init; }
     public string? Description { get; init; }
     public string? Comment { get; init; }
     public string? AssigneeIpAddress { get; init; }

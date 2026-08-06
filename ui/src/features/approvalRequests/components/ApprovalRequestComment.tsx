@@ -1,27 +1,23 @@
-import CommentPaper from "@/shared/components/papers/CommentPaper";
+import { Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 
 interface ApprovalRequestCommentProps {
-  label?: string;
   text?: string;
 }
 
-const approvalRequestCommentSx: SxProps<Theme> = {
-  bgcolor: "action.hover",
-  borderRadius: 1,
-  px: 1.5,
-  py: 1,
+const commentTextSx: SxProps<Theme> = {
+  overflowWrap: "anywhere",
+  whiteSpace: "pre-wrap",
 };
 
-const ApprovalRequestComment: React.FC<ApprovalRequestCommentProps> = ({
-  label,
-  text,
-}) => (
-  <CommentPaper
-    text={text}
-    label={label}
-    sx={approvalRequestCommentSx}
-  />
-);
+const ApprovalRequestComment: React.FC<ApprovalRequestCommentProps> = ({ text }) => {
+  const trimmedText = text?.trim();
+
+  return trimmedText && (
+    <Typography sx={commentTextSx} variant="body1">
+      {trimmedText}
+    </Typography>
+  );
+};
 
 export default ApprovalRequestComment;

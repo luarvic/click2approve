@@ -40,6 +40,7 @@ import {
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
+import ApprovalStepTitle from "./ApprovalStepTitle";
 
 interface ApprovalStepBlockProps {
   contentSx?: SxProps<Theme>;
@@ -440,9 +441,7 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
               direction="row"
               sx={stepTitleRowSx}
             >
-              <Typography variant="subtitle1">
-                Step {step.sequence}
-              </Typography>
+              <ApprovalStepTitle sequence={step.sequence} />
               {renderStepMetadata(step, stepMode, actionLabel, showVisibility)}
               {headerAccessory}
             </Stack>

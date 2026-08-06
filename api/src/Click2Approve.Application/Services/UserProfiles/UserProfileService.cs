@@ -1,4 +1,3 @@
-using Click2Approve.Application.Helpers;
 using Click2Approve.Application.Models.Auxiliary;
 using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Exceptions;
@@ -50,8 +49,8 @@ public class UserProfileService(
             defaultTenantId = defaultTenant.Id;
         }
 
-        user.FirstName = UserProfileNameHelpers.NormalizeOptional(payload.FirstName);
-        user.LastName = UserProfileNameHelpers.NormalizeOptional(payload.LastName);
+        user.FirstName = string.IsNullOrWhiteSpace(payload.FirstName) ? null : payload.FirstName.Trim();
+        user.LastName = string.IsNullOrWhiteSpace(payload.LastName) ? null : payload.LastName.Trim();
         user.DefaultTenantId = defaultTenantId;
         await _notificationPreferenceService.ReplaceAsync(user, payload.NotificationPreferences, cancellationToken);
         await UpdateUserAsync(user, cancellationToken);
