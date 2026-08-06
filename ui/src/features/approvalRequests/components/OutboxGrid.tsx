@@ -123,7 +123,10 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestGlobalId 
       headerName: "Created by",
       flex: DataGrids.approvalColumnFlex.metadata,
       renderCell: (params) => (
-        <OneLineDisplayName displayName={params.row.createdByDisplayName} />
+        <OneLineDisplayName
+          displayName={params.row.createdByDisplayName}
+          variant="body2"
+        />
       ),
       valueGetter: (_value, row) => row.createdByDisplayName,
     },

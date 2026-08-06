@@ -7,6 +7,7 @@ interface OneLineDisplayNameProps {
   displayName?: string | null;
   fallback?: string;
   sx?: SxProps<Theme>;
+  variant?: "body1" | "body2";
 }
 
 const rootSx: SxProps<Theme> = {
@@ -25,6 +26,7 @@ const OneLineDisplayName: React.FC<OneLineDisplayNameProps> = ({
   displayName,
   fallback = "Unknown user",
   sx,
+  variant = "body1",
 }) => (
   <Box
     sx={[
@@ -32,7 +34,7 @@ const OneLineDisplayName: React.FC<OneLineDisplayNameProps> = ({
       ...(Array.isArray(sx) ? sx : [sx]),
     ]}
   >
-    <Typography noWrap sx={textSx} variant="body1">
+    <Typography noWrap sx={textSx} variant={variant}>
       {stripInlineEmail(displayName) || fallback}
     </Typography>
   </Box>

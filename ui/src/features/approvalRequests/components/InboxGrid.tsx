@@ -103,7 +103,10 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
       headerName: "Requested by",
       flex: DataGrids.approvalColumnFlex.metadata,
       renderCell: (params) => (
-        <OneLineDisplayName displayName={params.row.requestedByDisplayName} />
+        <OneLineDisplayName
+          displayName={params.row.requestedByDisplayName}
+          variant="body2"
+        />
       ),
       valueGetter: (_value, row) => row.requestedByDisplayName,
     },
