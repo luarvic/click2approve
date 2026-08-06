@@ -64,9 +64,9 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
     public async Task ListAsync_WithApprovalTasks_ReturnsFiniteResponseGraph()
     {
         var requester = new Credentials { Email = $"requester-{Guid.NewGuid()}@example.com", Password = "ZAQ12wsx!" };
-        var approver = new Credentials { Email = $"approver-{Guid.NewGuid()}@example.com", Password = "ZAQ12wsx!" };
+        var assignee = new Credentials { Email = $"assignee-{Guid.NewGuid()}@example.com", Password = "ZAQ12wsx!" };
         await _applicationFactory.CreateClient().RegisterAsync(requester, CancellationToken.None);
-        await _applicationFactory.CreateClient().RegisterAsync(approver, CancellationToken.None);
+        await _applicationFactory.CreateClient().RegisterAsync(assignee, CancellationToken.None);
 
         var client = _applicationFactory.CreateClient();
         var requesterLogin = await client.LogInAsync(requester, CancellationToken.None);
@@ -90,12 +90,12 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                     Sequence = 1,
                     Mode = ApprovalStepMode.Any,
                     Action = ApprovalRequestTaskAction.Approve,
-                    Approvers =
+                    Assignees =
                     [
-                        new ApprovalRequestApproverSubmitDto
+                        new ApprovalRequestAssigneeSubmitDto
                         {
-                            Type = ApprovalRecipientType.Email,
-                            Email = approver.Email
+                            Type = AssigneeType.Email,
+                            Email = assignee.Email
                         }
                     ]
                 },
@@ -104,11 +104,11 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                     Sequence = 2,
                     Mode = ApprovalStepMode.All,
                     Action = ApprovalRequestTaskAction.Approve,
-                    Approvers =
+                    Assignees =
                     [
-                        new ApprovalRequestApproverSubmitDto
+                        new ApprovalRequestAssigneeSubmitDto
                         {
-                            Type = ApprovalRecipientType.Email,
+                            Type = AssigneeType.Email,
                             Email = $"later-{Guid.NewGuid()}@example.com"
                         }
                     ]
@@ -119,8 +119,8 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                 new ApprovalRequestStepVisibilitySubmitDto
                 {
                     StepSequence = 2,
-                    ApproverStepSequence = 1,
-                    ApproverIndex = 0,
+                    AssigneeStepSequence = 1,
+                    AssigneeIndex = 0,
                     IsVisible = false
                 }
             ]
@@ -143,11 +143,11 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         Assert.Single(approvalRequest.Steps.Single(step => step.Sequence == 2).Visibility);
         var approvalRequestTask = Assert.Single(approvalRequest.Steps.Single(step => step.Sequence == 1).Tasks);
 
-        var approverClient = _applicationFactory.CreateClient();
-        var approverLogin = await approverClient.LogInAsync(approver, CancellationToken.None);
-        approverClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", approverLogin.AccessToken);
-        var approverTenantId = await approverClient.GetCurrentTenantIdAsync(approverLogin.AccessToken, CancellationToken.None);
-        var taskResponse = await approverClient.GetAsync($"api/v1/tenants/{approverTenantId}/tasks/{approvalRequestTask.GlobalId}");
+        var assigneeClient = _applicationFactory.CreateClient();
+        var assigneeLogin = await assigneeClient.LogInAsync(assignee, CancellationToken.None);
+        assigneeClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", assigneeLogin.AccessToken);
+        var assigneeTenantId = await assigneeClient.GetCurrentTenantIdAsync(assigneeLogin.AccessToken, CancellationToken.None);
+        var taskResponse = await assigneeClient.GetAsync($"api/v1/tenants/{assigneeTenantId}/tasks/{approvalRequestTask.GlobalId}");
         Assert.True(taskResponse.IsSuccessStatusCode, await taskResponse.Content.ReadAsStringAsync());
         var taskJson = await taskResponse.Content.ReadAsStringAsync();
         Assert.Contains("\"approvalRequest\":{", taskJson);
@@ -167,7 +167,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                 Assert.True(step.IsVisible);
                 Assert.NotNull(step.Mode);
                 Assert.Single(step.Tasks);
-                Assert.Single(step.Approvers);
+                Assert.Single(step.Assignees);
                 Assert.Empty(step.Visibility);
             },
             step =>
@@ -176,17 +176,17 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                 Assert.False(step.IsVisible);
                 Assert.Null(step.Mode);
                 Assert.Empty(step.Tasks);
-                Assert.Empty(step.Approvers);
+                Assert.Empty(step.Assignees);
                 Assert.Empty(step.Visibility);
             });
-        response = await approverClient.PostAsJsonAsync($"api/v1/tenants/{approverTenantId}/tasks/complete", new
+        response = await assigneeClient.PostAsJsonAsync($"api/v1/tenants/{assigneeTenantId}/tasks/complete", new
         {
             GlobalId = task.GlobalId,
             Result = true
         });
         Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
 
-        taskResponse = await approverClient.GetAsync($"api/v1/tenants/{approverTenantId}/tasks/{task.GlobalId}");
+        taskResponse = await assigneeClient.GetAsync($"api/v1/tenants/{assigneeTenantId}/tasks/{task.GlobalId}");
         Assert.True(taskResponse.IsSuccessStatusCode, await taskResponse.Content.ReadAsStringAsync());
         task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
         Assert.NotNull(task);
@@ -202,9 +202,9 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
     public async Task CompleteAsync_WithTaskTitleAndDescription_DoesNotModifyTaskDetails()
     {
         var requester = new Credentials { Email = $"requester-{Guid.NewGuid()}@example.com", Password = "ZAQ12wsx!" };
-        var approver = new Credentials { Email = $"approver-{Guid.NewGuid()}@example.com", Password = "ZAQ12wsx!" };
+        var assignee = new Credentials { Email = $"assignee-{Guid.NewGuid()}@example.com", Password = "ZAQ12wsx!" };
         await _applicationFactory.CreateClient().RegisterAsync(requester, CancellationToken.None);
-        await _applicationFactory.CreateClient().RegisterAsync(approver, CancellationToken.None);
+        await _applicationFactory.CreateClient().RegisterAsync(assignee, CancellationToken.None);
 
         var requesterClient = _applicationFactory.CreateClient();
         var requesterLogin = await requesterClient.LogInAsync(requester, CancellationToken.None);
@@ -229,12 +229,12 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                     Sequence = 1,
                     Mode = ApprovalStepMode.Any,
                     Action = ApprovalRequestTaskAction.Sign,
-                    Approvers =
+                    Assignees =
                     [
-                        new ApprovalRequestApproverSubmitDto
+                        new ApprovalRequestAssigneeSubmitDto
                         {
-                            Type = ApprovalRecipientType.Email,
-                            Email = approver.Email
+                            Type = AssigneeType.Email,
+                            Email = assignee.Email
                         }
                     ]
                 }
@@ -250,11 +250,11 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var task = Assert.Single(Assert.Single(submittedRequest.Steps).Tasks);
         Assert.Equal(ApprovalRequestTaskAction.Sign, task.Action);
 
-        var approverClient = _applicationFactory.CreateClient();
-        var approverLogin = await approverClient.LogInAsync(approver, CancellationToken.None);
-        approverClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", approverLogin.AccessToken);
-        var approverTenantId = await approverClient.GetCurrentTenantIdAsync(approverLogin.AccessToken, CancellationToken.None);
-        var taskResponse = await approverClient.GetAsync($"api/v1/tenants/{approverTenantId}/tasks/{task.GlobalId}");
+        var assigneeClient = _applicationFactory.CreateClient();
+        var assigneeLogin = await assigneeClient.LogInAsync(assignee, CancellationToken.None);
+        assigneeClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", assigneeLogin.AccessToken);
+        var assigneeTenantId = await assigneeClient.GetCurrentTenantIdAsync(assigneeLogin.AccessToken, CancellationToken.None);
+        var taskResponse = await assigneeClient.GetAsync($"api/v1/tenants/{assigneeTenantId}/tasks/{task.GlobalId}");
         Assert.True(taskResponse.IsSuccessStatusCode, await taskResponse.Content.ReadAsStringAsync());
         var taskDetail = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
         Assert.NotNull(taskDetail);
@@ -263,13 +263,13 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         Assert.Single(taskDetail.ApprovalRequest.Steps);
         Assert.Single(Assert.Single(taskDetail.ApprovalRequest.Steps).Tasks);
 
-        response = await approverClient.PostAsJsonAsync($"api/v1/tenants/{approverTenantId}/tasks/complete", new
+        response = await assigneeClient.PostAsJsonAsync($"api/v1/tenants/{assigneeTenantId}/tasks/complete", new
         {
             GlobalId = task.GlobalId,
             Result = true,
             Comment = "Approved",
-            ApproverLegalName = "Approver Person",
-            ApproverSignatureJson = """[{"points":[{"x":1,"y":2}]}]""",
+            AssigneeLegalName = "Assignee Person",
+            AssigneeSignatureJson = """[{"points":[{"x":1,"y":2}]}]""",
             Title = "Modified task title",
             Description = "Modified task description"
         });
@@ -288,17 +288,17 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         Assert.NotNull(completedTask.CompletedAt);
         Assert.Equal("Original task title", completedTask.Title);
         Assert.Equal("Original task description", completedTask.Description);
-        Assert.Equal("Approver Person", completedTask.ApproverLegalName);
-        Assert.True(completedTask.HasApproverSignature);
+        Assert.Equal("Assignee Person", completedTask.AssigneeLegalName);
+        Assert.True(completedTask.HasAssigneeSignature);
     }
 
     [Fact]
     public async Task CompleteAsync_WithClientAuditContext_StoresBrowserData()
     {
         var requester = new Credentials { Email = $"requester-{Guid.NewGuid()}@example.com", Password = "ZAQ12wsx!" };
-        var approver = new Credentials { Email = $"approver-{Guid.NewGuid()}@example.com", Password = "ZAQ12wsx!" };
+        var assignee = new Credentials { Email = $"assignee-{Guid.NewGuid()}@example.com", Password = "ZAQ12wsx!" };
         await _applicationFactory.CreateClient().RegisterAsync(requester, CancellationToken.None);
-        await _applicationFactory.CreateClient().RegisterAsync(approver, CancellationToken.None);
+        await _applicationFactory.CreateClient().RegisterAsync(assignee, CancellationToken.None);
 
         var requesterClient = _applicationFactory.CreateClient();
         var requesterLogin = await requesterClient.LogInAsync(requester, CancellationToken.None);
@@ -322,12 +322,12 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                     Sequence = 1,
                     Mode = ApprovalStepMode.Any,
                     Action = ApprovalRequestTaskAction.Approve,
-                    Approvers =
+                    Assignees =
                     [
-                        new ApprovalRequestApproverSubmitDto
+                        new ApprovalRequestAssigneeSubmitDto
                         {
-                            Type = ApprovalRecipientType.Email,
-                            Email = approver.Email
+                            Type = AssigneeType.Email,
+                            Email = assignee.Email
                         }
                     ]
                 }
@@ -342,14 +342,14 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
             CancellationToken.None);
         var task = Assert.Single(Assert.Single(submittedRequest.Steps).Tasks);
 
-        var approverClient = _applicationFactory.CreateClient();
-        var approverLogin = await approverClient.LogInAsync(approver, CancellationToken.None);
-        approverClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", approverLogin.AccessToken);
-        approverClient.DefaultRequestHeaders.UserAgent.ParseAdd("Click2Approve.Tests/1.0");
-        approverClient.DefaultRequestHeaders.AcceptLanguage.ParseAdd("en-US");
-        var approverTenantId = await approverClient.GetCurrentTenantIdAsync(approverLogin.AccessToken, CancellationToken.None);
+        var assigneeClient = _applicationFactory.CreateClient();
+        var assigneeLogin = await assigneeClient.LogInAsync(assignee, CancellationToken.None);
+        assigneeClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", assigneeLogin.AccessToken);
+        assigneeClient.DefaultRequestHeaders.UserAgent.ParseAdd("Click2Approve.Tests/1.0");
+        assigneeClient.DefaultRequestHeaders.AcceptLanguage.ParseAdd("en-US");
+        var assigneeTenantId = await assigneeClient.GetCurrentTenantIdAsync(assigneeLogin.AccessToken, CancellationToken.None);
 
-        response = await approverClient.PostAsJsonAsync($"api/v1/tenants/{approverTenantId}/tasks/complete", new
+        response = await assigneeClient.PostAsJsonAsync($"api/v1/tenants/{assigneeTenantId}/tasks/complete", new
         {
             GlobalId = task.GlobalId,
             Result = true,
@@ -380,13 +380,13 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         });
         Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
 
-        var completedTaskResponse = await approverClient.GetAsync($"api/v1/tenants/{approverTenantId}/tasks/{task.GlobalId}");
+        var completedTaskResponse = await assigneeClient.GetAsync($"api/v1/tenants/{assigneeTenantId}/tasks/{task.GlobalId}");
         Assert.True(completedTaskResponse.IsSuccessStatusCode, await completedTaskResponse.Content.ReadAsStringAsync());
         var completedTask = await completedTaskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
         Assert.NotNull(completedTask);
-        Assert.NotNull(completedTask.ApproverBrowserData);
+        Assert.NotNull(completedTask.AssigneeBrowserData);
 
-        using var browserDataDocument = JsonDocument.Parse(completedTask.ApproverBrowserData);
+        using var browserDataDocument = JsonDocument.Parse(completedTask.AssigneeBrowserData);
         Assert.Equal("Click2Approve.Tests/1.0", browserDataDocument.RootElement.GetProperty("serverUserAgent").GetString());
         Assert.Equal("en-US", browserDataDocument.RootElement.GetProperty("serverAcceptLanguage").GetString());
         var clientAuditContext = browserDataDocument.RootElement.GetProperty("client");

@@ -94,7 +94,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
           : "",
     );
     setComment(currentTask?.comment ?? "");
-    setLegalName(currentTask?.approverLegalName ?? "");
+    setLegalName(currentTask?.assigneeLegalName ?? "");
     setSignatureJson("");
     setElectronicSignatureErrors(emptyElectronicSignatureErrors);
     setApprovalRequest(currentTask?.approvalRequest ?? null);
@@ -162,8 +162,8 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
         comment,
         requiresElectronicSignature
           ? {
-              approverLegalName: legalName.trim(),
-              approverSignatureJson: signatureJson,
+              assigneeLegalName: legalName.trim(),
+              assigneeSignatureJson: signatureJson,
             }
           : undefined,
         createApprovalRequestTaskClientAuditContext(),

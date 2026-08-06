@@ -9,7 +9,7 @@ import {
   getApprovalStatusBorderSx,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
-import { ApprovalRecipientType } from "@/features/approvalWorkflow/models/approvalStep";
+import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
 import { Dialogs, StackSpacing } from "@/shared/constants/constants";
 import { Box, Stack } from "@mui/material";
@@ -49,7 +49,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
           email={approvalRequest.createdByEmail}
           organizationDisplayName={approvalRequest.organizationDisplayName}
           showOrganization={organizationIsVisible}
-          type={ApprovalRecipientType.Employee}
+          type={AssigneeType.Employee}
         />
         <ApprovalRequestTimestampRow
           items={[

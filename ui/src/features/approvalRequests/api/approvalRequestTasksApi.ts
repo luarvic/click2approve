@@ -14,8 +14,8 @@ export const completeApprovalRequestTask = async (
   result: boolean,
   comment: string | undefined,
   electronicSignature?: {
-    approverLegalName?: string;
-    approverSignatureJson?: string;
+    assigneeLegalName?: string;
+    assigneeSignatureJson?: string;
   },
   clientAuditContext?: ApprovalRequestTaskClientAuditContext,
 ): Promise<boolean> => {

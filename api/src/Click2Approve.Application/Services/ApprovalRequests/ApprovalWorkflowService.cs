@@ -14,16 +14,16 @@ public class ApprovalWorkflowService(
     IApprovalRequestTaskRepository approvalRequestTaskRepository,
     IEmailService emailService,
     IUserNotificationPreferenceService notificationPreferenceService,
-    IApprovalRecipientResolver approvalRecipientResolver,
+    IAssigneeResolver assigneeResolver,
     IConfiguration configuration) : IApprovalWorkflowService
 {
     private readonly IApprovalRequestTaskRepository _approvalRequestTaskRepository = approvalRequestTaskRepository;
     private readonly IEmailService _emailService = emailService;
     private readonly IUserNotificationPreferenceService _notificationPreferenceService = notificationPreferenceService;
-    private readonly IApprovalRecipientResolver _approvalRecipientResolver = approvalRecipientResolver;
+    private readonly IAssigneeResolver _assigneeResolver = assigneeResolver;
     private readonly IConfiguration _configuration = configuration;
 
-    public async Task<Dictionary<ApprovalRequestStepApprover, List<ApprovalRecipientResolution>>> ResolveApproversAsync(
+    public async Task<Dictionary<ApprovalRequestStepAssignee, List<AssigneeResolution>>> ResolveAssigneesAsync(
         ApprovalRequest approvalRequest,
         List<ApprovalRequestStepSubmitDto> submittedSteps,
         CancellationToken cancellationToken)
@@ -32,25 +32,25 @@ public class ApprovalWorkflowService(
             .OrderBy(step => step.Sequence)
             .Select((step, index) => new { Sequence = index + 1, Step = step })
             .ToDictionary(item => item.Sequence, item => item.Step);
-        var approvers = approvalRequest.Steps
-            .SelectMany(step => step.Approvers.Select((approver, index) =>
+        var assignees = approvalRequest.Steps
+            .SelectMany(step => step.Assignees.Select((assignee, index) =>
             {
-                var submittedApprover = GetSubmittedApprover(step.Sequence, index);
-                return new ApprovalRecipientResolveItem(
+                var submittedAssignee = GetSubmittedAssignee(step.Sequence, index);
+                return new AssigneeResolveItem(
                     step,
-                    approver,
-                    submittedApprover?.Email,
-                    submittedApprover?.EmployeeGlobalId,
-                    submittedApprover?.TeamGlobalId);
+                    assignee,
+                    submittedAssignee?.Email,
+                    submittedAssignee?.EmployeeGlobalId,
+                    submittedAssignee?.TeamGlobalId);
             }))
             .ToList();
-        return await _approvalRecipientResolver.ResolveAsync(approvalRequest, approvers, cancellationToken);
+        return await _assigneeResolver.ResolveAsync(approvalRequest, assignees, cancellationToken);
 
-        ApprovalRequestApproverSubmitDto? GetSubmittedApprover(int sequence, int index)
+        ApprovalRequestAssigneeSubmitDto? GetSubmittedAssignee(int sequence, int index)
         {
             return submittedStepsBySequence.TryGetValue(sequence, out var submittedStep)
-                && index < submittedStep.Approvers.Count
-                    ? submittedStep.Approvers[index]
+                && index < submittedStep.Assignees.Count
+                    ? submittedStep.Assignees[index]
                     : null;
         }
     }
@@ -64,7 +64,7 @@ public class ApprovalWorkflowService(
         return await CreateTasksForStepAsync(
             approvalRequest,
             step,
-            approverResolutions: null,
+            assigneeResolutions: null,
             timestamp,
             cancellationToken);
     }
@@ -72,21 +72,21 @@ public class ApprovalWorkflowService(
     public async Task<List<ApprovalRequestTask>> CreateTasksForStepAsync(
         ApprovalRequest approvalRequest,
         ApprovalRequestStep step,
-        IReadOnlyDictionary<ApprovalRequestStepApprover, List<ApprovalRecipientResolution>>? approverResolutions,
+        IReadOnlyDictionary<ApprovalRequestStepAssignee, List<AssigneeResolution>>? assigneeResolutions,
         DateTime timestamp,
         CancellationToken cancellationToken)
     {
         var tasks = new List<ApprovalRequestTask>();
-        foreach (var configuredApprover in step.Approvers)
+        foreach (var configuredAssignee in step.Assignees)
         {
-            var resolutions = approverResolutions is not null
-                && approverResolutions.TryGetValue(configuredApprover, out var cachedResolutions)
+            var resolutions = assigneeResolutions is not null
+                && assigneeResolutions.TryGetValue(configuredAssignee, out var cachedResolutions)
                     ? cachedResolutions
                     : null;
-            var createdTasks = await CreateTasksForApproverAsync(
+            var createdTasks = await CreateTasksForAssigneeAsync(
                 approvalRequest,
                 step,
-                configuredApprover,
+                configuredAssignee,
                 resolutions,
                 timestamp,
                 cancellationToken);
@@ -138,7 +138,7 @@ public class ApprovalWorkflowService(
         }
 
         var nextStepTasks = await CreateTasksForStepAsync(approvalRequest, nextStep, timestamp, cancellationToken);
-        await NotifyApproversSentAsync(nextStepTasks, cancellationToken);
+        await NotifyAssigneesSentAsync(nextStepTasks, cancellationToken);
     }
 
     public void StartRequestIfNeeded(ApprovalRequest approvalRequest, DateTime timestamp)
@@ -174,24 +174,24 @@ public class ApprovalWorkflowService(
         return approvalRequest.Steps.SelectMany(step => step.Tasks);
     }
 
-    public async Task NotifyApproversSentAsync(
+    public async Task NotifyAssigneesSentAsync(
         IEnumerable<ApprovalRequestTask> tasks,
         CancellationToken cancellationToken)
     {
-        await NotifyApproversAsync(tasks, ApproverNotification.Sent, cancellationToken);
+        await NotifyAssigneesAsync(tasks, AssigneeNotification.Sent, cancellationToken);
     }
 
-    public async Task NotifyApproversCancelledAsync(
+    public async Task NotifyAssigneesCancelledAsync(
         IEnumerable<ApprovalRequestTask> tasks,
         ApprovalRequest approvalRequest,
         CancellationToken cancellationToken)
     {
-        await NotifyApproversAsync(tasks, ApproverNotification.Cancelled, cancellationToken, approvalRequest);
+        await NotifyAssigneesAsync(tasks, AssigneeNotification.Cancelled, cancellationToken, approvalRequest);
     }
 
-    private async Task NotifyApproversAsync(
+    private async Task NotifyAssigneesAsync(
         IEnumerable<ApprovalRequestTask> tasks,
-        ApproverNotification notification,
+        AssigneeNotification notification,
         CancellationToken cancellationToken,
         ApprovalRequest? approvalRequest = null)
     {
@@ -201,7 +201,7 @@ public class ApprovalWorkflowService(
             return;
         }
 
-        var template = GetApproverNotificationTemplate(notification);
+        var template = GetAssigneeNotificationTemplate(notification);
         approvalRequest ??= taskList.First().ApprovalRequest;
         var link = UriHelpers.GetUiUri(
             _configuration.GetValue<Uri>("UI:BaseUrl"),
@@ -210,11 +210,11 @@ public class ApprovalWorkflowService(
 
         var notificationType = GetNotificationType(notification);
         var recipients = taskList
-            .GroupBy(task => task.ApproverUserId)
+            .GroupBy(task => task.AssigneeUserId)
             .Select(group => new
             {
                 UserId = group.Key,
-                Email = group.Select(task => task.ApproverUser?.NormalizedEmail).FirstOrDefault(email => !string.IsNullOrWhiteSpace(email))
+                Email = group.Select(task => task.AssigneeUser?.NormalizedEmail).FirstOrDefault(email => !string.IsNullOrWhiteSpace(email))
             });
 
         foreach (var recipient in recipients)
@@ -286,19 +286,19 @@ public class ApprovalWorkflowService(
         }, cancellationToken);
     }
 
-    private async Task<List<ApprovalRequestTask>> CreateTasksForApproverAsync(
+    private async Task<List<ApprovalRequestTask>> CreateTasksForAssigneeAsync(
         ApprovalRequest approvalRequest,
         ApprovalRequestStep step,
-        ApprovalRequestStepApprover configuredApprover,
-        List<ApprovalRecipientResolution>? resolvedApprovers,
+        ApprovalRequestStepAssignee configuredAssignee,
+        List<AssigneeResolution>? resolvedAssignees,
         DateTime timestamp,
         CancellationToken cancellationToken)
     {
         var tasks = new List<ApprovalRequestTask>();
-        var resolutions = resolvedApprovers ?? await _approvalRecipientResolver.ResolveAsync(
+        var resolutions = resolvedAssignees ?? await _assigneeResolver.ResolveAsync(
             approvalRequest,
             step,
-            configuredApprover,
+            configuredAssignee,
             cancellationToken);
 
         foreach (var resolution in resolutions)
@@ -309,11 +309,11 @@ public class ApprovalWorkflowService(
                 Description = approvalRequest.Description,
                 ApprovalRequest = approvalRequest,
                 ApprovalRequestStep = step,
-                ApprovalRequestStepApprover = configuredApprover,
-                ApproverUser = resolution.ApproverUser,
-                ApproverUserId = resolution.ApproverUser.Id,
-                ApproverEmployeeId = resolution.ApproverEmployeeId,
-                ApproverDisplayName = resolution.ApproverDisplayName,
+                ApprovalRequestStepAssignee = configuredAssignee,
+                AssigneeUser = resolution.AssigneeUser,
+                AssigneeUserId = resolution.AssigneeUser.Id,
+                AssigneeEmployeeId = resolution.AssigneeEmployeeId,
+                AssigneeDisplayName = resolution.AssigneeDisplayName,
                 OrganizationDisplayName = approvalRequest.OrganizationDisplayName,
                 TenantId = resolution.TenantId,
                 RevisionNumber = approvalRequest.RevisionNumber,
@@ -336,24 +336,24 @@ public class ApprovalWorkflowService(
             .Where(file => file.RevisionAction != ApprovalRequestFileRevisionAction.Removed)
             .Select(file => file.UserFile.Name));
 
-    private static NotificationType GetNotificationType(ApproverNotification notification)
+    private static NotificationType GetNotificationType(AssigneeNotification notification)
     {
         return notification switch
         {
-            ApproverNotification.Cancelled => NotificationType.ApprovalRequestCancelled,
+            AssigneeNotification.Cancelled => NotificationType.ApprovalRequestCancelled,
             _ => NotificationType.ApprovalRequestTaskCreated
         };
     }
 
-    private ApproverNotificationTemplate GetApproverNotificationTemplate(ApproverNotification notification)
+    private AssigneeNotificationTemplate GetAssigneeNotificationTemplate(AssigneeNotification notification)
     {
         var templateName = notification switch
         {
-            ApproverNotification.Cancelled => "ApprovalRequestCancelled",
+            AssigneeNotification.Cancelled => "ApprovalRequestCancelled",
             _ => "ApprovalRequestSent"
         };
 
-        return new ApproverNotificationTemplate(
+        return new AssigneeNotificationTemplate(
             _configuration[$"Email:Templates:{templateName}Heading"]!,
             _configuration[$"Email:Templates:{templateName}Message"]!,
             _configuration[$"Email:Templates:{templateName}LinkText"]!,
@@ -361,15 +361,15 @@ public class ApprovalWorkflowService(
     }
 
     /// <summary>
-    /// Contains email template text for approver notifications.
+    /// Contains email template text for assignee notifications.
     /// </summary>
-    private sealed record ApproverNotificationTemplate(
+    private sealed record AssigneeNotificationTemplate(
         string Heading,
         string Message,
         string LinkText,
         string Subject);
 
-    private enum ApproverNotification
+    private enum AssigneeNotification
     {
         Sent,
         Cancelled

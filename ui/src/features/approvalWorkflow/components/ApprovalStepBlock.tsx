@@ -1,6 +1,6 @@
 import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
 import {
-  getApprovalRecipientIcon,
+  getAssigneeIcon,
 } from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
 import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestTaskSummaryBlock";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
@@ -8,9 +8,9 @@ import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/ap
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
 import {
-  ApprovalRecipientType,
+  AssigneeType,
   ApprovalStep,
-  ApprovalStepApprover,
+  ApprovalStepAssignee,
   ApprovalStepMode,
 } from "@/features/approvalWorkflow/models/approvalStep";
 import {
@@ -140,20 +140,20 @@ const getStepStatus = (
 
 const getStepStatusLabel = (status: string) => status;
 
-const getTaskApproverIcon = (step: ApprovalStep, task: ApprovalRequestTask) => {
-  const approver = step.approvers.find((item) => item.globalId === task.approvalRequestStepApproverGlobalId);
-  return getApprovalRecipientIcon(approver?.type ?? ApprovalRecipientType.Email);
+const getTaskAssigneeIcon = (step: ApprovalStep, task: ApprovalRequestTask) => {
+  const assignee = step.assignees.find((item) => item.globalId === task.approvalRequestStepAssigneeGlobalId);
+  return getAssigneeIcon(assignee?.type ?? AssigneeType.Email);
 };
 
-const getTaskApproverType = (step: ApprovalStep, task: ApprovalRequestTask) =>
-  step.approvers.find((item) => item.globalId === task.approvalRequestStepApproverGlobalId)?.type;
+const getTaskAssigneeType = (step: ApprovalStep, task: ApprovalRequestTask) =>
+  step.assignees.find((item) => item.globalId === task.approvalRequestStepAssigneeGlobalId)?.type;
 
 const getStepModeSummary = (mode: ApprovalStepMode) => {
   switch (mode) {
     case ApprovalStepMode.All:
       return "Everyone assigned to this step must approve it before the request can move forward.";
     default:
-      return "The first approval from any assigned approver completes this step.";
+      return "The first approval from any assigned assignee completes this step.";
   }
 };
 
@@ -169,25 +169,25 @@ const getStepModeLabel = (mode: ApprovalStepMode) => {
 const getStepAction = (step: ApprovalStep) =>
   step.action ?? ApprovalRequestTaskAction.Approve;
 
-const getHiddenApproverLabels = (step: ApprovalStep) =>
+const getHiddenAssigneeLabels = (step: ApprovalStep) =>
   (step.visibility ?? [])
     .filter((visibility) => visibility.isVisible === false)
     .map((visibility) =>
-      visibility.approverDisplayName ??
-      visibility.approverEmail ??
-      "Approver",
+      visibility.assigneeDisplayName ??
+      visibility.assigneeEmail ??
+      "Assignee",
     )
     .filter((label): label is string => Boolean(label));
 
 const getStepVisibilityLabel = (step: ApprovalStep) => {
-  const hiddenApproverLabels = getHiddenApproverLabels(step);
-  return hiddenApproverLabels.length === 0
+  const hiddenAssigneeLabels = getHiddenAssigneeLabels(step);
+  return hiddenAssigneeLabels.length === 0
     ? "Visible to all"
-    : `Hidden from ${hiddenApproverLabels.join(", ")}`;
+    : `Hidden from ${hiddenAssigneeLabels.join(", ")}`;
 };
 
 const getStepVisibilityIcon = (step: ApprovalStep) =>
-  getHiddenApproverLabels(step).length === 0
+  getHiddenAssigneeLabels(step).length === 0
     ? <VisibilityOutlined color={Icons.secondaryColor} fontSize="small" />
     : <VisibilityOffOutlined color={Icons.secondaryColor} fontSize="small" />;
 
@@ -254,27 +254,27 @@ const renderStepMetadata = (
   );
 };
 
-const getApproverTasks = (
-  approver: ApprovalStep["approvers"][number],
+const getAssigneeTasks = (
+  assignee: ApprovalStep["assignees"][number],
   tasks: ApprovalRequestTask[],
-) => tasks.filter((task) => task.approvalRequestStepApproverGlobalId === approver.globalId);
+) => tasks.filter((task) => task.approvalRequestStepAssigneeGlobalId === assignee.globalId);
 
 const getUnassignedTasks = (
   step: ApprovalStep,
   tasks: ApprovalRequestTask[],
 ) => {
-  const approverGlobalIds = new Set((step.approvers ?? []).map((approver) => approver.globalId));
+  const assigneeGlobalIds = new Set((step.assignees ?? []).map((assignee) => assignee.globalId));
   return tasks.filter(
     (task) =>
-      task.approvalRequestStepApproverGlobalId === undefined ||
-      !approverGlobalIds.has(task.approvalRequestStepApproverGlobalId),
+      task.approvalRequestStepAssigneeGlobalId === undefined ||
+      !assigneeGlobalIds.has(task.approvalRequestStepAssigneeGlobalId),
   );
 };
 
 const renderTaskDetails = (
   task: ApprovalRequestTask,
   icon: React.ReactNode,
-  participantType: ApprovalRecipientType | undefined,
+  participantType: AssigneeType | undefined,
   isCurrentTask: boolean,
   onCurrentTaskClick?: () => void,
 ) => (
@@ -295,34 +295,34 @@ const renderTaskDetails = (
   />
 );
 
-const renderApproverWithoutTasks = (
-  approver: ApprovalStepApprover,
+const renderAssigneeWithoutTasks = (
+  assignee: ApprovalStepAssignee,
   index: number,
 ) => (
   <Stack
-    key={approver.globalId ?? index}
+    key={assignee.globalId ?? index}
     direction="row"
     spacing={StackSpacing.tight}
     alignItems="center"
   >
     <ApprovalRequestParticipant
-      displayName={approver.displayName}
-      email={approver.email}
-      type={approver.type}
+      displayName={assignee.displayName}
+      email={assignee.email}
+      type={assignee.type}
     />
   </Stack>
 );
 
-const renderTeamApprover = (
-  approver: ApprovalStepApprover,
-  approverTasks: ApprovalRequestTask[],
+const renderTeamAssignee = (
+  assignee: ApprovalStepAssignee,
+  assigneeTasks: ApprovalRequestTask[],
   index: number,
   highlightedTaskGlobalId?: string,
   onHighlightedTaskClick?: () => void,
   showEmptyTeamTasksMessage: boolean = true,
 ) => (
   <Accordion
-    key={approver.globalId ?? index}
+    key={assignee.globalId ?? index}
     defaultExpanded
     disableGutters
     sx={teamAccordionSx}
@@ -338,21 +338,21 @@ const renderTeamApprover = (
         sx={Flex.growSx}
       >
         <ApprovalRequestParticipant
-          displayName={approver.displayName}
-          email={approver.email}
-          type={approver.type}
+          displayName={assignee.displayName}
+          email={assignee.email}
+          type={assignee.type}
         />
       </Stack>
     </AccordionSummary>
-    {(approverTasks.length > 0 || showEmptyTeamTasksMessage) && (
+    {(assigneeTasks.length > 0 || showEmptyTeamTasksMessage) && (
       <AccordionDetails sx={teamAccordionDetailsSx}>
-        {approverTasks.length > 0 ? (
+        {assigneeTasks.length > 0 ? (
           <Stack spacing={StackSpacing.default} sx={teamTaskListSx}>
-            {approverTasks.map((task) =>
+            {assigneeTasks.map((task) =>
               renderTaskDetails(
               task,
               <Person color="action" fontSize="small" />,
-              ApprovalRecipientType.Employee,
+              AssigneeType.Employee,
               task.globalId === highlightedTaskGlobalId,
               onHighlightedTaskClick,
             ),
@@ -368,20 +368,20 @@ const renderTeamApprover = (
   </Accordion>
 );
 
-const renderApprover = (
+const renderAssignee = (
   step: ApprovalStep,
-  approver: ApprovalStepApprover,
+  assignee: ApprovalStepAssignee,
   tasks: ApprovalRequestTask[],
   index: number,
   highlightedTaskGlobalId?: string,
   onHighlightedTaskClick?: () => void,
   showEmptyTeamTasksMessage?: boolean,
 ) => {
-  const approverTasks = getApproverTasks(approver, tasks);
-  if (approver.type === ApprovalRecipientType.Team) {
-    return renderTeamApprover(
-      approver,
-      approverTasks,
+  const assigneeTasks = getAssigneeTasks(assignee, tasks);
+  if (assignee.type === AssigneeType.Team) {
+    return renderTeamAssignee(
+      assignee,
+      assigneeTasks,
       index,
       highlightedTaskGlobalId,
       onHighlightedTaskClick,
@@ -389,15 +389,15 @@ const renderApprover = (
     );
   }
 
-  if (approverTasks.length === 0) {
-    return renderApproverWithoutTasks(approver, index);
+  if (assigneeTasks.length === 0) {
+    return renderAssigneeWithoutTasks(assignee, index);
   }
 
-  return approverTasks.map((task) =>
+  return assigneeTasks.map((task) =>
     renderTaskDetails(
       task,
-      getTaskApproverIcon(step, task),
-      getTaskApproverType(step, task),
+      getTaskAssigneeIcon(step, task),
+      getTaskAssigneeType(step, task),
       task.globalId === highlightedTaskGlobalId,
       onHighlightedTaskClick,
     ),
@@ -415,7 +415,7 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
   step,
   tasks,
 }) => {
-  const approvers = (step.approvers ?? []).filter(Boolean);
+  const assignees = (step.assignees ?? []).filter(Boolean);
   const unassignedTasks = getUnassignedTasks(step, tasks);
   const stepStatus = getStepStatus(step, tasks);
   const stepMode = step.mode ?? ApprovalStepMode.Any;
@@ -448,11 +448,11 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
             </Stack>
           </Stack>
         </Stack>
-        <Stack spacing={Dialogs.approverStackSpacing} sx={contentSx}>
-          {approvers.map((approver, index) =>
-            renderApprover(
+        <Stack spacing={Dialogs.assigneeStackSpacing} sx={contentSx}>
+          {assignees.map((assignee, index) =>
+            renderAssignee(
               step,
-              approver,
+              assignee,
               tasks,
               index,
               highlightedTaskGlobalId,
@@ -463,8 +463,8 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
           {unassignedTasks.map((task) =>
             renderTaskDetails(
               task,
-              getTaskApproverIcon(step, task),
-              getTaskApproverType(step, task),
+              getTaskAssigneeIcon(step, task),
+              getTaskAssigneeType(step, task),
               task.globalId === highlightedTaskGlobalId,
               onHighlightedTaskClick,
             ),

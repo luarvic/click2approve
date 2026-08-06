@@ -2,12 +2,12 @@ import { stores } from "@/app/rootStore";
 import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
 import {
-  ApprovalRecipientType,
-  ApprovalStepApprover,
+  AssigneeType,
+  ApprovalStepAssignee,
 } from "@/features/approvalWorkflow/models/approvalStep";
 import {
   createEditableSteps,
-  createEmptyApprover,
+  createEmptyAssignee,
   createEmptyStep,
   EditableApprovalStep,
   toApprovalStepSubmissions,
@@ -53,9 +53,9 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
   const businessTenantIsSelected =
     stores.tenantStore.currentTenant?.type === TenantType.Business;
   const canUseEmployees =
-    businessTenantIsSelected && stores.productStore.employeeApproversAreEnabled;
+    businessTenantIsSelected && stores.productStore.employeeAssigneesAreEnabled;
   const canUseTeams =
-    businessTenantIsSelected && stores.productStore.teamApproversAreEnabled;
+    businessTenantIsSelected && stores.productStore.teamAssigneesAreEnabled;
 
   useEffect(() => {
     setName(template?.name ?? "");
@@ -120,39 +120,39 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
     });
   };
 
-  const updateApprover = (
+  const updateAssignee = (
     stepIndex: number,
-    approverIndex: number,
-    approver: ApprovalStepApprover,
+    assigneeIndex: number,
+    assignee: ApprovalStepAssignee,
   ) => {
     updateStep(stepIndex, (step) => ({
       ...step,
-      approvers: step.approvers.map((item, index) =>
-        index === approverIndex ? approver : item,
+      assignees: step.assignees.map((item, index) =>
+        index === assigneeIndex ? assignee : item,
       ),
     }));
   };
 
   const validateSteps = () => {
     const emails = steps.flatMap((step) =>
-      step.approvers
-        .filter((approver) => approver.type === ApprovalRecipientType.Email)
-        .map((approver) => approver.email ?? ""),
+      step.assignees
+        .filter((assignee) => assignee.type === AssigneeType.Email)
+        .map((assignee) => assignee.email ?? ""),
     );
     const hasMissingRecipient = steps.some((step) =>
-      step.approvers.some((approver) => {
-        if (approver.type === ApprovalRecipientType.Email) {
-          return !approver.email?.trim();
+      step.assignees.some((assignee) => {
+        if (assignee.type === AssigneeType.Email) {
+          return !assignee.email?.trim();
         }
-        if (approver.type === ApprovalRecipientType.Employee) {
-          return !approver.employeeGlobalId;
+        if (assignee.type === AssigneeType.Employee) {
+          return !assignee.employeeGlobalId;
         }
-        return !approver.teamGlobalId;
+        return !assignee.teamGlobalId;
       }),
     );
 
     if (hasMissingRecipient || (emails.length > 0 && !validateEmails(emails))) {
-      toast.error("Specify valid approvers for every step.");
+      toast.error("Specify valid assignees for every step.");
       return false;
     }
 
@@ -214,27 +214,27 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
           canUseTeams={canUseTeams}
           employees={stores.employeeStore.employees}
           teams={stores.teamStore.teams}
-          onAddApprover={(stepIndex) =>
+          onAddAssignee={(stepIndex) =>
             updateStep(stepIndex, (current) => ({
               ...current,
-              approvers: [...current.approvers, createEmptyApprover()],
+              assignees: [...current.assignees, createEmptyAssignee()],
             }))
           }
           onAddStep={addStep}
           onMoveStep={moveStep}
-          onRemoveApprover={(stepIndex, approverIndex) =>
+          onRemoveAssignee={(stepIndex, assigneeIndex) =>
             updateStep(stepIndex, (current) => ({
               ...current,
-              approvers:
-                current.approvers.length === 1
-                  ? current.approvers
-                  : current.approvers.filter(
-                    (_, index) => index !== approverIndex,
+              assignees:
+                current.assignees.length === 1
+                  ? current.assignees
+                  : current.assignees.filter(
+                    (_, index) => index !== assigneeIndex,
                   ),
             }))
           }
           onRemoveStep={removeStep}
-          onUpdateApprover={updateApprover}
+          onUpdateAssignee={updateAssignee}
           onUpdateStep={updateStep}
         />
       </Stack>

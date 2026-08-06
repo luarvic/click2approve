@@ -13,7 +13,7 @@ public class ApprovalRequestService(
     ITenantRepository tenantRepository,
     IUserFileRepository userFileRepository,
     IUnitOfWork unitOfWork,
-    IApprovalRequestApproverGlobalIdResolver approverGlobalIdResolver,
+    IApprovalRequestAssigneeGlobalIdResolver assigneeGlobalIdResolver,
     IApprovalWorkflowService workflowService,
     ITenantContext tenantContext,
     IConfiguration configuration) : IApprovalRequestService
@@ -24,7 +24,7 @@ public class ApprovalRequestService(
 
     private readonly IUserFileRepository _userFileRepository = userFileRepository;
     private readonly ITenantRepository _tenantRepository = tenantRepository;
-    private readonly IApprovalRequestApproverGlobalIdResolver _approverGlobalIdResolver = approverGlobalIdResolver;
+    private readonly IApprovalRequestAssigneeGlobalIdResolver _assigneeGlobalIdResolver = assigneeGlobalIdResolver;
     private readonly ITenantContext _tenantContext = tenantContext;
     private readonly IConfiguration _configuration = configuration;
 
@@ -84,17 +84,17 @@ public class ApprovalRequestService(
             requestFile.ApprovalRequest = newApprovalRequest;
         }
 
-        var approverResolutions = await _workflowService.ResolveApproversAsync(newApprovalRequest, payload.Steps, cancellationToken);
+        var assigneeResolutions = await _workflowService.ResolveAssigneesAsync(newApprovalRequest, payload.Steps, cancellationToken);
 
         var submittedTasks = await _workflowService.CreateTasksForStepAsync(
             newApprovalRequest,
             steps.MinBy(step => step.Sequence)!,
-            approverResolutions,
+            assigneeResolutions,
             now,
             cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        await _workflowService.NotifyApproversSentAsync(submittedTasks, cancellationToken);
+        await _workflowService.NotifyAssigneesSentAsync(submittedTasks, cancellationToken);
         return newApprovalRequest.GlobalId;
     }
 
@@ -119,7 +119,7 @@ public class ApprovalRequestService(
         _workflowService.CancelPendingTasks(notifiedTasks, now);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        await _workflowService.NotifyApproversCancelledAsync(notifiedTasks, approvalRequest, cancellationToken);
+        await _workflowService.NotifyAssigneesCancelledAsync(notifiedTasks, approvalRequest, cancellationToken);
     }
 
     /// <summary>
@@ -138,8 +138,8 @@ public class ApprovalRequestService(
     {
         var approvalRequest = await _approvalRequestRepository.GetAsync(user, globalId, cancellationToken)
             ?? throw new NotFoundException("Approval request was not found.");
-        var approverGlobalIdMaps = await _approverGlobalIdResolver.ResolveAsync(approvalRequest, cancellationToken);
-        return ApprovalRequestMapper.MapApprovalRequest(approvalRequest, approverGlobalIdMaps);
+        var assigneeGlobalIdMaps = await _assigneeGlobalIdResolver.ResolveAsync(approvalRequest, cancellationToken);
+        return ApprovalRequestMapper.MapApprovalRequest(approvalRequest, assigneeGlobalIdMaps);
     }
 
     protected virtual Task<ApprovalRequestCreator> ResolveCreatorAsync(
@@ -174,14 +174,14 @@ public class ApprovalRequestService(
             }
         }
 
-        var maxApproversPerRequest = _configuration.GetValue<int>("Limitations:MaxApproversPerRequest");
-        if (maxApproversPerRequest > 0)
+        var maxAssigneesPerRequest = _configuration.GetValue<int>("Limitations:MaxAssigneesPerRequest");
+        if (maxAssigneesPerRequest > 0)
         {
-            var approverCount = payload.Steps.Sum(step => step.Approvers.Count);
-            if (approverCount > maxApproversPerRequest)
+            var assigneeCount = payload.Steps.Sum(step => step.Assignees.Count);
+            if (assigneeCount > maxAssigneesPerRequest)
             {
                 throw new LimitExceededException(
-                $"The maximum number of approvers ({maxApproversPerRequest}) has been exceeded.");
+                $"The maximum number of assignees ({maxAssigneesPerRequest}) has been exceeded.");
             }
         }
     }
@@ -218,9 +218,9 @@ public class ApprovalRequestService(
             .OrderBy(step => step.Sequence)
             .Select((stepDto, index) =>
             {
-                if (stepDto.Approvers.Count == 0)
+                if (stepDto.Assignees.Count == 0)
                 {
-                    throw new BusinessRuleException("Each approval step must have one or more approvers.");
+                    throw new BusinessRuleException("Each approval step must have one or more assignees.");
                 }
 
                 return BuildStep(stepDto, index + 1);
@@ -229,9 +229,9 @@ public class ApprovalRequestService(
 
     private static ApprovalRequestStep BuildStep(ApprovalRequestStepSubmitDto stepDto, int sequence)
     {
-        if (stepDto.Approvers.Count == 0)
+        if (stepDto.Assignees.Count == 0)
         {
-            throw new BusinessRuleException("Each approval step must have one or more approvers.");
+            throw new BusinessRuleException("Each approval step must have one or more assignees.");
         }
 
         return new ApprovalRequestStep
@@ -239,17 +239,17 @@ public class ApprovalRequestService(
             Sequence = sequence,
             Mode = stepDto.Mode,
             Action = stepDto.Action,
-            Approvers = [.. stepDto.Approvers.Select(BuildApprover)],
+            Assignees = [.. stepDto.Assignees.Select(BuildAssignee)],
             ApprovalRequest = null!,
             Tasks = []
         };
     }
 
-    private static ApprovalRequestStepApprover BuildApprover(ApprovalRequestApproverSubmitDto approver)
+    private static ApprovalRequestStepAssignee BuildAssignee(ApprovalRequestAssigneeSubmitDto assignee)
     {
-        return new ApprovalRequestStepApprover
+        return new ApprovalRequestStepAssignee
         {
-            Type = approver.Type,
+            Type = assignee.Type,
         };
     }
 
@@ -266,20 +266,20 @@ public class ApprovalRequestService(
         foreach (var visibilityDto in visibilityDtos)
         {
             if (!stepsBySequence.TryGetValue(visibilityDto.StepSequence, out var step)
-                || !stepsBySequence.TryGetValue(visibilityDto.ApproverStepSequence, out var approverStep)
-                || visibilityDto.ApproverIndex < 0
-                || visibilityDto.ApproverIndex >= approverStep.Approvers.Count)
+                || !stepsBySequence.TryGetValue(visibilityDto.AssigneeStepSequence, out var assigneeStep)
+                || visibilityDto.AssigneeIndex < 0
+                || visibilityDto.AssigneeIndex >= assigneeStep.Assignees.Count)
             {
-                throw new BusinessRuleException("Step visibility contains an invalid step or approver.");
+                throw new BusinessRuleException("Step visibility contains an invalid step or assignee.");
             }
 
-            var approver = approverStep.Approvers[visibilityDto.ApproverIndex];
-            var approverIsAssignedToStep = step.Approvers.Contains(approver);
+            var assignee = assigneeStep.Assignees[visibilityDto.AssigneeIndex];
+            var assigneeIsAssignedToStep = step.Assignees.Contains(assignee);
             step.StepVisibilities.Add(new ApprovalRequestStepVisibility
             {
                 ApprovalRequestStep = step,
-                ApprovalRequestStepApprover = approver,
-                IsVisible = approverIsAssignedToStep || visibilityDto.IsVisible
+                ApprovalRequestStepAssignee = assignee,
+                IsVisible = assigneeIsAssignedToStep || visibilityDto.IsVisible
             });
         }
     }

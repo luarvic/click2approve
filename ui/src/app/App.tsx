@@ -47,7 +47,7 @@ import { ToastContainer } from "react-toastify";
 const App = () => {
   const currentTenant = stores.tenantStore.currentTenant;
   const canManageTeams =
-    stores.productStore.teamApproversAreEnabled &&
+    stores.productStore.teamAssigneesAreEnabled &&
     currentTenant?.type === TenantType.Business &&
     currentTenant.role !== undefined;
   const canManageEmployees =

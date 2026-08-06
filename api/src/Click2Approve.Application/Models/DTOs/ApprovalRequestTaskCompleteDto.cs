@@ -10,9 +10,9 @@ public class ApprovalRequestTaskCompleteDto
     public required Guid GlobalId { get; set; }
     public required bool Result { get; set; }
     public string? Comment { get; set; }
-    public string? ApproverLegalName { get; set; }
-    public string? ApproverSignatureJson { get; set; }
-    public string? ApproverIpAddress { get; set; }
-    public string? ApproverBrowserData { get; set; }
+    public string? AssigneeLegalName { get; set; }
+    public string? AssigneeSignatureJson { get; set; }
+    public string? AssigneeIpAddress { get; set; }
+    public string? AssigneeBrowserData { get; set; }
     public ApprovalRequestTaskClientAuditContextDto? ClientAuditContext { get; set; }
 }

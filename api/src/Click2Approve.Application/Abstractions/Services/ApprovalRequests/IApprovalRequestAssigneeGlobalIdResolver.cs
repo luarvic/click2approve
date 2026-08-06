@@ -3,9 +3,9 @@ using Click2Approve.Domain.Models;
 
 namespace Click2Approve.Application.Abstractions.Services.ApprovalRequests;
 
-public interface IApprovalRequestApproverGlobalIdResolver
+public interface IApprovalRequestAssigneeGlobalIdResolver
 {
-    Task<ApprovalRequestApproverGlobalIdMaps> ResolveAsync(
+    Task<ApprovalRequestAssigneeGlobalIdMaps> ResolveAsync(
         ApprovalRequest approvalRequest,
         CancellationToken cancellationToken);
 }

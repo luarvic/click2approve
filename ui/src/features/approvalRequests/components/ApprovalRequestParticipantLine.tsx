@@ -1,4 +1,4 @@
-import { ApprovalRecipientType } from "@/features/approvalWorkflow/models/approvalStep";
+import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { StackSpacing } from "@/shared/constants/constants";
 import {
   Email,
@@ -14,14 +14,14 @@ interface ApprovalRequestParticipantLineProps {
   icon?: ReactNode;
   label?: ReactNode;
   sx?: SxProps<Theme>;
-  type?: ApprovalRecipientType;
+  type?: AssigneeType;
 }
 
-export const getApprovalRecipientIcon = (type: ApprovalRecipientType) => {
+export const getAssigneeIcon = (type: AssigneeType) => {
   switch (type) {
-    case ApprovalRecipientType.Employee:
+    case AssigneeType.Employee:
       return <Person color="action" fontSize="small" />;
-    case ApprovalRecipientType.Team:
+    case AssigneeType.Team:
       return <Groups color="action" fontSize="small" />;
     default:
       return <Email color="action" fontSize="small" />;
@@ -32,7 +32,7 @@ const ApprovalRequestParticipantLine: React.FC<ApprovalRequestParticipantLinePro
   icon,
   label,
   sx,
-  type = ApprovalRecipientType.Employee,
+  type = AssigneeType.Employee,
 }) => (
   <Stack
     direction="row"
@@ -40,7 +40,7 @@ const ApprovalRequestParticipantLine: React.FC<ApprovalRequestParticipantLinePro
     alignItems="center"
     sx={sx}
   >
-    {icon ?? getApprovalRecipientIcon(type)}
+    {icon ?? getAssigneeIcon(type)}
     {typeof label === "string" || typeof label === "number" ? (
       <Typography variant="body1">
         {label}

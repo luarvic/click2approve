@@ -160,9 +160,9 @@ export const Dialogs = {
   stepHeaderSx: { mb: 1.5 } as SxProps<Theme>,
   stepTitleSx: { flexGrow: 1 } as SxProps<Theme>,
   stepActionSpacing: 0.5,
-  approverStackSpacing: 1,
-  approverTypeFieldSx: { minWidth: 130 } as SxProps<Theme>,
-  removeApproverButtonSx: {
+  assigneeStackSpacing: 1,
+  assigneeTypeFieldSx: { minWidth: 130 } as SxProps<Theme>,
+  removeAssigneeButtonSx: {
     alignSelf: { xs: "flex-end", sm: "center" },
     height: 40,
     width: 40,

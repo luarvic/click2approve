@@ -3,12 +3,12 @@ using Click2Approve.Domain.Models;
 namespace Click2Approve.Application.Models.DTOs;
 
 /// <summary>
-/// Represents an approver returned with an approval request step.
+/// Represents an assignee returned with an approval request step.
 /// </summary>
-public class ApprovalRequestApproverDto
+public class ApprovalRequestAssigneeDto
 {
     public Guid GlobalId { get; init; }
-    public ApprovalRecipientType Type { get; init; }
+    public AssigneeType Type { get; init; }
     public string? Email { get; init; }
     public Guid? EmployeeGlobalId { get; init; }
     public Guid? TeamGlobalId { get; init; }

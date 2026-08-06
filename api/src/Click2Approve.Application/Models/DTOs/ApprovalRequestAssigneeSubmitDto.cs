@@ -3,11 +3,11 @@ namespace Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Models;
 
 /// <summary>
-/// Represents a data transfer object required to submit an approval request approver.
+/// Represents a data transfer object required to submit an approval request assignee.
 /// </summary>
-public class ApprovalRequestApproverSubmitDto
+public class ApprovalRequestAssigneeSubmitDto
 {
-    public required ApprovalRecipientType Type { get; set; }
+    public required AssigneeType Type { get; set; }
     public string? Email { get; set; }
     public Guid? EmployeeGlobalId { get; set; }
     public Guid? TeamGlobalId { get; set; }

@@ -29,8 +29,8 @@ public class ProductController(IConfiguration configuration) : ControllerBase
             Capabilities = new ProductCapabilitiesDto
             {
                 Tenants = _configuration.GetValue<bool>("Product:Capabilities:Tenants"),
-                EmployeeApprovers = _configuration.GetValue<bool>("Product:Capabilities:EmployeeApprovers"),
-                TeamApprovers = _configuration.GetValue<bool>("Product:Capabilities:TeamApprovers"),
+                EmployeeAssignees = _configuration.GetValue<bool>("Product:Capabilities:EmployeeAssignees"),
+                TeamAssignees = _configuration.GetValue<bool>("Product:Capabilities:TeamAssignees"),
                 ApprovalStepTemplates = _configuration.GetValue<bool>("Product:Capabilities:ApprovalStepTemplates"),
                 ApprovalRequestRevisions = _configuration.GetValue<bool>("Product:Capabilities:ApprovalRequestRevisions"),
                 SharedVerificationLinks = _configuration.GetValue<bool>("Product:Capabilities:SharedVerificationLinks")

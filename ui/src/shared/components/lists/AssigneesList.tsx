@@ -3,14 +3,14 @@ import type { SxProps } from "@mui/material";
 import { Box, Stack } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 
-interface ApproversListProps {
-  approvers: string[];
+interface AssigneesListProps {
+  assignees: string[];
   direction: "row" | "row-reverse" | "column" | "column-reverse" | undefined;
   sx?: SxProps<Theme>;
 }
 
-const ApproversList: React.FC<ApproversListProps> = ({
-  approvers,
+const AssigneesList: React.FC<AssigneesListProps> = ({
+  assignees,
   direction,
   sx,
 }) => {
@@ -22,11 +22,11 @@ const ApproversList: React.FC<ApproversListProps> = ({
       alignItems="flex-start"
       sx={[Lists.overflowHiddenSx, ...(Array.isArray(sx) ? sx : [sx])]}
     >
-      {approvers.map((approver, index) => (
-        <Box key={index}>{approver.toLowerCase()}</Box>
+      {assignees.map((assignee, index) => (
+        <Box key={index}>{assignee.toLowerCase()}</Box>
       ))}
     </Stack>
   );
 };
 
-export default ApproversList;
+export default AssigneesList;

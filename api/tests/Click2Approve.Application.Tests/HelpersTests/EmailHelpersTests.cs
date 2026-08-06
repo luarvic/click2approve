@@ -29,9 +29,9 @@ public class EmailHelpersTests
     {
         var exception = Assert.Throws<BusinessRuleException>(() =>
         {
-            EmailHelpers.NormalizeEmailAddress(" ", requiredMessage: "Approver email is required.");
+            EmailHelpers.NormalizeEmailAddress(" ", requiredMessage: "Assignee email is required.");
         });
 
-        Assert.Equal("Approver email is required.", exception.Message);
+        Assert.Equal("Assignee email is required.", exception.Message);
     }
 }

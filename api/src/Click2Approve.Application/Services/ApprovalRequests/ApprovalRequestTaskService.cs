@@ -10,13 +10,13 @@ namespace Click2Approve.Application.Services.ApprovalRequests;
 public class ApprovalRequestTaskService(
     IApprovalRequestTaskRepository approvalRequestTaskRepository,
     IUnitOfWork unitOfWork,
-    IApprovalRequestApproverGlobalIdResolver approverGlobalIdResolver,
+    IApprovalRequestAssigneeGlobalIdResolver assigneeGlobalIdResolver,
     IApprovalWorkflowService workflowService,
     IApprovalRequestTaskCompletionAttributor completionAttributor) : IApprovalRequestTaskService
 {
     private readonly IApprovalRequestTaskRepository _approvalRequestTaskRepository = approvalRequestTaskRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly IApprovalRequestApproverGlobalIdResolver _approverGlobalIdResolver = approverGlobalIdResolver;
+    private readonly IApprovalRequestAssigneeGlobalIdResolver _assigneeGlobalIdResolver = assigneeGlobalIdResolver;
     private readonly IApprovalWorkflowService _workflowService = workflowService;
     private readonly IApprovalRequestTaskCompletionAttributor _completionAttributor = completionAttributor;
 
@@ -30,7 +30,7 @@ public class ApprovalRequestTaskService(
     }
 
     /// <summary>
-    /// Gets a task with the request data the approver is authorized to view.
+    /// Gets a task with the request data the assignee is authorized to view.
     /// </summary>
     public async Task<ApprovalRequestTaskDetailDto> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
@@ -38,8 +38,8 @@ public class ApprovalRequestTaskService(
             ?? throw new NotFoundException("Approval request task was not found.");
         var approvalRequest = await _approvalRequestTaskRepository.GetRequestForTaskAsync(user, globalId, cancellationToken)
             ?? throw new NotFoundException("Approval request task was not found.");
-        var approverGlobalIdMaps = await _approverGlobalIdResolver.ResolveAsync(approvalRequest, cancellationToken);
-        return ApprovalRequestMapper.MapTaskDetail(task, approvalRequest, approverGlobalIdMaps);
+        var assigneeGlobalIdMaps = await _assigneeGlobalIdResolver.ResolveAsync(approvalRequest, cancellationToken);
+        return ApprovalRequestMapper.MapTaskDetail(task, approvalRequest, assigneeGlobalIdMaps);
     }
 
     /// <summary>
@@ -105,15 +105,15 @@ public class ApprovalRequestTaskService(
         ApprovalRequestTask approvalRequestTask,
         ApprovalRequestTaskCompleteDto payload)
     {
-        approvalRequestTask.ApproverIpAddress = TrimToLength(payload.ApproverIpAddress, 128);
-        approvalRequestTask.ApproverBrowserData = TrimToLength(payload.ApproverBrowserData, 1024);
+        approvalRequestTask.AssigneeIpAddress = TrimToLength(payload.AssigneeIpAddress, 128);
+        approvalRequestTask.AssigneeBrowserData = TrimToLength(payload.AssigneeBrowserData, 1024);
         if (approvalRequestTask.Action != ApprovalRequestTaskAction.Sign)
         {
             return;
         }
 
-        var legalName = (payload.ApproverLegalName ?? string.Empty).Trim();
-        var signatureJson = (payload.ApproverSignatureJson ?? string.Empty).Trim();
+        var legalName = (payload.AssigneeLegalName ?? string.Empty).Trim();
+        var signatureJson = (payload.AssigneeSignatureJson ?? string.Empty).Trim();
         if (legalName.Length == 0)
         {
             throw new BusinessRuleException("Legal name is required.");
@@ -129,8 +129,8 @@ public class ApprovalRequestTaskService(
             throw new BusinessRuleException("Signature is too large.");
         }
 
-        approvalRequestTask.ApproverLegalName = TrimToLength(legalName, 255);
-        approvalRequestTask.ApproverSignatureJson = signatureJson;
+        approvalRequestTask.AssigneeLegalName = TrimToLength(legalName, 255);
+        approvalRequestTask.AssigneeSignatureJson = signatureJson;
     }
 
     private static string? TrimToLength(string? value, int maxLength)

@@ -37,7 +37,7 @@ const visibilitySummarySx: SxProps<Theme> = {
   minWidth: 0,
 };
 
-const hiddenApproverListSx: SxProps<Theme> = {
+const hiddenAssigneeListSx: SxProps<Theme> = {
   display: "inline",
 };
 
@@ -55,13 +55,13 @@ const visibilityPopoverSx: SxProps<Theme> = {
   p: Dialogs.stepStackSpacing,
 };
 
-const getHiddenApproverLabels = (step: ApprovalStep) => {
+const getHiddenAssigneeLabels = (step: ApprovalStep) => {
   return (step.visibility ?? [])
     .filter((visibility) => visibility.isVisible === false)
     .map((visibility) =>
-      visibility.approverDisplayName ??
-      visibility.approverEmail ??
-      "Approver",
+      visibility.assigneeDisplayName ??
+      visibility.assigneeEmail ??
+      "Assignee",
     )
     .filter((label): label is string => Boolean(label));
 };
@@ -72,9 +72,9 @@ const ApprovalStepVisibilitySummary: React.FC<ApprovalStepVisibilitySummaryProps
   step,
 }) => {
   const [popoverAnchor, setPopoverAnchor] = useState<HTMLElement | null>(null);
-  const hiddenApproverLabels = getHiddenApproverLabels(step);
+  const hiddenAssigneeLabels = getHiddenAssigneeLabels(step);
 
-  if (hiddenApproverLabels.length === 0 && !emptyMessage) {
+  if (hiddenAssigneeLabels.length === 0 && !emptyMessage) {
     return null;
   }
 
@@ -87,7 +87,7 @@ const ApprovalStepVisibilitySummary: React.FC<ApprovalStepVisibilitySummaryProps
     setPopoverAnchor(event.currentTarget);
   };
 
-  const showEmptyMessageTooltip = hiddenApproverLabels.length === 0 && Boolean(emptyMessage);
+  const showEmptyMessageTooltip = hiddenAssigneeLabels.length === 0 && Boolean(emptyMessage);
   if (showEmptyMessageTooltip) {
     const emptyMessageIcon = (
       <>
@@ -139,8 +139,8 @@ const ApprovalStepVisibilitySummary: React.FC<ApprovalStepVisibilitySummaryProps
   const text = (
     <Typography variant="caption" color="text.secondary" sx={visibilityTextSx}>
       Hidden from{" "}
-      <Box component="span" sx={hiddenApproverListSx}>
-        {hiddenApproverLabels.join(", ")}
+      <Box component="span" sx={hiddenAssigneeListSx}>
+        {hiddenAssigneeLabels.join(", ")}
       </Box>
     </Typography>
   );

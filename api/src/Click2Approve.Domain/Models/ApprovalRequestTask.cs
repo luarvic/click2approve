@@ -7,21 +7,21 @@ public class ApprovalRequestTask : DbEntity
 {
     // Foreign key identifiers
     public long ApprovalRequestId { get; set; }
-    public long? ApprovalRequestStepApproverId { get; set; }
+    public long? ApprovalRequestStepAssigneeId { get; set; }
     public long ApprovalRequestStepId { get; set; }
-    public long? ApproverEmployeeId { get; set; }
-    public string? ApproverUserId { get; set; }
+    public long? AssigneeEmployeeId { get; set; }
+    public string? AssigneeUserId { get; set; }
     public long? CompletedByDelegateEmployeeId { get; set; }
     public string? CompletedByDelegateUserId { get; set; }
     public long TenantId { get; set; }
 
     // Scalar properties
     public required ApprovalRequestTaskAction Action { get; set; }
-    public string? ApproverBrowserData { get; set; }
-    public required string ApproverDisplayName { get; set; }
-    public string? ApproverIpAddress { get; set; }
-    public string? ApproverLegalName { get; set; }
-    public string? ApproverSignatureJson { get; set; }
+    public string? AssigneeBrowserData { get; set; }
+    public required string AssigneeDisplayName { get; set; }
+    public string? AssigneeIpAddress { get; set; }
+    public string? AssigneeLegalName { get; set; }
+    public string? AssigneeSignatureJson { get; set; }
     public string? Comment { get; set; }
     public string? CompletedByDelegateEmployeeDisplayName { get; set; }
     public DateTime? CompletedAt { get; set; }
@@ -46,8 +46,8 @@ public class ApprovalRequestTask : DbEntity
     /// </summary>
     public ApprovalRequestStep ApprovalRequestStep { get; set; } = null!;
 
-    public ApprovalRequestStepApprover? ApprovalRequestStepApprover { get; set; }
-    public AppUser? ApproverUser { get; set; }
+    public ApprovalRequestStepAssignee? ApprovalRequestStepAssignee { get; set; }
+    public AppUser? AssigneeUser { get; set; }
     public AppUser? CompletedByDelegateUser { get; set; }
     public Tenant? Tenant { get; set; }
 }

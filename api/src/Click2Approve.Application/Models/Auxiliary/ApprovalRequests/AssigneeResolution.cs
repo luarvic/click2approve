@@ -5,8 +5,8 @@ namespace Click2Approve.Application.Models.Auxiliary.ApprovalRequests;
 /// <summary>
 /// Describes a resolved approval request recipient.
 /// </summary>
-public sealed record ApprovalRecipientResolution(
-    AppUser ApproverUser,
-    long? ApproverEmployeeId,
+public sealed record AssigneeResolution(
+    AppUser AssigneeUser,
+    long? AssigneeEmployeeId,
     long TenantId,
-    string ApproverDisplayName);
+    string AssigneeDisplayName);

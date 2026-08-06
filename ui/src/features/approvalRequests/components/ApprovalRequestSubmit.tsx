@@ -7,7 +7,7 @@ import ApprovalRequestFilesList, {
   RevisionExistingFile,
 } from "@/features/approvalRequests/components/ApprovalRequestFilesList";
 import {
-  getApprovalRecipientIcon,
+  getAssigneeIcon,
 } from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
 import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
 import {
@@ -19,13 +19,13 @@ import {
 import ApprovalStepBlock from "@/features/approvalWorkflow/components/ApprovalStepBlock";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
 import {
-  ApprovalRecipientType,
+  AssigneeType,
   ApprovalStep,
-  ApprovalStepApprover,
+  ApprovalStepAssignee,
 } from "@/features/approvalWorkflow/models/approvalStep";
 import {
   createEditableSteps,
-  createEmptyApprover,
+  createEmptyAssignee,
   createEmptyStep,
   EditableApprovalStep,
   toApprovalStepSubmissions,
@@ -63,12 +63,12 @@ interface ApprovalRequestSubmitProps {
   onClose: (currentApprovalRequestGlobalId?: string) => void;
 }
 
-interface RequestApproverOption {
-  approverIndex: number;
+interface RequestAssigneeOption {
+  assigneeIndex: number;
   key: string;
   label: string;
   stepSequence: number;
-  type: ApprovalRecipientType;
+  type: AssigneeType;
 }
 
 const visibilityOptionSx: SxProps<Theme> = { minWidth: 0 };
@@ -121,9 +121,9 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   const businessTenantIsSelected =
     stores.tenantStore.currentTenant?.type === TenantType.Business;
   const canUseEmployees =
-    businessTenantIsSelected && stores.productStore.employeeApproversAreEnabled;
+    businessTenantIsSelected && stores.productStore.employeeAssigneesAreEnabled;
   const canUseTeams =
-    businessTenantIsSelected && stores.productStore.teamApproversAreEnabled;
+    businessTenantIsSelected && stores.productStore.teamAssigneesAreEnabled;
   const canUseTemplates =
     businessTenantIsSelected &&
     stores.productStore.approvalStepTemplatesAreEnabled &&
@@ -285,30 +285,30 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     });
   };
 
-  const addApprover = (stepIndex: number) => {
+  const addAssignee = (stepIndex: number) => {
     updateStep(stepIndex, (step) => ({
       ...step,
-      approvers: [...step.approvers, createEmptyApprover()],
+      assignees: [...step.assignees, createEmptyAssignee()],
     }));
   };
 
-  const updateApprover = (
+  const updateAssignee = (
     stepIndex: number,
-    approverIndex: number,
-    approver: ApprovalStepApprover,
+    assigneeIndex: number,
+    assignee: ApprovalStepAssignee,
   ) => {
     updateStep(stepIndex, (step) => ({
       ...step,
-      approvers: step.approvers.map((item, index) =>
-        index === approverIndex ? approver : item,
+      assignees: step.assignees.map((item, index) =>
+        index === assigneeIndex ? assignee : item,
       ),
     }));
   };
 
-  const removeApprover = (stepIndex: number, approverIndex: number) => {
+  const removeAssignee = (stepIndex: number, assigneeIndex: number) => {
     updateStep(stepIndex, (step) => ({
       ...step,
-      approvers: step.approvers.filter((_, index) => index !== approverIndex),
+      assignees: step.assignees.filter((_, index) => index !== assigneeIndex),
     }));
   };
 
@@ -319,26 +319,26 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     }
 
     const emails = steps.flatMap((step) =>
-      step.approvers
-        .filter((approver) => approver.type === ApprovalRecipientType.Email)
-        .map((approver) => approver.email ?? ""),
+      step.assignees
+        .filter((assignee) => assignee.type === AssigneeType.Email)
+        .map((assignee) => assignee.email ?? ""),
     );
     const hasMissingRecipient = steps.some(
       (step) =>
-        step.approvers.length === 0 ||
-        step.approvers.some((approver) => {
-          if (approver.type === ApprovalRecipientType.Email) {
-            return !approver.email?.trim();
+        step.assignees.length === 0 ||
+        step.assignees.some((assignee) => {
+          if (assignee.type === AssigneeType.Email) {
+            return !assignee.email?.trim();
           }
-          if (approver.type === ApprovalRecipientType.Employee) {
-            return !approver.employeeGlobalId;
+          if (assignee.type === AssigneeType.Employee) {
+            return !assignee.employeeGlobalId;
           }
-          return !approver.teamGlobalId;
+          return !assignee.teamGlobalId;
         }),
     );
 
     if (hasMissingRecipient || (emails.length > 0 && !validateEmails(emails))) {
-      toast.error("Specify valid approvers for every step.");
+      toast.error("Specify valid assignees for every step.");
       return false;
     }
     return true;
@@ -365,87 +365,87 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     setSubmitPage("visibility");
   };
 
-  const getApproverVisibilityKey = (
+  const getAssigneeVisibilityKey = (
     stepSequence: number,
-    approverStepSequence: number,
-    approverIndex: number,
-  ) => `${stepSequence}:${approverStepSequence}:${approverIndex}`;
+    assigneeStepSequence: number,
+    assigneeIndex: number,
+  ) => `${stepSequence}:${assigneeStepSequence}:${assigneeIndex}`;
 
-  const getRequestApprovers = (): RequestApproverOption[] =>
+  const getRequestAssignees = (): RequestAssigneeOption[] =>
     steps.flatMap((step) =>
-      step.approvers.map((approver, approverIndex) => {
-        const label = getApproverLabel(approver);
+      step.assignees.map((assignee, assigneeIndex) => {
+        const label = getAssigneeLabel(assignee);
         return {
-          approverIndex,
-          key: `${step.sequence}:${approverIndex}`,
+          assigneeIndex,
+          key: `${step.sequence}:${assigneeIndex}`,
           label,
           stepSequence: step.sequence,
-          type: approver.type,
+          type: assignee.type,
         };
       }),
     );
 
-  const getApproverLabel = (
-    approver: ApprovalStepApprover,
+  const getAssigneeLabel = (
+    assignee: ApprovalStepAssignee,
   ) => {
-    if (approver.displayName) {
-      return approver.displayName;
+    if (assignee.displayName) {
+      return assignee.displayName;
     }
-    if (approver.type === ApprovalRecipientType.Employee) {
-      return stores.employeeStore.employees.find((employee) => employee.globalId === approver.employeeGlobalId)?.displayName ?? "Employee";
+    if (assignee.type === AssigneeType.Employee) {
+      return stores.employeeStore.employees.find((employee) => employee.globalId === assignee.employeeGlobalId)?.displayName ?? "Employee";
     }
-    if (approver.type === ApprovalRecipientType.Team) {
-      return stores.teamStore.teams.find((team) => team.globalId === approver.teamGlobalId)?.name ?? "Team";
+    if (assignee.type === AssigneeType.Team) {
+      return stores.teamStore.teams.find((team) => team.globalId === assignee.teamGlobalId)?.name ?? "Team";
     }
-    return approver.email || "Email";
+    return assignee.email || "Email";
   };
 
   const getStepVisibilityValue = (
     stepSequence: number,
-    approverStepSequence: number,
-    approverIndex: number,
-  ) => stepVisibility[getApproverVisibilityKey(stepSequence, approverStepSequence, approverIndex)] ?? true;
+    assigneeStepSequence: number,
+    assigneeIndex: number,
+  ) => stepVisibility[getAssigneeVisibilityKey(stepSequence, assigneeStepSequence, assigneeIndex)] ?? true;
 
-  const getVisibleApprovers = (
+  const getVisibleAssignees = (
     stepSequence: number,
-    requestApprovers: RequestApproverOption[],
+    requestAssignees: RequestAssigneeOption[],
   ) =>
-    requestApprovers.filter(
-      (approver) =>
-        stepSequence === approver.stepSequence ||
+    requestAssignees.filter(
+      (assignee) =>
+        stepSequence === assignee.stepSequence ||
         getStepVisibilityValue(
           stepSequence,
-          approver.stepSequence,
-          approver.approverIndex,
+          assignee.stepSequence,
+          assignee.assigneeIndex,
         ),
     );
 
   const getAdditionalViewerOptions = (
     stepSequence: number,
-    requestApprovers: RequestApproverOption[],
-  ) => requestApprovers.filter((approver) => approver.stepSequence !== stepSequence);
+    requestAssignees: RequestAssigneeOption[],
+  ) => requestAssignees.filter((assignee) => assignee.stepSequence !== stepSequence);
 
-  const setVisibleApprovers = (
+  const setVisibleAssignees = (
     stepSequence: number,
-    requestApprovers: RequestApproverOption[],
-    visibleApprovers: RequestApproverOption[],
+    requestAssignees: RequestAssigneeOption[],
+    visibleAssignees: RequestAssigneeOption[],
   ) => {
-    const visibleApproverKeys = new Set(
-      visibleApprovers.map((approver) => approver.key),
+    const visibleAssigneeKeys = new Set(
+      visibleAssignees.map((assignee) => assignee.key),
     );
     setStepVisibility((current) => {
       const next = { ...current };
-      requestApprovers.forEach((approver) => {
-        if (approver.stepSequence === stepSequence) {
+      requestAssignees.forEach((assignee) => {
+        if (assignee.stepSequence === stepSequence) {
           return;
         }
         next[
-          getApproverVisibilityKey(
+          getAssigneeVisibilityKey(
             stepSequence,
-            approver.stepSequence,
-            approver.approverIndex,
+            assignee.stepSequence,
+            assignee.assigneeIndex,
           )
-        ] = visibleApproverKeys.has(approver.key);
+        ] = visibleAssigneeKeys.has(assignee.key);
       });
       return next;
     });
@@ -453,43 +453,43 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
 
   const getDisplayStep = (step: EditableApprovalStep): ApprovalStep => ({
     ...step,
-    approvers: step.approvers.map((approver) => {
-      if (approver.type === ApprovalRecipientType.Employee) {
+    assignees: step.assignees.map((assignee) => {
+      if (assignee.type === AssigneeType.Employee) {
         const employee = stores.employeeStore.employees.find(
-          (item) => item.globalId === approver.employeeGlobalId,
+          (item) => item.globalId === assignee.employeeGlobalId,
         );
         return {
-          ...approver,
-          displayName: approver.displayName ?? employee?.displayName,
-          email: approver.email ?? employee?.email,
+          ...assignee,
+          displayName: assignee.displayName ?? employee?.displayName,
+          email: assignee.email ?? employee?.email,
         };
       }
 
-      if (approver.type === ApprovalRecipientType.Team) {
+      if (assignee.type === AssigneeType.Team) {
         const team = stores.teamStore.teams.find(
-          (item) => item.globalId === approver.teamGlobalId,
+          (item) => item.globalId === assignee.teamGlobalId,
         );
         return {
-          ...approver,
-          displayName: approver.displayName ?? team?.name,
+          ...assignee,
+          displayName: assignee.displayName ?? team?.name,
         };
       }
 
-      return approver;
+      return assignee;
     }),
   });
 
   const createStepVisibilitySubmissions = (): ApprovalRequestStepVisibilitySubmission[] =>
     steps.flatMap((step) =>
-      getRequestApprovers().map((approver) => ({
+      getRequestAssignees().map((assignee) => ({
         stepSequence: step.sequence,
-        approverStepSequence: approver.stepSequence,
-        approverIndex: approver.approverIndex,
-        isVisible: step.sequence === approver.stepSequence ||
+        assigneeStepSequence: assignee.stepSequence,
+        assigneeIndex: assignee.assigneeIndex,
+        isVisible: step.sequence === assignee.stepSequence ||
           getStepVisibilityValue(
             step.sequence,
-            approver.stepSequence,
-            approver.approverIndex,
+            assignee.stepSequence,
+            assignee.assigneeIndex,
           ),
       })),
     );
@@ -595,7 +595,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     });
   };
 
-  const requestApprovers = getRequestApprovers();
+  const requestAssignees = getRequestAssignees();
   const draftRequestFiles: ApprovalRequestFile[] = [
     ...existingFiles.map((file, index) =>
       file.replacement
@@ -704,12 +704,12 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
             canUseTeams={canUseTeams}
             employees={stores.employeeStore.employees}
             teams={stores.teamStore.teams}
-            onAddApprover={addApprover}
+            onAddAssignee={addAssignee}
             onAddStep={addStep}
             onMoveStep={moveStep}
-            onRemoveApprover={removeApprover}
+            onRemoveAssignee={removeAssignee}
             onRemoveStep={removeStep}
-            onUpdateApprover={updateApprover}
+            onUpdateAssignee={updateAssignee}
             onUpdateStep={updateStep}
             showAddStep={false}
           />
@@ -748,9 +748,9 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
               {steps.map((step) => {
                 const additionalViewerOptions = getAdditionalViewerOptions(
                   step.sequence,
-                  requestApprovers,
+                  requestAssignees,
                 );
-                const visibleApprovers = getVisibleApprovers(
+                const visibleAssignees = getVisibleAssignees(
                   step.sequence,
                   additionalViewerOptions,
                 );
@@ -765,12 +765,12 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
                       <Autocomplete
                         multiple
                         options={additionalViewerOptions}
-                        value={visibleApprovers}
+                        value={visibleAssignees}
                         getOptionLabel={(option) => `${option.label} (Step ${option.stepSequence})`}
                         isOptionEqualToValue={(option, value) => option.key === value.key}
                         disableCloseOnSelect
                         onChange={(_, value) =>
-                          setVisibleApprovers(
+                          setVisibleAssignees(
                             step.sequence,
                             additionalViewerOptions,
                             value,
@@ -779,7 +779,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
                         renderTags={(value, getTagProps) =>
                           value.map((option, index) => (
                             <Chip
-                              icon={getApprovalRecipientIcon(option.type)}
+                              icon={getAssigneeIcon(option.type)}
                               label={option.label}
                               {...getTagProps({ index })}
                             />
@@ -789,7 +789,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
                           <TextField
                             {...params}
                             label="Also visible to"
-                            helperText="Selected approvers can view this step in addition to its own approvers."
+                            helperText="Selected assignees can view this step in addition to its own assignees."
                           />
                         )}
                         renderOption={(props, option) => (

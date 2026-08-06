@@ -53,8 +53,8 @@ public class ApprovalRequestTaskController(
     public async Task<IActionResult> CompleteAsync([FromBody] ApprovalRequestTaskCompleteDto payload, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        payload.ApproverIpAddress = GetClientIpAddress();
-        payload.ApproverBrowserData = BuildBrowserData(payload.ClientAuditContext);
+        payload.AssigneeIpAddress = GetClientIpAddress();
+        payload.AssigneeBrowserData = BuildBrowserData(payload.ClientAuditContext);
         await _approvalRequestTaskService.CompleteAsync(user, payload, cancellationToken);
         return Ok();
     }
@@ -73,7 +73,7 @@ public class ApprovalRequestTaskController(
     }
 
     /// <summary>
-    /// Gets an approval request task with the request data the approver can view.
+    /// Gets an approval request task with the request data the assignee can view.
     /// </summary>
     [HttpGet("{globalId:guid}")]
     public async Task<ActionResult<ApprovalRequestTaskDetailDto>> GetAsync(Guid globalId, CancellationToken cancellationToken)

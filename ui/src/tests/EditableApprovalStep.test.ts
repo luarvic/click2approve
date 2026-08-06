@@ -1,6 +1,6 @@
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import {
-  ApprovalRecipientType,
+  AssigneeType,
   ApprovalStepMode,
 } from "@/features/approvalWorkflow/models/approvalStep";
 import { createEmptyStep } from "@/features/approvalWorkflow/models/editableApprovalStep";
@@ -12,9 +12,9 @@ describe("editable approval steps", () => {
       sequence: 2,
       mode: ApprovalStepMode.Any,
       action: ApprovalRequestTaskAction.Approve,
-      approvers: [
+      assignees: [
         {
-          type: ApprovalRecipientType.Email,
+          type: AssigneeType.Email,
           email: "",
         },
       ],

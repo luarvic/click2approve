@@ -54,7 +54,7 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
             .FirstOrDefaultAsync(file => file.GlobalId == globalId
                 && file.ApprovalRequestFiles.Any(requestFile => requestFile.ApprovalRequest.Steps.Any(step => step.Tasks.Any(task => task.GlobalId == approvalRequestTaskGlobalId
                         && task.TenantId == tenantId
-                        && task.ApproverUserId == user.Id))), cancellationToken);
+                        && task.AssigneeUserId == user.Id))), cancellationToken);
     }
 
     public virtual async Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken)

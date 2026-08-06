@@ -68,14 +68,14 @@ const ApprovalRequestElectronicSignatureView: React.FC<ApprovalRequestElectronic
             Legal name
           </Typography>
           <Typography>
-            {task.approverLegalName || "Not provided"}
+            {task.assigneeLegalName || "Not provided"}
           </Typography>
         </Stack>
         <Stack spacing={Dialogs.stepHeaderSpacing}>
           <Typography color="text.secondary" variant="caption">
             Signature
           </Typography>
-          <ApprovalRequestSignatureView signatureJson={task.approverSignatureJson} />
+          <ApprovalRequestSignatureView signatureJson={task.assigneeSignatureJson} />
         </Stack>
       </Stack>
     </AccordionDetails>

@@ -19,7 +19,7 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
     public DbSet<ApprovalRequest> ApprovalRequests { get; set; }
     public DbSet<ApprovalRequestFile> ApprovalRequestFiles { get; set; }
     public DbSet<ApprovalRequestStep> ApprovalRequestSteps { get; set; }
-    public DbSet<ApprovalRequestStepApprover> ApprovalRequestStepApprovers { get; set; }
+    public DbSet<ApprovalRequestStepAssignee> ApprovalRequestStepAssignees { get; set; }
     public DbSet<ApprovalRequestStepVisibility> ApprovalRequestStepVisibilities { get; set; }
     public DbSet<ApprovalRequestTask> ApprovalRequestTasks { get; set; }
     public DbSet<Tenant> Tenants { get; set; }
@@ -190,28 +190,28 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .Property(s => s.Action)
             .HasConversion<int>();
 
-        modelBuilder.Entity<ApprovalRequestStepApprover>()
+        modelBuilder.Entity<ApprovalRequestStepAssignee>()
             .Property(a => a.Type)
             .HasConversion<int>();
 
-        modelBuilder.Entity<ApprovalRequestStepApprover>()
-            .Property(a => a.ApproverDisplayName)
+        modelBuilder.Entity<ApprovalRequestStepAssignee>()
+            .Property(a => a.AssigneeDisplayName)
             .HasMaxLength(255);
 
-        modelBuilder.Entity<ApprovalRequestStepApprover>()
+        modelBuilder.Entity<ApprovalRequestStepAssignee>()
             .HasOne(a => a.ApprovalRequestStep)
-            .WithMany(s => s.Approvers)
+            .WithMany(s => s.Assignees)
             .HasForeignKey(a => a.ApprovalRequestStepId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<ApprovalRequestStepApprover>()
+        modelBuilder.Entity<ApprovalRequestStepAssignee>()
             .HasOne(a => a.User)
             .WithMany()
             .HasForeignKey(a => a.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestStepVisibility>()
-            .HasIndex(visibility => new { visibility.ApprovalRequestStepId, visibility.ApprovalRequestStepApproverId })
+            .HasIndex(visibility => new { visibility.ApprovalRequestStepId, visibility.ApprovalRequestStepAssigneeId })
             .IsUnique();
 
         modelBuilder.Entity<ApprovalRequestStepVisibility>()
@@ -221,9 +221,9 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestStepVisibility>()
-            .HasOne(visibility => visibility.ApprovalRequestStepApprover)
-            .WithMany(approver => approver.StepVisibilities)
-            .HasForeignKey(visibility => visibility.ApprovalRequestStepApproverId)
+            .HasOne(visibility => visibility.ApprovalRequestStepAssignee)
+            .WithMany(assignee => assignee.StepVisibilities)
+            .HasForeignKey(visibility => visibility.ApprovalRequestStepAssigneeId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestTask>()
@@ -243,7 +243,7 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequestTask>()
-            .Property(t => t.ApproverDisplayName)
+            .Property(t => t.AssigneeDisplayName)
             .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequestTask>()
@@ -255,24 +255,24 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequestTask>()
-            .Property(t => t.ApproverIpAddress)
+            .Property(t => t.AssigneeIpAddress)
             .HasMaxLength(128);
 
         modelBuilder.Entity<ApprovalRequestTask>()
-            .Property(t => t.ApproverBrowserData)
+            .Property(t => t.AssigneeBrowserData)
             .HasMaxLength(1024);
 
         modelBuilder.Entity<ApprovalRequestTask>()
-            .Property(t => t.ApproverLegalName)
+            .Property(t => t.AssigneeLegalName)
             .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequestTask>()
-            .HasIndex(t => new { t.TenantId, t.ApproverUserId, t.Status });
+            .HasIndex(t => new { t.TenantId, t.AssigneeUserId, t.Status });
 
         modelBuilder.Entity<ApprovalRequestTask>()
-            .HasOne(t => t.ApproverUser)
+            .HasOne(t => t.AssigneeUser)
             .WithMany()
-            .HasForeignKey(t => t.ApproverUserId)
+            .HasForeignKey(t => t.AssigneeUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestTask>()
@@ -294,9 +294,9 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestTask>()
-            .HasOne(t => t.ApprovalRequestStepApprover)
+            .HasOne(t => t.ApprovalRequestStepAssignee)
             .WithMany(a => a.Tasks)
-            .HasForeignKey(t => t.ApprovalRequestStepApproverId)
+            .HasForeignKey(t => t.ApprovalRequestStepAssigneeId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestTask>()

@@ -12,7 +12,7 @@ public class ApprovalRequestStepDto
     public ApprovalStepMode? Mode { get; init; }
     public ApprovalRequestTaskAction Action { get; init; }
     public bool IsVisible { get; init; } = true;
-    public List<ApprovalRequestApproverDto> Approvers { get; init; } = [];
+    public List<ApprovalRequestAssigneeDto> Assignees { get; init; } = [];
     public List<ApprovalRequestTaskDto> Tasks { get; init; } = [];
     public List<ApprovalRequestStepVisibilityDto> Visibility { get; init; } = [];
 }

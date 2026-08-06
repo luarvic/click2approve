@@ -41,11 +41,11 @@ internal static class ApprovalRequestMapper
 
     public static ApprovalRequestDto MapApprovalRequest(
         ApprovalRequest approvalRequest,
-        ApprovalRequestApproverGlobalIdMaps approverGlobalIdMaps)
+        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps)
     {
-        var approverGlobalIdsById = approvalRequest.Steps
-            .SelectMany(step => step.Approvers)
-            .ToDictionary(approver => approver.Id, approver => approver.GlobalId);
+        var assigneeGlobalIdsById = approvalRequest.Steps
+            .SelectMany(step => step.Assignees)
+            .ToDictionary(assignee => assignee.Id, assignee => assignee.GlobalId);
         var createdByEmail = approvalRequest.CreatedByUser.NormalizedEmailOrEmpty();
         return new ApprovalRequestDto
         {
@@ -58,8 +58,8 @@ internal static class ApprovalRequestMapper
                 approvalRequest.CreatedByDisplayName,
                 createdByEmail,
                 approvalRequest.OrganizationDisplayName,
-                approverGlobalIdsById,
-                approverGlobalIdMaps))],
+                assigneeGlobalIdsById,
+                assigneeGlobalIdMaps))],
             Description = approvalRequest.Description,
             CreatedAt = approvalRequest.CreatedAt,
             CompletedAt = approvalRequest.CompletedAt,
@@ -80,26 +80,26 @@ internal static class ApprovalRequestMapper
     public static ApprovalRequestTaskDetailDto MapTaskDetail(
         ApprovalRequestTask task,
         ApprovalRequest? approvalRequest,
-        ApprovalRequestApproverGlobalIdMaps approverGlobalIdMaps) => new(MapTask(task))
+        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps) => new(MapTask(task))
         {
             RequestFiles = [.. OrderRequestFiles(task.ApprovalRequest).Select(MapRequestFile)],
             ApprovalRequest = approvalRequest is not null
-            ? MapApprovalRequestForTask(approvalRequest, task.ApprovalRequestStepApproverId, approverGlobalIdMaps)
+            ? MapApprovalRequestForTask(approvalRequest, task.ApprovalRequestStepAssigneeId, assigneeGlobalIdMaps)
             : null,
-            ApproverSignatureJson = task.ApproverSignatureJson
+            AssigneeSignatureJson = task.AssigneeSignatureJson
         };
 
     private static ApprovalRequestDto MapApprovalRequestForTask(
         ApprovalRequest approvalRequest,
-        long? approvalRequestStepApproverId,
-        ApprovalRequestApproverGlobalIdMaps approverGlobalIdMaps)
+        long? approvalRequestStepAssigneeId,
+        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps)
     {
         var visibleSteps = approvalRequest.Steps
-            .Where(step => StepIsVisibleToApprover(step, approvalRequestStepApproverId))
+            .Where(step => StepIsVisibleToAssignee(step, approvalRequestStepAssigneeId))
             .ToList();
-        var approverGlobalIdsById = approvalRequest.Steps
-            .SelectMany(step => step.Approvers)
-            .ToDictionary(approver => approver.Id, approver => approver.GlobalId);
+        var assigneeGlobalIdsById = approvalRequest.Steps
+            .SelectMany(step => step.Assignees)
+            .ToDictionary(assignee => assignee.Id, assignee => assignee.GlobalId);
 
         var createdByEmail = approvalRequest.CreatedByUser.NormalizedEmailOrEmpty();
         return new ApprovalRequestDto
@@ -113,9 +113,9 @@ internal static class ApprovalRequestMapper
                 approvalRequest.CreatedByDisplayName,
                 createdByEmail,
                 approvalRequest.OrganizationDisplayName,
-                approvalRequestStepApproverId,
-                approverGlobalIdsById,
-                approverGlobalIdMaps))],
+                approvalRequestStepAssigneeId,
+                assigneeGlobalIdsById,
+                assigneeGlobalIdMaps))],
             Description = approvalRequest.Description,
             CreatedAt = approvalRequest.CreatedAt,
             CompletedAt = approvalRequest.CompletedAt,
@@ -139,18 +139,18 @@ internal static class ApprovalRequestMapper
         string createdByDisplayName,
         string createdByEmail,
         string organizationDisplayName,
-        IReadOnlyDictionary<long, Guid>? approverGlobalIdsById = null,
-        ApprovalRequestApproverGlobalIdMaps? approverGlobalIdMaps = null,
+        IReadOnlyDictionary<long, Guid>? assigneeGlobalIdsById = null,
+        ApprovalRequestAssigneeGlobalIdMaps? assigneeGlobalIdMaps = null,
         bool includeVisibility = true)
     {
-        approverGlobalIdMaps ??= ApprovalRequestApproverGlobalIdMaps.Empty;
+        assigneeGlobalIdMaps ??= ApprovalRequestAssigneeGlobalIdMaps.Empty;
         return new ApprovalRequestStepDto
         {
             GlobalId = step.GlobalId,
             Sequence = step.Sequence,
             Mode = step.Mode,
             Action = step.Action,
-            Approvers = step.Approvers.Select(approver => MapApprover(approver, approverGlobalIdMaps)).ToList(),
+            Assignees = step.Assignees.Select(assignee => MapAssignee(assignee, assigneeGlobalIdMaps)).ToList(),
             Tasks = [.. step.Tasks.Select(task => MapTask(
                 task,
                 createdByDisplayName,
@@ -158,27 +158,27 @@ internal static class ApprovalRequestMapper
                 organizationDisplayName,
                 approvalRequestGlobalId,
                 step.GlobalId,
-                approverGlobalIdsById is not null
-                    ? GetTaskApproverGlobalId(task, approverGlobalIdsById)
+                assigneeGlobalIdsById is not null
+                    ? GetTaskAssigneeGlobalId(task, assigneeGlobalIdsById)
                     : null))],
             Visibility = includeVisibility
-                ? [.. step.StepVisibilities.Select(visibility => MapStepVisibility(visibility, approverGlobalIdMaps))]
+                ? [.. step.StepVisibilities.Select(visibility => MapStepVisibility(visibility, assigneeGlobalIdMaps))]
                 : []
         };
     }
 
-    private static ApprovalRequestApproverDto MapApprover(
-        ApprovalRequestStepApprover approver,
-        ApprovalRequestApproverGlobalIdMaps approverGlobalIdMaps)
+    private static ApprovalRequestAssigneeDto MapAssignee(
+        ApprovalRequestStepAssignee assignee,
+        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps)
     {
-        return new ApprovalRequestApproverDto
+        return new ApprovalRequestAssigneeDto
         {
-            GlobalId = approver.GlobalId,
-            Type = approver.Type,
-            Email = approver.User.NormalizedEmailOrEmpty(),
-            EmployeeGlobalId = GetEmployeeGlobalId(approver, approverGlobalIdMaps),
-            TeamGlobalId = GetTeamGlobalId(approver, approverGlobalIdMaps),
-            DisplayName = approver.ApproverDisplayName
+            GlobalId = assignee.GlobalId,
+            Type = assignee.Type,
+            Email = assignee.User.NormalizedEmailOrEmpty(),
+            EmployeeGlobalId = GetEmployeeGlobalId(assignee, assigneeGlobalIdMaps),
+            TeamGlobalId = GetTeamGlobalId(assignee, assigneeGlobalIdMaps),
+            DisplayName = assignee.AssigneeDisplayName
         };
     }
 
@@ -188,11 +188,11 @@ internal static class ApprovalRequestMapper
         string createdByDisplayName,
         string createdByEmail,
         string organizationDisplayName,
-        long? approvalRequestStepApproverId,
-        IReadOnlyDictionary<long, Guid> approverGlobalIdsById,
-        ApprovalRequestApproverGlobalIdMaps approverGlobalIdMaps)
+        long? approvalRequestStepAssigneeId,
+        IReadOnlyDictionary<long, Guid> assigneeGlobalIdsById,
+        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps)
     {
-        if (!StepIsVisibleToApprover(step, approvalRequestStepApproverId))
+        if (!StepIsVisibleToAssignee(step, approvalRequestStepAssigneeId))
         {
             return new ApprovalRequestStepDto
             {
@@ -207,21 +207,21 @@ internal static class ApprovalRequestMapper
             createdByDisplayName,
             createdByEmail,
             organizationDisplayName,
-            approverGlobalIdsById,
-            approverGlobalIdMaps,
+            assigneeGlobalIdsById,
+            assigneeGlobalIdMaps,
             includeVisibility: false);
     }
 
     private static ApprovalRequestStepVisibilityDto MapStepVisibility(
         ApprovalRequestStepVisibility visibility,
-        ApprovalRequestApproverGlobalIdMaps approverGlobalIdMaps) => new()
+        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps) => new()
         {
-            ApproverGlobalId = visibility.ApprovalRequestStepApprover.GlobalId,
-            ApproverType = visibility.ApprovalRequestStepApprover.Type,
-            ApproverDisplayName = visibility.ApprovalRequestStepApprover.ApproverDisplayName,
-            ApproverEmail = visibility.ApprovalRequestStepApprover.User.NormalizedEmailOrEmpty(),
-            ApproverEmployeeGlobalId = GetEmployeeGlobalId(visibility.ApprovalRequestStepApprover, approverGlobalIdMaps),
-            ApproverTeamGlobalId = GetTeamGlobalId(visibility.ApprovalRequestStepApprover, approverGlobalIdMaps),
+            AssigneeGlobalId = visibility.ApprovalRequestStepAssignee.GlobalId,
+            AssigneeType = visibility.ApprovalRequestStepAssignee.Type,
+            AssigneeDisplayName = visibility.ApprovalRequestStepAssignee.AssigneeDisplayName,
+            AssigneeEmail = visibility.ApprovalRequestStepAssignee.User.NormalizedEmailOrEmpty(),
+            AssigneeEmployeeGlobalId = GetEmployeeGlobalId(visibility.ApprovalRequestStepAssignee, assigneeGlobalIdMaps),
+            AssigneeTeamGlobalId = GetTeamGlobalId(visibility.ApprovalRequestStepAssignee, assigneeGlobalIdMaps),
             IsVisible = visibility.IsVisible
         };
 
@@ -232,7 +232,7 @@ internal static class ApprovalRequestMapper
         string? organizationDisplayName = null,
         Guid? approvalRequestGlobalId = null,
         Guid? approvalRequestStepGlobalId = null,
-        Guid? approvalRequestStepApproverGlobalId = null)
+        Guid? approvalRequestStepAssigneeGlobalId = null)
     {
         return new ApprovalRequestTaskDto
         {
@@ -240,10 +240,10 @@ internal static class ApprovalRequestMapper
             Title = task.Title,
             ApprovalRequestGlobalId = approvalRequestGlobalId ?? task.ApprovalRequest.GlobalId,
             ApprovalRequestStepGlobalId = approvalRequestStepGlobalId ?? task.ApprovalRequestStep.GlobalId,
-            ApprovalRequestStepApproverGlobalId = approvalRequestStepApproverGlobalId ?? task.ApprovalRequestStepApprover?.GlobalId,
-            ApproverUserId = task.ApproverUserId,
-            ApproverEmail = task.ApproverUser.NormalizedEmailOrEmpty(),
-            ApproverDisplayName = task.ApproverDisplayName,
+            ApprovalRequestStepAssigneeGlobalId = approvalRequestStepAssigneeGlobalId ?? task.ApprovalRequestStepAssignee?.GlobalId,
+            AssigneeUserId = task.AssigneeUserId,
+            AssigneeEmail = task.AssigneeUser.NormalizedEmailOrEmpty(),
+            AssigneeDisplayName = task.AssigneeDisplayName,
             CompletedByDelegateEmployeeDisplayName = task.CompletedByDelegateEmployeeDisplayName,
             CompletedByDelegateEmployeeEmail = task.CompletedByDelegateUser.NormalizedEmailOrEmpty(),
             Action = task.Action,
@@ -259,11 +259,11 @@ internal static class ApprovalRequestMapper
             CompletedAt = task.CompletedAt,
             Description = task.Description,
             Comment = task.Comment,
-            ApproverIpAddress = task.ApproverIpAddress,
-            ApproverBrowserData = task.ApproverBrowserData,
-            ApproverLegalName = task.ApproverLegalName,
-            HasApproverSignature = !string.IsNullOrWhiteSpace(task.ApproverSignatureJson),
-            ApproverSignatureJson = task.ApproverSignatureJson
+            AssigneeIpAddress = task.AssigneeIpAddress,
+            AssigneeBrowserData = task.AssigneeBrowserData,
+            AssigneeLegalName = task.AssigneeLegalName,
+            HasAssigneeSignature = !string.IsNullOrWhiteSpace(task.AssigneeSignatureJson),
+            AssigneeSignatureJson = task.AssigneeSignatureJson
         };
     }
 
@@ -295,28 +295,28 @@ internal static class ApprovalRequestMapper
     }
 
     private static Guid? GetEmployeeGlobalId(
-        ApprovalRequestStepApprover approver,
-        ApprovalRequestApproverGlobalIdMaps approverGlobalIdMaps) =>
-        approver.EmployeeId is { } employeeId
-            && approverGlobalIdMaps.EmployeeGlobalIdsById.TryGetValue(employeeId, out var employeeGlobalId)
+        ApprovalRequestStepAssignee assignee,
+        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps) =>
+        assignee.EmployeeId is { } employeeId
+            && assigneeGlobalIdMaps.EmployeeGlobalIdsById.TryGetValue(employeeId, out var employeeGlobalId)
                 ? employeeGlobalId
                 : null;
 
     private static Guid? GetTeamGlobalId(
-        ApprovalRequestStepApprover approver,
-        ApprovalRequestApproverGlobalIdMaps approverGlobalIdMaps) =>
-        approver.TeamId is { } teamId
-            && approverGlobalIdMaps.TeamGlobalIdsById.TryGetValue(teamId, out var teamGlobalId)
+        ApprovalRequestStepAssignee assignee,
+        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps) =>
+        assignee.TeamId is { } teamId
+            && assigneeGlobalIdMaps.TeamGlobalIdsById.TryGetValue(teamId, out var teamGlobalId)
                 ? teamGlobalId
                 : null;
 
-    private static Guid? GetTaskApproverGlobalId(
+    private static Guid? GetTaskAssigneeGlobalId(
         ApprovalRequestTask task,
-        IReadOnlyDictionary<long, Guid> approverGlobalIdsById) =>
-        task.ApprovalRequestStepApproverId is { } approverId
-            ? approverGlobalIdsById.TryGetValue(approverId, out var globalId)
+        IReadOnlyDictionary<long, Guid> assigneeGlobalIdsById) =>
+        task.ApprovalRequestStepAssigneeId is { } assigneeId
+            ? assigneeGlobalIdsById.TryGetValue(assigneeId, out var globalId)
                 ? globalId
-                : task.ApprovalRequestStepApprover?.GlobalId
+                : task.ApprovalRequestStepAssignee?.GlobalId
             : null;
 
     private static int GetTaskRevisionNumber(ApprovalRequestTask task) =>
@@ -327,11 +327,11 @@ internal static class ApprovalRequestMapper
     private static IEnumerable<ApprovalRequestFile> OrderRequestFiles(ApprovalRequest approvalRequest) =>
         approvalRequest.RequestFiles.OrderBy(file => file.Sequence);
 
-    private static bool StepIsVisibleToApprover(ApprovalRequestStep step, long? approvalRequestStepApproverId)
+    private static bool StepIsVisibleToAssignee(ApprovalRequestStep step, long? approvalRequestStepAssigneeId)
     {
-        return approvalRequestStepApproverId is null
+        return approvalRequestStepAssigneeId is null
             || (step.StepVisibilities.SingleOrDefault(visibility =>
-                visibility.ApprovalRequestStepApproverId == approvalRequestStepApproverId)
+                visibility.ApprovalRequestStepAssigneeId == approvalRequestStepAssigneeId)
             ?.IsVisible ?? true);
     }
 }

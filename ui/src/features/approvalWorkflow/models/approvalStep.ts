@@ -6,15 +6,15 @@ export enum ApprovalStepMode {
   All = 1,
 }
 
-export enum ApprovalRecipientType {
+export enum AssigneeType {
   Email = 0,
   Employee = 1,
   Team = 2,
 }
 
-export interface ApprovalStepApprover {
+export interface ApprovalStepAssignee {
   globalId?: string;
-  type: ApprovalRecipientType;
+  type: AssigneeType;
   email?: string;
   employeeGlobalId?: string;
   teamGlobalId?: string;
@@ -27,17 +27,17 @@ export interface ApprovalStep {
   mode?: ApprovalStepMode;
   action: ApprovalRequestTaskAction;
   isVisible?: boolean;
-  approvers: ApprovalStepApprover[];
+  assignees: ApprovalStepAssignee[];
   tasks?: ApprovalRequestTask[];
   visibility?: ApprovalStepVisibility[];
 }
 
 export interface ApprovalStepVisibility {
-  approverGlobalId: string;
-  approverType: ApprovalRecipientType;
-  approverDisplayName?: string;
-  approverEmail?: string;
-  approverEmployeeGlobalId?: string;
-  approverTeamGlobalId?: string;
+  assigneeGlobalId: string;
+  assigneeType: AssigneeType;
+  assigneeDisplayName?: string;
+  assigneeEmail?: string;
+  assigneeEmployeeGlobalId?: string;
+  assigneeTeamGlobalId?: string;
   isVisible: boolean;
 }

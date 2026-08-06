@@ -63,7 +63,7 @@ const MainMenuDrawer = () => {
     currentTenant?.type === TenantType.Business &&
     currentTenant.role === EmployeeRole.Admin;
   const teamsManagerIsVisible =
-    employeeManagerIsVisible && stores.productStore.teamApproversAreEnabled;
+    employeeManagerIsVisible && stores.productStore.teamAssigneesAreEnabled;
   const templatesIsVisible =
     stores.productStore.approvalStepTemplatesAreEnabled &&
     currentTenant?.type === TenantType.Business &&

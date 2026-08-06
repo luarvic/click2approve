@@ -9,7 +9,7 @@ namespace Click2Approve.Application.Abstractions.Services.ApprovalRequests;
 /// </summary>
 public interface IApprovalWorkflowService
 {
-    Task<Dictionary<ApprovalRequestStepApprover, List<ApprovalRecipientResolution>>> ResolveApproversAsync(
+    Task<Dictionary<ApprovalRequestStepAssignee, List<AssigneeResolution>>> ResolveAssigneesAsync(
         ApprovalRequest approvalRequest,
         List<ApprovalRequestStepSubmitDto> submittedSteps,
         CancellationToken cancellationToken);
@@ -23,7 +23,7 @@ public interface IApprovalWorkflowService
     Task<List<ApprovalRequestTask>> CreateTasksForStepAsync(
         ApprovalRequest approvalRequest,
         ApprovalRequestStep step,
-        IReadOnlyDictionary<ApprovalRequestStepApprover, List<ApprovalRecipientResolution>>? approverResolutions,
+        IReadOnlyDictionary<ApprovalRequestStepAssignee, List<AssigneeResolution>>? assigneeResolutions,
         DateTime timestamp,
         CancellationToken cancellationToken);
 
@@ -40,11 +40,11 @@ public interface IApprovalWorkflowService
 
     IEnumerable<ApprovalRequestTask> GetTasks(ApprovalRequest approvalRequest);
 
-    Task NotifyApproversSentAsync(
+    Task NotifyAssigneesSentAsync(
         IEnumerable<ApprovalRequestTask> tasks,
         CancellationToken cancellationToken);
 
-    Task NotifyApproversCancelledAsync(
+    Task NotifyAssigneesCancelledAsync(
         IEnumerable<ApprovalRequestTask> tasks,
         ApprovalRequest approvalRequest,
         CancellationToken cancellationToken);

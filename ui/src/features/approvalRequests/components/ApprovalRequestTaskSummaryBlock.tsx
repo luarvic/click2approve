@@ -12,7 +12,7 @@ import {
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
-import { ApprovalRecipientType } from "@/features/approvalWorkflow/models/approvalStep";
+import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
 import { Dialogs, StackSpacing } from "@/shared/constants/constants";
 import { Box, Stack, Typography } from "@mui/material";
@@ -24,7 +24,7 @@ interface ApprovalRequestTaskSummaryBlockProps {
   icon?: ReactNode;
   onClick?: () => void;
   participant?: "assignee" | "requester" | "none";
-  participantType?: ApprovalRecipientType;
+  participantType?: AssigneeType;
   showComment?: boolean;
   showDescription?: boolean;
   showElectronicSignature?: boolean;
@@ -64,7 +64,7 @@ const getTaskBoxSx = (
 };
 
 const taskElectronicSignatureIsVisible = (task: ApprovalRequestTask) =>
-  task.hasApproverSignature === true &&
+  task.hasAssigneeSignature === true &&
   task.status !== ApprovalRequestTaskStatus.Pending;
 
 const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockProps> = ({
@@ -87,18 +87,18 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
     stores.tenantStore.currentTenant?.type === TenantType.Personal;
   const requestedByEmail = task.requestedByEmail ?? task.approvalRequest?.createdByEmail;
   const participantDisplayName = participant === "assignee"
-    ? task.approverDisplayName
+    ? task.assigneeDisplayName
     : task.requestedByDisplayName;
   const participantEmail = participant === "assignee"
-    ? task.approverEmail
+    ? task.assigneeEmail
     : requestedByEmail;
   const participantOrganizationDisplayName = task.organizationDisplayName;
   const completedByDelegate = task.completedByDelegateEmployeeDisplayName;
   const completedByDelegateEmail = task.completedByDelegateEmployeeEmail;
   const resolvedParticipantType = participantType ??
-    (participant === "assignee" && !task.approverUserId
-      ? ApprovalRecipientType.Email
-      : ApprovalRecipientType.Employee);
+    (participant === "assignee" && !task.assigneeUserId
+      ? AssigneeType.Email
+      : AssigneeType.Employee);
   const taskBoxSx = getTaskBoxSx(task.status, task.result, isClickable);
 
   return (

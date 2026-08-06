@@ -1,7 +1,7 @@
-import ApprovalStepApproverRow from "@/features/approvalWorkflow/components/ApprovalStepApproverRow";
+import ApprovalStepAssigneeRow from "@/features/approvalWorkflow/components/ApprovalStepAssigneeRow";
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import {
-  ApprovalStepApprover,
+  ApprovalStepAssignee,
   ApprovalStepMode,
 } from "@/features/approvalWorkflow/models/approvalStep";
 import { EditableApprovalStep } from "@/features/approvalWorkflow/models/editableApprovalStep";
@@ -29,7 +29,7 @@ import {
 import type { Theme } from "@mui/material/styles";
 
 interface ApprovalStepEditorStepState {
-  canAddApprover?: boolean;
+  canAddAssignee?: boolean;
   canMoveDown?: boolean;
   canMoveUp?: boolean;
   canRemove?: boolean;
@@ -39,7 +39,7 @@ interface ApprovalStepEditorStepState {
   sx?: SxProps<Theme>;
 }
 
-interface ApprovalStepEditorApproverState {
+interface ApprovalStepEditorAssigneeState {
   disabled?: boolean;
   muted?: boolean;
   removeDisabled?: boolean;
@@ -55,22 +55,22 @@ interface ApprovalStepEditorProps {
     step: EditableApprovalStep,
     stepIndex: number,
   ) => ApprovalStepEditorStepState;
-  getApproverState?: (
+  getAssigneeState?: (
     step: EditableApprovalStep,
     stepIndex: number,
-    approver: ApprovalStepApprover,
-    approverIndex: number,
-  ) => ApprovalStepEditorApproverState;
-  onAddApprover: (stepIndex: number) => void;
+    assignee: ApprovalStepAssignee,
+    assigneeIndex: number,
+  ) => ApprovalStepEditorAssigneeState;
+  onAddAssignee: (stepIndex: number) => void;
   onAddStep: () => void;
   showAddStep?: boolean;
   onMoveStep: (stepIndex: number, direction: -1 | 1) => void;
-  onRemoveApprover: (stepIndex: number, approverIndex: number) => void;
+  onRemoveAssignee: (stepIndex: number, assigneeIndex: number) => void;
   onRemoveStep: (stepIndex: number) => void;
-  onUpdateApprover: (
+  onUpdateAssignee: (
     stepIndex: number,
-    approverIndex: number,
-    approver: ApprovalStepApprover,
+    assigneeIndex: number,
+    assignee: ApprovalStepAssignee,
   ) => void;
   onUpdateStep: (
     stepIndex: number,
@@ -91,7 +91,7 @@ const stepAddButtonSx: SxProps<Theme> = {
   ...Dialogs.addStepButtonSx,
   alignSelf: "flex-start",
 };
-const approverBoxSx: SxProps<Theme> = { ...Dialogs.approvalBoxSx };
+const assigneeBoxSx: SxProps<Theme> = { ...Dialogs.approvalBoxSx };
 const actionOptions = [
   { value: ApprovalRequestTaskAction.Approve, label: "Approve" },
   { value: ApprovalRequestTaskAction.Sign, label: "Sign" },
@@ -109,15 +109,15 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
   canUseTeams,
   employees,
   teams,
-  getApproverState,
+  getAssigneeState,
   getStepState,
-  onAddApprover,
+  onAddAssignee,
   onAddStep,
   showAddStep = true,
   onMoveStep,
-  onRemoveApprover,
+  onRemoveAssignee,
   onRemoveStep,
-  onUpdateApprover,
+  onUpdateAssignee,
   onUpdateStep,
 }) => (
   <>
@@ -129,7 +129,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
           const canMoveUp = state.canMoveUp ?? stepIndex > 0;
           const canMoveDown = state.canMoveDown ?? stepIndex < steps.length - 1;
           const canRemove = state.canRemove ?? !disabled;
-          const canAddApprover = state.canAddApprover ?? !disabled;
+          const canAddAssignee = state.canAddAssignee ?? !disabled;
 
           return (
             <CommentPaper
@@ -228,42 +228,42 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                     </MenuItem>
                   ))}
                 </TextField>
-                <Stack spacing={Dialogs.approverStackSpacing}>
-                  {step.approvers.map((approver, approverIndex) =>
+                <Stack spacing={Dialogs.assigneeStackSpacing}>
+                  {step.assignees.map((assignee, assigneeIndex) =>
                     (() => {
-                      const approverState =
-                        getApproverState?.(
+                      const assigneeState =
+                        getAssigneeState?.(
                           step,
                           stepIndex,
-                          approver,
-                          approverIndex,
+                          assignee,
+                          assigneeIndex,
                         ) ?? {};
                       return (
                         <Box
-                          key={approver.globalId ?? approverIndex}
-                          sx={approverBoxSx}
+                          key={assignee.globalId ?? assigneeIndex}
+                          sx={assigneeBoxSx}
                         >
-                          <ApprovalStepApproverRow
-                            approver={approver}
+                          <ApprovalStepAssigneeRow
+                            assignee={assignee}
                             canUseEmployees={canUseEmployees}
                             canUseTeams={canUseTeams}
                             employees={employees}
                             teams={teams}
-                            disabled={approverState.disabled ?? disabled}
+                            disabled={assigneeState.disabled ?? disabled}
                             removeDisabled={
-                              approverState.removeDisabled ??
+                              assigneeState.removeDisabled ??
                               disabled
                             }
-                            muted={approverState.muted ?? state.isPassed ?? false}
-                            onChange={(nextApprover) =>
-                              onUpdateApprover(
+                            muted={assigneeState.muted ?? state.isPassed ?? false}
+                            onChange={(nextAssignee) =>
+                              onUpdateAssignee(
                                 stepIndex,
-                                approverIndex,
-                                nextApprover,
+                                assigneeIndex,
+                                nextAssignee,
                               )
                             }
                             onRemove={() =>
-                              onRemoveApprover(stepIndex, approverIndex)
+                              onRemoveAssignee(stepIndex, assigneeIndex)
                             }
                           />
                         </Box>
@@ -273,8 +273,8 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                 </Stack>
                 <Button
                   startIcon={<Add />}
-                  disabled={!canAddApprover}
-                  onClick={() => onAddApprover(stepIndex)}
+                  disabled={!canAddAssignee}
+                  onClick={() => onAddAssignee(stepIndex)}
                   sx={addButtonSx}
                 >
                   Add assignee

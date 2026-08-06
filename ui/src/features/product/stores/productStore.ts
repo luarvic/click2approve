@@ -14,12 +14,12 @@ export class ProductStore {
     return this.productInfo?.capabilities.tenants === true;
   }
 
-  get employeeApproversAreEnabled(): boolean {
-    return this.productInfo?.capabilities.employeeApprovers === true;
+  get employeeAssigneesAreEnabled(): boolean {
+    return this.productInfo?.capabilities.employeeAssignees === true;
   }
 
-  get teamApproversAreEnabled(): boolean {
-    return this.productInfo?.capabilities.teamApprovers === true;
+  get teamAssigneesAreEnabled(): boolean {
+    return this.productInfo?.capabilities.teamAssignees === true;
   }
 
   get approvalStepTemplatesAreEnabled(): boolean {

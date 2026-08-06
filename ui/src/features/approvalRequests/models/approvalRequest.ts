@@ -41,8 +41,8 @@ export interface ApprovalRequestFileSubmission {
 
 export interface ApprovalRequestStepVisibilitySubmission {
   stepSequence: number;
-  approverStepSequence: number;
-  approverIndex: number;
+  assigneeStepSequence: number;
+  assigneeIndex: number;
   isVisible: boolean;
 }
 

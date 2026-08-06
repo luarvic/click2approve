@@ -72,8 +72,8 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
     ///     2. Owners can list their files.
     ///     3. Owners can download their files.
     ///     4. Users cannot download and delete files owned by other users.
-    ///     5. Approvers can download files attached to their task only through the task endpoint.
-    ///     6. Approvers cannot download files added to the request after their task was issued.
+    ///     5. Assignees can download files attached to their task only through the task endpoint.
+    ///     6. Assignees cannot download files added to the request after their task was issued.
     ///     7. Owners can delete unattached files.
     ///     8. Owners cannot delete files attached to approval requests.
     /// </summary>
@@ -167,7 +167,7 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
         }
 
         var requester = testData.First();
-        var approver = testData.First(x => x.Credentials.Email != requester.Credentials.Email);
+        var assignee = testData.First(x => x.Credentials.Email != requester.Credentials.Email);
         var requesterNormalizedEmail = requester.Credentials.Email.ToLowerInvariant();
         var filesOwnedByRequester = _db.UserFiles
             .Where(x => x.Owner != null && x.Owner.NormalizedEmail == requesterNormalizedEmail)
@@ -192,12 +192,12 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
                     Sequence = 1,
                     Mode = ApprovalStepMode.Any,
                     Action = ApprovalRequestTaskAction.Approve,
-                    Approvers =
+                    Assignees =
                     [
-                        new ApprovalRequestApproverSubmitDto
+                        new ApprovalRequestAssigneeSubmitDto
                         {
-                            Type = ApprovalRecipientType.Email,
-                            Email = approver.Credentials.Email
+                            Type = AssigneeType.Email,
+                            Email = assignee.Credentials.Email
                         }
                     ]
                 }
@@ -229,23 +229,23 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
             approvalRequest.GlobalId,
             CancellationToken.None);
 
-        var approverLoginData = await _client.LogInAsync(approver.Credentials, CancellationToken.None);
+        var assigneeLoginData = await _client.LogInAsync(assignee.Credentials, CancellationToken.None);
         await Assert.ThrowsAsync<Exception>(() =>
-            _client.DownloadFileAsync(approverLoginData.AccessToken, taskFile.GlobalId, CancellationToken.None));
+            _client.DownloadFileAsync(assigneeLoginData.AccessToken, taskFile.GlobalId, CancellationToken.None));
         await Assert.ThrowsAsync<Exception>(() =>
-            _client.DownloadBase64Async(approverLoginData.AccessToken, taskFile.GlobalId, CancellationToken.None));
+            _client.DownloadBase64Async(assigneeLoginData.AccessToken, taskFile.GlobalId, CancellationToken.None));
         await _client.DownloadApprovalRequestTaskBase64Async(
-            approverLoginData.AccessToken,
+            assigneeLoginData.AccessToken,
             taskFile.GlobalId,
             approvalRequestTask.GlobalId,
             CancellationToken.None);
         await _client.DownloadApprovalRequestTaskBase64Async(
-            approverLoginData.AccessToken,
+            assigneeLoginData.AccessToken,
             laterRequestFile.GlobalId,
             approvalRequestTask.GlobalId,
             CancellationToken.None);
         await Assert.ThrowsAsync<Exception>(() =>
-            _client.DownloadBase64Async(approverLoginData.AccessToken, laterRequestFile.GlobalId, CancellationToken.None));
+            _client.DownloadBase64Async(assigneeLoginData.AccessToken, laterRequestFile.GlobalId, CancellationToken.None));
 
         var approvalRequestFileIds = approvalRequest.RequestFiles.Select(file => file.UserFileId).ToHashSet();
         foreach (var testDataEntry in testData)

@@ -6,10 +6,10 @@ export interface ApprovalRequestTask extends ApprovalRequestTaskListItem {
   approvalRequest?: ApprovalRequest;
   approvalRequestGlobalId: string;
   approvalRequestStepGlobalId: string;
-  approvalRequestStepApproverGlobalId?: string;
-  approverUserId?: string;
-  approverEmail: string;
-  approverDisplayName: string;
+  approvalRequestStepAssigneeGlobalId?: string;
+  assigneeUserId?: string;
+  assigneeEmail: string;
+  assigneeDisplayName: string;
   completedByDelegateEmployeeDisplayName?: string;
   completedByDelegateEmployeeEmail?: string;
   requestedByEmail: string;
@@ -17,10 +17,10 @@ export interface ApprovalRequestTask extends ApprovalRequestTaskListItem {
   organizationDisplayName: string;
   description?: string;
   comment?: string;
-  approverIpAddress?: string;
-  approverBrowserData?: string;
-  approverLegalName?: string;
-  hasApproverSignature?: boolean;
-  approverSignatureJson?: string;
+  assigneeIpAddress?: string;
+  assigneeBrowserData?: string;
+  assigneeLegalName?: string;
+  hasAssigneeSignature?: boolean;
+  assigneeSignatureJson?: string;
   requestFiles: ApprovalRequestFile[];
 }

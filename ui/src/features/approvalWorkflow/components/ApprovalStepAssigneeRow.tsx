@@ -1,6 +1,6 @@
 import {
-  ApprovalRecipientType,
-  ApprovalStepApprover,
+  AssigneeType,
+  ApprovalStepAssignee,
 } from "@/features/approvalWorkflow/models/approvalStep";
 import { Employee } from "@/features/employees/models/employee";
 import DisplayName from "@/shared/components/identity/DisplayName";
@@ -17,8 +17,8 @@ import {
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 
-interface ApprovalStepApproverRowProps {
-  approver: ApprovalStepApprover;
+interface ApprovalStepAssigneeRowProps {
+  assignee: ApprovalStepAssignee;
   canUseEmployees: boolean;
   canUseTeams: boolean;
   employees: Employee[];
@@ -26,18 +26,18 @@ interface ApprovalStepApproverRowProps {
   disabled?: boolean;
   removeDisabled?: boolean;
   muted?: boolean;
-  onChange: (approver: ApprovalStepApprover) => void;
+  onChange: (assignee: ApprovalStepAssignee) => void;
   onRemove: () => void;
 }
 
-const getApproverRowSx = (muted: boolean): SxProps<Theme> => ({
+const getAssigneeRowSx = (muted: boolean): SxProps<Theme> => ({
   opacity: muted ? 0.65 : 1,
 });
 const assigneeControlsSx: SxProps<Theme> = { flexWrap: "nowrap" };
 const assigneeFieldSx: SxProps<Theme> = { flexGrow: 1, minWidth: 0 };
 
-const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
-  approver,
+const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
+  assignee,
   canUseEmployees,
   canUseTeams,
   employees,
@@ -49,35 +49,35 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
   onRemove,
 }) => {
   const recipientTypes = [
-    { value: ApprovalRecipientType.Email, label: "Email" },
+    { value: AssigneeType.Email, label: "Email" },
     ...(canUseEmployees
-      ? [{ value: ApprovalRecipientType.Employee, label: "Employee" }]
+      ? [{ value: AssigneeType.Employee, label: "Employee" }]
       : []),
     ...(canUseTeams
-      ? [{ value: ApprovalRecipientType.Team, label: "Team" }]
+      ? [{ value: AssigneeType.Team, label: "Team" }]
       : []),
   ];
 
   return (
-    <Stack spacing={Dialogs.approverStackSpacing} sx={getApproverRowSx(muted)}>
+    <Stack spacing={Dialogs.assigneeStackSpacing} sx={getAssigneeRowSx(muted)}>
       <Stack
         direction="row"
-        spacing={Dialogs.approverStackSpacing}
+        spacing={Dialogs.assigneeStackSpacing}
         alignItems="center"
         sx={assigneeControlsSx}
       >
         <TextField
           select
           label="Type"
-          value={approver.type}
+          value={assignee.type}
           disabled={disabled}
             onChange={(event) =>
               onChange({
-                globalId: approver.globalId,
-                type: Number(event.target.value) as ApprovalRecipientType,
+                globalId: assignee.globalId,
+                type: Number(event.target.value) as AssigneeType,
               })
             }
-          sx={Dialogs.approverTypeFieldSx}
+          sx={Dialogs.assigneeTypeFieldSx}
         >
           {recipientTypes.map((type) => (
             <MenuItem key={type.value} value={type.value}>
@@ -85,25 +85,25 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
             </MenuItem>
           ))}
         </TextField>
-        {approver.type === ApprovalRecipientType.Email && (
+        {assignee.type === AssigneeType.Email && (
           <TextField
             fullWidth
             label="Email"
-            value={approver.email ?? ""}
+            value={assignee.email ?? ""}
             disabled={disabled}
             onChange={(event) =>
-              onChange({ ...approver, email: event.target.value })
+              onChange({ ...assignee, email: event.target.value })
             }
             sx={assigneeFieldSx}
           />
         )}
-        {approver.type === ApprovalRecipientType.Employee && (
+        {assignee.type === AssigneeType.Employee && (
           <Autocomplete
             fullWidth
             options={employees}
             getOptionLabel={(option) => option.displayName}
             value={
-              employees.find((user) => user.globalId === approver.employeeGlobalId) ?? null
+              employees.find((user) => user.globalId === assignee.employeeGlobalId) ?? null
             }
             disabled={disabled}
             renderInput={(params) => (
@@ -119,26 +119,26 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
             )}
             onChange={(_, value) =>
               onChange({
-                ...approver,
+                ...assignee,
                 employeeGlobalId: value?.globalId,
               })
             }
             sx={assigneeFieldSx}
           />
         )}
-        {approver.type === ApprovalRecipientType.Team && (
+        {assignee.type === AssigneeType.Team && (
           <Autocomplete
             fullWidth
             options={teams}
             getOptionLabel={(option) => option.name}
-            value={teams.find((team) => team.globalId === approver.teamGlobalId) ?? null}
+            value={teams.find((team) => team.globalId === assignee.teamGlobalId) ?? null}
             disabled={disabled}
             renderInput={(params) => (
               <TextField {...params} label="Team" />
             )}
             onChange={(_, value) =>
               onChange({
-                ...approver,
+                ...assignee,
                 teamGlobalId: value?.globalId,
               })
             }
@@ -151,7 +151,7 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
               aria-label="Remove assignee"
               disabled={removeDisabled}
               onClick={onRemove}
-              sx={Dialogs.removeApproverButtonSx}
+              sx={Dialogs.removeAssigneeButtonSx}
             >
               <Close />
             </IconButton>
@@ -162,4 +162,4 @@ const ApprovalStepApproverRow: React.FC<ApprovalStepApproverRowProps> = ({
   );
 };
 
-export default ApprovalStepApproverRow;
+export default ApprovalStepAssigneeRow;

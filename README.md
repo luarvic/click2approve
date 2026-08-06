@@ -23,8 +23,8 @@ review decisions, and tracking request history.
 - Upload, list, download, preview, and delete files stored in filesystem-backed
   user file storage.
 - Compose approval requests with one or more files, a title, description, and
-  email-based approvers.
-- Build multi-step approval workflows with serial or parallel approver steps.
+  email-based assignees.
+- Build multi-step approval workflows with serial or parallel assignee steps.
 - Track sent approval requests in the outbox, inspect request details, see
   in-progress request state, cancel pending requests, and delete requests.
 - Review incoming approval tasks in the inbox, open task details, preview
@@ -34,7 +34,7 @@ review decisions, and tracking request history.
   signature strokes, IP address, and browser data on completed tasks.
 - Maintain a user profile with display name, avatar, dark-mode preference, and
   email notification preferences.
-- Notify requesters and approvers by email when email delivery is enabled,
+- Notify requesters and assignees by email when email delivery is enabled,
   including account, task, cancellation, deletion, and review notifications.
 - Expose product edition and capability metadata so the shared UI can hide or
   block commercial-only features when it is connected to the open-source API.

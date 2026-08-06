@@ -1,7 +1,7 @@
 namespace Click2Approve.Application.Models.DTOs;
 
 /// <summary>
-/// Represents browser-provided audit context captured when an approver completes a task.
+/// Represents browser-provided audit context captured when an assignee completes a task.
 /// </summary>
 public class ApprovalRequestTaskClientAuditContextDto
 {

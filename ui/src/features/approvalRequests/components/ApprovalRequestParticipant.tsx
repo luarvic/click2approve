@@ -1,5 +1,5 @@
 import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
-import { ApprovalRecipientType } from "@/features/approvalWorkflow/models/approvalStep";
+import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import DisplayName from "@/shared/components/identity/DisplayName";
 import { stripInlineEmail } from "@/shared/utils/displayNameHelpers";
 import type { SxProps } from "@mui/material";
@@ -14,7 +14,7 @@ interface ApprovalRequestParticipantProps {
   organizationDisplayName?: string | null;
   showOrganization?: boolean;
   sx?: SxProps<Theme>;
-  type?: ApprovalRecipientType;
+  type?: AssigneeType;
 }
 
 const getParticipantDisplayName = (
@@ -36,7 +36,7 @@ const ApprovalRequestParticipant: React.FC<ApprovalRequestParticipantProps> = ({
   organizationDisplayName,
   showOrganization = false,
   sx,
-  type = ApprovalRecipientType.Employee,
+  type = AssigneeType.Employee,
 }) => {
   const participantDisplayName = getParticipantDisplayName(
     displayName,
@@ -49,7 +49,7 @@ const ApprovalRequestParticipant: React.FC<ApprovalRequestParticipantProps> = ({
     <ApprovalRequestParticipantLine
       icon={icon}
       label={
-        type === ApprovalRecipientType.Email
+        type === AssigneeType.Email
           ? emailLabel
           : (
             <DisplayName

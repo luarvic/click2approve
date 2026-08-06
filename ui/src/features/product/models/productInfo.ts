@@ -6,8 +6,8 @@ export interface ProductInfo {
 
 export interface ProductCapabilities {
   tenants: boolean;
-  employeeApprovers: boolean;
-  teamApprovers: boolean;
+  employeeAssignees: boolean;
+  teamAssignees: boolean;
   approvalStepTemplates: boolean;
   approvalRequestRevisions: boolean;
   sharedVerificationLinks: boolean;

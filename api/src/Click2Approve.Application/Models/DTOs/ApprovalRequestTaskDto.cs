@@ -24,10 +24,10 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
         RevisionNumber = source.RevisionNumber;
         ApprovalRequestGlobalId = source.ApprovalRequestGlobalId;
         ApprovalRequestStepGlobalId = source.ApprovalRequestStepGlobalId;
-        ApprovalRequestStepApproverGlobalId = source.ApprovalRequestStepApproverGlobalId;
-        ApproverUserId = source.ApproverUserId;
-        ApproverEmail = source.ApproverEmail;
-        ApproverDisplayName = source.ApproverDisplayName;
+        ApprovalRequestStepAssigneeGlobalId = source.ApprovalRequestStepAssigneeGlobalId;
+        AssigneeUserId = source.AssigneeUserId;
+        AssigneeEmail = source.AssigneeEmail;
+        AssigneeDisplayName = source.AssigneeDisplayName;
         CompletedByDelegateEmployeeDisplayName = source.CompletedByDelegateEmployeeDisplayName;
         CompletedByDelegateEmployeeEmail = source.CompletedByDelegateEmployeeEmail;
         RequestedByEmail = source.RequestedByEmail;
@@ -35,26 +35,26 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
         OrganizationDisplayName = source.OrganizationDisplayName;
         Description = source.Description;
         Comment = source.Comment;
-        ApproverIpAddress = source.ApproverIpAddress;
-        ApproverBrowserData = source.ApproverBrowserData;
-        ApproverLegalName = source.ApproverLegalName;
-        HasApproverSignature = source.HasApproverSignature;
-        ApproverSignatureJson = source.ApproverSignatureJson;
+        AssigneeIpAddress = source.AssigneeIpAddress;
+        AssigneeBrowserData = source.AssigneeBrowserData;
+        AssigneeLegalName = source.AssigneeLegalName;
+        HasAssigneeSignature = source.HasAssigneeSignature;
+        AssigneeSignatureJson = source.AssigneeSignatureJson;
     }
 
     public Guid ApprovalRequestGlobalId { get; init; }
     public Guid ApprovalRequestStepGlobalId { get; init; }
-    public Guid? ApprovalRequestStepApproverGlobalId { get; init; }
-    public string? ApproverUserId { get; init; }
-    public required string ApproverEmail { get; init; }
-    public required string ApproverDisplayName { get; init; }
+    public Guid? ApprovalRequestStepAssigneeGlobalId { get; init; }
+    public string? AssigneeUserId { get; init; }
+    public required string AssigneeEmail { get; init; }
+    public required string AssigneeDisplayName { get; init; }
     public string? CompletedByDelegateEmployeeDisplayName { get; init; }
     public string? CompletedByDelegateEmployeeEmail { get; init; }
     public string? Description { get; init; }
     public string? Comment { get; init; }
-    public string? ApproverIpAddress { get; init; }
-    public string? ApproverBrowserData { get; init; }
-    public string? ApproverLegalName { get; init; }
-    public bool HasApproverSignature { get; init; }
-    public string? ApproverSignatureJson { get; init; }
+    public string? AssigneeIpAddress { get; init; }
+    public string? AssigneeBrowserData { get; init; }
+    public string? AssigneeLegalName { get; init; }
+    public bool HasAssigneeSignature { get; init; }
+    public string? AssigneeSignatureJson { get; init; }
 }

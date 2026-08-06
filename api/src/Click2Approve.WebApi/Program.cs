@@ -53,8 +53,8 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddSwagger();
 
-builder.Services.AddScoped<IApprovalRecipientResolver, EmailOnlyApprovalRecipientResolver>();
-builder.Services.AddScoped<IApprovalRequestApproverGlobalIdResolver, DefaultApprovalRequestApproverGlobalIdResolver>();
+builder.Services.AddScoped<IAssigneeResolver, EmailOnlyAssigneeResolver>();
+builder.Services.AddScoped<IApprovalRequestAssigneeGlobalIdResolver, DefaultApprovalRequestAssigneeGlobalIdResolver>();
 builder.Services.AddScoped<IApprovalRequestService, ApprovalRequestService>();
 builder.Services.AddScoped<IApprovalRequestTaskService, ApprovalRequestTaskService>();
 builder.Services.AddScoped<IApprovalRequestTaskCompletionAttributor, ApprovalRequestTaskCompletionAttributor>();
