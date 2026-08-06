@@ -15,7 +15,7 @@ public class ApprovalRequest : DbEntity
     public DateTime? CompletedAt { get; set; }
     public required DateTime CreatedAt { get; set; }
     public required string CreatedByDisplayName { get; set; }
-    public required string CreatedByOrganizationDisplayName { get; set; }
+    public required string OrganizationDisplayName { get; set; }
     public required string? Description { get; set; }
     public int RevisionNumber { get; set; } = 1;
     public bool? Result { get; set; }

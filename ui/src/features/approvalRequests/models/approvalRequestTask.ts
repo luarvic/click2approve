@@ -10,10 +10,11 @@ export interface ApprovalRequestTask extends ApprovalRequestTaskListItem {
   approverUserId?: string;
   approverEmail: string;
   approverDisplayName: string;
-  approverOrganizationDisplayName?: string;
+  completedByDelegateEmployeeDisplayName?: string;
+  completedByDelegateEmployeeEmail?: string;
   requestedByEmail: string;
   requestedByDisplayName: string;
-  createdByOrganizationDisplayName: string;
+  organizationDisplayName: string;
   description?: string;
   comment?: string;
   approverIpAddress?: string;

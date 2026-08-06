@@ -15,6 +15,6 @@ public class ApprovalRequestListItemDto
     public DateTime? CompletedAt { get; init; }
     public required string CreatedByEmail { get; init; }
     public required string CreatedByDisplayName { get; init; }
-    public required string CreatedByOrganizationDisplayName { get; init; }
+    public required string OrganizationDisplayName { get; init; }
     public int RevisionNumber { get; init; }
 }

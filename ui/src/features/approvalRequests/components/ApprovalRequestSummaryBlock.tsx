@@ -47,7 +47,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
         <ApprovalRequestParticipant
           displayName={approvalRequest.createdByDisplayName}
           email={approvalRequest.createdByEmail}
-          organizationDisplayName={approvalRequest.createdByOrganizationDisplayName}
+          organizationDisplayName={approvalRequest.organizationDisplayName}
           showOrganization={organizationIsVisible}
           type={ApprovalRecipientType.Employee}
         />

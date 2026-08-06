@@ -1,6 +1,7 @@
 import { getSharedVerificationReceipt } from "@/features/sharedVerificationLinks/api/sharedVerificationLinksApi";
 import {
   SharedVerificationFile,
+  SharedVerificationParticipantRole,
   SharedVerificationReceipt,
 } from "@/features/sharedVerificationLinks/models/sharedVerificationLink";
 import { Files, Routes, Shell, StackSpacing } from "@/shared/constants/constants";
@@ -225,28 +226,36 @@ const participantTableSx: SxProps<Theme> = {
   tableLayout: "fixed",
 };
 
-const participantNameColumnSx: SxProps<Theme> = {
-  width: "15%",
+const participantDisplayNameColumnSx: SxProps<Theme> = {
+  width: "14%",
+};
+
+const participantDelegateDisplayNameColumnSx: SxProps<Theme> = {
+  width: "14%",
 };
 
 const participantEmailColumnSx: SxProps<Theme> = {
-  width: "25%",
+  width: "18%",
+};
+
+const participantDelegateEmailColumnSx: SxProps<Theme> = {
+  width: "18%",
 };
 
 const participantOrganizationColumnSx: SxProps<Theme> = {
-  width: "15%",
+  width: "12%",
 };
 
 const participantRelationshipColumnSx: SxProps<Theme> = {
-  width: "15%",
+  width: "12%",
 };
 
 const participantActionColumnSx: SxProps<Theme> = {
-  width: "15%",
+  width: "14%",
 };
 
 const participantPerformedAtColumnSx: SxProps<Theme> = {
-  width: "15%",
+  width: "16%",
 };
 
 const mobileRecordStackSx: SxProps<Theme> = {
@@ -337,6 +346,15 @@ const formatCertificateDateTime = (date: Date | undefined): string =>
 
 const formatParticipantOrganization = (organizationDisplayName?: string): string =>
   organizationDisplayName || "N/A";
+
+const getParticipantRoleLabel = (role: SharedVerificationParticipantRole) => {
+  switch (role) {
+    case SharedVerificationParticipantRole.Requester:
+      return "Requester";
+    case SharedVerificationParticipantRole.Assignee:
+      return "Assignee";
+  }
+};
 
 const computeSha256 = async (file: File): Promise<string> => {
   const buffer = await file.arrayBuffer();
@@ -456,7 +474,7 @@ const SharedVerificationReceiptPage = () => {
                   {renderField("Request description", receipt.approvalRequestDescription)}
                   {renderField("Revision", String(receipt.revisionNumber))}
                   {renderField("Request ID", receipt.approvalRequestGlobalId)}
-                  {renderField("Organization", receipt.createdByOrganizationDisplayName)}
+                  {renderField("Organization", receipt.organizationDisplayName)}
                 </Stack>
                 <Stack spacing={StackSpacing.default}>
                   {renderField(
@@ -552,8 +570,10 @@ const SharedVerificationReceiptPage = () => {
               <Table size="small" sx={participantTableSx}>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={[tableHeaderCellSx, participantNameColumnSx]}>Participant</TableCell>
+                    <TableCell sx={[tableHeaderCellSx, participantDisplayNameColumnSx]}>Participant</TableCell>
                     <TableCell sx={[tableHeaderCellSx, participantEmailColumnSx]}>Email</TableCell>
+                    <TableCell sx={[tableHeaderCellSx, participantDelegateDisplayNameColumnSx]}>Delegate</TableCell>
+                    <TableCell sx={[tableHeaderCellSx, participantDelegateEmailColumnSx]}>Delegate email</TableCell>
                     <TableCell sx={[tableHeaderCellSx, participantOrganizationColumnSx]}>Organization</TableCell>
                     <TableCell sx={[tableHeaderCellSx, participantRelationshipColumnSx]}>Relationship</TableCell>
                     <TableCell sx={[tableHeaderCellSx, participantActionColumnSx]}>Action</TableCell>
@@ -568,17 +588,23 @@ const SharedVerificationReceiptPage = () => {
                       key={`${participant.role}-${participant.displayName}-${index}`}
                       sx={index === (receipt.participants ?? []).length - 1 ? tableLastRowSx : undefined}
                     >
-                      <TableCell sx={[tableCellSx, participantNameColumnSx]}>
+                      <TableCell sx={[tableCellSx, participantDisplayNameColumnSx]}>
                         {participant.displayName}
                       </TableCell>
                       <TableCell sx={[tableCellSx, participantEmailColumnSx]}>
                         {participant.email}
                       </TableCell>
+                      <TableCell sx={[tableCellSx, participantDelegateDisplayNameColumnSx]}>
+                        {participant.delegateDisplayName ?? "—"}
+                      </TableCell>
+                      <TableCell sx={[tableCellSx, participantDelegateEmailColumnSx]}>
+                        {participant.delegateEmail ?? "—"}
+                      </TableCell>
                       <TableCell sx={[tableCellSx, participantOrganizationColumnSx]}>
                         {formatParticipantOrganization(participant.organizationDisplayName)}
                       </TableCell>
                       <TableCell sx={[tableCellSx, participantRelationshipColumnSx]}>
-                        {participant.role}
+                        {getParticipantRoleLabel(participant.role)}
                       </TableCell>
                       <TableCell sx={[tableCellSx, participantActionColumnSx]}>
                         {participant.action}
@@ -601,8 +627,10 @@ const SharedVerificationReceiptPage = () => {
                   >
                     {renderField("Participant", participant.displayName)}
                     {renderField("Email", participant.email)}
+                    {renderField("Delegate", participant.delegateDisplayName)}
+                    {renderField("Delegate email", participant.delegateEmail)}
                     {renderField("Organization", formatParticipantOrganization(participant.organizationDisplayName))}
-                    {renderField("Relationship", participant.role)}
+                    {renderField("Relationship", getParticipantRoleLabel(participant.role))}
                     {renderField("Action", participant.action)}
                     {renderField(
                       "Performed at",

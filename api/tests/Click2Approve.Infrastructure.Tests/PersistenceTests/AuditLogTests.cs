@@ -130,7 +130,7 @@ public class AuditLogTests
             CreatedByUser = owner,
             CreatedByUserId = owner.Id,
             CreatedByDisplayName = "Owner",
-            CreatedByOrganizationDisplayName = "Personal",
+            OrganizationDisplayName = "Personal",
             Tenant = tenant,
             Status = ApprovalRequestStatus.Draft,
             Steps = [],

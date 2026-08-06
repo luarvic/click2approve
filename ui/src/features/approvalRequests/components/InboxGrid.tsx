@@ -108,10 +108,10 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
       valueGetter: (_value, row) => row.requestedByDisplayName,
     },
     {
-      field: "createdByOrganizationDisplayName",
+      field: "organizationDisplayName",
       headerName: "Organization",
       flex: DataGrids.approvalColumnFlex.metadata,
-      valueGetter: (_value, row) => row.createdByOrganizationDisplayName,
+      valueGetter: (_value, row) => row.organizationDisplayName,
     },
     {
       field: "createdAtDate",
@@ -137,7 +137,7 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
         columnVisibilityModel={{
           globalId: numberColumnIsVisible,
           requestedByDisplayName: requestedByColumnIsVisible,
-          createdByOrganizationDisplayName: organizationColumnIsVisible,
+          organizationDisplayName: organizationColumnIsVisible,
           createdAtDate: createdColumnIsVisible,
         }}
         paginationModel={paginationModel}

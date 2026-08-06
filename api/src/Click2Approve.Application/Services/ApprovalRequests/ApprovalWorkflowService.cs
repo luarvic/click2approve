@@ -314,7 +314,7 @@ public class ApprovalWorkflowService(
                 ApproverUserId = resolution.ApproverUser.Id,
                 ApproverEmployeeId = resolution.ApproverEmployeeId,
                 ApproverDisplayName = resolution.ApproverDisplayName,
-                ApproverOrganizationDisplayName = resolution.ApproverOrganizationDisplayName,
+                OrganizationDisplayName = approvalRequest.OrganizationDisplayName,
                 TenantId = resolution.TenantId,
                 RevisionNumber = approvalRequest.RevisionNumber,
                 Action = step.Action,

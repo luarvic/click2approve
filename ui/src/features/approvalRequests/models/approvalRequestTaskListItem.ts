@@ -13,6 +13,6 @@ export interface ApprovalRequestTaskListItem {
   completedAtDate?: Date;
   requestedByEmail: string;
   requestedByDisplayName: string;
-  createdByOrganizationDisplayName: string;
+  organizationDisplayName: string;
   revisionNumber: number;
 }

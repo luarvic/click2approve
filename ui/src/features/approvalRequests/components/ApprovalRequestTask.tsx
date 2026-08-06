@@ -223,6 +223,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
         >
           {currentTask && (
             <ApprovalRequestTaskSummaryBlock
+              participant="assignee"
               showComment
               showElectronicSignature={requiresElectronicSignature}
               task={currentTask}

@@ -92,8 +92,7 @@ public class EmailOnlyApprovalRecipientResolver(
                 ApproverUser: approverTenant?.Owner ?? approverUser,
                 ApproverEmployeeId: null,
                 TenantId: approverTenant?.Id ?? approvalRequest.TenantId,
-                ApproverDisplayName: displayName,
-                ApproverOrganizationDisplayName: approverTenant?.BusinessName)
+                ApproverDisplayName: displayName)
         ];
     }
 }

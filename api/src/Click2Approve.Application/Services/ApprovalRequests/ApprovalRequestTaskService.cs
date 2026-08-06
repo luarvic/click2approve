@@ -11,12 +11,14 @@ public class ApprovalRequestTaskService(
     IApprovalRequestTaskRepository approvalRequestTaskRepository,
     IUnitOfWork unitOfWork,
     IApprovalRequestApproverGlobalIdResolver approverGlobalIdResolver,
-    IApprovalWorkflowService workflowService) : IApprovalRequestTaskService
+    IApprovalWorkflowService workflowService,
+    IApprovalRequestTaskCompletionAttributor completionAttributor) : IApprovalRequestTaskService
 {
     private readonly IApprovalRequestTaskRepository _approvalRequestTaskRepository = approvalRequestTaskRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IApprovalRequestApproverGlobalIdResolver _approverGlobalIdResolver = approverGlobalIdResolver;
     private readonly IApprovalWorkflowService _workflowService = workflowService;
+    private readonly IApprovalRequestTaskCompletionAttributor _completionAttributor = completionAttributor;
 
     /// <summary>
     /// Lists approval request tasks.
@@ -63,6 +65,7 @@ public class ApprovalRequestTaskService(
         approvalRequestTask.Result = payload.Result;
         approvalRequestTask.CompletedAt = now;
         approvalRequestTask.Comment = payload.Comment;
+        await _completionAttributor.AttributeAsync(user, approvalRequestTask, cancellationToken);
 
         if (approvalRequestTask.ApprovalRequest.Status is ApprovalRequestStatus.Pending or ApprovalRequestStatus.Started)
         {

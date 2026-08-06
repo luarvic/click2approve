@@ -282,7 +282,7 @@ const renderTaskDetails = (
     key={task.globalId}
     icon={icon}
     onClick={isCurrentTask ? onCurrentTaskClick : undefined}
-    participant="approver"
+    participant="assignee"
     participantType={participantType}
     showComment
     showDescription={false}

@@ -15,7 +15,7 @@ import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/ap
 import { ApprovalRecipientType } from "@/features/approvalWorkflow/models/approvalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
 import { Dialogs, StackSpacing } from "@/shared/constants/constants";
-import { Box, Stack } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import type { SxProps } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
@@ -23,7 +23,7 @@ import type { ReactNode } from "react";
 interface ApprovalRequestTaskSummaryBlockProps {
   icon?: ReactNode;
   onClick?: () => void;
-  participant?: "approver" | "requester" | "none";
+  participant?: "assignee" | "requester" | "none";
   participantType?: ApprovalRecipientType;
   showComment?: boolean;
   showDescription?: boolean;
@@ -86,17 +86,17 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   const organizationIsVisible =
     stores.tenantStore.currentTenant?.type === TenantType.Personal;
   const requestedByEmail = task.requestedByEmail ?? task.approvalRequest?.createdByEmail;
-  const participantDisplayName = participant === "approver"
+  const participantDisplayName = participant === "assignee"
     ? task.approverDisplayName
     : task.requestedByDisplayName;
-  const participantEmail = participant === "approver"
+  const participantEmail = participant === "assignee"
     ? task.approverEmail
     : requestedByEmail;
-  const participantOrganizationDisplayName = participant === "approver"
-    ? task.approverOrganizationDisplayName
-    : task.createdByOrganizationDisplayName;
+  const participantOrganizationDisplayName = task.organizationDisplayName;
+  const completedByDelegate = task.completedByDelegateEmployeeDisplayName;
+  const completedByDelegateEmail = task.completedByDelegateEmployeeEmail;
   const resolvedParticipantType = participantType ??
-    (participant === "approver" && !task.approverUserId
+    (participant === "assignee" && !task.approverUserId
       ? ApprovalRecipientType.Email
       : ApprovalRecipientType.Employee);
   const taskBoxSx = getTaskBoxSx(task.status, task.result, isClickable);
@@ -132,14 +132,28 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
           showTitle={showTitle}
         />
         {participant !== "none" && (
-          <ApprovalRequestParticipant
-            icon={icon}
-            displayName={participantDisplayName}
-            email={participantEmail}
-            organizationDisplayName={participantOrganizationDisplayName}
-            showOrganization={organizationIsVisible}
-            type={resolvedParticipantType}
-          />
+          <>
+            {participant === "assignee" && <Typography variant="body2">Assigned to</Typography>}
+            <ApprovalRequestParticipant
+              icon={icon}
+              displayName={participantDisplayName}
+              email={participantEmail}
+              organizationDisplayName={participantOrganizationDisplayName}
+              showOrganization={organizationIsVisible}
+              type={resolvedParticipantType}
+            />
+            {completedByDelegate && (
+              <>
+                <Typography variant="body2">Completed by delegate</Typography>
+                <ApprovalRequestParticipant
+                  displayName={completedByDelegate}
+                  email={completedByDelegateEmail}
+                  organizationDisplayName={participantOrganizationDisplayName}
+                  showOrganization={organizationIsVisible}
+                />
+              </>
+            )}
+          </>
         )}
         {showComment && <ApprovalRequestComment label="Comment" text={task.comment} />}
         {showElectronicSignature && taskElectronicSignatureIsVisible(task) && (

@@ -20,7 +20,7 @@ internal static class ApprovalRequestMapper
         CompletedAt = approvalRequest.CompletedAt,
         CreatedByEmail = approvalRequest.CreatedByUser.NormalizedEmailOrEmpty(),
         CreatedByDisplayName = approvalRequest.CreatedByDisplayName,
-        CreatedByOrganizationDisplayName = approvalRequest.CreatedByOrganizationDisplayName,
+        OrganizationDisplayName = approvalRequest.OrganizationDisplayName,
         RevisionNumber = approvalRequest.RevisionNumber
     };
 
@@ -35,7 +35,7 @@ internal static class ApprovalRequestMapper
         CompletedAt = task.CompletedAt,
         RequestedByEmail = task.ApprovalRequest.CreatedByUser.NormalizedEmailOrEmpty(),
         RequestedByDisplayName = task.ApprovalRequest.CreatedByDisplayName,
-        CreatedByOrganizationDisplayName = task.ApprovalRequest.CreatedByOrganizationDisplayName,
+        OrganizationDisplayName = task.ApprovalRequest.OrganizationDisplayName,
         RevisionNumber = GetTaskRevisionNumber(task)
     };
 
@@ -57,7 +57,7 @@ internal static class ApprovalRequestMapper
                 approvalRequest.GlobalId,
                 approvalRequest.CreatedByDisplayName,
                 createdByEmail,
-                approvalRequest.CreatedByOrganizationDisplayName,
+                approvalRequest.OrganizationDisplayName,
                 approverGlobalIdsById,
                 approverGlobalIdMaps))],
             Description = approvalRequest.Description,
@@ -66,7 +66,7 @@ internal static class ApprovalRequestMapper
             CreatedByUserId = approvalRequest.CreatedByUserId,
             CreatedByEmail = createdByEmail,
             CreatedByDisplayName = approvalRequest.CreatedByDisplayName,
-            CreatedByOrganizationDisplayName = approvalRequest.CreatedByOrganizationDisplayName,
+            OrganizationDisplayName = approvalRequest.OrganizationDisplayName,
             Status = approvalRequest.Status,
             Result = approvalRequest.Result,
             RevisionNumber = approvalRequest.RevisionNumber,
@@ -112,7 +112,7 @@ internal static class ApprovalRequestMapper
                 approvalRequest.GlobalId,
                 approvalRequest.CreatedByDisplayName,
                 createdByEmail,
-                approvalRequest.CreatedByOrganizationDisplayName,
+                approvalRequest.OrganizationDisplayName,
                 approvalRequestStepApproverId,
                 approverGlobalIdsById,
                 approverGlobalIdMaps))],
@@ -122,7 +122,7 @@ internal static class ApprovalRequestMapper
             CreatedByUserId = approvalRequest.CreatedByUserId,
             CreatedByEmail = createdByEmail,
             CreatedByDisplayName = approvalRequest.CreatedByDisplayName,
-            CreatedByOrganizationDisplayName = approvalRequest.CreatedByOrganizationDisplayName,
+            OrganizationDisplayName = approvalRequest.OrganizationDisplayName,
             Status = approvalRequest.Status,
             Result = approvalRequest.Result,
             RevisionNumber = approvalRequest.RevisionNumber,
@@ -138,7 +138,7 @@ internal static class ApprovalRequestMapper
         Guid approvalRequestGlobalId,
         string createdByDisplayName,
         string createdByEmail,
-        string createdByOrganizationDisplayName,
+        string organizationDisplayName,
         IReadOnlyDictionary<long, Guid>? approverGlobalIdsById = null,
         ApprovalRequestApproverGlobalIdMaps? approverGlobalIdMaps = null,
         bool includeVisibility = true)
@@ -155,7 +155,7 @@ internal static class ApprovalRequestMapper
                 task,
                 createdByDisplayName,
                 createdByEmail,
-                createdByOrganizationDisplayName,
+                organizationDisplayName,
                 approvalRequestGlobalId,
                 step.GlobalId,
                 approverGlobalIdsById is not null
@@ -187,7 +187,7 @@ internal static class ApprovalRequestMapper
         Guid approvalRequestGlobalId,
         string createdByDisplayName,
         string createdByEmail,
-        string createdByOrganizationDisplayName,
+        string organizationDisplayName,
         long? approvalRequestStepApproverId,
         IReadOnlyDictionary<long, Guid> approverGlobalIdsById,
         ApprovalRequestApproverGlobalIdMaps approverGlobalIdMaps)
@@ -206,7 +206,7 @@ internal static class ApprovalRequestMapper
             approvalRequestGlobalId,
             createdByDisplayName,
             createdByEmail,
-            createdByOrganizationDisplayName,
+            organizationDisplayName,
             approverGlobalIdsById,
             approverGlobalIdMaps,
             includeVisibility: false);
@@ -229,7 +229,7 @@ internal static class ApprovalRequestMapper
         ApprovalRequestTask task,
         string? createdByDisplayName = null,
         string? createdByEmail = null,
-        string? createdByOrganizationDisplayName = null,
+        string? organizationDisplayName = null,
         Guid? approvalRequestGlobalId = null,
         Guid? approvalRequestStepGlobalId = null,
         Guid? approvalRequestStepApproverGlobalId = null)
@@ -244,12 +244,15 @@ internal static class ApprovalRequestMapper
             ApproverUserId = task.ApproverUserId,
             ApproverEmail = task.ApproverUser.NormalizedEmailOrEmpty(),
             ApproverDisplayName = task.ApproverDisplayName,
-            ApproverOrganizationDisplayName = task.ApproverOrganizationDisplayName,
+            CompletedByDelegateEmployeeDisplayName = task.CompletedByDelegateEmployeeDisplayName,
+            CompletedByDelegateEmployeeEmail = task.CompletedByDelegateUser.NormalizedEmailOrEmpty(),
             Action = task.Action,
             Result = task.Result,
             RequestedByEmail = createdByEmail ?? task.ApprovalRequest.CreatedByUser.NormalizedEmailOrEmpty(),
             RequestedByDisplayName = createdByDisplayName ?? task.ApprovalRequest.CreatedByDisplayName,
-            CreatedByOrganizationDisplayName = createdByOrganizationDisplayName ?? task.ApprovalRequest.CreatedByOrganizationDisplayName,
+            OrganizationDisplayName = organizationDisplayName
+                ?? task.OrganizationDisplayName
+                ?? task.ApprovalRequest.OrganizationDisplayName,
             RevisionNumber = GetTaskRevisionNumber(task),
             Status = task.Status,
             CreatedAt = task.CreatedAt,

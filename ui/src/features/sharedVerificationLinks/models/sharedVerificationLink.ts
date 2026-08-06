@@ -19,7 +19,7 @@ export interface SharedVerificationReceipt {
   approvalRequestApprovedAt?: Date;
   createdByEmail: string;
   createdByDisplayName: string;
-  createdByOrganizationDisplayName: string;
+  organizationDisplayName: string;
   tenantGlobalId: string;
   tenantDisplayName: string;
   createdAt: Date;
@@ -39,11 +39,18 @@ export interface SharedVerificationFile {
 }
 
 export interface SharedVerificationParticipant {
-  role: string;
+  role: SharedVerificationParticipantRole;
   action: string;
   displayName: string;
   email: string;
+  delegateDisplayName?: string;
+  delegateEmail?: string;
   organizationDisplayName?: string;
   completedAt?: Date;
   result?: boolean;
+}
+
+export enum SharedVerificationParticipantRole {
+  Requester,
+  Assignee,
 }

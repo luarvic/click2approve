@@ -60,7 +60,7 @@ const approvalRequest = (globalId: string): ApprovalRequest => ({
   createdByUserId: "user-id",
   createdByEmail: "user@example.com",
   createdByDisplayName: "user@example.com",
-  createdByOrganizationDisplayName: "Personal",
+  organizationDisplayName: "Personal",
   revisionNumber: 1,
   status: ApprovalRequestStatus.Pending,
 });
@@ -80,7 +80,7 @@ const approvalRequestTask = (
   approverDisplayName: "approver@example.com",
   requestedByEmail: "user@example.com",
   requestedByDisplayName: "user@example.com",
-  createdByOrganizationDisplayName: "Personal",
+  organizationDisplayName: "Personal",
   revisionNumber: 1,
   result,
   status,

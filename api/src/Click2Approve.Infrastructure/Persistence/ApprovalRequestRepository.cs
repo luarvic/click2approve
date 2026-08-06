@@ -77,5 +77,8 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
                     .ThenInclude(approver => approver.User)
         .Include(request => request.Steps)
             .ThenInclude(step => step.Tasks)
-                .ThenInclude(task => task.ApproverUser);
+                .ThenInclude(task => task.ApproverUser)
+        .Include(request => request.Steps)
+            .ThenInclude(step => step.Tasks)
+                .ThenInclude(task => task.CompletedByDelegateUser);
 }

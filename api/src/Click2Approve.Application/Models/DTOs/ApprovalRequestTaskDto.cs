@@ -28,10 +28,11 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
         ApproverUserId = source.ApproverUserId;
         ApproverEmail = source.ApproverEmail;
         ApproverDisplayName = source.ApproverDisplayName;
-        ApproverOrganizationDisplayName = source.ApproverOrganizationDisplayName;
+        CompletedByDelegateEmployeeDisplayName = source.CompletedByDelegateEmployeeDisplayName;
+        CompletedByDelegateEmployeeEmail = source.CompletedByDelegateEmployeeEmail;
         RequestedByEmail = source.RequestedByEmail;
         RequestedByDisplayName = source.RequestedByDisplayName;
-        CreatedByOrganizationDisplayName = source.CreatedByOrganizationDisplayName;
+        OrganizationDisplayName = source.OrganizationDisplayName;
         Description = source.Description;
         Comment = source.Comment;
         ApproverIpAddress = source.ApproverIpAddress;
@@ -47,7 +48,8 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
     public string? ApproverUserId { get; init; }
     public required string ApproverEmail { get; init; }
     public required string ApproverDisplayName { get; init; }
-    public string? ApproverOrganizationDisplayName { get; init; }
+    public string? CompletedByDelegateEmployeeDisplayName { get; init; }
+    public string? CompletedByDelegateEmployeeEmail { get; init; }
     public string? Description { get; init; }
     public string? Comment { get; init; }
     public string? ApproverIpAddress { get; init; }

@@ -41,6 +41,7 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
         return await Db.ApprovalRequestTasks
             .AsNoTracking()
             .Include(task => task.ApproverUser)
+            .Include(task => task.CompletedByDelegateUser)
             .Include(task => task.ApprovalRequest)
                 .ThenInclude(request => request.CreatedByUser)
             .Where(t => t.ApproverUserId == user.Id
@@ -54,6 +55,7 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
         return await Db.ApprovalRequestTasks
             .AsNoTracking()
             .Include(task => task.ApproverUser)
+            .Include(task => task.CompletedByDelegateUser)
             .Include(task => task.ApprovalRequestStep)
             .Include(task => task.ApprovalRequestStepApprover)
                 .ThenInclude(approver => approver!.User)
@@ -92,6 +94,9 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
             .Include(request => request.Steps)
                 .ThenInclude(step => step.Tasks)
                     .ThenInclude(requestTask => requestTask.ApproverUser)
+            .Include(request => request.Steps)
+                .ThenInclude(step => step.Tasks)
+                    .ThenInclude(requestTask => requestTask.CompletedByDelegateUser)
             .FirstOrDefaultAsync(request => request.Steps.Any(step => step.Tasks.Any(task => task.GlobalId == globalId
                 && task.ApproverUserId == user.Id
                 && task.TenantId == tenantId)),
@@ -125,7 +130,11 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
             .Include(t => t.ApprovalRequest.Steps)
                 .ThenInclude(s => s.Tasks)
                     .ThenInclude(task => task.ApproverUser)
+            .Include(t => t.ApprovalRequest.Steps)
+                .ThenInclude(s => s.Tasks)
+                    .ThenInclude(task => task.CompletedByDelegateUser)
             .Include(t => t.ApproverUser)
+            .Include(t => t.CompletedByDelegateUser)
                 .FirstOrDefaultAsync(t => t.GlobalId == globalId
                     && t.ApproverUserId == user.Id
                     && t.TenantId == tenantId,

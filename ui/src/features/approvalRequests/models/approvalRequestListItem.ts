@@ -11,6 +11,6 @@ export interface ApprovalRequestListItem {
   completedAtDate?: Date;
   createdByEmail: string;
   createdByDisplayName: string;
-  createdByOrganizationDisplayName: string;
+  organizationDisplayName: string;
   revisionNumber: number;
 }

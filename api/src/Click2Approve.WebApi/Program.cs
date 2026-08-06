@@ -57,6 +57,7 @@ builder.Services.AddScoped<IApprovalRecipientResolver, EmailOnlyApprovalRecipien
 builder.Services.AddScoped<IApprovalRequestApproverGlobalIdResolver, DefaultApprovalRequestApproverGlobalIdResolver>();
 builder.Services.AddScoped<IApprovalRequestService, ApprovalRequestService>();
 builder.Services.AddScoped<IApprovalRequestTaskService, ApprovalRequestTaskService>();
+builder.Services.AddScoped<IApprovalRequestTaskCompletionAttributor, ApprovalRequestTaskCompletionAttributor>();
 builder.Services.AddScoped<IApprovalWorkflowService, ApprovalWorkflowService>();
 builder.Services.AddScoped<IFileStorage, FileSystemFileStorage>();
 builder.Services.AddScoped<ITenantService, TenantService>();

@@ -77,7 +77,7 @@ public class ApprovalRequestService(
             CreatedByUser = user,
             CreatedByEmployeeId = creator.EmployeeId,
             CreatedByDisplayName = creator.DisplayName,
-            CreatedByOrganizationDisplayName = tenant.BusinessName
+            OrganizationDisplayName = tenant.BusinessName
         }, cancellationToken);
         foreach (var requestFile in newApprovalRequest.RequestFiles)
         {
