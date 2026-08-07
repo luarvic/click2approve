@@ -1,5 +1,6 @@
 import { stores } from "@/app/rootStore";
 import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
+import ColorModeSwitch from "@/shared/components/layout/ColorModeSwitch";
 import PublicAppBar from "@/shared/components/layout/PublicAppBar";
 import { Routes, Shell } from "@/shared/constants/constants";
 import { getEmailInitials } from "@/shared/utils/helpers";
@@ -68,6 +69,17 @@ const MainAppBar = () => {
             </MenuItem>
           ))}
         </Select>
+      )}
+      {currentUser && (
+        <ColorModeSwitch
+          checked={stores.userPreferencesStore.theme.palette.mode === "dark"}
+          inputProps={{ "aria-label": "Dark mode" }}
+          onChange={(event) =>
+            stores.userPreferencesStore.setColorMode(
+              event.target.checked ? "dark" : "light"
+            )
+          }
+        />
       )}
       {currentUser && (
         <IconButton

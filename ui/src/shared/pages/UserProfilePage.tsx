@@ -38,7 +38,7 @@ import {
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import { observer } from "mobx-react-lite";
-import React, { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 
 const AVATAR_PICKER_SIZE = 96;
 
@@ -117,14 +117,6 @@ const UserProfilePage = () => {
     return <LoadingOverlay />;
   }
 
-  const handleColorModeChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    stores.userPreferencesStore.setColorMode(
-      event.target.checked ? "dark" : "light"
-    );
-  };
-
   const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.currentTarget.files?.[0] ?? null;
     event.currentTarget.value = "";
@@ -187,7 +179,6 @@ const UserProfilePage = () => {
         >
           <Tab label="Profile" value="profile" />
           <Tab label="Notifications" value="notifications" />
-          <Tab label="Display" value="display" />
         </Tabs>
         {selectedTab === "profile" && (
           <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
@@ -283,21 +274,6 @@ const UserProfilePage = () => {
                   label={notificationLabels[preference.type]}
                 />
               ))}
-            </FormGroup>
-          </Stack>
-        )}
-        {selectedTab === "display" && (
-          <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
-            <FormGroup>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={stores.userPreferencesStore.theme.palette.mode === "dark"}
-                    onChange={handleColorModeChange}
-                  />
-                }
-                label="Dark mode"
-              />
             </FormGroup>
           </Stack>
         )}
