@@ -19,8 +19,8 @@ export interface Tenant {
   websiteUrl?: string;
   logo?: string;
   ownerId: string;
-  isOwner: boolean;
-  role: EmployeeRole;
+  isCurrentEmployeeOwner: boolean;
+  currentEmployeeRole: EmployeeRole;
   currentEmployeeFirstName?: string;
   currentEmployeeLastName?: string;
 }

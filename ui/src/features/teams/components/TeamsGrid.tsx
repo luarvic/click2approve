@@ -27,8 +27,8 @@ const TeamsGrid: React.FC<TeamsGridProps> = ({ currentTeamGlobalId }) => {
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const gridLoader = ActionLoaders.grids.teams(tenantGlobalId);
   const canModifyTeams =
-    stores.tenantStore.currentTenant?.role === EmployeeRole.Admin ||
-    stores.tenantStore.currentTenant?.isOwner === true;
+    stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Admin ||
+    stores.tenantStore.currentTenant?.isCurrentEmployeeOwner === true;
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     stores.teamStore.teams,
     currentTeamGlobalId,

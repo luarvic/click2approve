@@ -26,7 +26,7 @@ const ApprovalStepTemplateEditorPage = () => {
   const canViewTemplates =
     stores.productStore.approvalStepTemplatesAreEnabled &&
     currentTenant?.type === TenantType.Business &&
-    currentTenant.role !== undefined;
+    currentTenant.currentEmployeeRole !== undefined;
   const isNewTemplate = templateGlobalId === undefined;
   const template = stores.approvalStepTemplateStore.templates.find(
     (item) => item.globalId === templateGlobalId,

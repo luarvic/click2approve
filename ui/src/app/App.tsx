@@ -49,21 +49,21 @@ const App = () => {
   const canManageTeams =
     stores.productStore.teamAssigneesAreEnabled &&
     currentTenant?.type === TenantType.Business &&
-    currentTenant.role !== undefined;
+    currentTenant.currentEmployeeRole !== undefined;
   const canManageEmployees =
     stores.productStore.tenantsAreEnabled &&
     currentTenant?.type === TenantType.Business &&
-    currentTenant.role !== undefined;
+    currentTenant.currentEmployeeRole !== undefined;
   const canViewTemplates =
     stores.productStore.approvalStepTemplatesAreEnabled &&
     currentTenant?.type === TenantType.Business &&
-    currentTenant.role !== undefined;
+    currentTenant.currentEmployeeRole !== undefined;
   const canManageDelegations =
     currentTenant?.type === TenantType.Business &&
-    currentTenant.role === EmployeeRole.Admin;
+    currentTenant.currentEmployeeRole === EmployeeRole.Admin;
   const canViewDelegations =
     currentTenant?.type === TenantType.Business &&
-    currentTenant.role !== undefined;
+    currentTenant.currentEmployeeRole !== undefined;
 
   useEffect(() => {
     const load = async () => {

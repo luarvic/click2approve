@@ -243,8 +243,8 @@ describe("store architecture", () => {
       businessName: "Tenant",
       type: TenantType.Business,
       ownerId: "owner-id",
-      isOwner: true,
-      role: EmployeeRole.Admin,
+      isCurrentEmployeeOwner: true,
+      currentEmployeeRole: EmployeeRole.Admin,
     };
     const team: Team = {
       globalId: "11111111-1111-4111-8111-111111111111",

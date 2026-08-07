@@ -23,7 +23,7 @@ const TeamEditorPage = () => {
   const isNewTeam = teamGlobalId === undefined;
   const [teamDataHasLoaded, setTeamDataHasLoaded] = useState(isNewTeam);
   const team = stores.teamStore.teams.find((item) => item.globalId === teamGlobalId);
-  const canEdit = stores.tenantStore.currentTenant?.role === EmployeeRole.Admin || stores.tenantStore.currentTenant?.isOwner === true;
+  const canEdit = stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Admin || stores.tenantStore.currentTenant?.isCurrentEmployeeOwner === true;
 
   useEffect(() => {
     let active = true;

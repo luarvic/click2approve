@@ -65,15 +65,15 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
       ...DataGrids.tenantsColumnSizing.businessName,
     },
     {
-      field: "role",
+      field: "currentEmployeeRole",
       headerName: "Role",
-      ...DataGrids.tenantsColumnSizing.role,
+      ...DataGrids.tenantsColumnSizing.currentEmployeeRole,
       valueFormatter: (value) => roleLabels[value as EmployeeRole],
     },
     {
-      field: "isOwner",
+      field: "isCurrentEmployeeOwner",
       headerName: "Owner",
-      ...DataGrids.tenantsColumnSizing.isOwner,
+      ...DataGrids.tenantsColumnSizing.isCurrentEmployeeOwner,
       renderCell: (params) =>
         params.value ? (
           <Chip label="Owner" size="small" color="primary" />
@@ -91,8 +91,8 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
         hideFooterSelectedRowCount
         onRowClick={(params) => navigate(`/tenants/${(params.row as Tenant).globalId}`)}
         columnVisibilityModel={{
-          role: !isSmallDisplay,
-          isOwner: !isSmallDisplay,
+          currentEmployeeRole: !isSmallDisplay,
+          isCurrentEmployeeOwner: !isSmallDisplay,
         }}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}

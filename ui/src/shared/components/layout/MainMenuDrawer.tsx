@@ -58,16 +58,16 @@ const MainMenuDrawer = () => {
   const employeeManagerIsVisible =
     stores.productStore.tenantsAreEnabled &&
     currentTenant?.type === TenantType.Business &&
-    currentTenant?.role !== undefined;
+    currentTenant?.currentEmployeeRole !== undefined;
   const delegationsIsVisible =
     currentTenant?.type === TenantType.Business &&
-    currentTenant.role !== undefined;
+    currentTenant.currentEmployeeRole !== undefined;
   const teamsManagerIsVisible =
     employeeManagerIsVisible && stores.productStore.teamAssigneesAreEnabled;
   const templatesIsVisible =
     stores.productStore.approvalStepTemplatesAreEnabled &&
     currentTenant?.type === TenantType.Business &&
-    currentTenant?.role !== undefined;
+    currentTenant?.currentEmployeeRole !== undefined;
   const currentTenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const tenantScopeIsReady =
     stores.tenantStore.hasLoaded && currentTenantGlobalId !== null;

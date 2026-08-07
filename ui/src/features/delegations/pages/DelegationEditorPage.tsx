@@ -37,7 +37,7 @@ const DelegationEditorPage = () => {
   const [delegations, setDelegations] = useState<ApprovalDelegation[]>([]);
   const [delegationsHaveLoaded, setDelegationsHaveLoaded] = useState(false);
   const delegation = delegations.find((item) => item.globalId === delegationGlobalId);
-  const canEdit = stores.tenantStore.currentTenant?.role === EmployeeRole.Admin;
+  const canEdit = stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Admin;
 
   useEffect(() => {
     setDelegations([]);

@@ -454,8 +454,8 @@ export const DataGrids = {
   },
   tenantsColumnSizing: {
     businessName: { flex: 3, minWidth: 220 },
-    role: { flex: 1, minWidth: 110 },
-    isOwner: { flex: 1, minWidth: 110 },
+    currentEmployeeRole: { flex: 1, minWidth: 110 },
+    isCurrentEmployeeOwner: { flex: 1, minWidth: 110 },
   },
 } as const;
 

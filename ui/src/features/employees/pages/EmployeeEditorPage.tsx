@@ -25,7 +25,7 @@ const EmployeeEditorPage = () => {
   const isNewEmployee = employeeGlobalId === undefined;
   const [employeeDataHasLoaded, setEmployeeDataHasLoaded] = useState(isNewEmployee);
   const employee = stores.employeeStore.employees.find((item) => item.globalId === employeeGlobalId);
-  const canEdit = stores.tenantStore.currentTenant?.role === EmployeeRole.Admin || stores.tenantStore.currentTenant?.isOwner === true;
+  const canEdit = stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Admin || stores.tenantStore.currentTenant?.isCurrentEmployeeOwner === true;
   const selectedTeamGlobalIds = employee ? stores.teamStore.teams.filter((team) => team.members.some((member) => member.globalId === employee.globalId)).map((team) => team.globalId) : [];
 
   useEffect(() => {

@@ -39,8 +39,8 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const gridLoader = ActionLoaders.grids.employees(tenantGlobalId);
   const canModifyEmployees =
-    stores.tenantStore.currentTenant?.role === EmployeeRole.Admin ||
-    stores.tenantStore.currentTenant?.isOwner === true;
+    stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Admin ||
+    stores.tenantStore.currentTenant?.isCurrentEmployeeOwner === true;
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     stores.employeeStore.employees,
     currentEmployeeGlobalId,
