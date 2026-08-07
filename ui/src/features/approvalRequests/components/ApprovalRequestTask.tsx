@@ -55,6 +55,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
   const [decision, setDecision] = useState("");
   const [comment, setComment] = useState("");
   const [legalName, setLegalName] = useState("");
+  const [organization, setOrganization] = useState("");
   const [signatureJson, setSignatureJson] = useState("");
   const [electronicSignatureErrors, setElectronicSignatureErrors] = useState<ElectronicSignatureErrors>(
     emptyElectronicSignatureErrors,
@@ -81,6 +82,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
   const createSharedVerificationLinkAction = useAsyncAction(createSharedVerificationLinkLoader);
   const submitAction = useAsyncAction(completeTaskLoader);
   const requiresElectronicSignature = currentTask?.action === ApprovalRequestTaskAction.Sign;
+  const canEnterAssigneeOrganization = !currentTask?.isAssigneeEmployee;
   const canManageSharedVerificationLinks = Boolean(
     currentTask &&
     stores.productStore.sharedVerificationLinksAreEnabled &&
@@ -104,6 +106,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
     );
     setComment(currentTask?.comment ?? "");
     setLegalName(currentTask?.assigneeLegalName ?? "");
+    setOrganization(currentTask?.assigneeOrganization ?? "");
     setSignatureJson("");
     setElectronicSignatureErrors(emptyElectronicSignatureErrors);
     setApprovalRequest(currentTask?.approvalRequest ?? null);
@@ -116,6 +119,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
     setDecision("");
     setComment("");
     setLegalName("");
+    setOrganization("");
     setSignatureJson("");
     setElectronicSignatureErrors(emptyElectronicSignatureErrors);
   };
@@ -172,6 +176,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
         requiresElectronicSignature
           ? {
               assigneeLegalName: legalName.trim(),
+              assigneeOrganization: canEnterAssigneeOrganization ? organization : undefined,
               assigneeSignatureJson: signatureJson,
             }
           : undefined,
@@ -310,9 +315,12 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
                 <ApprovalRequestElectronicSignatureForm
                   errors={electronicSignatureErrors}
                   legalName={legalName}
+                  organization={organization}
                   onFieldErrorClear={clearElectronicSignatureError}
                   onLegalNameChange={setLegalName}
+                  onOrganizationChange={setOrganization}
                   onSignatureChange={handleSignatureChange}
+                  showOrganization={canEnterAssigneeOrganization}
                 />
               )}
             </>

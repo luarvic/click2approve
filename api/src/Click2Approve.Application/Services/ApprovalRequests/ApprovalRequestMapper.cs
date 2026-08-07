@@ -266,7 +266,11 @@ internal static class ApprovalRequestMapper
             AssigneeIpAddress = task.AssigneeIpAddress,
             AssigneeBrowserData = task.AssigneeBrowserData,
             AssigneeLegalName = task.AssigneeLegalName,
+            AssigneeOrganization = task.AssigneeEmployeeId.HasValue
+                ? null
+                : task.AssigneeOrganization,
             HasAssigneeSignature = !string.IsNullOrWhiteSpace(task.AssigneeSignatureJson),
+            IsAssigneeEmployee = task.AssigneeEmployeeId.HasValue,
             AssigneeSignatureJson = task.AssigneeSignatureJson
         };
     }

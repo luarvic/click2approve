@@ -38,6 +38,8 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
         AssigneeIpAddress = source.AssigneeIpAddress;
         AssigneeBrowserData = source.AssigneeBrowserData;
         AssigneeLegalName = source.AssigneeLegalName;
+        AssigneeOrganization = source.AssigneeOrganization;
+        IsAssigneeEmployee = source.IsAssigneeEmployee;
         HasAssigneeSignature = source.HasAssigneeSignature;
         AssigneeSignatureJson = source.AssigneeSignatureJson;
     }
@@ -55,6 +57,8 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
     public string? AssigneeIpAddress { get; init; }
     public string? AssigneeBrowserData { get; init; }
     public string? AssigneeLegalName { get; init; }
+    public string? AssigneeOrganization { get; init; }
     public bool HasAssigneeSignature { get; init; }
+    public bool IsAssigneeEmployee { get; init; }
     public string? AssigneeSignatureJson { get; init; }
 }

@@ -54,7 +54,7 @@ const clearSignatureButtonSx: SxProps<Theme> = {
 };
 
 const signatureTitleSx: SxProps<Theme> = {
-  backgroundColor: "background.paper",
+  backgroundColor: "transparent",
   left: 8,
   px: 0.25,
   position: "absolute",

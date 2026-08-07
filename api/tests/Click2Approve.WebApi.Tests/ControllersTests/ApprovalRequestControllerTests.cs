@@ -269,6 +269,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
             Result = true,
             Comment = "Approved",
             AssigneeLegalName = "Assignee Person",
+            AssigneeOrganization = "Assignee Organization",
             AssigneeSignatureJson = """[{"points":[{"x":1,"y":2}]}]""",
             Title = "Modified task title",
             Description = "Modified task description"
@@ -289,6 +290,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         Assert.Equal("Original task title", completedTask.Title);
         Assert.Equal("Original task description", completedTask.Description);
         Assert.Equal("Assignee Person", completedTask.AssigneeLegalName);
+        Assert.Equal("Assignee Organization", completedTask.AssigneeOrganization);
         Assert.True(completedTask.HasAssigneeSignature);
     }
 

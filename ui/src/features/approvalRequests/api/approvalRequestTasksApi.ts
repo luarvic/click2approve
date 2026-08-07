@@ -15,6 +15,7 @@ export const completeApprovalRequestTask = async (
   comment: string | undefined,
   electronicSignature?: {
     assigneeLegalName?: string;
+    assigneeOrganization?: string;
     assigneeSignatureJson?: string;
   },
   clientAuditContext?: ApprovalRequestTaskClientAuditContext,

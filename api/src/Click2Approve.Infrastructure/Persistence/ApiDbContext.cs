@@ -277,6 +277,10 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequestTask>()
+            .Property(t => t.AssigneeOrganization)
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
             .HasIndex(t => new { t.TenantId, t.AssigneeUserId, t.Status });
 
         modelBuilder.Entity<ApprovalRequestTask>()

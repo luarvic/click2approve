@@ -63,13 +63,23 @@ const ApprovalRequestElectronicSignatureView: React.FC<ApprovalRequestElectronic
     </AccordionSummary>
     <AccordionDetails sx={electronicSignatureDetailsSx}>
       <Stack spacing={Dialogs.formStackSpacing}>
-        <Stack spacing={Dialogs.stepHeaderSpacing}>
-          <Typography color="text.secondary" variant="caption">
-            Legal name
-          </Typography>
-          <Typography>
-            {task.assigneeLegalName || "Not provided"}
-          </Typography>
+        <Stack direction="row" spacing={Dialogs.formStackSpacing}>
+          <Stack spacing={Dialogs.stepHeaderSpacing}>
+            <Typography color="text.secondary" variant="caption">
+              Legal name
+            </Typography>
+            <Typography>
+              {task.assigneeLegalName || "Not provided"}
+            </Typography>
+          </Stack>
+          {task.assigneeOrganization && (
+            <Stack spacing={Dialogs.stepHeaderSpacing}>
+              <Typography color="text.secondary" variant="caption">
+                Organization
+              </Typography>
+              <Typography>{task.assigneeOrganization}</Typography>
+            </Stack>
+          )}
         </Stack>
         <Stack spacing={Dialogs.stepHeaderSpacing}>
           <Typography color="text.secondary" variant="caption">

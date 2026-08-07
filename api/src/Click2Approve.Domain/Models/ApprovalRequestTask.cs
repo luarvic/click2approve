@@ -21,6 +21,7 @@ public class ApprovalRequestTask : DbEntity
     public required string AssigneeDisplayName { get; set; }
     public string? AssigneeIpAddress { get; set; }
     public string? AssigneeLegalName { get; set; }
+    public string? AssigneeOrganization { get; set; }
     public string? AssigneeSignatureJson { get; set; }
     public string? Comment { get; set; }
     public string? CompletedByDisplayName { get; set; }

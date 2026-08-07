@@ -129,7 +129,10 @@ public class ApprovalRequestTaskService(
             throw new BusinessRuleException("Signature is too large.");
         }
 
-        approvalRequestTask.AssigneeLegalName = TrimToLength(legalName, 255);
+        approvalRequestTask.AssigneeLegalName = legalName;
+        approvalRequestTask.AssigneeOrganization = approvalRequestTask.AssigneeEmployeeId.HasValue
+            ? null
+            : payload.AssigneeOrganization;
         approvalRequestTask.AssigneeSignatureJson = signatureJson;
     }
 
