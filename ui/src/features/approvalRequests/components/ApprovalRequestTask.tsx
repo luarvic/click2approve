@@ -49,6 +49,21 @@ const emptyElectronicSignatureErrors: ElectronicSignatureErrors = {
   signature: "",
 };
 
+const getDefaultLegalName = (isAssigneeEmployee: boolean | undefined): string => {
+  const currentTenant = stores.tenantStore.currentTenant;
+  const firstName = isAssigneeEmployee
+    ? currentTenant?.currentEmployeeFirstName
+    : stores.userProfileStore.profile?.firstName;
+  const lastName = isAssigneeEmployee
+    ? currentTenant?.currentEmployeeLastName
+    : stores.userProfileStore.profile?.lastName;
+
+  return [firstName, lastName]
+    .map((name) => name?.trim())
+    .filter((name): name is string => Boolean(name))
+    .join(" ");
+};
+
 const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) => {
   const [decisionError, setDecisionError] = useState(false);
   const [commentError, setCommentError] = useState(false);
@@ -105,7 +120,9 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
           : "",
     );
     setComment(currentTask?.comment ?? "");
-    setLegalName(currentTask?.assigneeLegalName ?? "");
+    setLegalName(
+      currentTask?.assigneeLegalName?.trim() || getDefaultLegalName(currentTask?.isAssigneeEmployee),
+    );
     setOrganization(currentTask?.assigneeOrganization ?? "");
     setSignatureJson("");
     setElectronicSignatureErrors(emptyElectronicSignatureErrors);
