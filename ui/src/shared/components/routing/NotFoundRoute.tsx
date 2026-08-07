@@ -3,7 +3,7 @@ import WrapperLayout from "@/layouts/WrapperLayout";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 
 const NotFoundRoute = () => (
-  <AppChromeLayout>
+  <AppChromeLayout appBarOptions={{ showMainMenuButton: false }}>
     <WrapperLayout>
       <NotFoundPage />
     </WrapperLayout>

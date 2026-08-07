@@ -1,8 +1,10 @@
+import { stores } from "@/app/rootStore";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Pages, Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { Box, Container, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
+import { useLayoutEffect } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
 const baseUrl = import.meta.env.BASE_URL.endsWith("/")
@@ -28,6 +30,13 @@ const notFoundMessageSx: SxProps<Theme> = {
 
 const NotFoundPage = () => {
   usePageTitle("Page not found");
+
+  useLayoutEffect(() => {
+    stores.commonStore.setAppBarOptions({ showMainMenuButton: false });
+    stores.commonStore.setMainMenuDrawerIsOpen(false);
+
+    return () => stores.commonStore.setAppBarOptions(null);
+  }, []);
 
   return (
     <Container component="main" maxWidth={Pages.centeredMessageMaxWidth}>

@@ -3,6 +3,7 @@ import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
 import ColorModeSwitch from "@/shared/components/layout/ColorModeSwitch";
 import PublicAppBar from "@/shared/components/layout/PublicAppBar";
 import { Routes, Shell } from "@/shared/constants/constants";
+import { AppBarOptions } from "@/shared/models/appBarOptions";
 import { getEmailInitials } from "@/shared/utils/helpers";
 import { Menu } from "@mui/icons-material";
 import {
@@ -14,15 +15,21 @@ import {
 import { observer } from "mobx-react-lite";
 import { useLocation, useNavigate } from "react-router-dom";
 
-const MainAppBar = () => {
+const MainAppBar = ({
+  showMainMenuButton = true,
+  showProfileButton = true,
+  showTenantPicker = true,
+}: AppBarOptions) => {
   const location = useLocation();
   const navigate = useNavigate();
   const currentUser = stores.userAccountStore.currentUser;
   const profile = stores.userProfileStore.profile;
   const mainMenuDrawerIsOpen = stores.commonStore.mainMenuDrawerIsOpen;
   const profileDrawerIsOpen = stores.commonStore.profileDrawerIsOpen;
-  const mainMenuDrawerIsVisible = Boolean(currentUser) && mainMenuDrawerIsOpen;
+  const mainMenuDrawerIsVisible =
+    Boolean(currentUser) && showMainMenuButton && mainMenuDrawerIsOpen;
   const tenantPickerIsVisible =
+    showTenantPicker &&
     stores.productStore.tenantsAreEnabled &&
     Boolean(currentUser) &&
     stores.tenantStore.tenants.length > 0;
@@ -37,7 +44,7 @@ const MainAppBar = () => {
       profileDrawerIsOpen={profileDrawerIsOpen}
       showBrandTitle
       startContent={
-        currentUser && (
+        currentUser && showMainMenuButton && (
           <IconButton
             color="inherit"
             edge="start"
@@ -70,18 +77,16 @@ const MainAppBar = () => {
           ))}
         </Select>
       )}
-      {currentUser && (
-        <ColorModeSwitch
-          checked={stores.userPreferencesStore.theme.palette.mode === "dark"}
-          inputProps={{ "aria-label": "Dark mode" }}
-          onChange={(event) =>
-            stores.userPreferencesStore.setColorMode(
-              event.target.checked ? "dark" : "light"
-            )
-          }
-        />
-      )}
-      {currentUser && (
+      <ColorModeSwitch
+        checked={stores.userPreferencesStore.theme.palette.mode === "dark"}
+        inputProps={{ "aria-label": "Dark mode" }}
+        onChange={(event) =>
+          stores.userPreferencesStore.setColorMode(
+            event.target.checked ? "dark" : "light"
+          )
+        }
+      />
+      {currentUser && showProfileButton && (
         <IconButton
           color="inherit"
           edge="end"

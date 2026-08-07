@@ -51,6 +51,7 @@ public class UserProfileService(
 
         user.FirstName = string.IsNullOrWhiteSpace(payload.FirstName) ? null : payload.FirstName.Trim();
         user.LastName = string.IsNullOrWhiteSpace(payload.LastName) ? null : payload.LastName.Trim();
+        user.DefaultSignatureJson = GetDefaultSignatureJson(payload.DefaultSignatureJson);
         user.DefaultTenantId = defaultTenantId;
         await _notificationPreferenceService.ReplaceAsync(user, payload.NotificationPreferences, cancellationToken);
         await UpdateUserAsync(user, cancellationToken);
@@ -123,6 +124,17 @@ public class UserProfileService(
     private async Task UpdateUserAsync(AppUser user, CancellationToken cancellationToken)
     {
         await _userIdentityService.UpdateAsync(user, cancellationToken);
+    }
+
+    private static string? GetDefaultSignatureJson(string? signatureJson)
+    {
+        var trimmedSignatureJson = string.IsNullOrWhiteSpace(signatureJson) ? null : signatureJson.Trim();
+        if (trimmedSignatureJson?.Length > 16000)
+        {
+            throw new BusinessRuleException("Signature is too large.");
+        }
+
+        return trimmedSignatureJson;
     }
 
     private void EnsureAvatarFile(UploadedFile avatar)

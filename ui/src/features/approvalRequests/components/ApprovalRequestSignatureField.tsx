@@ -1,5 +1,6 @@
+import { normalizeSignatureLeft } from "@/features/approvalRequests/components/approvalRequestSignatureUtils";
 import ClearIcon from "@mui/icons-material/Clear";
-import { FormHelperText, IconButton, Stack, Tooltip, Typography } from "@mui/material";
+import { FormHelperText, IconButton, Stack, Tooltip } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import type { SxProps, Theme } from "@mui/material/styles";
 import type { CSSProperties } from "react";
@@ -11,6 +12,7 @@ interface ApprovalRequestSignatureFieldProps {
   error?: boolean;
   helperText?: string;
   onChange: (value: string) => void;
+  value?: string;
 }
 
 const signaturePadContainerSx = (error: boolean): SxProps<Theme> => (theme) => ({
@@ -53,15 +55,6 @@ const clearSignatureButtonSx: SxProps<Theme> = {
   },
 };
 
-const signatureTitleSx: SxProps<Theme> = {
-  backgroundColor: "transparent",
-  left: 8,
-  px: 0.25,
-  position: "absolute",
-  top: 8,
-  zIndex: 1,
-};
-
 const applySignaturePenColor = (signatureData: PointGroup[], penColor: string): PointGroup[] =>
   signatureData.map((group) => ({ ...group, penColor }));
 
@@ -73,12 +66,28 @@ const stripSignaturePenColor = (signatureData: PointGroup[]): Omit<PointGroup, "
   });
 
 const serializeSignature = (signatureData: PointGroup[]): string =>
-  signatureData.length === 0 ? "" : JSON.stringify(stripSignaturePenColor(signatureData));
+  signatureData.length === 0
+    ? ""
+    : JSON.stringify(stripSignaturePenColor(normalizeSignatureLeft(signatureData)));
+
+const deserializeSignature = (value: string | undefined): PointGroup[] => {
+  if (!value) {
+    return [];
+  }
+
+  try {
+    const signatureData: unknown = JSON.parse(value);
+    return Array.isArray(signatureData) ? signatureData as PointGroup[] : [];
+  } catch {
+    return [];
+  }
+};
 
 const ApprovalRequestSignatureField: React.FC<ApprovalRequestSignatureFieldProps> = ({
   error = false,
   helperText,
   onChange,
+  value,
 }) => {
   const theme = useTheme();
   const signatureBackgroundColor = theme.palette.background.paper;
@@ -132,6 +141,26 @@ const ApprovalRequestSignatureField: React.FC<ApprovalRequestSignatureFieldProps
     };
   }, [onChange, signatureBackgroundColor, signaturePenColor]);
 
+  useEffect(() => {
+    const signatureData = normalizeSignatureLeft(deserializeSignature(value));
+    if (
+      serializeSignature(signatureDataRef.current) === serializeSignature(signatureData)
+    ) {
+      return;
+    }
+
+    signatureDataRef.current = signatureData;
+    const signaturePad = signaturePadRef.current;
+    if (!signaturePad) {
+      return;
+    }
+
+    signaturePad.clear();
+    if (signatureData.length > 0) {
+      signaturePad.fromData(applySignaturePenColor(signatureData, signaturePenColor));
+    }
+  }, [signaturePenColor, value]);
+
   const handleClear = () => {
     signaturePadRef.current?.clear();
     signatureDataRef.current = [];
@@ -141,9 +170,6 @@ const ApprovalRequestSignatureField: React.FC<ApprovalRequestSignatureFieldProps
   return (
     <Stack spacing={1} sx={signatureActionsSx}>
       <Stack sx={signaturePadContainerSx(error)}>
-        <Typography color="text.secondary" sx={signatureTitleSx} variant="caption">
-          Signature
-        </Typography>
         <Tooltip title="Clear signature">
           <IconButton
             aria-label="Clear signature"

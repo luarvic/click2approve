@@ -1,4 +1,5 @@
 import { stores } from "@/app/rootStore";
+import ApprovalRequestSignatureField from "@/features/approvalRequests/components/ApprovalRequestSignatureField";
 import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
@@ -38,7 +39,7 @@ import {
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import { observer } from "mobx-react-lite";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 
 const AVATAR_PICKER_SIZE = 96;
 
@@ -80,6 +81,7 @@ const UserProfilePage = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [defaultTenantGlobalId, setDefaultTenantGlobalId] = useState<string | "">("");
+  const [defaultSignatureJson, setDefaultSignatureJson] = useState("");
   const [notificationPreferences, setNotificationPreferences] = useState<
     UserNotificationPreference[]
   >([]);
@@ -88,6 +90,10 @@ const UserProfilePage = () => {
   const [selectedTab, setSelectedTab] = useState("profile");
   const removeAvatarAction = useAsyncAction(ActionLoaders.userProfile.removeAvatar());
   const saveAction = useAsyncAction(ActionLoaders.userProfile.save());
+
+  const handleSignatureChange = useCallback((value: string) => {
+    setDefaultSignatureJson(value);
+  }, []);
 
   useEffect(() => {
     if (!stores.userProfileStore.hasLoaded) {
@@ -99,6 +105,7 @@ const UserProfilePage = () => {
     setFirstName(profile?.firstName ?? "");
     setLastName(profile?.lastName ?? "");
     setDefaultTenantGlobalId(profile?.defaultTenantGlobalId ?? "");
+    setDefaultSignatureJson(profile?.defaultSignatureJson ?? "");
     setNotificationPreferences(profile?.notificationPreferences ?? []);
   }, [profile]);
 
@@ -139,6 +146,7 @@ const UserProfilePage = () => {
         firstName: firstName.trim() || undefined,
         lastName: lastName.trim() || undefined,
         defaultTenantGlobalId: defaultTenantGlobalId === "" ? undefined : defaultTenantGlobalId,
+        defaultSignatureJson: defaultSignatureJson || undefined,
         notificationPreferences,
       });
       if (!saved) {
@@ -178,6 +186,7 @@ const UserProfilePage = () => {
           variant="scrollable"
         >
           <Tab label="Profile" value="profile" />
+          <Tab label="Signature" value="signature" />
           <Tab label="Notifications" value="notifications" />
         </Tabs>
         {selectedTab === "profile" && (
@@ -275,6 +284,17 @@ const UserProfilePage = () => {
                 />
               ))}
             </FormGroup>
+          </Stack>
+        )}
+        {selectedTab === "signature" && (
+          <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
+            <Typography color="text.secondary">
+              Your saved signature will be prefilled when you sign an approval request.
+            </Typography>
+            <ApprovalRequestSignatureField
+              onChange={handleSignatureChange}
+              value={defaultSignatureJson}
+            />
           </Stack>
         )}
         <Box>

@@ -32,8 +32,8 @@ review decisions, and tracking request history.
   count.
 - Capture electronic-signature evidence for sign tasks, including legal name,
   signature strokes, IP address, and browser data on completed tasks.
-- Maintain a user profile with display name, avatar, dark-mode preference, and
-  email notification preferences.
+- Maintain a user profile with display name, avatar, reusable signature,
+  and email notification preferences.
 - Notify requesters and assignees by email when email delivery is enabled,
   including account, task, cancellation, deletion, and review notifications.
 - Expose product edition and capability metadata so the shared UI can hide or

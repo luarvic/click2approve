@@ -12,6 +12,7 @@ public class AppUser : IdentityUser
 
     // Scalar properties
     public string? Avatar { get; set; }
+    public string? DefaultSignatureJson { get; set; }
     public string? FirstName { get; set; }
     public bool HasLoggedIn { get; set; }
     public bool IsPlaceholder { get; set; }

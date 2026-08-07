@@ -124,7 +124,9 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
       currentTask?.assigneeLegalName?.trim() || getDefaultLegalName(currentTask?.isAssigneeEmployee),
     );
     setOrganization(currentTask?.assigneeOrganization ?? "");
-    setSignatureJson("");
+    setSignatureJson(
+      currentTask?.assigneeSignatureJson?.trim() || stores.userProfileStore.profile?.defaultSignatureJson || "",
+    );
     setElectronicSignatureErrors(emptyElectronicSignatureErrors);
     setApprovalRequest(currentTask?.approvalRequest ?? null);
     setSelectedTab("task");
@@ -337,6 +339,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
                   onLegalNameChange={setLegalName}
                   onOrganizationChange={setOrganization}
                   onSignatureChange={handleSignatureChange}
+                  signatureJson={signatureJson}
                   showOrganization={canEnterAssigneeOrganization}
                 />
               )}

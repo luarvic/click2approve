@@ -1,7 +1,9 @@
+import { AppBarOptions } from "@/shared/models/appBarOptions";
 import { Dictionary } from "@/shared/models/dictionary";
 import { makeAutoObservable, runInAction } from "mobx";
 
 export class CommonStore {
+  appBarOptions: AppBarOptions | null = null;
   actionLoadingCounter: Dictionary<number>;
   approvalRequestSubmitDialogIsOpen: boolean;
   approvalRequestTrackDialogIsOpen: boolean;
@@ -81,6 +83,12 @@ export class CommonStore {
     });
   };
 
+  setAppBarOptions = (options: AppBarOptions | null) => {
+    runInAction(() => {
+      this.appBarOptions = options;
+    });
+  };
+
   setProfileDrawerIsOpen = (isOpen: boolean) => {
     runInAction(() => {
       this.profileDrawerIsOpen = isOpen;
@@ -98,6 +106,7 @@ export class CommonStore {
       this.approvalRequestSubmitDialogIsOpen = false;
       this.approvalRequestTrackDialogIsOpen = false;
       this.approvalRequestViewDialogIsOpen = false;
+      this.appBarOptions = null;
       this.approvalRequestDeleteDialogIsOpen = false;
       this.taskViewDialogIsOpen = false;
       this.mainMenuDrawerIsOpen = false;

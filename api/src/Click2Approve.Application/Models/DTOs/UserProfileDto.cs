@@ -9,5 +9,6 @@ public class UserProfileDto
     public string? LastName { get; set; }
     public string? Avatar { get; set; }
     public Guid? DefaultTenantGlobalId { get; set; }
+    public string? DefaultSignatureJson { get; set; }
     public required List<UserNotificationPreferenceDto> NotificationPreferences { get; set; }
 }

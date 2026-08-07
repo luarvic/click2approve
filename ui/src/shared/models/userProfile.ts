@@ -19,6 +19,7 @@ export interface UserProfile {
   lastName?: string;
   avatar?: string;
   defaultTenantGlobalId?: string;
+  defaultSignatureJson?: string;
   notificationPreferences: UserNotificationPreference[];
 }
 
@@ -26,5 +27,6 @@ export interface UserProfileUpdateRequest {
   firstName?: string;
   lastName?: string;
   defaultTenantGlobalId?: string;
+  defaultSignatureJson?: string;
   notificationPreferences: UserNotificationPreference[];
 }

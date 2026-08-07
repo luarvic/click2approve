@@ -19,6 +19,7 @@ interface ApprovalRequestElectronicSignatureFormProps {
   onOrganizationChange: (value: string) => void;
   onSignatureChange: (value: string) => void;
   showOrganization: boolean;
+  signatureJson: string;
 }
 
 const electronicSignatureFormSx: SxProps<Theme> = (theme) => ({
@@ -36,6 +37,7 @@ const ApprovalRequestElectronicSignatureForm: React.FC<ApprovalRequestElectronic
   onOrganizationChange,
   onSignatureChange,
   showOrganization,
+  signatureJson,
 }) => (
   <Box sx={electronicSignatureFormSx}>
     <Stack spacing={Dialogs.formStackSpacing}>
@@ -75,6 +77,7 @@ const ApprovalRequestElectronicSignatureForm: React.FC<ApprovalRequestElectronic
         error={Boolean(errors.signature)}
         helperText={errors.signature}
         onChange={onSignatureChange}
+        value={signatureJson}
       />
     </Stack>
   </Box>

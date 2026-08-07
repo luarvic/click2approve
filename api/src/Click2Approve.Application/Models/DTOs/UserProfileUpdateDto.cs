@@ -8,5 +8,6 @@ public class UserProfileUpdateDto
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public Guid? DefaultTenantGlobalId { get; set; }
+    public string? DefaultSignatureJson { get; set; }
     public required List<UserNotificationPreferenceDto> NotificationPreferences { get; set; }
 }

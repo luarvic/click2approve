@@ -24,6 +24,7 @@ internal static class UserProfileMapper
             DefaultTenantGlobalId = user.DefaultTenantId is null
                 ? null
                 : (await tenantRepository.GetAsync(user.DefaultTenantId.Value, cancellationToken))?.GlobalId,
+            DefaultSignatureJson = user.DefaultSignatureJson,
             NotificationPreferences = await notificationPreferenceService.ListAsync(user, cancellationToken)
         };
     }
