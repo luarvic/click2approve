@@ -190,6 +190,11 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
   };
 
   const handleSubmit = () => {
+    if (requiresElectronicSignature) {
+      void submit();
+      return;
+    }
+
     const currentTenant = stores.tenantStore.currentTenant;
     const firstName = currentTenant?.type === TenantType.Business
       ? currentTenant.currentEmployeeFirstName
