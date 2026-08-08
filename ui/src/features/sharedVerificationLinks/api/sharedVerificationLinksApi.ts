@@ -4,11 +4,11 @@ import {
 } from "@/features/sharedVerificationLinks/models/sharedVerificationLink";
 import axios from "@/shared/api/axios";
 import {
-  getUserFriendlyApiErrorMessage,
+  getApiErrorNotification,
   isResourceNotFoundOrForbiddenError,
-  parseUtcDateTime,
-} from "@/shared/utils/helpers";
-import { toast } from "react-toastify";
+} from "@/shared/utils/apiErrorNotifications";
+import { parseUtcDateTime } from "@/shared/utils/dateTime";
+import { notification } from "@/shared/utils/notifications";
 
 export const createSharedVerificationLinkForRequest = async (
   tenantGlobalId: string,
@@ -20,7 +20,7 @@ export const createSharedVerificationLinkForRequest = async (
     );
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return null;
   }
 };
@@ -35,7 +35,7 @@ export const createSharedVerificationLinkForTask = async (
     );
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return null;
   }
 };
@@ -53,7 +53,7 @@ export const getSharedVerificationReceipt = async (
     if (isResourceNotFoundOrForbiddenError(e)) {
       return null;
     }
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return null;
   }
 };
@@ -69,7 +69,7 @@ export const listSharedVerificationLinksForRequest = async (
     data.forEach(normalizeListItemDates);
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return [];
   }
 };
@@ -85,7 +85,7 @@ export const listSharedVerificationLinksForTask = async (
     data.forEach(normalizeListItemDates);
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return [];
   }
 };
@@ -101,7 +101,7 @@ export const deleteSharedVerificationLinkForRequest = async (
     );
     return true;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return false;
   }
 };
@@ -117,7 +117,7 @@ export const deleteSharedVerificationLinkForTask = async (
     );
     return true;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return false;
   }
 };

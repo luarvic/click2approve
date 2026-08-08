@@ -9,8 +9,8 @@ import { SharedVerificationLinkListItem } from "@/features/sharedVerificationLin
 import { Dialogs, StackSpacing } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
-import { getLocaleDateTimeString } from "@/shared/utils/helpers";
-import { PersistenceSuccessMessages, showPersistenceSuccessToast } from "@/shared/utils/toasts";
+import { getLocaleDateTimeString } from "@/shared/utils/dateTime";
+import { PersistenceSuccessMessages, showPersistenceSuccessNotification } from "@/shared/utils/persistenceNotifications";
 import { ContentCopyOutlined, DeleteOutline } from "@mui/icons-material";
 import {
   IconButton,
@@ -78,7 +78,7 @@ const SharedVerificationLinksPanel: React.FC<SharedVerificationLinksPanelProps> 
 
   const handleCopy = async (globalId: string) => {
     await navigator.clipboard?.writeText(getVerificationUrl(globalId));
-    showPersistenceSuccessToast(PersistenceSuccessMessages.sharedVerificationLinkCopied);
+    showPersistenceSuccessNotification(PersistenceSuccessMessages.sharedVerificationLinkCopied);
   };
 
   const handleDelete = async (linkGlobalId: string) => {
@@ -94,7 +94,7 @@ const SharedVerificationLinksPanel: React.FC<SharedVerificationLinksPanelProps> 
           ? await deleteSharedVerificationLinkForTask(tenantGlobalId, approvalRequestTaskGlobalId, linkGlobalId)
           : false;
       if (deleted) {
-        showPersistenceSuccessToast(PersistenceSuccessMessages.sharedVerificationLinkDeleted);
+        showPersistenceSuccessNotification(PersistenceSuccessMessages.sharedVerificationLinkDeleted);
         await loadLinks();
       }
     }, deleteLoader);

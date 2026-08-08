@@ -1,4 +1,4 @@
-import type { PopoverOrigin, SxProps } from "@mui/material";
+import type { PopoverOrigin, SnackbarOrigin, SxProps } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import passwordValidator from "password-validator";
 import type { CSSProperties } from "react";
@@ -11,8 +11,8 @@ const uncompletedTasksRefreshSeconds = Number(
   import.meta.env.VITE_UNCOMPLETED_TASKS_REFRESH_SECONDS ??
   String(refreshSecondsDefault),
 );
-const showPersistenceSuccessToasts =
-  import.meta.env.VITE_SHOW_PERSISTENCE_SUCCESS_TOASTS !== "false";
+const showPersistenceSuccessNotifications =
+  import.meta.env.VITE_SHOW_PERSISTENCE_SUCCESS_NOTIFICATIONS !== "false";
 const appBarHeight = 64;
 const mainMenuDrawerWidth = 240;
 const passwordMinLength = 8;
@@ -50,12 +50,12 @@ export const Refresh = {
   },
 } as const;
 
-export const Toasts = {
-  autoClose: 3000,
-  limit: 2,
-  closeButton: true,
-  draggable: false,
-  showPersistenceSuccess: showPersistenceSuccessToasts,
+export const Notifications = {
+  errorAutoHideDuration: 6000,
+  errorMessageMaxLength: 160,
+  showPersistenceSuccess: showPersistenceSuccessNotifications,
+  successAnchorOrigin: { horizontal: "right", vertical: "bottom" } as SnackbarOrigin,
+  successAutoHideDuration: 3000,
 } as const;
 
 export const GridToolbar = {

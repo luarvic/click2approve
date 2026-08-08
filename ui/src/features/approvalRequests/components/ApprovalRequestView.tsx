@@ -10,7 +10,7 @@ import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
-import { PersistenceSuccessMessages, showPersistenceSuccessToast } from "@/shared/utils/toasts";
+import { PersistenceSuccessMessages, showPersistenceSuccessNotification } from "@/shared/utils/persistenceNotifications";
 import { BlockOutlined, LinkOutlined, Replay } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
@@ -110,7 +110,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
     const isCanceled = await cancelAction.run(async () => {
       const canceled = await stores.approvalRequestStore.cancel(tenantGlobalId, approvalRequest.globalId);
       if (canceled) {
-        showPersistenceSuccessToast(PersistenceSuccessMessages.approvalRequestCanceled);
+        showPersistenceSuccessNotification(PersistenceSuccessMessages.approvalRequestCanceled);
       }
       return canceled;
     });
@@ -143,7 +143,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
       const linkGlobalId = await createSharedVerificationLinkForRequest(tenantGlobalId, approvalRequest.globalId);
       if (linkGlobalId) {
         await navigator.clipboard?.writeText(`${window.location.origin}/app/verification/${linkGlobalId}`);
-        showPersistenceSuccessToast(PersistenceSuccessMessages.sharedVerificationLinkCreated);
+        showPersistenceSuccessNotification(PersistenceSuccessMessages.sharedVerificationLinkCreated);
         setSharedVerificationLinksRefreshKey((current) => current + 1);
       }
     });

@@ -18,15 +18,15 @@ import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import {
   PersistenceSuccessMessages,
-  showPersistenceSuccessToast,
-} from "@/shared/utils/toasts";
+  showPersistenceSuccessNotification,
+} from "@/shared/utils/persistenceNotifications";
 import { validateEmails } from "@/shared/utils/validators";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { Button, Stack, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { notification } from "@/shared/utils/notifications";
 
 interface ApprovalStepTemplateEditorProps {
   template: ApprovalStepTemplate | null;
@@ -152,7 +152,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
     );
 
     if (hasMissingRecipient || (emails.length > 0 && !validateEmails(emails))) {
-      toast.error("Specify valid assignees for every step.");
+      notification.warning("Specify valid assignees for every step.");
       return false;
     }
 
@@ -164,7 +164,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
       return;
     }
     if (!name.trim()) {
-      toast.error("Template name is required.");
+      notification.warning("Template name is required.");
       return;
     }
     if (!validateSteps()) {
@@ -182,7 +182,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
             steps: toApprovalStepSubmissions(steps),
           });
       if (saved) {
-        showPersistenceSuccessToast(PersistenceSuccessMessages.templateSaved);
+        showPersistenceSuccessNotification(PersistenceSuccessMessages.templateSaved);
         onClose(saved.globalId);
       }
     });

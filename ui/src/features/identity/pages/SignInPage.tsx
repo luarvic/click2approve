@@ -22,7 +22,7 @@ import {
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { notification } from "@/shared/utils/notifications";
 
 const SignInPage = () => {
   usePageTitle("Sign in");
@@ -49,7 +49,7 @@ const SignInPage = () => {
     if (!email || !validateEmail(email.toString()) || !password) {
       setEmailError(!email || !validateEmail(email.toString()));
       setPasswordError(!password);
-      toast.error("Invalid input.");
+      notification.warning("Invalid input.");
     } else {
       const credentials = new Credentials(
         email.toString(),

@@ -17,8 +17,8 @@ import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 import {
   PersistenceSuccessMessages,
-  showPersistenceSuccessToast,
-} from "@/shared/utils/toasts";
+  showPersistenceSuccessNotification,
+} from "@/shared/utils/persistenceNotifications";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
@@ -75,7 +75,7 @@ const DelegationEditorPage = () => {
       onDelete={async  (id: string) => {
         const deleted = await deleteApprovalDelegation(tenantGlobalId, id);
         if (deleted) {
-          showPersistenceSuccessToast(
+          showPersistenceSuccessNotification(
             PersistenceSuccessMessages.delegationDeleted,
           );
           navigate(delegationsPath);
@@ -87,7 +87,7 @@ const DelegationEditorPage = () => {
           ? await updateApprovalDelegation(tenantGlobalId, globalId, payload)
           : await createApprovalDelegation(tenantGlobalId, payload);
         if (saved) {
-          showPersistenceSuccessToast(
+          showPersistenceSuccessNotification(
             PersistenceSuccessMessages.delegationSaved,
           );
         }

@@ -9,10 +9,10 @@ import { ApprovalRequestListItem } from "@/features/approvalRequests/models/appr
 import { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
 import axios from "@/shared/api/axios";
 import {
-  getUserFriendlyApiErrorMessage,
+  getApiErrorNotification,
   isResourceNotFoundOrForbiddenError,
-} from "@/shared/utils/helpers";
-import { toast } from "react-toastify";
+} from "@/shared/utils/apiErrorNotifications";
+import { notification } from "@/shared/utils/notifications";
 
 export const submitApprovalRequest = async (
   tenantGlobalId: string,
@@ -38,7 +38,7 @@ export const submitApprovalRequest = async (
     );
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return null;
   }
 };
@@ -64,7 +64,7 @@ export const resubmitApprovalRequest = async (
     );
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return null;
   }
 };
@@ -77,7 +77,7 @@ export const cancelApprovalRequest = async (
     await axios.post(`api/v1/tenants/${tenantGlobalId}/requests/${globalId}/cancel`);
     return true;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return false;
   }
 };
@@ -91,7 +91,7 @@ export const listApprovalRequests = async (
     );
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return [];
   }
 };
@@ -109,7 +109,7 @@ export const getApprovalRequest = async (
     if (isResourceNotFoundOrForbiddenError(e)) {
       return null;
     }
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return null;
   }
 };

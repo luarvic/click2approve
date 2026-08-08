@@ -28,11 +28,11 @@ import PublicLayout from "@/layouts/PublicLayout";
 import TenantScopeLayout from "@/layouts/TenantScopeLayout";
 import WrapperLayout from "@/layouts/WrapperLayout";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
+import Notifications from "@/shared/components/overlays/Notifications";
 import AnonymousRoute from "@/shared/components/routing/AnonymousRoute";
 import NotFoundRoute from "@/shared/components/routing/NotFoundRoute";
 import RouteGuard from "@/shared/components/routing/RouteGuard";
 import TenantHomeRedirect from "@/shared/components/routing/TenantHomeRedirect";
-import { Toasts } from "@/shared/constants/constants";
 import InformationPage from "@/shared/pages/InformationPage";
 import UserProfilePage from "@/shared/pages/UserProfilePage";
 import "@fontsource/sora/400.css";
@@ -42,7 +42,6 @@ import { CssBaseline, ThemeProvider } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
 
 const App = () => {
   const currentTenant = stores.tenantStore.currentTenant;
@@ -159,16 +158,7 @@ const App = () => {
             <Route path="*" element={<NotFoundRoute />} />
           </Routes>
         </BrowserRouter>
-        <ToastContainer
-          position="bottom-right"
-          autoClose={Toasts.autoClose}
-          pauseOnHover
-          limit={Toasts.limit}
-          closeButton={Toasts.closeButton}
-          draggable={Toasts.draggable}
-          stacked
-          theme="colored"
-        />
+        <Notifications />
       </CssBaseline>
     </ThemeProvider>
   );

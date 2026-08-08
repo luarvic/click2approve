@@ -1,7 +1,7 @@
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
-import { parseUtcDateTime } from "@/shared/utils/helpers";
+import { parseUtcDateTime } from "@/shared/utils/dateTime";
 
 type NormalizableTask =
   | Pick<ApprovalRequestTask | ApprovalRequestTaskListItem, "createdAt" | "completedAt"> & {

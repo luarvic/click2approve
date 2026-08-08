@@ -1,14 +1,14 @@
 import { Team, UpsertTeamRequest } from "@/features/teams/models/team";
 import axios from "@/shared/api/axios";
-import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
-import { toast } from "react-toastify";
+import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
+import { notification } from "@/shared/utils/notifications";
 
 export const listTeams = async (tenantGlobalId: string): Promise<Team[]> => {
   try {
     const { data } = await axios.get<Team[]>(`api/v1/tenants/${tenantGlobalId}/teams`);
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return [];
   }
 };
@@ -24,7 +24,7 @@ export const createTeam = async (
     );
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return null;
   }
 };
@@ -41,7 +41,7 @@ export const updateTeam = async (
     );
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return null;
   }
 };
@@ -54,7 +54,7 @@ export const deleteTeam = async (
     await axios.delete(`api/v1/tenants/${tenantGlobalId}/teams/${teamGlobalId}`);
     return true;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return false;
   }
 };

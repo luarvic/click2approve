@@ -4,8 +4,8 @@ import {
   UpdateEmployeeRequest,
 } from "@/features/employees/models/employee";
 import axios from "@/shared/api/axios";
-import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
-import { toast } from "react-toastify";
+import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
+import { notification } from "@/shared/utils/notifications";
 
 export const listEmployees = async (
   tenantGlobalId: string
@@ -16,7 +16,7 @@ export const listEmployees = async (
     );
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return [];
   }
 };
@@ -32,7 +32,7 @@ export const createEmployee = async (
     );
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return null;
   }
 };
@@ -49,7 +49,7 @@ export const updateEmployee = async (
     );
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return null;
   }
 };
@@ -62,7 +62,7 @@ export const deleteEmployee = async (
     await axios.delete(`api/v1/tenants/${tenantGlobalId}/employees/${employeeGlobalId}`);
     return true;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return false;
   }
 };

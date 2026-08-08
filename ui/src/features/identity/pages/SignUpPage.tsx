@@ -27,7 +27,7 @@ import {
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { notification } from "@/shared/utils/notifications";
 
 const SignUpPage = () => {
   usePageTitle("Sign up");
@@ -72,7 +72,7 @@ const SignUpPage = () => {
         !passwordConfirmation ||
         password.toString() !== passwordConfirmation.toString(),
       );
-      toast.error("Invalid input.");
+      notification.warning("Invalid input.");
     } else {
       const credentials = new Credentials(
         email.toString(),

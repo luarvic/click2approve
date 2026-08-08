@@ -1,8 +1,8 @@
 import axios from "@/shared/api/axios";
 import { Api } from "@/shared/constants/constants";
 import { UserProfile, UserProfileUpdateRequest } from "@/shared/models/userProfile";
-import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
-import { toast } from "react-toastify";
+import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
+import { notification } from "@/shared/utils/notifications";
 
 export const getPublicApiUrl = (path?: string): string | undefined => {
   if (!path) {
@@ -22,7 +22,7 @@ export const getUserProfile = async (): Promise<UserProfile | null> => {
     const { data } = await axios.get<UserProfile>("api/v1/userProfiles");
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return null;
   }
 };
@@ -34,7 +34,7 @@ export const updateUserProfile = async (
     const { data } = await axios.put<UserProfile>("api/v1/userProfiles", payload);
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return null;
   }
 };
@@ -51,7 +51,7 @@ export const uploadUserAvatar = async (
     );
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return null;
   }
 };
@@ -61,7 +61,7 @@ export const deleteUserAvatar = async (): Promise<UserProfile | null> => {
     const { data } = await axios.delete<UserProfile>("api/v1/userProfiles/avatar");
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return null;
   }
 };

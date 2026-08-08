@@ -3,10 +3,10 @@ import { ApprovalRequestTaskClientAuditContext } from "@/features/approvalReques
 import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
 import axios from "@/shared/api/axios";
 import {
-  getUserFriendlyApiErrorMessage,
+  getApiErrorNotification,
   isResourceNotFoundOrForbiddenError,
-} from "@/shared/utils/helpers";
-import { toast } from "react-toastify";
+} from "@/shared/utils/apiErrorNotifications";
+import { notification } from "@/shared/utils/notifications";
 
 export const completeApprovalRequestTask = async (
   tenantGlobalId: string,
@@ -30,7 +30,7 @@ export const completeApprovalRequestTask = async (
     });
     return true;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return false;
   }
 };
@@ -46,7 +46,7 @@ export const listApprovalRequestTasks = async (
     );
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return [];
   }
 };
@@ -64,7 +64,7 @@ export const getApprovalRequestTask = async (
     if (isResourceNotFoundOrForbiddenError(e)) {
       return null;
     }
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return null;
   }
 };
@@ -78,7 +78,7 @@ export const countUncompletedApprovalRequestTasks = async (
     );
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return 0;
   }
 };

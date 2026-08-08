@@ -4,7 +4,7 @@ import ColorModeSwitch from "@/shared/components/layout/ColorModeSwitch";
 import PublicAppBar from "@/shared/components/layout/PublicAppBar";
 import { Routes, Shell } from "@/shared/constants/constants";
 import { AppBarOptions } from "@/shared/models/appBarOptions";
-import { getEmailInitials } from "@/shared/utils/helpers";
+import { getEmailInitials } from "@/shared/utils/email";
 import { Menu } from "@mui/icons-material";
 import {
   Avatar,

@@ -3,7 +3,7 @@ import TenantEditor from "@/features/tenants/components/TenantDialog";
 import { CreateTenantRequest, EmployeeRole, UpdateTenantRequest } from "@/features/tenants/models/tenant";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
-import { PersistenceSuccessMessages, showPersistenceSuccessToast } from "@/shared/utils/toasts";
+import { PersistenceSuccessMessages, showPersistenceSuccessNotification } from "@/shared/utils/persistenceNotifications";
 import { observer } from "mobx-react-lite";
 import { useNavigate, useParams } from "react-router-dom";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
@@ -27,7 +27,7 @@ const TenantEditorPage = () => {
       : await stores.tenantStore.create(payload as CreateTenantRequest);
     if (saved && !globalId) await stores.refreshTenantScope();
     if (saved) {
-      showPersistenceSuccessToast(PersistenceSuccessMessages.organizationSaved);
+      showPersistenceSuccessNotification(PersistenceSuccessMessages.organizationSaved);
     }
     return saved;
   };

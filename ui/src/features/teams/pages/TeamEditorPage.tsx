@@ -7,8 +7,8 @@ import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import {
   PersistenceSuccessMessages,
-  showPersistenceSuccessToast,
-} from "@/shared/utils/toasts";
+  showPersistenceSuccessNotification,
+} from "@/shared/utils/persistenceNotifications";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
@@ -57,7 +57,7 @@ const TeamEditorPage = () => {
     onDelete={async (globalId: string) => {
       const deleted = await stores.teamStore.delete(tenantGlobalId, globalId);
       if (deleted) {
-        showPersistenceSuccessToast(PersistenceSuccessMessages.teamDeleted);
+        showPersistenceSuccessNotification(PersistenceSuccessMessages.teamDeleted);
         navigate(teamsPath);
       }
       return deleted;
@@ -67,7 +67,7 @@ const TeamEditorPage = () => {
         ? await stores.teamStore.update(tenantGlobalId, globalId, payload)
         : await stores.teamStore.create(tenantGlobalId, payload);
       if (saved) {
-        showPersistenceSuccessToast(PersistenceSuccessMessages.teamSaved);
+        showPersistenceSuccessNotification(PersistenceSuccessMessages.teamSaved);
       }
       return saved;
     }}

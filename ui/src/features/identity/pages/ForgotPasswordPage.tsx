@@ -14,7 +14,7 @@ import {
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { notification } from "@/shared/utils/notifications";
 
 const ForgotPasswordPage = () => {
   usePageTitle("Forgot password");
@@ -28,7 +28,7 @@ const ForgotPasswordPage = () => {
     const email = data.get("email");
     if (!email || !validateEmail(email.toString())) {
       setEmailError(!email || !validateEmail(email.toString()));
-      toast.error("Invalid input.");
+      notification.warning("Invalid input.");
     } else {
       setIsLoading(true);
       if (

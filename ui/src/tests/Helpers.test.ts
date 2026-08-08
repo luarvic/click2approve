@@ -1,4 +1,4 @@
-import { parseUtcDateTime } from "@/shared/utils/helpers";
+import { parseUtcDateTime } from "@/shared/utils/dateTime";
 import { describe, expect, test } from "vitest";
 
 describe("parseUtcDateTime", () => {

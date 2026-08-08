@@ -1,9 +1,9 @@
-import { Toasts } from "@/shared/constants/constants";
-import { toast } from "react-toastify";
+import { Notifications } from "@/shared/constants/constants";
+import { notification } from "@/shared/utils/notifications";
 
-export const showPersistenceSuccessToast = (message: string): void => {
-  if (Toasts.showPersistenceSuccess) {
-    toast.success(message);
+export const showPersistenceSuccessNotification = (message: string): void => {
+  if (Notifications.showPersistenceSuccess) {
+    notification.success(message);
   }
 };
 

@@ -3,8 +3,8 @@ import { CredentialsData } from "@/features/identity/models/credentials";
 import { UserAccount } from "@/features/identity/models/userAccount";
 import axios from "@/shared/api/axios";
 import { deleteTokens, writeTokens } from "@/shared/session/session";
-import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
-import { toast } from "react-toastify";
+import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
+import { notification } from "@/shared/utils/notifications";
 
 export const registerUser = async (credentials: CredentialsData): Promise<boolean> => {
   try {
@@ -14,7 +14,7 @@ export const registerUser = async (credentials: CredentialsData): Promise<boolea
     });
     return true;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return false;
   }
 };
@@ -41,7 +41,7 @@ export const loginUser = async (credentials: CredentialsData): Promise<boolean> 
     return true;
   } catch (e) {
     deleteTokens();
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return false;
   }
 };
@@ -55,7 +55,7 @@ export const resendUserConfirmationEmail = async (
     });
     return true;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return false;
   }
 };
@@ -69,7 +69,7 @@ export const requestUserPasswordReset = async (
     });
     return true;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return false;
   }
 };
@@ -87,7 +87,7 @@ export const resetUserPassword = async (
     });
     return true;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return false;
   }
 };

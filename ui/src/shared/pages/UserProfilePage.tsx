@@ -15,8 +15,8 @@ import {
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   PersistenceSuccessMessages,
-  showPersistenceSuccessToast,
-} from "@/shared/utils/toasts";
+  showPersistenceSuccessNotification,
+} from "@/shared/utils/persistenceNotifications";
 import { Person } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
@@ -110,7 +110,7 @@ const UserProfilePage = () => {
         }
         setSelectedAvatar(null);
       }
-      showPersistenceSuccessToast(PersistenceSuccessMessages.profileSaved);
+      showPersistenceSuccessNotification(PersistenceSuccessMessages.profileSaved);
     });
   };
 
@@ -119,7 +119,7 @@ const UserProfilePage = () => {
       setSelectedAvatar(null);
       const deleted = await stores.userProfileStore.deleteAvatar();
       if (deleted) {
-        showPersistenceSuccessToast(PersistenceSuccessMessages.profileSaved);
+        showPersistenceSuccessNotification(PersistenceSuccessMessages.profileSaved);
       }
     });
   };

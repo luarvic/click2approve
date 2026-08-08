@@ -36,7 +36,6 @@ export default defineConfig(() => {
               "dayjs",
               "password-validator",
               "pretty-bytes",
-              "react-toastify",
               "s-ago",
               "styled-components",
             ],

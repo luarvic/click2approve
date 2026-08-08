@@ -8,8 +8,8 @@ import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 import {
   PersistenceSuccessMessages,
-  showPersistenceSuccessToast,
-} from "@/shared/utils/toasts";
+  showPersistenceSuccessNotification,
+} from "@/shared/utils/persistenceNotifications";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
@@ -73,7 +73,7 @@ const EmployeeEditorPage = () => {
     onDelete={async  (id: string) => {
       const deleted = await stores.employeeStore.delete(tenantGlobalId, id);
       if (deleted) {
-        showPersistenceSuccessToast(
+        showPersistenceSuccessNotification(
           PersistenceSuccessMessages.employeeDeleted,
         );
         navigate(employeesPath);
@@ -86,7 +86,7 @@ const EmployeeEditorPage = () => {
         return null;
       }
       await stores.tenantStore.load(tenantGlobalId);
-      showPersistenceSuccessToast(PersistenceSuccessMessages.employeeSaved);
+      showPersistenceSuccessNotification(PersistenceSuccessMessages.employeeSaved);
       return saved;
     }}
   />;

@@ -21,7 +21,7 @@ import {
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { toast } from "react-toastify";
+import { notification } from "@/shared/utils/notifications";
 
 const ResetPasswordPage = () => {
   usePageTitle("Reset password");
@@ -76,7 +76,7 @@ const ResetPasswordPage = () => {
         !passwordConfirmation ||
         password.toString() !== passwordConfirmation.toString(),
       );
-      toast.error("Invalid input.");
+      notification.warning("Invalid input.");
     } else {
       setIsLoading(true);
       if (

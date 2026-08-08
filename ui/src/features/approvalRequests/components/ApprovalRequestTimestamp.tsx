@@ -3,7 +3,7 @@ import {
   getApprovalRequestTimestampIcon,
 } from "@/features/approvalRequests/components/approvalRequestTimestampDisplay";
 import { StackSpacing } from "@/shared/constants/constants";
-import { getLocaleDateTimeString } from "@/shared/utils/helpers";
+import { getLocaleDateTimeString } from "@/shared/utils/dateTime";
 import { Stack, Tooltip, Typography } from "@mui/material";
 
 interface ApprovalRequestTimestampProps {

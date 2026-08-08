@@ -3,8 +3,8 @@ import {
   ApprovalDelegationUpsert,
 } from "@/features/delegations/models/approvalDelegation";
 import axios from "@/shared/api/axios";
-import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
-import { toast } from "react-toastify";
+import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
+import { notification } from "@/shared/utils/notifications";
 
 export const listApprovalDelegations = async (
   tenantGlobalId: string,
@@ -15,7 +15,7 @@ export const listApprovalDelegations = async (
     );
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return [];
   }
 };
@@ -31,7 +31,7 @@ export const createApprovalDelegation = async (
     );
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return null;
   }
 };
@@ -48,7 +48,7 @@ export const updateApprovalDelegation = async (
     );
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return null;
   }
 };
@@ -61,7 +61,7 @@ export const deleteApprovalDelegation = async (
     await axios.delete(`api/v1/tenants/${tenantGlobalId}/delegations/${delegationGlobalId}`);
     return true;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return false;
   }
 };

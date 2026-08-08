@@ -21,8 +21,8 @@ import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   PersistenceSuccessMessages,
-  showPersistenceSuccessToast,
-} from "@/shared/utils/toasts";
+  showPersistenceSuccessNotification,
+} from "@/shared/utils/persistenceNotifications";
 import { LinkOutlined } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
@@ -202,7 +202,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
         createApprovalRequestTaskClientAuditContext(),
       );
       if (didComplete) {
-        showPersistenceSuccessToast(
+        showPersistenceSuccessNotification(
           PersistenceSuccessMessages.approvalDecisionSubmitted,
         );
         cleanUp();
@@ -243,7 +243,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
       const linkGlobalId = await createSharedVerificationLinkForTask(tenantGlobalId, currentTask.globalId);
       if (linkGlobalId) {
         await navigator.clipboard?.writeText(`${window.location.origin}/app/verification/${linkGlobalId}`);
-        showPersistenceSuccessToast(PersistenceSuccessMessages.sharedVerificationLinkCreated);
+        showPersistenceSuccessNotification(PersistenceSuccessMessages.sharedVerificationLinkCreated);
         setSharedVerificationLinksRefreshKey((current) => current + 1);
       }
     });

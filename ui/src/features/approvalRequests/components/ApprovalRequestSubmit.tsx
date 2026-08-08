@@ -40,8 +40,8 @@ import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   PersistenceSuccessMessages,
-  showPersistenceSuccessToast,
-} from "@/shared/utils/toasts";
+  showPersistenceSuccessNotification,
+} from "@/shared/utils/persistenceNotifications";
 import { validateEmails } from "@/shared/utils/validators";
 import { Add, ArrowBack, ArrowForward, AttachFile } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -58,7 +58,7 @@ import {
 import type { Theme } from "@mui/material/styles";
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { toast } from "react-toastify";
+import { notification } from "@/shared/utils/notifications";
 
 interface ApprovalRequestSubmitProps {
   initialTemplateGlobalId?: string;
@@ -319,7 +319,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
 
   const validateSteps = () => {
     if (steps.length === 0) {
-      toast.error("Add one or more approval steps.");
+      notification.warning("Add one or more approval steps.");
       return false;
     }
 
@@ -343,7 +343,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     );
 
     if (hasMissingRecipient || (emails.length > 0 && !validateEmails(emails))) {
-      toast.error("Specify valid assignees for every step.");
+      notification.warning("Specify valid assignees for every step.");
       return false;
     }
     return true;
@@ -352,11 +352,11 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   const validateDraft = () => {
     const trimmedTitle = title.trim();
     if (!trimmedTitle) {
-      toast.error("Title is required.");
+      notification.warning("Title is required.");
       return false;
     }
     if (newFiles.length === 0 && existingFiles.length === 0) {
-      toast.error("Add one or more files.");
+      notification.warning("Add one or more files.");
       return false;
     }
     return validateSteps();
@@ -507,7 +507,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       const filesToUpload = [...replacementFiles, ...newFiles];
       const uploadedFiles = await uploadUserFiles(tenantGlobalId, filesToUpload);
       if (uploadedFiles.length !== filesToUpload.length) {
-        toast.error("One or more files could not be uploaded.");
+        notification.warning("One or more files could not be uploaded.");
         return;
       }
 
@@ -576,7 +576,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
           requestFiles,
         );
       if (approvalRequestGlobalId) {
-        showPersistenceSuccessToast(
+        showPersistenceSuccessNotification(
           PersistenceSuccessMessages.approvalRequestSubmitted,
         );
         cleanUp();

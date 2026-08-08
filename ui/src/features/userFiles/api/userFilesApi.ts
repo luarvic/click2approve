@@ -1,7 +1,7 @@
 import { UserFile } from "@/features/userFiles/models/userFile";
 import axios from "@/shared/api/axios";
-import { getUserFriendlyApiErrorMessage } from "@/shared/utils/helpers";
-import { toast } from "react-toastify";
+import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
+import { notification } from "@/shared/utils/notifications";
 
 export const uploadUserFiles = async (
   tenantGlobalId: string,
@@ -21,7 +21,7 @@ export const uploadUserFiles = async (
     );
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return [];
   }
 };
@@ -36,7 +36,7 @@ export const downloadUserFileBase64 = async (
     );
     return data;
   } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
+    notification.error(getApiErrorNotification(e));
     return null;
   }
 };
