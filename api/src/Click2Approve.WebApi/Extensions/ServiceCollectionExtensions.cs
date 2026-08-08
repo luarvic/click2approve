@@ -11,7 +11,7 @@ using Click2Approve.WebApi.Identity;
 using FluentEmail.Core.Interfaces;
 using FluentEmail.Smtp;
 using Hangfire;
-using Hangfire.MemoryStorage;
+using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Azure;
@@ -61,9 +61,11 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddHangfireServices(this IServiceCollection services, IConfiguration configuration)
     {
+        var connectionString = configuration.GetConnectionString("Default")
+            ?? throw new InvalidOperationException("The default database connection string is required.");
         services.AddHangfire(config =>
         {
-            config.UseMemoryStorage()
+            config.UseSqlServerStorage(connectionString)
                 .WithJobExpirationTimeout(TimeSpan.FromMinutes(configuration.GetValue<int>("Hangfire:JobExpirationTimeoutMin")));
         });
         services.AddHangfireServer();

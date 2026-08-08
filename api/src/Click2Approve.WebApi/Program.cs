@@ -40,7 +40,7 @@ builder.Services.AddCors();
 builder.Services.AddDbContext<ApiDbContext>(options =>
 {
     var connectionString = builder.Configuration.GetConnectionString("Default");
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+    options.UseAzureSql(connectionString);
 });
 builder.Services.AddHttpContextAccessor();
 // Use AddEmailServices() instead of AddAzureEmailServices() to switch to the SmtpEmailService implementation.

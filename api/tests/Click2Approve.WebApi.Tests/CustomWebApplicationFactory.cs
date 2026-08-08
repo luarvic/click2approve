@@ -23,7 +23,7 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
         builder.UseEnvironment("Test");
         builder.ConfigureServices(services =>
         {
-            // Replace MySQL DB context with SQLite.
+            // Replace SQL Server DB context with SQLite.
             services.RemoveAll<DbContextOptions<ApiDbContext>>();
             services.RemoveAll<IDbContextOptionsConfiguration<ApiDbContext>>();
             services.RemoveAll<ApiDbContext>();

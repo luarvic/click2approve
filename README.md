@@ -38,7 +38,7 @@ review decisions, and tracking request history.
   including account, task, cancellation, deletion, and review notifications.
 - Expose product edition and capability metadata so the shared UI can hide or
   block commercial-only features when it is connected to the open-source API.
-- Run the complete React, ASP.NET Core, and MySQL stack locally with Docker
+- Run the complete React, ASP.NET Core, and SQL Server stack locally with Docker
   Compose.
 
 ## Demo
@@ -55,6 +55,9 @@ development and visibility.
 
 - [Docker Desktop](https://docs.docker.com/get-docker/)
 - [Git](https://git-scm.com/downloads)
+
+On Apple Silicon Macs, configure Docker or Colima for x86-64 emulation. The
+local SQL Server Developer Edition image runs as `linux/amd64`.
 
 ### Run the Application
 
@@ -73,7 +76,7 @@ The Docker Compose setup starts:
 | --- | --- | --- | --- |
 | `ui` | `click2approve-ui-1` | `3333` | React single-page application served by Nginx |
 | `api` | `click2approve-api-1` | `5555` | ASP.NET Core Web API |
-| `db` | `click2approve-db-1` | `3306` | MySQL database |
+| `db` | `click2approve-db-1` | `1433` | SQL Server database |
 
 ### Useful Docker Commands
 
@@ -83,8 +86,8 @@ docker compose logs -f api
 docker compose down
 ```
 
-Use `docker compose down -v` only when you also want to delete the local MySQL
-volume.
+The Compose file does not define a database volume, so `docker compose down`
+removes the local SQL Server container and its data, including Hangfire jobs.
 
 ## Local Development
 
@@ -103,7 +106,7 @@ dotnet build Click2Approve.Api.sln
 dotnet test Click2Approve.Api.sln
 ```
 
-To run the API locally from source, start a local MySQL database first from the
+To run the API locally from source, start a local SQL Server database first from the
 repository root:
 
 ```bash
@@ -152,7 +155,7 @@ database and uploaded-file storage on managed volumes.
 For production, configure environment-specific secrets and settings instead of
 using the sample credentials in `docker-compose.yaml`. At minimum, review:
 
-- MySQL credentials and database storage.
+- SQL Server credentials and database storage.
 - API connection strings.
 - Email provider settings.
 - Public UI base URL and allowed origins.
@@ -165,7 +168,7 @@ The application consists of three containerized services:
 
 - Client-side UI: React TypeScript 18.2.
 - Server-side API: ASP.NET Core 10.
-- Relational database: MySQL 8.4.
+- Relational database: SQL Server, with Azure SQL Database supported for managed hosting.
 
 ### Client-Side UI
 
@@ -195,12 +198,12 @@ uses:
 - [ASP.NET Core Identity](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity)
 - [Hangfire](https://www.hangfire.io/)
 
-The API stores relational data in MySQL and uses filesystem storage for uploaded
+The API stores relational data in SQL Server and uses filesystem storage for uploaded
 files.
 
 ### Relational Database
 
-MySQL stores user accounts, approval requests, approval tasks, file metadata,
+SQL Server stores user accounts, approval requests, approval tasks, file metadata,
 and other application data required by the API.
 
 ## License and Trademark

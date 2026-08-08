@@ -26,6 +26,15 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
     public DbSet<UserFile> UserFiles { get; set; }
     public DbSet<UserNotificationPreference> UserNotificationPreferences { get; set; }
 
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        base.ConfigureConventions(configurationBuilder);
+
+        configurationBuilder
+            .Properties<DateTime>()
+            .HaveConversion<UtcDateTimeConverter>();
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -45,7 +54,7 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
 
         modelBuilder.Entity<AuditLog>()
             .Property(log => log.ChangesJson)
-            .HasColumnType("longtext");
+            .HasColumnType("nvarchar(max)");
 
         modelBuilder.Entity<AuditLog>()
             .HasIndex(log => log.Timestamp);
@@ -369,10 +378,14 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             return await SaveChangesWithAuditAsync(pendingAuditLogs, cancellationToken);
         }
 
-        await using var transaction = await Database.BeginTransactionAsync(cancellationToken);
-        var result = await SaveChangesWithAuditAsync(pendingAuditLogs, cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
-        return result;
+        var executionStrategy = Database.CreateExecutionStrategy();
+        return await executionStrategy.ExecuteAsync(async () =>
+        {
+            await using var transaction = await Database.BeginTransactionAsync(cancellationToken);
+            var result = await SaveChangesWithAuditAsync(pendingAuditLogs, cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+            return result;
+        });
     }
 
     protected static void ConfigureGlobalIdIndexes(ModelBuilder modelBuilder)
