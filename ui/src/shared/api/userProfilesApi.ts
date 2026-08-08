@@ -9,6 +9,10 @@ export const getPublicApiUrl = (path?: string): string | undefined => {
     return undefined;
   }
 
+  if (/^https?:\/\//i.test(path)) {
+    return path;
+  }
+
   const baseUri = Api.baseUri.endsWith("/") ? Api.baseUri : `${Api.baseUri}/`;
   return `${baseUri}${path}`;
 };

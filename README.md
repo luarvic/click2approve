@@ -106,11 +106,11 @@ dotnet build Click2Approve.Api.sln
 dotnet test Click2Approve.Api.sln
 ```
 
-To run the API locally from source, start a local SQL Server database first from the
-repository root:
+To run the API locally from source, start the local SQL Server database and Azure
+Blob Storage emulator first from the repository root:
 
 ```bash
-docker compose up -d db
+docker compose up -d db azurite
 ```
 
 Then run the Web API project:
@@ -126,7 +126,7 @@ The development profile listens on
 The API reads its local development settings from
 `api/src/Click2Approve.WebApi/appsettings.Development.json`. The Docker profile
 uses `appsettings.Docker.json`, which points the API at the Compose `db` service
-and disables email delivery by default.
+and `azurite` service and disables email delivery by default.
 
 ### UI
 
@@ -149,14 +149,15 @@ npm run dev
 
 The Docker Compose setup can be used as a starting point for an on-premises
 deployment. Run the UI, API, and database containers on your own infrastructure,
-place the UI and API behind your reverse proxy or load balancer, and persist the
-database and uploaded-file storage on managed volumes.
+place the UI and API behind your reverse proxy or load balancer, and use Azure
+Blob Storage for uploaded files.
 
 For production, configure environment-specific secrets and settings instead of
 using the sample credentials in `docker-compose.yaml`. At minimum, review:
 
 - SQL Server credentials and database storage.
 - API connection strings.
+- Private and public Azure Blob Storage connection strings and container access policies.
 - Email provider settings.
 - Public UI base URL and allowed origins.
 - TLS termination and DNS.

@@ -12,6 +12,6 @@ public interface IUserProfileService
     Task<UserProfileDto> GetAsync(AppUser user, CancellationToken cancellationToken);
     Task<UserProfileDto> UpdateAsync(AppUser user, UserProfileUpdateDto payload, CancellationToken cancellationToken);
     Task<UserProfileDto> UploadAvatarAsync(AppUser user, UploadedFile avatar, CancellationToken cancellationToken);
-    Task<(string Filename, byte[] Bytes)> DownloadAvatarAsync(string userId, CancellationToken cancellationToken);
+    Task<string> GetAvatarUrlAsync(string userId, CancellationToken cancellationToken);
     Task<UserProfileDto> DeleteAvatarAsync(AppUser user, CancellationToken cancellationToken);
 }

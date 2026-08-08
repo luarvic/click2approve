@@ -1,10 +1,13 @@
 using System.Net;
 using System.Net.Mail;
 using Azure.Core;
+using Azure.Storage.Blobs.Models;
 using Click2Approve.Application.Abstractions.Email;
+using Click2Approve.Application.Abstractions.FileStorage;
 using Click2Approve.Application.Abstractions.Identity;
 using Click2Approve.Domain.Models;
 using Click2Approve.Infrastructure.Email;
+using Click2Approve.Infrastructure.FileStorage;
 using Click2Approve.Infrastructure.Identity;
 using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.WebApi.Identity;
@@ -135,6 +138,16 @@ public static class ServiceCollectionExtensions
             services.AddSingleton<IEmailService, AzureEmailCommunicationService>();
         }
         services.AddSingleton<IEmailSender<AppUser>, IdentityEmailService>();
+        return services;
+    }
+
+    /// <summary>
+    /// Adds and configures Azure Blob Storage services.
+    /// </summary>
+    public static IServiceCollection AddAzureFileStorageServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddSingleton<IPrivateFileStorage>(_ => new AzureFileStorage(configuration, "PrivateFileStorage"));
+        services.AddSingleton<IPublicFileStorage>(_ => new AzureFileStorage(configuration, "PublicFileStorage", PublicAccessType.Blob));
         return services;
     }
 

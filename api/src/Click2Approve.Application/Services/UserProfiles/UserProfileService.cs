@@ -13,7 +13,7 @@ public class UserProfileService(
     ITenantRepository tenantRepository,
     IUserNotificationPreferenceService notificationPreferenceService,
     IUserProfileAccessService profileAccessService,
-    IFileStorage fileStorage,
+    IPublicFileStorage fileStorage,
     IConfiguration configuration) : IUserProfileService
 {
     private const string AllowedAvatarExtensionsConfigurationKey = "Limitations:AllowedAvatarExtensions";
@@ -22,7 +22,7 @@ public class UserProfileService(
     private readonly ITenantRepository _tenantRepository = tenantRepository;
     private readonly IUserNotificationPreferenceService _notificationPreferenceService = notificationPreferenceService;
     private readonly IUserProfileAccessService _profileAccessService = profileAccessService;
-    private readonly IFileStorage _fileStorage = fileStorage;
+    private readonly IPublicFileStorage _fileStorage = fileStorage;
     private readonly IConfiguration _configuration = configuration;
 
     public async Task<UserProfileDto> GetAsync(AppUser user, CancellationToken cancellationToken)
@@ -31,6 +31,7 @@ public class UserProfileService(
             user,
             _tenantRepository,
             _notificationPreferenceService,
+            _fileStorage,
             cancellationToken);
     }
 
@@ -59,6 +60,7 @@ public class UserProfileService(
             user,
             _tenantRepository,
             _notificationPreferenceService,
+            _fileStorage,
             cancellationToken);
     }
 
@@ -83,10 +85,11 @@ public class UserProfileService(
             user,
             _tenantRepository,
             _notificationPreferenceService,
+            _fileStorage,
             cancellationToken);
     }
 
-    public async Task<(string Filename, byte[] Bytes)> DownloadAvatarAsync(string userId, CancellationToken cancellationToken)
+    public async Task<string> GetAvatarUrlAsync(string userId, CancellationToken cancellationToken)
     {
         var user = await _userIdentityService.FindByIdAsync(userId, cancellationToken)
             ?? throw new NotFoundException("User was not found.");
@@ -96,7 +99,7 @@ public class UserProfileService(
             throw new NotFoundException("User avatar was not found.");
         }
 
-        return (Path.GetFileName(avatarPath), await _fileStorage.ReadAsync(avatarPath, cancellationToken));
+        return _fileStorage.GetUrl(avatarPath);
     }
 
     public async Task<UserProfileDto> DeleteAvatarAsync(AppUser user, CancellationToken cancellationToken)
@@ -108,6 +111,7 @@ public class UserProfileService(
                 user,
                 _tenantRepository,
                 _notificationPreferenceService,
+                _fileStorage,
                 cancellationToken);
         }
 
@@ -118,6 +122,7 @@ public class UserProfileService(
             user,
             _tenantRepository,
             _notificationPreferenceService,
+            _fileStorage,
             cancellationToken);
     }
 
@@ -166,7 +171,7 @@ public class UserProfileService(
 
     private static string GetAvatarPath(string userId, string extension)
     {
-        return Path.Combine("users", userId, "avatars", $"{Guid.NewGuid():N}{extension}");
+        return Path.Combine("users", userId, "avatars", $"{Guid.NewGuid()}{extension}");
     }
 
     private HashSet<string> GetAllowedAvatarExtensions()

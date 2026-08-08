@@ -1,22 +1,19 @@
 using Click2Approve.Application.Abstractions.FileStorage;
-using Microsoft.Extensions.Configuration;
 
 namespace Click2Approve.WebApi.Tests.Services;
 
 /// <summary>
-/// Mocks a service that manages binary files.
+/// Mocks a service that manages public and private binary files.
 /// </summary>
-public class MockFileStorage(IConfiguration configuration) : IFileStorage
+public class MockFileStorage : IPrivateFileStorage, IPublicFileStorage
 {
     private readonly Dictionary<string, byte[]> _files = [];
-    private readonly string _rootPath = configuration["FileStorage:RootPath"] ?? throw new Exception("File storage root path is not defined.");
 
     public Task SaveAsync(string path, byte[] bytes, CancellationToken cancellationToken)
     {
         try
         {
-            var fullPath = Path.Combine(_rootPath, path);
-            _files.Add(fullPath, bytes);
+            _files.Add(path, bytes);
             return Task.CompletedTask;
         }
         catch (Exception e)
@@ -30,8 +27,7 @@ public class MockFileStorage(IConfiguration configuration) : IFileStorage
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var fullPath = Path.Combine(_rootPath, path);
-            _files.Remove(fullPath);
+            _files.Remove(path);
             return Task.CompletedTask;
         }
         catch (Exception e)
@@ -44,13 +40,17 @@ public class MockFileStorage(IConfiguration configuration) : IFileStorage
     {
         try
         {
-            var fullPath = Path.Combine(_rootPath, path);
-            var file = _files.Single(f => f.Key == fullPath).Value;
+            var file = _files.Single(f => f.Key == path).Value;
             return Task.FromResult(file);
         }
         catch (Exception e)
         {
             throw new Exception($"Unable to read file {Path.GetFileName(path)}.", e);
         }
+    }
+
+    public string GetUrl(string path)
+    {
+        return $"https://storage.example.test/{path}";
     }
 }

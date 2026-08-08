@@ -49,8 +49,7 @@ public class UserProfileController(IUserProfileService userProfileService, UserM
     [AllowAnonymous]
     public async Task<IActionResult> DownloadAvatarAsync(string userId, CancellationToken cancellationToken)
     {
-        var (filename, bytes) = await _userProfileService.DownloadAvatarAsync(userId, cancellationToken);
-        return new FileContentResult(bytes, MimeTypes.GetMimeType(filename));
+        return Redirect(await _userProfileService.GetAvatarUrlAsync(userId, cancellationToken));
     }
 
     [HttpDelete("avatar")]

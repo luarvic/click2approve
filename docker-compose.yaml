@@ -1,4 +1,9 @@
 services:
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    command: azurite-blob --blobHost 0.0.0.0 --skipApiVersionCheck
+    ports:
+      - "10000:10000"
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
     platform: linux/amd64
@@ -10,6 +15,7 @@ services:
       - "1433:1433"
   api:
     depends_on:
+      - azurite
       - db
     build: ./api
     image: click2approve-api:local

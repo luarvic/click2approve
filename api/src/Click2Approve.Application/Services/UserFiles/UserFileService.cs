@@ -14,7 +14,7 @@ public class UserFileService(
     IUserFileRepository userFileRepository,
     ITenantContext tenantContext,
     IUnitOfWork unitOfWork,
-    IFileStorage fileStorage,
+    IPrivateFileStorage fileStorage,
     ILogger<UserFileService> logger) : IUserFileService
 {
     private readonly IConfiguration _configuration = configuration;
@@ -22,7 +22,7 @@ public class UserFileService(
     private readonly IUserFileRepository _userFileRepository = userFileRepository;
     private readonly ITenantContext _tenantContext = tenantContext;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly IFileStorage _fileStorage = fileStorage;
+    private readonly IPrivateFileStorage _fileStorage = fileStorage;
     private readonly ILogger<UserFileService> _logger = logger;
 
     /// <summary>

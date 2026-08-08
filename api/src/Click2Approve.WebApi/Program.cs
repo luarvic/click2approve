@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 using Asp.Versioning;
-using Click2Approve.Application.Abstractions.FileStorage;
 using Click2Approve.Application.Abstractions.Persistence;
 using Click2Approve.Application.Abstractions.Services.ApprovalRequests;
 using Click2Approve.Application.Abstractions.Services.Notifications;
@@ -14,7 +13,6 @@ using Click2Approve.Application.Services.Tenants;
 using Click2Approve.Application.Services.UserFiles;
 using Click2Approve.Application.Services.UserProfiles;
 using Click2Approve.Domain.Models;
-using Click2Approve.Infrastructure.FileStorage;
 using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.WebApi.Extensions;
 using Click2Approve.WebApi.Middlewares;
@@ -45,6 +43,7 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
 builder.Services.AddHttpContextAccessor();
 // Use AddEmailServices() instead of AddAzureEmailServices() to switch to the SmtpEmailService implementation.
 builder.Services.AddAzureEmailServices(builder.Configuration);
+builder.Services.AddAzureFileStorageServices(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHangfireServices(builder.Configuration);
 builder.Services.AddHttpClient();
@@ -60,7 +59,6 @@ builder.Services.AddScoped<IApprovalRequestCompletionAttributor, ApprovalRequest
 builder.Services.AddScoped<IApprovalRequestTaskService, ApprovalRequestTaskService>();
 builder.Services.AddScoped<IApprovalRequestTaskCompletionAttributor, ApprovalRequestTaskCompletionAttributor>();
 builder.Services.AddScoped<IApprovalWorkflowService, ApprovalWorkflowService>();
-builder.Services.AddScoped<IFileStorage, FileSystemFileStorage>();
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<IUserFileService, UserFileService>();
 builder.Services.AddScoped<IUserNotificationPreferenceService, UserNotificationPreferenceService>();
