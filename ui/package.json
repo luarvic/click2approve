@@ -29,6 +29,7 @@
     "qrcode.react": "^4.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-easy-crop": "^5.5.7",
     "react-router-dom": "^6.21.3",
     "react-toastify": "^10.0.4",
     "s-ago": "^2.2.0",

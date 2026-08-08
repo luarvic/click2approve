@@ -13,7 +13,7 @@ const RouteGuard = ({ isAllowed = true }: RouteGuardProps) => {
   }
 
   if (
-    stores.productStore.requiresConfirmedEmail &&
+    stores.applicationConfigurationStore.requiresConfirmedEmail &&
     !stores.userAccountStore.currentUser.isEmailConfirmed
   ) {
     return (

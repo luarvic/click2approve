@@ -1,5 +1,7 @@
-export interface ProductInfo {
+export interface ApplicationConfiguration {
+  avatarImageSize: number;
   edition: string;
+  logoImageSize: number;
   requiresConfirmedEmail: boolean;
   capabilities: ProductCapabilities;
 }

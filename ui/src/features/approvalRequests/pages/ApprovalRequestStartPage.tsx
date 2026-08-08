@@ -35,7 +35,7 @@ const ApprovalRequestStartPage = () => {
   const tenantScopeIsReady = stores.tenantStore.hasLoaded;
   const canUseTemplates =
     stores.tenantStore.currentTenant?.type === TenantType.Business &&
-    stores.productStore.approvalStepTemplatesAreEnabled &&
+    stores.applicationConfigurationStore.approvalStepTemplatesAreEnabled &&
     tenantGlobalId !== null;
   const hasTemplates = stores.approvalStepTemplateStore.templates.length > 0;
   const [requestType, setRequestType] = useState<RequestType>("custom");

@@ -100,7 +100,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose }) =>
   const canEnterAssigneeOrganization = !currentTask?.isAssigneeEmployee;
   const canManageSharedVerificationLinks = Boolean(
     currentTask &&
-    stores.productStore.sharedVerificationLinksAreEnabled &&
+    stores.applicationConfigurationStore.sharedVerificationLinksAreEnabled &&
     approvalRequest?.status === ApprovalRequestStatus.Completed &&
     approvalRequest.result === true,
   );

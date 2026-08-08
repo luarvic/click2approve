@@ -1,10 +1,12 @@
-import TenantLogoPicker from "@/features/tenants/components/TenantLogoPicker";
+import { stores } from "@/app/rootStore";
 import { CreateTenantRequest, Tenant, UpdateTenantRequest } from "@/features/tenants/models/tenant";
+import ImagePicker from "@/shared/components/images/ImagePicker";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import LoadingButton from "@mui/lab/LoadingButton";
+import { Business } from "@mui/icons-material";
 import {
   Button,
   Stack,
@@ -93,7 +95,7 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
     });
   };
 
-  const handleLogoSelect = (file: File | null) => {
+  const handleLogoSelect = (file: File) => {
     setLogoFile(file);
     setLogoWasRemoved(false);
   };
@@ -116,12 +118,16 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
         ]}
       />
       <Stack spacing={Dialogs.formStackSpacing}>
-        <TenantLogoPicker
-          logoUrl={logoWasRemoved ? undefined : tenant?.logo}
+        <ImagePicker
+          alt="Organization logo"
+          fallback={<Business fontSize="large" />}
+          imageSize={stores.applicationConfigurationStore.applicationConfiguration?.logoImageSize ?? 256}
+          imageUrl={logoWasRemoved ? undefined : tenant?.logo}
           selectedFile={logoFile}
-          onSelect={handleLogoSelect}
-          onRemove={handleLogoRemove}
           disabled={!isNew && !canEdit}
+          onDelete={handleLogoRemove}
+          onSave={handleLogoSelect}
+          title="Edit logo"
         />
         <TextField
           label="Business name"

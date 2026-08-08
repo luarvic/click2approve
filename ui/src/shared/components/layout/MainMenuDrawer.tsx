@@ -54,18 +54,18 @@ const MainMenuDrawer = () => {
 
   const currentTenant = stores.tenantStore.currentTenant;
   const currentUser = stores.userAccountStore.currentUser;
-  const organizationsIsVisible = stores.productStore.tenantsAreEnabled;
+  const organizationsIsVisible = stores.applicationConfigurationStore.tenantsAreEnabled;
   const employeeManagerIsVisible =
-    stores.productStore.tenantsAreEnabled &&
+    stores.applicationConfigurationStore.tenantsAreEnabled &&
     currentTenant?.type === TenantType.Business &&
     currentTenant?.currentEmployeeRole !== undefined;
   const delegationsIsVisible =
     currentTenant?.type === TenantType.Business &&
     currentTenant.currentEmployeeRole !== undefined;
   const teamsManagerIsVisible =
-    employeeManagerIsVisible && stores.productStore.teamAssigneesAreEnabled;
+    employeeManagerIsVisible && stores.applicationConfigurationStore.teamAssigneesAreEnabled;
   const templatesIsVisible =
-    stores.productStore.approvalStepTemplatesAreEnabled &&
+    stores.applicationConfigurationStore.approvalStepTemplatesAreEnabled &&
     currentTenant?.type === TenantType.Business &&
     currentTenant?.currentEmployeeRole !== undefined;
   const currentTenantGlobalId = stores.tenantStore.currentTenantGlobalId;

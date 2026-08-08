@@ -1,7 +1,7 @@
 services:
   azurite:
-    image: mcr.microsoft.com/azure-storage/azurite
-    command: azurite-blob --blobHost 0.0.0.0 --skipApiVersionCheck
+    build: ./azurite
+    image: click2approve-azurite:local
     ports:
       - "10000:10000"
   db:

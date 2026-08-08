@@ -53,9 +53,9 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
   const businessTenantIsSelected =
     stores.tenantStore.currentTenant?.type === TenantType.Business;
   const canUseEmployees =
-    businessTenantIsSelected && stores.productStore.employeeAssigneesAreEnabled;
+    businessTenantIsSelected && stores.applicationConfigurationStore.employeeAssigneesAreEnabled;
   const canUseTeams =
-    businessTenantIsSelected && stores.productStore.teamAssigneesAreEnabled;
+    businessTenantIsSelected && stores.applicationConfigurationStore.teamAssigneesAreEnabled;
 
   useEffect(() => {
     setName(template?.name ?? "");

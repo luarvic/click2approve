@@ -1,9 +1,9 @@
 import { ApprovalRequestStore } from "@/features/approvalRequests/stores/approvalRequestStore";
 import { ApprovalRequestTaskStore } from "@/features/approvalRequests/stores/approvalRequestTaskStore";
 import { ApprovalStepTemplateStore } from "@/features/approvalStepTemplates/stores/approvalStepTemplateStore";
+import { ApplicationConfigurationStore } from "@/features/applicationConfiguration/stores/applicationConfigurationStore";
 import { EmployeeStore } from "@/features/employees/stores/employeeStore";
 import { UserAccountStore } from "@/features/identity/stores/userAccountStore";
-import { ProductStore } from "@/features/product/stores/productStore";
 import { TeamStore } from "@/features/teams/stores/teamStore";
 import { TenantStore } from "@/features/tenants/stores/tenantStore";
 import { configureRequestContext } from "@/shared/api/requestContext";
@@ -18,7 +18,7 @@ export class RootStore {
   approvalRequestTaskStore: ApprovalRequestTaskStore;
   userPreferencesStore: UserPreferencesStore;
   userProfileStore: UserProfileStore;
-  productStore: ProductStore;
+  applicationConfigurationStore: ApplicationConfigurationStore;
   tenantStore: TenantStore;
   employeeStore: EmployeeStore;
   teamStore: TeamStore;
@@ -31,7 +31,7 @@ export class RootStore {
     approvalRequestTaskStore: ApprovalRequestTaskStore,
     userPreferencesStore: UserPreferencesStore,
     userProfileStore: UserProfileStore,
-    productStore: ProductStore,
+    applicationConfigurationStore: ApplicationConfigurationStore,
     tenantStore: TenantStore,
     employeeStore: EmployeeStore,
     teamStore: TeamStore,
@@ -43,7 +43,7 @@ export class RootStore {
     this.approvalRequestTaskStore = approvalRequestTaskStore;
     this.userPreferencesStore = userPreferencesStore;
     this.userProfileStore = userProfileStore;
-    this.productStore = productStore;
+    this.applicationConfigurationStore = applicationConfigurationStore;
     this.tenantStore = tenantStore;
     this.employeeStore = employeeStore;
     this.teamStore = teamStore;
@@ -51,7 +51,7 @@ export class RootStore {
     this.userAccountStore.configureSessionLifecycle(
       async () => {
         await this.userProfileStore.load();
-        if (this.productStore.tenantsAreEnabled) {
+        if (this.applicationConfigurationStore.tenantsAreEnabled) {
           await this.tenantStore.load(
             this.userProfileStore.profile?.defaultTenantGlobalId
           );
@@ -114,7 +114,7 @@ export const stores = new RootStore(
   new ApprovalRequestTaskStore(),
   new UserPreferencesStore(),
   new UserProfileStore(),
-  new ProductStore(),
+  new ApplicationConfigurationStore(),
   new TenantStore(),
   new EmployeeStore(),
   new TeamStore(),

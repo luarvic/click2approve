@@ -61,17 +61,16 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        {cancelFirst && <Button disabled={confirmAction.isRunning} variant="outlined" onClick={onClose}>{cancelLabel}</Button>}
+        {cancelFirst && <Button disabled={confirmAction.isRunning} onClick={onClose}>{cancelLabel}</Button>}
         <LoadingButton
           color={confirmColor}
           disabled={confirmDisabled}
           loading={confirmAction.isRunning}
-          variant="outlined"
           onClick={handleConfirm}
         >
           {confirmLabel}
         </LoadingButton>
-        {!cancelFirst && <Button disabled={confirmAction.isRunning} variant="outlined" onClick={onClose}>{cancelLabel}</Button>}
+        {!cancelFirst && <Button disabled={confirmAction.isRunning} onClick={onClose}>{cancelLabel}</Button>}
       </DialogActions>
     </Dialog>
   );

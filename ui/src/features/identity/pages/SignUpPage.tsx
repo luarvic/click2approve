@@ -81,7 +81,7 @@ const SignUpPage = () => {
       );
       setIsLoading(true);
       if (await stores.userAccountStore.signUp(credentials)) {
-        if (stores.productStore.requiresConfirmedEmail) {
+        if (stores.applicationConfigurationStore.requiresConfirmedEmail) {
           navigate("/information", {
             state: {
               title: Information.emailVerificationTitle,

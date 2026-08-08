@@ -11,7 +11,7 @@ const TenantScopeLayout = () => {
   const tenantScopeIsAvailable =
     stores.tenantStore.hasLoaded &&
     tenantGlobalId !== undefined &&
-    (stores.productStore.tenantsAreEnabled
+    (stores.applicationConfigurationStore.tenantsAreEnabled
       ? stores.tenantStore.tenants.some((tenant) => tenant.globalId === tenantGlobalId)
       : stores.tenantStore.currentTenantGlobalId === tenantGlobalId);
 

@@ -5,26 +5,28 @@ using Microsoft.AspNetCore.Mvc;
 namespace Click2Approve.WebApi.Controllers;
 
 /// <summary>
-/// API endpoints that expose product metadata.
+/// API endpoints that expose configuration required by the application client.
 /// </summary>
-[Tags("Click2Approve.WebApi.Product")]
+[Tags("Click2Approve.WebApi.ApplicationConfiguration")]
 [ApiController]
 [ApiVersion(1.0)]
 [Route("api/v{version:apiVersion}/products")]
-public class ProductController(IConfiguration configuration) : ControllerBase
+public class ApplicationConfigurationController(IConfiguration configuration) : ControllerBase
 {
     private readonly IConfiguration _configuration = configuration;
 
     /// <summary>
-    /// Gets product edition and capabilities.
+    /// Gets the edition, capabilities, and client configuration.
     /// </summary>
     [HttpGet("info")]
-    public ActionResult<ProductInfoDto> GetInfo()
+    public ActionResult<ApplicationConfigurationDto> GetConfiguration()
     {
         var edition = _configuration["Product:Edition"] ?? "OpenSource";
-        return Ok(new ProductInfoDto
+        return Ok(new ApplicationConfigurationDto
         {
+            AvatarImageSize = _configuration.GetValue<int>("Limitations:AvatarImageSize"),
             Edition = edition,
+            LogoImageSize = _configuration.GetValue<int>("Limitations:LogoImageSize"),
             RequiresConfirmedEmail = _configuration.GetValue<bool>("Identity:RequireConfirmedEmail"),
             Capabilities = new ProductCapabilitiesDto
             {

@@ -9,8 +9,10 @@ import { VisibilityOff } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import {
   Box,
+  ClickAwayListener,
   IconButton,
-  Popover,
+  Paper,
+  Popper,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -94,31 +96,31 @@ const ApprovalStepVisibilitySummary: React.FC<ApprovalStepVisibilitySummaryProps
         <Tooltip title={emptyMessage} disableTouchListener>
           <IconButton
             aria-label={emptyMessage}
-            aria-describedby={popoverAnchor ? popoverId : undefined}
+            aria-controls={popoverAnchor ? popoverId : undefined}
+            aria-expanded={Boolean(popoverAnchor)}
             onClick={openPopover}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                closePopover();
+              }
+            }}
             size="small"
           >
             <VisibilityOff color={Icons.secondaryColor} fontSize="small" sx={Icons.svgNoShrinkStyle} />
           </IconButton>
         </Tooltip>
-        <Popover
+        <Popper
           id={popoverId}
           anchorEl={popoverAnchor}
-          anchorOrigin={{
-            horizontal: "center",
-            vertical: "bottom",
-          }}
-          onClose={closePopover}
           open={Boolean(popoverAnchor)}
-          transformOrigin={{
-            horizontal: "center",
-            vertical: "top",
-          }}
+          placement="bottom"
         >
-          <Box sx={visibilityPopoverSx}>
-            <Typography variant="body2">{emptyMessage}</Typography>
-          </Box>
-        </Popover>
+          <ClickAwayListener mouseEvent="onMouseDown" onClickAway={closePopover}>
+            <Paper role="tooltip" sx={visibilityPopoverSx}>
+              <Typography variant="body2">{emptyMessage}</Typography>
+            </Paper>
+          </ClickAwayListener>
+        </Popper>
       </>
     );
 

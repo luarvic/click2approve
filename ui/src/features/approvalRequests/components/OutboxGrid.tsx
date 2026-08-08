@@ -45,7 +45,7 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestGlobalId 
     theme.breakpoints.up(DataGrids.approvalNumberColumnMinDisplayWidth),
   );
   const tenantScopeIsReady =
-    !stores.productStore.tenantsAreEnabled ||
+    !stores.applicationConfigurationStore.tenantsAreEnabled ||
     (stores.tenantStore.hasLoaded &&
       stores.tenantStore.currentTenantGlobalId !== null);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;

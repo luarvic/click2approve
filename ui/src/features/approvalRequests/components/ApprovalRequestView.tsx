@@ -59,7 +59,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
   const createSharedVerificationLinkAction = useAsyncAction(createSharedVerificationLinkLoader);
   const canResubmit = Boolean(
     approvalRequest &&
-    stores.productStore.approvalRequestRevisionsAreEnabled &&
+    stores.applicationConfigurationStore.approvalRequestRevisionsAreEnabled &&
     !approvalRequest.nextRevisionApprovalRequestGlobalId &&
     resubmittableApprovalRequestStatuses.includes(approvalRequest.status) &&
     approvalRequest.result !== true,
@@ -71,7 +71,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
   );
   const canManageSharedVerificationLinks = Boolean(
     approvalRequest &&
-    stores.productStore.sharedVerificationLinksAreEnabled &&
+    stores.applicationConfigurationStore.sharedVerificationLinksAreEnabled &&
     approvalRequest.status === ApprovalRequestStatus.Completed &&
     approvalRequest.result === true,
   );

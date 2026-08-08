@@ -24,7 +24,7 @@ const ApprovalStepTemplateEditorPage = () => {
     ? Routes.tenantPath(tenantGlobalId, "/approvalStepTemplates")
     : "/";
   const canViewTemplates =
-    stores.productStore.approvalStepTemplatesAreEnabled &&
+    stores.applicationConfigurationStore.approvalStepTemplatesAreEnabled &&
     currentTenant?.type === TenantType.Business &&
     currentTenant.currentEmployeeRole !== undefined;
   const isNewTemplate = templateGlobalId === undefined;

@@ -98,16 +98,6 @@ export const uploadTenantLogo = async (
   }
 };
 
-export const downloadTenantLogo = async (logoUrl: string): Promise<Blob | null> => {
-  try {
-    const { data } = await axios.get<Blob>(logoUrl, { responseType: "blob" });
-    return data;
-  } catch (e) {
-    toast.error(getUserFriendlyApiErrorMessage(e));
-    return null;
-  }
-};
-
 export const deleteTenantLogo = async (
   tenantGlobalId: string
 ): Promise<Tenant | null> => {

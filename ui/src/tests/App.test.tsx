@@ -2,8 +2,8 @@ import App from "@/app/App";
 import { render, screen } from "@testing-library/react";
 import { beforeAll, describe, expect, test, vi } from "vitest";
 
-vi.mock("@/features/product/api/productsApi", () => ({
-  getProductInfo: vi.fn().mockResolvedValue({
+vi.mock("@/features/applicationConfiguration/api/applicationConfigurationApi", () => ({
+  getApplicationConfiguration: vi.fn().mockResolvedValue({
     edition: "OpenSource",
     requiresConfirmedEmail: false,
     capabilities: {

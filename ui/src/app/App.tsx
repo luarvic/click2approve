@@ -47,15 +47,15 @@ import { ToastContainer } from "react-toastify";
 const App = () => {
   const currentTenant = stores.tenantStore.currentTenant;
   const canManageTeams =
-    stores.productStore.teamAssigneesAreEnabled &&
+    stores.applicationConfigurationStore.teamAssigneesAreEnabled &&
     currentTenant?.type === TenantType.Business &&
     currentTenant.currentEmployeeRole !== undefined;
   const canManageEmployees =
-    stores.productStore.tenantsAreEnabled &&
+    stores.applicationConfigurationStore.tenantsAreEnabled &&
     currentTenant?.type === TenantType.Business &&
     currentTenant.currentEmployeeRole !== undefined;
   const canViewTemplates =
-    stores.productStore.approvalStepTemplatesAreEnabled &&
+    stores.applicationConfigurationStore.approvalStepTemplatesAreEnabled &&
     currentTenant?.type === TenantType.Business &&
     currentTenant.currentEmployeeRole !== undefined;
   const canManageDelegations =
@@ -67,14 +67,14 @@ const App = () => {
 
   useEffect(() => {
     const load = async () => {
-      await stores.productStore.load();
+      await stores.applicationConfigurationStore.load();
       await stores.userAccountStore.signInWithCachedToken();
     };
     load();
   }, []);
 
   return stores.userAccountStore.currentUser === undefined ||
-    stores.productStore.productInfo === null ? (
+    stores.applicationConfigurationStore.applicationConfiguration === null ? (
     <LoadingOverlay />
   ) : (
     <ThemeProvider theme={stores.userPreferencesStore.theme}>
@@ -111,7 +111,7 @@ const App = () => {
                   <Route
                     element={
                       <RouteGuard
-                        isAllowed={stores.productStore.tenantsAreEnabled}
+                        isAllowed={stores.applicationConfigurationStore.tenantsAreEnabled}
                       />
                     }
                   >

@@ -125,16 +125,16 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   const businessTenantIsSelected =
     stores.tenantStore.currentTenant?.type === TenantType.Business;
   const canUseEmployees =
-    businessTenantIsSelected && stores.productStore.employeeAssigneesAreEnabled;
+    businessTenantIsSelected && stores.applicationConfigurationStore.employeeAssigneesAreEnabled;
   const canUseTeams =
-    businessTenantIsSelected && stores.productStore.teamAssigneesAreEnabled;
+    businessTenantIsSelected && stores.applicationConfigurationStore.teamAssigneesAreEnabled;
   const canUseTemplates =
     businessTenantIsSelected &&
-    stores.productStore.approvalStepTemplatesAreEnabled &&
+    stores.applicationConfigurationStore.approvalStepTemplatesAreEnabled &&
     tenantGlobalId !== null;
   const requestToClone = stores.approvalRequestStore.requestToClone;
   const isRevision = Boolean(
-    requestToClone && stores.productStore.approvalRequestRevisionsAreEnabled,
+    requestToClone && stores.applicationConfigurationStore.approvalRequestRevisionsAreEnabled,
   );
 
   useEffect(() => {

@@ -1,9 +1,10 @@
 import { stores } from "@/app/rootStore";
 import ApprovalRequestSignatureField from "@/features/approvalRequests/components/ApprovalRequestSignatureField";
 import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
+import ImagePicker from "@/shared/components/images/ImagePicker";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
-import { AuthForms, Dialogs, Files, Flex, Pages, StackSpacing } from "@/shared/constants/constants";
+import { AuthForms, Dialogs, Pages, StackSpacing } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import {
@@ -16,16 +17,13 @@ import {
   PersistenceSuccessMessages,
   showPersistenceSuccessToast,
 } from "@/shared/utils/toasts";
-import { AddAPhoto, DeleteOutline, Person } from "@mui/icons-material";
+import { Person } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
-import type { SxProps } from "@mui/material";
 import {
-  Avatar,
   Box,
   FormControl,
   FormControlLabel,
   FormGroup,
-  IconButton,
   InputLabel,
   MenuItem,
   Select,
@@ -34,14 +32,10 @@ import {
   Tab,
   Tabs,
   TextField,
-  Tooltip,
   Typography,
 } from "@mui/material";
-import type { Theme } from "@mui/material/styles";
 import { observer } from "mobx-react-lite";
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
-
-const AVATAR_PICKER_SIZE = 96;
+import { useCallback, useEffect, useState } from "react";
 
 const notificationLabels: Record<NotificationType, string> = {
   [NotificationType.ApprovalRequestTaskCreated]: "New  request task",
@@ -49,34 +43,8 @@ const notificationLabels: Record<NotificationType, string> = {
   [NotificationType.ApprovalRequestReviewed]: "Request reviewed",
 };
 
-const avatarPickerContainerSx: SxProps<Theme> = {
-  position: "relative",
-  width: AVATAR_PICKER_SIZE,
-};
-
-const avatarPickerSx: SxProps<Theme> = {
-  bgcolor: "action.selected",
-  color: "text.secondary",
-  height: AVATAR_PICKER_SIZE,
-  width: AVATAR_PICKER_SIZE,
-};
-
-const avatarPickerChangeButtonSx: SxProps<Theme> = {
-  bgcolor: "background.paper",
-  border: 1,
-  borderColor: "divider",
-  bottom: 0,
-  boxShadow: 1,
-  position: "absolute",
-  right: 0,
-  "&:hover": {
-    bgcolor: "background.paper",
-  },
-};
-
 const UserProfilePage = () => {
   usePageTitle("User profile");
-  const fileInput = useRef<HTMLInputElement>(null);
   const profile = stores.userProfileStore.profile;
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -86,7 +54,6 @@ const UserProfilePage = () => {
     UserNotificationPreference[]
   >([]);
   const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
-  const [selectedAvatarUrl, setSelectedAvatarUrl] = useState<string>();
   const [selectedTab, setSelectedTab] = useState("profile");
   const removeAvatarAction = useAsyncAction(ActionLoaders.userProfile.removeAvatar());
   const saveAction = useAsyncAction(ActionLoaders.userProfile.save());
@@ -109,26 +76,9 @@ const UserProfilePage = () => {
     setNotificationPreferences(profile?.notificationPreferences ?? []);
   }, [profile]);
 
-  useEffect(() => {
-    if (!selectedAvatar) {
-      setSelectedAvatarUrl(undefined);
-      return undefined;
-    }
-
-    const objectUrl = URL.createObjectURL(selectedAvatar);
-    setSelectedAvatarUrl(objectUrl);
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [selectedAvatar]);
-
   if (!stores.userProfileStore.hasLoaded || !profile) {
     return <LoadingOverlay />;
   }
-
-  const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.currentTarget.files?.[0] ?? null;
-    event.currentTarget.value = "";
-    setSelectedAvatar(file);
-  };
 
   const handleNotificationToggle = (type: NotificationType) => {
     setNotificationPreferences((current) =>
@@ -174,8 +124,6 @@ const UserProfilePage = () => {
     });
   };
 
-  const avatarUrl = selectedAvatarUrl ?? getPublicApiUrl(profile.avatar);
-
   return (
     <Box sx={Pages.userProfileContainerSx}>
       <PageBreadcrumbs items={[{ label: "User profile" }]} />
@@ -191,47 +139,16 @@ const UserProfilePage = () => {
         </Tabs>
         {selectedTab === "profile" && (
           <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
-            <Stack direction="row" spacing={StackSpacing.loose} alignItems="center">
-              <Box sx={avatarPickerContainerSx}>
-                <Avatar src={avatarUrl} alt="User avatar" sx={avatarPickerSx}>
-                  <Person fontSize="large" />
-                </Avatar>
-                <Tooltip title="Change avatar">
-                  <IconButton
-                    aria-label="Change avatar"
-                    size="small"
-                    onClick={() => fileInput.current?.click()}
-                    sx={avatarPickerChangeButtonSx}
-                  >
-                    <AddAPhoto fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-                <input
-                  accept="image/*"
-                  onChange={handleAvatarChange}
-                  ref={fileInput}
-                  style={Files.inputStyle}
-                  type="file"
-                />
-              </Box>
-              <Stack spacing={StackSpacing.tight} sx={Flex.minWidthZeroSx}>
-                <Typography variant="subtitle2">Avatar</Typography>
-                <Box>
-                  <Tooltip title="Remove avatar">
-                    <span>
-                      <IconButton
-                        aria-label="Remove avatar"
-                        disabled={removeAvatarAction.isRunning || (!profile.avatar && !selectedAvatar)}
-                        onClick={handleRemoveAvatar}
-                        size="small"
-                      >
-                        <DeleteOutline fontSize="small" />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                </Box>
-              </Stack>
-            </Stack>
+            <ImagePicker
+              alt="User avatar"
+              fallback={<Person fontSize="large" />}
+              imageSize={stores.applicationConfigurationStore.applicationConfiguration?.avatarImageSize ?? 256}
+              imageUrl={getPublicApiUrl(profile.avatar)}
+              onDelete={handleRemoveAvatar}
+              onSave={setSelectedAvatar}
+              selectedFile={selectedAvatar}
+              title="Edit avatar"
+            />
             <TextField
               label="First name"
               value={firstName}

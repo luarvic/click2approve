@@ -30,7 +30,7 @@ const MainAppBar = ({
     Boolean(currentUser) && showMainMenuButton && mainMenuDrawerIsOpen;
   const tenantPickerIsVisible =
     showTenantPicker &&
-    stores.productStore.tenantsAreEnabled &&
+    stores.applicationConfigurationStore.tenantsAreEnabled &&
     Boolean(currentUser) &&
     stores.tenantStore.tenants.length > 0;
   const currentTenantGlobalId = stores.tenantStore.currentTenantGlobalId;
