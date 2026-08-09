@@ -166,7 +166,7 @@ describe("<ApprovalSteps />", () => {
 
     await user.click(hiddenVisibilityIcon);
 
-    const popoverId = hiddenVisibilityIcon.getAttribute("aria-describedby");
+    const popoverId = hiddenVisibilityIcon.getAttribute("aria-controls");
     expect(popoverId).toBe("hidden-step-visibility-popover-hidden-without-visibility-id");
     expect(document.getElementById(popoverId ?? "")?.textContent).toBe("Hidden from you");
   });

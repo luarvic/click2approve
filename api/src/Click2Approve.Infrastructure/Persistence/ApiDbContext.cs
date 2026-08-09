@@ -53,10 +53,6 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasMaxLength(32);
 
         modelBuilder.Entity<AuditLog>()
-            .Property(log => log.ChangesJson)
-            .HasColumnType("nvarchar(max)");
-
-        modelBuilder.Entity<AuditLog>()
             .HasIndex(log => log.Timestamp);
 
         modelBuilder.Entity<AuditLog>()

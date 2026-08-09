@@ -45,7 +45,11 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddAzureEmailServices(builder.Configuration);
 builder.Services.AddAzureFileStorageServices(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddHangfireServices(builder.Configuration);
+// Background jobs use the production SQL Server storage and are not part of the HTTP test host.
+if (!builder.Environment.IsEnvironment("Test"))
+{
+    builder.Services.AddHangfireServices(builder.Configuration);
+}
 builder.Services.AddHttpClient();
 builder.Services.AddIdentityServices(builder.Configuration);
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
