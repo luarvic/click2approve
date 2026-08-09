@@ -19,8 +19,16 @@ export interface Tenant {
   websiteUrl?: string;
   logo?: string;
   currentEmployeeRole: EmployeeRole;
+  currentEmployeeGlobalId?: string;
+  currentEmployeeDisplayName?: string;
   currentEmployeeFirstName?: string;
   currentEmployeeLastName?: string;
+  delegators?: DelegatorEmployee[];
+}
+
+export interface DelegatorEmployee {
+  employeeGlobalId: string;
+  displayName: string;
 }
 
 export interface CreateTenantRequest {

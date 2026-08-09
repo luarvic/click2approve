@@ -75,6 +75,8 @@ const DelegationEditorPage = () => {
       onDelete={async  (id: string) => {
         const deleted = await deleteApprovalDelegation(tenantGlobalId, id);
         if (deleted) {
+          await stores.tenantStore.load();
+          await stores.refreshTenantScope();
           showPersistenceSuccessNotification(
             PersistenceSuccessMessages.delegationDeleted,
           );
@@ -87,6 +89,8 @@ const DelegationEditorPage = () => {
           ? await updateApprovalDelegation(tenantGlobalId, globalId, payload)
           : await createApprovalDelegation(tenantGlobalId, payload);
         if (saved) {
+          await stores.tenantStore.load();
+          await stores.refreshTenantScope();
           showPersistenceSuccessNotification(
             PersistenceSuccessMessages.delegationSaved,
           );

@@ -14,6 +14,7 @@ const uncompletedTasksRefreshSeconds = Number(
 const showPersistenceSuccessNotifications =
   import.meta.env.VITE_SHOW_PERSISTENCE_SUCCESS_NOTIFICATIONS !== "false";
 const appBarHeight = 64;
+const appBarBrandTitleMinDisplayWidth = 760;
 const mainMenuDrawerWidth = 240;
 const passwordMinLength = 8;
 const passwordValidatorInstance = new passwordValidator();
@@ -321,6 +322,9 @@ export const Shell = {
   }),
   appBarBrandContainerSx: {
     flex: { xs: "0 0 auto", sm: "1 1 auto" },
+    [`@media (max-width: ${appBarBrandTitleMinDisplayWidth}px)`]: {
+      flex: "0 0 auto",
+    },
     minWidth: 0,
     overflow: "hidden",
   } as SxProps<Theme>,
@@ -342,6 +346,9 @@ export const Shell = {
   } as SxProps<Theme>,
   appBarBrandTitleSx: (isAlwaysVisible: boolean = false): SxProps<Theme> => ({
     display: isAlwaysVisible ? "block" : { xs: "none", sm: "block" },
+    [`@media (max-width: ${appBarBrandTitleMinDisplayWidth}px)`]: isAlwaysVisible
+      ? undefined
+      : { display: "none" },
     color: "inherit",
     overflow: "hidden",
     textDecoration: "none",
@@ -349,15 +356,20 @@ export const Shell = {
     whiteSpace: "nowrap",
   }),
   tenantPickerSx: {
-    flex: { xs: "1 1 auto", sm: "0 1 auto" },
-    maxWidth: { xs: "none", sm: 220 },
+    flex: { xs: "1 1 0", sm: "0 1 auto" },
+    maxWidth: { xs: "none", sm: 380 },
     minWidth: 0,
     mr: 1,
-    width: { xs: "auto", sm: 220 },
+    width: { xs: "auto", sm: 380 },
     "& .MuiSelect-select": {
       overflow: "hidden",
       textOverflow: "ellipsis",
       whiteSpace: "nowrap",
+    },
+    [`@media (max-width: ${appBarBrandTitleMinDisplayWidth}px)`]: {
+      flex: "1 1 0",
+      maxWidth: "none",
+      width: "auto",
     },
   } as SxProps<Theme>,
   profileAvatarSx: {
@@ -399,13 +411,13 @@ export const Shell = {
   } as SxProps<Theme>,
   get temporaryDrawerSx(): SxProps<Theme> {
     return {
-      display: { xs: "block", md: "none" },
+      display: { xs: "block", lg: "none" },
       ...this.drawerPaperSx,
     };
   },
   get persistentDrawerSx(): SxProps<Theme> {
     return {
-      display: { xs: "none", md: "block" },
+      display: { xs: "none", lg: "block" },
       ...this.drawerPaperSx,
     };
   },

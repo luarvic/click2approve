@@ -1,8 +1,12 @@
 interface RequestContext {
+  getWorkEmployeeGlobalId: () => string | null;
+  onWorkEmployeeInvalid: () => Promise<void>;
   onUnauthorized: () => void;
 }
 
 const defaultContext: RequestContext = {
+  getWorkEmployeeGlobalId: () => null,
+  onWorkEmployeeInvalid: async () => undefined,
   onUnauthorized: () => undefined,
 };
 

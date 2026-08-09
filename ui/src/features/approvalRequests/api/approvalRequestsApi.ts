@@ -35,6 +35,7 @@ export const submitApprovalRequest = async (
     const { data } = await axios.post<string>(
       `api/v1/tenants/${tenantGlobalId}/requests`,
       payload,
+      { useWorkEmployeeContext: true },
     );
     return data;
   } catch (e) {
@@ -61,6 +62,7 @@ export const resubmitApprovalRequest = async (
     const { data } = await axios.post<string>(
       `api/v1/tenants/${tenantGlobalId}/requests/${globalId}/resubmit`,
       payload,
+      { useWorkEmployeeContext: true },
     );
     return data;
   } catch (e) {
@@ -74,7 +76,7 @@ export const cancelApprovalRequest = async (
   globalId: string,
 ): Promise<boolean> => {
   try {
-    await axios.post(`api/v1/tenants/${tenantGlobalId}/requests/${globalId}/cancel`);
+    await axios.post(`api/v1/tenants/${tenantGlobalId}/requests/${globalId}/cancel`, undefined, { useWorkEmployeeContext: true });
     return true;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
@@ -88,6 +90,7 @@ export const listApprovalRequests = async (
   try {
     const { data } = await axios.get<ApprovalRequestListItem[]>(
       `api/v1/tenants/${tenantGlobalId}/requests`,
+      { useWorkEmployeeContext: true },
     );
     return data;
   } catch (e) {
@@ -103,6 +106,7 @@ export const getApprovalRequest = async (
   try {
     const { data } = await axios.get<ApprovalRequest>(
       `api/v1/tenants/${tenantGlobalId}/requests/${globalId}`,
+      { useWorkEmployeeContext: true },
     );
     return data;
   } catch (e) {

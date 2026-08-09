@@ -49,7 +49,7 @@ const MainMenuDrawer = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+  const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
   const initializedDesktopDrawer = useRef(false);
 
   const currentTenant = stores.tenantStore.currentTenant;

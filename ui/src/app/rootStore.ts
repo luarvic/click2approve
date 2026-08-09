@@ -62,15 +62,21 @@ export class RootStore {
       this.clearSession,
     );
     configureRequestContext({
+      getWorkEmployeeGlobalId: () => this.tenantStore.currentWorkEmployeeGlobalId,
+      onWorkEmployeeInvalid: async () => {
+        await this.tenantStore.load();
+        await this.refreshTenantScope();
+      },
       onUnauthorized: this.userAccountStore.signOut,
     });
   }
 
   switchTenant = async (
     tenantGlobalId: string,
+    employeeGlobalId: string | null = null,
     loadIncomingTasks: boolean = false,
   ): Promise<void> => {
-    this.tenantStore.setCurrentGlobalId(tenantGlobalId);
+    this.tenantStore.setCurrentScope(tenantGlobalId, employeeGlobalId);
     await this.refreshTenantScope(loadIncomingTasks);
   };
 

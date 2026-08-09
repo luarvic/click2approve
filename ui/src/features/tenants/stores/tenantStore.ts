@@ -2,14 +2,18 @@ import * as tenantApi from "@/features/tenants/api/tenantsApi";
 import { CreateTenantRequest, Tenant, UpdateTenantRequest } from "@/features/tenants/models/tenant";
 import {
   deleteCurrentTenantGlobalId,
+  deleteCurrentWorkEmployeeGlobalId,
   readCurrentTenantGlobalId,
+  readCurrentWorkEmployeeGlobalId,
   writeCurrentTenantGlobalId,
+  writeCurrentWorkEmployeeGlobalId,
 } from "@/shared/session/session";
 import { makeAutoObservable, runInAction } from "mobx";
 
 export class TenantStore {
   tenants: Tenant[];
   currentTenantGlobalId: string | null;
+  currentWorkEmployeeGlobalId: string | null;
   hasLoaded: boolean;
   // Incremented to invalidate older async requests so only the latest response updates the store.
   private requestVersion = 0;
@@ -17,10 +21,12 @@ export class TenantStore {
   constructor(
     tenants: Tenant[] = [],
     currentTenantGlobalId: string | null = readCurrentTenantGlobalId(),
+    currentWorkEmployeeGlobalId: string | null = readCurrentWorkEmployeeGlobalId(),
     hasLoaded: boolean = false
   ) {
     this.tenants = tenants;
     this.currentTenantGlobalId = currentTenantGlobalId;
+    this.currentWorkEmployeeGlobalId = currentWorkEmployeeGlobalId;
     this.hasLoaded = hasLoaded;
     makeAutoObservable(this);
   }
@@ -38,6 +44,7 @@ export class TenantStore {
     runInAction(() => {
       this.tenants = [];
       this.currentTenantGlobalId = tenantGlobalId;
+      this.currentWorkEmployeeGlobalId = null;
       this.hasLoaded = true;
     });
     if (tenantGlobalId) {
@@ -54,6 +61,7 @@ export class TenantStore {
       return;
     }
     const cachedTenantId = readCurrentTenantGlobalId();
+    const cachedWorkEmployeeGlobalId = readCurrentWorkEmployeeGlobalId();
     const currentTenant =
       tenants.find((tenant) => tenant.globalId === defaultTenantGlobalId) ??
       tenants.find((tenant) => tenant.globalId === cachedTenantId) ??
@@ -62,10 +70,17 @@ export class TenantStore {
     runInAction(() => {
       this.tenants = tenants;
       this.currentTenantGlobalId = currentTenant?.globalId ?? null;
+      this.currentWorkEmployeeGlobalId = currentTenant && cachedWorkEmployeeGlobalId && (
+        currentTenant.currentEmployeeGlobalId === cachedWorkEmployeeGlobalId ||
+        currentTenant.delegators?.some((delegator) => delegator.employeeGlobalId === cachedWorkEmployeeGlobalId)
+      )
+        ? cachedWorkEmployeeGlobalId
+        : currentTenant?.currentEmployeeGlobalId ?? null;
       this.hasLoaded = true;
     });
     if (currentTenant) {
       writeCurrentTenantGlobalId(currentTenant.globalId);
+      writeCurrentWorkEmployeeGlobalId(this.currentWorkEmployeeGlobalId);
     } else {
       deleteCurrentTenantGlobalId();
     }
@@ -154,12 +169,23 @@ export class TenantStore {
     writeCurrentTenantGlobalId(tenantGlobalId);
   };
 
+  setCurrentScope = (tenantGlobalId: string, employeeGlobalId: string | null): void => {
+    runInAction(() => {
+      this.currentTenantGlobalId = tenantGlobalId;
+      this.currentWorkEmployeeGlobalId = employeeGlobalId;
+    });
+    writeCurrentTenantGlobalId(tenantGlobalId);
+    writeCurrentWorkEmployeeGlobalId(employeeGlobalId);
+  };
+
   clear = (): void => {
     deleteCurrentTenantGlobalId();
+    deleteCurrentWorkEmployeeGlobalId();
     runInAction(() => {
       this.requestVersion += 1;
       this.tenants = [];
       this.currentTenantGlobalId = null;
+      this.currentWorkEmployeeGlobalId = null;
       this.hasLoaded = false;
     });
   };

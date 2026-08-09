@@ -2,6 +2,7 @@ import { stores } from "@/app/rootStore";
 import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
 import ColorModeSwitch from "@/shared/components/layout/ColorModeSwitch";
 import PublicAppBar from "@/shared/components/layout/PublicAppBar";
+import TenantPickerOption from "@/features/tenants/components/TenantPickerOption";
 import { Routes, Shell } from "@/shared/constants/constants";
 import { AppBarOptions } from "@/shared/models/appBarOptions";
 import { getEmailInitials } from "@/shared/utils/email";
@@ -34,6 +35,23 @@ const MainAppBar = ({
     Boolean(currentUser) &&
     stores.tenantStore.tenants.length > 0;
   const currentTenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const tenantPickerOptions = stores.tenantStore.tenants.flatMap((tenant) => {
+    if (!tenant.delegators?.length) {
+      return [{ employeeDisplayName: undefined, employeeGlobalId: null, tenant }];
+    }
+    return [
+      { employeeDisplayName: tenant.currentEmployeeDisplayName, employeeGlobalId: tenant.currentEmployeeGlobalId ?? null, tenant },
+      ...tenant.delegators.map((delegator) => ({
+        employeeDisplayName: delegator.displayName,
+        employeeGlobalId: delegator.employeeGlobalId,
+        tenant,
+      })),
+    ];
+  });
+  const selectedTenantPickerOption = tenantPickerOptions.find((option) =>
+    option.tenant.globalId === currentTenantGlobalId &&
+    option.employeeGlobalId === stores.tenantStore.currentWorkEmployeeGlobalId,
+  ) ?? tenantPickerOptions.find((option) => option.tenant.globalId === currentTenantGlobalId);
   const inboxPath = currentTenantGlobalId
     ? Routes.tenantPath(currentTenantGlobalId, Routes.inboxPath)
     : "/";
@@ -62,17 +80,32 @@ const MainAppBar = ({
       {tenantPickerIsVisible && (
         <Select
           size="small"
-          value={stores.tenantStore.currentTenantGlobalId ?? ""}
+          value={selectedTenantPickerOption
+            ? `${selectedTenantPickerOption.tenant.globalId}:${selectedTenantPickerOption.employeeGlobalId ?? ""}`
+            : ""}
+          renderValue={() => selectedTenantPickerOption && (
+            <TenantPickerOption
+              employeeDisplayName={selectedTenantPickerOption.employeeDisplayName}
+              tenant={selectedTenantPickerOption.tenant}
+            />
+          )}
           onChange={async (event) => {
-            const tenantGlobalId = event.target.value;
-            await stores.switchTenant(tenantGlobalId, location.pathname === inboxPath);
+            const option = tenantPickerOptions.find((candidate) =>
+              `${candidate.tenant.globalId}:${candidate.employeeGlobalId ?? ""}` === event.target.value,
+            );
+            if (!option) return;
+            const tenantGlobalId = option.tenant.globalId;
+            await stores.switchTenant(tenantGlobalId, option.employeeGlobalId, location.pathname === inboxPath);
             navigate(Routes.tenantPath(tenantGlobalId, Routes.inboxPath));
           }}
           sx={Shell.tenantPickerSx}
         >
-          {stores.tenantStore.tenants.map((tenant) => (
-            <MenuItem key={tenant.globalId} value={tenant.globalId}>
-              {tenant.businessName}
+          {tenantPickerOptions.map((option) => (
+            <MenuItem
+              key={`${option.tenant.globalId}:${option.employeeGlobalId ?? ""}`}
+              value={`${option.tenant.globalId}:${option.employeeGlobalId ?? ""}`}
+            >
+              <TenantPickerOption employeeDisplayName={option.employeeDisplayName} tenant={option.tenant} />
             </MenuItem>
           ))}
         </Select>

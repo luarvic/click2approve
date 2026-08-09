@@ -48,6 +48,11 @@ axiosInstance.interceptors.request.use(async (config) => {
   const sendAuthentication = shouldSendAuthentication(config.url);
   if (tokens && sendAuthentication) {
     config.headers.Authorization = `Bearer ${tokens.accessToken}`;
+    const workEmployeeGlobalId = getRequestContext().getWorkEmployeeGlobalId();
+    delete config.headers["X-Click2Approve-Work-Employee"];
+    if (workEmployeeGlobalId && config.useWorkEmployeeContext) {
+      config.headers["X-Click2Approve-Work-Employee"] = workEmployeeGlobalId;
+    }
   }
   return config;
 });
@@ -56,6 +61,19 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const context = getRequestContext();
     const originalRequest = error.config;
+    const workEmployeeIsInvalid = error.response?.headers?.get?.(
+      "X-Click2Approve-Work-Employee-Invalid",
+    ) === "true" || error.response?.headers?.["x-click2approve-work-employee-invalid"] === "true";
+    if (
+      error.response?.status === 409 &&
+      workEmployeeIsInvalid &&
+      originalRequest &&
+      !originalRequest.workEmployeeRetry
+    ) {
+      originalRequest.workEmployeeRetry = true;
+      await context.onWorkEmployeeInvalid();
+      return axiosInstance(originalRequest);
+    }
     // Try refreshing access token on 401 status code.
     if (
       error.response &&

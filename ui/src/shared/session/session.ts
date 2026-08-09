@@ -4,6 +4,7 @@ import { PaletteMode } from "@mui/material";
 const STORAGE_ITEM_KEY: string = "tokens";
 const COLOR_MODE_KEY: string = "colorMode";
 const CURRENT_TENANT_GLOBAL_ID_KEY: string = "currentTenantGlobalId";
+const CURRENT_WORK_EMPLOYEE_GLOBAL_ID_KEY: string = "currentWorkEmployeeGlobalId";
 
 export const writeTokens = (data: AuthResponse) => {
   localStorage.setItem(STORAGE_ITEM_KEY, JSON.stringify(data));
@@ -42,4 +43,19 @@ export const readCurrentTenantGlobalId = (): string | null => {
 
 export const deleteCurrentTenantGlobalId = () => {
   localStorage.removeItem(CURRENT_TENANT_GLOBAL_ID_KEY);
+};
+
+export const writeCurrentWorkEmployeeGlobalId = (employeeGlobalId: string | null) => {
+  if (employeeGlobalId) {
+    localStorage.setItem(CURRENT_WORK_EMPLOYEE_GLOBAL_ID_KEY, employeeGlobalId);
+    return;
+  }
+  localStorage.removeItem(CURRENT_WORK_EMPLOYEE_GLOBAL_ID_KEY);
+};
+
+export const readCurrentWorkEmployeeGlobalId = (): string | null =>
+  localStorage.getItem(CURRENT_WORK_EMPLOYEE_GLOBAL_ID_KEY);
+
+export const deleteCurrentWorkEmployeeGlobalId = () => {
+  localStorage.removeItem(CURRENT_WORK_EMPLOYEE_GLOBAL_ID_KEY);
 };

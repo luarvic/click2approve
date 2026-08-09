@@ -27,7 +27,7 @@ export const completeApprovalRequestTask = async (
       comment: comment,
       clientAuditContext: clientAuditContext,
       ...electronicSignature,
-    });
+    }, { useWorkEmployeeContext: true });
     return true;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
@@ -43,6 +43,7 @@ export const listApprovalRequestTasks = async (
   try {
     const { data } = await axios.get<ApprovalRequestTaskListItem[]>(
       `api/v1/tenants/${tenantGlobalId}/tasks`,
+      { useWorkEmployeeContext: true },
     );
     return data;
   } catch (e) {
@@ -58,6 +59,7 @@ export const getApprovalRequestTask = async (
   try {
     const { data } = await axios.get<ApprovalRequestTask>(
       `api/v1/tenants/${tenantGlobalId}/tasks/${globalId}`,
+      { useWorkEmployeeContext: true },
     );
     return data;
   } catch (e) {
@@ -75,6 +77,7 @@ export const countUncompletedApprovalRequestTasks = async (
   try {
     const { data } = await axios.get<number>(
       `api/v1/tenants/${tenantGlobalId}/tasks/uncompleted/count`,
+      { useWorkEmployeeContext: true },
     );
     return data;
   } catch (e) {
