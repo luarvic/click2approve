@@ -9,12 +9,12 @@ import { getRequestCompletedTimestamp } from "@/features/approvalRequests/compon
 import {
   getApprovalRequestStatusLabel,
   getApprovalRequestStatusLineColor,
-  getApprovalStatusBorderSx,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
+import { getStatusBorderSx } from "@/shared/components/status/StatusLines";
 import { Dialogs, StackSpacing } from "@/shared/constants/constants";
 import { Box, Stack } from "@mui/material";
 
@@ -57,7 +57,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
   return (
     <Box
       aria-label={getApprovalRequestStatusLabel(approvalRequest.status, approvalRequest.result)}
-      sx={getApprovalStatusBorderSx(
+      sx={getStatusBorderSx(
         getApprovalRequestStatusLineColor(approvalRequest.status, approvalRequest.result),
         Dialogs.approvalBoxSx,
       )}

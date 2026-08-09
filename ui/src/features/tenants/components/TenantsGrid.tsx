@@ -6,14 +6,7 @@ import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow"
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add } from "@mui/icons-material";
-import {
-  Box,
-  Button,
-  Chip,
-  LinearProgress,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, Button, LinearProgress, useMediaQuery, useTheme } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -23,7 +16,11 @@ import {
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 
-const roleLabels = ["User", "Manager", "Admin"];
+const roleLabels: Record<EmployeeRole, string> = {
+  [EmployeeRole.User]: "User",
+  [EmployeeRole.Admin]: "Admin",
+  [EmployeeRole.Owner]: "Owner",
+};
 
 interface TenantsGridProps {
   currentTenantGlobalId?: string;
@@ -70,15 +67,6 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
       ...DataGrids.tenantsColumnSizing.currentEmployeeRole,
       valueFormatter: (value) => roleLabels[value as EmployeeRole],
     },
-    {
-      field: "isCurrentEmployeeOwner",
-      headerName: "Owner",
-      ...DataGrids.tenantsColumnSizing.isCurrentEmployeeOwner,
-      renderCell: (params) =>
-        params.value ? (
-          <Chip label="Owner" size="small" color="primary" />
-        ) : null,
-    },
   ];
 
   return (
@@ -92,7 +80,6 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
         onRowClick={(params) => navigate(`/tenants/${(params.row as Tenant).globalId}`)}
         columnVisibilityModel={{
           currentEmployeeRole: !isSmallDisplay,
-          isCurrentEmployeeOwner: !isSmallDisplay,
         }}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}

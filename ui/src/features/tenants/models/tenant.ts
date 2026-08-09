@@ -1,7 +1,7 @@
 export enum EmployeeRole {
   User = 0,
-  Manager = 1,
-  Admin = 2,
+  Admin = 1,
+  Owner = 3,
 }
 
 export enum TenantType {
@@ -18,8 +18,6 @@ export interface Tenant {
   address?: string;
   websiteUrl?: string;
   logo?: string;
-  ownerId: string;
-  isCurrentEmployeeOwner: boolean;
   currentEmployeeRole: EmployeeRole;
   currentEmployeeFirstName?: string;
   currentEmployeeLastName?: string;

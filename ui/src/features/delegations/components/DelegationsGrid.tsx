@@ -31,8 +31,7 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({
 }) => {
   const navigate = useNavigate();
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const canManageDelegations =
-    stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Admin;
+  const canManageDelegations = stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Admin || stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Owner;
   const gridLoader = ActionLoaders.grids.delegations(tenantGlobalId);
   const [delegations, setDelegations] = useState<ApprovalDelegation[]>([]);
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(

@@ -9,7 +9,6 @@ import ApprovalRequestTimestamp from "@/features/approvalRequests/components/App
 import ApprovalRequestTimestampRow from "@/features/approvalRequests/components/ApprovalRequestTimestampRow";
 import { getTaskCompletedTimestamp } from "@/features/approvalRequests/components/approvalRequestCompletionTimestamps";
 import {
-  ApprovalStatusLineColors,
   getApprovalRequestTaskStatusLabel,
   getApprovalRequestTaskStatusLineColor,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
@@ -18,6 +17,7 @@ import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/ap
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
 import { getApprovalRequestTaskCompletedActionLabel } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
+import { StatusLineColors } from "@/shared/components/status/StatusLines";
 import { Dialogs, StackSpacing } from "@/shared/constants/constants";
 import { Box, Divider, Stack, Typography } from "@mui/material";
 import type { SxProps } from "@mui/material";
@@ -63,7 +63,7 @@ const getTaskBoxSx = (
     borderLeft: "3px solid",
     borderLeftColor: lineColor === "other"
       ? "text.disabled"
-      : ApprovalStatusLineColors[lineColor],
+      : StatusLineColors[lineColor],
   };
 };
 

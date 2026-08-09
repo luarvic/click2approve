@@ -59,7 +59,8 @@ const App = () => {
     currentTenant.currentEmployeeRole !== undefined;
   const canManageDelegations =
     currentTenant?.type === TenantType.Business &&
-    currentTenant.currentEmployeeRole === EmployeeRole.Admin;
+    (currentTenant.currentEmployeeRole === EmployeeRole.Admin ||
+      currentTenant.currentEmployeeRole === EmployeeRole.Owner);
   const canViewDelegations =
     currentTenant?.type === TenantType.Business &&
     currentTenant.currentEmployeeRole !== undefined;

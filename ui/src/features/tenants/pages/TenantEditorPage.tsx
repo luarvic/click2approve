@@ -34,7 +34,7 @@ const TenantEditorPage = () => {
 
   return <TenantEditor
     tenant={tenant ?? null}
-    canEdit={isNewTenant || tenant?.currentEmployeeRole === EmployeeRole.Admin || tenant?.isCurrentEmployeeOwner === true}
+    canEdit={isNewTenant || tenant?.currentEmployeeRole === EmployeeRole.Admin || tenant?.currentEmployeeRole === EmployeeRole.Owner}
     onClose={close}
     onSubmit={submit}
     onLogoUpload={stores.tenantStore.uploadLogo}

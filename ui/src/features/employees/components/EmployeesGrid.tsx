@@ -2,6 +2,7 @@ import { stores } from "@/app/rootStore";
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
+import { StatusLineLabel } from "@/shared/components/status/StatusLines";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
@@ -10,7 +11,6 @@ import { Add } from "@mui/icons-material";
 import {
   Box,
   Button,
-  Chip,
   LinearProgress,
   useMediaQuery,
   useTheme,
@@ -25,8 +25,15 @@ import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const roleLabels = ["User", "Manager", "Admin"];
-const statusLabels = ["Pending", "Active"];
+const roleLabels: Record<EmployeeRole, string> = {
+  [EmployeeRole.User]: "User",
+  [EmployeeRole.Admin]: "Admin",
+  [EmployeeRole.Owner]: "Owner",
+};
+const statusLabels: Record<EmployeeStatus, string> = {
+  [EmployeeStatus.Pending]: "Invitation sent",
+  [EmployeeStatus.Active]: "Active",
+};
 
 interface EmployeesGridProps {
   currentEmployeeGlobalId?: string;
@@ -35,12 +42,11 @@ interface EmployeesGridProps {
 const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }) => {
   const navigate = useNavigate();
   const theme = useTheme();
-  const isSmallDisplay = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMediumDisplay = useMediaQuery(theme.breakpoints.down("md"));
+  const isLargeDisplay = useMediaQuery(theme.breakpoints.down("lg"));
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const gridLoader = ActionLoaders.grids.employees(tenantGlobalId);
-  const canModifyEmployees =
-    stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Admin ||
-    stores.tenantStore.currentTenant?.isCurrentEmployeeOwner === true;
+  const canModifyEmployees = stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Admin || stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Owner;
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     stores.employeeStore.employees,
     currentEmployeeGlobalId,
@@ -107,16 +113,16 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
       headerName: "Status",
       ...DataGrids.tenantUsersColumnSizing.status,
       renderCell: (params) => {
-        const status = params.value as EmployeeStatus;
+        const status = params.row.status as EmployeeStatus;
         return (
-          <Chip
+          <StatusLineLabel
             label={statusLabels[status]}
-            size="small"
-            color={status === EmployeeStatus.Active ? "success" : "default"}
-            variant={status === EmployeeStatus.Active ? "filled" : "outlined"}
+            color={status === EmployeeStatus.Active ? "started" : "other"}
+            lineVariant="solid"
           />
         );
       },
+      valueGetter: (value) => statusLabels[value as EmployeeStatus],
     },
   ];
 
@@ -134,10 +140,10 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
           )
         }
         columnVisibilityModel={{
-          firstName: !isSmallDisplay,
-          lastName: !isSmallDisplay,
-          position: !isSmallDisplay,
-          role: !isSmallDisplay,
+          firstName: !isMediumDisplay,
+          lastName: !isMediumDisplay,
+          position: !isLargeDisplay,
+          role: !isLargeDisplay,
         }}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}

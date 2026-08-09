@@ -25,7 +25,9 @@ const EmployeeEditorPage = () => {
   const isNewEmployee = employeeGlobalId === undefined;
   const [employeeDataHasLoaded, setEmployeeDataHasLoaded] = useState(isNewEmployee);
   const employee = stores.employeeStore.employees.find((item) => item.globalId === employeeGlobalId);
-  const canEdit = stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Admin || stores.tenantStore.currentTenant?.isCurrentEmployeeOwner === true;
+  const currentEmployeeRole = stores.tenantStore.currentTenant?.currentEmployeeRole;
+  const canEdit = currentEmployeeRole === EmployeeRole.Admin || currentEmployeeRole === EmployeeRole.Owner;
+  const canTransferOwnership = currentEmployeeRole === EmployeeRole.Owner;
   const selectedTeamGlobalIds = employee ? stores.teamStore.teams.filter((team) => team.members.some((member) => member.globalId === employee.globalId)).map((team) => team.globalId) : [];
 
   useEffect(() => {
@@ -69,6 +71,7 @@ const EmployeeEditorPage = () => {
     teams={stores.teamStore.teams}
     selectedTeamGlobalIds={selectedTeamGlobalIds}
     canEdit={canEdit}
+    canTransferOwnership={canTransferOwnership}
     onClose={(currentEmployeeGlobalId) => navigate(employeesPath, { state: currentEmployeeGlobalId ? { currentEmployeeGlobalId } : undefined })}
     onDelete={async  (id: string) => {
       const deleted = await stores.employeeStore.delete(tenantGlobalId, id);
@@ -86,7 +89,11 @@ const EmployeeEditorPage = () => {
         return null;
       }
       await stores.tenantStore.load(tenantGlobalId);
-      showPersistenceSuccessNotification(PersistenceSuccessMessages.employeeSaved);
+      showPersistenceSuccessNotification(
+        id
+          ? PersistenceSuccessMessages.employeeSaved
+          : PersistenceSuccessMessages.employeeSavedInvitationSent,
+      );
       return saved;
     }}
   />;

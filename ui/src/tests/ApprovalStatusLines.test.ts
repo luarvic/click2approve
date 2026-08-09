@@ -1,16 +1,16 @@
 import {
   getApprovalRequestStatusLineColor,
   getApprovalRequestTaskStatusLabel,
-  getApprovalStatusBorderSx,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
+import { getStatusBorderSx } from "@/shared/components/status/StatusLines";
 import { describe, expect, test } from "vitest";
 
 describe("approval status line styles", () => {
   test("uses a dotted green border for started approval requests", () => {
-    const sx = getApprovalStatusBorderSx(
+    const sx = getStatusBorderSx(
       getApprovalRequestStatusLineColor(ApprovalRequestStatus.Started),
     );
 
@@ -21,7 +21,7 @@ describe("approval status line styles", () => {
   });
 
   test("keeps successfully completed approval requests on a solid green border", () => {
-    const sx = getApprovalStatusBorderSx(
+    const sx = getStatusBorderSx(
       getApprovalRequestStatusLineColor(ApprovalRequestStatus.Completed, true),
     );
 
