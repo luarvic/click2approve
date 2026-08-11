@@ -5,10 +5,19 @@ import {
   SharedVerificationReceipt,
 } from "@/features/sharedVerificationLinks/models/sharedVerificationLink";
 import DisplayName from "@/shared/components/identity/DisplayName";
-import { Files, Routes, Shell, StackSpacing } from "@/shared/constants/constants";
+import {
+  Files,
+  Routes,
+  Shell,
+  StackSpacing,
+} from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
-import { CheckCircleOutline, ErrorOutline, UploadFileOutlined } from "@mui/icons-material";
+import {
+  CheckCircleOutline,
+  ErrorOutline,
+  UploadFileOutlined,
+} from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -333,8 +342,9 @@ const formatCertificateDateTime = (date: Date | undefined): string =>
     })
     : "";
 
-const formatParticipantOrganization = (organizationDisplayName?: string): string =>
-  organizationDisplayName || "N/A";
+const formatParticipantOrganization = (
+  organizationDisplayName?: string,
+): string => organizationDisplayName || "N/A";
 
 const getParticipantRoleLabel = (role: SharedVerificationParticipantRole) => {
   switch (role) {
@@ -345,9 +355,12 @@ const getParticipantRoleLabel = (role: SharedVerificationParticipantRole) => {
   }
 };
 
-const renderParticipant = (participant: SharedVerificationReceipt["participants"][number]) => {
+const renderParticipant = (
+  participant: SharedVerificationReceipt["participants"][number],
+) => {
   const assignee = (
     <DisplayName
+      allowDisplayNameWrap
       displayName={participant.displayName}
       email={participant.email}
     />
@@ -360,12 +373,11 @@ const renderParticipant = (participant: SharedVerificationReceipt["participants"
   return (
     <Stack spacing={StackSpacing.tight}>
       <DisplayName
+        allowDisplayNameWrap
         displayName={participant.delegateDisplayName}
         email={participant.delegateEmail}
       />
-      <Typography variant="body1">
-        on behalf of
-      </Typography>
+      <Typography variant="body1">on behalf of</Typography>
       {assignee}
     </Stack>
   );
@@ -407,13 +419,17 @@ const getMobileRecordSx = (isLast: boolean): SxProps<Theme> => [
 
 const SharedVerificationReceiptPage = () => {
   const { globalId } = useParams();
-  const [receipt, setReceipt] = useState<SharedVerificationReceipt | null | undefined>(undefined);
+  const [receipt, setReceipt] = useState<
+    SharedVerificationReceipt | null | undefined
+  >(undefined);
   const [fileMatch, setFileMatch] = useState<FileMatch | null>(null);
   usePageTitle("Certificate of Completion");
 
   useEffect(() => {
     const load = async () => {
-      setReceipt(globalId ? await getSharedVerificationReceipt(globalId) : null);
+      setReceipt(
+        globalId ? await getSharedVerificationReceipt(globalId) : null,
+      );
     };
     load();
   }, [globalId]);
@@ -430,7 +446,9 @@ const SharedVerificationReceiptPage = () => {
     setFileMatch({
       fileName: file.name,
       hashValue,
-      matchedFile: receipt.files.find((receiptFile) => receiptFile.hashValue.toLowerCase() === hashValue),
+      matchedFile: receipt.files.find(
+        (receiptFile) => receiptFile.hashValue.toLowerCase() === hashValue,
+      ),
     });
     event.target.value = "";
   };
@@ -457,21 +475,40 @@ const SharedVerificationReceiptPage = () => {
                   aria-label="Click2Approve home"
                   sx={[titleLineSx, homeLinkSx]}
                 >
-                  <Box component="img" src={logoSrc} alt="" aria-hidden="true" sx={logoSx} />
+                  <Box
+                    component="img"
+                    src={logoSrc}
+                    alt=""
+                    aria-hidden="true"
+                    sx={logoSx}
+                  />
                   <Box sx={titleTextSx}>
-                    <Typography component="h1" variant="h4" sx={certificateTitleSx}>
+                    <Typography
+                      component="h1"
+                      variant="h4"
+                      sx={certificateTitleSx}
+                    >
                       Certificate of Completion
                     </Typography>
-                    <Typography component="p" variant="subtitle1" sx={brandTitleSx}>
+                    <Typography
+                      component="p"
+                      variant="subtitle1"
+                      sx={brandTitleSx}
+                    >
                       Click2Approve
                     </Typography>
                   </Box>
                 </Box>
                 <Typography>
-                  This certificate records the successful completion of the request identified below and the files associated with it at the time of completion.
+                  This certificate records the successful completion of the
+                  request identified below and the files associated with it at
+                  the time of completion.
                 </Typography>
                 {renderField("Certificate ID", receipt.globalId)}
-                {renderField("Generated at", formatCertificateDateTime(receipt.createdAt))}
+                {renderField(
+                  "Generated at",
+                  formatCertificateDateTime(receipt.createdAt),
+                )}
               </Stack>
               <Box sx={qrPanelSx}>
                 <QRCodeSVG value={verificationUrl} size={qrCodeSize} />
@@ -486,7 +523,10 @@ const SharedVerificationReceiptPage = () => {
               <Box sx={summaryGridSx}>
                 <Stack spacing={StackSpacing.default}>
                   {renderField("Request title", receipt.approvalRequestTitle)}
-                  {renderField("Request description", receipt.approvalRequestDescription)}
+                  {renderField(
+                    "Request description",
+                    receipt.approvalRequestDescription,
+                  )}
                   {renderField("Revision", String(receipt.revisionNumber))}
                   {renderField("Request ID", receipt.approvalRequestGlobalId)}
                   {renderField("Organization", receipt.organizationDisplayName)}
@@ -500,10 +540,18 @@ const SharedVerificationReceiptPage = () => {
                     </>,
                     successValueSx,
                   )}
-                  {renderField("Submitted at", formatCertificateDateTime(receipt.approvalRequestCreatedAt))}
-                  {renderField("Completed at", receipt.approvalRequestApprovedAt
-                    ? formatCertificateDateTime(receipt.approvalRequestApprovedAt)
-                    : undefined)}
+                  {renderField(
+                    "Submitted at",
+                    formatCertificateDateTime(receipt.approvalRequestCreatedAt),
+                  )}
+                  {renderField(
+                    "Completed at",
+                    receipt.approvalRequestApprovedAt
+                      ? formatCertificateDateTime(
+                        receipt.approvalRequestApprovedAt,
+                      )
+                      : undefined,
+                  )}
                 </Stack>
               </Box>
             </Stack>
@@ -513,22 +561,42 @@ const SharedVerificationReceiptPage = () => {
               <Table size="small" sx={filesTableSx}>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={[tableHeaderCellSx, fileNameColumnSx]}>Filename</TableCell>
-                    <TableCell sx={[tableHeaderCellSx, fileHashColumnSx]}>SHA-256</TableCell>
-                    <TableCell align="right" sx={[tableHeaderCellSx, fileSizeColumnSx]}>Size</TableCell>
+                    <TableCell sx={[tableHeaderCellSx, fileNameColumnSx]}>
+                      Filename
+                    </TableCell>
+                    <TableCell sx={[tableHeaderCellSx, fileHashColumnSx]}>
+                      SHA-256
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={[tableHeaderCellSx, fileSizeColumnSx]}
+                    >
+                      Size
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {receipt.files.map((file, index) => (
                     <TableRow
                       key={file.globalId}
-                      sx={index === receipt.files.length - 1 ? tableLastRowSx : undefined}
+                      sx={
+                        index === receipt.files.length - 1
+                          ? tableLastRowSx
+                          : undefined
+                      }
                     >
-                      <TableCell sx={[tableCellSx, fileNameColumnSx]}>{file.fileName}</TableCell>
-                      <TableCell sx={[tableCellSx, hashTextSx, fileHashColumnSx]}>
+                      <TableCell sx={[tableCellSx, fileNameColumnSx]}>
+                        {file.fileName}
+                      </TableCell>
+                      <TableCell
+                        sx={[tableCellSx, hashTextSx, fileHashColumnSx]}
+                      >
                         {formatHash(file.hashValue)}
                       </TableCell>
-                      <TableCell align="right" sx={[tableLastCellSx, fileSizeColumnSx]}>
+                      <TableCell
+                        align="right"
+                        sx={[tableLastCellSx, fileSizeColumnSx]}
+                      >
                         {formatBytes(file.size)} bytes
                       </TableCell>
                     </TableRow>
@@ -543,7 +611,11 @@ const SharedVerificationReceiptPage = () => {
                     sx={getMobileRecordSx(index === receipt.files.length - 1)}
                   >
                     {renderField("Filename", file.fileName)}
-                    {renderField("SHA-256", formatHash(file.hashValue), hashTextSx)}
+                    {renderField(
+                      "SHA-256",
+                      formatHash(file.hashValue),
+                      hashTextSx,
+                    )}
                     {renderField("Size", `${formatBytes(file.size)} bytes`)}
                   </Stack>
                 ))}
@@ -564,7 +636,11 @@ const SharedVerificationReceiptPage = () => {
                   />
                 </Button>
                 {fileMatch && (
-                  <Stack direction="row" spacing={StackSpacing.default} alignItems="center">
+                  <Stack
+                    direction="row"
+                    spacing={StackSpacing.default}
+                    alignItems="center"
+                  >
                     {fileMatch.matchedFile ? (
                       <CheckCircleOutline color="success" />
                     ) : (
@@ -585,11 +661,28 @@ const SharedVerificationReceiptPage = () => {
               <Table size="small" sx={participantTableSx}>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={[tableHeaderCellSx, participantColumnSx]}>Participant</TableCell>
-                    <TableCell sx={[tableHeaderCellSx, participantOrganizationColumnSx]}>Organization</TableCell>
-                    <TableCell sx={[tableHeaderCellSx, participantRelationshipColumnSx]}>Relationship</TableCell>
-                    <TableCell sx={[tableHeaderCellSx, participantActionColumnSx]}>Action</TableCell>
-                    <TableCell align="right" sx={[tableHeaderCellSx, participantPerformedAtColumnSx]}>
+                    <TableCell sx={[tableHeaderCellSx, participantColumnSx]}>
+                      Participant
+                    </TableCell>
+                    <TableCell
+                      sx={[tableHeaderCellSx, participantOrganizationColumnSx]}
+                    >
+                      Organization
+                    </TableCell>
+                    <TableCell
+                      sx={[tableHeaderCellSx, participantRelationshipColumnSx]}
+                    >
+                      Relationship
+                    </TableCell>
+                    <TableCell
+                      sx={[tableHeaderCellSx, participantActionColumnSx]}
+                    >
+                      Action
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={[tableHeaderCellSx, participantPerformedAtColumnSx]}
+                    >
                       Performed at
                     </TableCell>
                   </TableRow>
@@ -598,21 +691,34 @@ const SharedVerificationReceiptPage = () => {
                   {(receipt.participants ?? []).map((participant, index) => (
                     <TableRow
                       key={`${participant.role}-${participant.displayName}-${index}`}
-                      sx={index === (receipt.participants ?? []).length - 1 ? tableLastRowSx : undefined}
+                      sx={
+                        index === (receipt.participants ?? []).length - 1
+                          ? tableLastRowSx
+                          : undefined
+                      }
                     >
                       <TableCell sx={[tableCellSx, participantColumnSx]}>
                         {renderParticipant(participant)}
                       </TableCell>
-                      <TableCell sx={[tableCellSx, participantOrganizationColumnSx]}>
-                        {formatParticipantOrganization(participant.organizationDisplayName)}
+                      <TableCell
+                        sx={[tableCellSx, participantOrganizationColumnSx]}
+                      >
+                        {formatParticipantOrganization(
+                          participant.organizationDisplayName,
+                        )}
                       </TableCell>
-                      <TableCell sx={[tableCellSx, participantRelationshipColumnSx]}>
+                      <TableCell
+                        sx={[tableCellSx, participantRelationshipColumnSx]}
+                      >
                         {getParticipantRoleLabel(participant.role)}
                       </TableCell>
                       <TableCell sx={[tableCellSx, participantActionColumnSx]}>
                         {participant.action}
                       </TableCell>
-                      <TableCell align="right" sx={[tableCellSx, participantPerformedAtColumnSx]}>
+                      <TableCell
+                        align="right"
+                        sx={[tableCellSx, participantPerformedAtColumnSx]}
+                      >
                         {participant.completedAt
                           ? formatCertificateDateTime(participant.completedAt)
                           : "Not recorded"}
@@ -626,11 +732,21 @@ const SharedVerificationReceiptPage = () => {
                   <Stack
                     key={`${participant.role}-${participant.displayName}-${index}`}
                     spacing={StackSpacing.default}
-                    sx={getMobileRecordSx(index === (receipt.participants ?? []).length - 1)}
+                    sx={getMobileRecordSx(
+                      index === (receipt.participants ?? []).length - 1,
+                    )}
                   >
                     {renderField("Participant", renderParticipant(participant))}
-                    {renderField("Organization", formatParticipantOrganization(participant.organizationDisplayName))}
-                    {renderField("Relationship", getParticipantRoleLabel(participant.role))}
+                    {renderField(
+                      "Organization",
+                      formatParticipantOrganization(
+                        participant.organizationDisplayName,
+                      ),
+                    )}
+                    {renderField(
+                      "Relationship",
+                      getParticipantRoleLabel(participant.role),
+                    )}
                     {renderField("Action", participant.action)}
                     {renderField(
                       "Performed at",

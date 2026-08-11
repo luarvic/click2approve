@@ -17,6 +17,6 @@ public class Tenant : DbEntity
     // Navigation properties
     public List<ApprovalRequest> ApprovalRequests { get; set; } = [];
     public List<ApprovalRequestTask> ApprovalRequestTasks { get; set; } = [];
-    public required AppUser Owner { get; set; }
+    public AppUser Owner { get; set; } = null!;
     public List<UserFile> UserFiles { get; set; } = [];
 }

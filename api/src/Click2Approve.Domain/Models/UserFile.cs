@@ -17,6 +17,6 @@ public class UserFile : DbEntity
 
     // Navigation properties
     public List<ApprovalRequestFile> ApprovalRequestFiles { get; set; } = [];
-    public AppUser? Owner { get; set; }
-    public Tenant? Tenant { get; set; }
+    public AppUser Owner { get; set; } = null!;
+    public Tenant Tenant { get; set; } = null!;
 }

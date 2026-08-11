@@ -1,5 +1,3 @@
-using Click2Approve.Application.Extensions;
-using Click2Approve.Application.Helpers;
 using Click2Approve.Application.Models.Auxiliary;
 using Click2Approve.Application.Models.Auxiliary.ApprovalRequests;
 using Click2Approve.Application.Models.DTOs;
@@ -12,18 +10,80 @@ namespace Click2Approve.Application.Services.ApprovalRequests;
 /// </summary>
 public class ApprovalWorkflowService(
     IApprovalRequestTaskRepository approvalRequestTaskRepository,
-    IEmailService emailService,
-    IUserNotificationPreferenceService notificationPreferenceService,
     IAssigneeResolver assigneeResolver,
-    IConfiguration configuration) : IApprovalWorkflowService
+    IDomainEventService domainEventService) : IApprovalWorkflowService
 {
     private readonly IApprovalRequestTaskRepository _approvalRequestTaskRepository = approvalRequestTaskRepository;
-    private readonly IEmailService _emailService = emailService;
-    private readonly IUserNotificationPreferenceService _notificationPreferenceService = notificationPreferenceService;
     private readonly IAssigneeResolver _assigneeResolver = assigneeResolver;
-    private readonly IConfiguration _configuration = configuration;
+    private readonly IDomainEventService _domainEventService = domainEventService;
 
-    public async Task<Dictionary<ApprovalRequestStepAssignee, List<AssigneeResolution>>> ResolveAssigneesAsync(
+    public async Task CreateInitialTasksAsync(
+        ApprovalRequest approvalRequest,
+        List<ApprovalRequestStepSubmitDto> submittedSteps,
+        DateTime timestamp,
+        CancellationToken cancellationToken)
+    {
+        var assigneeResolutions = await ResolveAssigneesAsync(approvalRequest, submittedSteps, cancellationToken);
+        await CreateTasksForStepAsync(
+            approvalRequest,
+            approvalRequest.Steps.MinBy(step => step.Sequence)!,
+            assigneeResolutions,
+            timestamp,
+            cancellationToken);
+    }
+
+    public async Task CompleteAsync(
+        ApprovalRequestTask approvalRequestTask,
+        DateTime timestamp,
+        CancellationToken cancellationToken)
+    {
+        var approvalRequest = approvalRequestTask.ApprovalRequest;
+        if (approvalRequest.Status is ApprovalRequestStatus.Pending or ApprovalRequestStatus.Started)
+        {
+            switch (approvalRequestTask.Result)
+            {
+                case false:
+                    approvalRequest.Status = ApprovalRequestStatus.Completed;
+                    approvalRequest.Result = false;
+                    approvalRequest.CompletedAt = timestamp;
+                    SkipPendingTasks(
+                        GetTasks(approvalRequest).Where(task => task.Id != approvalRequestTask.Id),
+                        timestamp);
+                    break;
+                case true:
+                    await AdvanceAsync(approvalRequestTask, timestamp, cancellationToken);
+                    StartRequestIfNeeded(approvalRequest);
+                    break;
+                default:
+                    throw new InvalidOperationException("A completed approval request task must have a result.");
+            }
+        }
+
+        await CreateRequesterReviewedEventAsync(approvalRequestTask, cancellationToken);
+    }
+
+    public async Task CancelRequestAsync(
+        ApprovalRequest approvalRequest,
+        DateTime timestamp,
+        CancellationToken cancellationToken)
+    {
+        var cancelledTasks = GetTasks(approvalRequest)
+            .Where(task => task.Status == ApprovalRequestTaskStatus.Pending)
+            .ToList();
+        CancelPendingTasks(cancelledTasks, timestamp);
+        await CreateRequestCancelledEventsAsync(cancelledTasks, approvalRequest, cancellationToken);
+    }
+
+    public void CancelPendingTasks(IEnumerable<ApprovalRequestTask> tasks, DateTime timestamp)
+    {
+        foreach (var task in tasks.Where(task => task.Status == ApprovalRequestTaskStatus.Pending))
+        {
+            task.Status = ApprovalRequestTaskStatus.Canceled;
+            task.CompletedAt = timestamp;
+        }
+    }
+
+    private async Task<Dictionary<ApprovalRequestStepAssignee, List<AssigneeResolution>>> ResolveAssigneesAsync(
         ApprovalRequest approvalRequest,
         List<ApprovalRequestStepSubmitDto> submittedSteps,
         CancellationToken cancellationToken)
@@ -55,21 +115,7 @@ public class ApprovalWorkflowService(
         }
     }
 
-    public async Task<List<ApprovalRequestTask>> CreateTasksForStepAsync(
-        ApprovalRequest approvalRequest,
-        ApprovalRequestStep step,
-        DateTime timestamp,
-        CancellationToken cancellationToken)
-    {
-        return await CreateTasksForStepAsync(
-            approvalRequest,
-            step,
-            assigneeResolutions: null,
-            timestamp,
-            cancellationToken);
-    }
-
-    public async Task<List<ApprovalRequestTask>> CreateTasksForStepAsync(
+    private async Task<List<ApprovalRequestTask>> CreateTasksForStepAsync(
         ApprovalRequest approvalRequest,
         ApprovalRequestStep step,
         IReadOnlyDictionary<ApprovalRequestStepAssignee, List<AssigneeResolution>>? assigneeResolutions,
@@ -93,10 +139,11 @@ public class ApprovalWorkflowService(
             tasks.AddRange(createdTasks);
         }
 
+        await CreateTaskCreatedEventsAsync(tasks, cancellationToken);
         return tasks;
     }
 
-    public async Task AdvanceAsync(
+    private async Task AdvanceAsync(
         ApprovalRequestTask approvalRequestTask,
         DateTime timestamp,
         CancellationToken cancellationToken)
@@ -137,11 +184,15 @@ public class ApprovalWorkflowService(
             return;
         }
 
-        var nextStepTasks = await CreateTasksForStepAsync(approvalRequest, nextStep, timestamp, cancellationToken);
-        await NotifyAssigneesSentAsync(nextStepTasks, cancellationToken);
+        await CreateTasksForStepAsync(
+            approvalRequest,
+            nextStep,
+            assigneeResolutions: null,
+            timestamp,
+            cancellationToken);
     }
 
-    public void StartRequestIfNeeded(ApprovalRequest approvalRequest, DateTime timestamp)
+    private static void StartRequestIfNeeded(ApprovalRequest approvalRequest)
     {
         if (approvalRequest.Status != ApprovalRequestStatus.Pending)
         {
@@ -151,7 +202,7 @@ public class ApprovalWorkflowService(
         approvalRequest.Status = ApprovalRequestStatus.Started;
     }
 
-    public void SkipPendingTasks(IEnumerable<ApprovalRequestTask> tasks, DateTime timestamp)
+    private static void SkipPendingTasks(IEnumerable<ApprovalRequestTask> tasks, DateTime timestamp)
     {
         foreach (var task in tasks.Where(task => task.Status == ApprovalRequestTaskStatus.Pending))
         {
@@ -160,130 +211,51 @@ public class ApprovalWorkflowService(
         }
     }
 
-    public void CancelPendingTasks(IEnumerable<ApprovalRequestTask> tasks, DateTime timestamp)
-    {
-        foreach (var task in tasks.Where(task => task.Status == ApprovalRequestTaskStatus.Pending))
-        {
-            task.Status = ApprovalRequestTaskStatus.Canceled;
-            task.CompletedAt = timestamp;
-        }
-    }
-
-    public IEnumerable<ApprovalRequestTask> GetTasks(ApprovalRequest approvalRequest)
+    private static IEnumerable<ApprovalRequestTask> GetTasks(ApprovalRequest approvalRequest)
     {
         return approvalRequest.Steps.SelectMany(step => step.Tasks);
     }
 
-    public async Task NotifyAssigneesSentAsync(
+    private async Task CreateTaskCreatedEventsAsync(
         IEnumerable<ApprovalRequestTask> tasks,
         CancellationToken cancellationToken)
     {
-        await NotifyAssigneesAsync(tasks, AssigneeNotification.Sent, cancellationToken);
+        await CreateEventsAsync(
+            tasks.Select(task => new DomainEventCreate(
+                DomainEventType.ApprovalRequestTaskCreated,
+                task.TenantId,
+                task.GlobalId,
+                CreateDeliveryRecipients(task.AssigneeUserId))),
+            cancellationToken);
     }
 
-    public async Task NotifyAssigneesCancelledAsync(
+    private async Task CreateRequestCancelledEventsAsync(
         IEnumerable<ApprovalRequestTask> tasks,
         ApprovalRequest approvalRequest,
         CancellationToken cancellationToken)
     {
-        await NotifyAssigneesAsync(tasks, AssigneeNotification.Cancelled, cancellationToken, approvalRequest);
+        await CreateEventsAsync(
+            tasks.GroupBy(task => new { task.AssigneeUserId, task.TenantId })
+                .Select(group => new DomainEventCreate(
+                    DomainEventType.ApprovalRequestCancelled,
+                    group.Key.TenantId,
+                    approvalRequest.GlobalId,
+                    CreateDeliveryRecipients(group.Key.AssigneeUserId))),
+            cancellationToken);
     }
 
-    private async Task NotifyAssigneesAsync(
-        IEnumerable<ApprovalRequestTask> tasks,
-        AssigneeNotification notification,
-        CancellationToken cancellationToken,
-        ApprovalRequest? approvalRequest = null)
-    {
-        var taskList = tasks.ToList();
-        if (taskList.Count == 0)
-        {
-            return;
-        }
-
-        var template = GetAssigneeNotificationTemplate(notification);
-        approvalRequest ??= taskList.First().ApprovalRequest;
-        var link = UriHelpers.GetUiUri(
-            _configuration.GetValue<Uri>("UI:BaseUrl"),
-            _configuration["UI:AppPath"],
-            "inbox").ToString();
-
-        var notificationType = GetNotificationType(notification);
-        var recipients = taskList
-            .GroupBy(task => task.AssigneeUserId)
-            .Select(group => new
-            {
-                UserId = group.Key,
-                Email = group.Select(task => task.AssigneeUser?.NormalizedEmail).FirstOrDefault(email => !string.IsNullOrWhiteSpace(email))
-            });
-
-        foreach (var recipient in recipients)
-        {
-            if (string.IsNullOrWhiteSpace(recipient.UserId) || string.IsNullOrWhiteSpace(recipient.Email))
-            {
-                continue;
-            }
-
-            if (!await _notificationPreferenceService.IsEnabledAsync(
-                recipient.UserId,
-                notificationType,
-                NotificationChannel.Email,
-                cancellationToken))
-            {
-                continue;
-            }
-
-            await _emailService.SendAsync(new EmailMessage
-            {
-                ToAddress = recipient.Email,
-                Subject = template.Subject,
-                Body = EmailHelpers.BuildHtmlEmail(
-                    template.Heading,
-                    string.Format(template.Message,
-                        approvalRequest.CreatedByUser.NormalizedEmailOrEmpty(),
-                        GetActiveFileNames(approvalRequest)),
-                    link,
-                    template.LinkText)
-            }, cancellationToken);
-        }
-    }
-
-    public async Task NotifyRequesterReviewedAsync(
-        AppUser reviewer,
+    private Task CreateRequesterReviewedEventAsync(
         ApprovalRequestTask approvalRequestTask,
         CancellationToken cancellationToken)
     {
         var approvalRequest = approvalRequestTask.ApprovalRequest;
-        if (!await _notificationPreferenceService.IsEnabledAsync(
-            approvalRequest.CreatedByUserId,
-            NotificationType.ApprovalRequestReviewed,
-            NotificationChannel.Email,
-            cancellationToken))
-        {
-            return;
-        }
-
-        var reviewedHeadingTemplate = _configuration["Email:Templates:ApprovalRequestReviewedHeading"]!;
-        var reviewedMessageTemplate = _configuration["Email:Templates:ApprovalRequestReviewedMessage"]!;
-        var reviewedLinkText = _configuration["Email:Templates:ApprovalRequestReviewedLinkText"]!;
-        var reviewedSubject = _configuration["Email:Templates:ApprovalRequestReviewedSubject"]!;
-        var reviewedLink = UriHelpers.GetUiUri(
-            _configuration.GetValue<Uri>("UI:BaseUrl"),
-            _configuration["UI:AppPath"],
-            "sent").ToString();
-
-        await _emailService.SendAsync(new EmailMessage
-        {
-            ToAddress = approvalRequest.CreatedByUser.NormalizedEmailOrEmpty(),
-            Subject = reviewedSubject,
-            Body = EmailHelpers.BuildHtmlEmail(
-                reviewedHeadingTemplate,
-                string.Format(reviewedMessageTemplate,
-                    reviewer.NormalizedEmailOrEmpty(),
-                    GetActiveFileNames(approvalRequest)),
-                reviewedLink,
-                reviewedLinkText)
-        }, cancellationToken);
+        return CreateEventsAsync(
+            [new DomainEventCreate(
+                DomainEventType.ApprovalRequestReviewed,
+                approvalRequest.TenantId,
+                approvalRequest.GlobalId,
+                CreateDeliveryRecipients(approvalRequest.CreatedByUserId))],
+            cancellationToken);
     }
 
     private async Task<List<ApprovalRequestTask>> CreateTasksForAssigneeAsync(
@@ -328,50 +300,14 @@ public class ApprovalWorkflowService(
         return tasks;
     }
 
-    private static IEnumerable<ApprovalRequestFile> OrderRequestFiles(ApprovalRequest approvalRequest) =>
-        approvalRequest.RequestFiles.OrderBy(file => file.Sequence);
+    private Task CreateEventsAsync(
+        IEnumerable<DomainEventCreate> events,
+        CancellationToken cancellationToken) =>
+        _domainEventService.CreateEventsAsync([.. events], cancellationToken);
 
-    private static string GetActiveFileNames(ApprovalRequest approvalRequest) =>
-        string.Join(", ", OrderRequestFiles(approvalRequest)
-            .Where(file => file.RevisionAction != ApprovalRequestFileRevisionAction.Removed)
-            .Select(file => file.UserFile.Name));
-
-    private static NotificationType GetNotificationType(AssigneeNotification notification)
-    {
-        return notification switch
-        {
-            AssigneeNotification.Cancelled => NotificationType.ApprovalRequestCancelled,
-            _ => NotificationType.ApprovalRequestTaskCreated
-        };
-    }
-
-    private AssigneeNotificationTemplate GetAssigneeNotificationTemplate(AssigneeNotification notification)
-    {
-        var templateName = notification switch
-        {
-            AssigneeNotification.Cancelled => "ApprovalRequestCancelled",
-            _ => "ApprovalRequestSent"
-        };
-
-        return new AssigneeNotificationTemplate(
-            _configuration[$"Email:Templates:{templateName}Heading"]!,
-            _configuration[$"Email:Templates:{templateName}Message"]!,
-            _configuration[$"Email:Templates:{templateName}LinkText"]!,
-            _configuration[$"Email:Templates:{templateName}Subject"]!);
-    }
-
-    /// <summary>
-    /// Contains email template text for assignee notifications.
-    /// </summary>
-    private sealed record AssigneeNotificationTemplate(
-        string Heading,
-        string Message,
-        string LinkText,
-        string Subject);
-
-    private enum AssigneeNotification
-    {
-        Sent,
-        Cancelled
-    }
+    private static DomainEventRecipient[] CreateDeliveryRecipients(string userId) =>
+    [
+        new DomainEventRecipient(userId, EventDeliveryChannel.InApp),
+        new DomainEventRecipient(userId, EventDeliveryChannel.Email)
+    ];
 }

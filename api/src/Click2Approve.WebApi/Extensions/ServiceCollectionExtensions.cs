@@ -9,12 +9,12 @@ using Click2Approve.Domain.Models;
 using Click2Approve.Infrastructure.Email;
 using Click2Approve.Infrastructure.FileStorage;
 using Click2Approve.Infrastructure.Identity;
+using Click2Approve.Infrastructure.Notifications;
 using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.WebApi.Identity;
 using FluentEmail.Core.Interfaces;
 using FluentEmail.Smtp;
 using Hangfire;
-using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Azure;
@@ -66,12 +66,32 @@ public static class ServiceCollectionExtensions
     {
         var connectionString = configuration.GetConnectionString("Default")
             ?? throw new InvalidOperationException("The default database connection string is required.");
+        var defaultQueue = configuration["Hangfire:Queues:Default:Name"]
+            ?? throw new InvalidOperationException("The Hangfire default queue is required.");
+        var emailQueue = configuration["Hangfire:Queues:Email:Name"]
+            ?? throw new InvalidOperationException("The Hangfire email queue is required.");
+        if (defaultQueue == emailQueue)
+        {
+            throw new InvalidOperationException("The Hangfire default and email queues must differ.");
+        }
+
         services.AddHangfire(config =>
         {
             config.UseSqlServerStorage(connectionString)
-                .WithJobExpirationTimeout(TimeSpan.FromMinutes(configuration.GetValue<int>("Hangfire:JobExpirationTimeoutMin")));
+                .WithJobExpirationTimeout(TimeSpan.FromMinutes(configuration.GetValue<int>("Hangfire:Jobs:ExpirationTimeoutMinutes")))
+                .UseFilter(new NotificationEmailDispatchJobConcurrencyFilter(
+                    configuration.GetValue<int>("Notifications:Channels:Email:Dispatch:LockTimeoutSeconds")));
         });
-        services.AddHangfireServer();
+        services.AddHangfireServer(options =>
+        {
+            options.Queues = [defaultQueue];
+            options.WorkerCount = configuration.GetValue<int>("Hangfire:Queues:Default:WorkerCount");
+        });
+        services.AddHangfireServer(options =>
+        {
+            options.Queues = [emailQueue];
+            options.WorkerCount = configuration.GetValue<int>("Hangfire:Queues:Email:WorkerCount");
+        });
         return services;
     }
 

@@ -9,12 +9,26 @@ const gridRefreshSeconds = Number(
 );
 const uncompletedTasksRefreshSeconds = Number(
   import.meta.env.VITE_UNCOMPLETED_TASKS_REFRESH_SECONDS ??
-  String(refreshSecondsDefault),
+    String(refreshSecondsDefault),
+);
+const discussionsRefreshSeconds = Number(
+  import.meta.env.VITE_DISCUSSIONS_REFRESH_SECONDS ??
+    String(refreshSecondsDefault),
+);
+const notificationsRefreshSeconds = Number(
+  import.meta.env.VITE_NOTIFICATIONS_REFRESH_SECONDS ??
+    String(refreshSecondsDefault),
+);
+const discussionNotificationLimit = Number(
+  import.meta.env.VITE_DISCUSSION_NOTIFICATION_LIMIT ?? "10",
+);
+const notificationBellLimit = Number(
+  import.meta.env.VITE_NOTIFICATION_BELL_LIMIT ?? "10",
 );
 const showPersistenceSuccessNotifications =
   import.meta.env.VITE_SHOW_PERSISTENCE_SUCCESS_NOTIFICATIONS !== "false";
 const appBarHeight = 64;
-const appBarBrandTitleMinDisplayWidth = 760;
+const appBarBrandTitleMinDisplayWidth = 800;
 const mainMenuDrawerWidth = 240;
 const passwordMinLength = 8;
 const passwordValidatorInstance = new passwordValidator();
@@ -43,19 +57,42 @@ const toRefreshSeconds = (value: number): number =>
 export const Refresh = {
   gridSeconds: toRefreshSeconds(gridRefreshSeconds),
   uncompletedTasksSeconds: toRefreshSeconds(uncompletedTasksRefreshSeconds),
+  discussionsSeconds: toRefreshSeconds(discussionsRefreshSeconds),
+  notificationsSeconds: toRefreshSeconds(notificationsRefreshSeconds),
   get gridMs() {
     return this.gridSeconds * 1000;
   },
   get uncompletedTasksMs() {
     return this.uncompletedTasksSeconds * 1000;
   },
+  get discussionsMs() {
+    return this.discussionsSeconds * 1000;
+  },
+  get notificationsMs() {
+    return this.notificationsSeconds * 1000;
+  },
+} as const;
+
+export const Discussions = {
+  notificationLimit:
+    Number.isFinite(discussionNotificationLimit) &&
+    discussionNotificationLimit > 0
+      ? Math.floor(discussionNotificationLimit)
+      : 10,
 } as const;
 
 export const Notifications = {
+  bellLimit:
+    Number.isFinite(notificationBellLimit) && notificationBellLimit > 0
+      ? Math.floor(notificationBellLimit)
+      : 10,
   errorAutoHideDuration: 6000,
   errorMessageMaxLength: 160,
   showPersistenceSuccess: showPersistenceSuccessNotifications,
-  successAnchorOrigin: { horizontal: "right", vertical: "bottom" } as SnackbarOrigin,
+  successAnchorOrigin: {
+    horizontal: "right",
+    vertical: "bottom",
+  } as SnackbarOrigin,
   successAutoHideDuration: 3000,
 } as const;
 
@@ -346,9 +383,8 @@ export const Shell = {
   } as SxProps<Theme>,
   appBarBrandTitleSx: (isAlwaysVisible: boolean = false): SxProps<Theme> => ({
     display: isAlwaysVisible ? "block" : { xs: "none", sm: "block" },
-    [`@media (max-width: ${appBarBrandTitleMinDisplayWidth}px)`]: isAlwaysVisible
-      ? undefined
-      : { display: "none" },
+    [`@media (max-width: ${appBarBrandTitleMinDisplayWidth}px)`]:
+      isAlwaysVisible ? undefined : { display: "none" },
     color: "inherit",
     overflow: "hidden",
     textDecoration: "none",

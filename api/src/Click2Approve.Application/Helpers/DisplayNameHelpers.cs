@@ -7,10 +7,16 @@ public static class DisplayNameHelpers
 {
     public const string PrivatePersonDisplayName = "Private person";
 
-    public static string FormatParticipantName(string? firstName, string? lastName)
+    public static string FormatParticipantName(string? firstName, string? lastName, string? email)
     {
         var name = JoinNonEmpty(firstName, lastName);
-        return string.IsNullOrWhiteSpace(name) ? PrivatePersonDisplayName : name;
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            return name;
+        }
+
+        var normalizedEmail = NormalizeEmailForDisplay(email);
+        return string.IsNullOrWhiteSpace(normalizedEmail) ? PrivatePersonDisplayName : normalizedEmail;
     }
     /// <summary>
     /// Formats a user display name as "FirstName LastName (email)".

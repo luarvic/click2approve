@@ -6,6 +6,7 @@ import {
 import { Employee } from "@/features/employees/models/employee";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import DisplayName from "@/shared/components/identity/DisplayName";
+import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
@@ -114,7 +115,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
   };
 
   return (
-    <>
+    <CloseOnEscape onClose={() => onClose(delegation?.globalId)}>
       <PageBreadcrumbs
         items={[
           {
@@ -203,7 +204,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           onDelete={() => onDelete(delegation.globalId)}
         />
       )}
-    </>
+    </CloseOnEscape>
   );
 };
 

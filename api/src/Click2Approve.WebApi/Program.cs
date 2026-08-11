@@ -17,7 +17,6 @@ using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.WebApi.Extensions;
 using Click2Approve.WebApi.Middlewares;
 using Click2Approve.WebApi.TenantContext;
-using Hangfire;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -66,6 +65,7 @@ builder.Services.AddScoped<IApprovalWorkflowService, ApprovalWorkflowService>();
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<IUserFileService, UserFileService>();
 builder.Services.AddScoped<IUserNotificationPreferenceService, UserNotificationPreferenceService>();
+builder.Services.AddScoped<IDomainEventService, DomainEventService>();
 builder.Services.AddScoped<IUserProfileAccessService, DefaultUserProfileAccessService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 
@@ -74,34 +74,17 @@ builder.Services.AddScoped<IApprovalRequestTaskRepository, ApprovalRequestTaskRe
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 builder.Services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApiDbContext>());
 builder.Services.AddScoped<IUserNotificationPreferenceRepository, UserNotificationPreferenceRepository>();
+builder.Services.AddScoped<IEventDeliveryRepository, EventDeliveryRepository>();
 builder.Services.AddScoped<IUserFileRepository, UserFileRepository>();
 
 builder.Services.AddScoped<ITenantContext, RequestTenantContext>();
 
 var app = builder.Build();
 
-// Ensure the database is created. If the database already exists, this will do nothing.
-// Changes to the database schema should be handled via EF Core migrations.
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
-    db.Database.EnsureCreated();
-}
-
-var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
-if (allowedOrigins is not null && allowedOrigins.Length > 0)
-{
-    app.UseCors(policy => policy.AllowAnyHeader()
-        .AllowAnyMethod()
-        .WithOrigins(allowedOrigins));
-}
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    app.UseHangfireDashboard();
-}
+app.InitializeDatabase<ApiDbContext>();
+app.AddNotificationEmailDispatchJob();
+app.UseConfiguredCors();
+app.UseDevelopmentTooling();
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();

@@ -3,6 +3,7 @@ import { Employee } from "@/features/employees/models/employee";
 import { Team, UpsertTeamRequest } from "@/features/teams/models/team";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import DisplayName from "@/shared/components/identity/DisplayName";
+import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
@@ -80,7 +81,7 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
   };
 
   return (
-    <>
+    <CloseOnEscape onClose={() => onClose(team?.globalId)}>
       <PageBreadcrumbs
         items={[
           {
@@ -170,7 +171,7 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
           onDelete={() => onDelete(team.globalId)}
         />
       )}
-    </>
+    </CloseOnEscape>
   );
 };
 

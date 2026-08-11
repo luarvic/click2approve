@@ -10,6 +10,8 @@ import {
 import { parseUtcDateTime } from "@/shared/utils/dateTime";
 import { notification } from "@/shared/utils/notifications";
 
+const config = { useWorkEmployeeContext: true };
+
 export const createSharedVerificationLinkForRequest = async (
   tenantGlobalId: string,
   approvalRequestGlobalId: string,
@@ -17,6 +19,8 @@ export const createSharedVerificationLinkForRequest = async (
   try {
     const { data } = await axios.post<string>(
       `api/v1/tenants/${tenantGlobalId}/requests/${approvalRequestGlobalId}/sharedVerificationLinks`,
+      undefined,
+      config,
     );
     return data;
   } catch (e) {
@@ -32,6 +36,8 @@ export const createSharedVerificationLinkForTask = async (
   try {
     const { data } = await axios.post<string>(
       `api/v1/tenants/${tenantGlobalId}/tasks/${approvalRequestTaskGlobalId}/sharedVerificationLinks`,
+      undefined,
+      config,
     );
     return data;
   } catch (e) {
@@ -65,6 +71,7 @@ export const listSharedVerificationLinksForRequest = async (
   try {
     const { data } = await axios.get<SharedVerificationLinkListItem[]>(
       `api/v1/tenants/${tenantGlobalId}/requests/${approvalRequestGlobalId}/sharedVerificationLinks`,
+      config,
     );
     data.forEach(normalizeListItemDates);
     return data;
@@ -81,6 +88,7 @@ export const listSharedVerificationLinksForTask = async (
   try {
     const { data } = await axios.get<SharedVerificationLinkListItem[]>(
       `api/v1/tenants/${tenantGlobalId}/tasks/${approvalRequestTaskGlobalId}/sharedVerificationLinks`,
+      config,
     );
     data.forEach(normalizeListItemDates);
     return data;
@@ -98,6 +106,7 @@ export const deleteSharedVerificationLinkForRequest = async (
   try {
     await axios.delete(
       `api/v1/tenants/${tenantGlobalId}/requests/${approvalRequestGlobalId}/sharedVerificationLinks/${linkGlobalId}`,
+      config,
     );
     return true;
   } catch (e) {
@@ -114,6 +123,7 @@ export const deleteSharedVerificationLinkForTask = async (
   try {
     await axios.delete(
       `api/v1/tenants/${tenantGlobalId}/tasks/${approvalRequestTaskGlobalId}/sharedVerificationLinks/${linkGlobalId}`,
+      config,
     );
     return true;
   } catch (e) {

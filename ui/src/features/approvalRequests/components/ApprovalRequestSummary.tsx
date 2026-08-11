@@ -75,11 +75,13 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
             </Typography>
           )}
           {showRevision && <ApprovalRequestRevisionChip revisionNumber={revisionNumber} />}
-          <ApprovalRequestNumberText
-            globalId={numberGlobalId}
-            prefix={numberPrefix}
-            variant="h6"
-          />
+          {!showTitle && (
+            <ApprovalRequestNumberText
+              globalId={numberGlobalId}
+              prefix={numberPrefix}
+              variant="h6"
+            />
+          )}
         </Stack>
         <ApprovalRequestRevisionLinks
           nextRevisionApprovalRequestGlobalId={nextRevisionApprovalRequestGlobalId}

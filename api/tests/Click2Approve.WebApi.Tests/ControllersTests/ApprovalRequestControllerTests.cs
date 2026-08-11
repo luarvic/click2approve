@@ -158,7 +158,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
 
         var task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
         Assert.NotNull(task);
-        Assert.Equal(DisplayNameHelpers.PrivatePersonDisplayName, task.RequestedByDisplayName);
+        Assert.Equal(requester.Email, task.RequestedByDisplayName);
         Assert.Equal(approvalRequest.RevisionNumber, task.RevisionNumber);
         Assert.NotNull(task.ApprovalRequest);
         Assert.Collection(task.ApprovalRequest.Steps.OrderBy(step => step.Sequence),
@@ -259,7 +259,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         Assert.True(taskResponse.IsSuccessStatusCode, await taskResponse.Content.ReadAsStringAsync());
         var taskDetail = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
         Assert.NotNull(taskDetail);
-        Assert.Equal(DisplayNameHelpers.PrivatePersonDisplayName, taskDetail.RequestedByDisplayName);
+        Assert.Equal(requester.Email, taskDetail.RequestedByDisplayName);
         Assert.NotNull(taskDetail.ApprovalRequest);
         Assert.Single(taskDetail.ApprovalRequest.Steps);
         Assert.Single(Assert.Single(taskDetail.ApprovalRequest.Steps).Tasks);

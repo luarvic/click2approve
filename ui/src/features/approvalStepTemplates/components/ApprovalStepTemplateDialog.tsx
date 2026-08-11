@@ -14,6 +14,7 @@ import {
 } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
+import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import {
@@ -189,7 +190,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
   };
 
   return (
-    <>
+    <CloseOnEscape onClose={() => onClose(template?.globalId)}>
       <PageBreadcrumbs
         items={[
           {
@@ -270,7 +271,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
           onDelete={() => onDelete(template.globalId)}
         />
       )}
-    </>
+    </CloseOnEscape>
   );
 };
 

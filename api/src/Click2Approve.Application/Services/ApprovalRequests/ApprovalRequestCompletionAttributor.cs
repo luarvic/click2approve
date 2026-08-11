@@ -16,7 +16,7 @@ public class ApprovalRequestCompletionAttributor : IApprovalRequestCompletionAtt
     {
         approvalRequest.CompletedByUser = user;
         approvalRequest.CompletedByUserId = user.Id;
-        approvalRequest.CompletedByDisplayName = DisplayNameHelpers.FormatParticipantName(user.FirstName, user.LastName);
+        approvalRequest.CompletedByDisplayName = DisplayNameHelpers.FormatParticipantName(user.FirstName, user.LastName, user.NormalizedEmail);
         return Task.CompletedTask;
     }
 }

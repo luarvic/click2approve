@@ -7,6 +7,7 @@ import { Stack, Typography } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 
 interface DisplayNameProps {
+  allowDisplayNameWrap?: boolean;
   displayName?: string | null;
   email?: string | null;
   fallback?: string;
@@ -24,6 +25,7 @@ const textSx: SxProps<Theme> = {
 };
 
 const DisplayName: React.FC<DisplayNameProps> = ({
+  allowDisplayNameWrap = false,
   displayName,
   email,
   fallback = "Unknown user",
@@ -37,7 +39,7 @@ const DisplayName: React.FC<DisplayNameProps> = ({
 
   return (
     <Stack sx={[rootSx, ...(Array.isArray(sx) ? sx : [sx])]}>
-      <Typography noWrap sx={textSx} variant="body1">
+      <Typography noWrap={!allowDisplayNameWrap} sx={allowDisplayNameWrap ? undefined : textSx} variant="body1">
         {primary}
       </Typography>
       {showEmailAddress && secondaryIsVisible && (

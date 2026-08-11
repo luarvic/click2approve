@@ -1,5 +1,5 @@
-using Click2Approve.Application.Extensions;
 using Click2Approve.Application.Helpers;
+using Click2Approve.Application.Models.Auxiliary;
 using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
@@ -87,17 +87,12 @@ public class ApprovalRequestService(
             requestFile.ApprovalRequest = newApprovalRequest;
         }
 
-        var assigneeResolutions = await _workflowService.ResolveAssigneesAsync(newApprovalRequest, payload.Steps, cancellationToken);
-
-        var submittedTasks = await _workflowService.CreateTasksForStepAsync(
+        await _workflowService.CreateInitialTasksAsync(
             newApprovalRequest,
-            steps.MinBy(step => step.Sequence)!,
-            assigneeResolutions,
+            payload.Steps,
             now,
             cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        await _workflowService.NotifyAssigneesSentAsync(submittedTasks, cancellationToken);
         return newApprovalRequest.GlobalId;
     }
 
@@ -117,13 +112,8 @@ public class ApprovalRequestService(
         approvalRequest.Status = ApprovalRequestStatus.Canceled;
         approvalRequest.CompletedAt = now;
         await _completionAttributor.AttributeAsync(user, approvalRequest, cancellationToken);
-        var notifiedTasks = _workflowService.GetTasks(approvalRequest)
-            .Where(task => task.Status == ApprovalRequestTaskStatus.Pending)
-            .ToList();
-        _workflowService.CancelPendingTasks(notifiedTasks, now);
+        await _workflowService.CancelRequestAsync(approvalRequest, now, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        await _workflowService.NotifyAssigneesCancelledAsync(notifiedTasks, approvalRequest, cancellationToken);
     }
 
     /// <summary>
@@ -153,7 +143,7 @@ public class ApprovalRequestService(
     {
         return Task.FromResult(new ApprovalRequestCreator(
             EmployeeId: null,
-            DisplayName: DisplayNameHelpers.FormatParticipantName(user.FirstName, user.LastName)));
+            DisplayName: DisplayNameHelpers.FormatParticipantName(user.FirstName, user.LastName, user.NormalizedEmail)));
     }
 
     /// <summary>

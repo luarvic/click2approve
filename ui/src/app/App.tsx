@@ -17,6 +17,7 @@ import ResendConfirmationEmailPage from "@/features/identity/pages/ResendConfirm
 import ResetPasswordPage from "@/features/identity/pages/ResetPasswordPage";
 import SignInPage from "@/features/identity/pages/SignInPage";
 import SignUpPage from "@/features/identity/pages/SignUpPage";
+import NotificationsPage from "@/features/notifications/pages/NotificationsPage";
 import SharedVerificationReceiptPage from "@/features/sharedVerificationLinks/pages/SharedVerificationReceiptPage";
 import TeamEditorPage from "@/features/teams/pages/TeamEditorPage";
 import TeamsPage from "@/features/teams/pages/TeamsPage";
@@ -94,10 +95,7 @@ const App = () => {
                   <Route path="/signIn" element={<SignInPage />} />
                   <Route path="/signUp" element={<SignUpPage />} />
                   <Route path="/forgotPassword" element={<ForgotPasswordPage />} />
-                  <Route
-                    path="/resendConfirmationEmail"
-                    element={<ResendConfirmationEmailPage />}
-                  />
+                  <Route path="/resendConfirmationEmail" element={<ResendConfirmationEmailPage />} />
                   <Route path="/resetPassword" element={<ResetPasswordPage />} />
                 </Route>
                 <Route path="/confirmEmail" element={<ConfirmEmailPage />} />
@@ -124,12 +122,18 @@ const App = () => {
                 <Route path="/tenants/:tenantGlobalId" element={<TenantScopeLayout />}>
                   <Route element={<WrapperLayout />}>
                     <Route path="inbox" element={<InboxPage />} />
+                    <Route path="notifications" element={<NotificationsPage />} />
                     <Route path="inbox/:taskGlobalId" element={<ApprovalRequestTaskPage />} />
+                    <Route path="inbox/:taskGlobalId/request" element={<ApprovalRequestTaskPage tab="request" />} />
+                    <Route path="inbox/:taskGlobalId/chat" element={<ApprovalRequestTaskPage tab="chat" />} />
+                    <Route path="inbox/:taskGlobalId/link" element={<ApprovalRequestTaskPage tab="link" />} />
                     <Route path="outbox" element={<OutboxPage />} />
                     <Route path="outbox/new" element={<ApprovalRequestStartPage />} />
                     <Route path="outbox/new/compose" element={<ApprovalRequestSubmitPage />} />
                     <Route path="outbox/:approvalRequestGlobalId/resubmit" element={<ApprovalRequestSubmitPage />} />
                     <Route path="outbox/:approvalRequestGlobalId" element={<ApprovalRequestViewPage />} />
+                    <Route path="outbox/:approvalRequestGlobalId/chat" element={<ApprovalRequestViewPage tab="chat" />} />
+                    <Route path="outbox/:approvalRequestGlobalId/link" element={<ApprovalRequestViewPage tab="link" />} />
                     <Route element={<RouteGuard isAllowed={canViewTemplates} />}>
                       <Route path="approvalStepTemplates" element={<ApprovalStepTemplatesPage />} />
                     </Route>

@@ -10,7 +10,7 @@ public class ApprovalRequestTask : DbEntity
     public long? ApprovalRequestStepAssigneeId { get; set; }
     public long ApprovalRequestStepId { get; set; }
     public long? AssigneeEmployeeId { get; set; }
-    public string? AssigneeUserId { get; set; }
+    public required string AssigneeUserId { get; set; }
     public long? CompletedByEmployeeId { get; set; }
     public string? CompletedByUserId { get; set; }
     public long TenantId { get; set; }
@@ -48,7 +48,7 @@ public class ApprovalRequestTask : DbEntity
     public ApprovalRequestStep ApprovalRequestStep { get; set; } = null!;
 
     public ApprovalRequestStepAssignee? ApprovalRequestStepAssignee { get; set; }
-    public AppUser? AssigneeUser { get; set; }
+    public AppUser AssigneeUser { get; set; } = null!;
     public AppUser? CompletedByUser { get; set; }
-    public Tenant? Tenant { get; set; }
+    public Tenant Tenant { get; set; } = null!;
 }

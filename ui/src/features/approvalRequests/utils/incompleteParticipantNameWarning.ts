@@ -5,7 +5,7 @@ export const getIncompleteParticipantNameWarning = (tenantType?: TenantType) => 
   const participantType = tenantType === TenantType.Business ? "Employee" : "User";
 
   return {
-    message: `Your ${participant} name is incomplete. It may appear empty on the record.`,
+    message: `Your ${participant} name is incomplete and will appear as such on the record.`,
     title: `${participantType} name is incomplete`,
   };
 };

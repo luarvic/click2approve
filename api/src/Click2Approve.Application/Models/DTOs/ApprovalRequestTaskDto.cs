@@ -47,7 +47,7 @@ public class ApprovalRequestTaskDto : ApprovalRequestTaskListItemDto
     public Guid ApprovalRequestGlobalId { get; init; }
     public Guid ApprovalRequestStepGlobalId { get; init; }
     public Guid? ApprovalRequestStepAssigneeGlobalId { get; init; }
-    public string? AssigneeUserId { get; init; }
+    public required string AssigneeUserId { get; init; }
     public required string AssigneeEmail { get; init; }
     public required string AssigneeDisplayName { get; init; }
     public string? CompletedByDisplayName { get; init; }

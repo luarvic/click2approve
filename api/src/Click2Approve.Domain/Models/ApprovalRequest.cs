@@ -31,6 +31,6 @@ public class ApprovalRequest : DbEntity
     public ApprovalRequest? NextRevisionApprovalRequest { get; set; }
     public ApprovalRequest? PreviousRevisionApprovalRequest { get; set; }
     public List<ApprovalRequestFile> RequestFiles { get; set; } = [];
-    public required List<ApprovalRequestStep> Steps { get; set; }
-    public Tenant? Tenant { get; set; }
+    public List<ApprovalRequestStep> Steps { get; set; } = [];
+    public Tenant Tenant { get; set; } = null!;
 }

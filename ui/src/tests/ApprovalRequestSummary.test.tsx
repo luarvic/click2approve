@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 describe("<ApprovalRequestSummary />", () => {
-  test("shows the request number when request and task IDs are both available", () => {
+  test("does not show the request number beside the title", () => {
     render(
       <ApprovalRequestSummary
         approvalRequestGlobalId="request-id"
@@ -13,7 +13,7 @@ describe("<ApprovalRequestSummary />", () => {
       />,
     );
 
-    expect(screen.getByText("#reque")).toBeTruthy();
+    expect(screen.queryByText("#reque")).toBeNull();
     expect(screen.queryByText("#visib")).toBeNull();
   });
 });

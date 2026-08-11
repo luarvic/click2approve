@@ -67,29 +67,7 @@ public class ApprovalRequestTaskService(
         approvalRequestTask.Comment = payload.Comment;
         await _completionAttributor.AttributeAsync(user, approvalRequestTask, cancellationToken);
 
-        if (approvalRequestTask.ApprovalRequest.Status is ApprovalRequestStatus.Pending or ApprovalRequestStatus.Started)
-        {
-            switch (approvalRequestTask.Result)
-            {
-                case false:
-                    approvalRequestTask.ApprovalRequest.Status = ApprovalRequestStatus.Completed;
-                    approvalRequestTask.ApprovalRequest.Result = false;
-                    approvalRequestTask.ApprovalRequest.CompletedAt = now;
-                    _workflowService.SkipPendingTasks(
-                        _workflowService.GetTasks(approvalRequestTask.ApprovalRequest)
-                            .Where(task => task.Id != approvalRequestTask.Id),
-                        now);
-                    break;
-                case true:
-                    await _workflowService.AdvanceAsync(approvalRequestTask, now, cancellationToken);
-                    _workflowService.StartRequestIfNeeded(approvalRequestTask.ApprovalRequest, now);
-                    break;
-                default:
-                    throw new BusinessRuleException("A task can only be completed with a positive or negative result.");
-            }
-        }
-
-        await _workflowService.NotifyRequesterReviewedAsync(user, approvalRequestTask, cancellationToken);
+        await _workflowService.CompleteAsync(approvalRequestTask, now, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 

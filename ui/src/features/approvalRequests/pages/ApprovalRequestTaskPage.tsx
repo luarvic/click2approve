@@ -9,25 +9,41 @@ import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 
-const ApprovalRequestTaskPage = () => {
+export type ApprovalRequestTaskTab = "task" | "request" | "chat" | "link";
+
+interface ApprovalRequestTaskPageProps {
+  tab?: ApprovalRequestTaskTab;
+}
+
+const ApprovalRequestTaskPage: React.FC<ApprovalRequestTaskPageProps> = ({
+  tab = "task",
+}) => {
   const navigate = useNavigate();
   const { taskGlobalId } = useParams<{ taskGlobalId: string }>();
   usePageTitle(`Task ${getApprovalRequestNumber(taskGlobalId)}`);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const inboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/inbox") : "/";
-  const task = taskGlobalId ? stores.approvalRequestTaskStore.getDetail(taskGlobalId) : null;
-  const [loadedTaskGlobalId, setLoadedTaskGlobalId] = useState<string | null>(null);
+  const inboxPath = tenantGlobalId
+    ? Routes.tenantPath(tenantGlobalId, "/inbox")
+    : "/";
+  const task = taskGlobalId
+    ? stores.approvalRequestTaskStore.getDetail(taskGlobalId)
+    : null;
+  const [loadedTaskGlobalId, setLoadedTaskGlobalId] = useState<string | null>(
+    null,
+  );
   const taskHasLoaded = loadedTaskGlobalId === taskGlobalId;
 
   useEffect(() => {
     let active = true;
     setLoadedTaskGlobalId(null);
     if (tenantGlobalId && taskGlobalId) {
-      void stores.approvalRequestTaskStore.loadDetails(tenantGlobalId, taskGlobalId).then(() => {
-        if (active) {
-          setLoadedTaskGlobalId(taskGlobalId);
-        }
-      });
+      void stores.approvalRequestTaskStore
+        .loadDetails(tenantGlobalId, taskGlobalId)
+        .then(() => {
+          if (active) {
+            setLoadedTaskGlobalId(taskGlobalId);
+          }
+        });
     }
     return () => {
       active = false;
@@ -42,7 +58,17 @@ const ApprovalRequestTaskPage = () => {
   if (taskHasLoaded && !task) return <NotFoundPage />;
   if (!task || !taskHasLoaded) return <LoadingOverlay />;
 
-  return <ApprovalRequestTask onClose={(currentTaskGlobalId) => navigate(inboxPath, { state: currentTaskGlobalId ? { currentTaskGlobalId } : undefined })} />;
+  return (
+    <ApprovalRequestTask
+      onClose={(currentTaskGlobalId) =>
+        navigate(inboxPath, {
+          state: currentTaskGlobalId ? { currentTaskGlobalId } : undefined,
+        })
+      }
+      tab={tab}
+      taskGlobalId={taskGlobalId}
+    />
+  );
 };
 
 export default observer(ApprovalRequestTaskPage);

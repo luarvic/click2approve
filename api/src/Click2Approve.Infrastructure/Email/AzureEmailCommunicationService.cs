@@ -2,6 +2,8 @@ using Azure;
 using Azure.Communication.Email;
 using Click2Approve.Application.Abstractions.Email;
 using Hangfire;
+using Hangfire.Common;
+using Hangfire.States;
 using EmailMessage = Click2Approve.Application.Models.Auxiliary.EmailMessage;
 
 namespace Click2Approve.Infrastructure.Email;
@@ -9,16 +11,24 @@ namespace Click2Approve.Infrastructure.Email;
 /// <summary>
 /// Represents an implementation of the IEmailService interface that uses Azure's email communication services to send emails.
 /// </summary>
-public class AzureEmailCommunicationService(EmailClient emailClient, IConfiguration configuration)
+public class AzureEmailCommunicationService(
+    IBackgroundJobClient backgroundJobClient,
+    EmailClient emailClient,
+    IConfiguration configuration)
     : IEmailService
 {
+    private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
     private readonly EmailClient _emailClient = emailClient;
     private readonly IConfiguration _configuration = configuration;
+    private readonly string _emailQueue = configuration["Hangfire:Queues:Email:Name"]
+        ?? throw new InvalidOperationException("The Hangfire email queue is required.");
 
     public Task SendAsync(EmailMessage emailMessage, CancellationToken cancellationToken)
     {
-        BackgroundJob.Enqueue(() => EmailAsync(emailMessage, cancellationToken));
-        return Task.FromResult(0);
+        _backgroundJobClient.Create(
+            Job.FromExpression(() => EmailAsync(emailMessage, cancellationToken)),
+            new EnqueuedState(_emailQueue));
+        return Task.CompletedTask;
     }
 
     public async Task EmailAsync(EmailMessage emailMessage, CancellationToken cancellationToken)

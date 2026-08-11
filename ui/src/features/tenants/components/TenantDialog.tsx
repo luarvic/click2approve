@@ -1,6 +1,7 @@
 import { stores } from "@/app/rootStore";
 import { CreateTenantRequest, Tenant, UpdateTenantRequest } from "@/features/tenants/models/tenant";
 import ImagePicker from "@/shared/components/images/ImagePicker";
+import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
@@ -106,7 +107,7 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
   };
 
   return (
-    <>
+    <CloseOnEscape onClose={() => onClose(tenant?.globalId)}>
       <PageBreadcrumbs
         items={[
           {
@@ -180,7 +181,7 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
           </LoadingButton>
         )}
       </Stack>
-    </>
+    </CloseOnEscape>
   );
 };
 

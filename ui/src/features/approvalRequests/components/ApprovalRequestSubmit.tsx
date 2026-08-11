@@ -6,9 +6,7 @@ import {
 import ApprovalRequestFilesList, {
   RevisionExistingFile,
 } from "@/features/approvalRequests/components/ApprovalRequestFilesList";
-import {
-  getAssigneeIcon,
-} from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
+import { getAssigneeIcon } from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
 import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
 import {
   ApprovalRequestFile,
@@ -16,12 +14,13 @@ import {
   ApprovalRequestFileSubmission,
   ApprovalRequestStepVisibilitySubmission,
 } from "@/features/approvalRequests/models/approvalRequest";
+import { getIncompleteParticipantNameWarning } from "@/features/approvalRequests/utils/incompleteParticipantNameWarning";
 import ApprovalStepBlock from "@/features/approvalWorkflow/components/ApprovalStepBlock";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
 import {
-  AssigneeType,
   ApprovalStep,
   ApprovalStepAssignee,
+  AssigneeType,
 } from "@/features/approvalWorkflow/models/approvalStep";
 import {
   createEditableSteps,
@@ -31,13 +30,14 @@ import {
   toApprovalStepSubmissions,
 } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
-import { getIncompleteParticipantNameWarning } from "@/features/approvalRequests/utils/incompleteParticipantNameWarning";
 import { uploadUserFiles } from "@/features/userFiles/api/userFilesApi";
-import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
+import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Files, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { notification } from "@/shared/utils/notifications";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
@@ -58,7 +58,6 @@ import {
 import type { Theme } from "@mui/material/styles";
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { notification } from "@/shared/utils/notifications";
 
 interface ApprovalRequestSubmitProps {
   initialTemplateGlobalId?: string;
@@ -108,44 +107,61 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   const replacementFileInput = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState("");
   const [newFiles, setNewFiles] = useState<File[]>([]);
-  const [existingFiles, setExistingFiles] = useState<RevisionExistingFile[]>([]);
-  const [removedExistingFiles, setRemovedExistingFiles] = useState<RevisionExistingFile[]>([]);
+  const [existingFiles, setExistingFiles] = useState<RevisionExistingFile[]>(
+    [],
+  );
+  const [removedExistingFiles, setRemovedExistingFiles] = useState<
+    RevisionExistingFile[]
+  >([]);
   const [steps, setSteps] = useState<EditableApprovalStep[]>([]);
   const [description, setDescription] = useState("");
-  const [replacementFileIndex, setReplacementFileIndex] = useState<number | null>(null);
-  const [submitPage, setSubmitPage] = useState<"compose" | "visibility">("compose");
-  const [stepVisibility, setStepVisibility] = useState<Record<string, boolean>>({});
+  const [replacementFileIndex, setReplacementFileIndex] = useState<
+    number | null
+  >(null);
+  const [submitPage, setSubmitPage] = useState<"compose" | "visibility">(
+    "compose",
+  );
+  const [stepVisibility, setStepVisibility] = useState<Record<string, boolean>>(
+    {},
+  );
   const [nameWarningDialogIsOpen, setNameWarningDialogIsOpen] = useState(false);
-  const nameWarning = getIncompleteParticipantNameWarning(stores.tenantStore.currentTenant?.type);
+  const nameWarning = getIncompleteParticipantNameWarning(
+    stores.tenantStore.currentTenant?.type,
+  );
   const submitAction = useAsyncAction(ActionLoaders.approvalRequests.submit());
   const initialTemplateHasBeenApplied = useRef(false);
 
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
+  const outboxPath = tenantGlobalId
+    ? Routes.tenantPath(tenantGlobalId, "/outbox")
+    : "/";
   const businessTenantIsSelected =
     stores.tenantStore.currentTenant?.type === TenantType.Business;
   const canUseEmployees =
-    businessTenantIsSelected && stores.applicationConfigurationStore.employeeAssigneesAreEnabled;
+    businessTenantIsSelected &&
+    stores.applicationConfigurationStore.employeeAssigneesAreEnabled;
   const canUseTeams =
-    businessTenantIsSelected && stores.applicationConfigurationStore.teamAssigneesAreEnabled;
+    businessTenantIsSelected &&
+    stores.applicationConfigurationStore.teamAssigneesAreEnabled;
   const canUseTemplates =
     businessTenantIsSelected &&
     stores.applicationConfigurationStore.approvalStepTemplatesAreEnabled &&
     tenantGlobalId !== null;
   const requestToClone = stores.approvalRequestStore.requestToClone;
   const isRevision = Boolean(
-    requestToClone && stores.applicationConfigurationStore.approvalRequestRevisionsAreEnabled,
+    requestToClone &&
+    stores.applicationConfigurationStore.approvalRequestRevisionsAreEnabled,
   );
 
   useEffect(() => {
     if (requestToClone) {
       setTitle(requestToClone.title);
       setExistingFiles(
-        (requestToClone.requestFiles?.length
-          ? requestToClone.requestFiles
-          : []
-        )
-          .filter((file) => file.revisionAction !== ApprovalRequestFileRevisionAction.Removed)
+        (requestToClone.requestFiles?.length ? requestToClone.requestFiles : [])
+          .filter(
+            (file) =>
+              file.revisionAction !== ApprovalRequestFileRevisionAction.Removed,
+          )
           .map((file) => ({
             file: file.userFile,
             requestFileGlobalId: file.globalId,
@@ -165,7 +181,10 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       }
       if (canUseTemplates) {
         void stores.approvalStepTemplateStore.load(tenantGlobalId).then(() => {
-          if (initialTemplateHasBeenApplied.current || !initialTemplateGlobalId) {
+          if (
+            initialTemplateHasBeenApplied.current ||
+            !initialTemplateGlobalId
+          ) {
             return;
           }
 
@@ -200,7 +219,9 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     event.currentTarget.value = "";
   };
 
-  const handleReplacementFilesChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleReplacementFilesChange = (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
     const selectedFile = event.currentTarget.files?.[0];
     if (replacementFileIndex !== null && selectedFile) {
       setExistingFiles((files) =>
@@ -260,10 +281,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   };
 
   const addStep = () => {
-    setSteps((current) => [
-      ...current,
-      createEmptyStep(current.length + 1),
-    ]);
+    setSteps((current) => [...current, createEmptyStep(current.length + 1)]);
   };
 
   const removeStep = (stepIndex: number) => {
@@ -382,17 +400,23 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       }),
     );
 
-  const getAssigneeLabel = (
-    assignee: ApprovalStepAssignee,
-  ) => {
+  const getAssigneeLabel = (assignee: ApprovalStepAssignee) => {
     if (assignee.displayName) {
       return assignee.displayName;
     }
     if (assignee.type === AssigneeType.Employee) {
-      return stores.employeeStore.employees.find((employee) => employee.globalId === assignee.employeeGlobalId)?.displayName ?? "Employee";
+      return (
+        stores.employeeStore.employees.find(
+          (employee) => employee.globalId === assignee.employeeGlobalId,
+        )?.displayName ?? "Employee"
+      );
     }
     if (assignee.type === AssigneeType.Team) {
-      return stores.teamStore.teams.find((team) => team.globalId === assignee.teamGlobalId)?.name ?? "Team";
+      return (
+        stores.teamStore.teams.find(
+          (team) => team.globalId === assignee.teamGlobalId,
+        )?.name ?? "Team"
+      );
     }
     return assignee.email || "Email";
   };
@@ -401,7 +425,14 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     stepSequence: number,
     assigneeStepSequence: number,
     assigneeIndex: number,
-  ) => stepVisibility[getAssigneeVisibilityKey(stepSequence, assigneeStepSequence, assigneeIndex)] ?? true;
+  ) =>
+    stepVisibility[
+    getAssigneeVisibilityKey(
+      stepSequence,
+      assigneeStepSequence,
+      assigneeIndex,
+    )
+    ] ?? true;
 
   const getVisibleAssignees = (
     stepSequence: number,
@@ -420,7 +451,10 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   const getAdditionalViewerOptions = (
     stepSequence: number,
     requestAssignees: RequestAssigneeOption[],
-  ) => requestAssignees.filter((assignee) => assignee.stepSequence !== stepSequence);
+  ) =>
+    requestAssignees.filter(
+      (assignee) => assignee.stepSequence !== stepSequence,
+    );
 
   const setVisibleAssignees = (
     stepSequence: number,
@@ -476,20 +510,22 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     }),
   });
 
-  const createStepVisibilitySubmissions = (): ApprovalRequestStepVisibilitySubmission[] =>
-    steps.flatMap((step) =>
-      getRequestAssignees().map((assignee) => ({
-        stepSequence: step.sequence,
-        assigneeStepSequence: assignee.stepSequence,
-        assigneeIndex: assignee.assigneeIndex,
-        isVisible: step.sequence === assignee.stepSequence ||
-          getStepVisibilityValue(
-            step.sequence,
-            assignee.stepSequence,
-            assignee.assigneeIndex,
-          ),
-      })),
-    );
+  const createStepVisibilitySubmissions =
+    (): ApprovalRequestStepVisibilitySubmission[] =>
+      steps.flatMap((step) =>
+        getRequestAssignees().map((assignee) => ({
+          stepSequence: step.sequence,
+          assigneeStepSequence: assignee.stepSequence,
+          assigneeIndex: assignee.assigneeIndex,
+          isVisible:
+            step.sequence === assignee.stepSequence ||
+            getStepVisibilityValue(
+              step.sequence,
+              assignee.stepSequence,
+              assignee.assigneeIndex,
+            ),
+        })),
+      );
 
   const submit = async () => {
     const trimmedTitle = title.trim();
@@ -505,13 +541,19 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
         .map((file) => file.replacement)
         .filter((file): file is File => Boolean(file));
       const filesToUpload = [...replacementFiles, ...newFiles];
-      const uploadedFiles = await uploadUserFiles(tenantGlobalId, filesToUpload);
+      const uploadedFiles = await uploadUserFiles(
+        tenantGlobalId,
+        filesToUpload,
+      );
       if (uploadedFiles.length !== filesToUpload.length) {
         notification.warning("One or more files could not be uploaded.");
         return;
       }
 
-      const uploadedReplacements = uploadedFiles.slice(0, replacementFiles.length);
+      const uploadedReplacements = uploadedFiles.slice(
+        0,
+        replacementFiles.length,
+      );
       const uploadedNewFiles = uploadedFiles.slice(replacementFiles.length);
       let replacementIndex = 0;
       const requestFiles: ApprovalRequestFileSubmission[] = [];
@@ -557,24 +599,25 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
         });
       });
 
-      const approvalRequestGlobalId = isRevision && requestToClone
-        ? await resubmitApprovalRequest(
-          tenantGlobalId,
-          requestToClone.globalId,
-          toApprovalStepSubmissions(steps),
-          createStepVisibilitySubmissions(),
-          description,
-          requestFiles,
-        )
-        : await submitApprovalRequest(
-          tenantGlobalId,
-          trimmedTitle,
-          toApprovalStepSubmissions(steps),
-          createStepVisibilitySubmissions(),
-          description,
-          undefined,
-          requestFiles,
-        );
+      const approvalRequestGlobalId =
+        isRevision && requestToClone
+          ? await resubmitApprovalRequest(
+            tenantGlobalId,
+            requestToClone.globalId,
+            toApprovalStepSubmissions(steps),
+            createStepVisibilitySubmissions(),
+            description,
+            requestFiles,
+          )
+          : await submitApprovalRequest(
+            tenantGlobalId,
+            trimmedTitle,
+            toApprovalStepSubmissions(steps),
+            createStepVisibilitySubmissions(),
+            description,
+            undefined,
+            requestFiles,
+          );
       if (approvalRequestGlobalId) {
         showPersistenceSuccessNotification(
           PersistenceSuccessMessages.approvalRequestSubmitted,
@@ -583,7 +626,10 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
         stores.approvalRequestStore.clear();
         const [, createdRequest] = await Promise.all([
           stores.approvalRequestStore.load(tenantGlobalId),
-          stores.approvalRequestStore.loadDetails(tenantGlobalId, approvalRequestGlobalId),
+          stores.approvalRequestStore.loadDetails(
+            tenantGlobalId,
+            approvalRequestGlobalId,
+          ),
         ]);
         stores.approvalRequestStore.setCurrent(createdRequest ?? null);
         stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
@@ -594,12 +640,14 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
 
   const handleSubmit = () => {
     const currentTenant = stores.tenantStore.currentTenant;
-    const firstName = currentTenant?.type === TenantType.Business
-      ? currentTenant.currentEmployeeFirstName
-      : stores.userProfileStore.profile?.firstName;
-    const lastName = currentTenant?.type === TenantType.Business
-      ? currentTenant.currentEmployeeLastName
-      : stores.userProfileStore.profile?.lastName;
+    const firstName =
+      currentTenant?.type === TenantType.Business
+        ? currentTenant.currentEmployeeFirstName
+        : stores.userProfileStore.profile?.firstName;
+    const lastName =
+      currentTenant?.type === TenantType.Business
+        ? currentTenant.currentEmployeeLastName
+        : stores.userProfileStore.profile?.lastName;
     if (!firstName?.trim() || !lastName?.trim()) {
       setNameWarningDialogIsOpen(true);
       return;
@@ -625,20 +673,20 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     ...existingFiles.map((file, index) =>
       file.replacement
         ? toDraftRequestFile(
-            file.replacement,
-            index,
-            ApprovalRequestFileRevisionAction.Replaced,
-            file.requestFileGlobalId,
-          )
+          file.replacement,
+          index,
+          ApprovalRequestFileRevisionAction.Replaced,
+          file.requestFileGlobalId,
+        )
         : {
-            globalId: file.requestFileGlobalId ?? file.file.globalId,
-            userFile: file.file,
-            sequence: index,
-            revisionAction: isRevision
-              ? ApprovalRequestFileRevisionAction.Unchanged
-              : ApprovalRequestFileRevisionAction.Added,
-            previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
-          },
+          globalId: file.requestFileGlobalId ?? file.file.globalId,
+          userFile: file.file,
+          sequence: index,
+          revisionAction: isRevision
+            ? ApprovalRequestFileRevisionAction.Unchanged
+            : ApprovalRequestFileRevisionAction.Added,
+          previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
+        },
     ),
     ...newFiles.map((file, index) =>
       toDraftRequestFile(
@@ -652,117 +700,125 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   ];
 
   return (
-    <>
+    <CloseOnEscape onClose={handleClose}>
       <PageBreadcrumbs
         items={[
           {
             label: "Outbox",
-            state: requestToClone ? { currentApprovalRequestGlobalId: requestToClone.globalId } : undefined,
+            state: requestToClone
+              ? { currentApprovalRequestGlobalId: requestToClone.globalId }
+              : undefined,
             to: outboxPath,
           },
           { label: isRevision ? "Resubmit request" : "New request" },
         ]}
       />
       {submitPage === "compose" && (
-      <Box component="form" onSubmit={handleComposeSubmit}>
-        <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
-          <TextField
-            autoFocus
-            margin="normal"
-            fullWidth
-            label="Title"
-            required
-            value={title}
-            disabled={isRevision}
-            onChange={(event) => setTitle(event.target.value)}
-          />
-          <ApprovalRequestFilesList
-            existingFiles={existingFiles}
-            newFiles={newFiles}
-            onRemoveExisting={removeExistingFile}
-            onRemoveNew={(index) =>
-              setNewFiles((files) => files.filter((_, i) => i !== index))
-            }
-            onRemoveReplacement={(index) =>
-              setExistingFiles((files) =>
-                files.map((file, i) =>
-                  i === index ? { ...file, replacement: undefined } : file,
-                ),
-              )
-            }
-            onReplaceExisting={isRevision
-              ? (index) => {
-                setReplacementFileIndex(index);
-                replacementFileInput.current?.click();
+        <Box component="form" onSubmit={handleComposeSubmit}>
+          <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
+            <TextField
+              autoFocus
+              margin="normal"
+              fullWidth
+              label="Title"
+              required
+              value={title}
+              disabled={isRevision}
+              onChange={(event) => setTitle(event.target.value)}
+            />
+            <ApprovalRequestFilesList
+              existingFiles={existingFiles}
+              newFiles={newFiles}
+              onRemoveExisting={removeExistingFile}
+              onRemoveNew={(index) =>
+                setNewFiles((files) => files.filter((_, i) => i !== index))
               }
-              : undefined}
-          />
-          <Box sx={Dialogs.bottomSpacingSx}>
-            <Button startIcon={<AttachFile />} onClick={handleUploadClick}>
-              Add files
-            </Button>
-            <input
-              type="file"
-              multiple
-              onChange={handleFilesChange}
-              ref={fileInput}
-              style={Files.inputStyle}
+              onRemoveReplacement={(index) =>
+                setExistingFiles((files) =>
+                  files.map((file, i) =>
+                    i === index ? { ...file, replacement: undefined } : file,
+                  ),
+                )
+              }
+              onReplaceExisting={
+                isRevision
+                  ? (index) => {
+                    setReplacementFileIndex(index);
+                    replacementFileInput.current?.click();
+                  }
+                  : undefined
+              }
             />
-            <input
-              type="file"
-              onChange={handleReplacementFilesChange}
-              ref={replacementFileInput}
-              style={Files.inputStyle}
+            <Box sx={Dialogs.bottomSpacingSx}>
+              <Button startIcon={<AttachFile />} onClick={handleUploadClick}>
+                Add files
+              </Button>
+              <input
+                type="file"
+                multiple
+                onChange={handleFilesChange}
+                ref={fileInput}
+                style={Files.inputStyle}
+              />
+              <input
+                type="file"
+                onChange={handleReplacementFilesChange}
+                ref={replacementFileInput}
+                style={Files.inputStyle}
+              />
+            </Box>
+            <TextField
+              margin="normal"
+              fullWidth
+              label="Description"
+              multiline
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
             />
-          </Box>
-          <TextField
-            margin="normal"
-            fullWidth
-            label="Description"
-            multiline
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-          />
-          <ApprovalStepEditor
-            steps={steps}
-            canUseEmployees={canUseEmployees}
-            canUseTeams={canUseTeams}
-            employees={stores.employeeStore.employees}
-            teams={stores.teamStore.teams}
-            onAddAssignee={addAssignee}
-            onAddStep={addStep}
-            onMoveStep={moveStep}
-            onRemoveAssignee={removeAssignee}
-            onRemoveStep={removeStep}
-            onUpdateAssignee={updateAssignee}
-            onUpdateStep={updateStep}
-            showAddStep={false}
-          />
-          <Box sx={Dialogs.textBottomSpacingSx}>
-            <Button startIcon={<Add />} onClick={addStep}>
-              Add step
+            <ApprovalStepEditor
+              steps={steps}
+              canUseEmployees={canUseEmployees}
+              canUseTeams={canUseTeams}
+              employees={stores.employeeStore.employees}
+              teams={stores.teamStore.teams}
+              onAddAssignee={addAssignee}
+              onAddStep={addStep}
+              onMoveStep={moveStep}
+              onRemoveAssignee={removeAssignee}
+              onRemoveStep={removeStep}
+              onUpdateAssignee={updateAssignee}
+              onUpdateStep={updateStep}
+              showAddStep={false}
+            />
+            <Box sx={Dialogs.textBottomSpacingSx}>
+              <Button startIcon={<Add />} onClick={addStep}>
+                Add step
+              </Button>
+            </Box>
+          </Stack>
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={Dialogs.stepHeaderSpacing}
+            sx={Dialogs.addStepButtonSx}
+          >
+            <Button variant="outlined" onClick={handleClose}>
+              Cancel
             </Button>
-          </Box>
-        </Stack>
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          spacing={Dialogs.stepHeaderSpacing}
-          sx={Dialogs.addStepButtonSx}
-        >
-          <Button variant="outlined" onClick={handleClose}>
-            Cancel
-          </Button>
-          {steps.length >= 2 ? (
-            <Button type="submit" endIcon={<ArrowForward />}>
-              Steps visibility
-            </Button>
-          ) : (
-            <LoadingButton loading={submitAction.isRunning} type="submit" variant="outlined">
-              Submit
-            </LoadingButton>
-          )}
-        </Stack>
-      </Box>
+            {steps.length >= 2 ? (
+              <Button type="submit" endIcon={<ArrowForward />}>
+                Steps visibility
+              </Button>
+            ) : (
+              <LoadingButton
+                loading={submitAction.isRunning}
+                type="submit"
+                variant="outlined"
+              >
+                Submit
+              </LoadingButton>
+            )}
+          </Stack>
+        </Box>
       )}
       {submitPage === "visibility" && (
         <>
@@ -792,13 +848,17 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
                     showVisibility={false}
                     step={getDisplayStep(step)}
                     tasks={[]}
-                    footerContent={(
+                    footerContent={
                       <Autocomplete
                         multiple
                         options={additionalViewerOptions}
                         value={visibleAssignees}
-                        getOptionLabel={(option) => `${option.label} (Step ${option.stepSequence})`}
-                        isOptionEqualToValue={(option, value) => option.key === value.key}
+                        getOptionLabel={(option) =>
+                          `${option.label} (Step ${option.stepSequence})`
+                        }
+                        isOptionEqualToValue={(option, value) =>
+                          option.key === value.key
+                        }
                         disableCloseOnSelect
                         onChange={(_, value) =>
                           setVisibleAssignees(
@@ -829,14 +889,17 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
                               <Typography variant="body2">
                                 {option.label}
                               </Typography>
-                              <Typography variant="caption" color="text.secondary">
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                              >
                                 Step {option.stepSequence}
                               </Typography>
                             </Stack>
                           </li>
                         )}
                       />
-                    )}
+                    }
                   />
                 );
               })}
@@ -853,7 +916,11 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
             >
               BACK
             </Button>
-            <LoadingButton loading={submitAction.isRunning} variant="outlined" onClick={handleSubmit}>
+            <LoadingButton
+              loading={submitAction.isRunning}
+              variant="outlined"
+              onClick={handleSubmit}
+            >
               Submit
             </LoadingButton>
           </Stack>
@@ -872,7 +939,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
           return true;
         }}
       />
-    </>
+    </CloseOnEscape>
   );
 };
 

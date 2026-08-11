@@ -38,6 +38,8 @@ export const ActionLoaders = {
       formatActionLoader("grids", "inbox", tenantGlobalId ?? undefined),
     outbox: (tenantGlobalId: string | null | undefined) =>
       formatActionLoader("grids", "outbox", tenantGlobalId ?? undefined),
+    notifications: (tenantGlobalId: string | null | undefined) =>
+      formatActionLoader("grids", "notifications", tenantGlobalId ?? undefined),
     teams: (tenantGlobalId: string | null | undefined) =>
       formatActionLoader("grids", "teams", tenantGlobalId ?? undefined),
     tenants: () => formatActionLoader("grids", "tenants"),
