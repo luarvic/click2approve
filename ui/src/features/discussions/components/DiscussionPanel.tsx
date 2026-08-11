@@ -35,6 +35,17 @@ export interface DiscussionPanelHandle {
   canSend: boolean;
 }
 
+export const getDiscussionMessageSender = (
+  message: DiscussionMessage,
+) => {
+  const representedSender =
+    message.sentOnBehalfOfDisplayName?.trim() || undefined;
+  const sendingUser = message.sentByDisplayName.trim() || "Unknown user";
+  return message.isDelegated
+    ? sendingUser
+    : (representedSender ?? sendingUser);
+};
+
 const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
   (
     {
@@ -99,10 +110,7 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
       const isOutgoing = message.isOutgoing === true;
       const representedSender =
         message.sentOnBehalfOfDisplayName?.trim() || undefined;
-      const sendingUser = message.sentByDisplayName.trim() || "Unknown user";
-      const sender = message.isDelegated
-        ? sendingUser
-        : (representedSender ?? sendingUser);
+      const sender = getDiscussionMessageSender(message);
       return (
         <Box
           key={message.globalId}

@@ -18,6 +18,7 @@ import {
   parseUtcDateTime,
 } from "@/shared/utils/dateTime";
 import { Delete, Done } from "@mui/icons-material";
+import type { SxProps, Theme } from "@mui/material";
 import {
   Box,
   Button,
@@ -25,7 +26,6 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import type { SxProps, Theme } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -41,8 +41,8 @@ const notificationText = (type: number) =>
     "New task",
     "Request cancelled",
     "Request reviewed",
-    "New chat message",
-    "New chat message",
+    "New message",
+    "New message",
   ][type] ?? "Notification";
 
 const notificationColumnFlex = 15;

@@ -285,6 +285,7 @@ public class ApprovalWorkflowService(
                 ApprovalRequest = approvalRequest,
                 ApprovalRequestStep = step,
                 ApprovalRequestStepAssignee = configuredAssignee,
+                AssigneeEmployeeId = resolution.AssigneeEmployeeId,
                 AssigneeUser = resolution.AssigneeUser,
                 AssigneeUserId = resolution.AssigneeUser.Id,
                 AssigneeDisplayName = resolution.AssigneeDisplayName,

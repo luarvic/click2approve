@@ -17,6 +17,16 @@ public static class AppUserExtensions
     }
 
     /// <summary>
+    /// Formats a user-only participant display name.
+    /// </summary>
+    public static string FormatParticipantDisplayName(this AppUser? user) =>
+        DisplayNameHelpers.FormatParticipantDisplayName(
+            firstName: null,
+            lastName: null,
+            position: null,
+            user.NormalizedEmailOrEmpty());
+
+    /// <summary>
     /// Formats a user display name as "FirstName LastName (email)".
     /// </summary>
     public static string FormatUser(this AppUser user)

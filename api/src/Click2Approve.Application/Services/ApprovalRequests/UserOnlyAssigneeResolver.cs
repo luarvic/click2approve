@@ -74,11 +74,11 @@ public class UserOnlyAssigneeResolver(
         ApprovalRequest approvalRequest,
         ApprovalRequestStepAssignee assignee,
         AppUser assigneeUser,
-        IReadOnlyDictionary<string, Tenant> tenantByOwnerId)
+        Dictionary<string, Tenant> tenantByOwnerId)
     {
         assignee.User = assigneeUser;
         assignee.UserId = assigneeUser.Id;
-        assignee.AssigneeDisplayName = assigneeUser.NormalizedEmailOrEmpty();
+        assignee.AssigneeDisplayName = assigneeUser.FormatParticipantDisplayName();
         tenantByOwnerId.TryGetValue(assigneeUser.Id, out var assigneeTenant);
         return [new AssigneeResolution(
             assigneeTenant?.Owner ?? assigneeUser,

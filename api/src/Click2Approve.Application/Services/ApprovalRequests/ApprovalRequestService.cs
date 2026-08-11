@@ -143,7 +143,7 @@ public class ApprovalRequestService(
     {
         return Task.FromResult(new ApprovalRequestCreator(
             EmployeeId: null,
-            DisplayName: user.NormalizedEmailOrEmpty()));
+            DisplayName: user.FormatParticipantDisplayName()));
     }
 
     /// <summary>

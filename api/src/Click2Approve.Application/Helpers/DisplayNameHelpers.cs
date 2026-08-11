@@ -5,19 +5,31 @@ namespace Click2Approve.Application.Helpers;
 /// </summary>
 public static class DisplayNameHelpers
 {
-    public const string PrivatePersonDisplayName = "Private person";
-
-    public static string FormatParticipantName(string? firstName, string? lastName, string? email)
+    /// <summary>
+    /// Formats a participant display name from optional employee details.
+    /// </summary>
+    public static string FormatParticipantDisplayName(
+        string? firstName,
+        string? lastName,
+        string? position,
+        string? email)
     {
         var name = JoinNonEmpty(firstName, lastName);
-        if (!string.IsNullOrWhiteSpace(name))
-        {
-            return name;
-        }
+        var title = position?.Trim();
+        var identity = string.IsNullOrWhiteSpace(title)
+            ? name
+            : string.IsNullOrWhiteSpace(name)
+                ? title
+                : $"{name}, {title}";
+
+        if (!string.IsNullOrWhiteSpace(identity)) return identity;
 
         var normalizedEmail = NormalizeEmailForDisplay(email);
-        return string.IsNullOrWhiteSpace(normalizedEmail) ? PrivatePersonDisplayName : normalizedEmail;
+        return normalizedEmail ?? throw new ArgumentException("Email must be provided if no name or title is available.", nameof(email));
     }
+
+    public static string FormatParticipantName(string? firstName, string? lastName, string? email) =>
+        FormatParticipantDisplayName(firstName, lastName, position: null, email);
     /// <summary>
     /// Formats a user display name as "FirstName LastName (email)".
     /// </summary>

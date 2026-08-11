@@ -9,9 +9,8 @@ describe("<DiscussionParticipants />", () => {
       <DiscussionParticipants
         assignees={[
           {
-            displayName: "Requester",
             email: "requester@example.com",
-            type: AssigneeType.Email,
+            type: AssigneeType.User,
           },
         ]}
         requesterDisplayName="Requester"
@@ -21,5 +20,23 @@ describe("<DiscussionParticipants />", () => {
 
     expect(screen.getByText("Requester")).toBeTruthy();
     expect(screen.getByText("requester@example.com")).toBeTruthy();
+  });
+
+  test("deduplicates participants with the same display name", () => {
+    render(
+      <DiscussionParticipants
+        assignees={[
+          {
+            displayName: "Taylor Jones, Director",
+            email: "taylor@example.com",
+            type: AssigneeType.Employee,
+          },
+        ]}
+        requesterDisplayName="Taylor Jones, Director"
+        requesterEmail="taylor@example.com"
+      />,
+    );
+
+    expect(screen.getAllByText("Taylor Jones, Director")).toHaveLength(1);
   });
 });
