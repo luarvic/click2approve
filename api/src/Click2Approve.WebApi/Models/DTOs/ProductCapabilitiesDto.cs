@@ -6,6 +6,7 @@ namespace Click2Approve.WebApi.Models.DTOs;
 public class ProductCapabilitiesDto
 {
     public bool Tenants { get; set; }
+    public bool Discussions { get; set; }
     public bool EmployeeAssignees { get; set; }
     public bool TeamAssignees { get; set; }
     public bool ApprovalStepTemplates { get; set; }

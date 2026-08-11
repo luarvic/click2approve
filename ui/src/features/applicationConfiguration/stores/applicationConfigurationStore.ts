@@ -14,6 +14,10 @@ export class ApplicationConfigurationStore {
     return this.applicationConfiguration?.capabilities.tenants === true;
   }
 
+  get discussionsAreEnabled(): boolean {
+    return this.applicationConfiguration?.capabilities.discussions === true;
+  }
+
   get employeeAssigneesAreEnabled(): boolean {
     return this.applicationConfiguration?.capabilities.employeeAssignees === true;
   }

@@ -104,6 +104,8 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
         (task) => task.status === ApprovalRequestTaskStatus.Pending,
       ),
     ) === true;
+  const discussionsAreEnabled =
+    stores.applicationConfigurationStore.discussionsAreEnabled;
   const approvalRequestIsCanceling =
     cancelAction.isRunning || stores.commonStore.isActionLoading(cancelLoader);
   const sharedVerificationLinkIsCreating =
@@ -200,7 +202,10 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
     });
   };
 
-  if (tab === "link" && approvalRequest && !canManageSharedVerificationLinks) {
+  if (
+    (tab === "chat" && !discussionsAreEnabled) ||
+    (tab === "link" && approvalRequest && !canManageSharedVerificationLinks)
+  ) {
     return <NotFoundPage />;
   }
 
@@ -230,13 +235,13 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
         aria-label="Request sections"
       >
         <Tab label="Request" value="request" />
-        <Tab label="Chat" value="chat" />
+        {discussionsAreEnabled && <Tab label="Chat" value="chat" />}
         {canManageSharedVerificationLinks && <Tab label="Link" value="link" />}
       </Tabs>
       {tab === "request" && (
         <ApprovalRequestDetails approvalRequest={approvalRequest} />
       )}
-      {tab === "chat" && approvalRequest && (
+      {tab === "chat" && discussionsAreEnabled && approvalRequest && (
         <DiscussionPanel
           canSend={canSendDiscussion}
           ref={discussionPanel}
@@ -268,7 +273,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
         <Button variant="outlined" onClick={handleClose}>
           Close
         </Button>
-        {tab === "chat" && canSendDiscussion && (
+        {tab === "chat" && discussionsAreEnabled && canSendDiscussion && (
           <Button
             variant="outlined"
             onClick={() => void discussionPanel.current?.send()}

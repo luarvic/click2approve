@@ -125,6 +125,8 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
     discussionStep?.tasks?.some(
       (task) => task.status === ApprovalRequestTaskStatus.Pending,
     ) === true;
+  const discussionsAreEnabled =
+    stores.applicationConfigurationStore.discussionsAreEnabled;
   const isCompleted = Boolean(
     currentTask && currentTask.status !== ApprovalRequestTaskStatus.Pending,
   );
@@ -317,7 +319,10 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
     });
   };
 
-  if (tab === "link" && currentTask && !canManageSharedVerificationLinks) {
+  if (
+    (tab === "chat" && !discussionsAreEnabled) ||
+    (tab === "link" && currentTask && !canManageSharedVerificationLinks)
+  ) {
     return <NotFoundPage />;
   }
 
@@ -346,7 +351,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
       >
         <Tab label="Task" value="task" />
         <Tab label={requestTabLabel} value="request" />
-        <Tab label="Chat" value="chat" />
+        {discussionsAreEnabled && <Tab label="Chat" value="chat" />}
         {canManageSharedVerificationLinks && <Tab label="Link" value="link" />}
       </Tabs>
       {tab === "task" && (
@@ -431,7 +436,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
           showVisibleStepVisibility={false}
         />
       )}
-      {tab === "chat" && approvalRequest && currentTask && (
+      {tab === "chat" && discussionsAreEnabled && approvalRequest && currentTask && (
         <DiscussionPanel
           canSend={canSendDiscussion}
           ref={discussionPanel}
@@ -467,7 +472,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
         <Button variant="outlined" onClick={handleClose}>
           {tab === "task" && !isCompleted ? "Cancel" : "Close"}
         </Button>
-        {tab === "chat" && canSendDiscussion && (
+        {tab === "chat" && discussionsAreEnabled && canSendDiscussion && (
           <Button
             variant="outlined"
             onClick={() => void discussionPanel.current?.send()}

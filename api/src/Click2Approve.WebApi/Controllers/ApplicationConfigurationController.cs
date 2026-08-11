@@ -31,6 +31,7 @@ public class ApplicationConfigurationController(IConfiguration configuration) : 
             Capabilities = new ProductCapabilitiesDto
             {
                 Tenants = _configuration.GetValue<bool>("Product:Capabilities:Tenants"),
+                Discussions = _configuration.GetValue<bool>("Product:Capabilities:Discussions"),
                 EmployeeAssignees = _configuration.GetValue<bool>("Product:Capabilities:EmployeeAssignees"),
                 TeamAssignees = _configuration.GetValue<bool>("Product:Capabilities:TeamAssignees"),
                 ApprovalStepTemplates = _configuration.GetValue<bool>("Product:Capabilities:ApprovalStepTemplates"),

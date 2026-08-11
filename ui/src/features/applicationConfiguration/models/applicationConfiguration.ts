@@ -8,6 +8,7 @@ export interface ApplicationConfiguration {
 
 export interface ProductCapabilities {
   tenants: boolean;
+  discussions: boolean;
   employeeAssignees: boolean;
   teamAssignees: boolean;
   approvalStepTemplates: boolean;
