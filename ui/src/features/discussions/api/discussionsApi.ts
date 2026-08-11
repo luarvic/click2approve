@@ -11,16 +11,6 @@ export interface DiscussionMessage {
   sentOnBehalfOfDisplayName?: string;
 }
 
-export interface DiscussionUnreadItem {
-  globalId: string;
-  approvalRequestGlobalId: string;
-  approvalRequestTaskGlobalId?: string;
-  approvalRequestTitle: string;
-  revisionNumber: number;
-  lastMessageCreatedAt: string;
-  senderDisplayName: string;
-}
-
 const config = { useWorkEmployeeContext: true };
 
 export const listRequestDiscussion = async (tenantId: string, requestId: string) => {
@@ -52,22 +42,6 @@ export const sendTaskDiscussion = async (tenantId: string, taskId: string, body:
   const { data } = await axios.post<DiscussionMessage>(
     `api/v1/tenants/${tenantId}/discussions/tasks/${taskId}`,
     { body },
-    config,
-  );
-  return data;
-};
-
-export const countUnreadDiscussions = async (tenantId: string) => {
-  const { data } = await axios.get<number>(
-    `api/v1/tenants/${tenantId}/discussions/unread/count`,
-    config,
-  );
-  return data;
-};
-
-export const listUnreadDiscussions = async (tenantId: string, take: number) => {
-  const { data } = await axios.get<DiscussionUnreadItem[]>(
-    `api/v1/tenants/${tenantId}/discussions/unread?take=${take}`,
     config,
   );
   return data;

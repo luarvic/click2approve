@@ -59,9 +59,6 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
           ? await listTaskDiscussion(tenantGlobalId, taskGlobalId)
           : await listRequestDiscussion(tenantGlobalId, requestGlobalId),
       );
-      window.dispatchEvent(
-        new Event("click2approve:discussion-unread-items-changed"),
-      );
     }, [requestGlobalId, taskGlobalId, tenantGlobalId]);
 
     useEffect(() => {
