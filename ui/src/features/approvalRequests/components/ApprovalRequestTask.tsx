@@ -12,6 +12,7 @@ import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/ap
 import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
 import { createApprovalRequestTaskClientAuditContext } from "@/features/approvalRequests/utils/approvalRequestTaskClientAuditContext";
 import { getIncompleteParticipantNameWarning } from "@/features/approvalRequests/utils/incompleteParticipantNameWarning";
+import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import DiscussionPanel, {
   DiscussionPanelHandle,
 } from "@/features/discussions/components/DiscussionPanel";
@@ -446,6 +447,9 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
           requestGlobalId={approvalRequest.globalId}
           requesterDisplayName={approvalRequest.createdByDisplayName}
           requesterEmail={approvalRequest.createdByEmail}
+          requesterType={approvalRequest.createdByEmployeeGlobalId
+            ? AssigneeType.Employee
+            : AssigneeType.User}
           stepLabels={Object.fromEntries(
             approvalRequest.steps
               .filter((step) => step.globalId)

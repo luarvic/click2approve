@@ -1,4 +1,5 @@
 import axios from "@/shared/api/axios";
+import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 
 export interface DiscussionMessage {
   globalId: string;
@@ -8,6 +9,7 @@ export interface DiscussionMessage {
   isOutgoing: boolean;
   isDelegated: boolean;
   sentByDisplayName: string;
+  sentByType: AssigneeType;
   sentOnBehalfOfDisplayName?: string;
 }
 

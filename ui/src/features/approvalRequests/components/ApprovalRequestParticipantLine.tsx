@@ -17,7 +17,9 @@ interface ApprovalRequestParticipantLineProps {
   type?: AssigneeType;
 }
 
-export const getAssigneeIcon = (type: AssigneeType) => {
+export const getAssigneeIcon = (
+  type: AssigneeType,
+) => {
   switch (type) {
     case AssigneeType.Employee:
       return <Person color="action" fontSize="small" />;

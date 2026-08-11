@@ -15,11 +15,14 @@ describe("<DiscussionParticipants />", () => {
         ]}
         requesterDisplayName="Requester"
         requesterEmail="requester@example.com"
+        requesterType={AssigneeType.Employee}
       />,
     );
 
     expect(screen.getByText("Requester")).toBeTruthy();
     expect(screen.getByText("requester@example.com")).toBeTruthy();
+    expect(screen.getByTestId("PersonIcon")).toBeTruthy();
+    expect(screen.getByTestId("EmailIcon")).toBeTruthy();
   });
 
   test("deduplicates participants with the same display name", () => {
@@ -34,6 +37,7 @@ describe("<DiscussionParticipants />", () => {
         ]}
         requesterDisplayName="Taylor Jones, Director"
         requesterEmail="taylor@example.com"
+        requesterType={AssigneeType.Employee}
       />,
     );
 

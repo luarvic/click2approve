@@ -1,5 +1,6 @@
 import type { DiscussionMessage } from "@/features/discussions/api/discussionsApi";
 import { getDiscussionMessageSender } from "@/features/discussions/components/DiscussionPanel";
+import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { describe, expect, test } from "vitest";
 
 const message: DiscussionMessage = {
@@ -10,6 +11,7 @@ const message: DiscussionMessage = {
   isDelegated: false,
   isOutgoing: false,
   sentByDisplayName: "Employee name, Position",
+  sentByType: AssigneeType.Employee,
 };
 
 describe("getDiscussionMessageSender", () => {

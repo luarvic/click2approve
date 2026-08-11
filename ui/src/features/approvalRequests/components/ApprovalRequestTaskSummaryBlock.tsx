@@ -19,7 +19,7 @@ import { getApprovalRequestTaskCompletedActionLabel } from "@/features/approvalR
 import { StatusLineColors } from "@/shared/components/status/StatusLines";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
 import { Dialogs, StackSpacing } from "@/shared/constants/constants";
-import { Box, Divider, Stack, Typography } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import type { SxProps } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
@@ -233,9 +233,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
         )}
         {showComment && task.comment?.trim() && (
           <>
-            <Divider textAlign="center">
-              <Typography color="text.secondary" variant="caption">Comment</Typography>
-            </Divider>
+            <ApprovalRequestParticipantLabel>Comment</ApprovalRequestParticipantLabel>
             <UserProvidedText text={task.comment} />
           </>
         )}

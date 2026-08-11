@@ -7,13 +7,13 @@ import { Logout, Settings } from "@mui/icons-material";
 import {
   Avatar,
   Box,
+  Divider,
   Drawer,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  ListSubheader,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
@@ -34,13 +34,7 @@ const ProfileDrawer = () => {
         sx={Shell.profileDrawerContentSx}
         onClick={() => stores.commonStore.setProfileDrawerIsOpen(false)}
       >
-        <List
-          subheader={
-            <ListSubheader component="div">
-              Profile
-            </ListSubheader>
-          }
-        >
+        <List>
           <ListItem key="manageAccount" disablePadding>
             <ListItemButton onClick={() => navigate("/userProfile")}>
               <ListItemIcon sx={Lists.itemIconSx}>
@@ -57,6 +51,7 @@ const ProfileDrawer = () => {
               />
             </ListItemButton>
           </ListItem>
+          <Divider />
           <ListItem key="signOut" disablePadding>
             <ListItemButton
               onClick={() => {

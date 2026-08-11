@@ -1,15 +1,21 @@
-import type { ApprovalStepAssignee } from "@/features/approvalWorkflow/models/approvalStep";
+import {
+  AssigneeType,
+  type ApprovalStepAssignee,
+} from "@/features/approvalWorkflow/models/approvalStep";
+import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
+import DisplayName from "@/shared/components/identity/DisplayName";
 import { StackSpacing } from "@/shared/constants/constants";
 import { stripInlineEmail } from "@/shared/utils/displayNameHelpers";
 import { ExpandMore } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
-import { Accordion, AccordionDetails, AccordionSummary, Chip, Stack, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Stack, Typography } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 
 interface DiscussionParticipantsProps {
   assignees: ApprovalStepAssignee[];
   requesterDisplayName: string;
   requesterEmail: string;
+  requesterType: AssigneeType;
 }
 
 const participantsBoxPadding = 1.5;
@@ -49,6 +55,7 @@ const DiscussionParticipants: React.FC<DiscussionParticipantsProps> = ({
   assignees,
   requesterDisplayName,
   requesterEmail,
+  requesterType,
 }) => {
   const participants = [
     {
@@ -57,6 +64,7 @@ const DiscussionParticipants: React.FC<DiscussionParticipantsProps> = ({
         requesterDisplayName,
         requesterEmail,
       ),
+      type: requesterType,
     },
     ...assignees.map((assignee, index) => ({
       key: assignee.globalId ?? `${assignee.type}-${assignee.email ?? assignee.displayName}-${index}`,
@@ -64,6 +72,7 @@ const DiscussionParticipants: React.FC<DiscussionParticipantsProps> = ({
         assignee.displayName,
         assignee.email,
       ),
+      type: assignee.type,
     })),
   ]
     .filter(
@@ -80,7 +89,16 @@ const DiscussionParticipants: React.FC<DiscussionParticipantsProps> = ({
       <AccordionDetails sx={participantsDetailsSx}>
         <Stack direction="row" flexWrap="wrap" spacing={StackSpacing.default} useFlexGap>
           {participants.map((participant) => (
-            <Chip key={participant.key} label={participant.label} size="small" />
+            <ApprovalRequestParticipantLine
+              key={participant.key}
+              label={(
+                <DisplayName
+                  displayName={participant.label}
+                  showEmailAddress={false}
+                />
+              )}
+              type={participant.type}
+            />
           ))}
         </Stack>
       </AccordionDetails>

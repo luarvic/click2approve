@@ -1,4 +1,8 @@
-import type { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
+import type {
+  ApprovalStep,
+  AssigneeType,
+} from "@/features/approvalWorkflow/models/approvalStep";
+import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
 import {
   DiscussionMessage,
   listRequestDiscussion,
@@ -28,6 +32,7 @@ interface DiscussionPanelProps {
   requestGlobalId: string;
   requesterDisplayName: string;
   requesterEmail: string;
+  requesterType: AssigneeType;
   stepLabels: Record<string, string>;
   steps: ApprovalStep[];
   taskApprovalRequestStepGlobalId?: string;
@@ -62,6 +67,7 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
       requestGlobalId,
       requesterDisplayName,
       requesterEmail,
+      requesterType,
       stepLabels,
       steps,
       taskApprovalRequestStepGlobalId,
@@ -135,9 +141,14 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
         >
           <Stack spacing={StackSpacing.default}>
             <Stack spacing={StackSpacing.tight}>
-              <DisplayName
-                displayName={sender}
-                showEmailAddress={false}
+              <ApprovalRequestParticipantLine
+                label={(
+                  <DisplayName
+                    displayName={sender}
+                    showEmailAddress={false}
+                  />
+                )}
+                type={message.sentByType}
               />
               {message.isDelegated && representedSender && (
                 <Typography
@@ -169,6 +180,7 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
             assignees={taskStep.assignees}
             requesterDisplayName={requesterDisplayName}
             requesterEmail={requesterEmail}
+            requesterType={requesterType}
           />
         )}
         {!taskGlobalId &&
@@ -185,6 +197,7 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
                 assignees={step.assignees}
                 requesterDisplayName={requesterDisplayName}
                 requesterEmail={requesterEmail}
+                requesterType={requesterType}
               />
               {(messages ?? [])
                 .filter(
