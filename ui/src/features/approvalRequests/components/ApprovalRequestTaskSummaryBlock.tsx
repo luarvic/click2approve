@@ -1,5 +1,4 @@
 import { stores } from "@/app/rootStore";
-import ApprovalRequestComment from "@/features/approvalRequests/components/ApprovalRequestComment";
 import ApprovalRequestElectronicSignatureView from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureView";
 import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
 import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
@@ -18,6 +17,7 @@ import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
 import { getApprovalRequestTaskCompletedActionLabel } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
 import { StatusLineColors } from "@/shared/components/status/StatusLines";
+import UserProvidedText from "@/shared/components/text/UserProvidedText";
 import { Dialogs, StackSpacing } from "@/shared/constants/constants";
 import { Box, Divider, Stack, Typography } from "@mui/material";
 import type { SxProps } from "@mui/material";
@@ -236,7 +236,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
             <Divider textAlign="center">
               <Typography color="text.secondary" variant="caption">Comment</Typography>
             </Divider>
-            <ApprovalRequestComment text={task.comment} />
+            <UserProvidedText text={task.comment} />
           </>
         )}
         {showElectronicSignature && taskElectronicSignatureIsVisible(task) && (

@@ -75,7 +75,7 @@ const DiscussionParticipants: React.FC<DiscussionParticipantsProps> = ({
   return (
     <Accordion disableGutters sx={participantsAccordionSx}>
       <AccordionSummary expandIcon={<ExpandMore />} sx={participantsSummarySx}>
-        <Typography variant="subtitle2">Chat participants</Typography>
+        <Typography variant="subtitle2">Participants</Typography>
       </AccordionSummary>
       <AccordionDetails sx={participantsDetailsSx}>
         <Stack direction="row" flexWrap="wrap" spacing={StackSpacing.default} useFlexGap>

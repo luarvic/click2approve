@@ -7,8 +7,13 @@ import {
   sendTaskDiscussion,
 } from "@/features/discussions/api/discussionsApi";
 import DiscussionParticipants from "@/features/discussions/components/DiscussionParticipants";
-import { Refresh } from "@/shared/constants/constants";
+import DisplayName from "@/shared/components/identity/DisplayName";
+import UserProvidedText from "@/shared/components/text/UserProvidedText";
+import TimelineTimestamp from "@/shared/components/timeline/TimelineTimestamp";
+import { Refresh, StackSpacing } from "@/shared/constants/constants";
+import type { SxProps } from "@mui/material";
 import { Box, Divider, Stack, TextField, Typography } from "@mui/material";
+import type { Theme } from "@mui/material/styles";
 import {
   Fragment,
   forwardRef,
@@ -45,6 +50,10 @@ export const getDiscussionMessageSender = (
     ? sendingUser
     : (representedSender ?? sendingUser);
 };
+
+const getMessageTimelineSx = (isOutgoing: boolean): SxProps<Theme> => ({
+  opacity: isOutgoing ? 0.8 : 1,
+});
 
 const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
   (
@@ -124,11 +133,12 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
             py: 1,
           }}
         >
-          <Stack spacing={0.25}>
-            <Stack spacing={0}>
-              <Typography color="inherit" fontWeight={600} variant="subtitle2">
-                {sender}
-              </Typography>
+          <Stack spacing={StackSpacing.default}>
+            <Stack spacing={StackSpacing.tight}>
+              <DisplayName
+                displayName={sender}
+                showEmailAddress={false}
+              />
               {message.isDelegated && representedSender && (
                 <Typography
                   color="inherit"
@@ -139,16 +149,15 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
                 </Typography>
               )}
             </Stack>
-            <Typography color="inherit" sx={{ py: 0.5 }}>
-              {message.body}
-            </Typography>
-            <Typography
+            <UserProvidedText
+              color="inherit"
+              text={message.body}
+            />
+            <TimelineTimestamp
               color={isOutgoing ? "inherit" : "text.secondary"}
-              sx={{ opacity: isOutgoing ? 0.8 : 1 }}
-              variant="caption"
-            >
-              {new Date(message.createdAt).toLocaleString()}
-            </Typography>
+              date={new Date(message.createdAt)}
+              sx={getMessageTimelineSx(isOutgoing)}
+            />
           </Stack>
         </Box>
       );

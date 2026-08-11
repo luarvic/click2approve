@@ -4,6 +4,7 @@ import {
   SharedVerificationParticipantRole,
   SharedVerificationReceipt,
 } from "@/features/sharedVerificationLinks/models/sharedVerificationLink";
+import SuccessSnackbarIcon from "@/shared/components/icons/SuccessSnackbarIcon";
 import DisplayName from "@/shared/components/identity/DisplayName";
 import {
   Files,
@@ -47,6 +48,7 @@ const baseUrl = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`;
 const logoSrc = `${baseUrl}logo.svg`;
+const certificateLogoSize = 64;
 const qrCodeSize = 120;
 const tableStackContainerMaxWidth = 850;
 
@@ -83,9 +85,10 @@ const headerSx: SxProps<Theme> = {
 
 const logoSx: SxProps<Theme> = {
   ...Shell.appBarLogoSx,
-  height: 64,
+  flex: `0 0 ${certificateLogoSize}px`,
+  height: certificateLogoSize,
   mr: 1,
-  width: 64,
+  width: certificateLogoSize,
 };
 
 const titleLineSx: SxProps<Theme> = {
@@ -148,10 +151,14 @@ const labelSx: SxProps<Theme> = {
   lineHeight: 1.35,
 };
 
+const dataValueTypographySx: SxProps<Theme> = {
+  fontWeight: 600,
+  typography: "subtitle2",
+};
+
 const valueSx: SxProps<Theme> = {
+  ...dataValueTypographySx,
   display: "block",
-  fontSize: "1rem",
-  lineHeight: 1.35,
   overflowWrap: "anywhere",
 };
 
@@ -180,7 +187,7 @@ const tableHeaderCellSx: SxProps<Theme> = {
 };
 
 const tableCellSx: SxProps<Theme> = {
-  fontSize: "1rem",
+  ...dataValueTypographySx,
   overflowWrap: "anywhere",
   px: 0,
   py: 0.9,
@@ -383,6 +390,19 @@ const renderParticipant = (
   );
 };
 
+const renderParticipantAction = (action: string) => {
+  if (action === "Submitted request") {
+    return action;
+  }
+
+  return (
+    <Box component="span" sx={successValueSx}>
+      <SuccessSnackbarIcon fontSize="small" />
+      {action}
+    </Box>
+  );
+};
+
 const computeSha256 = async (file: File): Promise<string> => {
   const buffer = await file.arrayBuffer();
   const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
@@ -535,7 +555,7 @@ const SharedVerificationReceiptPage = () => {
                   {renderField(
                     "Status",
                     <>
-                      <CheckCircleOutline fontSize="small" />
+                      <SuccessSnackbarIcon fontSize="small" />
                       Completed successfully
                     </>,
                     successValueSx,
@@ -713,7 +733,7 @@ const SharedVerificationReceiptPage = () => {
                         {getParticipantRoleLabel(participant.role)}
                       </TableCell>
                       <TableCell sx={[tableCellSx, participantActionColumnSx]}>
-                        {participant.action}
+                        {renderParticipantAction(participant.action)}
                       </TableCell>
                       <TableCell
                         align="right"
@@ -747,7 +767,10 @@ const SharedVerificationReceiptPage = () => {
                       "Relationship",
                       getParticipantRoleLabel(participant.role),
                     )}
-                    {renderField("Action", participant.action)}
+                    {renderField(
+                      "Action",
+                      renderParticipantAction(participant.action),
+                    )}
                     {renderField(
                       "Performed at",
                       participant.completedAt

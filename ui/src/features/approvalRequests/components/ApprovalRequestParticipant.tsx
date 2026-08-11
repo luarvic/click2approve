@@ -42,6 +42,10 @@ const ApprovalRequestParticipant: React.FC<ApprovalRequestParticipantProps> = ({
     displayName,
   );
   const emailLabel = email ?? participantDisplayName ?? fallback;
+  const participantPrimaryLabel =
+    !isSystemParticipant && type === AssigneeType.User
+      ? emailLabel
+      : participantDisplayName;
   const organizationIsVisible =
     !isSystemParticipant &&
     showOrganization &&
@@ -52,18 +56,14 @@ const ApprovalRequestParticipant: React.FC<ApprovalRequestParticipantProps> = ({
     <Stack spacing={organizationIsVisible ? StackSpacing.tight : undefined} sx={sx}>
       <ApprovalRequestParticipantLine
         icon={isSystemParticipant ? <Terminal color="action" fontSize="small" /> : icon}
-        label={
-          type === AssigneeType.User
-            ? emailLabel
-            : (
-              <DisplayName
-                displayName={participantDisplayName}
-                email={email}
-                fallback={fallback}
-                showEmailAddress={type !== AssigneeType.Employee || showEmployeeEmailAddress}
-              />
-            )
-        }
+        label={(
+          <DisplayName
+            displayName={participantPrimaryLabel}
+            email={email}
+            fallback={fallback}
+            showEmailAddress={type !== AssigneeType.Employee || showEmployeeEmailAddress}
+          />
+        )}
         type={type}
       />
       {organizationIsVisible && (

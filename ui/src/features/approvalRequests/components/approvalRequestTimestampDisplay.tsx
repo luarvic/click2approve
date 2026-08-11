@@ -1,8 +1,8 @@
+import SuccessSnackbarIcon from "@/shared/components/icons/SuccessSnackbarIcon";
 import { Icons } from "@/shared/constants/constants";
 import {
   BlockOutlined,
   CancelOutlined,
-  CheckCircleOutlineOutlined,
   DoNotDisturbOnOutlined,
   PendingOutlined,
   ReplayOutlined,
@@ -37,6 +37,6 @@ export const getApprovalRequestTimestampIcon = (
       return <ReplayOutlined color="warning" fontSize="inherit" />;
     case "completedSuccessfully":
     case "completed":
-      return <CheckCircleOutlineOutlined color="success" fontSize="inherit" />;
+      return <SuccessSnackbarIcon color="success" fontSize="inherit" />;
   }
 };

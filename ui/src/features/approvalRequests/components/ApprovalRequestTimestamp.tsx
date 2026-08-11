@@ -2,9 +2,7 @@ import {
   ApprovalRequestTimestampType,
   getApprovalRequestTimestampIcon,
 } from "@/features/approvalRequests/components/approvalRequestTimestampDisplay";
-import { StackSpacing } from "@/shared/constants/constants";
-import { getLocaleDateTimeString } from "@/shared/utils/dateTime";
-import { Stack, Tooltip, Typography } from "@mui/material";
+import TimelineTimestamp from "@/shared/components/timeline/TimelineTimestamp";
 
 interface ApprovalRequestTimestampProps {
   date: Date;
@@ -19,20 +17,7 @@ const ApprovalRequestTimestamp: React.FC<ApprovalRequestTimestampProps> = ({
 }) => {
   const icon = getApprovalRequestTimestampIcon(type);
 
-  return (
-    <Stack
-      direction="row"
-      spacing={StackSpacing.tight}
-      alignItems="center"
-    >
-      <Tooltip title={label}>
-        {icon}
-      </Tooltip>
-      <Typography variant="caption" color="text.secondary">
-        {getLocaleDateTimeString(date)}
-      </Typography>
-    </Stack>
-  );
+  return <TimelineTimestamp date={date} icon={icon} label={label} />;
 };
 
 export default ApprovalRequestTimestamp;

@@ -3,6 +3,7 @@ import ApprovalRequestNumberText from "@/features/approvalRequests/components/Ap
 import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
 import ApprovalRequestRevisionLinks from "@/features/approvalRequests/components/ApprovalRequestRevisionLinks";
 import { ApprovalRequestFile } from "@/features/approvalRequests/models/approvalRequest";
+import UserProvidedText from "@/shared/components/text/UserProvidedText";
 import { StackSpacing } from "@/shared/constants/constants";
 import type { SxProps } from "@mui/material";
 import { Stack, Typography } from "@mui/material";
@@ -31,11 +32,6 @@ const summaryTitleSx: SxProps<Theme> = {
   overflowWrap: "anywhere",
 };
 
-const summaryDescriptionSx: SxProps<Theme> = {
-  overflowWrap: "anywhere",
-  whiteSpace: "pre-wrap",
-};
-
 const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   approvalRequestGlobalId,
   approvalRequestTaskGlobalId,
@@ -54,7 +50,6 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   showTitle = true,
   tenantGlobalId,
 }) => {
-  const trimmedDescription = description?.trim();
   const numberGlobalId = approvalRequestGlobalId ?? approvalRequestTaskGlobalId;
 
   return (
@@ -89,14 +84,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
           tenantGlobalId={tenantGlobalId}
         />
       </Stack>
-      {showDescription && trimmedDescription && (
-        <Typography
-          variant="body1"
-          sx={summaryDescriptionSx}
-        >
-          {trimmedDescription}
-        </Typography>
-      )}
+      {showDescription && <UserProvidedText text={description} />}
       {showFiles && (
         <ApprovalRequestFilesBox
           requestFiles={requestFiles}

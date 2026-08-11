@@ -39,7 +39,12 @@ const DisplayName: React.FC<DisplayNameProps> = ({
 
   return (
     <Stack sx={[rootSx, ...(Array.isArray(sx) ? sx : [sx])]}>
-      <Typography noWrap={!allowDisplayNameWrap} sx={allowDisplayNameWrap ? undefined : textSx} variant="body1">
+      <Typography
+        fontWeight={600}
+        noWrap={!allowDisplayNameWrap}
+        sx={allowDisplayNameWrap ? undefined : textSx}
+        variant="subtitle2"
+      >
         {primary}
       </Typography>
       {showEmailAddress && secondaryIsVisible && (
