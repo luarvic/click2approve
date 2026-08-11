@@ -320,6 +320,7 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
         <input
           accept="image/*"
           hidden
+          name="image-picker-file"
           onChange={handleFileChange}
           ref={fileInput}
           type="file"

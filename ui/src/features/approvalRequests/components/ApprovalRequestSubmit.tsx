@@ -752,6 +752,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
                 Add files
               </Button>
               <input
+                name="approval-request-files"
                 type="file"
                 multiple
                 onChange={handleFilesChange}
@@ -759,6 +760,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
                 style={Files.inputStyle}
               />
               <input
+                name="approval-request-replacement-file"
                 type="file"
                 onChange={handleReplacementFilesChange}
                 ref={replacementFileInput}

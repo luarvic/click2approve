@@ -22,5 +22,10 @@ export const createAppTheme = (colorMode: PaletteMode) =>
           },
         },
       },
+      MuiTablePagination: {
+        defaultProps: {
+          SelectProps: { name: "rows-per-page" },
+        },
+      },
     },
   });

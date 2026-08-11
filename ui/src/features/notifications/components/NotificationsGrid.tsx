@@ -218,6 +218,9 @@ const NotificationsGrid = () => {
         pageSizeOptions={DataGrids.pageSizeOptions}
         rowSelectionModel={selectedNotificationGlobalIds}
         rows={items}
+        slotProps={{
+          baseCheckbox: { name: "notification-selection" },
+        }}
         slots={{
           loadingOverlay: LinearProgress as GridSlots["loadingOverlay"],
           noRowsOverlay: NoRowsOverlay,

@@ -95,6 +95,7 @@ const MainAppBar = ({
       <>
             {tenantPickerIsVisible && (
               <Select
+                name="tenant-picker"
                 size="small"
                 value={
                   selectedTenantPickerOption
@@ -143,7 +144,10 @@ const MainAppBar = ({
             )}
             <ColorModeSwitch
               checked={stores.userPreferencesStore.theme.palette.mode === "dark"}
-              inputProps={{ "aria-label": "Dark mode" }}
+              inputProps={{
+                "aria-label": "Dark mode",
+                name: "color-mode",
+              }}
               onChange={(event) =>
                 stores.userPreferencesStore.setColorMode(
                   event.target.checked ? "dark" : "light",
