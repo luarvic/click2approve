@@ -83,7 +83,7 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
         }}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
-        pageSizeOptions={[DataGrids.defaultPageSize]}
+        pageSizeOptions={DataGrids.pageSizeOptions}
         disableColumnFilter
         disableRowSelectionOnClick
         slots={{

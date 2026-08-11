@@ -27,6 +27,12 @@ export const ActionLoaders = {
     save: (employeeGlobalId: string | undefined) =>
       formatActionLoader("employees", "save", employeeGlobalId),
   },
+  notifications: {
+    delete: (tenantGlobalId: string | null | undefined) =>
+      formatActionLoader("notifications", "delete", tenantGlobalId ?? undefined),
+    markRead: (tenantGlobalId: string | null | undefined) =>
+      formatActionLoader("notifications", "markRead", tenantGlobalId ?? undefined),
+  },
   grids: {
     approvalStepTemplates: (tenantGlobalId: string | null | undefined) =>
       formatActionLoader("grids", "approvalStepTemplates", tenantGlobalId ?? undefined),

@@ -28,9 +28,16 @@ public interface IEventDeliveryRepository
         Guid globalId,
         EventDeliveryChannel channel,
         CancellationToken cancellationToken);
+    Task<List<EventDelivery>> ListForReadAsync(
+        string userId,
+        long tenantId,
+        IReadOnlyCollection<Guid> globalIds,
+        EventDeliveryChannel channel,
+        CancellationToken cancellationToken);
     Task<List<EventDelivery>> ListUnreadForReadAsync(
         string userId,
         long tenantId,
         EventDeliveryChannel channel,
         CancellationToken cancellationToken);
+    void RemoveRange(IReadOnlyCollection<EventDelivery> deliveries);
 }

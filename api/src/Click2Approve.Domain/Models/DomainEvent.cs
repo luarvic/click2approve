@@ -11,5 +11,6 @@ public class DomainEvent : DbEntity
     // Scalar properties
     public required Guid EntityGlobalId { get; set; }
     public required DateTime OccurredAt { get; set; }
+    public required string Summary { get; set; }
     public required DomainEventType Type { get; set; }
 }

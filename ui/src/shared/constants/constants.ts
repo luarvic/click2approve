@@ -470,6 +470,7 @@ export const Shell = {
 
 export const DataGrids = {
   defaultPageSize: 10,
+  pageSizeOptions: [10, 100],
   approvalNumberColumnWidth: 72,
   approvalNumberColumnMinDisplayWidth: 420,
   containerSx: Flex.fullWidthOverflowHiddenSx,

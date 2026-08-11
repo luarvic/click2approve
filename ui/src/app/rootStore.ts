@@ -4,6 +4,7 @@ import { ApprovalStepTemplateStore } from "@/features/approvalStepTemplates/stor
 import { ApplicationConfigurationStore } from "@/features/applicationConfiguration/stores/applicationConfigurationStore";
 import { EmployeeStore } from "@/features/employees/stores/employeeStore";
 import { UserAccountStore } from "@/features/identity/stores/userAccountStore";
+import { NotificationStore } from "@/features/notifications/stores/notificationStore";
 import { TeamStore } from "@/features/teams/stores/teamStore";
 import { TenantStore } from "@/features/tenants/stores/tenantStore";
 import { configureRequestContext } from "@/shared/api/requestContext";
@@ -23,6 +24,7 @@ export class RootStore {
   employeeStore: EmployeeStore;
   teamStore: TeamStore;
   approvalStepTemplateStore: ApprovalStepTemplateStore;
+  notificationStore: NotificationStore;
 
   constructor(
     commonStore: CommonStore,
@@ -35,7 +37,8 @@ export class RootStore {
     tenantStore: TenantStore,
     employeeStore: EmployeeStore,
     teamStore: TeamStore,
-    approvalStepTemplateStore: ApprovalStepTemplateStore
+    approvalStepTemplateStore: ApprovalStepTemplateStore,
+    notificationStore: NotificationStore,
   ) {
     this.commonStore = commonStore;
     this.userAccountStore = userAccountStore;
@@ -48,6 +51,7 @@ export class RootStore {
     this.employeeStore = employeeStore;
     this.teamStore = teamStore;
     this.approvalStepTemplateStore = approvalStepTemplateStore;
+    this.notificationStore = notificationStore;
     this.userAccountStore.configureSessionLifecycle(
       async () => {
         await this.userProfileStore.load();
@@ -100,6 +104,7 @@ export class RootStore {
   clearTenantScope = (): void => {
     this.approvalRequestStore.reset();
     this.approvalRequestTaskStore.reset();
+    this.notificationStore.reset();
     this.employeeStore.clear();
     this.teamStore.clear();
     this.approvalStepTemplateStore.clear();
@@ -124,5 +129,6 @@ export const stores = new RootStore(
   new TenantStore(),
   new EmployeeStore(),
   new TeamStore(),
-  new ApprovalStepTemplateStore()
+  new ApprovalStepTemplateStore(),
+  new NotificationStore()
 );

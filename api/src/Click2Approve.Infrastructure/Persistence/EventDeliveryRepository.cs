@@ -67,6 +67,20 @@ public class EventDeliveryRepository(ApiDbContext db) : IEventDeliveryRepository
                             delivery.Channel == channel,
                 cancellationToken);
 
+    public Task<List<EventDelivery>> ListForReadAsync(
+        string userId,
+        long tenantId,
+        IReadOnlyCollection<Guid> globalIds,
+        EventDeliveryChannel channel,
+        CancellationToken cancellationToken) =>
+        _db.EventDeliveries
+            .Where(
+                delivery => globalIds.Contains(delivery.GlobalId) &&
+                            delivery.UserId == userId &&
+                            delivery.TenantId == tenantId &&
+                            delivery.Channel == channel)
+            .ToListAsync(cancellationToken);
+
     public Task<List<EventDelivery>> ListUnreadForReadAsync(
         string userId,
         long tenantId,
@@ -79,4 +93,9 @@ public class EventDeliveryRepository(ApiDbContext db) : IEventDeliveryRepository
                             delivery.Channel == channel &&
                             delivery.ReadAt == null)
             .ToListAsync(cancellationToken);
+
+    public void RemoveRange(IReadOnlyCollection<EventDelivery> deliveries)
+    {
+        _db.EventDeliveries.RemoveRange(deliveries);
+    }
 }

@@ -85,7 +85,7 @@ const ApprovalStepTemplatesGrid: React.FC<ApprovalStepTemplatesGridProps> = ({
         }
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
-        pageSizeOptions={[DataGrids.defaultPageSize]}
+        pageSizeOptions={DataGrids.pageSizeOptions}
         disableColumnFilter
         disableRowSelectionOnClick
         slots={{

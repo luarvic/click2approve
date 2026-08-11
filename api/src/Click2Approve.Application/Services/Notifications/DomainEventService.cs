@@ -24,7 +24,8 @@ public class DomainEventService(IEventDeliveryRepository eventDeliveryRepository
                 Type = domainEvent.Type,
                 TenantId = domainEvent.TenantId,
                 EntityGlobalId = domainEvent.EntityGlobalId,
-                OccurredAt = DateTime.UtcNow
+                OccurredAt = DateTime.UtcNow,
+                Summary = domainEvent.Summary
             }, cancellationToken);
 
             foreach (var recipient in domainEvent.Recipients.Distinct())
@@ -103,12 +104,45 @@ public class DomainEventService(IEventDeliveryRepository eventDeliveryRepository
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task MarkInAppReadAsync(
+        AppUser user,
+        long tenantId,
+        IReadOnlyCollection<Guid> deliveryGlobalIds,
+        CancellationToken cancellationToken)
+    {
+        var deliveries = await _eventDeliveryRepository.ListForReadAsync(
+            user.Id,
+            tenantId,
+            deliveryGlobalIds.Distinct().ToArray(),
+            EventDeliveryChannel.InApp,
+            cancellationToken);
+        foreach (var delivery in deliveries) delivery.ReadAt ??= DateTime.UtcNow;
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DeleteInAppAsync(
+        AppUser user,
+        long tenantId,
+        IReadOnlyCollection<Guid> deliveryGlobalIds,
+        CancellationToken cancellationToken)
+    {
+        var deliveries = await _eventDeliveryRepository.ListForReadAsync(
+            user.Id,
+            tenantId,
+            deliveryGlobalIds.Distinct().ToArray(),
+            EventDeliveryChannel.InApp,
+            cancellationToken);
+        _eventDeliveryRepository.RemoveRange(deliveries);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+
     private static InAppNotificationDto Map(EventDelivery delivery) => new()
     {
         GlobalId = delivery.GlobalId,
         Type = delivery.DomainEvent.Type,
         OccurredAt = delivery.DomainEvent.OccurredAt,
         EntityGlobalId = delivery.DomainEvent.EntityGlobalId,
+        Summary = delivery.DomainEvent.Summary,
         ReadAt = delivery.ReadAt
     };
 }

@@ -26,6 +26,16 @@ public interface IDomainEventService
         long tenantId,
         Guid deliveryGlobalId,
         CancellationToken cancellationToken);
+    Task MarkInAppReadAsync(
+        AppUser user,
+        long tenantId,
+        IReadOnlyCollection<Guid> deliveryGlobalIds,
+        CancellationToken cancellationToken);
+    Task DeleteInAppAsync(
+        AppUser user,
+        long tenantId,
+        IReadOnlyCollection<Guid> deliveryGlobalIds,
+        CancellationToken cancellationToken);
     Task MarkAllInAppReadAsync(
         AppUser user,
         long tenantId,

@@ -9,6 +9,7 @@ public record DomainEventCreate(
     DomainEventType Type,
     long TenantId,
     Guid EntityGlobalId,
+    string Summary,
     IReadOnlyCollection<DomainEventRecipient> Recipients);
 
 /// <summary>

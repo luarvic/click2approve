@@ -145,7 +145,7 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
         }}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
-        pageSizeOptions={[DataGrids.defaultPageSize]}
+        pageSizeOptions={DataGrids.pageSizeOptions}
         disableColumnFilter
         disableRowSelectionOnClick
         slots={{

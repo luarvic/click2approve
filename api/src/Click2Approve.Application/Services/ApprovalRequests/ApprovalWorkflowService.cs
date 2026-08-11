@@ -225,6 +225,7 @@ public class ApprovalWorkflowService(
                 DomainEventType.ApprovalRequestTaskCreated,
                 task.TenantId,
                 task.GlobalId,
+                CreateSummary(task.GlobalId, task.Title),
                 CreateDeliveryRecipients(task.AssigneeUserId))),
             cancellationToken);
     }
@@ -240,6 +241,7 @@ public class ApprovalWorkflowService(
                     DomainEventType.ApprovalRequestCancelled,
                     group.Key.TenantId,
                     approvalRequest.GlobalId,
+                    CreateSummary(approvalRequest.GlobalId, approvalRequest.Title),
                     CreateDeliveryRecipients(group.Key.AssigneeUserId))),
             cancellationToken);
     }
@@ -254,6 +256,7 @@ public class ApprovalWorkflowService(
                 DomainEventType.ApprovalRequestReviewed,
                 approvalRequest.TenantId,
                 approvalRequest.GlobalId,
+                CreateSummary(approvalRequest.GlobalId, approvalRequest.Title),
                 CreateDeliveryRecipients(approvalRequest.CreatedByUserId))],
             cancellationToken);
     }
@@ -309,4 +312,7 @@ public class ApprovalWorkflowService(
         new DomainEventRecipient(userId, EventDeliveryChannel.InApp),
         new DomainEventRecipient(userId, EventDeliveryChannel.Email)
     ];
+
+    private static string CreateSummary(Guid globalId, string title) =>
+        $"#{globalId.ToString()[..5]} {title}";
 }

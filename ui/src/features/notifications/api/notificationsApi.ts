@@ -13,6 +13,7 @@ export interface Notification {
   type: DomainEventType;
   occurredAt: string;
   entityGlobalId: string;
+  summary: string;
   readAt?: string;
 }
 
@@ -28,5 +29,11 @@ export const listNotifications = async (tenantId: string, unreadOnly = true, tak
 export const markNotificationRead = async (tenantId: string, deliveryId: string) =>
   await axios.post(`${route(tenantId)}/${deliveryId}/read`, undefined, config);
 
-export const markAllNotificationsRead = async (tenantId: string) =>
-  await axios.post(`${route(tenantId)}/read`, undefined, config);
+export const markNotificationsRead = async (tenantId: string, deliveryIds: string[]) =>
+  await axios.post(`${route(tenantId)}/readSelected`, { deliveryGlobalIds: deliveryIds }, config);
+
+export const deleteNotifications = async (tenantId: string, deliveryIds: string[]) =>
+  await axios.delete(route(tenantId), {
+    ...config,
+    data: { deliveryGlobalIds: deliveryIds },
+  });

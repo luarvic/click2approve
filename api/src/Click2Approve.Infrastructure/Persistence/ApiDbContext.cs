@@ -369,6 +369,10 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasConversion<int>();
 
         modelBuilder.Entity<DomainEvent>()
+            .Property(domainEvent => domainEvent.Summary)
+            .HasMaxLength(512);
+
+        modelBuilder.Entity<DomainEvent>()
             .HasIndex(domainEvent => new { domainEvent.TenantId, domainEvent.OccurredAt });
 
         modelBuilder.Entity<EventDelivery>()

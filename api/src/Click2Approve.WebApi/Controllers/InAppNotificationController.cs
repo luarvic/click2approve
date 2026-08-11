@@ -58,6 +58,46 @@ public class InAppNotificationController(
         return Ok();
     }
 
+    [HttpPost("readSelected")]
+    public async Task<IActionResult> MarkInAppReadAsync(
+        [FromBody] InAppNotificationsReadDto payload,
+        CancellationToken cancellationToken)
+    {
+        if (payload.DeliveryGlobalIds.Count is < 1 or > 100)
+        {
+            return BadRequest("Between one and 100 notification deliveries must be selected.");
+        }
+
+        var user = await userManager.GetAppUserAsync(User);
+        var tenantId = await tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        await domainEventService.MarkInAppReadAsync(
+            user,
+            tenantId,
+            payload.DeliveryGlobalIds,
+            cancellationToken);
+        return Ok();
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> DeleteInAppAsync(
+        [FromBody] InAppNotificationsDeleteDto payload,
+        CancellationToken cancellationToken)
+    {
+        if (payload.DeliveryGlobalIds.Count is < 1 or > 100)
+        {
+            return BadRequest("Between one and 100 notification deliveries must be selected.");
+        }
+
+        var user = await userManager.GetAppUserAsync(User);
+        var tenantId = await tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        await domainEventService.DeleteInAppAsync(
+            user,
+            tenantId,
+            payload.DeliveryGlobalIds,
+            cancellationToken);
+        return Ok();
+    }
+
     [HttpPost("read")]
     public async Task<IActionResult> MarkAllInAppReadAsync(CancellationToken cancellationToken)
     {
