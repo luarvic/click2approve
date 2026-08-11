@@ -643,7 +643,10 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       currentTenant?.type === TenantType.Business
         ? currentTenant.currentEmployeeLastName
         : stores.userProfileStore.profile?.lastName;
-    if (!firstName?.trim() || !lastName?.trim()) {
+    if (
+      (!firstName?.trim() || !lastName?.trim()) &&
+      currentTenant?.type === TenantType.Business
+    ) {
       setNameWarningDialogIsOpen(true);
       return;
     }
@@ -921,19 +924,21 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
           </Stack>
         </>
       )}
-      <ConfirmationDialog
-        cancelFirst
-        cancelLabel="Go back"
-        confirmLabel="Proceed anyway"
-        message={nameWarning.message}
-        open={nameWarningDialogIsOpen}
-        title={nameWarning.title}
-        onClose={() => setNameWarningDialogIsOpen(false)}
-        onConfirm={async () => {
-          await submit();
-          return true;
-        }}
-      />
+      {nameWarning && (
+        <ConfirmationDialog
+          cancelFirst
+          cancelLabel="Go back"
+          confirmLabel="Proceed anyway"
+          message={nameWarning.message}
+          open={nameWarningDialogIsOpen}
+          title={nameWarning.title}
+          onClose={() => setNameWarningDialogIsOpen(false)}
+          onConfirm={async () => {
+            await submit();
+            return true;
+          }}
+        />
+      )}
     </CloseOnEscape>
   );
 };

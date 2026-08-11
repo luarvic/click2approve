@@ -171,7 +171,10 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
       currentTenant?.type === TenantType.Business
         ? currentTenant.currentEmployeeLastName
         : stores.userProfileStore.profile?.lastName;
-    if (!firstName?.trim() || !lastName?.trim()) {
+    if (
+      (!firstName?.trim() || !lastName?.trim()) &&
+      currentTenant?.type === TenantType.Business
+    ) {
       setCancelDialogIsOpen(false);
       setNameWarningDialogIsOpen(true);
       return false;
@@ -329,16 +332,18 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
           onConfirm={handleCancel}
         />
       )}
-      <ConfirmationDialog
-        cancelFirst
-        cancelLabel="Go back"
-        confirmLabel="Proceed anyway"
-        message={nameWarning.message}
-        open={nameWarningDialogIsOpen}
-        title={nameWarning.title}
-        onClose={() => setNameWarningDialogIsOpen(false)}
-        onConfirm={cancel}
-      />
+      {nameWarning && (
+        <ConfirmationDialog
+          cancelFirst
+          cancelLabel="Go back"
+          confirmLabel="Proceed anyway"
+          message={nameWarning.message}
+          open={nameWarningDialogIsOpen}
+          title={nameWarning.title}
+          onClose={() => setNameWarningDialogIsOpen(false)}
+          onConfirm={cancel}
+        />
+      )}
     </CloseOnEscape>
   );
 };
