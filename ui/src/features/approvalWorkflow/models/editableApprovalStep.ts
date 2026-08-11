@@ -9,7 +9,7 @@ import {
 export type EditableApprovalStep = ApprovalStep;
 
 export const createEmptyAssignee = (): ApprovalStepAssignee => ({
-  type: AssigneeType.Email,
+  type: AssigneeType.User,
   email: "",
 });
 

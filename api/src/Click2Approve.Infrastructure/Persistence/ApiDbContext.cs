@@ -98,6 +98,10 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasIndex(u => u.IsPlaceholder);
 
         modelBuilder.Entity<AppUser>()
+            .HasIndex(u => u.GlobalId)
+            .IsUnique();
+
+        modelBuilder.Entity<AppUser>()
             .HasOne<Tenant>()
             .WithMany()
             .HasForeignKey(u => u.DefaultTenantId)

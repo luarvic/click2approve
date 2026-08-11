@@ -43,7 +43,7 @@ const getParticipantLabel = (
   email?: string,
 ): string => {
   const name = stripInlineEmail(displayName);
-  return type === AssigneeType.Email ? (email ?? name) || "Unknown user" : name || email || "Unknown user";
+  return type === AssigneeType.User ? (name ?? email) || "Unknown user" : name || email || "Unknown user";
 };
 
 

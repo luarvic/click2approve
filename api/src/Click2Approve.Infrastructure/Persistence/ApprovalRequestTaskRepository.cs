@@ -22,9 +22,7 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
     public virtual async Task<int> ClaimEmailTasksAsync(AppUser user, long personalTenantId, CancellationToken cancellationToken)
     {
         var tasks = await Db.ApprovalRequestTasks
-            .Where(t => t.AssigneeUserId == user.Id
-                && t.AssigneeEmployeeId == null
-                && t.TenantId != personalTenantId)
+            .Where(t => t.AssigneeUserId == user.Id && t.TenantId != personalTenantId)
             .ToListAsync(cancellationToken);
 
         foreach (var task in tasks)

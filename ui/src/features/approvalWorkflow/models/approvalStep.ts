@@ -7,7 +7,7 @@ export enum ApprovalStepMode {
 }
 
 export enum AssigneeType {
-  Email = 0,
+  User = 0,
   Employee = 1,
   Team = 2,
 }
@@ -16,6 +16,7 @@ export interface ApprovalStepAssignee {
   globalId?: string;
   type: AssigneeType;
   email?: string;
+  userGlobalId?: string;
   employeeGlobalId?: string;
   teamGlobalId?: string;
   displayName?: string;

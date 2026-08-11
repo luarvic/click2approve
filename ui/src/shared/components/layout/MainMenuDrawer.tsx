@@ -68,6 +68,11 @@ const MainMenuDrawer = () => {
     stores.applicationConfigurationStore.approvalStepTemplatesAreEnabled &&
     currentTenant?.type === TenantType.Business &&
     currentTenant?.currentEmployeeRole !== undefined;
+  const accessGroupIsVisible =
+    organizationsIsVisible ||
+    employeeManagerIsVisible ||
+    teamsManagerIsVisible ||
+    delegationsIsVisible;
   const currentTenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const tenantScopeIsReady =
     stores.tenantStore.hasLoaded && currentTenantGlobalId !== null;
@@ -230,78 +235,80 @@ const MainMenuDrawer = () => {
           </ListItem>
         )}
       </List>
-      <List
-        subheader={
-          <ListSubheader component="div">
-            Access
-          </ListSubheader>
-        }
-      >
-        {organizationsIsVisible && (
-          <ListItem key="organizations" disablePadding>
-            <ListItemButton
-              selected={organizationsIsSelected}
-              onClick={() => {
-                navigate("/tenants");
-                closeTemporaryDrawer();
-              }}
-            >
-              <ListItemIcon sx={Lists.itemIconSx}>
-                <BusinessTwoTone />
-              </ListItemIcon>
-              <ListItemText primary="Organizations" />
-            </ListItemButton>
-          </ListItem>
-        )}
-        {employeeManagerIsVisible && (
-          <ListItem key="employees" disablePadding>
-            <ListItemButton
-              selected={location.pathname.startsWith(employeesPath)}
-              onClick={() => {
-                navigate(employeesPath);
-                closeTemporaryDrawer();
-              }}
-            >
-              <ListItemIcon sx={Lists.itemIconSx}>
-                <PersonTwoTone />
-              </ListItemIcon>
-              <ListItemText primary="Employees" />
-            </ListItemButton>
-          </ListItem>
-        )}
-        {teamsManagerIsVisible && (
-          <ListItem key="teams" disablePadding>
-            <ListItemButton
-              selected={location.pathname.startsWith(teamsPath)}
-              onClick={() => {
-                navigate(teamsPath);
-                closeTemporaryDrawer();
-              }}
-            >
-              <ListItemIcon sx={Lists.itemIconSx}>
-                <GroupsTwoTone />
-              </ListItemIcon>
-              <ListItemText primary="Teams" />
-            </ListItemButton>
-          </ListItem>
-        )}
-        {delegationsIsVisible && (
-          <ListItem key="delegations" disablePadding>
-            <ListItemButton
-              selected={location.pathname.startsWith(delegationsPath)}
-              onClick={() => {
-                navigate(delegationsPath);
-                closeTemporaryDrawer();
-              }}
-            >
-              <ListItemIcon sx={Lists.itemIconSx}>
-                <Diversity3TwoTone />
-              </ListItemIcon>
-              <ListItemText primary="Delegations" />
-            </ListItemButton>
-          </ListItem>
-        )}
-      </List>
+      {accessGroupIsVisible && (
+        <List
+          subheader={
+            <ListSubheader component="div">
+              Access
+            </ListSubheader>
+          }
+        >
+          {organizationsIsVisible && (
+            <ListItem key="organizations" disablePadding>
+              <ListItemButton
+                selected={organizationsIsSelected}
+                onClick={() => {
+                  navigate("/tenants");
+                  closeTemporaryDrawer();
+                }}
+              >
+                <ListItemIcon sx={Lists.itemIconSx}>
+                  <BusinessTwoTone />
+                </ListItemIcon>
+                <ListItemText primary="Organizations" />
+              </ListItemButton>
+            </ListItem>
+          )}
+          {employeeManagerIsVisible && (
+            <ListItem key="employees" disablePadding>
+              <ListItemButton
+                selected={location.pathname.startsWith(employeesPath)}
+                onClick={() => {
+                  navigate(employeesPath);
+                  closeTemporaryDrawer();
+                }}
+              >
+                <ListItemIcon sx={Lists.itemIconSx}>
+                  <PersonTwoTone />
+                </ListItemIcon>
+                <ListItemText primary="Employees" />
+              </ListItemButton>
+            </ListItem>
+          )}
+          {teamsManagerIsVisible && (
+            <ListItem key="teams" disablePadding>
+              <ListItemButton
+                selected={location.pathname.startsWith(teamsPath)}
+                onClick={() => {
+                  navigate(teamsPath);
+                  closeTemporaryDrawer();
+                }}
+              >
+                <ListItemIcon sx={Lists.itemIconSx}>
+                  <GroupsTwoTone />
+                </ListItemIcon>
+                <ListItemText primary="Teams" />
+              </ListItemButton>
+            </ListItem>
+          )}
+          {delegationsIsVisible && (
+            <ListItem key="delegations" disablePadding>
+              <ListItemButton
+                selected={location.pathname.startsWith(delegationsPath)}
+                onClick={() => {
+                  navigate(delegationsPath);
+                  closeTemporaryDrawer();
+                }}
+              >
+                <ListItemIcon sx={Lists.itemIconSx}>
+                  <Diversity3TwoTone />
+                </ListItemIcon>
+                <ListItemText primary="Delegations" />
+              </ListItemButton>
+            </ListItem>
+          )}
+        </List>
+      )}
       <List
         subheader={
           <ListSubheader component="div">

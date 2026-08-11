@@ -135,14 +135,9 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
   };
 
   const validateSteps = () => {
-    const emails = steps.flatMap((step) =>
-      step.assignees
-        .filter((assignee) => assignee.type === AssigneeType.Email)
-        .map((assignee) => assignee.email ?? ""),
-    );
     const hasMissingRecipient = steps.some((step) =>
       step.assignees.some((assignee) => {
-        if (assignee.type === AssigneeType.Email) {
+        if (assignee.type === AssigneeType.User) {
           return !assignee.email?.trim();
         }
         if (assignee.type === AssigneeType.Employee) {
@@ -152,7 +147,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
       }),
     );
 
-    if (hasMissingRecipient || (emails.length > 0 && !validateEmails(emails))) {
+    if (hasMissingRecipient) {
       notification.warning("Specify valid assignees for every step.");
       return false;
     }

@@ -5,7 +5,7 @@ namespace Click2Approve.Domain.Models;
 /// </summary>
 public enum AssigneeType
 {
-    Email = 0,
+    User = 0,
     Employee = 1,
     Team = 2
 }

@@ -43,6 +43,12 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
   const organizationIsVisible =
     stores.tenantStore.currentTenant?.type === TenantType.Personal;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const requesterType = approvalRequest.createdByEmployeeGlobalId
+    ? AssigneeType.Employee
+    : AssigneeType.User;
+  const completionType = approvalRequest.completedByEmployeeGlobalId
+    ? AssigneeType.Employee
+    : AssigneeType.User;
   const completionLabel = getRequestCompletionLabel(approvalRequest.status);
   const completedTimestamp = getRequestCompletedTimestamp(approvalRequest);
   const completedBySystem = approvalRequest.status === ApprovalRequestStatus.Completed
@@ -88,7 +94,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
                 email={approvalRequest.createdByEmail}
                 organizationDisplayName={approvalRequest.organizationDisplayName}
                 showOrganization={organizationIsVisible}
-                type={AssigneeType.Employee}
+                type={requesterType}
               />
             }
             firstTimestamp={
@@ -106,7 +112,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
                 isSystemParticipant={completedBySystem}
                 organizationDisplayName={approvalRequest.organizationDisplayName}
                 showOrganization={organizationIsVisible}
-                type={AssigneeType.Employee}
+                type={completionType}
               />
             }
             secondTimestamp={
@@ -126,7 +132,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
                 email={approvalRequest.createdByEmail}
                 organizationDisplayName={approvalRequest.organizationDisplayName}
                 showOrganization={organizationIsVisible}
-                type={AssigneeType.Employee}
+                type={requesterType}
               />
             }
             firstTimestamp={

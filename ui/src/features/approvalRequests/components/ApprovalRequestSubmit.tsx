@@ -341,16 +341,11 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       return false;
     }
 
-    const emails = steps.flatMap((step) =>
-      step.assignees
-        .filter((assignee) => assignee.type === AssigneeType.Email)
-        .map((assignee) => assignee.email ?? ""),
-    );
     const hasMissingRecipient = steps.some(
       (step) =>
         step.assignees.length === 0 ||
         step.assignees.some((assignee) => {
-          if (assignee.type === AssigneeType.Email) {
+          if (assignee.type === AssigneeType.User) {
             return !assignee.email?.trim();
           }
           if (assignee.type === AssigneeType.Employee) {
@@ -360,7 +355,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
         }),
     );
 
-    if (hasMissingRecipient || (emails.length > 0 && !validateEmails(emails))) {
+    if (hasMissingRecipient) {
       notification.warning("Specify valid assignees for every step.");
       return false;
     }

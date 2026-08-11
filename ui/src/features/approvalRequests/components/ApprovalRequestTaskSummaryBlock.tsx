@@ -112,7 +112,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   const participantOrganizationDisplayName = task.organizationDisplayName;
   const resolvedParticipantType = participantType ??
     (participant === "assignee" && !task.assigneeUserId
-      ? AssigneeType.Email
+      ? AssigneeType.User
       : AssigneeType.Employee);
   const taskBoxSx = getTaskBoxSx(task.status, task.result, isClickable);
   const completedTimestamp = getTaskCompletedTimestamp(task);

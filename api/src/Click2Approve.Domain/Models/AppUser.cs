@@ -7,6 +7,9 @@ namespace Click2Approve.Domain.Models;
 /// </summary>
 public class AppUser : IdentityUser
 {
+    // Entity identifiers
+    public Guid GlobalId { get; set; } = Guid.NewGuid();
+
     // Foreign key identifiers
     public long? DefaultTenantId { get; set; }
 

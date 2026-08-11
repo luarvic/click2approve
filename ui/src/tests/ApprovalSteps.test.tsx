@@ -17,7 +17,7 @@ const approvalRequest: ApprovalRequest = {
   createdByDisplayName: "Requester",
   createdByEmail: "requester@example.com",
   organizationDisplayName: "Personal",
-  createdByUserId: "requester-user-id",
+  createdByUserGlobalId: "a81de868-eb2a-4d66-ba7d-f82135ac8a89",
   description: "Request description",
   globalId: "request-id",
   requestFiles: [],

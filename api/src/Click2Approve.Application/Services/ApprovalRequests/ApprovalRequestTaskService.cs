@@ -108,9 +108,7 @@ public class ApprovalRequestTaskService(
         }
 
         approvalRequestTask.AssigneeLegalName = legalName;
-        approvalRequestTask.AssigneeOrganization = approvalRequestTask.AssigneeEmployeeId.HasValue
-            ? null
-            : payload.AssigneeOrganization;
+        approvalRequestTask.AssigneeOrganization = payload.AssigneeOrganization;
         approvalRequestTask.AssigneeSignatureJson = signatureJson;
     }
 

@@ -9,6 +9,7 @@ public class ApprovalRequestAssigneeSubmitDto
 {
     public required AssigneeType Type { get; set; }
     public string? Email { get; set; }
+    public Guid? UserGlobalId { get; set; }
     public Guid? EmployeeGlobalId { get; set; }
     public Guid? TeamGlobalId { get; set; }
 }

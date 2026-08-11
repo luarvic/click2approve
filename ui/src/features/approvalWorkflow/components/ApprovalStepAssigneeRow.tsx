@@ -49,7 +49,7 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
   onRemove,
 }) => {
   const recipientTypes = [
-    { value: AssigneeType.Email, label: "Email" },
+    { value: AssigneeType.User, label: "User" },
     ...(canUseEmployees
       ? [{ value: AssigneeType.Employee, label: "Employee" }]
       : []),
@@ -85,7 +85,7 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
             </MenuItem>
           ))}
         </TextField>
-        {assignee.type === AssigneeType.Email && (
+        {assignee.type === AssigneeType.User && (
           <TextField
             fullWidth
             label="Email"

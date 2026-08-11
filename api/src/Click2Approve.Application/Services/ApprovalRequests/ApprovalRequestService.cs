@@ -1,4 +1,4 @@
-using Click2Approve.Application.Helpers;
+using Click2Approve.Application.Extensions;
 using Click2Approve.Application.Models.Auxiliary;
 using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Exceptions;
@@ -76,9 +76,9 @@ public class ApprovalRequestService(
             Description = payload.Description,
             Status = ApprovalRequestStatus.Pending,
             TenantId = tenantId,
+            CreatedByEmployeeId = creator.EmployeeId,
             CreatedByUserId = user.Id,
             CreatedByUser = user,
-            CreatedByEmployeeId = creator.EmployeeId,
             CreatedByDisplayName = creator.DisplayName,
             OrganizationDisplayName = tenant.BusinessName
         }, cancellationToken);
@@ -143,7 +143,7 @@ public class ApprovalRequestService(
     {
         return Task.FromResult(new ApprovalRequestCreator(
             EmployeeId: null,
-            DisplayName: DisplayNameHelpers.FormatParticipantName(user.FirstName, user.LastName, user.NormalizedEmail)));
+            DisplayName: user.NormalizedEmailOrEmpty()));
     }
 
     /// <summary>

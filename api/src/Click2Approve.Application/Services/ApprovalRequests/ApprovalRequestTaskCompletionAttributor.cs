@@ -1,4 +1,4 @@
-using Click2Approve.Application.Helpers;
+using Click2Approve.Application.Extensions;
 using Click2Approve.Domain.Models;
 
 namespace Click2Approve.Application.Services.ApprovalRequests;
@@ -15,7 +15,7 @@ public class ApprovalRequestTaskCompletionAttributor : IApprovalRequestTaskCompl
     {
         approvalRequestTask.CompletedByUser = user;
         approvalRequestTask.CompletedByUserId = user.Id;
-        approvalRequestTask.CompletedByDisplayName = DisplayNameHelpers.FormatParticipantName(user.FirstName, user.LastName, user.NormalizedEmail);
+        approvalRequestTask.CompletedByDisplayName = user.NormalizedEmailOrEmpty();
         return Task.CompletedTask;
     }
 }

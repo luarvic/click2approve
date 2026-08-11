@@ -57,7 +57,7 @@ const approvalRequest = (globalId: string): ApprovalRequest => ({
   steps: [],
   createdAt: "2026-01-01T00:00:00",
   createdAtDate: new Date(),
-  createdByUserId: "user-id",
+  createdByUserGlobalId: "7e3ee32d-66dc-4421-b484-93709f6f3bb8",
   createdByEmail: "user@example.com",
   createdByDisplayName: "user@example.com",
   organizationDisplayName: "Personal",

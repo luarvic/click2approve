@@ -40,20 +40,11 @@ public class TenantRepository(ApiDbContext db) : ITenantRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public virtual Task<Tenant?> GetPersonalAsync(string normalizedEmail, CancellationToken cancellationToken)
+    public virtual Task<List<Tenant>> ListPersonalAsync(IReadOnlyCollection<string> userIds, CancellationToken cancellationToken)
     {
         return Db.Tenants
             .Include(t => t.Owner)
-            .Where(t => t.Owner.NormalizedEmail == normalizedEmail && t.Type == TenantType.Personal)
-            .OrderBy(t => t.Id)
-            .FirstOrDefaultAsync(cancellationToken);
-    }
-
-    public virtual Task<List<Tenant>> ListPersonalAsync(IReadOnlyCollection<string> normalizedEmails, CancellationToken cancellationToken)
-    {
-        return Db.Tenants
-            .Include(t => t.Owner)
-            .Where(t => normalizedEmails.Contains(t.Owner.NormalizedEmail!) && t.Type == TenantType.Personal)
+            .Where(t => userIds.Contains(t.Owner.Id) && t.Type == TenantType.Personal)
             .OrderBy(t => t.Id)
             .ToListAsync(cancellationToken);
     }

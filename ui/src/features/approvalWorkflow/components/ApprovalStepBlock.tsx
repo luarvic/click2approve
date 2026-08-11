@@ -143,7 +143,7 @@ const getStepStatusLabel = (status: string) => status;
 
 const getTaskAssigneeIcon = (step: ApprovalStep, task: ApprovalRequestTask) => {
   const assignee = step.assignees.find((item) => item.globalId === task.approvalRequestStepAssigneeGlobalId);
-  return getAssigneeIcon(assignee?.type ?? AssigneeType.Email);
+  return getAssigneeIcon(assignee?.type ?? AssigneeType.User);
 };
 
 const getTaskAssigneeType = (step: ApprovalStep, task: ApprovalRequestTask) =>

@@ -54,6 +54,7 @@ public static class ServiceCollectionExtensions
         services.RemoveAll<IUserValidator<AppUser>>();
         services.AddScoped<IUserValidator<AppUser>, PlaceholderAwareUserValidator>();
         services.AddScoped<IUserIdentityService, UserIdentityService>();
+        services.AddScoped<IUserLookupService, UserLookupService>();
         services.AddScoped<IUserProvisioningService, UserProvisioningService>();
         services.AddScoped<ILookupNormalizer, LowerInvariantLookupNormalizer>();
         return services;

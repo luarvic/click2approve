@@ -141,6 +141,8 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
             requesterLogin.AccessToken,
             approvalRequestSummary.GlobalId,
             CancellationToken.None);
+        Assert.NotEqual(Guid.Empty, approvalRequest.CreatedByUserGlobalId);
+        Assert.Null(approvalRequest.CreatedByEmployeeGlobalId);
         Assert.Single(approvalRequest.Steps.Single(step => step.Sequence == 2).Visibility);
         var approvalRequestTask = Assert.Single(approvalRequest.Steps.Single(step => step.Sequence == 1).Tasks);
 

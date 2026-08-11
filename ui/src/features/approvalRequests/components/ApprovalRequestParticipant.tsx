@@ -53,7 +53,7 @@ const ApprovalRequestParticipant: React.FC<ApprovalRequestParticipantProps> = ({
       <ApprovalRequestParticipantLine
         icon={isSystemParticipant ? <Terminal color="action" fontSize="small" /> : icon}
         label={
-          type === AssigneeType.Email
+          type === AssigneeType.User
             ? emailLabel
             : (
               <DisplayName
