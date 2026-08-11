@@ -36,6 +36,11 @@
         "--project",
         "api/src/Click2Approve.WebApi/Click2Approve.WebApi.csproj"
       ],
+      "options": {
+        "env": {
+          "ASPNETCORE_ENVIRONMENT": "Development"
+        }
+      },
       "isBackground": true,
       "problemMatcher": [
         "$msCompile"

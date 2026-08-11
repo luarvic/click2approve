@@ -9,7 +9,8 @@ const baseUrl = import.meta.env.BASE_URL.endsWith("/")
 const logoSrc = `${baseUrl}logo.svg`;
 
 interface PublicAppBarProps {
-  brandTitleIsAlwaysVisible?: boolean;
+  collapseBrandAreaWhenTitleHidden?: boolean;
+  brandTitleHideBelowWidth?: number;
   children?: ReactNode;
   homePath?: string;
   mainMenuDrawerIsVisible?: boolean;
@@ -19,7 +20,9 @@ interface PublicAppBarProps {
 }
 
 const PublicAppBar = ({
-  brandTitleIsAlwaysVisible = false,
+  collapseBrandAreaWhenTitleHidden = false,
+  brandTitleHideBelowWidth =
+    Shell.appBarBrandTitleWithoutTenantPickerHideBelowWidth,
   children,
   homePath = Routes.defaultPath,
   mainMenuDrawerIsVisible = false,
@@ -38,7 +41,12 @@ const PublicAppBar = ({
     >
       <Toolbar disableGutters sx={Shell.appBarToolbarSx}>
         {startContent}
-        <Box sx={Shell.appBarBrandContainerSx}>
+        <Box
+          sx={Shell.appBarBrandContainerSx(
+            brandTitleHideBelowWidth,
+            collapseBrandAreaWhenTitleHidden,
+          )}
+        >
           <Link
             component="button"
             variant="body2"
@@ -56,7 +64,7 @@ const PublicAppBar = ({
             {showBrandTitle && (
               <Typography
                 variant="h6"
-                sx={Shell.appBarBrandTitleSx(brandTitleIsAlwaysVisible)}
+                sx={Shell.appBarBrandTitleSx(brandTitleHideBelowWidth)}
               >
                 Click2Approve
               </Typography>

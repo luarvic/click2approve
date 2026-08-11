@@ -13,7 +13,7 @@ interface PublicLayoutProps {
 const PublicLayout = ({ children }: PublicLayoutProps) => {
   return (
     <>
-      <PublicAppBar showBrandTitle brandTitleIsAlwaysVisible>
+      <PublicAppBar showBrandTitle>
         <ColorModeSwitch
           checked={stores.userPreferencesStore.theme.palette.mode === "dark"}
           inputProps={{ "aria-label": "Dark mode" }}

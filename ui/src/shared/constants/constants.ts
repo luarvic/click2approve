@@ -9,15 +9,15 @@ const gridRefreshSeconds = Number(
 );
 const uncompletedTasksRefreshSeconds = Number(
   import.meta.env.VITE_UNCOMPLETED_TASKS_REFRESH_SECONDS ??
-    String(refreshSecondsDefault),
+  String(refreshSecondsDefault),
 );
 const discussionsRefreshSeconds = Number(
   import.meta.env.VITE_DISCUSSIONS_REFRESH_SECONDS ??
-    String(refreshSecondsDefault),
+  String(refreshSecondsDefault),
 );
 const notificationsRefreshSeconds = Number(
   import.meta.env.VITE_NOTIFICATIONS_REFRESH_SECONDS ??
-    String(refreshSecondsDefault),
+  String(refreshSecondsDefault),
 );
 const discussionNotificationLimit = Number(
   import.meta.env.VITE_DISCUSSION_NOTIFICATION_LIMIT ?? "10",
@@ -28,7 +28,8 @@ const notificationBellLimit = Number(
 const showPersistenceSuccessNotifications =
   import.meta.env.VITE_SHOW_PERSISTENCE_SUCCESS_NOTIFICATIONS !== "false";
 const appBarHeight = 64;
-const appBarBrandTitleMinDisplayWidth = 800;
+const appBarBrandTitleWithoutTenantPickerHideBelowWidth = 400;
+const appBarBrandTitleWithTenantPickerHideBelowWidth = 800;
 const mainMenuDrawerWidth = 240;
 const passwordMinLength = 8;
 const passwordValidatorInstance = new passwordValidator();
@@ -76,7 +77,7 @@ export const Refresh = {
 export const Discussions = {
   notificationLimit:
     Number.isFinite(discussionNotificationLimit) &&
-    discussionNotificationLimit > 0
+      discussionNotificationLimit > 0
       ? Math.floor(discussionNotificationLimit)
       : 10,
 } as const;
@@ -357,14 +358,18 @@ export const Shell = {
     mr: 1,
     display: mainMenuDrawerIsOpen ? "none" : "inline-flex",
   }),
-  appBarBrandContainerSx: {
-    flex: { xs: "0 0 auto", sm: "1 1 auto" },
-    [`@media (max-width: ${appBarBrandTitleMinDisplayWidth}px)`]: {
-      flex: "0 0 auto",
-    },
+  appBarBrandContainerSx: (
+    titleHideBelowWidth: number,
+    collapseWhenTitleHidden: boolean,
+  ): SxProps<Theme> => ({
+    flex: "1 1 auto",
     minWidth: 0,
     overflow: "hidden",
-  } as SxProps<Theme>,
+    [`@media (max-width: ${titleHideBelowWidth}px)`]:
+      collapseWhenTitleHidden ? { flex: "0 0 auto" } : undefined,
+  }),
+  appBarBrandTitleWithoutTenantPickerHideBelowWidth,
+  appBarBrandTitleWithTenantPickerHideBelowWidth,
   appBarBrandLinkSx: {
     display: "flex",
     alignItems: "center",
@@ -376,15 +381,18 @@ export const Shell = {
   } as SxProps<Theme>,
   appBarLogoSx: {
     display: "block",
-    flexShrink: 0,
+    flex: "0 0 36px",
+    minHeight: 36,
+    minWidth: 36,
     width: 36,
     height: 36,
     mr: 0.5,
   } as SxProps<Theme>,
-  appBarBrandTitleSx: (isAlwaysVisible: boolean = false): SxProps<Theme> => ({
-    display: isAlwaysVisible ? "block" : { xs: "none", sm: "block" },
-    [`@media (max-width: ${appBarBrandTitleMinDisplayWidth}px)`]:
-      isAlwaysVisible ? undefined : { display: "none" },
+  appBarBrandTitleSx: (hideBelowWidth: number): SxProps<Theme> => ({
+    display: "block",
+    [`@media (max-width: ${hideBelowWidth}px)`]: {
+      display: "none",
+    },
     color: "inherit",
     overflow: "hidden",
     textDecoration: "none",
@@ -392,20 +400,20 @@ export const Shell = {
     whiteSpace: "nowrap",
   }),
   tenantPickerSx: {
-    flex: { xs: "1 1 0", sm: "0 1 auto" },
-    maxWidth: { xs: "none", sm: 380 },
+    flex: "0 0 auto",
+    maxWidth: 380,
     minWidth: 0,
     mr: 1,
-    width: { xs: "auto", sm: 380 },
+    width: 380,
+    [`@media (max-width: ${appBarBrandTitleWithTenantPickerHideBelowWidth}px)`]: {
+      flex: "1 1 0",
+      maxWidth: "none",
+      width: "auto",
+    },
     "& .MuiSelect-select": {
       overflow: "hidden",
       textOverflow: "ellipsis",
       whiteSpace: "nowrap",
-    },
-    [`@media (max-width: ${appBarBrandTitleMinDisplayWidth}px)`]: {
-      flex: "1 1 0",
-      maxWidth: "none",
-      width: "auto",
     },
   } as SxProps<Theme>,
   profileAvatarSx: {

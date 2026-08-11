@@ -65,6 +65,12 @@ const MainAppBar = ({
     : "/";
   return (
     <PublicAppBar
+      brandTitleHideBelowWidth={
+        tenantPickerIsVisible
+          ? Shell.appBarBrandTitleWithTenantPickerHideBelowWidth
+          : Shell.appBarBrandTitleWithoutTenantPickerHideBelowWidth
+      }
+      collapseBrandAreaWhenTitleHidden={tenantPickerIsVisible}
       homePath={currentUser ? inboxPath : Routes.defaultPath}
       mainMenuDrawerIsVisible={mainMenuDrawerIsVisible}
       profileDrawerIsOpen={profileDrawerIsOpen}
@@ -86,79 +92,83 @@ const MainAppBar = ({
         )
       }
     >
-      {tenantPickerIsVisible && (
-        <Select
-          size="small"
-          value={
-            selectedTenantPickerOption
-              ? `${selectedTenantPickerOption.tenant.globalId}:${selectedTenantPickerOption.employeeGlobalId ?? ""}`
-              : ""
-          }
-          renderValue={() =>
-            selectedTenantPickerOption && (
-              <TenantPickerOption
-                employeeDisplayName={
-                  selectedTenantPickerOption.employeeDisplayName
+      <>
+            {tenantPickerIsVisible && (
+              <Select
+                size="small"
+                value={
+                  selectedTenantPickerOption
+                    ? `${selectedTenantPickerOption.tenant.globalId}:${selectedTenantPickerOption.employeeGlobalId ?? ""}`
+                    : ""
                 }
-                tenant={selectedTenantPickerOption.tenant}
-              />
-            )
-          }
-          onChange={async (event) => {
-            const option = tenantPickerOptions.find(
-              (candidate) =>
-                `${candidate.tenant.globalId}:${candidate.employeeGlobalId ?? ""}` ===
-                event.target.value,
-            );
-            if (!option) return;
-            const tenantGlobalId = option.tenant.globalId;
-            await stores.switchTenant(
-              tenantGlobalId,
-              option.employeeGlobalId,
-              location.pathname === inboxPath,
-            );
-            navigate(Routes.tenantPath(tenantGlobalId, Routes.inboxPath));
-          }}
-          sx={Shell.tenantPickerSx}
-        >
-          {tenantPickerOptions.map((option) => (
-            <MenuItem
-              key={`${option.tenant.globalId}:${option.employeeGlobalId ?? ""}`}
-              value={`${option.tenant.globalId}:${option.employeeGlobalId ?? ""}`}
-            >
-              <TenantPickerOption
-                employeeDisplayName={option.employeeDisplayName}
-                tenant={option.tenant}
-              />
-            </MenuItem>
-          ))}
-        </Select>
-      )}
-      <ColorModeSwitch
-        checked={stores.userPreferencesStore.theme.palette.mode === "dark"}
-        inputProps={{ "aria-label": "Dark mode" }}
-        onChange={(event) =>
-          stores.userPreferencesStore.setColorMode(
-            event.target.checked ? "dark" : "light",
-          )
-        }
-      />
-      {currentUser && <NotificationBell />}
-      {currentUser && showProfileButton && (
-        <IconButton
-          color="inherit"
-          edge="end"
-          aria-label="Open profile"
-          onClick={() => stores.commonStore.setProfileDrawerIsOpen(true)}
-        >
-          <Avatar
-            src={getPublicApiUrl(profile?.avatar)}
-            sx={Shell.profileAvatarSx}
-          >
-            {getEmailInitials(currentUser.email)}
-          </Avatar>
-        </IconButton>
-      )}
+                renderValue={() =>
+                  selectedTenantPickerOption && (
+                    <TenantPickerOption
+                      employeeDisplayName={
+                        selectedTenantPickerOption.employeeDisplayName
+                      }
+                      tenant={selectedTenantPickerOption.tenant}
+                    />
+                  )
+                }
+                onChange={async (event) => {
+                  const option = tenantPickerOptions.find(
+                    (candidate) =>
+                      `${candidate.tenant.globalId}:${candidate.employeeGlobalId ?? ""}` ===
+                      event.target.value,
+                  );
+                  if (!option) return;
+                  const tenantGlobalId = option.tenant.globalId;
+                  await stores.switchTenant(
+                    tenantGlobalId,
+                    option.employeeGlobalId,
+                    location.pathname === inboxPath,
+                  );
+                  navigate(Routes.tenantPath(tenantGlobalId, Routes.inboxPath));
+                }}
+                sx={Shell.tenantPickerSx}
+              >
+                {tenantPickerOptions.map((option) => (
+                  <MenuItem
+                    key={`${option.tenant.globalId}:${option.employeeGlobalId ?? ""}`}
+                    value={`${option.tenant.globalId}:${option.employeeGlobalId ?? ""}`}
+                  >
+                    <TenantPickerOption
+                      employeeDisplayName={option.employeeDisplayName}
+                      tenant={option.tenant}
+                    />
+                  </MenuItem>
+                ))}
+              </Select>
+            )}
+            <ColorModeSwitch
+              checked={stores.userPreferencesStore.theme.palette.mode === "dark"}
+              inputProps={{ "aria-label": "Dark mode" }}
+              onChange={(event) =>
+                stores.userPreferencesStore.setColorMode(
+                  event.target.checked ? "dark" : "light",
+                )
+              }
+            />
+            {currentUser && <NotificationBell />}
+            {currentUser && showProfileButton && (
+              <IconButton
+                color="inherit"
+                edge="end"
+                aria-label="Open profile"
+                onClick={() =>
+                  stores.commonStore.setProfileDrawerIsOpen(true)
+                }
+              >
+                <Avatar
+                  src={getPublicApiUrl(profile?.avatar)}
+                  sx={Shell.profileAvatarSx}
+                >
+                  {getEmailInitials(currentUser.email)}
+                </Avatar>
+              </IconButton>
+            )}
+      </>
     </PublicAppBar>
   );
 };
