@@ -10,10 +10,12 @@ export interface ApprovalRequestTimestampRowItem {
 }
 
 interface ApprovalRequestTimestampRowProps {
+  iconSize?: "inherit" | "small";
   items: (ApprovalRequestTimestampRowItem | null | undefined)[];
 }
 
 const ApprovalRequestTimestampRow: React.FC<ApprovalRequestTimestampRowProps> = ({
+  iconSize = "small",
   items,
 }) => {
   const visibleItems = items.filter(Boolean) as ApprovalRequestTimestampRowItem[];
@@ -32,6 +34,7 @@ const ApprovalRequestTimestampRow: React.FC<ApprovalRequestTimestampRowProps> = 
         <ApprovalRequestTimestamp
           key={`${item.label}-${item.date.toISOString()}`}
           date={item.date}
+          iconSize={iconSize}
           label={item.label}
           type={item.type}
         />

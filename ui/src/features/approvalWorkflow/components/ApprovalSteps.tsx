@@ -1,12 +1,26 @@
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
+import ApprovalRequestTimelineContent from "@/features/approvalRequests/components/ApprovalRequestTimelineContent";
+import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
-import { Dialogs } from "@/shared/constants/constants";
+import SuccessSnackbarIcon from "@/shared/components/icons/SuccessSnackbarIcon";
+import { Dialogs, Icons } from "@/shared/constants/constants";
+import {
+  BlockOutlined,
+  CancelOutlined,
+  DoNotDisturbOnOutlined,
+  HourglassTop,
+  PendingOutlined,
+  VisibilityOffOutlined,
+} from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
-import { Divider, Stack } from "@mui/material";
+import { Stack, Step, StepContent, StepLabel, Stepper } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
-import ApprovalHiddenStepBlock from "./ApprovalHiddenStepBlock";
-import ApprovalStepBlock from "./ApprovalStepBlock";
+import ApprovalStepTitle from "./ApprovalStepTitle";
+import ApprovalStepBlock, {
+  ApprovalStepLabel,
+  getStepStatus,
+} from "./ApprovalStepBlock";
 
 interface ApprovalStepsProps {
   approvalRequest: ApprovalRequest;
@@ -14,18 +28,61 @@ interface ApprovalStepsProps {
   leadingItem?: ReactNode;
   onHighlightedTaskClick?: () => void;
   showVisibleStepVisibility?: boolean;
-  showDividers?: boolean;
   sx?: SxProps<Theme>;
 }
 
-const getStepTasks = (
-  step: ApprovalStep,
-) => {
-  return (step.tasks ?? []).filter(Boolean).filter(
-    (task, index, tasks) =>
-      tasks.findIndex((item) => item.globalId === task.globalId) === index,
-  );
+const getStepTasks = (step: ApprovalStep) => {
+  return (step.tasks ?? [])
+    .filter(Boolean)
+    .filter(
+      (task, index, tasks) =>
+        tasks.findIndex((item) => item.globalId === task.globalId) === index,
+    );
 };
+
+const getActiveStepIndex = (steps: ApprovalStep[]) => {
+  const activeStepIndex = steps.findIndex((step) =>
+    getStepTasks(step).some(
+      (task) => task.status === ApprovalRequestTaskStatus.Pending,
+    ),
+  );
+  return activeStepIndex === -1 ? steps.length : activeStepIndex;
+};
+
+const stepIsCompleted = (status: string) =>
+  status === "Completed successfully" ||
+  status === "Skipped" ||
+  status === "Canceled";
+
+const stepHasError = (status: string) => status === "Completed unsuccessfully";
+
+const stepContentSx: SxProps<Theme> = {
+  pr: 0,
+};
+
+const getStepIcon = (status: string) => {
+  switch (status) {
+    case "Completed successfully":
+      return <SuccessSnackbarIcon color="success" />;
+    case "Completed unsuccessfully":
+      return <CancelOutlined color="error" />;
+    case "Skipped":
+      return <DoNotDisturbOnOutlined color="warning" />;
+    case "Canceled":
+      return <BlockOutlined color="warning" />;
+    case "Pending":
+      return <HourglassTop color="primary" />;
+    default:
+      return <PendingOutlined color={Icons.secondaryColor} />;
+  }
+};
+
+const HiddenStepIcon = () => (
+  <VisibilityOffOutlined
+    color={Icons.secondaryColor}
+    data-testid="hidden-step-icon"
+  />
+);
 
 const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
   approvalRequest,
@@ -33,41 +90,79 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
   leadingItem,
   onHighlightedTaskClick,
   showVisibleStepVisibility = true,
-  showDividers = false,
   sx,
 }) => {
   const steps = (approvalRequest.steps ?? [])
     .filter(Boolean)
     .sort((a, b) => a.sequence - b.sequence);
+  const activeStepIndex = getActiveStepIndex(steps);
 
   return (
-    <Stack
-      spacing={Dialogs.stepStackSpacing}
-      divider={showDividers ? <Divider flexItem /> : undefined}
-      sx={sx}
-    >
-      {leadingItem}
-      {steps.map((step) => {
-        if (step.isVisible === false) {
-          return (
-            <ApprovalHiddenStepBlock
-              key={step.globalId ?? step.sequence}
-              step={step}
-            />
-          );
-        }
+    <Stack spacing={Dialogs.stepStackSpacing} sx={sx}>
+      <ApprovalRequestTimelineContent>
+        <Stack spacing={Dialogs.stepStackSpacing}>
+          {leadingItem}
+          <Stepper
+            activeStep={activeStepIndex}
+            nonLinear
+            orientation="vertical"
+          >
+            {steps.map((step) => {
+              const tasks = getStepTasks(step);
+              const stepStatus = getStepStatus(step, tasks);
+              const stepIcon = () => getStepIcon(stepStatus);
 
-        return (
-          <ApprovalStepBlock
-            key={step.globalId ?? step.sequence}
-            highlightedTaskGlobalId={highlightedTaskGlobalId}
-            onHighlightedTaskClick={onHighlightedTaskClick}
-            showVisibility={showVisibleStepVisibility}
-            step={step}
-            tasks={getStepTasks(step)}
-          />
-        );
-      })}
+              if (step.isVisible === false) {
+                return (
+                  <Step
+                    key={step.globalId ?? step.sequence}
+                    completed={stepIsCompleted(stepStatus)}
+                  >
+                    <StepLabel
+                      error={stepHasError(stepStatus)}
+                      StepIconComponent={HiddenStepIcon}
+                    >
+                      <ApprovalStepTitle sequence={step.sequence} />
+                    </StepLabel>
+                  </Step>
+                );
+              }
+
+              return (
+                <Step
+                  key={step.globalId ?? step.sequence}
+                  completed={stepIsCompleted(stepStatus)}
+                >
+                  <StepLabel
+                    error={stepHasError(stepStatus)}
+                    StepIconComponent={stepIcon}
+                  >
+                    <ApprovalStepLabel
+                      showVisibility={showVisibleStepVisibility}
+                      step={step}
+                    />
+                  </StepLabel>
+                  <StepContent
+                    sx={stepContentSx}
+                    TransitionProps={{ in: true, unmountOnExit: false }}
+                  >
+                    <ApprovalStepBlock
+                      highlightedTaskGlobalId={highlightedTaskGlobalId}
+                      onHighlightedTaskClick={onHighlightedTaskClick}
+                      showMetadata={false}
+                      showStepBox={false}
+                      showStepTitle={false}
+                      showVisibility={showVisibleStepVisibility}
+                      step={step}
+                      tasks={tasks}
+                    />
+                  </StepContent>
+                </Step>
+              );
+            })}
+          </Stepper>
+        </Stack>
+      </ApprovalRequestTimelineContent>
     </Stack>
   );
 };

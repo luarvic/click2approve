@@ -43,7 +43,7 @@ const DisplayName: React.FC<DisplayNameProps> = ({
         fontWeight={600}
         noWrap={!allowDisplayNameWrap}
         sx={allowDisplayNameWrap ? undefined : textSx}
-        variant="subtitle2"
+        variant="body2"
       >
         {primary}
       </Typography>

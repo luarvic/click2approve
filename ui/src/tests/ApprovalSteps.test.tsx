@@ -31,7 +31,7 @@ const approvalRequest: ApprovalRequest = {
           displayName: "Visible Assignee",
           email: "visible@example.com",
           globalId: "visible-assignee-id",
-          type: AssigneeType.Email,
+          type: AssigneeType.User,
         },
       ],
       globalId: "visible-step-id",
@@ -40,7 +40,7 @@ const approvalRequest: ApprovalRequest = {
         {
           assigneeDisplayName: "Blocked Assignee",
           assigneeGlobalId: "blocked-assignee-id",
-          assigneeType: AssigneeType.Email,
+          assigneeType: AssigneeType.User,
           isVisible: false,
         },
       ],
@@ -52,7 +52,7 @@ const approvalRequest: ApprovalRequest = {
           displayName: "Hidden Assignee",
           email: "hidden@example.com",
           globalId: "hidden-assignee-id",
-          type: AssigneeType.Email,
+          type: AssigneeType.User,
         },
       ],
       globalId: "hidden-step-id",
@@ -83,7 +83,7 @@ const approvalRequest: ApprovalRequest = {
         {
           assigneeDisplayName: "Current Assignee",
           assigneeGlobalId: "visible-assignee-id",
-          assigneeType: AssigneeType.Email,
+          assigneeType: AssigneeType.User,
           isVisible: false,
         },
       ],
@@ -93,7 +93,7 @@ const approvalRequest: ApprovalRequest = {
 };
 
 describe("<ApprovalSteps />", () => {
-  test("shows hidden assignees with the step title without leaking hidden details", () => {
+  test("shows hidden steps without leaking their details", () => {
     render(<ApprovalSteps approvalRequest={approvalRequest} />);
 
     expect(screen.getByText("Step 1")).toBeTruthy();
@@ -101,94 +101,33 @@ describe("<ApprovalSteps />", () => {
     expect(screen.getByLabelText("Step 1 completion rule Any assignee")).toBeTruthy();
     expect(screen.getByLabelText("Step 1 visibility Hidden from Blocked Assignee")).toBeTruthy();
     expect(screen.getByText("visible@example.com")).toBeTruthy();
-    expect(screen.getAllByText(/Hidden from/)).toHaveLength(2);
+    expect(screen.getByLabelText("Upcoming task")).toBeTruthy();
+    expect(screen.getByText("Waiting for previous step")).toBeTruthy();
+    expect(screen.getAllByText(/Hidden from/)).toHaveLength(1);
     expect(screen.getByText("Hidden from Blocked Assignee")).toBeTruthy();
     expect(screen.getByText("Step 2")).toBeTruthy();
-    expect(screen.getByText("Step 2").className).toBe(screen.getByText("Step 1").className);
-    expect(screen.getByLabelText("Hidden")).toBeTruthy();
-    expect(screen.getByText("Current Assignee")).toBeTruthy();
+    expect(screen.getByTestId("hidden-step-icon")).toBeTruthy();
+    expect(screen.queryByLabelText("Hidden")).toBeNull();
+    expect(screen.queryByText("Current Assignee")).toBeNull();
     expect(screen.queryByRole("button", { name: "Step 1 visibility" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Step 2 completion rule" })).toBeNull();
     expect(screen.queryByText("Hidden Assignee")).toBeNull();
     expect(screen.queryByText("Hidden task comment")).toBeNull();
   });
 
-  test("uses hidden-from-you wording as the icon tooltip when a hidden step has no visibility details", async () => {
-    const user = userEvent.setup();
-
+  test("can hide visible step visibility summaries", () => {
     render(
       <ApprovalSteps
         approvalRequest={{
           ...approvalRequest,
-          steps: [
-            {
-              action: ApprovalRequestTaskAction.Approve,
-              assignees: [],
-              globalId: "hidden-without-visibility-id",
-              isVisible: false,
-              sequence: 1,
-            },
-          ],
-        }}
-      />,
-    );
-
-    const hiddenVisibilityIcon = screen.getByLabelText("Hidden from you");
-    expect(hiddenVisibilityIcon).toBeTruthy();
-    expect(screen.queryByText("Hidden from you")).toBeNull();
-    await user.hover(hiddenVisibilityIcon);
-    expect(await screen.findByText("Hidden from you")).toBeTruthy();
-    expect(screen.queryByText("Visible to all request assignees.")).toBeNull();
-  });
-
-  test("opens hidden-from-you wording in a popover from the visibility icon", async () => {
-    const user = userEvent.setup();
-
-    render(
-      <ApprovalSteps
-        approvalRequest={{
-          ...approvalRequest,
-          steps: [
-            {
-              action: ApprovalRequestTaskAction.Approve,
-              assignees: [],
-              globalId: "hidden-without-visibility-id",
-              isVisible: false,
-              sequence: 1,
-            },
-          ],
-        }}
-      />,
-    );
-
-    const hiddenVisibilityIcon = screen.getByLabelText("Hidden from you");
-    expect(hiddenVisibilityIcon.getAttribute("aria-describedby")).toBeNull();
-
-    await user.click(hiddenVisibilityIcon);
-
-    const popoverId = hiddenVisibilityIcon.getAttribute("aria-controls");
-    expect(popoverId).toBe("hidden-step-visibility-popover-hidden-without-visibility-id");
-    expect(document.getElementById(popoverId ?? "")?.textContent).toBe("Hidden from you");
-  });
-
-  test("can hide visible step visibility summaries while keeping hidden step visibility summaries", () => {
-    render(
-      <ApprovalSteps
-        approvalRequest={{
-          ...approvalRequest,
-          steps: approvalRequest.steps.map((step) =>
-            step.isVisible === false
-              ? { ...step, visibility: [] }
-              : step,
-          ),
+          steps: approvalRequest.steps,
         }}
         showVisibleStepVisibility={false}
       />,
     );
 
     expect(screen.queryByText("Blocked Assignee")).toBeNull();
-    expect(screen.getByLabelText("Hidden from you")).toBeTruthy();
-    expect(screen.queryByText("Hidden from you")).toBeNull();
+    expect(screen.getByTestId("hidden-step-icon")).toBeTruthy();
   });
 
   test("shows task numbers and makes the current task row clickable", async () => {

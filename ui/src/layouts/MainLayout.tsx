@@ -4,7 +4,7 @@ import MainMenuDrawer from "@/shared/components/layout/MainMenuDrawer";
 import ProfileDrawer from "@/shared/components/layout/ProfileDrawer";
 import { Shell } from "@/shared/constants/constants";
 import { AppBarOptions } from "@/shared/models/appBarOptions";
-import { Box, Toolbar } from "@mui/material";
+import { Box, Container, Toolbar } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { ReactNode } from "react";
 import { Outlet } from "react-router-dom";
@@ -27,15 +27,17 @@ const MainLayout = ({
     stores.commonStore.mainMenuDrawerIsOpen;
 
   return (
-    <>
-      <MainAppBar {...appBarOptions} />
-      {showMainMenuButton && <MainMenuDrawer />}
-      <Box component="main" sx={Shell.mainContentSx(drawerIsVisible)}>
-        <Toolbar sx={Shell.appBarSpacerSx} />
-        <ProfileDrawer />
-        {children ?? <Outlet />}
-      </Box>
-    </>
+    <Box sx={Shell.outerBackgroundSx}>
+      <Container maxWidth="xl" disableGutters sx={Shell.contentBackgroundSx}>
+        <MainAppBar {...appBarOptions} />
+        {showMainMenuButton && <MainMenuDrawer />}
+        <Box component="main" sx={Shell.mainContentSx(drawerIsVisible)}>
+          <Toolbar sx={Shell.appBarSpacerSx} />
+          <ProfileDrawer />
+          {children ?? <Outlet />}
+        </Box>
+      </Container>
+    </Box>
   );
 };
 

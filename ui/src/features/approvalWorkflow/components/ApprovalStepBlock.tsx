@@ -40,7 +40,8 @@ import {
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
-import ApprovalStepTitle from "./ApprovalStepTitle";
+import ApprovalStepHeader from "./ApprovalStepHeader";
+import ApprovalUpcomingTaskBlock from "./ApprovalUpcomingTaskBlock";
 
 interface ApprovalStepBlockProps {
   contentSx?: SxProps<Theme>;
@@ -49,18 +50,14 @@ interface ApprovalStepBlockProps {
   highlightedTaskGlobalId?: string;
   onHighlightedTaskClick?: () => void;
   showEmptyTeamTasksMessage?: boolean;
+  showStepBox?: boolean;
+  showMetadata?: boolean;
+  showStepTitle?: boolean;
   showVisibility?: boolean;
   step: ApprovalStep;
   tasks: ApprovalRequestTask[];
 }
 
-const approvalStepHeaderSx = { mb: Dialogs.stepHeaderSpacing };
-const stepTitleRowSx: SxProps<Theme> = {
-  alignItems: "center",
-  display: "flex",
-  flexWrap: "wrap",
-  gap: StackSpacing.default,
-};
 const stepMetadataSx: SxProps<Theme> = {
   alignItems: "center",
   color: "text.secondary",
@@ -107,7 +104,7 @@ const teamTaskListSx: SxProps<Theme> = {
   pl: 0,
 };
 
-const getStepStatus = (
+export const getStepStatus = (
   step: ApprovalStep,
   tasks: ApprovalRequestTask[],
 ) => {
@@ -140,6 +137,22 @@ const getStepStatus = (
 };
 
 const getStepStatusLabel = (status: string) => status;
+
+const getStepBorderLeftColor = (status: string) => {
+  switch (status) {
+    case "Completed successfully":
+      return "success.main";
+    case "Completed unsuccessfully":
+      return "error.main";
+    case "Skipped":
+    case "Canceled":
+      return "warning.main";
+    case "Pending":
+      return "primary.main";
+    default:
+      return "divider";
+  }
+};
 
 const getTaskAssigneeIcon = (step: ApprovalStep, task: ApprovalRequestTask) => {
   const assignee = step.assignees.find((item) => item.globalId === task.approvalRequestStepAssigneeGlobalId);
@@ -255,6 +268,21 @@ const renderStepMetadata = (
   );
 };
 
+export const ApprovalStepLabel: React.FC<{
+  showVisibility: boolean;
+  step: ApprovalStep;
+}> = ({ showVisibility, step }) => {
+  const stepMode = step.mode ?? ApprovalStepMode.Any;
+  const actionLabel = getApprovalRequestTaskActionLabels(getStepAction(step)).positive;
+
+  return (
+    <ApprovalStepHeader
+      details={renderStepMetadata(step, stepMode, actionLabel, showVisibility)}
+      sequence={step.sequence}
+    />
+  );
+};
+
 const getAssigneeTasks = (
   assignee: ApprovalStep["assignees"][number],
   tasks: ApprovalRequestTask[],
@@ -277,12 +305,20 @@ const renderTaskDetails = (
   icon: React.ReactNode,
   participantType: AssigneeType | undefined,
   isCurrentTask: boolean,
+  stepperBorderLeftColor: string,
   onCurrentTaskClick?: () => void,
 ) => (
   <ApprovalRequestTaskSummaryBlock
     key={task.globalId}
     icon={icon}
     onClick={isCurrentTask ? onCurrentTaskClick : undefined}
+    numberColor={
+      task.status === ApprovalRequestTaskStatus.Pending ||
+      task.status === ApprovalRequestTaskStatus.Completed
+        ? "text.primary"
+        : "text.secondary"
+    }
+    numberVariant="subtitle1"
     participant="assignee"
     participantType={participantType}
     showComment
@@ -290,6 +326,7 @@ const renderTaskDetails = (
     showFiles={false}
     showElectronicSignature
     showRevision={false}
+    stepperBorderLeftColor={stepperBorderLeftColor}
     showTitle={false}
     task={task}
     taskNumberPrefix="Task"
@@ -300,24 +337,17 @@ const renderAssigneeWithoutTasks = (
   assignee: ApprovalStepAssignee,
   index: number,
 ) => (
-  <Stack
+  <ApprovalUpcomingTaskBlock
     key={assignee.globalId ?? index}
-    direction="row"
-    spacing={StackSpacing.tight}
-    alignItems="center"
-  >
-    <ApprovalRequestParticipant
-      displayName={assignee.displayName}
-      email={assignee.email}
-      type={assignee.type}
-    />
-  </Stack>
+    assignee={assignee}
+  />
 );
 
 const renderTeamAssignee = (
   assignee: ApprovalStepAssignee,
   assigneeTasks: ApprovalRequestTask[],
   index: number,
+  stepperBorderLeftColor: string,
   highlightedTaskGlobalId?: string,
   onHighlightedTaskClick?: () => void,
   showEmptyTeamTasksMessage: boolean = true,
@@ -355,14 +385,15 @@ const renderTeamAssignee = (
               <Person color="action" fontSize="small" />,
               AssigneeType.Employee,
               task.globalId === highlightedTaskGlobalId,
+              stepperBorderLeftColor,
               onHighlightedTaskClick,
             ),
             )}
           </Stack>
         ) : (
-          <Typography variant="caption" color="text.secondary">
-            No employee tasks yet
-          </Typography>
+          <ApprovalUpcomingTaskBlock
+            assignee={assignee}
+          />
         )}
       </AccordionDetails>
     )}
@@ -377,6 +408,7 @@ const renderAssignee = (
   highlightedTaskGlobalId?: string,
   onHighlightedTaskClick?: () => void,
   showEmptyTeamTasksMessage?: boolean,
+  stepperBorderLeftColor?: string,
 ) => {
   const assigneeTasks = getAssigneeTasks(assignee, tasks);
   if (assignee.type === AssigneeType.Team) {
@@ -384,6 +416,7 @@ const renderAssignee = (
       assignee,
       assigneeTasks,
       index,
+      stepperBorderLeftColor ?? "text.disabled",
       highlightedTaskGlobalId,
       onHighlightedTaskClick,
       showEmptyTeamTasksMessage,
@@ -391,7 +424,10 @@ const renderAssignee = (
   }
 
   if (assigneeTasks.length === 0) {
-    return renderAssigneeWithoutTasks(assignee, index);
+    return renderAssigneeWithoutTasks(
+      assignee,
+      index,
+    );
   }
 
   return assigneeTasks.map((task) =>
@@ -400,6 +436,7 @@ const renderAssignee = (
       getTaskAssigneeIcon(step, task),
       getTaskAssigneeType(step, task),
       task.globalId === highlightedTaskGlobalId,
+      stepperBorderLeftColor ?? "text.disabled",
       onHighlightedTaskClick,
     ),
   );
@@ -412,6 +449,9 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
   highlightedTaskGlobalId,
   onHighlightedTaskClick,
   showEmptyTeamTasksMessage = true,
+  showStepBox = true,
+  showMetadata = true,
+  showStepTitle = true,
   showVisibility = true,
   step,
   tasks,
@@ -421,32 +461,24 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
   const stepStatus = getStepStatus(step, tasks);
   const stepMode = step.mode ?? ApprovalStepMode.Any;
   const actionLabel = getApprovalRequestTaskActionLabels(getStepAction(step)).positive;
+  const stepperBorderLeftColor = getStepBorderLeftColor(stepStatus);
 
-  return (
-    <Box
-      aria-label={getStepStatusLabel(stepStatus)}
-      sx={Dialogs.approvalBoxSx}
-    >
-      <Stack spacing={Dialogs.stepStackSpacing}>
-        <Stack
-          direction="row"
-          spacing={Dialogs.stepHeaderSpacing}
-          alignItems="center"
-          sx={approvalStepHeaderSx}
-        >
-          <Stack
-            sx={Flex.growSx}
-          >
-            <Stack
-              direction="row"
-              sx={stepTitleRowSx}
-            >
-              <ApprovalStepTitle sequence={step.sequence} />
-              {renderStepMetadata(step, stepMode, actionLabel, showVisibility)}
-              {headerAccessory}
-            </Stack>
-          </Stack>
-        </Stack>
+  const stepContent = (
+    <Stack spacing={Dialogs.stepStackSpacing}>
+      {(showStepTitle || showMetadata || headerAccessory) && (
+        <ApprovalStepHeader
+          accessory={headerAccessory}
+          details={showMetadata && renderStepMetadata(
+            step,
+            stepMode,
+            actionLabel,
+            showVisibility,
+          )}
+          hasBottomMargin
+          sequence={step.sequence}
+          showTitle={showStepTitle}
+        />
+      )}
         <Stack spacing={Dialogs.assigneeStackSpacing} sx={contentSx}>
           {assignees.map((assignee, index) =>
             renderAssignee(
@@ -457,6 +489,7 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
               highlightedTaskGlobalId,
               onHighlightedTaskClick,
               showEmptyTeamTasksMessage,
+              stepperBorderLeftColor,
             ),
           )}
           {unassignedTasks.map((task) =>
@@ -465,14 +498,20 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
               getTaskAssigneeIcon(step, task),
               getTaskAssigneeType(step, task),
               task.globalId === highlightedTaskGlobalId,
+              stepperBorderLeftColor,
               onHighlightedTaskClick,
             ),
           )}
         </Stack>
         {footerContent}
-      </Stack>
-    </Box>
+    </Stack>
   );
+
+  return showStepBox ? (
+    <Box aria-label={getStepStatusLabel(stepStatus)} sx={Dialogs.approvalBoxSx}>
+      {stepContent}
+    </Box>
+  ) : stepContent;
 };
 
 export default ApprovalStepBlock;

@@ -311,6 +311,14 @@ export const Comments = {
 export const Shell = {
   appBarHeight,
   mainMenuDrawerWidth,
+  outerBackgroundSx: {
+    bgcolor: "action.hover",
+    minHeight: "100vh",
+  } as SxProps<Theme>,
+  contentBackgroundSx: {
+    bgcolor: "background.default",
+    minHeight: "100vh",
+  } as SxProps<Theme>,
   mainContentSx: (drawerIsVisible: boolean): SxProps<Theme> => ({
     ml: drawerIsVisible ? { md: `${mainMenuDrawerWidth}px` } : 0,
     minWidth: 0,
@@ -331,12 +339,16 @@ export const Shell = {
     borderBottom: 1,
     borderColor: "divider",
     ml: {
-      md: mainMenuDrawerIsVisible ? `${mainMenuDrawerWidth}px` : 0,
+      md: (theme) =>
+        mainMenuDrawerIsVisible
+          ? `calc(max(0px, (100vw - ${theme.breakpoints.values.xl}px) / 2) + ${mainMenuDrawerWidth}px)`
+          : `max(0px, calc((100vw - ${theme.breakpoints.values.xl}px) / 2))`,
     },
     width: {
-      md: mainMenuDrawerIsVisible
-        ? `calc(100% - ${mainMenuDrawerWidth}px)`
-        : "100%",
+      md: (theme) =>
+        mainMenuDrawerIsVisible
+          ? `min(calc(100% - ${mainMenuDrawerWidth}px), ${theme.breakpoints.values.xl - mainMenuDrawerWidth}px)`
+          : `min(100%, ${theme.breakpoints.values.xl}px)`,
     },
     zIndex: (theme) =>
       profileDrawerIsOpen ? theme.zIndex.drawer - 1 : theme.zIndex.drawer + 1,
@@ -462,9 +474,20 @@ export const Shell = {
   get persistentDrawerSx(): SxProps<Theme> {
     return {
       display: { xs: "none", lg: "block" },
-      ...this.drawerPaperSx,
+      "& .MuiDrawer-paper": {
+        boxSizing: "border-box",
+        left: (theme) =>
+          `max(0px, calc((100vw - ${theme.breakpoints.values.xl}px) / 2))`,
+        width: mainMenuDrawerWidth,
+      },
     };
   },
+  profileDrawerSx: {
+    "& .MuiDrawer-paper": {
+      right: (theme) =>
+        `max(0px, calc((100vw - ${theme.breakpoints.values.xl}px) / 2))`,
+    },
+  } as SxProps<Theme>,
   profileDrawerContentSx: { minWidth: 280 } as SxProps<Theme>,
 } as const;
 

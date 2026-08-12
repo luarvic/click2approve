@@ -5,6 +5,7 @@ import type { ElectronicSignatureErrors } from "@/features/approvalRequests/comp
 import ApprovalRequestElectronicSignatureForm from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureForm";
 import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestTaskSummaryBlock";
+import ApprovalRequestTimelineContent from "@/features/approvalRequests/components/ApprovalRequestTimelineContent";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
@@ -168,13 +169,13 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
     setComment(currentTask?.comment ?? "");
     setLegalName(
       currentTask?.assigneeLegalName?.trim() ||
-      getDefaultLegalName(currentTask?.isAssigneeEmployee),
+        getDefaultLegalName(currentTask?.isAssigneeEmployee),
     );
     setOrganization(currentTask?.assigneeOrganization ?? "");
     setSignatureJson(
       currentTask?.assigneeSignatureJson?.trim() ||
-      stores.userProfileStore.profile?.defaultSignatureJson ||
-      "",
+        stores.userProfileStore.profile?.defaultSignatureJson ||
+        "",
     );
     setElectronicSignatureErrors(emptyElectronicSignatureErrors);
     setApprovalRequest(currentTask?.approvalRequest ?? null);
@@ -254,12 +255,12 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
         comment,
         requiresElectronicSignature
           ? {
-            assigneeLegalName: legalName.trim(),
-            assigneeOrganization: canEnterAssigneeOrganization
-              ? organization
-              : undefined,
-            assigneeSignatureJson: signatureJson,
-          }
+              assigneeLegalName: legalName.trim(),
+              assigneeOrganization: canEnterAssigneeOrganization
+                ? organization
+                : undefined,
+              assigneeSignatureJson: signatureJson,
+            }
           : undefined,
         createApprovalRequestTaskClientAuditContext(),
       );
@@ -359,77 +360,83 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
         {canManageSharedVerificationLinks && <Tab label="Link" value="link" />}
       </Tabs>
       {tab === "task" && (
-        <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
-          {currentTask && (
-            <ApprovalRequestTaskSummaryBlock
-              participant="assignee"
-              participantType={currentTaskAssigneeType}
-              showComment
-              showElectronicSignature={requiresElectronicSignature}
-              task={currentTask}
-            />
-          )}
-          {!isCompleted && (
-            <>
-              <FormControl key="decision" error={decisionError}>
-                <RadioGroup
-                  row
-                  name="decision"
-                  value={decision}
-                  onChange={(event) => {
-                    setDecision(event.target.value);
-                    setDecisionError(false);
-                  }}
-                >
-                  <FormControlLabel
-                    value="approve"
-                    control={<Radio />}
-                    label={actionLabels.positive}
-                  />
-                  <FormControlLabel
-                    value="reject"
-                    control={<Radio />}
-                    label={actionLabels.negative}
-                  />
-                </RadioGroup>
-                {decisionError && (
-                  <FormHelperText sx={Dialogs.fieldHelperTextSx}>
-                    {actionLabels.missing}
-                  </FormHelperText>
-                )}
-              </FormControl>
-              <TextField
-                key="comment"
-                id="comment"
-                name="comment"
-                margin="normal"
-                fullWidth
-                label="Comment"
-                autoFocus
-                multiline
-                value={comment}
-                error={commentError}
-                helperText={commentError ? "Comment is required." : undefined}
-                onChange={(event) => {
-                  setComment(event.target.value);
-                  setCommentError(false);
-                }}
-              />
-              {requiresElectronicSignature && (
-                <ApprovalRequestElectronicSignatureForm
-                  errors={electronicSignatureErrors}
-                  legalName={legalName}
-                  organization={organization}
-                  onFieldErrorClear={clearElectronicSignatureError}
-                  onLegalNameChange={setLegalName}
-                  onOrganizationChange={setOrganization}
-                  onSignatureChange={handleSignatureChange}
-                  signatureJson={signatureJson}
-                  showOrganization={canEnterAssigneeOrganization}
+        <Stack sx={Dialogs.tabContentSx}>
+          <ApprovalRequestTimelineContent>
+            <Stack spacing={Dialogs.formStackSpacing}>
+              {currentTask && (
+                <ApprovalRequestTaskSummaryBlock
+                  participant="assignee"
+                  participantType={currentTaskAssigneeType}
+                  showComment
+                  showElectronicSignature={requiresElectronicSignature}
+                  task={currentTask}
                 />
               )}
-            </>
-          )}
+              {!isCompleted && (
+                <>
+                  <FormControl key="decision" error={decisionError}>
+                    <RadioGroup
+                      row
+                      name="decision"
+                      value={decision}
+                      onChange={(event) => {
+                        setDecision(event.target.value);
+                        setDecisionError(false);
+                      }}
+                    >
+                      <FormControlLabel
+                        value="approve"
+                        control={<Radio />}
+                        label={actionLabels.positive}
+                      />
+                      <FormControlLabel
+                        value="reject"
+                        control={<Radio />}
+                        label={actionLabels.negative}
+                      />
+                    </RadioGroup>
+                    {decisionError && (
+                      <FormHelperText sx={Dialogs.fieldHelperTextSx}>
+                        {actionLabels.missing}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                  <TextField
+                    key="comment"
+                    id="comment"
+                    name="comment"
+                    margin="normal"
+                    fullWidth
+                    label="Comment"
+                    autoFocus
+                    multiline
+                    value={comment}
+                    error={commentError}
+                    helperText={
+                      commentError ? "Comment is required." : undefined
+                    }
+                    onChange={(event) => {
+                      setComment(event.target.value);
+                      setCommentError(false);
+                    }}
+                  />
+                  {requiresElectronicSignature && (
+                    <ApprovalRequestElectronicSignatureForm
+                      errors={electronicSignatureErrors}
+                      legalName={legalName}
+                      organization={organization}
+                      onFieldErrorClear={clearElectronicSignatureError}
+                      onLegalNameChange={setLegalName}
+                      onOrganizationChange={setOrganization}
+                      onSignatureChange={handleSignatureChange}
+                      signatureJson={signatureJson}
+                      showOrganization={canEnterAssigneeOrganization}
+                    />
+                  )}
+                </>
+              )}
+            </Stack>
+          </ApprovalRequestTimelineContent>
         </Stack>
       )}
       {tab === "request" && (
@@ -440,29 +447,34 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
           showVisibleStepVisibility={false}
         />
       )}
-      {tab === "chat" && discussionsAreEnabled && approvalRequest && currentTask && (
-        <DiscussionPanel
-          canSend={canSendDiscussion}
-          ref={discussionPanel}
-          requestGlobalId={approvalRequest.globalId}
-          requesterDisplayName={approvalRequest.createdByDisplayName}
-          requesterEmail={approvalRequest.createdByEmail}
-          requesterType={approvalRequest.createdByEmployeeGlobalId
-            ? AssigneeType.Employee
-            : AssigneeType.User}
-          stepLabels={Object.fromEntries(
-            approvalRequest.steps
-              .filter((step) => step.globalId)
-              .map((step) => [step.globalId!, `Step ${step.sequence}`]),
-          )}
-          steps={approvalRequest.steps}
-          taskApprovalRequestStepGlobalId={
-            currentTask.approvalRequestStepGlobalId
-          }
-          taskGlobalId={currentTask.globalId}
-          tenantGlobalId={tenantGlobalId}
-        />
-      )}
+      {tab === "chat" &&
+        discussionsAreEnabled &&
+        approvalRequest &&
+        currentTask && (
+          <DiscussionPanel
+            canSend={canSendDiscussion}
+            ref={discussionPanel}
+            requestGlobalId={approvalRequest.globalId}
+            requesterDisplayName={approvalRequest.createdByDisplayName}
+            requesterEmail={approvalRequest.createdByEmail}
+            requesterType={
+              approvalRequest.createdByEmployeeGlobalId
+                ? AssigneeType.Employee
+                : AssigneeType.User
+            }
+            stepLabels={Object.fromEntries(
+              approvalRequest.steps
+                .filter((step) => step.globalId)
+                .map((step) => [step.globalId!, `Step ${step.sequence}`]),
+            )}
+            steps={approvalRequest.steps}
+            taskApprovalRequestStepGlobalId={
+              currentTask.approvalRequestStepGlobalId
+            }
+            taskGlobalId={currentTask.globalId}
+            tenantGlobalId={tenantGlobalId}
+          />
+        )}
       {tab === "link" && canManageSharedVerificationLinks && (
         <SharedVerificationLinksPanel
           approvalRequestTaskGlobalId={currentTask?.globalId}

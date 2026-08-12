@@ -1,7 +1,8 @@
 import { stores } from "@/app/rootStore";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import { downloadUserFile } from "@/features/userFiles/utils/downloaders";
-import { Lists } from "@/shared/constants/constants";
+import FileTypeIcon from "@/shared/components/icons/FileTypeIcon";
+import { Lists, StackSpacing } from "@/shared/constants/constants";
 import type { SxProps } from "@mui/material";
 import { Link, Stack } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
@@ -16,6 +17,10 @@ interface UserFilesListProps {
 const userFileLinkSx: SxProps<Theme> = {
   alignSelf: "stretch",
   textAlign: "left",
+};
+
+const userFileRowSx: SxProps<Theme> = {
+  columnGap: StackSpacing.tight,
 };
 
 const UserFilesList: React.FC<UserFilesListProps> = ({
@@ -34,21 +39,29 @@ const UserFilesList: React.FC<UserFilesListProps> = ({
     >
       {userFiles &&
         userFiles.map((userFile, index) => (
-          <Link
+          <Stack
             key={index}
-            component="button"
-            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-              event.preventDefault();
-              if (onDownload) {
-                onDownload(userFile);
-              } else if (stores.tenantStore.currentTenantGlobalId) {
-                downloadUserFile(stores.tenantStore.currentTenantGlobalId, userFile);
-              }
-            }}
-            sx={userFileLinkSx}
+            direction="row"
+            alignItems="center"
+            sx={userFileRowSx}
           >
-            {userFile.name}
-          </Link>
+            <FileTypeIcon fontSize="small" fileName={userFile.name} />
+            <Link
+              component="button"
+              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                event.preventDefault();
+                if (onDownload) {
+                  onDownload(userFile);
+                } else if (stores.tenantStore.currentTenantGlobalId) {
+                  downloadUserFile(stores.tenantStore.currentTenantGlobalId, userFile);
+                }
+              }}
+              sx={userFileLinkSx}
+              variant="body2"
+            >
+              {userFile.name}
+            </Link>
+          </Stack>
         ))}
     </Stack>
   );

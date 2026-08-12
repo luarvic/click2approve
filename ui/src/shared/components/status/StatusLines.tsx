@@ -23,7 +23,7 @@ export const StatusLineColors = {
   canceled: "warning.main",
   completedSuccessfully: "success.main",
   completedUnsuccessfully: "error.main",
-  other: "divider",
+  other: "text.disabled",
   started: "success.main",
 } as const;
 
@@ -53,7 +53,7 @@ const statusLineLabelSx = (
 
 const statusBorderSx = (color: StatusLineColor): SxProps<Theme> => ({
   borderLeft: `${statusLineWidth} ${color === "started" ? "dotted" : "solid"}`,
-  borderLeftColor: color === "other" ? "text.disabled" : StatusLineColors[color],
+  borderLeftColor: StatusLineColors[color],
 });
 
 const getStatusLineSectionSx = (

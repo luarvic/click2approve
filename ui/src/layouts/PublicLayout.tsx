@@ -2,7 +2,7 @@ import { stores } from "@/app/rootStore";
 import ColorModeSwitch from "@/shared/components/layout/ColorModeSwitch";
 import PublicAppBar from "@/shared/components/layout/PublicAppBar";
 import { Shell } from "@/shared/constants/constants";
-import { Box, Toolbar } from "@mui/material";
+import { Box, Container, Toolbar } from "@mui/material";
 import { ReactNode } from "react";
 import { Outlet } from "react-router-dom";
 
@@ -12,7 +12,7 @@ interface PublicLayoutProps {
 
 const PublicLayout = ({ children }: PublicLayoutProps) => {
   return (
-    <>
+    <Box sx={Shell.outerBackgroundSx}>
       <PublicAppBar showBrandTitle>
         <ColorModeSwitch
           checked={stores.userPreferencesStore.theme.palette.mode === "dark"}
@@ -24,11 +24,13 @@ const PublicLayout = ({ children }: PublicLayoutProps) => {
           }
         />
       </PublicAppBar>
-      <Box component="main">
-        <Toolbar sx={Shell.appBarSpacerSx} />
-        {children ?? <Outlet />}
-      </Box>
-    </>
+      <Container maxWidth="xl" disableGutters sx={Shell.contentBackgroundSx}>
+        <Box component="main">
+          <Toolbar sx={Shell.appBarSpacerSx} />
+          {children ?? <Outlet />}
+        </Box>
+      </Container>
+    </Box>
   );
 };
 

@@ -29,6 +29,7 @@ const ProfileDrawer = () => {
       anchor="right"
       open={stores.commonStore.profileDrawerIsOpen}
       onClose={() => stores.commonStore.setProfileDrawerIsOpen(false)}
+      sx={Shell.profileDrawerSx}
     >
       <Box
         sx={Shell.profileDrawerContentSx}

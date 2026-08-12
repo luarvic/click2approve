@@ -7,7 +7,7 @@ interface ApprovalRequestParticipantLabelProps {
 
 const labelSx: SxProps<Theme> = {
   color: "text.secondary",
-  fontWeight: 600,
+  fontWeight: (theme) => theme.typography.fontWeightMedium,
 };
 
 const ApprovalRequestParticipantLabel: React.FC<ApprovalRequestParticipantLabelProps> = ({

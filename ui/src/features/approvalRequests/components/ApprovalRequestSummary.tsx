@@ -1,3 +1,4 @@
+import ApprovalRequestContentGroups from "@/features/approvalRequests/components/ApprovalRequestContentGroups";
 import ApprovalRequestFilesBox from "@/features/approvalRequests/components/ApprovalRequestFilesBox";
 import ApprovalRequestNumberText from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
@@ -5,9 +6,10 @@ import ApprovalRequestRevisionLinks from "@/features/approvalRequests/components
 import { ApprovalRequestFile } from "@/features/approvalRequests/models/approvalRequest";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
 import { StackSpacing } from "@/shared/constants/constants";
-import type { SxProps } from "@mui/material";
+import type { SxProps, TypographyProps } from "@mui/material";
 import { Stack, Typography } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
+import type { ReactNode } from "react";
 
 interface ApprovalRequestSummaryProps {
   approvalRequestGlobalId?: string;
@@ -18,14 +20,18 @@ interface ApprovalRequestSummaryProps {
   revisionNumber?: number;
   compareFilesWithPrevious?: boolean;
   numberPrefix?: string;
+  numberColor?: TypographyProps["color"];
   nextRevisionApprovalRequestGlobalId?: string;
+  numberVariant?: TypographyProps["variant"];
   previousRevisionApprovalRequestGlobalId?: string;
+  metadata?: ReactNode;
   showFileStateIndicators?: boolean;
   showDescription?: boolean;
   showFiles?: boolean;
   showRevision?: boolean;
   showTitle?: boolean;
   tenantGlobalId?: string | null;
+  titleVariant?: TypographyProps["variant"];
 }
 
 const summaryTitleSx: SxProps<Theme> = {
@@ -41,51 +47,59 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   revisionNumber,
   compareFilesWithPrevious = false,
   numberPrefix,
+  numberColor,
   nextRevisionApprovalRequestGlobalId,
+  numberVariant = "h6",
   previousRevisionApprovalRequestGlobalId,
+  metadata,
   showFileStateIndicators = true,
   showDescription = true,
   showFiles = true,
   showRevision = true,
   showTitle = true,
   tenantGlobalId,
+  titleVariant = "h6",
 }) => {
   const numberGlobalId = approvalRequestGlobalId ?? approvalRequestTaskGlobalId;
-
-  return (
-    <Stack spacing={StackSpacing.default}>
-      <Stack spacing={StackSpacing.tight}>
-        <Stack
-          direction="row"
-          spacing={StackSpacing.tight}
-          alignItems="center"
-        >
-          {showTitle && title && (
-            <Typography
-              component="h2"
-              variant="h6"
-              sx={summaryTitleSx}
-            >
-              {title}
-            </Typography>
-          )}
-          {showRevision && <ApprovalRequestRevisionChip revisionNumber={revisionNumber} />}
-          {!showTitle && (
-            <ApprovalRequestNumberText
-              globalId={numberGlobalId}
-              prefix={numberPrefix}
-              variant="h6"
-            />
-          )}
-        </Stack>
-        <ApprovalRequestRevisionLinks
-          nextRevisionApprovalRequestGlobalId={nextRevisionApprovalRequestGlobalId}
-          previousRevisionApprovalRequestGlobalId={previousRevisionApprovalRequestGlobalId}
-          tenantGlobalId={tenantGlobalId}
-        />
+  const hasDescription = showDescription && Boolean(description?.trim());
+  const hasFiles = showFiles && Boolean(requestFiles?.length);
+  const header = (
+    <Stack spacing={StackSpacing.tight}>
+      <Stack
+        direction="row"
+        spacing={StackSpacing.tight}
+        alignItems="center"
+      >
+        {showTitle && title && (
+          <Typography
+            component="h2"
+            variant={titleVariant}
+            sx={summaryTitleSx}
+          >
+            {title}
+          </Typography>
+        )}
+        {showRevision && <ApprovalRequestRevisionChip revisionNumber={revisionNumber} />}
+        {!showTitle && (
+          <ApprovalRequestNumberText
+            color={numberColor}
+            globalId={numberGlobalId}
+            prefix={numberPrefix}
+            variant={numberVariant}
+          />
+        )}
       </Stack>
-      {showDescription && <UserProvidedText text={description} />}
-      {showFiles && (
+      <ApprovalRequestRevisionLinks
+        nextRevisionApprovalRequestGlobalId={nextRevisionApprovalRequestGlobalId}
+        previousRevisionApprovalRequestGlobalId={previousRevisionApprovalRequestGlobalId}
+        tenantGlobalId={tenantGlobalId}
+      />
+    </Stack>
+  );
+  const content = hasDescription || hasFiles ? (
+    <Stack spacing={StackSpacing.default}>
+      {hasDescription && <UserProvidedText text={description} />}
+      {hasFiles && (
         <ApprovalRequestFilesBox
           requestFiles={requestFiles}
           approvalRequestGlobalId={approvalRequestGlobalId}
@@ -95,7 +109,9 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
         />
       )}
     </Stack>
-  );
+  ) : undefined;
+
+  return <ApprovalRequestContentGroups content={content} header={header} metadata={metadata} />;
 };
 
 export default ApprovalRequestSummary;

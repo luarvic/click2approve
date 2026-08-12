@@ -1,10 +1,13 @@
 import { UserFile } from "@/features/userFiles/models/userFile";
+import FileTypeIcon from "@/shared/components/icons/FileTypeIcon";
 import CommentPaper from "@/shared/components/papers/CommentPaper";
 import { StackSpacing } from "@/shared/constants/constants";
-import { MoreVert } from "@mui/icons-material";
+import { Close, MoreVert } from "@mui/icons-material";
 import {
-  Badge,
+  Box,
   Chip,
+  IconButton,
+  Link,
   Menu,
   MenuItem,
   Stack,
@@ -30,25 +33,24 @@ interface ApprovalRequestFilesListProps {
   onReplaceExisting?: (index: number) => void;
 }
 
-const replacementChipSx: SxProps<Theme> = {
-  marginLeft: (theme) => `-${theme.spacing(StackSpacing.default)}`,
-  position: "relative",
-  zIndex: 1,
-};
-
-const replacedOriginalChipSx: SxProps<Theme> = {
+const replacedOriginalFileLinkSx: SxProps<Theme> = {
   opacity: 0.55,
 };
 
-const fileBadgeSx: SxProps<Theme> = {
-  "& .MuiBadge-badge": {
-    top: 1,
-  },
+const replacedFilesGroupSx: SxProps<Theme> = {
+  borderLeft: (theme) => `1px solid ${theme.palette.divider}`,
+  paddingLeft: (theme) => theme.spacing(StackSpacing.default),
 };
 
-const fileChipsSx: SxProps<Theme> = {
+const fileLinkSx: SxProps<Theme> = {
+  alignItems: "center",
   columnGap: StackSpacing.default,
-  rowGap: StackSpacing.default,
+  display: "inline-flex",
+  textAlign: "left",
+};
+
+const fileRowSx: SxProps<Theme> = {
+  minHeight: 24,
 };
 
 const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
@@ -90,12 +92,29 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
     closeMenu();
   };
 
-  const renderNewFileChip = (file: File, index: number) => {
-    const chip = (
-      <Chip
-        label={file.name}
-        onDelete={() => onRemoveNew(index)}
-      />
+  const renderFileLink = (fileName: string, sx?: SxProps<Theme>) => (
+    <Link
+      component="span"
+      sx={[fileLinkSx, ...(Array.isArray(sx) ? sx : [sx])]}
+      variant="body2"
+    >
+      <FileTypeIcon fontSize="small" fileName={fileName} />
+      {fileName}
+    </Link>
+  );
+
+  const renderNewFile = (file: File, index: number) => {
+    const fileEntry = (
+      <Stack direction="row" alignItems="center">
+        {renderFileLink(file.name)}
+        <IconButton
+          aria-label={`Remove ${file.name}`}
+          onClick={() => onRemoveNew(index)}
+          size="small"
+        >
+          <Close fontSize="small" />
+        </IconButton>
+      </Stack>
     );
 
     return onReplaceExisting ? (
@@ -103,72 +122,100 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
         key={`${file.name}-${file.lastModified}-${index}`}
         title="New file"
       >
-        <Badge
-          color="success"
-          sx={fileBadgeSx}
-          variant="dot"
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={StackSpacing.default}
+          sx={fileRowSx}
         >
-          {chip}
-        </Badge>
+          {fileEntry}
+          <Chip color="success" label="Added" size="small" variant="outlined" />
+        </Stack>
       </Tooltip>
     ) : (
-      <Chip
+      <Stack
         key={`${file.name}-${file.lastModified}-${index}`}
-        label={file.name}
-        onDelete={() => onRemoveNew(index)}
-      />
+        direction="row"
+        alignItems="center"
+      >
+        {fileEntry}
+      </Stack>
     );
   };
 
   return (
     <CommentPaper>
-      <Stack
-        direction="row"
-        flexWrap="wrap"
-        sx={fileChipsSx}
-      >
+      <Stack alignItems="flex-start" spacing={StackSpacing.default}>
         {existingFiles.map((file, index) => (
           <Stack
             key={`existing-${file.requestFileGlobalId ?? file.file.globalId}`}
             direction="row"
-            spacing={file.replacement ? StackSpacing.none : StackSpacing.tight}
+            spacing={StackSpacing.tight}
             alignItems="center"
           >
             {onReplaceExisting ? (
               <>
                 {file.replacement ? (
-                  <>
-                    <Tooltip title="Replaced file">
-                      <Chip
-                        label={file.file.name}
-                        sx={replacedOriginalChipSx}
-                      />
-                    </Tooltip>
+                  <Stack alignItems="flex-start" spacing={StackSpacing.default}>
                     <Tooltip title="Replacement file">
-                      <Chip
-                        label={file.replacement.name}
-                        onDelete={() => onRemoveReplacement?.(index)}
-                        sx={replacementChipSx}
-                      />
+                      <Stack
+                        direction="row"
+                        alignItems="center"
+                        spacing={StackSpacing.default}
+                      >
+                        {renderFileLink(file.replacement.name)}
+                        <Chip
+                          color="warning"
+                          label="Replacement"
+                          size="small"
+                          variant="outlined"
+                        />
+                        <IconButton
+                          aria-label={`Remove ${file.replacement.name}`}
+                          onClick={() => onRemoveReplacement?.(index)}
+                          size="small"
+                        >
+                          <Close fontSize="small" />
+                        </IconButton>
+                      </Stack>
                     </Tooltip>
-                  </>
+                    <Box sx={replacedFilesGroupSx}>
+                      <Tooltip title="Replaced file">
+                        {renderFileLink(
+                          file.file.name,
+                          replacedOriginalFileLinkSx,
+                        )}
+                      </Tooltip>
+                    </Box>
+                  </Stack>
                 ) : (
-                  <Chip
-                    deleteIcon={<MoreVert />}
-                    label={file.file.name}
-                    onDelete={(event) => openMenu(event.currentTarget, index)}
-                  />
+                  <Stack direction="row" alignItems="center">
+                    {renderFileLink(file.file.name)}
+                    <IconButton
+                      aria-label={`Actions for ${file.file.name}`}
+                      onClick={(event) => openMenu(event.currentTarget, index)}
+                      size="small"
+                    >
+                      <MoreVert fontSize="small" />
+                    </IconButton>
+                  </Stack>
                 )}
               </>
             ) : (
-              <Chip
-                label={file.file.name}
-                onDelete={() => onRemoveExisting(index)}
-              />
+              <Stack direction="row" alignItems="center">
+                {renderFileLink(file.file.name)}
+                <IconButton
+                  aria-label={`Remove ${file.file.name}`}
+                  onClick={() => onRemoveExisting(index)}
+                  size="small"
+                >
+                  <Close fontSize="small" />
+                </IconButton>
+              </Stack>
             )}
           </Stack>
         ))}
-        {newFiles.map(renderNewFileChip)}
+        {newFiles.map(renderNewFile)}
       </Stack>
       <Menu
         anchorEl={menuAnchor}
