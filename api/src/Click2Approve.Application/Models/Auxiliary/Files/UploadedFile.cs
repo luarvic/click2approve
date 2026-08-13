@@ -1,4 +1,4 @@
-namespace Click2Approve.Application.Models.Auxiliary;
+namespace Click2Approve.Application.Models.Auxiliary.Files;
 
 /// <summary>
 /// Represents an uploaded file passed into application services.

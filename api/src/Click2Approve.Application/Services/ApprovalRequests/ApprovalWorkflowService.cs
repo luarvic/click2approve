@@ -1,5 +1,7 @@
-using Click2Approve.Application.Models.Auxiliary;
 using Click2Approve.Application.Models.Auxiliary.ApprovalRequests;
+using Click2Approve.Application.Models.Auxiliary.Emails;
+using Click2Approve.Application.Models.Auxiliary.Files;
+using Click2Approve.Application.Models.Auxiliary.Notifications;
 using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Models;
 

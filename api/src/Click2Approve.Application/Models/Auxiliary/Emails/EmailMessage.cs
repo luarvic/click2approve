@@ -1,4 +1,4 @@
-namespace Click2Approve.Application.Models.Auxiliary;
+namespace Click2Approve.Application.Models.Auxiliary.Emails;
 
 /// <summary>
 /// Represents an email message.

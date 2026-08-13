@@ -1,4 +1,6 @@
-using Click2Approve.Application.Models.Auxiliary;
+using Click2Approve.Application.Models.Auxiliary.Emails;
+using Click2Approve.Application.Models.Auxiliary.Files;
+using Click2Approve.Application.Models.Auxiliary.Notifications;
 
 namespace Click2Approve.Application.Abstractions.Email;
 

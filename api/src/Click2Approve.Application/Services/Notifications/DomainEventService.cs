@@ -1,6 +1,8 @@
 using Click2Approve.Application.Abstractions.Persistence;
 using Click2Approve.Application.Abstractions.Services.Notifications;
-using Click2Approve.Application.Models.Auxiliary;
+using Click2Approve.Application.Models.Auxiliary.Emails;
+using Click2Approve.Application.Models.Auxiliary.Files;
+using Click2Approve.Application.Models.Auxiliary.Notifications;
 using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;

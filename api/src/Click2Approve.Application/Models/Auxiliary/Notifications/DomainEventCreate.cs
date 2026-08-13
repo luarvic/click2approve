@@ -1,6 +1,6 @@
 using Click2Approve.Domain.Models;
 
-namespace Click2Approve.Application.Models.Auxiliary;
+namespace Click2Approve.Application.Models.Auxiliary.Notifications;
 
 /// <summary>
 /// Contains reference-only data needed to persist a domain event.

@@ -9,7 +9,7 @@ namespace Click2Approve.Application.Services.ApprovalRequests;
 public class ApprovalRequestTaskCompletionAttributor : IApprovalRequestTaskCompletionAttributor
 {
     /// <summary>
-/// Records completion attribution.
+    /// Records completion attribution.
     /// </summary>
     public Task AttributeAsync(AppUser user, ApprovalRequestTask approvalRequestTask, CancellationToken cancellationToken)
     {
