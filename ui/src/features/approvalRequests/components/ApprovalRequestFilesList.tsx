@@ -2,7 +2,7 @@ import { UserFile } from "@/features/userFiles/models/userFile";
 import FileTypeIcon from "@/shared/components/icons/FileTypeIcon";
 import CommentPaper from "@/shared/components/papers/CommentPaper";
 import { StackSpacing } from "@/shared/constants/constants";
-import { Close, MoreVert } from "@mui/icons-material";
+import { Close, MoreVert, Undo } from "@mui/icons-material";
 import {
   Box,
   Chip,
@@ -30,6 +30,7 @@ interface ApprovalRequestFilesListProps {
   onRemoveExisting: (index: number) => void;
   onRemoveNew: (index: number) => void;
   onRemoveReplacement?: (index: number) => void;
+  onRestoreExisting?: (index: number) => void;
   onReplaceExisting?: (index: number) => void;
 }
 
@@ -59,6 +60,7 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
   onRemoveExisting,
   onRemoveNew,
   onRemoveReplacement,
+  onRestoreExisting,
   onReplaceExisting,
 }) => {
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
@@ -155,7 +157,25 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
           >
             {onReplaceExisting ? (
               <>
-                {file.replacement ? (
+                {file.removed ? (
+                  <Tooltip title="Deleted file">
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      spacing={StackSpacing.default}
+                    >
+                      {renderFileLink(file.file.name, replacedOriginalFileLinkSx)}
+                      <Chip color="error" label="Deleted" size="small" variant="outlined" />
+                      <IconButton
+                        aria-label={`Restore ${file.file.name}`}
+                        onClick={() => onRestoreExisting?.(index)}
+                        size="small"
+                      >
+                        <Undo fontSize="small" />
+                      </IconButton>
+                    </Stack>
+                  </Tooltip>
+                ) : file.replacement ? (
                   <Stack alignItems="flex-start" spacing={StackSpacing.default}>
                     <Tooltip title="Replacement file">
                       <Stack

@@ -157,6 +157,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         Assert.Contains("\"steps\"", taskJson);
         Assert.Contains("\"createdByEmail\"", taskJson);
         Assert.DoesNotContain("\"taskLogEntries\"", taskJson);
+        Assert.DoesNotContain("\"visibilityMode\"", taskJson);
 
         var task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
         Assert.NotNull(task);
@@ -172,6 +173,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                 Assert.Single(step.Tasks);
                 Assert.Single(step.Assignees);
                 Assert.Empty(step.Visibility);
+                Assert.Null(step.VisibilityMode);
             },
             step =>
             {
@@ -181,6 +183,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                 Assert.Empty(step.Tasks);
                 Assert.Empty(step.Assignees);
                 Assert.Empty(step.Visibility);
+                Assert.Null(step.VisibilityMode);
             });
         response = await assigneeClient.PostAsJsonAsync($"api/v1/tenants/{assigneeTenantId}/tasks/complete", new
         {

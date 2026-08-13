@@ -3,7 +3,10 @@ import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approv
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import ApprovalSteps from "@/features/approvalWorkflow/components/ApprovalSteps";
-import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
+import {
+  ApprovalStepVisibilityMode,
+  AssigneeType,
+} from "@/features/approvalWorkflow/models/approvalStep";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, test, vi } from "vitest";
@@ -36,10 +39,24 @@ const approvalRequest: ApprovalRequest = {
       ],
       globalId: "visible-step-id",
       sequence: 1,
+      visibilityMode:
+        ApprovalStepVisibilityMode.AllParticipantsExceptSelected,
       visibility: [
         {
           assigneeDisplayName: "Blocked Assignee",
           assigneeGlobalId: "blocked-assignee-id",
+          assigneeType: AssigneeType.User,
+          isVisible: false,
+        },
+        {
+          assigneeDisplayName: "Second Blocked Assignee",
+          assigneeGlobalId: "second-blocked-assignee-id",
+          assigneeType: AssigneeType.User,
+          isVisible: false,
+        },
+        {
+          assigneeDisplayName: "Third Blocked Assignee",
+          assigneeGlobalId: "third-blocked-assignee-id",
           assigneeType: AssigneeType.User,
           isVisible: false,
         },
@@ -99,12 +116,18 @@ describe("<ApprovalSteps />", () => {
     expect(screen.getByText("Step 1")).toBeTruthy();
     expect(screen.getByLabelText("Step 1 action Approve")).toBeTruthy();
     expect(screen.getByLabelText("Step 1 completion rule Any assignee")).toBeTruthy();
-    expect(screen.getByLabelText("Step 1 visibility Hidden from Blocked Assignee")).toBeTruthy();
+    expect(
+      screen.getByLabelText(
+        "Step 1 visibility Hidden from",
+      ),
+    ).toBeTruthy();
     expect(screen.getByText("visible@example.com")).toBeTruthy();
     expect(screen.getByLabelText("Upcoming task")).toBeTruthy();
     expect(screen.getByText("Waiting for previous step")).toBeTruthy();
-    expect(screen.getAllByText(/Hidden from/)).toHaveLength(1);
-    expect(screen.getByText("Hidden from Blocked Assignee")).toBeTruthy();
+    expect(
+      screen.getByText("Hidden from Blocked Assignee · Second Blocked Assignee"),
+    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: "+1 more" })).toBeTruthy();
     expect(screen.getByText("Step 2")).toBeTruthy();
     expect(screen.getByTestId("hidden-step-icon")).toBeTruthy();
     expect(screen.queryByLabelText("Hidden")).toBeNull();
@@ -128,6 +151,32 @@ describe("<ApprovalSteps />", () => {
 
     expect(screen.queryByText("Blocked Assignee")).toBeNull();
     expect(screen.getByTestId("hidden-step-icon")).toBeTruthy();
+  });
+
+  test("groups individual assignees when a step also has a team", () => {
+    render(
+      <ApprovalSteps
+        approvalRequest={{
+          ...approvalRequest,
+          steps: [
+            {
+              ...approvalRequest.steps[0],
+              assignees: [
+                approvalRequest.steps[0].assignees[0],
+                {
+                  displayName: "Finance team",
+                  globalId: "finance-team-id",
+                  type: AssigneeType.Team,
+                },
+              ],
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Individual assignees")).toBeTruthy();
+    expect(screen.getAllByLabelText("Upcoming task")).toHaveLength(2);
   });
 
   test("shows task numbers and makes the current task row clickable", async () => {

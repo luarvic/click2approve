@@ -170,6 +170,7 @@ internal static class ApprovalRequestMapper
             Sequence = step.Sequence,
             Mode = step.Mode,
             Action = step.Action,
+            VisibilityMode = includeVisibility ? step.VisibilityMode : null,
             Assignees = step.Assignees.Select(assignee => MapAssignee(assignee, assigneeGlobalIdMaps)).ToList(),
             Tasks = [.. step.Tasks.Select(task => MapTask(
                 task,
@@ -331,6 +332,8 @@ internal static class ApprovalRequestMapper
     private static string GetAssigneeDisplayName(ApprovalRequestStepAssignee assignee) =>
         assignee.EmployeeId.HasValue
             ? assignee.AssigneeDisplayName ?? assignee.User.NormalizedEmailOrEmpty()
+            : assignee.TeamId.HasValue
+                ? assignee.AssigneeDisplayName ?? string.Empty
             : assignee.User.NormalizedEmailOrEmpty();
 
     private static string GetAssigneeDisplayName(ApprovalRequestTask task) =>

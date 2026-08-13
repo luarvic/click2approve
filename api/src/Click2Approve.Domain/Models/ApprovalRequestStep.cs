@@ -12,6 +12,7 @@ public class ApprovalRequestStep : DbEntity
     public required ApprovalRequestTaskAction Action { get; set; }
     public required ApprovalStepMode Mode { get; set; }
     public required int Sequence { get; set; }
+    public ApprovalStepVisibilityMode VisibilityMode { get; set; } = ApprovalStepVisibilityMode.AllParticipants;
 
     // Navigation properties
     public ApprovalRequest ApprovalRequest { get; set; } = null!;

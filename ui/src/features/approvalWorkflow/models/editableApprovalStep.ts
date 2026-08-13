@@ -4,23 +4,28 @@ import {
   ApprovalStep,
   ApprovalStepAssignee,
   ApprovalStepMode,
+  ApprovalStepVisibilityMode,
 } from "@/features/approvalWorkflow/models/approvalStep";
 
 export type EditableApprovalStep = ApprovalStep;
 
-export const createEmptyAssignee = (): ApprovalStepAssignee => ({
-  type: AssigneeType.User,
-  email: "",
+export const createEmptyAssignee = (
+  type: AssigneeType = AssigneeType.User,
+): ApprovalStepAssignee => ({
+  type,
+  ...(type === AssigneeType.User ? { email: "" } : {}),
 });
 
 export const createEmptyStep = (
   sequence: number,
   includeEmptyAssignee: boolean = true,
+  assigneeType: AssigneeType = AssigneeType.User,
 ): EditableApprovalStep => ({
   sequence,
   mode: ApprovalStepMode.Any,
+  visibilityMode: ApprovalStepVisibilityMode.AllParticipants,
   action: ApprovalRequestTaskAction.Approve,
-  assignees: includeEmptyAssignee ? [createEmptyAssignee()] : [],
+  assignees: includeEmptyAssignee ? [createEmptyAssignee(assigneeType)] : [],
 });
 
 export const createEditableSteps = (
@@ -30,12 +35,16 @@ export const createEditableSteps = (
     ...step,
     sequence: index + 1,
     action: step.action ?? ApprovalRequestTaskAction.Approve,
+    visibilityMode:
+      step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants,
     assignees: step.assignees.map((assignee) => ({ ...assignee })),
   }));
 
 const toApprovalStep = (step: EditableApprovalStep): ApprovalStep => ({
   sequence: step.sequence,
   mode: step.mode ?? ApprovalStepMode.Any,
+  visibilityMode:
+    step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants,
   action: step.action ?? ApprovalRequestTaskAction.Approve,
   assignees: step.assignees.map((assignee) => ({
     type: assignee.type,

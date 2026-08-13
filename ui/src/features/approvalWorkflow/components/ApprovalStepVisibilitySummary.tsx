@@ -1,166 +1,94 @@
 import {
   ApprovalStep,
+  ApprovalStepVisibilityMode,
 } from "@/features/approvalWorkflow/models/approvalStep";
-import {
-  Dialogs,
-  Icons,
-} from "@/shared/constants/constants";
-import { VisibilityOff } from "@mui/icons-material";
+import { StackSpacing } from "@/shared/constants/constants";
+import { Link, Stack, Typography } from "@mui/material";
 import type { SxProps } from "@mui/material";
-import {
-  Box,
-  ClickAwayListener,
-  IconButton,
-  Paper,
-  Popper,
-  Tooltip,
-  Typography,
-} from "@mui/material";
 import type { Theme } from "@mui/material/styles";
-import type {
-  MouseEvent,
-} from "react";
-import {
-  useState,
-} from "react";
+import { useState } from "react";
 
 interface ApprovalStepVisibilitySummaryProps {
-  emptyMessage?: string;
-  inline?: boolean;
   step: ApprovalStep;
 }
 
-const visibilitySummarySx: SxProps<Theme> = {
+const maximumVisibleParticipants = 2;
+const participantSeparator = " · ";
+const visibilityExceptionsSx: SxProps<Theme> = {
   alignItems: "center",
-  color: "text.secondary",
-  display: "flex",
-  flex: "1 1 auto",
-  maxWidth: "100%",
+  flexWrap: "wrap",
+  gap: StackSpacing.tight,
   minWidth: 0,
 };
+const moreLinkSx: SxProps<Theme> = { ml: StackSpacing.tight };
 
-const hiddenAssigneeListSx: SxProps<Theme> = {
-  display: "inline",
-};
+const getVisibilityParticipants = (
+  step: ApprovalStep,
+  mode: ApprovalStepVisibilityMode,
+) => {
+  const assigneeGlobalIds = new Set(
+    step.assignees.map((assignee) => assignee.globalId),
+  );
+  const isVisible = mode === ApprovalStepVisibilityMode.AssigneesAndSelectedParticipants;
 
-const visibilityTextSx: SxProps<Theme> = {
-  minWidth: 0,
-  overflowWrap: "anywhere",
-};
-
-const visibilityIconSx: SxProps<Theme> = {
-  pointerEvents: "none",
-};
-
-const visibilityPopoverSx: SxProps<Theme> = {
-  maxWidth: 240,
-  p: Dialogs.stepStackSpacing,
-};
-
-const getHiddenAssigneeLabels = (step: ApprovalStep) => {
   return (step.visibility ?? [])
-    .filter((visibility) => visibility.isVisible === false)
-    .map((visibility) =>
-      visibility.assigneeDisplayName ??
-      visibility.assigneeEmail ??
-      "Assignee",
+    .filter(
+      (visibility) =>
+        !assigneeGlobalIds.has(visibility.assigneeGlobalId) &&
+        visibility.isVisible === isVisible,
     )
-    .filter((label): label is string => Boolean(label));
+    .map(
+      (visibility) =>
+        visibility.assigneeDisplayName ??
+        visibility.assigneeEmail ??
+        "Assignee",
+    );
 };
 
 const ApprovalStepVisibilitySummary: React.FC<ApprovalStepVisibilitySummaryProps> = ({
-  emptyMessage,
-  inline = false,
   step,
 }) => {
-  const [popoverAnchor, setPopoverAnchor] = useState<HTMLElement | null>(null);
-  const hiddenAssigneeLabels = getHiddenAssigneeLabels(step);
+  const [participantsAreExpanded, setParticipantsAreExpanded] = useState(false);
+  const mode = step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants;
+  const participants = getVisibilityParticipants(step, mode);
+  const label = mode === ApprovalStepVisibilityMode.AllParticipantsExceptSelected
+    ? "Hidden from"
+    : "Also visible to";
 
-  if (hiddenAssigneeLabels.length === 0 && !emptyMessage) {
+  if (
+    mode === ApprovalStepVisibilityMode.AllParticipants ||
+    mode === ApprovalStepVisibilityMode.AssigneesOnly ||
+    participants.length === 0
+  ) {
     return null;
   }
 
-  const closePopover = () => {
-    setPopoverAnchor(null);
-  };
-
-  const popoverId = `hidden-step-visibility-popover-${step.globalId}`;
-  const openPopover = (event: MouseEvent<HTMLElement>) => {
-    setPopoverAnchor(event.currentTarget);
-  };
-
-  const showEmptyMessageTooltip = hiddenAssigneeLabels.length === 0 && Boolean(emptyMessage);
-  if (showEmptyMessageTooltip) {
-    const emptyMessageIcon = (
-      <>
-        <Tooltip title={emptyMessage} disableTouchListener>
-          <IconButton
-            aria-label={emptyMessage}
-            aria-controls={popoverAnchor ? popoverId : undefined}
-            aria-expanded={Boolean(popoverAnchor)}
-            onClick={openPopover}
-            onKeyDown={(event) => {
-              if (event.key === "Escape") {
-                closePopover();
-              }
-            }}
-            size="small"
-          >
-            <VisibilityOff color={Icons.secondaryColor} fontSize="small" sx={Icons.svgNoShrinkStyle} />
-          </IconButton>
-        </Tooltip>
-        <Popper
-          id={popoverId}
-          anchorEl={popoverAnchor}
-          open={Boolean(popoverAnchor)}
-          placement="bottom"
-        >
-          <ClickAwayListener mouseEvent="onMouseDown" onClickAway={closePopover}>
-            <Paper role="tooltip" sx={visibilityPopoverSx}>
-              <Typography variant="body2">{emptyMessage}</Typography>
-            </Paper>
-          </ClickAwayListener>
-        </Popper>
-      </>
-    );
-
-    return inline ? emptyMessageIcon : <Box sx={visibilitySummarySx}>{emptyMessageIcon}</Box>;
-  }
-
-  const icon = (
-    <IconButton
-      aria-hidden
-      component="span"
-      size="small"
-      sx={visibilityIconSx}
-      tabIndex={-1}
-    >
-      <VisibilityOff color={Icons.secondaryColor} fontSize="small" sx={Icons.svgNoShrinkStyle} />
-    </IconButton>
-  );
-  const text = (
-    <Typography variant="caption" color="text.secondary" sx={visibilityTextSx}>
-      Hidden from{" "}
-      <Box component="span" sx={hiddenAssigneeListSx}>
-        {hiddenAssigneeLabels.join(", ")}
-      </Box>
-    </Typography>
-  );
-
-  if (inline) {
-    return (
-      <>
-        {icon}
-        {text}
-      </>
-    );
-  }
+  const displayedParticipants = participantsAreExpanded
+    ? participants
+    : participants.slice(0, maximumVisibleParticipants);
+  const remainingParticipantCount = participants.length - displayedParticipants.length;
 
   return (
-    <Box sx={visibilitySummarySx}>
-      {icon}
-      {text}
-    </Box>
+    <Stack
+      aria-label={`Step ${step.sequence} visibility ${label}`}
+      direction="row"
+      sx={visibilityExceptionsSx}
+    >
+      <Typography color="text.secondary" variant="caption">
+        {label} {displayedParticipants.join(participantSeparator)}
+        {remainingParticipantCount > 0 && (
+          <Link
+            component="button"
+            onClick={() => setParticipantsAreExpanded(true)}
+            sx={moreLinkSx}
+            type="button"
+            variant="caption"
+          >
+            +{remainingParticipantCount} more
+          </Link>
+        )}
+      </Typography>
+    </Stack>
   );
 };
 

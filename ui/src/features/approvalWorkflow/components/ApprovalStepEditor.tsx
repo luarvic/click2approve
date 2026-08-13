@@ -1,4 +1,6 @@
+import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
 import ApprovalStepAssigneeRow from "@/features/approvalWorkflow/components/ApprovalStepAssigneeRow";
+import ApprovalStepTitle from "@/features/approvalWorkflow/components/ApprovalStepTitle";
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import {
   ApprovalStepAssignee,
@@ -6,13 +8,13 @@ import {
 } from "@/features/approvalWorkflow/models/approvalStep";
 import { EditableApprovalStep } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { Employee } from "@/features/employees/models/employee";
-import CommentPaper from "@/shared/components/papers/CommentPaper";
-import { Dialogs } from "@/shared/constants/constants";
+import { Dialogs, Icons } from "@/shared/constants/constants";
 import {
   Add,
+  AccountTreeOutlined,
   DeleteOutline,
-  KeyboardArrowDown,
-  KeyboardArrowUp,
+  North,
+  South,
 } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import {
@@ -22,9 +24,12 @@ import {
   IconButton,
   MenuItem,
   Stack,
+  Step,
+  StepContent,
+  StepLabel,
+  Stepper,
   TextField,
   Tooltip,
-  Typography,
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 
@@ -49,6 +54,7 @@ interface ApprovalStepEditorProps {
   steps: EditableApprovalStep[];
   canUseEmployees: boolean;
   canUseTeams: boolean;
+  compactEmployeeOptions?: boolean;
   employees: Employee[];
   teams: { globalId: string; name: string }[];
   getStepState?: (
@@ -64,6 +70,7 @@ interface ApprovalStepEditorProps {
   onAddAssignee: (stepIndex: number) => void;
   onAddStep: () => void;
   showAddStep?: boolean;
+  stackAssigneeControlsOnSmallScreens?: boolean;
   onMoveStep: (stepIndex: number, direction: -1 | 1) => void;
   onRemoveAssignee: (stepIndex: number, assigneeIndex: number) => void;
   onRemoveStep: (stepIndex: number) => void;
@@ -78,35 +85,47 @@ interface ApprovalStepEditorProps {
   ) => void;
 }
 
-const stepHeaderSx: SxProps<Theme> = { flexWrap: "nowrap" };
-const stepTitleSx: SxProps<Theme> = { flexShrink: 0 };
-const stepHeaderSpacerSx: SxProps<Theme> = { flexGrow: 1 };
-const stepContainerSx: SxProps<Theme> = {
-  bgcolor: "action.hover",
-  borderRadius: 1,
-  p: Dialogs.stepStackSpacing,
+const stepContentSx: SxProps<Theme> = { pr: 0 };
+const stepLabelSx: SxProps<Theme> = {
+  "& .MuiStepLabel-label, & .MuiStepLabel-label.Mui-active, & .MuiStepLabel-label.Mui-completed": {
+    color: "text.primary",
+  },
+};
+const stepLabelContentSx: SxProps<Theme> = {
+  alignItems: "center",
+  display: "flex",
+  flex: 1,
+  flexWrap: "wrap",
+  gap: Dialogs.stepHeaderSpacing,
+};
+const stepLabelActionsSx: SxProps<Theme> = {
+  display: "flex",
+  gap: Dialogs.stepActionSpacing,
+  marginLeft: "auto",
 };
 const addButtonSx: SxProps<Theme> = { alignSelf: "flex-start" };
 const stepAddButtonSx: SxProps<Theme> = {
   ...Dialogs.addStepButtonSx,
   alignSelf: "flex-start",
 };
-const assigneeBoxSx: SxProps<Theme> = { ...Dialogs.approvalBoxSx };
 const actionOptions = [
   { value: ApprovalRequestTaskAction.Approve, label: "Approve" },
   { value: ApprovalRequestTaskAction.Sign, label: "Sign" },
   { value: ApprovalRequestTaskAction.Confirm, label: "Confirm" },
   { value: ApprovalRequestTaskAction.Acknowledge, label: "Acknowledge" },
 ];
-const getStepContainerSx = (sx?: SxProps<Theme>): SxProps<Theme> => [
-  stepContainerSx,
-  ...(Array.isArray(sx) ? sx : [sx]),
-];
+const getStepContentSx = (sx?: SxProps<Theme>): SxProps<Theme> =>
+  sx ? (Array.isArray(sx) ? sx : [sx]) : [];
+
+const EditableStepIcon = () => (
+  <AccountTreeOutlined color={Icons.secondaryColor} fontSize="small" />
+);
 
 const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
   steps,
   canUseEmployees,
   canUseTeams,
+  compactEmployeeOptions = false,
   employees,
   teams,
   getAssigneeState,
@@ -114,6 +133,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
   onAddAssignee,
   onAddStep,
   showAddStep = true,
+  stackAssigneeControlsOnSmallScreens = false,
   onMoveStep,
   onRemoveAssignee,
   onRemoveStep,
@@ -122,7 +142,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
 }) => (
   <>
     {steps.length > 0 && (
-      <Stack spacing={Dialogs.stepStackSpacing}>
+      <Stepper activeStep={-1} nonLinear orientation="vertical">
         {steps.map((step, stepIndex) => {
           const state = getStepState?.(step, stepIndex) ?? {};
           const disabled = state.disabled ?? false;
@@ -132,158 +152,176 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
           const canAddAssignee = state.canAddAssignee ?? !disabled;
 
           return (
-            <CommentPaper
+            <Step
+              expanded
               key={step.globalId ?? `new-${step.sequence}`}
-              sx={getStepContainerSx(state.sx)}
             >
-              <Stack spacing={Dialogs.stepStackSpacing}>
-                <Stack
-                  direction="row"
-                  spacing={Dialogs.stepHeaderSpacing}
-                  alignItems="center"
-                  sx={stepHeaderSx}
-                >
-                  <Typography variant="subtitle1" sx={stepTitleSx}>
-                    Step {step.sequence}
-                  </Typography>
-                  {(canMoveUp || canMoveDown) && (
-                    <Stack direction="row" spacing={Dialogs.stepActionSpacing}>
-                      <Tooltip title="Move step up">
-                        <span>
-                          <IconButton
-                            color="primary"
-                            disabled={!canMoveUp}
-                            onClick={() => onMoveStep(stepIndex, -1)}
-                          >
-                            <KeyboardArrowUp />
-                          </IconButton>
-                        </span>
-                      </Tooltip>
-                      <Tooltip title="Move step down">
-                        <span>
-                          <IconButton
-                            color="primary"
-                            disabled={!canMoveDown}
-                            onClick={() => onMoveStep(stepIndex, 1)}
-                          >
-                            <KeyboardArrowDown />
-                          </IconButton>
-                        </span>
-                      </Tooltip>
-                    </Stack>
-                  )}
+              <StepLabel
+                StepIconComponent={EditableStepIcon}
+                sx={stepLabelSx}
+              >
+                <Box sx={stepLabelContentSx}>
+                  <ApprovalStepTitle sequence={step.sequence} />
                   {state.isPassed && <Chip label="Locked" size="small" />}
                   {state.isCurrent && (
                     <Chip label="Current" size="small" color="warning" />
                   )}
-                  <Box sx={stepHeaderSpacerSx} />
-                  <Tooltip title="Remove step">
-                    <span>
-                      <IconButton
-                        aria-label={`Remove step ${step.sequence}`}
-                        disabled={!canRemove}
-                        onClick={() => onRemoveStep(stepIndex)}
-                      >
-                        <DeleteOutline />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                </Stack>
-                <TextField
-                  select
-                  fullWidth
-                  label="Completion rule"
-                  value={step.mode ?? ApprovalStepMode.Any}
-                  disabled={disabled}
-                  onChange={(event) =>
-                    onUpdateStep(stepIndex, (current) => ({
-                      ...current,
-                      mode: Number(event.target.value) as ApprovalStepMode,
-                    }))
-                  }
-                >
-                  <MenuItem value={ApprovalStepMode.Any}>
-                    Any assignee can complete
-                  </MenuItem>
-                  <MenuItem value={ApprovalStepMode.All}>
-                    All assignees must complete
-                  </MenuItem>
-                </TextField>
-                <TextField
-                  select
-                  fullWidth
-                  label="Action"
-                  value={step.action ?? ApprovalRequestTaskAction.Approve}
-                  disabled={disabled}
-                  onChange={(event) =>
-                    onUpdateStep(stepIndex, (current) => ({
-                      ...current,
-                      action: Number(event.target.value) as ApprovalRequestTaskAction,
-                    }))
-                  }
-                >
-                  {actionOptions.map((action) => (
-                    <MenuItem key={action.value} value={action.value}>
-                      {action.label}
-                    </MenuItem>
-                  ))}
-                </TextField>
-                <Stack spacing={Dialogs.assigneeStackSpacing}>
-                  {step.assignees.map((assignee, assigneeIndex) =>
-                    (() => {
-                      const assigneeState =
-                        getAssigneeState?.(
-                          step,
-                          stepIndex,
-                          assignee,
-                          assigneeIndex,
-                        ) ?? {};
-                      return (
-                        <Box
-                          key={assignee.globalId ?? assigneeIndex}
-                          sx={assigneeBoxSx}
+                  <Box sx={stepLabelActionsSx}>
+                    {(canMoveUp || canMoveDown) && (
+                      <>
+                        <Tooltip title="Move step up">
+                          <span>
+                            <IconButton
+                              color="primary"
+                              disabled={!canMoveUp}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                onMoveStep(stepIndex, -1);
+                              }}
+                            >
+                              <North />
+                            </IconButton>
+                          </span>
+                        </Tooltip>
+                        <Tooltip title="Move step down">
+                          <span>
+                            <IconButton
+                              color="primary"
+                              disabled={!canMoveDown}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                onMoveStep(stepIndex, 1);
+                              }}
+                            >
+                              <South />
+                            </IconButton>
+                          </span>
+                        </Tooltip>
+                      </>
+                    )}
+                    <Tooltip title="Remove step">
+                      <span>
+                        <IconButton
+                          aria-label={`Remove step ${step.sequence}`}
+                          disabled={!canRemove}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onRemoveStep(stepIndex);
+                          }}
                         >
-                          <ApprovalStepAssigneeRow
-                            assignee={assignee}
-                            canUseEmployees={canUseEmployees}
-                            canUseTeams={canUseTeams}
-                            employees={employees}
-                            teams={teams}
-                            disabled={assigneeState.disabled ?? disabled}
-                            removeDisabled={
-                              assigneeState.removeDisabled ??
-                              disabled
-                            }
-                            muted={assigneeState.muted ?? state.isPassed ?? false}
-                            onChange={(nextAssignee) =>
-                              onUpdateAssignee(
-                                stepIndex,
-                                assigneeIndex,
-                                nextAssignee,
-                              )
-                            }
-                            onRemove={() =>
-                              onRemoveAssignee(stepIndex, assigneeIndex)
-                            }
-                          />
-                        </Box>
-                      );
-                    })(),
-                  )}
-                </Stack>
-                <Button
-                  startIcon={<Add />}
-                  disabled={!canAddAssignee}
-                  onClick={() => onAddAssignee(stepIndex)}
-                  sx={addButtonSx}
+                          <DeleteOutline />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  </Box>
+                </Box>
+              </StepLabel>
+              <StepContent
+                sx={stepContentSx}
+                TransitionProps={{ in: true, unmountOnExit: false }}
+              >
+                <ApprovalRequestDetailsCard
+                  ariaLabel={`Step ${step.sequence}`}
+                  showStatusBorder={false}
+                  sx={getStepContentSx(state.sx)}
                 >
-                  Add assignee
-                </Button>
-              </Stack>
-            </CommentPaper>
+                  <Stack spacing={Dialogs.stepStackSpacing}>
+                    <TextField
+                      select
+                      fullWidth
+                      label="Completion rule"
+                      value={step.mode ?? ApprovalStepMode.Any}
+                      disabled={disabled}
+                      onChange={(event) =>
+                        onUpdateStep(stepIndex, (current) => ({
+                          ...current,
+                          mode: Number(event.target.value) as ApprovalStepMode,
+                        }))
+                      }
+                    >
+                      <MenuItem value={ApprovalStepMode.Any}>
+                        Any assignee can complete
+                      </MenuItem>
+                      <MenuItem value={ApprovalStepMode.All}>
+                        All assignees must complete
+                      </MenuItem>
+                    </TextField>
+                    <TextField
+                      select
+                      fullWidth
+                      label="Action"
+                      value={step.action ?? ApprovalRequestTaskAction.Approve}
+                      disabled={disabled}
+                      onChange={(event) =>
+                        onUpdateStep(stepIndex, (current) => ({
+                          ...current,
+                          action: Number(event.target.value) as ApprovalRequestTaskAction,
+                        }))
+                      }
+                    >
+                      {actionOptions.map((action) => (
+                        <MenuItem key={action.value} value={action.value}>
+                          {action.label}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                    <Stack spacing={Dialogs.assigneeStackSpacing}>
+                      {step.assignees.map((assignee, assigneeIndex) =>
+                        (() => {
+                          const assigneeState =
+                            getAssigneeState?.(
+                              step,
+                              stepIndex,
+                              assignee,
+                              assigneeIndex,
+                            ) ?? {};
+                          return (
+                            <ApprovalStepAssigneeRow
+                              assignee={assignee}
+                              canUseEmployees={canUseEmployees}
+                              canUseTeams={canUseTeams}
+                              compactEmployeeOptions={compactEmployeeOptions}
+                              disabled={assigneeState.disabled ?? disabled}
+                              employees={employees}
+                              key={assignee.globalId ?? assigneeIndex}
+                              muted={assigneeState.muted ?? state.isPassed ?? false}
+                              removeDisabled={
+                                assigneeState.removeDisabled ?? disabled
+                              }
+                              teams={teams}
+                              stackControlsOnSmallScreens={
+                                stackAssigneeControlsOnSmallScreens
+                              }
+                              onChange={(nextAssignee) =>
+                                onUpdateAssignee(
+                                  stepIndex,
+                                  assigneeIndex,
+                                  nextAssignee,
+                                )
+                              }
+                              onRemove={() =>
+                                onRemoveAssignee(stepIndex, assigneeIndex)
+                              }
+                            />
+                          );
+                        })(),
+                      )}
+                    </Stack>
+                    <Button
+                      startIcon={<Add />}
+                      disabled={!canAddAssignee}
+                      onClick={() => onAddAssignee(stepIndex)}
+                      sx={addButtonSx}
+                    >
+                      Add assignee
+                    </Button>
+                  </Stack>
+                </ApprovalRequestDetailsCard>
+              </StepContent>
+            </Step>
           );
         })}
-      </Stack>
+      </Stepper>
     )}
     {showAddStep && (
       <Button

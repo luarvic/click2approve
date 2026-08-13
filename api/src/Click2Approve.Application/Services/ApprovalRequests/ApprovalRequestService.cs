@@ -235,6 +235,7 @@ public class ApprovalRequestService(
             Sequence = sequence,
             Mode = stepDto.Mode,
             Action = stepDto.Action,
+            VisibilityMode = stepDto.VisibilityMode,
             Assignees = [.. stepDto.Assignees.Select(BuildAssignee)],
             ApprovalRequest = null!,
             Tasks = []

@@ -11,6 +11,7 @@ public class ApprovalRequestStepDto
     public int Sequence { get; init; }
     public ApprovalStepMode? Mode { get; init; }
     public ApprovalRequestTaskAction Action { get; init; }
+    public ApprovalStepVisibilityMode? VisibilityMode { get; init; }
     public bool IsVisible { get; init; } = true;
     public List<ApprovalRequestAssigneeDto> Assignees { get; init; } = [];
     public List<ApprovalRequestTaskDto> Tasks { get; init; } = [];

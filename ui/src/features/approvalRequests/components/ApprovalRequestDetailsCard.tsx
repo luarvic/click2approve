@@ -7,10 +7,13 @@ import type { ReactNode } from "react";
 
 interface ApprovalRequestDetailsCardProps {
   ariaLabel: string;
-  borderLeftColor: string;
+  borderLeftColor?: string;
   borderLeftStyle?: "dotted" | "solid";
   children: ReactNode;
+  contentSx?: SxProps<Theme>;
   onClick?: () => void;
+  showStatusBorder?: boolean;
+  sx?: SxProps<Theme>;
 }
 
 const clickableCardSx: SxProps<Theme> = {
@@ -41,10 +44,13 @@ const detailsCardContentSx: SxProps<Theme> = {
 
 const ApprovalRequestDetailsCard: React.FC<ApprovalRequestDetailsCardProps> = ({
   ariaLabel,
-  borderLeftColor,
+  borderLeftColor = "divider",
   borderLeftStyle = "solid",
   children,
+  contentSx,
   onClick,
+  showStatusBorder = true,
+  sx,
 }) => {
   const isClickable = Boolean(onClick);
   const statusBorderSx: SxProps<Theme> = {
@@ -54,7 +60,12 @@ const ApprovalRequestDetailsCard: React.FC<ApprovalRequestDetailsCardProps> = ({
   const cardSx: SxProps<Theme> = [
     detailsCardSx as SystemStyleObject<Theme>,
     ...(isClickable ? [clickableCardSx as SystemStyleObject<Theme>] : []),
-    statusBorderSx,
+    ...(showStatusBorder ? [statusBorderSx] : []),
+    ...(sx ? (Array.isArray(sx) ? sx : [sx]) : []),
+  ];
+  const cardContentSx: SxProps<Theme> = [
+    detailsCardContentSx as SystemStyleObject<Theme>,
+    ...(contentSx ? (Array.isArray(contentSx) ? contentSx : [contentSx]) : []),
   ];
 
   return (
@@ -73,7 +84,9 @@ const ApprovalRequestDetailsCard: React.FC<ApprovalRequestDetailsCardProps> = ({
       sx={cardSx}
       tabIndex={isClickable ? 0 : undefined}
     >
-      <CardContent sx={detailsCardContentSx}>{children}</CardContent>
+      <CardContent sx={cardContentSx}>
+        {children}
+      </CardContent>
     </Card>
   );
 };

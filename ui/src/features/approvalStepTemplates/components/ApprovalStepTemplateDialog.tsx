@@ -1,6 +1,8 @@
 import { stores } from "@/app/rootStore";
 import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
+import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
+import ApprovalWorkflowFormContent from "@/features/approvalWorkflow/components/ApprovalWorkflowFormContent";
 import {
   AssigneeType,
   ApprovalStepAssignee,
@@ -21,7 +23,6 @@ import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
 } from "@/shared/utils/persistenceNotifications";
-import { validateEmails } from "@/shared/utils/validators";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -196,65 +197,69 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
           { label: template ? "Template" : "New template" },
         ]}
       />
-      <Stack spacing={Dialogs.formStackSpacing}>
-        <TextField
-          label="Name"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          fullWidth
-          required
-        />
-        <ApprovalStepEditor
-          steps={steps}
-          canUseEmployees={canUseEmployees}
-          canUseTeams={canUseTeams}
-          employees={stores.employeeStore.employees}
-          teams={stores.teamStore.teams}
-          onAddAssignee={(stepIndex) =>
-            updateStep(stepIndex, (current) => ({
-              ...current,
-              assignees: [...current.assignees, createEmptyAssignee()],
-            }))
-          }
-          onAddStep={addStep}
-          onMoveStep={moveStep}
-          onRemoveAssignee={(stepIndex, assigneeIndex) =>
-            updateStep(stepIndex, (current) => ({
-              ...current,
-              assignees:
-                current.assignees.length === 1
-                  ? current.assignees
-                  : current.assignees.filter(
-                    (_, index) => index !== assigneeIndex,
-                  ),
-            }))
-          }
-          onRemoveStep={removeStep}
-          onUpdateAssignee={updateAssignee}
-          onUpdateStep={updateStep}
-        />
-      </Stack>
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        spacing={Dialogs.stepHeaderSpacing}
-        sx={Dialogs.addStepButtonSx}
-      >
-        <Button variant="outlined" onClick={() => onClose(template?.globalId)}>
-          Cancel
-        </Button>
-        {template && (
-          <Button
-            color="error"
-            variant="outlined"
-            onClick={() => setDeleteDialogIsOpen(true)}
-          >
-            Delete
+      <ApprovalWorkflowFormContent>
+        <Stack spacing={Dialogs.formStackSpacing}>
+          <ApprovalRequestDetailsCard ariaLabel="Template details" showStatusBorder={false}>
+            <TextField
+              label="Name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              fullWidth
+              required
+            />
+          </ApprovalRequestDetailsCard>
+          <ApprovalStepEditor
+            steps={steps}
+            canUseEmployees={canUseEmployees}
+            canUseTeams={canUseTeams}
+            employees={stores.employeeStore.employees}
+            teams={stores.teamStore.teams}
+            onAddAssignee={(stepIndex) =>
+              updateStep(stepIndex, (current) => ({
+                ...current,
+                assignees: [...current.assignees, createEmptyAssignee()],
+              }))
+            }
+            onAddStep={addStep}
+            onMoveStep={moveStep}
+            onRemoveAssignee={(stepIndex, assigneeIndex) =>
+              updateStep(stepIndex, (current) => ({
+                ...current,
+                assignees:
+                  current.assignees.length === 1
+                    ? current.assignees
+                    : current.assignees.filter(
+                      (_, index) => index !== assigneeIndex,
+                    ),
+              }))
+            }
+            onRemoveStep={removeStep}
+            onUpdateAssignee={updateAssignee}
+            onUpdateStep={updateStep}
+          />
+        </Stack>
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={Dialogs.stepHeaderSpacing}
+          sx={Dialogs.addStepButtonSx}
+        >
+          <Button variant="outlined" onClick={() => onClose(template?.globalId)}>
+            Cancel
           </Button>
-        )}
-        <LoadingButton loading={saveAction.isRunning} variant="outlined" onClick={handleSubmit}>
-          Save
-        </LoadingButton>
-      </Stack>
+          {template && (
+            <Button
+              color="error"
+              variant="outlined"
+              onClick={() => setDeleteDialogIsOpen(true)}
+            >
+              Delete
+            </Button>
+          )}
+          <LoadingButton loading={saveAction.isRunning} variant="outlined" onClick={handleSubmit}>
+            Save
+          </LoadingButton>
+        </Stack>
+      </ApprovalWorkflowFormContent>
       {template && (
         <DeleteConfirmationDialog
           cancelFirst

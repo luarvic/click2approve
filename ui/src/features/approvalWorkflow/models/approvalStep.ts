@@ -6,6 +6,13 @@ export enum ApprovalStepMode {
   All = 1,
 }
 
+export enum ApprovalStepVisibilityMode {
+  AllParticipants = 0,
+  AllParticipantsExceptSelected = 1,
+  AssigneesAndSelectedParticipants = 2,
+  AssigneesOnly = 3,
+}
+
 export enum AssigneeType {
   User = 0,
   Employee = 1,
@@ -26,6 +33,7 @@ export interface ApprovalStep {
   globalId?: string;
   sequence: number;
   mode?: ApprovalStepMode;
+  visibilityMode?: ApprovalStepVisibilityMode;
   action: ApprovalRequestTaskAction;
   isVisible?: boolean;
   assignees: ApprovalStepAssignee[];

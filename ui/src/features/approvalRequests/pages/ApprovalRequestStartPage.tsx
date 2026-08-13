@@ -1,4 +1,5 @@
 import { stores } from "@/app/rootStore";
+import ApprovalWorkflowFormContent from "@/features/approvalWorkflow/components/ApprovalWorkflowFormContent";
 import { TenantType } from "@/features/tenants/models/tenant";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
@@ -81,56 +82,49 @@ const ApprovalRequestStartPage = () => {
           { label: "New request" },
         ]}
       />
-      <Stack component="form" onSubmit={handleSubmit} spacing={Dialogs.formStackSpacing}>
-        <FormControl>
-          <RadioGroup
-            value={requestType}
-            onChange={(event) => setRequestType(event.target.value as RequestType)}
+      <ApprovalWorkflowFormContent>
+        <Stack component="form" onSubmit={handleSubmit} spacing={Dialogs.formStackSpacing}>
+          <FormControl>
+            <RadioGroup
+              value={requestType}
+              onChange={(event) => setRequestType(event.target.value as RequestType)}
+            >
+              <FormControlLabel control={<Radio />} label="Custom" value="custom" />
+              <FormControlLabel
+                control={<Radio />}
+                label="From template"
+                value="template"
+              />
+            </RadioGroup>
+          </FormControl>
+          {requestType === "template" && (
+            <TextField
+              select
+              fullWidth
+              label="Template"
+              value={templateGlobalId}
+              onChange={(event) => setTemplateGlobalId(event.target.value)}
+            >
+              {!hasTemplates && <MenuItem disabled>No templates available</MenuItem>}
+              {stores.approvalStepTemplateStore.templates.map((template) => (
+                <MenuItem key={template.globalId} value={template.globalId}>
+                  {template.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+          <Button
+            disabled={
+              requestType === "template" && (!hasTemplates || templateGlobalId === "")
+            }
+            sx={continueButtonSx}
+            type="submit"
+            variant="outlined"
           >
-            <FormControlLabel
-              control={<Radio />}
-              label="Custom"
-              value="custom"
-            />
-            <FormControlLabel
-              control={<Radio />}
-              label="From template"
-              value="template"
-            />
-          </RadioGroup>
-        </FormControl>
-        {requestType === "template" && (
-          <TextField
-            select
-            fullWidth
-            label="Template"
-            value={templateGlobalId}
-            onChange={(event) => {
-              const value = event.target.value;
-              setTemplateGlobalId(value);
-            }}
-          >
-            {!hasTemplates && (
-              <MenuItem disabled>No templates available</MenuItem>
-            )}
-            {stores.approvalStepTemplateStore.templates.map((template) => (
-              <MenuItem key={template.globalId} value={template.globalId}>
-                {template.name}
-              </MenuItem>
-            ))}
-          </TextField>
-        )}
-        <Button
-          disabled={
-            requestType === "template" && (!hasTemplates || templateGlobalId === "")
-          }
-          sx={continueButtonSx}
-          type="submit"
-          variant="outlined"
-        >
-          Continue
-        </Button>
-      </Stack>
+            Continue
+          </Button>
+        </Stack>
+      </ApprovalWorkflowFormContent>
     </>
   );
 };

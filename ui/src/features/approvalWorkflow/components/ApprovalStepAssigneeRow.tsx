@@ -28,6 +28,8 @@ interface ApprovalStepAssigneeRowProps {
   muted?: boolean;
   onChange: (assignee: ApprovalStepAssignee) => void;
   onRemove: () => void;
+  compactEmployeeOptions?: boolean;
+  stackControlsOnSmallScreens?: boolean;
 }
 
 const getAssigneeRowSx = (muted: boolean): SxProps<Theme> => ({
@@ -35,6 +37,14 @@ const getAssigneeRowSx = (muted: boolean): SxProps<Theme> => ({
 });
 const assigneeControlsSx: SxProps<Theme> = { flexWrap: "nowrap" };
 const assigneeFieldSx: SxProps<Theme> = { flexGrow: 1, minWidth: 0 };
+const assigneeFieldControlsSx: SxProps<Theme> = {
+  alignItems: "center",
+  flex: 1,
+  minWidth: 0,
+};
+const responsiveAssigneeTypeFieldSx: SxProps<Theme> = {
+  width: { xs: "100%", sm: "auto" },
+};
 
 const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
   assignee,
@@ -47,6 +57,8 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
   muted = false,
   onChange,
   onRemove,
+  compactEmployeeOptions = false,
+  stackControlsOnSmallScreens = false,
 }) => {
   const recipientTypes = [
     { value: AssigneeType.User, label: "User" },
@@ -61,9 +73,9 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
   return (
     <Stack spacing={Dialogs.assigneeStackSpacing} sx={getAssigneeRowSx(muted)}>
       <Stack
-        direction="row"
+        direction={stackControlsOnSmallScreens ? { xs: "column", sm: "row" } : "row"}
         spacing={Dialogs.assigneeStackSpacing}
-        alignItems="center"
+        alignItems={stackControlsOnSmallScreens ? { xs: "stretch", sm: "center" } : "center"}
         sx={assigneeControlsSx}
       >
         <TextField
@@ -71,13 +83,17 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
           label="Type"
           value={assignee.type}
           disabled={disabled}
-            onChange={(event) =>
-              onChange({
-                globalId: assignee.globalId,
-                type: Number(event.target.value) as AssigneeType,
-              })
-            }
-          sx={Dialogs.assigneeTypeFieldSx}
+          onChange={(event) =>
+            onChange({
+              globalId: assignee.globalId,
+              type: Number(event.target.value) as AssigneeType,
+            })
+          }
+          sx={
+            stackControlsOnSmallScreens
+              ? [Dialogs.assigneeTypeFieldSx, responsiveAssigneeTypeFieldSx]
+              : Dialogs.assigneeTypeFieldSx
+          }
         >
           {recipientTypes.map((type) => (
             <MenuItem key={type.value} value={type.value}>
@@ -85,78 +101,90 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
             </MenuItem>
           ))}
         </TextField>
-        {assignee.type === AssigneeType.User && (
-          <TextField
-            fullWidth
-            label="Email"
-            value={assignee.email ?? ""}
-            disabled={disabled}
-            onChange={(event) =>
-              onChange({ ...assignee, email: event.target.value })
-            }
-            sx={assigneeFieldSx}
-          />
-        )}
-        {assignee.type === AssigneeType.Employee && (
-          <Autocomplete
-            fullWidth
-            options={employees}
-            getOptionLabel={(option) => option.displayName}
-            value={
-              employees.find((user) => user.globalId === assignee.employeeGlobalId) ?? null
-            }
-            disabled={disabled}
-            renderInput={(params) => (
-              <TextField {...params} label="Employee" />
-            )}
-            renderOption={(props, option) => (
-              <li {...props}>
-                <DisplayName
-                  displayName={option.displayName}
-                  email={option.email}
-                />
-              </li>
-            )}
-            onChange={(_, value) =>
-              onChange({
-                ...assignee,
-                employeeGlobalId: value?.globalId,
-              })
-            }
-            sx={assigneeFieldSx}
-          />
-        )}
-        {assignee.type === AssigneeType.Team && (
-          <Autocomplete
-            fullWidth
-            options={teams}
-            getOptionLabel={(option) => option.name}
-            value={teams.find((team) => team.globalId === assignee.teamGlobalId) ?? null}
-            disabled={disabled}
-            renderInput={(params) => (
-              <TextField {...params} label="Team" />
-            )}
-            onChange={(_, value) =>
-              onChange({
-                ...assignee,
-                teamGlobalId: value?.globalId,
-              })
-            }
-            sx={assigneeFieldSx}
-          />
-        )}
-        <Tooltip title="Remove assignee">
-          <span>
-            <IconButton
-              aria-label="Remove assignee"
-              disabled={removeDisabled}
-              onClick={onRemove}
-              sx={Dialogs.removeAssigneeButtonSx}
-            >
-              <Close />
-            </IconButton>
-          </span>
-        </Tooltip>
+        <Stack
+          direction="row"
+          spacing={Dialogs.assigneeStackSpacing}
+          sx={assigneeFieldControlsSx}
+        >
+          {assignee.type === AssigneeType.User && (
+            <TextField
+              fullWidth
+              label="Email"
+              value={assignee.email ?? ""}
+              disabled={disabled}
+              onChange={(event) =>
+                onChange({ ...assignee, email: event.target.value })
+              }
+              sx={assigneeFieldSx}
+            />
+          )}
+          {assignee.type === AssigneeType.Employee && (
+            <Autocomplete
+              disableClearable
+              fullWidth
+              options={employees}
+              getOptionLabel={(option) => option.displayName}
+              value={
+                employees.find((user) => user.globalId === assignee.employeeGlobalId) ?? null
+              }
+              disabled={disabled}
+              renderInput={(params) => (
+                <TextField {...params} label="Employee" />
+              )}
+              renderOption={
+                compactEmployeeOptions
+                  ? undefined
+                  : (props, option) => (
+                    <li {...props}>
+                      <DisplayName
+                        displayName={option.displayName}
+                        email={option.email}
+                      />
+                    </li>
+                  )
+              }
+              onChange={(_, value) =>
+                onChange({
+                  ...assignee,
+                  employeeGlobalId: value?.globalId,
+                })
+              }
+              sx={assigneeFieldSx}
+            />
+          )}
+          {assignee.type === AssigneeType.Team && (
+            <Autocomplete
+              disableClearable
+              fullWidth
+              options={teams}
+              getOptionLabel={(option) => option.name}
+              value={teams.find((team) => team.globalId === assignee.teamGlobalId) ?? null}
+              disabled={disabled}
+              renderInput={(params) => (
+                <TextField {...params} label="Team" />
+              )}
+              onChange={(_, value) =>
+                onChange({
+                  ...assignee,
+                  teamGlobalId: value?.globalId,
+                })
+              }
+              sx={assigneeFieldSx}
+            />
+          )}
+          <Tooltip title="Remove assignee">
+            <span>
+              <IconButton
+                aria-label="Remove assignee"
+                disabled={removeDisabled}
+                onClick={onRemove}
+                sx={Dialogs.removeAssigneeButtonSx}
+              >
+                <Close />
+              </IconButton>
+            </span>
+          </Tooltip>
+        </Stack>
       </Stack>
     </Stack>
   );

@@ -130,7 +130,9 @@ const App = () => {
                     <Route path="outbox" element={<OutboxPage />} />
                     <Route path="outbox/new" element={<ApprovalRequestStartPage />} />
                     <Route path="outbox/new/compose" element={<ApprovalRequestSubmitPage />} />
+                    <Route path="outbox/new/compose/visibility" element={<ApprovalRequestSubmitPage />} />
                     <Route path="outbox/:approvalRequestGlobalId/resubmit" element={<ApprovalRequestSubmitPage />} />
+                    <Route path="outbox/:approvalRequestGlobalId/resubmit/visibility" element={<ApprovalRequestSubmitPage />} />
                     <Route path="outbox/:approvalRequestGlobalId" element={<ApprovalRequestViewPage />} />
                     <Route path="outbox/:approvalRequestGlobalId/chat" element={<ApprovalRequestViewPage tab="chat" />} />
                     <Route path="outbox/:approvalRequestGlobalId/link" element={<ApprovalRequestViewPage tab="link" />} />

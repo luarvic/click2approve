@@ -21,6 +21,7 @@ import ApprovalStepBlock, {
   ApprovalStepLabel,
   getStepStatus,
 } from "./ApprovalStepBlock";
+import ApprovalStepVisibilitySummary from "./ApprovalStepVisibilitySummary";
 
 interface ApprovalStepsProps {
   approvalRequest: ApprovalRequest;
@@ -146,16 +147,20 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
                     sx={stepContentSx}
                     TransitionProps={{ in: true, unmountOnExit: false }}
                   >
-                    <ApprovalStepBlock
-                      highlightedTaskGlobalId={highlightedTaskGlobalId}
-                      onHighlightedTaskClick={onHighlightedTaskClick}
-                      showMetadata={false}
-                      showStepBox={false}
-                      showStepTitle={false}
-                      showVisibility={showVisibleStepVisibility}
-                      step={step}
-                      tasks={tasks}
-                    />
+                    <Stack spacing={Dialogs.stepHeaderSpacing}>
+                      {showVisibleStepVisibility && (
+                        <ApprovalStepVisibilitySummary step={step} />
+                      )}
+                      <ApprovalStepBlock
+                        highlightedTaskGlobalId={highlightedTaskGlobalId}
+                        onHighlightedTaskClick={onHighlightedTaskClick}
+                        showMetadata={false}
+                        showStepBox={false}
+                        showStepTitle={false}
+                        step={step}
+                        tasks={tasks}
+                      />
+                    </Stack>
                   </StepContent>
                 </Step>
               );
