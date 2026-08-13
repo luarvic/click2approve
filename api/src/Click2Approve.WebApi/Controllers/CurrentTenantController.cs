@@ -2,7 +2,7 @@ using Asp.Versioning;
 using Click2Approve.Application.Abstractions.Services.Tenants;
 using Click2Approve.Domain.Models;
 using Click2Approve.WebApi.Extensions;
-using Click2Approve.WebApi.Models.DTOs;
+using Click2Approve.WebApi.Models.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -26,10 +26,10 @@ public class CurrentTenantController(ITenantService tenantService, UserManager<A
     /// Gets the personal tenant that is always available to the authenticated user.
     /// </summary>
     [HttpGet("current")]
-    public async Task<ActionResult<CurrentTenantDto>> GetCurrentAsync(CancellationToken cancellationToken)
+    public async Task<ActionResult<CurrentTenantResponse>> GetCurrentAsync(CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
         var tenant = await _tenantService.GetRequiredDefaultAsync(user, cancellationToken);
-        return Ok(new CurrentTenantDto { GlobalId = tenant.GlobalId });
+        return Ok(new CurrentTenantResponse { GlobalId = tenant.GlobalId });
     }
 }

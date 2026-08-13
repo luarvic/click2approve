@@ -1,7 +1,6 @@
-using Click2Approve.Application.Models.Auxiliary.Emails;
-using Click2Approve.Application.Models.Auxiliary.Files;
-using Click2Approve.Application.Models.Auxiliary.Notifications;
-using Click2Approve.Application.Models.DTOs;
+using Click2Approve.Application.Models.Emails;
+using Click2Approve.Application.Models.Files;
+using Click2Approve.Application.Models.Notifications;
 using Click2Approve.Domain.Models;
 
 namespace Click2Approve.Application.Abstractions.Services.Notifications;
@@ -16,7 +15,7 @@ public interface IDomainEventService
         AppUser user,
         long tenantId,
         CancellationToken cancellationToken);
-    Task<List<InAppNotificationDto>> ListInAppAsync(
+    Task<List<InAppNotificationResult>> ListInAppAsync(
         AppUser user,
         long tenantId,
         bool unreadOnly,

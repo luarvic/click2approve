@@ -1,0 +1,10 @@
+global using Click2Approve.Application.Models.Commands.ApprovalRequests;
+global using Click2Approve.Application.Models.Commands.UserProfiles;
+global using Click2Approve.WebApi.Models.Requests.ApprovalRequests;
+global using Click2Approve.WebApi.Models.Requests.Notifications;
+global using Click2Approve.WebApi.Models.Requests.UserProfiles;
+global using Click2Approve.WebApi.Models.Responses;
+global using Click2Approve.WebApi.Models.Responses.ApprovalRequests;
+global using Click2Approve.WebApi.Models.Responses.Notifications;
+global using Click2Approve.WebApi.Models.Responses.UserFiles;
+global using Click2Approve.WebApi.Models.Responses.UserProfiles;

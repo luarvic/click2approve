@@ -4,7 +4,7 @@ using Click2Approve.Application.Abstractions.Email;
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.States;
-using EmailMessage = Click2Approve.Application.Models.Auxiliary.Emails.EmailMessage;
+using EmailMessage = Click2Approve.Application.Models.Emails.EmailMessage;
 
 namespace Click2Approve.Infrastructure.Email;
 

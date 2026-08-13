@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using Click2Approve.WebApi.Models.DTOs;
+
 using Click2Approve.WebApi.Tests.Extensions;
 using Click2Approve.WebApi.Tests.Models;
 
@@ -32,7 +32,7 @@ public class CurrentTenantControllerTests(CustomWebApplicationFactory<Program> a
         var login = await client.LogInAsync(credentials, CancellationToken.None);
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", login.AccessToken);
 
-        var tenant = await client.GetFromJsonAsync<CurrentTenantDto>("api/v1/tenants/current");
+        var tenant = await client.GetFromJsonAsync<CurrentTenantResponse>("api/v1/tenants/current");
 
         Assert.NotNull(tenant);
         Assert.NotEqual(Guid.Empty, tenant.GlobalId);

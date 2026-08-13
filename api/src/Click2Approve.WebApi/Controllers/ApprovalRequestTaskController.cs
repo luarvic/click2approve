@@ -2,9 +2,9 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Asp.Versioning;
 using Click2Approve.Application.Abstractions.Services.ApprovalRequests;
-using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Models;
 using Click2Approve.WebApi.Extensions;
+using Click2Approve.WebApi.Mappers.ApprovalRequests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -50,12 +50,12 @@ public class ApprovalRequestTaskController(
     /// <param name="payload">The payload that contains the approval request task properties.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     [HttpPost("complete")]
-    public async Task<IActionResult> CompleteAsync([FromBody] ApprovalRequestTaskCompleteDto payload, CancellationToken cancellationToken)
+    public async Task<IActionResult> CompleteAsync([FromBody] CompleteApprovalRequestTaskRequest payload, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
         payload.AssigneeIpAddress = GetClientIpAddress();
         payload.AssigneeBrowserData = BuildBrowserData(payload.ClientAuditContext);
-        await _approvalRequestTaskService.CompleteAsync(user, payload, cancellationToken);
+        await _approvalRequestTaskService.CompleteAsync(user, ApprovalRequestCommandMapper.Map(payload), cancellationToken);
         return Ok();
     }
 
@@ -65,21 +65,21 @@ public class ApprovalRequestTaskController(
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The list of approval request task summaries.</returns>
     [HttpGet]
-    public async Task<ActionResult<List<ApprovalRequestTaskListItemDto>>> ListAsync(CancellationToken cancellationToken)
+    public async Task<ActionResult<List<ApprovalRequestTaskListItemResponse>>> ListAsync(CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
         var tasks = await _approvalRequestTaskService.ListAsync(user, cancellationToken);
-        return Ok(tasks);
+        return Ok(ApprovalRequestResponseMapper.Map(tasks));
     }
 
     /// <summary>
     /// Gets an approval request task with the request data the assignee can view.
     /// </summary>
     [HttpGet("{globalId:guid}")]
-    public async Task<ActionResult<ApprovalRequestTaskDetailDto>> GetAsync(Guid globalId, CancellationToken cancellationToken)
+    public async Task<ActionResult<ApprovalRequestTaskDetailsResponse>> GetAsync(Guid globalId, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        return Ok(await _approvalRequestTaskService.GetAsync(user, globalId, cancellationToken));
+        return Ok(ApprovalRequestResponseMapper.Map(await _approvalRequestTaskService.GetAsync(user, globalId, cancellationToken)));
     }
 
     /// <summary>
@@ -106,7 +106,7 @@ public class ApprovalRequestTaskController(
         return HttpContext.Connection.RemoteIpAddress?.ToString();
     }
 
-    private string BuildBrowserData(ApprovalRequestTaskClientAuditContextDto? clientAuditContext)
+    private string BuildBrowserData(ApprovalRequestTaskClientAuditContextRequest? clientAuditContext)
     {
         var browserData = new ApprovalRequestTaskBrowserData(
             TrimToNull(Request.Headers.UserAgent.ToString(), MaxHeaderLength),
@@ -137,8 +137,8 @@ public class ApprovalRequestTaskController(
         return JsonSerializer.Serialize(browserData, BrowserDataJsonOptions);
     }
 
-    private static ApprovalRequestTaskClientAuditContextDto? Sanitize(
-        ApprovalRequestTaskClientAuditContextDto? clientAuditContext,
+    private static ApprovalRequestTaskClientAuditContextRequest? Sanitize(
+        ApprovalRequestTaskClientAuditContextRequest? clientAuditContext,
         bool includeOptionalNetworkData = true)
     {
         if (clientAuditContext is null)
@@ -146,7 +146,7 @@ public class ApprovalRequestTaskController(
             return null;
         }
 
-        return new ApprovalRequestTaskClientAuditContextDto
+        return new ApprovalRequestTaskClientAuditContextRequest
         {
             Language = TrimToNull(clientAuditContext.Language, MaxShortValueLength),
             Languages = clientAuditContext.Languages?
@@ -198,5 +198,5 @@ public class ApprovalRequestTaskController(
         string? ServerAcceptLanguage,
         string? ServerOrigin,
         string? ServerReferer,
-        ApprovalRequestTaskClientAuditContextDto? Client);
+        ApprovalRequestTaskClientAuditContextRequest? Client);
 }

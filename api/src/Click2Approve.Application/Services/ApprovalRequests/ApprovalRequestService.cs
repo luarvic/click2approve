@@ -1,8 +1,7 @@
 using Click2Approve.Application.Extensions;
-using Click2Approve.Application.Models.Auxiliary.Emails;
-using Click2Approve.Application.Models.Auxiliary.Files;
-using Click2Approve.Application.Models.Auxiliary.Notifications;
-using Click2Approve.Application.Models.DTOs;
+using Click2Approve.Application.Models.Emails;
+using Click2Approve.Application.Models.Files;
+using Click2Approve.Application.Models.Notifications;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 
@@ -36,7 +35,7 @@ public class ApprovalRequestService(
     /// <summary>
     /// Creates a new approval request.
     /// </summary>
-    public async Task<Guid> SubmitAsync(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
+    public async Task<Guid> SubmitAsync(AppUser user, SubmitApprovalRequestCommand payload, CancellationToken cancellationToken)
     {
         var title = (payload.Title ?? string.Empty).Trim();
         if (title.Length == 0)
@@ -121,7 +120,7 @@ public class ApprovalRequestService(
     /// <summary>
     /// Lists approval requests of the user.
     /// </summary>
-    public async Task<List<ApprovalRequestListItemDto>> ListAsync(AppUser user, CancellationToken cancellationToken)
+    public async Task<List<ApprovalRequestListItemResult>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
         var approvalRequests = await _approvalRequestRepository.ListAsync(user, cancellationToken);
         return [.. approvalRequests.Select(ApprovalRequestMapper.MapApprovalRequestListItem)];
@@ -130,7 +129,7 @@ public class ApprovalRequestService(
     /// <summary>
     /// Gets an approval request with all data required by its editor.
     /// </summary>
-    public async Task<ApprovalRequestDto> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    public async Task<ApprovalRequestDetailsResult> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
         var approvalRequest = await _approvalRequestRepository.GetAsync(user, globalId, cancellationToken)
             ?? throw new NotFoundException("Approval request was not found.");
@@ -153,7 +152,7 @@ public class ApprovalRequestService(
     /// </summary>
     protected sealed record ApprovalRequestCreator(long? EmployeeId, string DisplayName);
 
-    private async Task CheckLimitationsAsync(AppUser user, ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
+    private async Task CheckLimitationsAsync(AppUser user, SubmitApprovalRequestCommand payload, CancellationToken cancellationToken)
     {
         var maxApprovalRequestsPerDay = _configuration.GetValue<int>("Limitations:MaxApprovalRequestsPerDay");
         if (maxApprovalRequestsPerDay > 0)
@@ -185,7 +184,7 @@ public class ApprovalRequestService(
     }
 
     private static IEnumerable<ApprovalRequestFile> BuildRequestFiles(
-        IEnumerable<ApprovalRequestFileSubmitDto> submittedFiles,
+        IEnumerable<ApprovalRequestFileCommand> submittedFiles,
         IEnumerable<UserFile> userFiles)
     {
         var userFilesByGlobalId = userFiles.ToDictionary(file => file.GlobalId);
@@ -205,29 +204,29 @@ public class ApprovalRequestService(
             });
     }
 
-    private static List<ApprovalRequestStep> BuildSteps(List<ApprovalRequestStepSubmitDto> stepDtos)
+    private static List<ApprovalRequestStep> BuildSteps(List<ApprovalRequestStepCommand> stepCommands)
     {
-        if (stepDtos.Count == 0)
+        if (stepCommands.Count == 0)
         {
             throw new BusinessRuleException("Specify one or more approval steps.");
         }
 
-        return [.. stepDtos
+        return [.. stepCommands
             .OrderBy(step => step.Sequence)
-            .Select((stepDto, index) =>
+            .Select((stepCommand, index) =>
             {
-                if (stepDto.Assignees.Count == 0)
+                if (stepCommand.Assignees.Count == 0)
                 {
                     throw new BusinessRuleException("Each approval step must have one or more assignees.");
                 }
 
-                return BuildStep(stepDto, index + 1);
+                return BuildStep(stepCommand, index + 1);
             })];
     }
 
-    private static ApprovalRequestStep BuildStep(ApprovalRequestStepSubmitDto stepDto, int sequence)
+    private static ApprovalRequestStep BuildStep(ApprovalRequestStepCommand stepCommand, int sequence)
     {
-        if (stepDto.Assignees.Count == 0)
+        if (stepCommand.Assignees.Count == 0)
         {
             throw new BusinessRuleException("Each approval step must have one or more assignees.");
         }
@@ -235,16 +234,16 @@ public class ApprovalRequestService(
         return new ApprovalRequestStep
         {
             Sequence = sequence,
-            Mode = stepDto.Mode,
-            Action = stepDto.Action,
-            VisibilityMode = stepDto.VisibilityMode,
-            Assignees = [.. stepDto.Assignees.Select(BuildAssignee)],
+            Mode = stepCommand.Mode,
+            Action = stepCommand.Action,
+            VisibilityMode = stepCommand.VisibilityMode,
+            Assignees = [.. stepCommand.Assignees.Select(BuildAssignee)],
             ApprovalRequest = null!,
             Tasks = []
         };
     }
 
-    private static ApprovalRequestStepAssignee BuildAssignee(ApprovalRequestAssigneeSubmitDto assignee)
+    private static ApprovalRequestStepAssignee BuildAssignee(ApprovalRequestAssigneeCommand assignee)
     {
         return new ApprovalRequestStepAssignee
         {
@@ -254,31 +253,31 @@ public class ApprovalRequestService(
 
     private static void ApplyStepVisibility(
         List<ApprovalRequestStep> steps,
-        List<ApprovalRequestStepVisibilitySubmitDto> visibilityDtos)
+        List<ApprovalRequestStepVisibilityCommand> visibilityCommands)
     {
-        if (visibilityDtos.Count == 0)
+        if (visibilityCommands.Count == 0)
         {
             return;
         }
 
         var stepsBySequence = steps.ToDictionary(step => step.Sequence);
-        foreach (var visibilityDto in visibilityDtos)
+        foreach (var visibilityCommand in visibilityCommands)
         {
-            if (!stepsBySequence.TryGetValue(visibilityDto.StepSequence, out var step)
-                || !stepsBySequence.TryGetValue(visibilityDto.AssigneeStepSequence, out var assigneeStep)
-                || visibilityDto.AssigneeIndex < 0
-                || visibilityDto.AssigneeIndex >= assigneeStep.Assignees.Count)
+            if (!stepsBySequence.TryGetValue(visibilityCommand.StepSequence, out var step)
+                || !stepsBySequence.TryGetValue(visibilityCommand.AssigneeStepSequence, out var assigneeStep)
+                || visibilityCommand.AssigneeIndex < 0
+                || visibilityCommand.AssigneeIndex >= assigneeStep.Assignees.Count)
             {
                 throw new BusinessRuleException("Step visibility contains an invalid step or assignee.");
             }
 
-            var assignee = assigneeStep.Assignees[visibilityDto.AssigneeIndex];
+            var assignee = assigneeStep.Assignees[visibilityCommand.AssigneeIndex];
             var assigneeIsAssignedToStep = step.Assignees.Contains(assignee);
             step.StepVisibilities.Add(new ApprovalRequestStepVisibility
             {
                 ApprovalRequestStep = step,
                 ApprovalRequestStepAssignee = assignee,
-                IsVisible = assigneeIsAssignedToStep || visibilityDto.IsVisible
+                IsVisible = assigneeIsAssignedToStep || visibilityCommand.IsVisible
             });
         }
     }

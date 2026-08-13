@@ -1,8 +1,9 @@
 using Asp.Versioning;
 using Click2Approve.Application.Abstractions.Services.UserProfiles;
-using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Models;
 using Click2Approve.WebApi.Extensions;
+using Click2Approve.WebApi.Mappers;
+using Click2Approve.WebApi.Mappers.UserProfiles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -23,26 +24,26 @@ public class UserProfileController(IUserProfileService userProfileService, UserM
 
     [HttpGet]
     [Authorize]
-    public async Task<ActionResult<UserProfileDto>> GetAsync(CancellationToken cancellationToken)
+    public async Task<ActionResult<UserProfileResponse>> GetAsync(CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        return Ok(await _userProfileService.GetAsync(user, cancellationToken));
+        return Ok(UserProfileContractMapper.Map(await _userProfileService.GetAsync(user, cancellationToken)));
     }
 
     [HttpPut]
     [Authorize]
-    public async Task<ActionResult<UserProfileDto>> UpdateAsync([FromBody] UserProfileUpdateDto payload, CancellationToken cancellationToken)
+    public async Task<ActionResult<UserProfileResponse>> UpdateAsync([FromBody] UpdateUserProfileRequest payload, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        return Ok(await _userProfileService.UpdateAsync(user, payload, cancellationToken));
+        return Ok(UserProfileContractMapper.Map(await _userProfileService.UpdateAsync(user, UserProfileContractMapper.Map(payload), cancellationToken)));
     }
 
     [HttpPost("avatar")]
     [Authorize]
-    public async Task<ActionResult<UserProfileDto>> UploadAvatarAsync(IFormFile avatar, CancellationToken cancellationToken)
+    public async Task<ActionResult<UserProfileResponse>> UploadAvatarAsync(IFormFile avatar, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        return Ok(await _userProfileService.UploadAvatarAsync(user, await avatar.ToUploadedFileAsync(cancellationToken), cancellationToken));
+        return Ok(UserProfileContractMapper.Map(await _userProfileService.UploadAvatarAsync(user, await avatar.ToUploadedFileAsync(cancellationToken), cancellationToken)));
     }
 
     [HttpGet("{userId}/avatar")]
@@ -54,9 +55,9 @@ public class UserProfileController(IUserProfileService userProfileService, UserM
 
     [HttpDelete("avatar")]
     [Authorize]
-    public async Task<ActionResult<UserProfileDto>> DeleteAvatarAsync(CancellationToken cancellationToken)
+    public async Task<ActionResult<UserProfileResponse>> DeleteAvatarAsync(CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        return Ok(await _userProfileService.DeleteAvatarAsync(user, cancellationToken));
+        return Ok(UserProfileContractMapper.Map(await _userProfileService.DeleteAvatarAsync(user, cancellationToken)));
     }
 }

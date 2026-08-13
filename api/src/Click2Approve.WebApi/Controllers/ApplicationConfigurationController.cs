@@ -1,5 +1,5 @@
 using Asp.Versioning;
-using Click2Approve.WebApi.Models.DTOs;
+using Click2Approve.WebApi.Models.Responses;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Click2Approve.WebApi.Controllers;
@@ -19,16 +19,16 @@ public class ApplicationConfigurationController(IConfiguration configuration) : 
     /// Gets the edition, capabilities, and client configuration.
     /// </summary>
     [HttpGet("info")]
-    public ActionResult<ApplicationConfigurationDto> GetConfiguration()
+    public ActionResult<ApplicationConfigurationResponse> GetConfiguration()
     {
         var edition = _configuration["Product:Edition"] ?? "OpenSource";
-        return Ok(new ApplicationConfigurationDto
+        return Ok(new ApplicationConfigurationResponse
         {
             AvatarImageSize = _configuration.GetValue<int>("Limitations:AvatarImageSize"),
             Edition = edition,
             LogoImageSize = _configuration.GetValue<int>("Limitations:LogoImageSize"),
             RequiresConfirmedEmail = _configuration.GetValue<bool>("Identity:RequireConfirmedEmail"),
-            Capabilities = new ProductCapabilitiesDto
+            Capabilities = new ProductCapabilitiesResponse
             {
                 Tenants = _configuration.GetValue<bool>("Product:Capabilities:Tenants"),
                 Discussions = _configuration.GetValue<bool>("Product:Capabilities:Discussions"),

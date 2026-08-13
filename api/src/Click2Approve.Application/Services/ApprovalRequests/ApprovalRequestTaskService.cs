@@ -1,4 +1,3 @@
-using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 
@@ -23,7 +22,7 @@ public class ApprovalRequestTaskService(
     /// <summary>
     /// Lists approval request tasks.
     /// </summary>
-    public async Task<List<ApprovalRequestTaskListItemDto>> ListAsync(AppUser user, CancellationToken cancellationToken)
+    public async Task<List<ApprovalRequestTaskListItemResult>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
         var tasks = await _approvalRequestTaskRepository.ListAsync(user, cancellationToken);
         return [.. tasks.Select(ApprovalRequestMapper.MapTaskListItem)];
@@ -32,7 +31,7 @@ public class ApprovalRequestTaskService(
     /// <summary>
     /// Gets a task with the request data the assignee is authorized to view.
     /// </summary>
-    public async Task<ApprovalRequestTaskDetailDto> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    public async Task<ApprovalRequestTaskDetailsResult> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
         var task = await _approvalRequestTaskRepository.GetAsync(user, globalId, cancellationToken)
             ?? throw new NotFoundException("Approval request task was not found.");
@@ -45,7 +44,7 @@ public class ApprovalRequestTaskService(
     /// <summary>
     /// Completes an approval request task.
     /// </summary>
-    public async Task CompleteAsync(AppUser user, ApprovalRequestTaskCompleteDto payload, CancellationToken cancellationToken)
+    public async Task CompleteAsync(AppUser user, CompleteApprovalRequestTaskCommand payload, CancellationToken cancellationToken)
     {
         var approvalRequestTask = await _approvalRequestTaskRepository.GetForCompletionAsync(user, payload.GlobalId, cancellationToken)
             ?? throw new NotFoundException("Approval request task was not found.");
@@ -81,7 +80,7 @@ public class ApprovalRequestTaskService(
 
     private static void ApplyCompletionDetails(
         ApprovalRequestTask approvalRequestTask,
-        ApprovalRequestTaskCompleteDto payload)
+        CompleteApprovalRequestTaskCommand payload)
     {
         approvalRequestTask.AssigneeIpAddress = TrimToLength(payload.AssigneeIpAddress, 128);
         approvalRequestTask.AssigneeBrowserData = TrimToLength(payload.AssigneeBrowserData, 1024);

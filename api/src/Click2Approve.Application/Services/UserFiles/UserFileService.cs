@@ -1,7 +1,6 @@
-using Click2Approve.Application.Models.Auxiliary.Emails;
-using Click2Approve.Application.Models.Auxiliary.Files;
-using Click2Approve.Application.Models.Auxiliary.Notifications;
-using Click2Approve.Application.Models.DTOs;
+using Click2Approve.Application.Models.Emails;
+using Click2Approve.Application.Models.Files;
+using Click2Approve.Application.Models.Notifications;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 
@@ -30,7 +29,7 @@ public class UserFileService(
     /// <summary>
     /// Uploads a user file.
     /// </summary>
-    public async Task<IList<UserFileDto>> UploadAsync(AppUser user, IReadOnlyCollection<UploadedFile> files, CancellationToken cancellationToken)
+    public async Task<IList<UserFileResult>> UploadAsync(AppUser user, IReadOnlyCollection<UploadedFile> files, CancellationToken cancellationToken)
     {
         await CheckLimitations(user, files, cancellationToken);
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
@@ -106,7 +105,7 @@ public class UserFileService(
     /// <summary>
     /// Lists the user files.
     /// </summary>
-    public async Task<IList<UserFileDto>> ListAsync(AppUser user, CancellationToken cancellationToken)
+    public async Task<IList<UserFileResult>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
         var userFiles = await _userFileRepository.ListAsync(user, cancellationToken);
         return [.. userFiles.Select(UserFileMapper.MapUserFile)];

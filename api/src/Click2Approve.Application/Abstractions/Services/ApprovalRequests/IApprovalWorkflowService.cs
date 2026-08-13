@@ -1,4 +1,3 @@
-using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Models;
 
 namespace Click2Approve.Application.Abstractions.Services.ApprovalRequests;
@@ -10,7 +9,7 @@ public interface IApprovalWorkflowService
 {
     Task CreateInitialTasksAsync(
         ApprovalRequest approvalRequest,
-        List<ApprovalRequestStepSubmitDto> submittedSteps,
+        List<ApprovalRequestStepCommand> submittedSteps,
         DateTime timestamp,
         CancellationToken cancellationToken);
 

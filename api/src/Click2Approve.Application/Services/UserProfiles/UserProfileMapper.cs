@@ -1,21 +1,20 @@
-using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Models;
 
 namespace Click2Approve.Application.Services.UserProfiles;
 
 /// <summary>
-/// Maps user profile domain models to user profile DTOs.
+/// Maps user profile domain models to user profile results.
 /// </summary>
 internal static class UserProfileMapper
 {
-    public static async Task<UserProfileDto> MapUserProfileAsync(
+    public static async Task<UserProfileResult> MapUserProfileAsync(
         AppUser user,
         ITenantRepository tenantRepository,
         IUserNotificationPreferenceService notificationPreferenceService,
         IPublicFileStorage fileStorage,
         CancellationToken cancellationToken)
     {
-        return new UserProfileDto
+        return new UserProfileResult
         {
             FirstName = user.FirstName,
             LastName = user.LastName,

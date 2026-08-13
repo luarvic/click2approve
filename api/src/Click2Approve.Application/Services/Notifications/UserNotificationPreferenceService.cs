@@ -1,4 +1,3 @@
-using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Models;
 
 namespace Click2Approve.Application.Services.Notifications;
@@ -11,14 +10,14 @@ public class UserNotificationPreferenceService(IUserNotificationPreferenceReposi
 {
     private readonly IUserNotificationPreferenceRepository _notificationPreferenceRepository = notificationPreferenceRepository;
 
-    public async Task<List<UserNotificationPreferenceDto>> ListAsync(AppUser user, CancellationToken cancellationToken)
+    public async Task<List<UserNotificationPreferenceResult>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
         var savedPreferences = await _notificationPreferenceRepository.ListAsync(user.Id, cancellationToken);
 
         return [.. AllEmailTypes().Select(type =>
         {
             var preference = savedPreferences.FirstOrDefault(p => p.Type == type && p.Channel == NotificationChannel.Email);
-            return new UserNotificationPreferenceDto
+            return new UserNotificationPreferenceResult
             {
                 Type = type,
                 Channel = NotificationChannel.Email,
@@ -27,7 +26,7 @@ public class UserNotificationPreferenceService(IUserNotificationPreferenceReposi
         })];
     }
 
-    public async Task ReplaceAsync(AppUser user, List<UserNotificationPreferenceDto> preferences, CancellationToken cancellationToken)
+    public async Task ReplaceAsync(AppUser user, List<UserNotificationPreferenceCommand> preferences, CancellationToken cancellationToken)
     {
         var requestedPreferences = preferences
             .Where(preference => preference.Channel == NotificationChannel.Email && AllEmailTypes().Contains(preference.Type))

@@ -2,6 +2,22 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "format-api",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "format",
+        "api/Click2Approve.Api.sln",
+        "--diagnostics",
+        "IDE0005",
+        "IDE0001",
+        "IDE0002"
+      ],
+      "problemMatcher": [
+        "$msCompile"
+      ]
+    },
+    {
       "label": "build-webapi",
       "type": "shell",
       "command": "dotnet",

@@ -1,7 +1,6 @@
-using Click2Approve.Application.Models.Auxiliary.Emails;
-using Click2Approve.Application.Models.Auxiliary.Files;
-using Click2Approve.Application.Models.Auxiliary.Notifications;
-using Click2Approve.Application.Models.DTOs;
+using Click2Approve.Application.Models.Emails;
+using Click2Approve.Application.Models.Files;
+using Click2Approve.Application.Models.Notifications;
 using Click2Approve.Domain.Models;
 
 namespace Click2Approve.Application.Abstractions.Services.UserProfiles;
@@ -11,9 +10,9 @@ namespace Click2Approve.Application.Abstractions.Services.UserProfiles;
 /// </summary>
 public interface IUserProfileService
 {
-    Task<UserProfileDto> GetAsync(AppUser user, CancellationToken cancellationToken);
-    Task<UserProfileDto> UpdateAsync(AppUser user, UserProfileUpdateDto payload, CancellationToken cancellationToken);
-    Task<UserProfileDto> UploadAvatarAsync(AppUser user, UploadedFile avatar, CancellationToken cancellationToken);
+    Task<UserProfileResult> GetAsync(AppUser user, CancellationToken cancellationToken);
+    Task<UserProfileResult> UpdateAsync(AppUser user, UpdateUserProfileCommand payload, CancellationToken cancellationToken);
+    Task<UserProfileResult> UploadAvatarAsync(AppUser user, UploadedFile avatar, CancellationToken cancellationToken);
     Task<string> GetAvatarUrlAsync(string userId, CancellationToken cancellationToken);
-    Task<UserProfileDto> DeleteAvatarAsync(AppUser user, CancellationToken cancellationToken);
+    Task<UserProfileResult> DeleteAvatarAsync(AppUser user, CancellationToken cancellationToken);
 }

@@ -1,8 +1,7 @@
-using Click2Approve.Application.Models.Auxiliary.ApprovalRequests;
-using Click2Approve.Application.Models.Auxiliary.Emails;
-using Click2Approve.Application.Models.Auxiliary.Files;
-using Click2Approve.Application.Models.Auxiliary.Notifications;
-using Click2Approve.Application.Models.DTOs;
+using Click2Approve.Application.Models.ApprovalRequests;
+using Click2Approve.Application.Models.Emails;
+using Click2Approve.Application.Models.Files;
+using Click2Approve.Application.Models.Notifications;
 using Click2Approve.Domain.Models;
 
 namespace Click2Approve.Application.Services.ApprovalRequests;
@@ -21,7 +20,7 @@ public class ApprovalWorkflowService(
 
     public async Task CreateInitialTasksAsync(
         ApprovalRequest approvalRequest,
-        List<ApprovalRequestStepSubmitDto> submittedSteps,
+        List<ApprovalRequestStepCommand> submittedSteps,
         DateTime timestamp,
         CancellationToken cancellationToken)
     {
@@ -87,7 +86,7 @@ public class ApprovalWorkflowService(
 
     private async Task<Dictionary<ApprovalRequestStepAssignee, List<AssigneeResolution>>> ResolveAssigneesAsync(
         ApprovalRequest approvalRequest,
-        List<ApprovalRequestStepSubmitDto> submittedSteps,
+        List<ApprovalRequestStepCommand> submittedSteps,
         CancellationToken cancellationToken)
     {
         var submittedStepsBySequence = submittedSteps
@@ -108,7 +107,7 @@ public class ApprovalWorkflowService(
             .ToList();
         return await _assigneeResolver.ResolveAsync(approvalRequest, assignees, cancellationToken);
 
-        ApprovalRequestAssigneeSubmitDto? GetSubmittedAssignee(int sequence, int index)
+        ApprovalRequestAssigneeCommand? GetSubmittedAssignee(int sequence, int index)
         {
             return submittedStepsBySequence.TryGetValue(sequence, out var submittedStep)
                 && index < submittedStep.Assignees.Count

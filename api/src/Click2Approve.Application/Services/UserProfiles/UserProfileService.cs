@@ -1,7 +1,6 @@
-using Click2Approve.Application.Models.Auxiliary.Emails;
-using Click2Approve.Application.Models.Auxiliary.Files;
-using Click2Approve.Application.Models.Auxiliary.Notifications;
-using Click2Approve.Application.Models.DTOs;
+using Click2Approve.Application.Models.Emails;
+using Click2Approve.Application.Models.Files;
+using Click2Approve.Application.Models.Notifications;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 
@@ -27,7 +26,7 @@ public class UserProfileService(
     private readonly IPublicFileStorage _fileStorage = fileStorage;
     private readonly IConfiguration _configuration = configuration;
 
-    public async Task<UserProfileDto> GetAsync(AppUser user, CancellationToken cancellationToken)
+    public async Task<UserProfileResult> GetAsync(AppUser user, CancellationToken cancellationToken)
     {
         return await UserProfileMapper.MapUserProfileAsync(
             user,
@@ -37,7 +36,7 @@ public class UserProfileService(
             cancellationToken);
     }
 
-    public async Task<UserProfileDto> UpdateAsync(AppUser user, UserProfileUpdateDto payload, CancellationToken cancellationToken)
+    public async Task<UserProfileResult> UpdateAsync(AppUser user, UpdateUserProfileCommand payload, CancellationToken cancellationToken)
     {
         long? defaultTenantId = null;
         if (payload.DefaultTenantGlobalId is not null)
@@ -66,7 +65,7 @@ public class UserProfileService(
             cancellationToken);
     }
 
-    public async Task<UserProfileDto> UploadAvatarAsync(AppUser user, UploadedFile avatar, CancellationToken cancellationToken)
+    public async Task<UserProfileResult> UploadAvatarAsync(AppUser user, UploadedFile avatar, CancellationToken cancellationToken)
     {
         EnsureAvatarFile(avatar);
 
@@ -104,7 +103,7 @@ public class UserProfileService(
         return _fileStorage.GetUrl(avatarPath);
     }
 
-    public async Task<UserProfileDto> DeleteAvatarAsync(AppUser user, CancellationToken cancellationToken)
+    public async Task<UserProfileResult> DeleteAvatarAsync(AppUser user, CancellationToken cancellationToken)
     {
         var avatarPath = user.Avatar;
         if (string.IsNullOrWhiteSpace(avatarPath))

@@ -1,0 +1,21 @@
+namespace Click2Approve.Application.Models.Results.ApprovalRequests;
+
+/// <summary>
+/// Represents an approval request returned to its author.
+/// </summary>
+public class ApprovalRequestDetailsResult : ApprovalRequestListItemResult
+{
+    public required List<ApprovalRequestFileResult> RequestFiles { get; init; }
+    public required List<ApprovalRequestStepResult> Steps { get; init; }
+    public string? Description { get; init; }
+    public Guid CreatedByUserGlobalId { get; init; }
+    public Guid? CreatedByEmployeeGlobalId { get; init; }
+    public Guid? CompletedByUserGlobalId { get; init; }
+    public Guid? CompletedByEmployeeGlobalId { get; init; }
+    public string? CompletedByDisplayName { get; init; }
+    public string? CompletedByEmail { get; init; }
+    public Guid? PreviousRevisionApprovalRequestGlobalId { get; init; }
+    public string? PreviousRevisionApprovalRequestTitle { get; init; }
+    public Guid? NextRevisionApprovalRequestGlobalId { get; init; }
+    public string? NextRevisionApprovalRequestTitle { get; init; }
+}

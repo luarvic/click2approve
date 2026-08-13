@@ -1,8 +1,8 @@
 using Asp.Versioning;
 using Click2Approve.Application.Abstractions.Services.ApprovalRequests;
-using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Models;
 using Click2Approve.WebApi.Extensions;
+using Click2Approve.WebApi.Mappers.ApprovalRequests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -35,10 +35,10 @@ public class ApprovalRequestController(
     /// <param name="payload">The payload that contains the approval request properties.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     [HttpPost()]
-    public async Task<IActionResult> SubmitAsync([FromBody] ApprovalRequestSubmitDto payload, CancellationToken cancellationToken)
+    public async Task<IActionResult> SubmitAsync([FromBody] SubmitApprovalRequestRequest payload, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        return Ok(await _approvalRequestService.SubmitAsync(user, payload, cancellationToken));
+        return Ok(await _approvalRequestService.SubmitAsync(user, ApprovalRequestCommandMapper.Map(payload), cancellationToken));
     }
 
     /// <summary>
@@ -58,20 +58,20 @@ public class ApprovalRequestController(
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The list of approval request summaries.</returns>
     [HttpGet]
-    public async Task<ActionResult<List<ApprovalRequestListItemDto>>> ListAsync(CancellationToken cancellationToken)
+    public async Task<ActionResult<List<ApprovalRequestListItemResponse>>> ListAsync(CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
         var approvalRequests = await _approvalRequestService.ListAsync(user, cancellationToken);
-        return Ok(approvalRequests);
+        return Ok(ApprovalRequestResponseMapper.Map(approvalRequests));
     }
 
     /// <summary>
     /// Gets an approval request with all data required by its editor.
     /// </summary>
     [HttpGet("{globalId:guid}")]
-    public async Task<ActionResult<ApprovalRequestDto>> GetAsync(Guid globalId, CancellationToken cancellationToken)
+    public async Task<ActionResult<ApprovalRequestDetailsResponse>> GetAsync(Guid globalId, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        return Ok(await _approvalRequestService.GetAsync(user, globalId, cancellationToken));
+        return Ok(ApprovalRequestResponseMapper.Map(await _approvalRequestService.GetAsync(user, globalId, cancellationToken)));
     }
 }

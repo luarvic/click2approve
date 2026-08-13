@@ -1,9 +1,8 @@
 using Click2Approve.Application.Abstractions.Persistence;
 using Click2Approve.Application.Abstractions.Services.Notifications;
-using Click2Approve.Application.Models.Auxiliary.Emails;
-using Click2Approve.Application.Models.Auxiliary.Files;
-using Click2Approve.Application.Models.Auxiliary.Notifications;
-using Click2Approve.Application.Models.DTOs;
+using Click2Approve.Application.Models.Emails;
+using Click2Approve.Application.Models.Files;
+using Click2Approve.Application.Models.Notifications;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 
@@ -55,7 +54,7 @@ public class DomainEventService(IEventDeliveryRepository eventDeliveryRepository
             EventDeliveryChannel.InApp,
             cancellationToken);
 
-    public async Task<List<InAppNotificationDto>> ListInAppAsync(
+    public async Task<List<InAppNotificationResult>> ListInAppAsync(
         AppUser user,
         long tenantId,
         bool unreadOnly,
@@ -138,7 +137,7 @@ public class DomainEventService(IEventDeliveryRepository eventDeliveryRepository
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
-    private static InAppNotificationDto Map(EventDelivery delivery) => new()
+    private static InAppNotificationResult Map(EventDelivery delivery) => new()
     {
         GlobalId = delivery.GlobalId,
         Type = delivery.DomainEvent.Type,

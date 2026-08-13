@@ -1,4 +1,3 @@
-using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Models;
 
 namespace Click2Approve.Application.Abstractions.Services.ApprovalRequests;
@@ -8,8 +7,8 @@ namespace Click2Approve.Application.Abstractions.Services.ApprovalRequests;
 /// </summary>
 public interface IApprovalRequestTaskService
 {
-    Task<List<ApprovalRequestTaskListItemDto>> ListAsync(AppUser user, CancellationToken cancellationToken);
-    Task<ApprovalRequestTaskDetailDto> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
-    Task CompleteAsync(AppUser user, ApprovalRequestTaskCompleteDto payload, CancellationToken cancellationToken);
+    Task<List<ApprovalRequestTaskListItemResult>> ListAsync(AppUser user, CancellationToken cancellationToken);
+    Task<ApprovalRequestTaskDetailsResult> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
+    Task CompleteAsync(AppUser user, CompleteApprovalRequestTaskCommand payload, CancellationToken cancellationToken);
     Task<long> CountUncompletedAsync(AppUser user, CancellationToken cancellationToken);
 }

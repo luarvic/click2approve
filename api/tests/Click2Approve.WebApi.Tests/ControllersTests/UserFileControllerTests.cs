@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Http.Headers;
-using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Models;
 using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.WebApi.Tests.Extensions;
@@ -174,12 +173,12 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
             .ToList();
         var taskFile = filesOwnedByRequester.First();
         var laterRequestFile = filesOwnedByRequester.Single(file => file.Id != taskFile.Id);
-        var payload = new ApprovalRequestSubmitDto
+        var payload = new SubmitApprovalRequestRequest
         {
             Title = "File access approval",
             RequestFiles =
             [
-                new ApprovalRequestFileSubmitDto
+                new ApprovalRequestFileRequest
                 {
                     UserFileGlobalId = taskFile.GlobalId,
                     Sequence = 0
@@ -187,16 +186,16 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
             ],
             Steps =
             [
-                new ApprovalRequestStepSubmitDto
+                new ApprovalRequestStepRequest
                 {
                     Sequence = 1,
                     Mode = ApprovalStepMode.Any,
                     Action = ApprovalRequestTaskAction.Approve,
                     Assignees =
                     [
-                        new ApprovalRequestAssigneeSubmitDto
+                        new ApprovalRequestAssigneeRequest
                         {
-                            Type = AssigneeType.Email,
+                            Type = AssigneeType.User,
                             Email = assignee.Credentials.Email
                         }
                     ]

@@ -1,8 +1,9 @@
 using Asp.Versioning;
 using Click2Approve.Application.Abstractions.Services.UserFiles;
-using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Models;
 using Click2Approve.WebApi.Extensions;
+using Click2Approve.WebApi.Mappers;
+using Click2Approve.WebApi.Mappers.UserFiles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -33,11 +34,11 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The list of uploaded files.</returns>
     [HttpPost("upload")]
-    public async Task<ActionResult<List<UserFileDto>>> UploadAsync(IFormFileCollection files, CancellationToken cancellationToken)
+    public async Task<ActionResult<List<UserFileResponse>>> UploadAsync(IFormFileCollection files, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
         var userFiles = await _userFileService.UploadAsync(user, await files.ToUploadedFilesAsync(cancellationToken), cancellationToken);
-        return Ok(userFiles);
+        return Ok(UserFileResponseMapper.Map(userFiles));
     }
 
     /// <summary>
@@ -46,11 +47,11 @@ public class UserFileController(ILogger<UserFileController> logger, IUserFileSer
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The list of user files.</returns>
     [HttpGet]
-    public async Task<ActionResult<List<UserFileDto>>> ListAsync(CancellationToken cancellationToken)
+    public async Task<ActionResult<List<UserFileResponse>>> ListAsync(CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
         var userFiles = await _userFileService.ListAsync(user, cancellationToken);
-        return Ok(userFiles);
+        return Ok(UserFileResponseMapper.Map(userFiles));
     }
 
     /// <summary>

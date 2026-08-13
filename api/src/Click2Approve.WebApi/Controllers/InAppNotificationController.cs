@@ -1,9 +1,10 @@
 using Asp.Versioning;
 using Click2Approve.Application.Abstractions.Services.Notifications;
 using Click2Approve.Application.Abstractions.TenantContext;
-using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Models;
 using Click2Approve.WebApi.Extensions;
+using Click2Approve.WebApi.Mappers;
+using Click2Approve.WebApi.Mappers.Notifications;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +33,7 @@ public class InAppNotificationController(
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<InAppNotificationDto>>> ListInAppAsync(
+    public async Task<ActionResult<List<InAppNotificationResponse>>> ListInAppAsync(
         [FromQuery] bool unreadOnly = true,
         [FromQuery] int skip = 0,
         [FromQuery] int take = 50,
@@ -40,13 +41,13 @@ public class InAppNotificationController(
     {
         var user = await userManager.GetAppUserAsync(User);
         var tenantId = await tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return Ok(await domainEventService.ListInAppAsync(
+        return Ok(InAppNotificationResponseMapper.Map(await domainEventService.ListInAppAsync(
             user,
             tenantId,
             unreadOnly,
             Math.Max(skip, 0),
             Math.Clamp(take, 1, 100),
-            cancellationToken));
+            cancellationToken)));
     }
 
     [HttpPost("{deliveryGlobalId:guid}/read")]
@@ -60,7 +61,7 @@ public class InAppNotificationController(
 
     [HttpPost("readSelected")]
     public async Task<IActionResult> MarkInAppReadAsync(
-        [FromBody] InAppNotificationsReadDto payload,
+        [FromBody] ReadInAppNotificationsRequest payload,
         CancellationToken cancellationToken)
     {
         if (payload.DeliveryGlobalIds.Count is < 1 or > 100)
@@ -80,7 +81,7 @@ public class InAppNotificationController(
 
     [HttpDelete]
     public async Task<IActionResult> DeleteInAppAsync(
-        [FromBody] InAppNotificationsDeleteDto payload,
+        [FromBody] DeleteInAppNotificationsRequest payload,
         CancellationToken cancellationToken)
     {
         if (payload.DeliveryGlobalIds.Count is < 1 or > 100)

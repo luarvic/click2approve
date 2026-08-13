@@ -3,7 +3,6 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Click2Approve.Application.Helpers;
-using Click2Approve.Application.Models.DTOs;
 using Click2Approve.Domain.Models;
 using Click2Approve.WebApi.Tests.Extensions;
 using Click2Approve.WebApi.Tests.Models;
@@ -76,40 +75,40 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var userFiles = await client.UploadTextFilesAsync(requesterLogin.AccessToken,
             new Dictionary<string, string> { { "request.txt", "Approval request test file" } },
             CancellationToken.None);
-        var response = await client.PostAsJsonAsync($"api/v1/tenants/{requesterTenantId}/requests", new ApprovalRequestSubmitDto
+        var response = await client.PostAsJsonAsync($"api/v1/tenants/{requesterTenantId}/requests", new SubmitApprovalRequestRequest
         {
             Title = "Cycle-safe request",
-            RequestFiles = [.. userFiles.Select((file, index) => new ApprovalRequestFileSubmitDto
+            RequestFiles = [.. userFiles.Select((file, index) => new ApprovalRequestFileRequest
             {
                 UserFileGlobalId = file.GlobalId,
                 Sequence = index
             })],
             Steps =
             [
-                new ApprovalRequestStepSubmitDto
+                new ApprovalRequestStepRequest
                 {
                     Sequence = 1,
                     Mode = ApprovalStepMode.Any,
                     Action = ApprovalRequestTaskAction.Approve,
                     Assignees =
                     [
-                        new ApprovalRequestAssigneeSubmitDto
+                        new ApprovalRequestAssigneeRequest
                         {
-                            Type = AssigneeType.Email,
+                            Type = AssigneeType.User,
                             Email = assignee.Email
                         }
                     ]
                 },
-                new ApprovalRequestStepSubmitDto
+                new ApprovalRequestStepRequest
                 {
                     Sequence = 2,
                     Mode = ApprovalStepMode.All,
                     Action = ApprovalRequestTaskAction.Approve,
                     Assignees =
                     [
-                        new ApprovalRequestAssigneeSubmitDto
+                        new ApprovalRequestAssigneeRequest
                         {
-                            Type = AssigneeType.Email,
+                            Type = AssigneeType.User,
                             Email = $"later-{Guid.NewGuid()}@example.com"
                         }
                     ]
@@ -117,7 +116,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
             ],
             StepVisibility =
             [
-                new ApprovalRequestStepVisibilitySubmitDto
+                new ApprovalRequestStepVisibilityRequest
                 {
                     StepSequence = 2,
                     AssigneeStepSequence = 1,
@@ -159,7 +158,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         Assert.DoesNotContain("\"taskLogEntries\"", taskJson);
         Assert.DoesNotContain("\"visibilityMode\"", taskJson);
 
-        var task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
+        var task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailsResponse>();
         Assert.NotNull(task);
         Assert.Equal(requester.Email, task.RequestedByDisplayName);
         Assert.Equal(approvalRequest.RevisionNumber, task.RevisionNumber);
@@ -194,7 +193,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
 
         taskResponse = await assigneeClient.GetAsync($"api/v1/tenants/{assigneeTenantId}/tasks/{task.GlobalId}");
         Assert.True(taskResponse.IsSuccessStatusCode, await taskResponse.Content.ReadAsStringAsync());
-        task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
+        task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailsResponse>();
         Assert.NotNull(task);
         Assert.Equal(ApprovalRequestTaskStatus.Completed, task.Status);
         Assert.True(task.Result);
@@ -219,27 +218,27 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var userFiles = await requesterClient.UploadTextFilesAsync(requesterLogin.AccessToken,
             new Dictionary<string, string> { { "request.txt", "Approval request test file" } },
             CancellationToken.None);
-        var response = await requesterClient.PostAsJsonAsync($"api/v1/tenants/{requesterTenantId}/requests", new ApprovalRequestSubmitDto
+        var response = await requesterClient.PostAsJsonAsync($"api/v1/tenants/{requesterTenantId}/requests", new SubmitApprovalRequestRequest
         {
             Title = "Original task title",
             Description = "Original task description",
-            RequestFiles = [.. userFiles.Select((file, index) => new ApprovalRequestFileSubmitDto
+            RequestFiles = [.. userFiles.Select((file, index) => new ApprovalRequestFileRequest
             {
                 UserFileGlobalId = file.GlobalId,
                 Sequence = index
             })],
             Steps =
             [
-                new ApprovalRequestStepSubmitDto
+                new ApprovalRequestStepRequest
                 {
                     Sequence = 1,
                     Mode = ApprovalStepMode.Any,
                     Action = ApprovalRequestTaskAction.Sign,
                     Assignees =
                     [
-                        new ApprovalRequestAssigneeSubmitDto
+                        new ApprovalRequestAssigneeRequest
                         {
-                            Type = AssigneeType.Email,
+                            Type = AssigneeType.User,
                             Email = assignee.Email
                         }
                     ]
@@ -262,7 +261,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var assigneeTenantId = await assigneeClient.GetCurrentTenantIdAsync(assigneeLogin.AccessToken, CancellationToken.None);
         var taskResponse = await assigneeClient.GetAsync($"api/v1/tenants/{assigneeTenantId}/tasks/{task.GlobalId}");
         Assert.True(taskResponse.IsSuccessStatusCode, await taskResponse.Content.ReadAsStringAsync());
-        var taskDetail = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
+        var taskDetail = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailsResponse>();
         Assert.NotNull(taskDetail);
         Assert.Equal(requester.Email, taskDetail.RequestedByDisplayName);
         Assert.NotNull(taskDetail.ApprovalRequest);
@@ -315,26 +314,26 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var userFiles = await requesterClient.UploadTextFilesAsync(requesterLogin.AccessToken,
             new Dictionary<string, string> { { "request.txt", "Approval request test file" } },
             CancellationToken.None);
-        var response = await requesterClient.PostAsJsonAsync($"api/v1/tenants/{requesterTenantId}/requests", new ApprovalRequestSubmitDto
+        var response = await requesterClient.PostAsJsonAsync($"api/v1/tenants/{requesterTenantId}/requests", new SubmitApprovalRequestRequest
         {
             Title = "Browser audit request",
-            RequestFiles = [.. userFiles.Select((file, index) => new ApprovalRequestFileSubmitDto
+            RequestFiles = [.. userFiles.Select((file, index) => new ApprovalRequestFileRequest
             {
                 UserFileGlobalId = file.GlobalId,
                 Sequence = index
             })],
             Steps =
             [
-                new ApprovalRequestStepSubmitDto
+                new ApprovalRequestStepRequest
                 {
                     Sequence = 1,
                     Mode = ApprovalStepMode.Any,
                     Action = ApprovalRequestTaskAction.Approve,
                     Assignees =
                     [
-                        new ApprovalRequestAssigneeSubmitDto
+                        new ApprovalRequestAssigneeRequest
                         {
-                            Type = AssigneeType.Email,
+                            Type = AssigneeType.User,
                             Email = assignee.Email
                         }
                     ]
@@ -390,7 +389,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
 
         var completedTaskResponse = await assigneeClient.GetAsync($"api/v1/tenants/{assigneeTenantId}/tasks/{task.GlobalId}");
         Assert.True(completedTaskResponse.IsSuccessStatusCode, await completedTaskResponse.Content.ReadAsStringAsync());
-        var completedTask = await completedTaskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailDto>();
+        var completedTask = await completedTaskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailsResponse>();
         Assert.NotNull(completedTask);
         Assert.NotNull(completedTask.AssigneeBrowserData);
 

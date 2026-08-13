@@ -1,6 +1,6 @@
 using System.Net.Mime;
 using Click2Approve.Domain.Exceptions;
-using Click2Approve.WebApi.Models.Auxiliary;
+using Click2Approve.WebApi.Models.Errors;
 using Microsoft.AspNetCore.Diagnostics;
 
 namespace Click2Approve.WebApi.Middlewares;
