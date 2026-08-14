@@ -3,6 +3,7 @@ import type {
   AssigneeType,
 } from "@/features/approvalWorkflow/models/approvalStep";
 import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
+import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
 import {
   DiscussionMessage,
   listRequestDiscussion,
@@ -195,9 +196,9 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
             <Fragment key={step.globalId ?? step.sequence}>
               <Divider>
                 <Typography color="text.secondary" variant="body2">
-                  {step.globalId
+                  {`${step.globalId
                     ? (stepLabels[step.globalId] ?? "Step")
-                    : "Step"}
+                    : "Step"} · ${getApprovalRequestTaskActionLabels(step.action).positive}`}
                 </Typography>
               </Divider>
               <DiscussionParticipants
