@@ -12,6 +12,7 @@ export type EditableApprovalStep = ApprovalStep;
 export const createEmptyAssignee = (
   type: AssigneeType = AssigneeType.User,
 ): ApprovalStepAssignee => ({
+  globalId: crypto.randomUUID(),
   type,
   ...(type === AssigneeType.User ? { email: "" } : {}),
 });
@@ -38,6 +39,7 @@ export const createEditableSteps = (
     visibilityMode:
       step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants,
     assignees: step.assignees.map((assignee) => ({ ...assignee })),
+    visibility: step.visibility?.map((visibility) => ({ ...visibility })),
   }));
 
 const toApprovalStep = (step: EditableApprovalStep): ApprovalStep => ({

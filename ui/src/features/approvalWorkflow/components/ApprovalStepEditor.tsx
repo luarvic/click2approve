@@ -3,11 +3,13 @@ import ApprovalStepAssigneeRow from "@/features/approvalWorkflow/components/Appr
 import ApprovalStepTitle from "@/features/approvalWorkflow/components/ApprovalStepTitle";
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import {
+  AssigneeType,
   ApprovalStepAssignee,
   ApprovalStepMode,
 } from "@/features/approvalWorkflow/models/approvalStep";
 import { EditableApprovalStep } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { Employee } from "@/features/employees/models/employee";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { Dialogs, Icons } from "@/shared/constants/constants";
 import {
   Add,
@@ -21,6 +23,7 @@ import {
   Box,
   Button,
   Chip,
+  FormControlLabel,
   IconButton,
   MenuItem,
   Stack,
@@ -28,6 +31,7 @@ import {
   StepContent,
   StepLabel,
   Stepper,
+  Switch,
   TextField,
   Tooltip,
 } from "@mui/material";
@@ -87,9 +91,10 @@ interface ApprovalStepEditorProps {
 
 const stepContentSx: SxProps<Theme> = { pr: 0 };
 const stepLabelSx: SxProps<Theme> = {
-  "& .MuiStepLabel-label, & .MuiStepLabel-label.Mui-active, & .MuiStepLabel-label.Mui-completed": {
-    color: "text.primary",
-  },
+  "& .MuiStepLabel-label, & .MuiStepLabel-label.Mui-active, & .MuiStepLabel-label.Mui-completed":
+    {
+      color: "text.primary",
+    },
 };
 const stepLabelContentSx: SxProps<Theme> = {
   alignItems: "center",
@@ -150,16 +155,15 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
           const canMoveDown = state.canMoveDown ?? stepIndex < steps.length - 1;
           const canRemove = state.canRemove ?? !disabled;
           const canAddAssignee = state.canAddAssignee ?? !disabled;
+          const showCompletionRule =
+            step.assignees.length > 1 ||
+            step.assignees.some(
+              (assignee) => assignee.type === AssigneeType.Team,
+            );
 
           return (
-            <Step
-              expanded
-              key={step.globalId ?? `new-${step.sequence}`}
-            >
-              <StepLabel
-                StepIconComponent={EditableStepIcon}
-                sx={stepLabelSx}
-              >
+            <Step expanded key={step.globalId ?? `new-${step.sequence}`}>
+              <StepLabel StepIconComponent={EditableStepIcon} sx={stepLabelSx}>
                 <Box sx={stepLabelContentSx}>
                   <ApprovalStepTitle sequence={step.sequence} />
                   {state.isPassed && <Chip label="Locked" size="small" />}
@@ -229,33 +233,15 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                     <TextField
                       select
                       fullWidth
-                      label="Completion rule"
-                      value={step.mode ?? ApprovalStepMode.Any}
-                      disabled={disabled}
-                      onChange={(event) =>
-                        onUpdateStep(stepIndex, (current) => ({
-                          ...current,
-                          mode: Number(event.target.value) as ApprovalStepMode,
-                        }))
-                      }
-                    >
-                      <MenuItem value={ApprovalStepMode.Any}>
-                        Any assignee can complete
-                      </MenuItem>
-                      <MenuItem value={ApprovalStepMode.All}>
-                        All assignees must complete
-                      </MenuItem>
-                    </TextField>
-                    <TextField
-                      select
-                      fullWidth
                       label="Action"
                       value={step.action ?? ApprovalRequestTaskAction.Approve}
                       disabled={disabled}
                       onChange={(event) =>
                         onUpdateStep(stepIndex, (current) => ({
                           ...current,
-                          action: Number(event.target.value) as ApprovalRequestTaskAction,
+                          action: Number(
+                            event.target.value,
+                          ) as ApprovalRequestTaskAction,
                         }))
                       }
                     >
@@ -284,7 +270,9 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                               disabled={assigneeState.disabled ?? disabled}
                               employees={employees}
                               key={assignee.globalId ?? assigneeIndex}
-                              muted={assigneeState.muted ?? state.isPassed ?? false}
+                              muted={
+                                assigneeState.muted ?? state.isPassed ?? false
+                              }
                               removeDisabled={
                                 assigneeState.removeDisabled ?? disabled
                               }
@@ -307,6 +295,33 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                         })(),
                       )}
                     </Stack>
+                    {showCompletionRule && (
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={
+                              (step.mode ?? ApprovalStepMode.Any) ===
+                              ApprovalStepMode.All
+                            }
+                            disabled={disabled}
+                            onChange={(_, checked) =>
+                              onUpdateStep(stepIndex, (current) => ({
+                                ...current,
+                                mode: checked
+                                  ? ApprovalStepMode.All
+                                  : ApprovalStepMode.Any,
+                              }))
+                            }
+                          />
+                        }
+                        label={
+                          <Stack alignItems="center" direction="row">
+                            All assignees must complete
+                            <HelpPopover helpText="When disabled, any assignee can complete this step." />
+                          </Stack>
+                        }
+                      />
+                    )}
                     <Button
                       startIcon={<Add />}
                       disabled={!canAddAssignee}
@@ -324,11 +339,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
       </Stepper>
     )}
     {showAddStep && (
-      <Button
-        startIcon={<Add />}
-        onClick={onAddStep}
-        sx={stepAddButtonSx}
-      >
+      <Button startIcon={<Add />} onClick={onAddStep} sx={stepAddButtonSx}>
         Add step
       </Button>
     )}

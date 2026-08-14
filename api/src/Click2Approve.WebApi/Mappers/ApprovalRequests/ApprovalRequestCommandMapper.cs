@@ -48,6 +48,14 @@ public static class ApprovalRequestCommandMapper
         VisibilityMode = request.VisibilityMode
     };
 
+    public static ApprovalRequestStepVisibilityCommand Map(ApprovalRequestStepVisibilityRequest request) => new()
+    {
+        AssigneeIndex = request.AssigneeIndex,
+        AssigneeStepSequence = request.AssigneeStepSequence,
+        IsVisible = request.IsVisible,
+        StepSequence = request.StepSequence
+    };
+
     private static ApprovalRequestAssigneeCommand Map(ApprovalRequestAssigneeRequest request) => new()
     {
         Email = request.Email,
@@ -63,14 +71,6 @@ public static class ApprovalRequestCommandMapper
         RevisionAction = request.RevisionAction,
         Sequence = request.Sequence,
         UserFileGlobalId = request.UserFileGlobalId
-    };
-
-    private static ApprovalRequestStepVisibilityCommand Map(ApprovalRequestStepVisibilityRequest request) => new()
-    {
-        AssigneeIndex = request.AssigneeIndex,
-        AssigneeStepSequence = request.AssigneeStepSequence,
-        IsVisible = request.IsVisible,
-        StepSequence = request.StepSequence
     };
 
     private static ApprovalRequestTaskClientAuditContext Map(ApprovalRequestTaskClientAuditContextRequest request) => new()

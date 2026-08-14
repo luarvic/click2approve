@@ -3,9 +3,8 @@ import ApprovalRequestParticipant from "@/features/approvalRequests/components/A
 import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
 import ApprovalRequestParticipantPair from "@/features/approvalRequests/components/ApprovalRequestParticipantPair";
 import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
-import {
-  getApprovalRequestTimestampIcon,
-} from "@/features/approvalRequests/components/approvalRequestTimestampDisplay";
+import { TenantType } from "@/features/tenants/models/tenant";
+import { getApprovalRequestTimestampIcon } from "@/features/approvalRequests/components/approvalRequestTimestampDisplay";
 import { ApprovalStepAssignee } from "@/features/approvalWorkflow/models/approvalStep";
 import TimelineTimestamp from "@/shared/components/timeline/TimelineTimestamp";
 import { Typography } from "@mui/material";
@@ -40,45 +39,65 @@ const ApprovalUpcomingTaskBlock: React.FC<ApprovalUpcomingTaskBlockProps> = ({
   showTitle = true,
   showTimeline = true,
   title = "Upcoming task",
-}) => (
-  <ApprovalRequestDetailsCard
-    ariaLabel={title}
-    borderLeftColor="text.disabled"
-    contentSx={compact ? compactTaskCardContentSx : undefined}
-    showStatusBorder={showStatusBorder}
-  >
-    <ApprovalRequestContentGroups
-      header={showTitle ? (
-        <Typography component="h2" sx={upcomingTaskTitleSx} variant="subtitle1">
-          {title}
-        </Typography>
-      ) : undefined}
-      metadata={
-        <ApprovalRequestParticipantPair
-          firstLabel={showAssigneeLabel ? (
-            <ApprovalRequestParticipantLabel>Assignee</ApprovalRequestParticipantLabel>
-          ) : undefined}
-          firstParticipant={(
-            <ApprovalRequestParticipant
-              displayName={assignee.displayName}
-              email={assignee.email}
-              type={assignee.type}
-            />
-          )}
-          firstTimestamp={
-            showTimeline ? (
-              <TimelineTimestamp
-                icon={getApprovalRequestTimestampIcon("pending")}
-                iconSize="small"
-                label="Waiting for previous step"
-                text="Waiting for previous step"
+}) => {
+  const organizationIsVisible =
+    stores.tenantStore.currentTenant?.type === TenantType.Personal;
+  const organizationDisplayName =
+    stores.tenantStore.currentTenant?.businessName;
+
+  return (
+    <ApprovalRequestDetailsCard
+      ariaLabel={title}
+      borderLeftColor="text.disabled"
+      contentSx={compact ? compactTaskCardContentSx : undefined}
+      showStatusBorder={showStatusBorder}
+    >
+      <ApprovalRequestContentGroups
+        header={
+          showTitle ? (
+            <Typography
+              component="h2"
+              sx={upcomingTaskTitleSx}
+              variant="subtitle1"
+            >
+              {title}
+            </Typography>
+          ) : undefined
+        }
+        metadata={
+          <ApprovalRequestParticipantPair
+            firstLabel={
+              showAssigneeLabel ? (
+                <ApprovalRequestParticipantLabel>
+                  Assignee
+                </ApprovalRequestParticipantLabel>
+              ) : undefined
+            }
+            firstParticipant={
+              <ApprovalRequestParticipant
+                displayName={assignee.displayName}
+                email={assignee.email}
+                organizationDisplayName={organizationDisplayName}
+                showOrganization={organizationIsVisible}
+                type={assignee.type}
               />
-            ) : undefined
-          }
-        />
-      }
-    />
-  </ApprovalRequestDetailsCard>
-);
+            }
+            firstTimestamp={
+              showTimeline ? (
+                <TimelineTimestamp
+                  icon={getApprovalRequestTimestampIcon("pending")}
+                  iconSize="small"
+                  label="Waiting for previous step"
+                  text="Waiting for previous step"
+                />
+              ) : undefined
+            }
+          />
+        }
+      />
+    </ApprovalRequestDetailsCard>
+  );
+};
 
 export default ApprovalUpcomingTaskBlock;
+import { stores } from "@/app/rootStore";

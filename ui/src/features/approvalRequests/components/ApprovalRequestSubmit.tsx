@@ -120,11 +120,7 @@ interface RequestAssigneeOption {
   type: AssigneeType;
 }
 
-type StepVisibilityMode =
-  | "all"
-  | "allExcept"
-  | "selected"
-  | "assignees";
+type StepVisibilityMode = "all" | "allExcept" | "selected" | "assignees";
 
 const visibilityModeValues: Record<
   StepVisibilityMode,
@@ -164,9 +160,12 @@ const getPersistedVisibilityState = (steps: ApprovalStep[]) => {
         !ownAssigneeGlobalIds.has(visibility.assigneeGlobalId) &&
         !visibility.isVisible,
     );
-    stepVisibilityModes[step.sequence] = step.visibilityMode === undefined
-      ? (hasHiddenParticipant ? "allExcept" : "all")
-      : stepVisibilityModesByValue[step.visibilityMode];
+    stepVisibilityModes[step.sequence] =
+      step.visibilityMode === undefined
+        ? hasHiddenParticipant
+          ? "allExcept"
+          : "all"
+        : stepVisibilityModesByValue[step.visibilityMode];
 
     (step.visibility ?? []).forEach((visibility) => {
       const assigneeStep = steps.find((candidate) =>
@@ -218,9 +217,10 @@ const visibilityModeOptions: {
 
 const visibilityStepContentSx: SxProps<Theme> = { pr: 0 };
 const visibilityStepLabelSx: SxProps<Theme> = {
-  "& .MuiStepLabel-label, & .MuiStepLabel-label.Mui-active, & .MuiStepLabel-label.Mui-completed": {
-    color: "text.primary",
-  },
+  "& .MuiStepLabel-label, & .MuiStepLabel-label.Mui-active, & .MuiStepLabel-label.Mui-completed":
+    {
+      color: "text.primary",
+    },
 };
 const visibilityToggleButtonGroupSx: SxProps<Theme> = {
   display: { xs: "none", sm: "flex" },
@@ -279,12 +279,18 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   const fileInput = useRef<HTMLInputElement>(null);
   const replacementFileInput = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState(initialDraft?.title ?? "");
-  const [newFiles, setNewFiles] = useState<File[]>(initialDraft?.newFiles ?? []);
+  const [newFiles, setNewFiles] = useState<File[]>(
+    initialDraft?.newFiles ?? [],
+  );
   const [existingFiles, setExistingFiles] = useState<RevisionExistingFile[]>(
     initialDraft?.existingFiles ?? [],
   );
-  const [steps, setSteps] = useState<EditableApprovalStep[]>(initialDraft?.steps ?? []);
-  const [description, setDescription] = useState(initialDraft?.description ?? "");
+  const [steps, setSteps] = useState<EditableApprovalStep[]>(
+    initialDraft?.steps ?? [],
+  );
+  const [description, setDescription] = useState(
+    initialDraft?.description ?? "",
+  );
   const [replacementFileIndex, setReplacementFileIndex] = useState<
     number | null
   >(null);
@@ -371,6 +377,13 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
           if (template) {
             setTitle(template.name);
             setSteps(createEditableSteps(template.steps));
+            const persistedVisibilityState = getPersistedVisibilityState(
+              template.steps,
+            );
+            setStepVisibility(persistedVisibilityState.stepVisibility);
+            setStepVisibilityModes(
+              persistedVisibilityState.stepVisibilityModes,
+            );
           }
           initialTemplateHasBeenApplied.current = true;
         });
@@ -423,10 +436,10 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     setExistingFiles((files) =>
       isRevision
         ? files.map((file, i) =>
-          i === index
-            ? { ...file, removed: true, replacement: undefined }
-            : file,
-        )
+            i === index
+              ? { ...file, removed: true, replacement: undefined }
+              : file,
+          )
         : files.filter((_, i) => i !== index),
     );
   };
@@ -493,10 +506,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   const addAssignee = (stepIndex: number) => {
     updateStep(stepIndex, (step) => ({
       ...step,
-      assignees: [
-        ...step.assignees,
-        createEmptyAssignee(defaultAssigneeType),
-      ],
+      assignees: [...step.assignees, createEmptyAssignee(defaultAssigneeType)],
     }));
   };
 
@@ -612,11 +622,11 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     assigneeIndex: number,
   ) =>
     stepVisibility[
-    getAssigneeVisibilityKey(
-      stepSequence,
-      assigneeStepSequence,
-      assigneeIndex,
-    )
+      getAssigneeVisibilityKey(
+        stepSequence,
+        assigneeStepSequence,
+        assigneeIndex,
+      )
     ] ?? (stepVisibilityModes[stepSequence] ?? "all") === "all";
 
   const getVisibleAssignees = (
@@ -763,9 +773,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       steps.map((step) => ({
         ...step,
         visibilityMode:
-          visibilityModeValues[
-            stepVisibilityModes[step.sequence] ?? "all"
-          ],
+          visibilityModeValues[stepVisibilityModes[step.sequence] ?? "all"],
       })),
     );
 
@@ -845,22 +853,22 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       const approvalRequestGlobalId =
         isRevision && requestToClone
           ? await resubmitApprovalRequest(
-            tenantGlobalId,
-            requestToClone.globalId,
-            getSubmittedSteps(),
-            createStepVisibilitySubmissions(),
-            description,
-            requestFiles,
-          )
+              tenantGlobalId,
+              requestToClone.globalId,
+              getSubmittedSteps(),
+              createStepVisibilitySubmissions(),
+              description,
+              requestFiles,
+            )
           : await submitApprovalRequest(
-            tenantGlobalId,
-            trimmedTitle,
-            getSubmittedSteps(),
-            createStepVisibilitySubmissions(),
-            description,
-            undefined,
-            requestFiles,
-          );
+              tenantGlobalId,
+              trimmedTitle,
+              getSubmittedSteps(),
+              createStepVisibilitySubmissions(),
+              description,
+              undefined,
+              requestFiles,
+            );
       if (approvalRequestGlobalId) {
         showPersistenceSuccessNotification(
           PersistenceSuccessMessages.approvalRequestSubmitted,
@@ -929,20 +937,20 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     ...existingFiles.map((file, index) =>
       file.replacement
         ? toDraftRequestFile(
-          file.replacement,
-          index,
-          ApprovalRequestFileRevisionAction.Replaced,
-          file.requestFileGlobalId,
-        )
+            file.replacement,
+            index,
+            ApprovalRequestFileRevisionAction.Replaced,
+            file.requestFileGlobalId,
+          )
         : {
-          globalId: file.requestFileGlobalId ?? file.file.globalId,
-          userFile: file.file,
-          sequence: index,
-          revisionAction: isRevision
-            ? ApprovalRequestFileRevisionAction.Unchanged
-            : ApprovalRequestFileRevisionAction.Added,
-          previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
-        },
+            globalId: file.requestFileGlobalId ?? file.file.globalId,
+            userFile: file.file,
+            sequence: index,
+            revisionAction: isRevision
+              ? ApprovalRequestFileRevisionAction.Unchanged
+              : ApprovalRequestFileRevisionAction.Added,
+            previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
+          },
     ),
     ...newFiles.map((file, index) =>
       toDraftRequestFile(
@@ -976,336 +984,349 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
         ]}
       />
       <ApprovalWorkflowFormContent>
-      {!isVisibilityPage && (
-        <Box component="form" onSubmit={handleComposeSubmit}>
-          <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
-            <ApprovalRequestDetailsCard ariaLabel="Request details" showStatusBorder={false}>
+        {!isVisibilityPage && (
+          <Box component="form" onSubmit={handleComposeSubmit}>
+            <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
+              <ApprovalRequestDetailsCard
+                ariaLabel="Request details"
+                showStatusBorder={false}
+              >
+                <Stack spacing={Dialogs.formStackSpacing}>
+                  <TextField
+                    autoFocus
+                    margin="normal"
+                    fullWidth
+                    label="Title"
+                    required
+                    value={title}
+                    disabled={isRevision}
+                    onChange={(event) => setTitle(event.target.value)}
+                  />
+                  <ApprovalRequestFilesList
+                    existingFiles={existingFiles}
+                    newFiles={newFiles}
+                    onRemoveExisting={removeExistingFile}
+                    onRemoveNew={(index) =>
+                      setNewFiles((files) =>
+                        files.filter((_, i) => i !== index),
+                      )
+                    }
+                    onRemoveReplacement={(index) =>
+                      setExistingFiles((files) =>
+                        files.map((file, i) =>
+                          i === index
+                            ? { ...file, replacement: undefined }
+                            : file,
+                        ),
+                      )
+                    }
+                    onRestoreExisting={(index) =>
+                      setExistingFiles((files) =>
+                        files.map((file, i) =>
+                          i === index ? { ...file, removed: false } : file,
+                        ),
+                      )
+                    }
+                    onReplaceExisting={
+                      isRevision
+                        ? (index) => {
+                            setReplacementFileIndex(index);
+                            replacementFileInput.current?.click();
+                          }
+                        : undefined
+                    }
+                  />
+                  <Box sx={Dialogs.bottomSpacingSx}>
+                    <Button
+                      startIcon={<AttachFile />}
+                      onClick={handleUploadClick}
+                    >
+                      Add files
+                    </Button>
+                    <input
+                      name="approval-request-files"
+                      type="file"
+                      multiple
+                      onChange={handleFilesChange}
+                      ref={fileInput}
+                      style={Files.inputStyle}
+                    />
+                    <input
+                      name="approval-request-replacement-file"
+                      type="file"
+                      onChange={handleReplacementFilesChange}
+                      ref={replacementFileInput}
+                      style={Files.inputStyle}
+                    />
+                  </Box>
+                  <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Description"
+                    multiline
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                  />
+                </Stack>
+              </ApprovalRequestDetailsCard>
               <Stack spacing={Dialogs.formStackSpacing}>
-                <TextField
-                  autoFocus
-                  margin="normal"
-                  fullWidth
-                  label="Title"
-                  required
-                  value={title}
-                  disabled={isRevision}
-                  onChange={(event) => setTitle(event.target.value)}
+                <ApprovalStepEditor
+                  steps={steps}
+                  canUseEmployees={canUseEmployees}
+                  canUseTeams={canUseTeams}
+                  compactEmployeeOptions
+                  employees={stores.employeeStore.employees}
+                  teams={stores.teamStore.teams}
+                  onAddAssignee={addAssignee}
+                  onAddStep={addStep}
+                  onMoveStep={moveStep}
+                  onRemoveAssignee={removeAssignee}
+                  onRemoveStep={removeStep}
+                  onUpdateAssignee={updateAssignee}
+                  onUpdateStep={updateStep}
+                  showAddStep={false}
+                  stackAssigneeControlsOnSmallScreens
                 />
-                <ApprovalRequestFilesList
-                  existingFiles={existingFiles}
-                  newFiles={newFiles}
-                  onRemoveExisting={removeExistingFile}
-                  onRemoveNew={(index) =>
-                    setNewFiles((files) => files.filter((_, i) => i !== index))
-                  }
-                  onRemoveReplacement={(index) =>
-                    setExistingFiles((files) =>
-                      files.map((file, i) =>
-                        i === index ? { ...file, replacement: undefined } : file,
-                      ),
-                    )
-                  }
-                  onRestoreExisting={(index) =>
-                    setExistingFiles((files) =>
-                      files.map((file, i) =>
-                        i === index ? { ...file, removed: false } : file,
-                      ),
-                    )
-                  }
-                  onReplaceExisting={
-                    isRevision
-                      ? (index) => {
-                        setReplacementFileIndex(index);
-                        replacementFileInput.current?.click();
-                      }
-                      : undefined
-                  }
-                />
-                <Box sx={Dialogs.bottomSpacingSx}>
-                  <Button startIcon={<AttachFile />} onClick={handleUploadClick}>
-                    Add files
+                <Box sx={Dialogs.textBottomSpacingSx}>
+                  <Button startIcon={<Add />} onClick={addStep}>
+                    Add step
                   </Button>
-                  <input
-                    name="approval-request-files"
-                    type="file"
-                    multiple
-                    onChange={handleFilesChange}
-                    ref={fileInput}
-                    style={Files.inputStyle}
-                  />
-                  <input
-                    name="approval-request-replacement-file"
-                    type="file"
-                    onChange={handleReplacementFilesChange}
-                    ref={replacementFileInput}
-                    style={Files.inputStyle}
-                  />
                 </Box>
-                <TextField
-                  margin="normal"
-                  fullWidth
-                  label="Description"
-                  multiline
-                  value={description}
-                  onChange={(event) => setDescription(event.target.value)}
-                />
               </Stack>
-            </ApprovalRequestDetailsCard>
-            <Stack spacing={Dialogs.formStackSpacing}>
-              <ApprovalStepEditor
-                steps={steps}
-                canUseEmployees={canUseEmployees}
-                canUseTeams={canUseTeams}
-                compactEmployeeOptions
-                employees={stores.employeeStore.employees}
-                teams={stores.teamStore.teams}
-                onAddAssignee={addAssignee}
-                onAddStep={addStep}
-                onMoveStep={moveStep}
-                onRemoveAssignee={removeAssignee}
-                onRemoveStep={removeStep}
-                onUpdateAssignee={updateAssignee}
-                onUpdateStep={updateStep}
-                showAddStep={false}
-                stackAssigneeControlsOnSmallScreens
-              />
-              <Box sx={Dialogs.textBottomSpacingSx}>
-                <Button startIcon={<Add />} onClick={addStep}>
-                  Add step
-                </Button>
-              </Box>
             </Stack>
-          </Stack>
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={Dialogs.stepHeaderSpacing}
-            sx={Dialogs.addStepButtonSx}
-          >
-            <Button variant="outlined" onClick={handleClose}>
-              Cancel
-            </Button>
-            {steps.length >= 2 ? (
-              <Button type="submit" endIcon={<ArrowForward />}>
-                Next
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={Dialogs.stepHeaderSpacing}
+              sx={Dialogs.addStepButtonSx}
+            >
+              <Button variant="outlined" onClick={handleClose}>
+                Cancel
               </Button>
-            ) : (
+              {steps.length >= 2 ? (
+                <Button type="submit" endIcon={<ArrowForward />}>
+                  Next
+                </Button>
+              ) : (
+                <LoadingButton
+                  loading={submitAction.isRunning}
+                  type="submit"
+                  variant="outlined"
+                >
+                  Submit
+                </LoadingButton>
+              )}
+            </Stack>
+          </Box>
+        )}
+        {isVisibilityPage && (
+          <>
+            <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
+              <Stack spacing={Dialogs.stepStackSpacing}>
+                <ApprovalRequestDetailsCard
+                  ariaLabel="Request summary"
+                  showStatusBorder={false}
+                >
+                  <ApprovalRequestSummary
+                    title={title}
+                    description={description}
+                    requestFiles={draftRequestFiles}
+                    showRevision={false}
+                  />
+                </ApprovalRequestDetailsCard>
+                <Stepper activeStep={-1} nonLinear orientation="vertical">
+                  {steps.map((step) => {
+                    const additionalViewerOptions = getAdditionalViewerOptions(
+                      step.sequence,
+                      requestAssignees,
+                    );
+                    const visibleAssignees = getVisibleAssignees(
+                      step.sequence,
+                      additionalViewerOptions,
+                    );
+                    const hiddenAssignees = getHiddenAssignees(
+                      step.sequence,
+                      additionalViewerOptions,
+                    );
+                    const visibilityMode =
+                      stepVisibilityModes[step.sequence] ?? "all";
+                    return (
+                      <Step expanded key={step.sequence}>
+                        <StepLabel
+                          StepIconComponent={VisibilityStepIcon}
+                          sx={visibilityStepLabelSx}
+                        >
+                          <ApprovalStepLabel
+                            showVisibility={false}
+                            step={getDisplayStep(step)}
+                          />
+                        </StepLabel>
+                        <StepContent
+                          sx={visibilityStepContentSx}
+                          TransitionProps={{ in: true, unmountOnExit: false }}
+                        >
+                          <ApprovalStepBlock
+                            setupFutureTasks
+                            showMetadata={false}
+                            showStepBox={false}
+                            showStepTitle={false}
+                            step={getDisplayStep(step)}
+                            tasks={[]}
+                            footerContent={
+                              <Stack spacing={Dialogs.stepHeaderSpacing}>
+                                <ApprovalRequestParticipantLabel>
+                                  Visibility
+                                </ApprovalRequestParticipantLabel>
+                                <RadioGroup
+                                  aria-label="Visibility"
+                                  row={false}
+                                  sx={visibilityMobileModeOptionsSx}
+                                  value={visibilityMode}
+                                  onChange={(event) =>
+                                    setVisibilityMode(
+                                      step.sequence,
+                                      event.target.value as StepVisibilityMode,
+                                      additionalViewerOptions,
+                                    )
+                                  }
+                                >
+                                  {visibilityModeOptions.map((option) => (
+                                    <FormControlLabel
+                                      control={<Radio />}
+                                      key={option.value}
+                                      label={
+                                        <Typography variant="body2">
+                                          {option.label}
+                                        </Typography>
+                                      }
+                                      sx={visibilityMobileModeOptionSx}
+                                      value={option.value}
+                                    />
+                                  ))}
+                                </RadioGroup>
+                                <ToggleButtonGroup
+                                  exclusive
+                                  sx={visibilityToggleButtonGroupSx}
+                                  value={visibilityMode}
+                                  onChange={(
+                                    _,
+                                    value: StepVisibilityMode | null,
+                                  ) => {
+                                    if (value) {
+                                      setVisibilityMode(
+                                        step.sequence,
+                                        value,
+                                        additionalViewerOptions,
+                                      );
+                                    }
+                                  }}
+                                >
+                                  {visibilityModeOptions.map((option) => (
+                                    <ToggleButton
+                                      key={option.value}
+                                      value={option.value}
+                                    >
+                                      {option.label}
+                                    </ToggleButton>
+                                  ))}
+                                </ToggleButtonGroup>
+                                {(visibilityMode === "selected" ||
+                                  visibilityMode === "allExcept") && (
+                                  <Autocomplete
+                                    multiple
+                                    filterSelectedOptions
+                                    options={additionalViewerOptions}
+                                    value={
+                                      visibilityMode === "selected"
+                                        ? visibleAssignees
+                                        : hiddenAssignees
+                                    }
+                                    getOptionLabel={(option) =>
+                                      `${option.label} (Step ${option.stepSequence})`
+                                    }
+                                    isOptionEqualToValue={(option, value) =>
+                                      option.key === value.key
+                                    }
+                                    disableCloseOnSelect
+                                    onChange={(_, value) => {
+                                      setVisibleAssignees(
+                                        step.sequence,
+                                        additionalViewerOptions,
+                                        visibilityMode === "selected"
+                                          ? value
+                                          : additionalViewerOptions.filter(
+                                              (option) =>
+                                                !value.some(
+                                                  (excluded) =>
+                                                    excluded.key === option.key,
+                                                ),
+                                            ),
+                                      );
+                                    }}
+                                    renderTags={(value, getTagProps) =>
+                                      value.map((option, index) => (
+                                        <Chip
+                                          {...getTagProps({ index })}
+                                          icon={getAssigneeIcon(option.type)}
+                                          label={option.label}
+                                        />
+                                      ))
+                                    }
+                                    renderInput={(params) => (
+                                      <TextField
+                                        {...params}
+                                        label={
+                                          visibilityMode === "selected"
+                                            ? "Additional participants who can view this step"
+                                            : "Participants who cannot view this step"
+                                        }
+                                      />
+                                    )}
+                                    renderOption={(props, option) => (
+                                      <li {...props}>
+                                        <ApprovalRequestParticipantLine
+                                          label={
+                                            <DisplayName
+                                              displayName={option.label}
+                                              showEmailAddress={false}
+                                            />
+                                          }
+                                          type={option.type}
+                                        />
+                                      </li>
+                                    )}
+                                  />
+                                )}
+                              </Stack>
+                            }
+                          />
+                        </StepContent>
+                      </Step>
+                    );
+                  })}
+                </Stepper>
+              </Stack>
+            </Stack>
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={Dialogs.stepHeaderSpacing}
+              sx={Dialogs.addStepButtonSx}
+            >
+              <Button
+                startIcon={<ArrowBack />}
+                onClick={() => onShowCompose(createDraft())}
+              >
+                BACK
+              </Button>
               <LoadingButton
                 loading={submitAction.isRunning}
-                type="submit"
                 variant="outlined"
+                onClick={handleSubmit}
               >
                 Submit
               </LoadingButton>
-            )}
-          </Stack>
-        </Box>
-      )}
-      {isVisibilityPage && (
-        <>
-          <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
-            <Stack spacing={Dialogs.stepStackSpacing}>
-              <ApprovalRequestDetailsCard ariaLabel="Request summary" showStatusBorder={false}>
-                <ApprovalRequestSummary
-                  title={title}
-                  description={description}
-                  requestFiles={draftRequestFiles}
-                  showRevision={false}
-                />
-              </ApprovalRequestDetailsCard>
-              <Stepper activeStep={-1} nonLinear orientation="vertical">
-              {steps.map((step) => {
-                const additionalViewerOptions = getAdditionalViewerOptions(
-                  step.sequence,
-                  requestAssignees,
-                );
-                const visibleAssignees = getVisibleAssignees(
-                  step.sequence,
-                  additionalViewerOptions,
-                );
-                const hiddenAssignees = getHiddenAssignees(
-                  step.sequence,
-                  additionalViewerOptions,
-                );
-                const visibilityMode =
-                  stepVisibilityModes[step.sequence] ?? "all";
-                return (
-                  <Step
-                    expanded
-                    key={step.sequence}
-                  >
-                    <StepLabel
-                      StepIconComponent={VisibilityStepIcon}
-                      sx={visibilityStepLabelSx}
-                    >
-                      <ApprovalStepLabel
-                        showVisibility={false}
-                        step={getDisplayStep(step)}
-                      />
-                    </StepLabel>
-                    <StepContent
-                      sx={visibilityStepContentSx}
-                      TransitionProps={{ in: true, unmountOnExit: false }}
-                    >
-                      <ApprovalStepBlock
-                        setupFutureTasks
-                        showMetadata={false}
-                        showStepBox={false}
-                        showStepTitle={false}
-                        step={getDisplayStep(step)}
-                        tasks={[]}
-                        footerContent={
-                          <Stack spacing={Dialogs.stepHeaderSpacing}>
-                            <ApprovalRequestParticipantLabel>
-                              Visibility
-                            </ApprovalRequestParticipantLabel>
-                            <RadioGroup
-                              aria-label="Visibility"
-                              row={false}
-                              sx={visibilityMobileModeOptionsSx}
-                              value={visibilityMode}
-                              onChange={(event) =>
-                                setVisibilityMode(
-                                  step.sequence,
-                                  event.target.value as StepVisibilityMode,
-                                  additionalViewerOptions,
-                                )
-                              }
-                            >
-                              {visibilityModeOptions.map((option) => (
-                                <FormControlLabel
-                                  control={<Radio />}
-                                  key={option.value}
-                                  label={(
-                                    <Typography variant="body2">
-                                      {option.label}
-                                    </Typography>
-                                  )}
-                                  sx={visibilityMobileModeOptionSx}
-                                  value={option.value}
-                                />
-                              ))}
-                            </RadioGroup>
-                            <ToggleButtonGroup
-                              exclusive
-                              sx={visibilityToggleButtonGroupSx}
-                              value={visibilityMode}
-                              onChange={(_, value: StepVisibilityMode | null) => {
-                                if (value) {
-                                  setVisibilityMode(
-                                    step.sequence,
-                                    value,
-                                    additionalViewerOptions,
-                                  );
-                                }
-                              }}
-                            >
-                              {visibilityModeOptions.map((option) => (
-                                <ToggleButton
-                                  key={option.value}
-                                  value={option.value}
-                                >
-                                  {option.label}
-                                </ToggleButton>
-                              ))}
-                            </ToggleButtonGroup>
-                            {(visibilityMode === "selected" ||
-                              visibilityMode === "allExcept") && (
-                              <Autocomplete
-                                multiple
-                                filterSelectedOptions
-                                options={additionalViewerOptions}
-                                value={
-                                  visibilityMode === "selected"
-                                    ? visibleAssignees
-                                    : hiddenAssignees
-                                }
-                                getOptionLabel={(option) =>
-                                  `${option.label} (Step ${option.stepSequence})`
-                                }
-                                isOptionEqualToValue={(option, value) =>
-                                  option.key === value.key
-                                }
-                                disableCloseOnSelect
-                                onChange={(_, value) => {
-                                  setVisibleAssignees(
-                                    step.sequence,
-                                    additionalViewerOptions,
-                                    visibilityMode === "selected"
-                                      ? value
-                                      : additionalViewerOptions.filter(
-                                        (option) =>
-                                          !value.some(
-                                            (excluded) =>
-                                              excluded.key === option.key,
-                                          ),
-                                      ),
-                                  );
-                                }}
-                                renderTags={(value, getTagProps) =>
-                                  value.map((option, index) => (
-                                    <Chip
-                                      {...getTagProps({ index })}
-                                      icon={getAssigneeIcon(option.type)}
-                                      label={option.label}
-                                    />
-                                  ))
-                                }
-                                renderInput={(params) => (
-                                  <TextField
-                                    {...params}
-                                    label={
-                                      visibilityMode === "selected"
-                                        ? "Additional participants who can view this step"
-                                        : "Participants who cannot view this step"
-                                    }
-                                  />
-                                )}
-                                renderOption={(props, option) => (
-                                  <li {...props}>
-                                    <ApprovalRequestParticipantLine
-                                      label={(
-                                        <DisplayName
-                                          displayName={option.label}
-                                          showEmailAddress={false}
-                                        />
-                                      )}
-                                      type={option.type}
-                                    />
-                                  </li>
-                                )}
-                              />
-                            )}
-                          </Stack>
-                        }
-                      />
-                    </StepContent>
-                  </Step>
-                );
-              })}
-              </Stepper>
             </Stack>
-          </Stack>
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={Dialogs.stepHeaderSpacing}
-            sx={Dialogs.addStepButtonSx}
-          >
-            <Button
-              startIcon={<ArrowBack />}
-              onClick={() => onShowCompose(createDraft())}
-            >
-              BACK
-            </Button>
-            <LoadingButton
-              loading={submitAction.isRunning}
-              variant="outlined"
-              onClick={handleSubmit}
-            >
-              Submit
-            </LoadingButton>
-          </Stack>
-        </>
-      )}
+          </>
+        )}
       </ApprovalWorkflowFormContent>
       {nameWarning && (
         <ConfirmationDialog
