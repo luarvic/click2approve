@@ -5,7 +5,6 @@ import type { ElectronicSignatureErrors } from "@/features/approvalRequests/comp
 import ApprovalRequestElectronicSignatureForm from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureForm";
 import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestTaskSummaryBlock";
-import ApprovalRequestTimelineContent from "@/features/approvalRequests/components/ApprovalRequestTimelineContent";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
@@ -362,7 +361,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
       </Tabs>
       {tab === "task" && (
         <Stack sx={Dialogs.tabContentSx}>
-          <ApprovalRequestTimelineContent>
+          <NarrowContent>
             <Stack spacing={Dialogs.formStackSpacing}>
               {currentTask && (
                 <ApprovalRequestTaskSummaryBlock
@@ -437,16 +436,45 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
                 </>
               )}
             </Stack>
-          </ApprovalRequestTimelineContent>
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={Dialogs.stepHeaderSpacing}
+              sx={Dialogs.addStepButtonSx}
+            >
+              <Button variant="outlined" onClick={handleClose}>
+                {!isCompleted ? "Cancel" : "Close"}
+              </Button>
+              {!isCompleted && (
+                <LoadingButton
+                  loading={taskIsSubmitting}
+                  variant="outlined"
+                  onClick={handleSubmit}
+                >
+                  Submit
+                </LoadingButton>
+              )}
+            </Stack>
+          </NarrowContent>
         </Stack>
       )}
       {tab === "request" && (
-        <ApprovalRequestDetails
-          approvalRequest={approvalRequest}
-          approvalRequestTaskGlobalId={currentTask?.globalId}
-          highlightedTaskGlobalId={currentTask?.globalId}
-          showVisibleStepVisibility={false}
-        />
+        <NarrowContent>
+          <ApprovalRequestDetails
+            approvalRequest={approvalRequest}
+            approvalRequestTaskGlobalId={currentTask?.globalId}
+            highlightedTaskGlobalId={currentTask?.globalId}
+            showVisibleStepVisibility={false}
+          />
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={Dialogs.stepHeaderSpacing}
+            sx={Dialogs.addStepButtonSx}
+          >
+            <Button variant="outlined" onClick={handleClose}>
+              Close
+            </Button>
+          </Stack>
+        </NarrowContent>
       )}
       {tab === "chat" &&
         discussionsAreEnabled &&
@@ -476,6 +504,23 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
               taskGlobalId={currentTask.globalId}
               tenantGlobalId={tenantGlobalId}
             />
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={Dialogs.stepHeaderSpacing}
+              sx={Dialogs.addStepButtonSx}
+            >
+              <Button variant="outlined" onClick={handleClose}>
+                Close
+              </Button>
+              {canSendDiscussion && (
+                <Button
+                  variant="outlined"
+                  onClick={() => void discussionPanel.current?.send()}
+                >
+                  Send
+                </Button>
+              )}
+            </Stack>
           </NarrowContent>
         )}
       {tab === "link" && canManageSharedVerificationLinks && (
@@ -486,32 +531,15 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
           tenantGlobalId={tenantGlobalId}
         />
       )}
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        spacing={Dialogs.stepHeaderSpacing}
-        sx={Dialogs.addStepButtonSx}
-      >
-        <Button variant="outlined" onClick={handleClose}>
-          {tab === "task" && !isCompleted ? "Cancel" : "Close"}
-        </Button>
-        {tab === "chat" && discussionsAreEnabled && canSendDiscussion && (
-          <Button
-            variant="outlined"
-            onClick={() => void discussionPanel.current?.send()}
-          >
-            Send
+      {tab === "link" && canManageSharedVerificationLinks && (
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={Dialogs.stepHeaderSpacing}
+          sx={Dialogs.addStepButtonSx}
+        >
+          <Button variant="outlined" onClick={handleClose}>
+            Close
           </Button>
-        )}
-        {tab === "task" && !isCompleted && (
-          <LoadingButton
-            loading={taskIsSubmitting}
-            variant="outlined"
-            onClick={handleSubmit}
-          >
-            Submit
-          </LoadingButton>
-        )}
-        {tab === "link" && canManageSharedVerificationLinks && (
           <LoadingButton
             disabled={
               hasSharedVerificationLink || sharedVerificationLinkIsCreating
@@ -523,8 +551,8 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
           >
             Create link
           </LoadingButton>
-        )}
-      </Stack>
+        </Stack>
+      )}
       {nameWarning && (
         <ConfirmationDialog
           cancelFirst

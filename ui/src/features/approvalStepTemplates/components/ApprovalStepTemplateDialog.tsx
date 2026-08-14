@@ -5,7 +5,6 @@ import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/A
 import { ApprovalRequestStepVisibilitySubmission } from "@/features/approvalRequests/models/approvalRequest";
 import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
-import ApprovalWorkflowFormContent from "@/features/approvalWorkflow/components/ApprovalWorkflowFormContent";
 import {
   AssigneeType,
   ApprovalStepAssignee,
@@ -20,6 +19,7 @@ import {
 } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
+import NarrowContent from "@/shared/components/layout/NarrowContent";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
@@ -264,7 +264,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
           ...(isVisibilitySetup ? [{ label: "Visibility" }] : []),
         ]}
       />
-      <ApprovalWorkflowFormContent>
+      <NarrowContent>
         {!isVisibilitySetup && (
           <Stack spacing={Dialogs.formStackSpacing}>
             <ApprovalRequestDetailsCard
@@ -386,7 +386,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
             </LoadingButton>
           )}
         </Stack>
-      </ApprovalWorkflowFormContent>
+      </NarrowContent>
       {template && (
         <DeleteConfirmationDialog
           cancelFirst

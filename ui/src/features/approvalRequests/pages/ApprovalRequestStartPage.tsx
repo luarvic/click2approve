@@ -1,6 +1,6 @@
 import { stores } from "@/app/rootStore";
-import ApprovalWorkflowFormContent from "@/features/approvalWorkflow/components/ApprovalWorkflowFormContent";
 import { TenantType } from "@/features/tenants/models/tenant";
+import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Dialogs, Routes } from "@/shared/constants/constants";
@@ -82,7 +82,7 @@ const ApprovalRequestStartPage = () => {
           { label: "New request" },
         ]}
       />
-      <ApprovalWorkflowFormContent>
+      <NarrowContent>
         <Stack component="form" onSubmit={handleSubmit} spacing={Dialogs.formStackSpacing}>
           <FormControl>
             <RadioGroup
@@ -124,7 +124,7 @@ const ApprovalRequestStartPage = () => {
             Continue
           </Button>
         </Stack>
-      </ApprovalWorkflowFormContent>
+      </NarrowContent>
     </>
   );
 };

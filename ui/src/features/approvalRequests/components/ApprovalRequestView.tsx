@@ -244,7 +244,38 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
         {canManageSharedVerificationLinks && <Tab label="Link" value="link" />}
       </Tabs>
       {tab === "request" && (
-        <ApprovalRequestDetails approvalRequest={approvalRequest} />
+        <NarrowContent>
+          <ApprovalRequestDetails approvalRequest={approvalRequest} />
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={Dialogs.stepHeaderSpacing}
+            sx={Dialogs.addStepButtonSx}
+          >
+            <Button variant="outlined" onClick={handleClose}>
+              Close
+            </Button>
+            {canResubmit && (
+              <Button
+                startIcon={<Replay />}
+                variant="outlined"
+                onClick={handleResubmit}
+              >
+                Resubmit
+              </Button>
+            )}
+            {canCancel && (
+              <LoadingButton
+                color="warning"
+                loading={approvalRequestIsCanceling}
+                startIcon={<BlockOutlined />}
+                variant="outlined"
+                onClick={() => setCancelDialogIsOpen(true)}
+              >
+                Cancel
+              </LoadingButton>
+            )}
+          </Stack>
+        </NarrowContent>
       )}
       {tab === "chat" && discussionsAreEnabled && approvalRequest && (
         <NarrowContent>
@@ -265,6 +296,23 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
             steps={approvalRequest.steps}
             tenantGlobalId={tenantGlobalId}
           />
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={Dialogs.stepHeaderSpacing}
+            sx={Dialogs.addStepButtonSx}
+          >
+            <Button variant="outlined" onClick={handleClose}>
+              Close
+            </Button>
+            {canSendDiscussion && (
+              <Button
+                variant="outlined"
+                onClick={() => void discussionPanel.current?.send()}
+              >
+                Send
+              </Button>
+            )}
+          </Stack>
         </NarrowContent>
       )}
       {tab === "link" && canManageSharedVerificationLinks && (
@@ -275,56 +323,30 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
           tenantGlobalId={tenantGlobalId}
         />
       )}
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        spacing={Dialogs.stepHeaderSpacing}
-        sx={Dialogs.addStepButtonSx}
-      >
-        <Button variant="outlined" onClick={handleClose}>
-          Close
-        </Button>
-        {tab === "chat" && discussionsAreEnabled && canSendDiscussion && (
-          <Button
-            variant="outlined"
-            onClick={() => void discussionPanel.current?.send()}
+      {tab === "link" && canManageSharedVerificationLinks && (
+        <NarrowContent>
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={Dialogs.stepHeaderSpacing}
+            sx={Dialogs.addStepButtonSx}
           >
-            Send
-          </Button>
-        )}
-        {tab === "request" && canResubmit && (
-          <Button
-            startIcon={<Replay />}
-            variant="outlined"
-            onClick={handleResubmit}
-          >
-            Resubmit
-          </Button>
-        )}
-        {tab === "request" && canCancel && (
-          <LoadingButton
-            color="warning"
-            loading={approvalRequestIsCanceling}
-            startIcon={<BlockOutlined />}
-            variant="outlined"
-            onClick={() => setCancelDialogIsOpen(true)}
-          >
-            Cancel
-          </LoadingButton>
-        )}
-        {tab === "link" && canManageSharedVerificationLinks && (
-          <LoadingButton
-            disabled={
-              hasSharedVerificationLink || sharedVerificationLinkIsCreating
-            }
-            loading={sharedVerificationLinkIsCreating}
-            startIcon={<LinkOutlined />}
-            variant="outlined"
-            onClick={handleCreateSharedVerificationLink}
-          >
-            Create link
-          </LoadingButton>
-        )}
-      </Stack>
+            <Button variant="outlined" onClick={handleClose}>
+              Close
+            </Button>
+            <LoadingButton
+              disabled={
+                hasSharedVerificationLink || sharedVerificationLinkIsCreating
+              }
+              loading={sharedVerificationLinkIsCreating}
+              startIcon={<LinkOutlined />}
+              variant="outlined"
+              onClick={handleCreateSharedVerificationLink}
+            >
+              Create link
+            </LoadingButton>
+          </Stack>
+        </NarrowContent>
+      )}
       {approvalRequest && (
         <ConfirmationDialog
           cancelFirst

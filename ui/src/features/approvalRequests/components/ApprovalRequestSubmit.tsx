@@ -23,7 +23,6 @@ import ApprovalStepBlock, {
   ApprovalStepLabel,
 } from "@/features/approvalWorkflow/components/ApprovalStepBlock";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
-import ApprovalWorkflowFormContent from "@/features/approvalWorkflow/components/ApprovalWorkflowFormContent";
 import {
   ApprovalStep,
   ApprovalStepAssignee,
@@ -41,6 +40,7 @@ import { TenantType } from "@/features/tenants/models/tenant";
 import { uploadUserFiles } from "@/features/userFiles/api/userFilesApi";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import DisplayName from "@/shared/components/identity/DisplayName";
+import NarrowContent from "@/shared/components/layout/NarrowContent";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Files, Routes } from "@/shared/constants/constants";
@@ -983,7 +983,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
           ...(isVisibilityPage ? [{ label: "Visibility" }] : []),
         ]}
       />
-      <ApprovalWorkflowFormContent>
+      <NarrowContent>
         {!isVisibilityPage && (
           <Box component="form" onSubmit={handleComposeSubmit}>
             <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
@@ -1327,7 +1327,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
             </Stack>
           </>
         )}
-      </ApprovalWorkflowFormContent>
+      </NarrowContent>
       {nameWarning && (
         <ConfirmationDialog
           cancelFirst

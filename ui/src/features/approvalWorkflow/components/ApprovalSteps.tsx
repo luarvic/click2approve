@@ -1,5 +1,4 @@
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
-import ApprovalRequestTimelineContent from "@/features/approvalRequests/components/ApprovalRequestTimelineContent";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
 import SuccessSnackbarIcon from "@/shared/components/icons/SuccessSnackbarIcon";
@@ -100,15 +99,14 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
 
   return (
     <Stack spacing={Dialogs.stepStackSpacing} sx={sx}>
-      <ApprovalRequestTimelineContent>
-        <Stack spacing={Dialogs.stepStackSpacing}>
-          {leadingItem}
-          <Stepper
-            activeStep={activeStepIndex}
-            nonLinear
-            orientation="vertical"
-          >
-            {steps.map((step) => {
+      <Stack spacing={Dialogs.stepStackSpacing}>
+        {leadingItem}
+        <Stepper
+          activeStep={activeStepIndex}
+          nonLinear
+          orientation="vertical"
+        >
+          {steps.map((step) => {
               const tasks = getStepTasks(step);
               const stepStatus = getStepStatus(step, tasks);
               const stepIcon = () => getStepIcon(stepStatus);
@@ -164,10 +162,9 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
                   </StepContent>
                 </Step>
               );
-            })}
-          </Stepper>
-        </Stack>
-      </ApprovalRequestTimelineContent>
+          })}
+        </Stepper>
+      </Stack>
     </Stack>
   );
 };
