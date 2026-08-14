@@ -4,6 +4,7 @@ import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
 import ImagePicker from "@/shared/components/images/ImagePicker";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { AuthForms, Dialogs, Pages, StackSpacing } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
@@ -127,7 +128,16 @@ const UserProfilePage = () => {
 
   return (
     <Box sx={Pages.userProfileContainerSx}>
-      <PageBreadcrumbs items={[{ label: "User profile" }]} />
+      <PageBreadcrumbs
+        items={[
+          {
+            label: "User profile",
+            titleAction: (
+              <HelpPopover helpText="Update your profile, signature, and notification preferences." />
+            ),
+          },
+        ]}
+      />
       <NarrowContent>
         <Stack component="form" noValidate spacing={StackSpacing.loose} sx={AuthForms.formSx}>
           <Tabs

@@ -1,6 +1,7 @@
 import { stores } from "@/app/rootStore";
 import InboxGrid from "@/features/approvalRequests/components/InboxGrid";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { Box } from "@mui/material";
 import { observer } from "mobx-react-lite";
@@ -22,7 +23,16 @@ const InboxPage = () => {
   const { currentTaskGlobalId } = (location.state as InboxLocationState | null) ?? {};
   return (
     <Box>
-      <PageBreadcrumbs items={[{ label: "Inbox" }]} />
+      <PageBreadcrumbs
+        items={[
+          {
+            label: "Inbox",
+            titleAction: (
+              <HelpPopover helpText="Review and complete tasks assigned to you." />
+            ),
+          },
+        ]}
+      />
       <InboxGrid currentTaskGlobalId={currentTaskGlobalId} />
     </Box>
   );

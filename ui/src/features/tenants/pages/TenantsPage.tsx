@@ -1,5 +1,6 @@
 import TenantsGrid from "@/features/tenants/components/TenantsGrid";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
@@ -14,7 +15,16 @@ const TenantsPage = () => {
   const { currentTenantGlobalId } = (location.state as TenantsLocationState | null) ?? {};
   return (
     <>
-      <PageBreadcrumbs items={[{ label: "Organizations" }]} />
+      <PageBreadcrumbs
+        items={[
+          {
+            label: "Organizations",
+            titleAction: (
+              <HelpPopover helpText="Manage your organizations and their settings." />
+            ),
+          },
+        ]}
+      />
       <TenantsGrid currentTenantGlobalId={currentTenantGlobalId} />
     </>
   );

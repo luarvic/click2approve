@@ -1,5 +1,6 @@
 import OutboxGrid from "@/features/approvalRequests/components/OutboxGrid";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { Box } from "@mui/material";
 import { observer } from "mobx-react-lite";
@@ -15,7 +16,16 @@ const OutboxPage = () => {
   const { currentApprovalRequestGlobalId } = (location.state as OutboxLocationState | null) ?? {};
   return (
     <Box>
-      <PageBreadcrumbs items={[{ label: "Outbox" }]} />
+      <PageBreadcrumbs
+        items={[
+          {
+            label: "Outbox",
+            titleAction: (
+              <HelpPopover helpText="Track requests you created and their progress." />
+            ),
+          },
+        ]}
+      />
       <OutboxGrid currentApprovalRequestGlobalId={currentApprovalRequestGlobalId} />
     </Box>
   );

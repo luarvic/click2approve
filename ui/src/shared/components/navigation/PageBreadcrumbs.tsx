@@ -4,12 +4,14 @@ import {
   Link,
   Typography,
 } from "@mui/material";
+import type { ReactNode } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
 export interface PageBreadcrumbItem {
   label: string;
   onClick?: () => void;
   state?: unknown;
+  titleAction?: ReactNode;
   to?: string;
 }
 
@@ -30,6 +32,7 @@ const PageBreadcrumbs: React.FC<PageBreadcrumbsProps> = ({ items }) => (
           sx={Pages.breadcrumbCurrentSx}
         >
           {item.label}
+          {item.titleAction}
         </Typography>
       ) : (
         <Link
