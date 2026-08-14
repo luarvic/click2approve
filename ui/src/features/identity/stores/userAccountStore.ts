@@ -21,10 +21,7 @@ export class UserAccountStore {
     makeAutoObservable(this);
   }
 
-  configureSessionLifecycle = (
-    initializeSession: () => Promise<void>,
-    clearSession: () => void,
-  ): void => {
+  configureSessionLifecycle = (initializeSession: () => Promise<void>, clearSession: () => void): void => {
     this.initializeSession = initializeSession;
     this.clearSession = clearSession;
   };
@@ -51,11 +48,7 @@ export class UserAccountStore {
     return await requestUserPasswordReset(email);
   };
 
-  resetPassword = async (
-    email: string,
-    code: string,
-    password: string
-  ): Promise<boolean> => {
+  resetPassword = async (email: string, code: string, password: string): Promise<boolean> => {
     return await resetUserPassword(email, code, password);
   };
 

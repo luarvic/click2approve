@@ -13,19 +13,11 @@ const userProvidedTextSx: SxProps<Theme> = {
   whiteSpace: "pre-wrap",
 };
 
-const UserProvidedText: React.FC<UserProvidedTextProps> = ({
-  color,
-  sx,
-  text,
-}) => {
+const UserProvidedText: React.FC<UserProvidedTextProps> = ({ color, sx, text }) => {
   const trimmedText = text?.trim();
 
   return trimmedText ? (
-    <Typography
-      color={color}
-      sx={[userProvidedTextSx, ...(Array.isArray(sx) ? sx : [sx])]}
-      variant="body1"
-    >
+    <Typography color={color} sx={[userProvidedTextSx, ...(Array.isArray(sx) ? sx : [sx])]} variant="body1">
       {trimmedText}
     </Typography>
   ) : null;

@@ -7,9 +7,7 @@ import type { SxProps, Theme } from "@mui/material/styles";
 import { useLayoutEffect } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
-const baseUrl = import.meta.env.BASE_URL.endsWith("/")
-  ? import.meta.env.BASE_URL
-  : `${import.meta.env.BASE_URL}/`;
+const baseUrl = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const logoSrc = `${baseUrl}logo.svg`;
 
 const notFoundLogoSx: SxProps<Theme> = {
@@ -41,28 +39,11 @@ const NotFoundPage = () => {
   return (
     <Container component="main" maxWidth={Pages.centeredMessageMaxWidth}>
       <Box sx={Pages.centeredMessageContainerSx}>
-        <Box
-          component={RouterLink}
-          to={Routes.defaultPath}
-          aria-label="Click2Approve home"
-          sx={notFoundLogoLinkSx}
-        >
-          <Box
-            component="img"
-            src={logoSrc}
-            alt="Click2Approve"
-            sx={notFoundLogoSx}
-          />
+        <Box component={RouterLink} to={Routes.defaultPath} aria-label="Click2Approve home" sx={notFoundLogoLinkSx}>
+          <Box component="img" src={logoSrc} alt="Click2Approve" sx={notFoundLogoSx} />
         </Box>
-        <PageBreadcrumbs
-          items={[
-            { label: "Home", to: Routes.defaultPath },
-            { label: "Page not found" },
-          ]}
-        />
-        <Typography sx={notFoundMessageSx}>
-          Sorry, but the page you are looking for has not been found.
-        </Typography>
+        <PageBreadcrumbs items={[{ label: "Home", to: Routes.defaultPath }, { label: "Page not found" }]} />
+        <Typography sx={notFoundMessageSx}>Sorry, but the page you are looking for has not been found.</Typography>
       </Box>
     </Container>
   );

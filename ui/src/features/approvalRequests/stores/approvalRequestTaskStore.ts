@@ -30,7 +30,9 @@ export class ApprovalRequestTaskStore {
   }
 
   get tasks(): ApprovalRequestTaskListItem[] {
-    return Array.from(this.registry.values()).sort((a, b) => Date.parse(b.createdAt.toString()) - Date.parse(a.createdAt.toString()));
+    return Array.from(this.registry.values()).sort(
+      (a, b) => Date.parse(b.createdAt.toString()) - Date.parse(a.createdAt.toString()),
+    );
   }
 
   getDetail = (globalId: string): ApprovalRequestTask | null => this.details.get(globalId) ?? null;
@@ -41,17 +43,20 @@ export class ApprovalRequestTaskStore {
     }
 
     const requestVersion = ++this.listRequestVersion;
-    const request = approvalRequestTaskApi.listApprovalRequestTasks(tenantGlobalId).then((tasks) => {
-      if (requestVersion !== this.listRequestVersion) {
-        return;
-      }
-      tasks.forEach(normalizeApprovalRequestTaskDates);
-      runInAction(() => {
-        this.registry = new Map(tasks.map((task) => [task.globalId, task]));
+    const request = approvalRequestTaskApi
+      .listApprovalRequestTasks(tenantGlobalId)
+      .then((tasks) => {
+        if (requestVersion !== this.listRequestVersion) {
+          return;
+        }
+        tasks.forEach(normalizeApprovalRequestTaskDates);
+        runInAction(() => {
+          this.registry = new Map(tasks.map((task) => [task.globalId, task]));
+        });
+      })
+      .finally(() => {
+        this.listRequest = null;
       });
-    }).finally(() => {
-      this.listRequest = null;
-    });
     this.listRequest = request;
     return request;
   };
@@ -62,23 +67,26 @@ export class ApprovalRequestTaskStore {
       return inFlight;
     }
 
-    const request = approvalRequestTaskApi.getApprovalRequestTask(tenantGlobalId, globalId).then((task) => {
-      if (task) {
-        normalizeApprovalRequestTaskDates(task);
-        if (task.approvalRequest) {
-          normalizeApprovalRequestDates(task.approvalRequest);
-        }
-        runInAction(() => {
-          this.details.set(task.globalId, task);
-          if (this.currentTask?.globalId === task.globalId) {
-            this.currentTask = task;
+    const request = approvalRequestTaskApi
+      .getApprovalRequestTask(tenantGlobalId, globalId)
+      .then((task) => {
+        if (task) {
+          normalizeApprovalRequestTaskDates(task);
+          if (task.approvalRequest) {
+            normalizeApprovalRequestDates(task.approvalRequest);
           }
-        });
-      }
-      return task;
-    }).finally(() => {
-      this.detailRequests.delete(globalId);
-    });
+          runInAction(() => {
+            this.details.set(task.globalId, task);
+            if (this.currentTask?.globalId === task.globalId) {
+              this.currentTask = task;
+            }
+          });
+        }
+        return task;
+      })
+      .finally(() => {
+        this.detailRequests.delete(globalId);
+      });
 
     this.detailRequests.set(globalId, request);
     return request;

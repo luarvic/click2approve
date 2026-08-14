@@ -1,7 +1,4 @@
-import {
-  normalizeEmailForDisplay,
-  stripInlineEmail,
-} from "@/shared/utils/displayNameHelpers";
+import { normalizeEmailForDisplay, stripInlineEmail } from "@/shared/utils/displayNameHelpers";
 import type { SxProps } from "@mui/material";
 import { Stack, Typography } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
@@ -34,8 +31,7 @@ const DisplayName: React.FC<DisplayNameProps> = ({
 }) => {
   const primary = stripInlineEmail(displayName) || fallback;
   const secondary = normalizeEmailForDisplay(email ?? undefined);
-  const secondaryIsVisible =
-    secondary && normalizeEmailForDisplay(primary) !== secondary;
+  const secondaryIsVisible = secondary && normalizeEmailForDisplay(primary) !== secondary;
 
   return (
     <Stack sx={[rootSx, ...(Array.isArray(sx) ? sx : [sx])]}>
@@ -48,12 +44,7 @@ const DisplayName: React.FC<DisplayNameProps> = ({
         {primary}
       </Typography>
       {showEmailAddress && secondaryIsVisible && (
-        <Typography
-          color="text.secondary"
-          noWrap
-          sx={textSx}
-          variant="body2"
-        >
+        <Typography color="text.secondary" noWrap sx={textSx} variant="body2">
           {secondary}
         </Typography>
       )}

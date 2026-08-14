@@ -6,16 +6,7 @@ import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import type { SxProps } from "@mui/material";
-import {
-  Button,
-  FormControl,
-  FormControlLabel,
-  MenuItem,
-  Radio,
-  RadioGroup,
-  Stack,
-  TextField,
-} from "@mui/material";
+import { Button, FormControl, FormControlLabel, MenuItem, Radio, RadioGroup, Stack, TextField } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import { observer } from "mobx-react-lite";
 import { FormEvent, useEffect, useState } from "react";
@@ -29,9 +20,7 @@ const ApprovalRequestStartPage = () => {
   usePageTitle("Start a new request");
   const navigate = useNavigate();
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const composePath = tenantGlobalId
-    ? Routes.tenantPath(tenantGlobalId, "/outbox/new/compose")
-    : "/";
+  const composePath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox/new/compose") : "/";
   const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
   const tenantScopeIsReady = stores.tenantStore.hasLoaded;
   const canUseTemplates =
@@ -76,25 +65,13 @@ const ApprovalRequestStartPage = () => {
 
   return (
     <>
-      <PageBreadcrumbs
-        items={[
-          { label: "Outbox", to: outboxPath },
-          { label: "New request" },
-        ]}
-      />
+      <PageBreadcrumbs items={[{ label: "Outbox", to: outboxPath }, { label: "New request" }]} />
       <NarrowContent>
         <Stack component="form" onSubmit={handleSubmit} spacing={Dialogs.formStackSpacing}>
           <FormControl>
-            <RadioGroup
-              value={requestType}
-              onChange={(event) => setRequestType(event.target.value as RequestType)}
-            >
+            <RadioGroup value={requestType} onChange={(event) => setRequestType(event.target.value as RequestType)}>
               <FormControlLabel control={<Radio />} label="Custom" value="custom" />
-              <FormControlLabel
-                control={<Radio />}
-                label="From template"
-                value="template"
-              />
+              <FormControlLabel control={<Radio />} label="From template" value="template" />
             </RadioGroup>
           </FormControl>
           {requestType === "template" && (
@@ -114,9 +91,7 @@ const ApprovalRequestStartPage = () => {
             </TextField>
           )}
           <Button
-            disabled={
-              requestType === "template" && (!hasTemplates || templateGlobalId === "")
-            }
+            disabled={requestType === "template" && (!hasTemplates || templateGlobalId === "")}
             sx={continueButtonSx}
             type="submit"
             variant="outlined"

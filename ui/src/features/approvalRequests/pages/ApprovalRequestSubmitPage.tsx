@@ -19,34 +19,24 @@ const ApprovalRequestSubmitPage = () => {
     templateGlobalId?: string;
   } | null;
   const initialTemplateGlobalId = navigationState?.templateGlobalId;
-  const initialDraft = navigationState?.hasDraft
-    ? getCachedApprovalRequestSubmitDraft()
-    : undefined;
+  const initialDraft = navigationState?.hasDraft ? getCachedApprovalRequestSubmitDraft() : undefined;
   const isVisibilityPage = location.pathname.endsWith("/visibility");
   usePageTitle(isVisibilityPage ? "Request visibility" : "Compose request");
-  const { approvalRequestGlobalId } = useParams<{ approvalRequestGlobalId: string }>();
+  const { approvalRequestGlobalId } = useParams<{
+    approvalRequestGlobalId: string;
+  }>();
   const isResubmit = approvalRequestGlobalId !== undefined;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
-  const composePath = tenantGlobalId
-    ? Routes.tenantPath(tenantGlobalId, "/outbox/new/compose")
-    : "/";
+  const composePath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox/new/compose") : "/";
   const resubmitComposePath =
     tenantGlobalId && approvalRequestGlobalId
-      ? Routes.tenantPath(
-        tenantGlobalId,
-        `/outbox/${approvalRequestGlobalId}/resubmit`,
-      )
+      ? Routes.tenantPath(tenantGlobalId, `/outbox/${approvalRequestGlobalId}/resubmit`)
       : composePath;
-  const visibilityPath = tenantGlobalId
-    ? Routes.tenantPath(tenantGlobalId, "/outbox/new/compose/visibility")
-    : "/";
+  const visibilityPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox/new/compose/visibility") : "/";
   const resubmitVisibilityPath =
     tenantGlobalId && approvalRequestGlobalId
-      ? Routes.tenantPath(
-        tenantGlobalId,
-        `/outbox/${approvalRequestGlobalId}/resubmit/visibility`,
-      )
+      ? Routes.tenantPath(tenantGlobalId, `/outbox/${approvalRequestGlobalId}/resubmit/visibility`)
       : visibilityPath;
   const [loadedApprovalRequestGlobalId, setLoadedApprovalRequestGlobalId] = useState<string | null>(null);
 
@@ -88,34 +78,32 @@ const ApprovalRequestSubmitPage = () => {
   return (
     <NarrowContent>
       <ApprovalRequestSubmit
-      initialDraft={initialDraft ?? undefined}
-      initialTemplateGlobalId={initialTemplateGlobalId}
-      isVisibilityPage={isVisibilityPage}
-      onClose={(currentApprovalRequestGlobalId) =>
-        navigate(outboxPath, {
-          state: currentApprovalRequestGlobalId
-            ? { currentApprovalRequestGlobalId }
-            : undefined,
-        })
-      }
-      onComposeBreadcrumbClick={(draft) => {
-        cacheApprovalRequestSubmitDraft(draft);
-        navigate(isResubmit ? resubmitComposePath : composePath, {
-          state: { hasDraft: true },
-        });
-      }}
-      onShowCompose={(draft) => {
-        cacheApprovalRequestSubmitDraft(draft);
-        navigate(isResubmit ? resubmitComposePath : composePath, {
-          state: { hasDraft: true },
-        });
-      }}
-      onShowVisibility={(draft) => {
-        cacheApprovalRequestSubmitDraft(draft);
-        navigate(isResubmit ? resubmitVisibilityPath : visibilityPath, {
-          state: { hasDraft: true },
-        });
-      }}
+        initialDraft={initialDraft ?? undefined}
+        initialTemplateGlobalId={initialTemplateGlobalId}
+        isVisibilityPage={isVisibilityPage}
+        onClose={(currentApprovalRequestGlobalId) =>
+          navigate(outboxPath, {
+            state: currentApprovalRequestGlobalId ? { currentApprovalRequestGlobalId } : undefined,
+          })
+        }
+        onComposeBreadcrumbClick={(draft) => {
+          cacheApprovalRequestSubmitDraft(draft);
+          navigate(isResubmit ? resubmitComposePath : composePath, {
+            state: { hasDraft: true },
+          });
+        }}
+        onShowCompose={(draft) => {
+          cacheApprovalRequestSubmitDraft(draft);
+          navigate(isResubmit ? resubmitComposePath : composePath, {
+            state: { hasDraft: true },
+          });
+        }}
+        onShowVisibility={(draft) => {
+          cacheApprovalRequestSubmitDraft(draft);
+          navigate(isResubmit ? resubmitVisibilityPath : visibilityPath, {
+            state: { hasDraft: true },
+          });
+        }}
       />
     </NarrowContent>
   );

@@ -1,9 +1,5 @@
 import * as employeeApi from "@/features/employees/api/employeesApi";
-import {
-  CreateEmployeeRequest,
-  Employee,
-  UpdateEmployeeRequest,
-} from "@/features/employees/models/employee";
+import { CreateEmployeeRequest, Employee, UpdateEmployeeRequest } from "@/features/employees/models/employee";
 import { makeAutoObservable, runInAction } from "mobx";
 
 export class EmployeeStore {
@@ -27,29 +23,29 @@ export class EmployeeStore {
     }
 
     const requestVersion = ++this.requestVersion;
-    const request = employeeApi.listEmployees(tenantGlobalId).then((employees) => {
-      if (requestVersion !== this.requestVersion) {
-        return;
-      }
-      runInAction(() => {
-        this.employees = employees;
-        this.loadedTenantGlobalId = tenantGlobalId;
+    const request = employeeApi
+      .listEmployees(tenantGlobalId)
+      .then((employees) => {
+        if (requestVersion !== this.requestVersion) {
+          return;
+        }
+        runInAction(() => {
+          this.employees = employees;
+          this.loadedTenantGlobalId = tenantGlobalId;
+        });
+      })
+      .finally(() => {
+        if (this.loadRequest === request) {
+          this.loadRequest = null;
+          this.loadingTenantGlobalId = null;
+        }
       });
-    }).finally(() => {
-      if (this.loadRequest === request) {
-        this.loadRequest = null;
-        this.loadingTenantGlobalId = null;
-      }
-    });
     this.loadRequest = request;
     this.loadingTenantGlobalId = tenantGlobalId;
     return request;
   };
 
-  create = async (
-    tenantGlobalId: string,
-    payload: CreateEmployeeRequest
-  ): Promise<Employee | null> => {
+  create = async (tenantGlobalId: string, payload: CreateEmployeeRequest): Promise<Employee | null> => {
     const requestVersion = this.requestVersion;
     const employee = await employeeApi.createEmployee(tenantGlobalId, payload);
     if (!employee || requestVersion !== this.requestVersion) {
@@ -65,7 +61,7 @@ export class EmployeeStore {
   update = async (
     tenantGlobalId: string,
     employeeGlobalId: string,
-    payload: UpdateEmployeeRequest
+    payload: UpdateEmployeeRequest,
   ): Promise<Employee | null> => {
     const requestVersion = this.requestVersion;
     const employee = await employeeApi.updateEmployee(tenantGlobalId, employeeGlobalId, payload);
@@ -74,9 +70,7 @@ export class EmployeeStore {
     }
 
     runInAction(() => {
-      this.employees = this.employees.map((item) =>
-        item.globalId === employee.globalId ? employee : item
-      );
+      this.employees = this.employees.map((item) => (item.globalId === employee.globalId ? employee : item));
     });
     return employee;
   };
@@ -91,9 +85,7 @@ export class EmployeeStore {
     }
 
     runInAction(() => {
-      this.employees = this.employees.filter(
-        (employee) => employee.globalId !== employeeGlobalId
-      );
+      this.employees = this.employees.filter((employee) => employee.globalId !== employeeGlobalId);
     });
     return true;
   };

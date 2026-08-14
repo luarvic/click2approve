@@ -1,7 +1,4 @@
-import {
-  AssigneeType,
-  type ApprovalStepAssignee,
-} from "@/features/approvalWorkflow/models/approvalStep";
+import { AssigneeType, type ApprovalStepAssignee } from "@/features/approvalWorkflow/models/approvalStep";
 import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
 import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
 import DisplayName from "@/shared/components/identity/DisplayName";
@@ -16,14 +13,10 @@ interface DiscussionParticipantsProps {
   requesterType: AssigneeType;
 }
 
-const getParticipantLabel = (
-  displayName?: string,
-  email?: string,
-): string => {
+const getParticipantLabel = (displayName?: string, email?: string): string => {
   const name = stripInlineEmail(displayName);
   return name || email || "Unknown user";
 };
-
 
 const DiscussionParticipants: React.FC<DiscussionParticipantsProps> = ({
   assignees,
@@ -34,47 +27,26 @@ const DiscussionParticipants: React.FC<DiscussionParticipantsProps> = ({
   const participants = [
     {
       key: "requester",
-      label: getParticipantLabel(
-        requesterDisplayName,
-        requesterEmail,
-      ),
+      label: getParticipantLabel(requesterDisplayName, requesterEmail),
       type: requesterType,
     },
     ...assignees.map((assignee, index) => ({
       key: assignee.globalId ?? `${assignee.type}-${assignee.email ?? assignee.displayName}-${index}`,
-      label: getParticipantLabel(
-        assignee.displayName,
-        assignee.email,
-      ),
+      label: getParticipantLabel(assignee.displayName, assignee.email),
       type: assignee.type,
     })),
   ]
-    .filter(
-      (participant, index, all) =>
-        all.findIndex((candidate) => candidate.label === participant.label) === index,
-    )
+    .filter((participant, index, all) => all.findIndex((candidate) => candidate.label === participant.label) === index)
     .sort((first, second) => first.label.localeCompare(second.label));
 
   return (
     <Stack spacing={StackSpacing.default}>
-      <ApprovalRequestParticipantLabel>
-        {`Participants · ${participants.length}`}
-      </ApprovalRequestParticipantLabel>
-      <Stack
-        direction="row"
-        flexWrap="wrap"
-        spacing={StackSpacing.default}
-        useFlexGap
-      >
+      <ApprovalRequestParticipantLabel>{`Participants · ${participants.length}`}</ApprovalRequestParticipantLabel>
+      <Stack direction="row" flexWrap="wrap" spacing={StackSpacing.default} useFlexGap>
         {participants.map((participant) => (
           <ApprovalRequestParticipantLine
             key={participant.key}
-            label={(
-              <DisplayName
-                displayName={participant.label}
-                showEmailAddress={false}
-              />
-            )}
+            label={<DisplayName displayName={participant.label} showEmailAddress={false} />}
             type={participant.type}
           />
         ))}

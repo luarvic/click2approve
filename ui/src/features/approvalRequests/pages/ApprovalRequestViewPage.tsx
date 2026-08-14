@@ -16,37 +16,29 @@ interface ApprovalRequestViewPageProps {
   tab?: ApprovalRequestViewTab;
 }
 
-const ApprovalRequestViewPage: React.FC<ApprovalRequestViewPageProps> = ({
-  tab = "request",
-}) => {
+const ApprovalRequestViewPage: React.FC<ApprovalRequestViewPageProps> = ({ tab = "request" }) => {
   const navigate = useNavigate();
   const { approvalRequestGlobalId } = useParams<{
     approvalRequestGlobalId: string;
   }>();
   usePageTitle(`Request ${getApprovalRequestNumber(approvalRequestGlobalId)}`);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const outboxPath = tenantGlobalId
-    ? Routes.tenantPath(tenantGlobalId, "/outbox")
-    : "/";
+  const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
   const approvalRequest = approvalRequestGlobalId
     ? stores.approvalRequestStore.getDetail(approvalRequestGlobalId)
     : null;
-  const [loadedApprovalRequestGlobalId, setLoadedApprovalRequestGlobalId] =
-    useState<string | null>(null);
-  const approvalRequestHasLoaded =
-    loadedApprovalRequestGlobalId === approvalRequestGlobalId;
+  const [loadedApprovalRequestGlobalId, setLoadedApprovalRequestGlobalId] = useState<string | null>(null);
+  const approvalRequestHasLoaded = loadedApprovalRequestGlobalId === approvalRequestGlobalId;
 
   useEffect(() => {
     let active = true;
     setLoadedApprovalRequestGlobalId(null);
     if (tenantGlobalId && approvalRequestGlobalId) {
-      void stores.approvalRequestStore
-        .loadDetails(tenantGlobalId, approvalRequestGlobalId)
-        .then(() => {
-          if (active) {
-            setLoadedApprovalRequestGlobalId(approvalRequestGlobalId);
-          }
-        });
+      void stores.approvalRequestStore.loadDetails(tenantGlobalId, approvalRequestGlobalId).then(() => {
+        if (active) {
+          setLoadedApprovalRequestGlobalId(approvalRequestGlobalId);
+        }
+      });
     }
     return () => {
       active = false;
@@ -64,15 +56,13 @@ const ApprovalRequestViewPage: React.FC<ApprovalRequestViewPageProps> = ({
   return (
     <NarrowContent>
       <ApprovalRequestView
-      onClose={(currentApprovalRequestGlobalId) =>
-        navigate(outboxPath, {
-          state: currentApprovalRequestGlobalId
-            ? { currentApprovalRequestGlobalId }
-            : undefined,
-        })
-      }
-      approvalRequestGlobalId={approvalRequestGlobalId}
-      tab={tab}
+        onClose={(currentApprovalRequestGlobalId) =>
+          navigate(outboxPath, {
+            state: currentApprovalRequestGlobalId ? { currentApprovalRequestGlobalId } : undefined,
+          })
+        }
+        approvalRequestGlobalId={approvalRequestGlobalId}
+        tab={tab}
       />
     </NarrowContent>
   );

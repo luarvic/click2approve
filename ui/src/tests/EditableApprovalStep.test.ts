@@ -1,8 +1,5 @@
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
-import {
-  AssigneeType,
-  ApprovalStepMode,
-} from "@/features/approvalWorkflow/models/approvalStep";
+import { AssigneeType, ApprovalStepMode } from "@/features/approvalWorkflow/models/approvalStep";
 import { createEmptyStep } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { describe, expect, test } from "vitest";
 

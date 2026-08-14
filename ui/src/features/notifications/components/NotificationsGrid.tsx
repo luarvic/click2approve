@@ -13,37 +13,16 @@ import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
-import {
-  getHumanReadableRelativeDate,
-  parseUtcDateTime,
-} from "@/shared/utils/dateTime";
+import { getHumanReadableRelativeDate, parseUtcDateTime } from "@/shared/utils/dateTime";
 import { Delete, Done } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
-import {
-  Box,
-  Button,
-  LinearProgress,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
-import {
-  DataGrid,
-  GridColDef,
-  GridRowSelectionModel,
-  GridSlots,
-  GridToolbarContainer,
-} from "@mui/x-data-grid";
+import { Box, Button, LinearProgress, useMediaQuery, useTheme } from "@mui/material";
+import { DataGrid, GridColDef, GridRowSelectionModel, GridSlots, GridToolbarContainer } from "@mui/x-data-grid";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const notificationText = (type: number) =>
-  [
-    "New task",
-    "Request cancelled",
-    "Request reviewed",
-    "New message",
-    "New message",
-  ][type] ?? "Notification";
+  ["New task", "Request cancelled", "Request reviewed", "New message", "New message"][type] ?? "Notification";
 
 const notificationColumnFlex = 15;
 const notificationColumnMinWidth = 150;
@@ -79,8 +58,7 @@ const NotificationsGrid = () => {
   const isSmallDisplay = useMediaQuery(theme.breakpoints.down("sm"));
   const tenantId = stores.tenantStore.currentTenantGlobalId;
   const [items, setItems] = useState<Notification[]>([]);
-  const [selectedNotificationGlobalIds, setSelectedNotificationGlobalIds] =
-    useState<GridRowSelectionModel>([]);
+  const [selectedNotificationGlobalIds, setSelectedNotificationGlobalIds] = useState<GridRowSelectionModel>([]);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const gridLoader = ActionLoaders.grids.notifications(tenantId);
   const deleteLoader = ActionLoaders.notifications.delete(tenantId);
@@ -102,9 +80,7 @@ const NotificationsGrid = () => {
   }, [load]);
   const selectedUnreadNotificationGlobalIds = selectedNotificationGlobalIds
     .map(String)
-    .filter((globalId) =>
-      items.some((item) => item.globalId === globalId && !item.readAt),
-    );
+    .filter((globalId) => items.some((item) => item.globalId === globalId && !item.readAt));
   const markSelectedRead = async () => {
     if (!tenantId || selectedUnreadNotificationGlobalIds.length === 0) return;
     const marked = await runMarkRead(async () => {
@@ -118,12 +94,14 @@ const NotificationsGrid = () => {
   };
   const deleteSelected = async () => {
     if (!tenantId || selectedNotificationGlobalIds.length === 0) return false;
-    return (await runDelete(async () => {
-      await deleteNotifications(tenantId, selectedNotificationGlobalIds.map(String));
-      await synchronize();
-      setSelectedNotificationGlobalIds([]);
-      return true;
-    })) ?? false;
+    return (
+      (await runDelete(async () => {
+        await deleteNotifications(tenantId, selectedNotificationGlobalIds.map(String));
+        await synchronize();
+        setSelectedNotificationGlobalIds([]);
+        return true;
+      })) ?? false
+    );
   };
   const open = async (item: Notification) => {
     if (!tenantId) return;
@@ -140,12 +118,7 @@ const NotificationsGrid = () => {
   const customToolbar = () => (
     <GridToolbarContainer>
       <Button
-        disabled={
-          gridIsLoading ||
-          isDeleting ||
-          isMarkingRead ||
-          selectedUnreadNotificationGlobalIds.length === 0
-        }
+        disabled={gridIsLoading || isDeleting || isMarkingRead || selectedUnreadNotificationGlobalIds.length === 0}
         onClick={() => void markSelectedRead()}
         startIcon={<Done />}
       >
@@ -153,12 +126,7 @@ const NotificationsGrid = () => {
       </Button>
       <Button
         color="error"
-        disabled={
-          gridIsLoading ||
-          isDeleting ||
-          isMarkingRead ||
-          selectedNotificationGlobalIds.length === 0
-        }
+        disabled={gridIsLoading || isDeleting || isMarkingRead || selectedNotificationGlobalIds.length === 0}
         onClick={() => setDeleteDialogIsOpen(true)}
         startIcon={<Delete />}
       >
@@ -190,8 +158,7 @@ const NotificationsGrid = () => {
       field: "occurredAt",
       headerName: "Received",
       flex: receivedColumnFlex,
-      valueFormatter: (value) =>
-        getHumanReadableRelativeDate(parseUtcDateTime(value)),
+      valueFormatter: (value) => getHumanReadableRelativeDate(parseUtcDateTime(value)),
     },
   ];
 
@@ -208,9 +175,7 @@ const NotificationsGrid = () => {
         disableColumnFilter
         disableRowSelectionOnClick
         getRowId={(row) => row.globalId}
-        getRowClassName={(params) =>
-          params.row.readAt ? "" : unreadNotificationRowClassName
-        }
+        getRowClassName={(params) => (params.row.readAt ? "" : unreadNotificationRowClassName)}
         hideFooterSelectedRowCount
         loading={gridIsLoading || isDeleting || isMarkingRead}
         onRowClick={(params) => void open(params.row as Notification)}

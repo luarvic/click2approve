@@ -35,9 +35,7 @@ const SignInPage = () => {
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
-  const handleMouseDownPassword = (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
+  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
   };
 
@@ -51,10 +49,7 @@ const SignInPage = () => {
       setPasswordError(!password);
       notification.warning("Invalid input.");
     } else {
-      const credentials = new Credentials(
-        email.toString(),
-        password.toString(),
-      );
+      const credentials = new Credentials(email.toString(), password.toString());
       setIsLoading(true);
       if (await stores.userAccountStore.signIn(credentials)) {
         if (location.pathname === "/signIn") {
@@ -84,12 +79,7 @@ const SignInPage = () => {
             helperText={emailError && "Invalid email address"}
             onChange={() => setEmailError(false)}
           />
-          <FormControl
-            margin="normal"
-            fullWidth
-            variant={AuthForms.inputVariant}
-            required
-          >
+          <FormControl margin="normal" fullWidth variant={AuthForms.inputVariant} required>
             <InputLabel error={passwordError}>Password</InputLabel>
             <OutlinedInput
               id="password"
@@ -114,23 +104,12 @@ const SignInPage = () => {
               {passwordError && "Password cannot be empty"}
             </FormHelperText>
           </FormControl>
-          <LoadingButton
-            loading={isLoading}
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={AuthForms.submitButtonSx}
-          >
+          <LoadingButton loading={isLoading} type="submit" fullWidth variant="contained" sx={AuthForms.submitButtonSx}>
             Sign in
           </LoadingButton>
           <Grid container>
             <Grid item xs={4}>
-              <Link
-                component="button"
-                type="button"
-                variant="body2"
-                onClick={() => navigate("/forgotPassword")}
-              >
+              <Link component="button" type="button" variant="body2" onClick={() => navigate("/forgotPassword")}>
                 Forgot password
               </Link>
             </Grid>
@@ -145,12 +124,7 @@ const SignInPage = () => {
               </Link>
             </Grid>
             <Grid item xs={4} sx={Text.alignRightSx}>
-              <Link
-                component="button"
-                type="button"
-                variant="body2"
-                onClick={() => navigate("/signUp")}
-              >
+              <Link component="button" type="button" variant="body2" onClick={() => navigate("/signUp")}>
                 New to us? Sign up
               </Link>
             </Grid>

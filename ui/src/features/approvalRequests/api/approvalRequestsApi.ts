@@ -8,10 +8,7 @@ import {
 import { ApprovalRequestListItem } from "@/features/approvalRequests/models/approvalRequestListItem";
 import { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
 import axios from "@/shared/api/axios";
-import {
-  getApiErrorNotification,
-  isResourceNotFoundOrForbiddenError,
-} from "@/shared/utils/apiErrorNotifications";
+import { getApiErrorNotification, isResourceNotFoundOrForbiddenError } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
 
 export const submitApprovalRequest = async (
@@ -32,11 +29,9 @@ export const submitApprovalRequest = async (
       stepVisibility,
       description,
     };
-    const { data } = await axios.post<string>(
-      `api/v1/tenants/${tenantGlobalId}/requests`,
-      payload,
-      { useWorkEmployeeContext: true },
-    );
+    const { data } = await axios.post<string>(`api/v1/tenants/${tenantGlobalId}/requests`, payload, {
+      useWorkEmployeeContext: true,
+    });
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
@@ -71,12 +66,11 @@ export const resubmitApprovalRequest = async (
   }
 };
 
-export const cancelApprovalRequest = async (
-  tenantGlobalId: string,
-  globalId: string,
-): Promise<boolean> => {
+export const cancelApprovalRequest = async (tenantGlobalId: string, globalId: string): Promise<boolean> => {
   try {
-    await axios.post(`api/v1/tenants/${tenantGlobalId}/requests/${globalId}/cancel`, undefined, { useWorkEmployeeContext: true });
+    await axios.post(`api/v1/tenants/${tenantGlobalId}/requests/${globalId}/cancel`, undefined, {
+      useWorkEmployeeContext: true,
+    });
     return true;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
@@ -84,14 +78,11 @@ export const cancelApprovalRequest = async (
   }
 };
 
-export const listApprovalRequests = async (
-  tenantGlobalId: string,
-): Promise<ApprovalRequestListItem[]> => {
+export const listApprovalRequests = async (tenantGlobalId: string): Promise<ApprovalRequestListItem[]> => {
   try {
-    const { data } = await axios.get<ApprovalRequestListItem[]>(
-      `api/v1/tenants/${tenantGlobalId}/requests`,
-      { useWorkEmployeeContext: true },
-    );
+    const { data } = await axios.get<ApprovalRequestListItem[]>(`api/v1/tenants/${tenantGlobalId}/requests`, {
+      useWorkEmployeeContext: true,
+    });
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
@@ -99,15 +90,11 @@ export const listApprovalRequests = async (
   }
 };
 
-export const getApprovalRequest = async (
-  tenantGlobalId: string,
-  globalId: string,
-): Promise<ApprovalRequest | null> => {
+export const getApprovalRequest = async (tenantGlobalId: string, globalId: string): Promise<ApprovalRequest | null> => {
   try {
-    const { data } = await axios.get<ApprovalRequest>(
-      `api/v1/tenants/${tenantGlobalId}/requests/${globalId}`,
-      { useWorkEmployeeContext: true },
-    );
+    const { data } = await axios.get<ApprovalRequest>(`api/v1/tenants/${tenantGlobalId}/requests/${globalId}`, {
+      useWorkEmployeeContext: true,
+    });
     return data;
   } catch (e) {
     if (isResourceNotFoundOrForbiddenError(e)) {

@@ -59,7 +59,10 @@ const getResponseDetails = (data: Record<string, unknown>, status?: number): Not
       return;
     }
 
-    details.push({ label: formatDetailLabel(key), value: toDetailValue(value) });
+    details.push({
+      label: formatDetailLabel(key),
+      value: toDetailValue(value),
+    });
   });
 
   if (status !== undefined && !data.status) {
@@ -89,8 +92,7 @@ export const getApiErrorNotification = (error: unknown): ErrorNotification => {
 
     if (typeof data === "string") {
       const trimmed = data.trim();
-      const looksLikeHtml =
-        trimmed.startsWith("<") && /<html|<head|<body|<title/i.test(trimmed);
+      const looksLikeHtml = trimmed.startsWith("<") && /<html|<head|<body|<title/i.test(trimmed);
 
       if (looksLikeHtml) {
         switch (status) {
@@ -99,21 +101,30 @@ export const getApiErrorNotification = (error: unknown): ErrorNotification => {
           case 502:
           case 503:
           case 504:
-            return { details: [], message: "The service is temporarily unavailable. Please try again." };
+            return {
+              details: [],
+              message: "The service is temporarily unavailable. Please try again.",
+            };
           case 404:
-            return { details: [], message: "The requested resource was not found." };
+            return {
+              details: [],
+              message: "The requested resource was not found.",
+            };
           default:
-            return { details: [], message: "The server returned an unexpected response." };
+            return {
+              details: [],
+              message: "The server returned an unexpected response.",
+            };
         }
       }
     }
 
     if (typeof data === "object" && data !== null && !Array.isArray(data)) {
       const problemDetails = data as Record<string, unknown>;
-      const authenticationMessage = (status === 401 || status === 403)
-        ? getAuthenticationErrorMessage(problemDetails.detail)
-        : undefined;
-      const message = authenticationMessage ??
+      const authenticationMessage =
+        status === 401 || status === 403 ? getAuthenticationErrorMessage(problemDetails.detail) : undefined;
+      const message =
+        authenticationMessage ??
         (typeof problemDetails.title === "string" ? problemDetails.title : undefined) ??
         (typeof problemDetails.detail === "string" ? problemDetails.detail : undefined) ??
         error.message ??
@@ -125,12 +136,14 @@ export const getApiErrorNotification = (error: unknown): ErrorNotification => {
       };
     }
 
-    return { details: [], message: trimErrorMessage(String(data ?? error.message ?? Errors.unknownMessage)) };
+    return {
+      details: [],
+      message: trimErrorMessage(String(data ?? error.message ?? Errors.unknownMessage)),
+    };
   } catch {
     return { details: [], message: Errors.unknownMessage };
   }
 };
 
 export const isResourceNotFoundOrForbiddenError = (error: unknown): boolean =>
-  isAxiosError(error) &&
-  (error.response?.status === 403 || error.response?.status === 404);
+  isAxiosError(error) && (error.response?.status === 403 || error.response?.status === 404);

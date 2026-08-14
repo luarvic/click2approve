@@ -1,6 +1,4 @@
-import {
-  normalizeSignatureLeft,
-} from "@/features/approvalRequests/components/approvalRequestSignatureUtils";
+import { normalizeSignatureLeft } from "@/features/approvalRequests/components/approvalRequestSignatureUtils";
 import { Box, FormHelperText, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import type { SxProps, Theme } from "@mui/material/styles";
@@ -35,7 +33,7 @@ const parseSignature = (signatureJson?: string): PointGroup[] => {
 
   try {
     const parsed = JSON.parse(signatureJson);
-    return Array.isArray(parsed) ? parsed as PointGroup[] : [];
+    return Array.isArray(parsed) ? (parsed as PointGroup[]) : [];
   } catch {
     return [];
   }
@@ -44,9 +42,7 @@ const parseSignature = (signatureJson?: string): PointGroup[] => {
 const applySignaturePenColor = (signatureData: PointGroup[], penColor: string): PointGroup[] =>
   signatureData.map((group) => ({ ...group, penColor }));
 
-const ApprovalRequestSignatureView: React.FC<ApprovalRequestSignatureViewProps> = ({
-  signatureJson,
-}) => {
+const ApprovalRequestSignatureView: React.FC<ApprovalRequestSignatureViewProps> = ({ signatureJson }) => {
   const theme = useTheme();
   const signaturePenColor = theme.palette.text.primary;
   const canvasRef = useRef<HTMLCanvasElement>(null);

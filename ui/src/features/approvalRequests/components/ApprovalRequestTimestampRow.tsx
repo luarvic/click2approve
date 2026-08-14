@@ -14,10 +14,7 @@ interface ApprovalRequestTimestampRowProps {
   items: (ApprovalRequestTimestampRowItem | null | undefined)[];
 }
 
-const ApprovalRequestTimestampRow: React.FC<ApprovalRequestTimestampRowProps> = ({
-  iconSize = "small",
-  items,
-}) => {
+const ApprovalRequestTimestampRow: React.FC<ApprovalRequestTimestampRowProps> = ({ iconSize = "small", items }) => {
   const visibleItems = items.filter(Boolean) as ApprovalRequestTimestampRowItem[];
 
   if (visibleItems.length === 0) {

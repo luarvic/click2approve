@@ -13,15 +13,9 @@ export const listTeams = async (tenantGlobalId: string): Promise<Team[]> => {
   }
 };
 
-export const createTeam = async (
-  tenantGlobalId: string,
-  payload: UpsertTeamRequest
-): Promise<Team | null> => {
+export const createTeam = async (tenantGlobalId: string, payload: UpsertTeamRequest): Promise<Team | null> => {
   try {
-    const { data } = await axios.post<Team>(
-      `api/v1/tenants/${tenantGlobalId}/teams`,
-      payload
-    );
+    const { data } = await axios.post<Team>(`api/v1/tenants/${tenantGlobalId}/teams`, payload);
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
@@ -32,13 +26,10 @@ export const createTeam = async (
 export const updateTeam = async (
   tenantGlobalId: string,
   teamGlobalId: string,
-  payload: UpsertTeamRequest
+  payload: UpsertTeamRequest,
 ): Promise<Team | null> => {
   try {
-    const { data } = await axios.put<Team>(
-      `api/v1/tenants/${tenantGlobalId}/teams/${teamGlobalId}`,
-      payload
-    );
+    const { data } = await axios.put<Team>(`api/v1/tenants/${tenantGlobalId}/teams/${teamGlobalId}`, payload);
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
@@ -46,10 +37,7 @@ export const updateTeam = async (
   }
 };
 
-export const deleteTeam = async (
-  tenantGlobalId: string,
-  teamGlobalId: string
-): Promise<boolean> => {
+export const deleteTeam = async (tenantGlobalId: string, teamGlobalId: string): Promise<boolean> => {
   try {
     await axios.delete(`api/v1/tenants/${tenantGlobalId}/teams/${teamGlobalId}`);
     return true;

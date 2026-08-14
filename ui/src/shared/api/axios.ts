@@ -61,9 +61,9 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const context = getRequestContext();
     const originalRequest = error.config;
-    const workEmployeeIsInvalid = error.response?.headers?.get?.(
-      "X-Click2Approve-Work-Employee-Invalid",
-    ) === "true" || error.response?.headers?.["x-click2approve-work-employee-invalid"] === "true";
+    const workEmployeeIsInvalid =
+      error.response?.headers?.get?.("X-Click2Approve-Work-Employee-Invalid") === "true" ||
+      error.response?.headers?.["x-click2approve-work-employee-invalid"] === "true";
     if (
       error.response?.status === 409 &&
       workEmployeeIsInvalid &&

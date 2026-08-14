@@ -29,12 +29,7 @@ const CommentPaper: React.FC<CommentProps> = ({ children, text, label, sx }) => 
           {label}
         </Typography>
       )}
-      {children ??
-        text?.split(/\r?\n/).map((line, index) => (
-          <Typography key={index}>
-            {line}
-          </Typography>
-        ))}
+      {children ?? text?.split(/\r?\n/).map((line, index) => <Typography key={index}>{line}</Typography>)}
     </Box>
   );
 };

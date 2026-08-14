@@ -12,12 +12,8 @@ interface InboxLocationState {
 }
 
 const InboxPage = () => {
-  const numberOfUncompletedTasks =
-    stores.approvalRequestTaskStore.numberOfUncompletedTasks;
-  const pageTitle =
-    numberOfUncompletedTasks > 0
-      ? `Inbox (${numberOfUncompletedTasks})`
-      : "Inbox";
+  const numberOfUncompletedTasks = stores.approvalRequestTaskStore.numberOfUncompletedTasks;
+  const pageTitle = numberOfUncompletedTasks > 0 ? `Inbox (${numberOfUncompletedTasks})` : "Inbox";
   usePageTitle(pageTitle);
   const location = useLocation();
   const { currentTaskGlobalId } = (location.state as InboxLocationState | null) ?? {};
@@ -27,9 +23,7 @@ const InboxPage = () => {
         items={[
           {
             label: "Inbox",
-            titleAction: (
-              <HelpPopover helpText="Review and complete tasks assigned to you." />
-            ),
+            titleAction: <HelpPopover helpText="Review and complete tasks assigned to you." />,
           },
         ]}
       />

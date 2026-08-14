@@ -63,8 +63,7 @@ const App = () => {
     (currentTenant.currentEmployeeRole === EmployeeRole.Admin ||
       currentTenant.currentEmployeeRole === EmployeeRole.Owner);
   const canViewDelegations =
-    currentTenant?.type === TenantType.Business &&
-    currentTenant.currentEmployeeRole !== undefined;
+    currentTenant?.type === TenantType.Business && currentTenant.currentEmployeeRole !== undefined;
 
   useEffect(() => {
     const load = async () => {
@@ -106,13 +105,7 @@ const App = () => {
               <Route element={<MainLayout />}>
                 <Route element={<WrapperLayout />}>
                   <Route path="/userProfile" element={<UserProfilePage />} />
-                  <Route
-                    element={
-                      <RouteGuard
-                        isAllowed={stores.applicationConfigurationStore.tenantsAreEnabled}
-                      />
-                    }
-                  >
+                  <Route element={<RouteGuard isAllowed={stores.applicationConfigurationStore.tenantsAreEnabled} />}>
                     <Route path="/tenants" element={<TenantsPage />} />
                     <Route path="/tenants/new" element={<TenantEditorPage />} />
                     <Route path="/tenants/:tenantGlobalId" element={<TenantEditorPage />} />
@@ -132,10 +125,19 @@ const App = () => {
                     <Route path="outbox/new/compose" element={<ApprovalRequestSubmitPage />} />
                     <Route path="outbox/new/compose/visibility" element={<ApprovalRequestSubmitPage />} />
                     <Route path="outbox/:approvalRequestGlobalId/resubmit" element={<ApprovalRequestSubmitPage />} />
-                    <Route path="outbox/:approvalRequestGlobalId/resubmit/visibility" element={<ApprovalRequestSubmitPage />} />
+                    <Route
+                      path="outbox/:approvalRequestGlobalId/resubmit/visibility"
+                      element={<ApprovalRequestSubmitPage />}
+                    />
                     <Route path="outbox/:approvalRequestGlobalId" element={<ApprovalRequestViewPage />} />
-                    <Route path="outbox/:approvalRequestGlobalId/chat" element={<ApprovalRequestViewPage tab="chat" />} />
-                    <Route path="outbox/:approvalRequestGlobalId/link" element={<ApprovalRequestViewPage tab="link" />} />
+                    <Route
+                      path="outbox/:approvalRequestGlobalId/chat"
+                      element={<ApprovalRequestViewPage tab="chat" />}
+                    />
+                    <Route
+                      path="outbox/:approvalRequestGlobalId/link"
+                      element={<ApprovalRequestViewPage tab="link" />}
+                    />
                     <Route element={<RouteGuard isAllowed={canViewTemplates} />}>
                       <Route path="approvalStepTemplates" element={<ApprovalStepTemplatesPage />} />
                     </Route>
@@ -153,7 +155,10 @@ const App = () => {
                       <Route path="delegations/new" element={<DelegationEditorPage />} />
                     </Route>
                     <Route path="approvalStepTemplates/new" element={<ApprovalStepTemplateEditorPage />} />
-                    <Route path="approvalStepTemplates/:templateGlobalId" element={<ApprovalStepTemplateEditorPage />} />
+                    <Route
+                      path="approvalStepTemplates/:templateGlobalId"
+                      element={<ApprovalStepTemplateEditorPage />}
+                    />
                     <Route path="teams/new" element={<TeamEditorPage />} />
                     <Route path="teams/:teamGlobalId" element={<TeamEditorPage />} />
                     <Route path="employees/new" element={<EmployeeEditorPage />} />

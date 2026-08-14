@@ -13,11 +13,7 @@ export const addApprovalRequestTaskAttachments = async (
   userFileGlobalIds: string[],
 ): Promise<boolean> => {
   try {
-    await axios.post(
-      getPath(tenantGlobalId, taskGlobalId),
-      { userFileGlobalIds },
-      config,
-    );
+    await axios.post(getPath(tenantGlobalId, taskGlobalId), { userFileGlobalIds }, config);
     return true;
   } catch (error) {
     notification.error(getApiErrorNotification(error));
@@ -31,10 +27,7 @@ export const downloadApprovalRequestTaskAttachmentBase64 = async (
   globalId: string,
 ): Promise<string | null> => {
   try {
-    const { data } = await axios.get(
-      `${getPath(tenantGlobalId, taskGlobalId)}/${globalId}/downloadBase64`,
-      config,
-    );
+    const { data } = await axios.get(`${getPath(tenantGlobalId, taskGlobalId)}/${globalId}/downloadBase64`, config);
     return data;
   } catch (error) {
     notification.error(getApiErrorNotification(error));

@@ -9,11 +9,7 @@ export class Credentials implements CredentialsData {
   password: string;
   passwordConfirmation: string | undefined;
 
-  constructor(
-    email: string,
-    password: string,
-    passwordConfirmation: string | undefined = undefined
-  ) {
+  constructor(email: string, password: string, passwordConfirmation: string | undefined = undefined) {
     this.email = email;
     this.password = password;
     this.passwordConfirmation = passwordConfirmation;

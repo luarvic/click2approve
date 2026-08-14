@@ -10,14 +10,9 @@ interface AppChromeLayoutProps {
   children?: ReactNode;
 }
 
-const AppChromeLayout = ({
-  appBarOptions,
-  children,
-}: AppChromeLayoutProps) => {
+const AppChromeLayout = ({ appBarOptions, children }: AppChromeLayoutProps) => {
   return stores.userAccountStore.currentUser ? (
-    <MainLayout appBarOptions={appBarOptions}>
-      {children}
-    </MainLayout>
+    <MainLayout appBarOptions={appBarOptions}>{children}</MainLayout>
   ) : (
     <PublicLayout>{children}</PublicLayout>
   );

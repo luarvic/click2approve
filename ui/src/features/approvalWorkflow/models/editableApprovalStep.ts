@@ -9,9 +9,7 @@ import {
 
 export type EditableApprovalStep = ApprovalStep;
 
-export const createEmptyAssignee = (
-  type: AssigneeType = AssigneeType.User,
-): ApprovalStepAssignee => ({
+export const createEmptyAssignee = (type: AssigneeType = AssigneeType.User): ApprovalStepAssignee => ({
   globalId: crypto.randomUUID(),
   type,
   ...(type === AssigneeType.User ? { email: "" } : {}),
@@ -29,15 +27,12 @@ export const createEmptyStep = (
   assignees: includeEmptyAssignee ? [createEmptyAssignee(assigneeType)] : [],
 });
 
-export const createEditableSteps = (
-  steps: ApprovalStep[],
-): EditableApprovalStep[] =>
+export const createEditableSteps = (steps: ApprovalStep[]): EditableApprovalStep[] =>
   steps.map((step, index) => ({
     ...step,
     sequence: index + 1,
     action: step.action ?? ApprovalRequestTaskAction.Approve,
-    visibilityMode:
-      step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants,
+    visibilityMode: step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants,
     assignees: step.assignees.map((assignee) => ({ ...assignee })),
     visibility: step.visibility?.map((visibility) => ({ ...visibility })),
   }));
@@ -45,8 +40,7 @@ export const createEditableSteps = (
 const toApprovalStep = (step: EditableApprovalStep): ApprovalStep => ({
   sequence: step.sequence,
   mode: step.mode ?? ApprovalStepMode.Any,
-  visibilityMode:
-    step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants,
+  visibilityMode: step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants,
   action: step.action ?? ApprovalRequestTaskAction.Approve,
   assignees: step.assignees.map((assignee) => ({
     type: assignee.type,
@@ -56,6 +50,4 @@ const toApprovalStep = (step: EditableApprovalStep): ApprovalStep => ({
   })),
 });
 
-export const toApprovalStepSubmissions = (
-  steps: EditableApprovalStep[],
-): ApprovalStep[] => steps.map(toApprovalStep);
+export const toApprovalStepSubmissions = (steps: EditableApprovalStep[]): ApprovalStep[] => steps.map(toApprovalStep);

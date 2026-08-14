@@ -19,10 +19,7 @@ const NotificationBell = () => {
   useEffect(() => {
     void loadUnreadCount();
     if (Refresh.notificationsMs <= 0) return;
-    const id = window.setInterval(
-      () => void loadUnreadCount(),
-      Refresh.notificationsMs,
-    );
+    const id = window.setInterval(() => void loadUnreadCount(), Refresh.notificationsMs);
     return () => window.clearInterval(id);
   }, [loadUnreadCount, workEmployeeGlobalId]);
   return (

@@ -22,7 +22,7 @@ export class TenantStore {
     tenants: Tenant[] = [],
     currentTenantGlobalId: string | null = readCurrentTenantGlobalId(),
     currentWorkEmployeeGlobalId: string | null = readCurrentWorkEmployeeGlobalId(),
-    hasLoaded: boolean = false
+    hasLoaded: boolean = false,
   ) {
     this.tenants = tenants;
     this.currentTenantGlobalId = currentTenantGlobalId;
@@ -70,12 +70,13 @@ export class TenantStore {
     runInAction(() => {
       this.tenants = tenants;
       this.currentTenantGlobalId = currentTenant?.globalId ?? null;
-      this.currentWorkEmployeeGlobalId = currentTenant && cachedWorkEmployeeGlobalId && (
-        currentTenant.currentEmployeeGlobalId === cachedWorkEmployeeGlobalId ||
-        currentTenant.delegators?.some((delegator) => delegator.employeeGlobalId === cachedWorkEmployeeGlobalId)
-      )
-        ? cachedWorkEmployeeGlobalId
-        : currentTenant?.currentEmployeeGlobalId ?? null;
+      this.currentWorkEmployeeGlobalId =
+        currentTenant &&
+        cachedWorkEmployeeGlobalId &&
+        (currentTenant.currentEmployeeGlobalId === cachedWorkEmployeeGlobalId ||
+          currentTenant.delegators?.some((delegator) => delegator.employeeGlobalId === cachedWorkEmployeeGlobalId))
+          ? cachedWorkEmployeeGlobalId
+          : (currentTenant?.currentEmployeeGlobalId ?? null);
       this.hasLoaded = true;
     });
     if (currentTenant) {
@@ -102,10 +103,7 @@ export class TenantStore {
     return tenant;
   };
 
-  createWithLogo = async (
-    payload: CreateTenantRequest,
-    logo: File
-  ): Promise<Tenant | null> => {
+  createWithLogo = async (payload: CreateTenantRequest, logo: File): Promise<Tenant | null> => {
     const requestVersion = this.requestVersion;
     const tenant = await tenantApi.createTenantWithLogo(payload, logo);
     if (!tenant || requestVersion !== this.requestVersion) {
@@ -121,10 +119,7 @@ export class TenantStore {
     return tenant;
   };
 
-  update = async (
-    tenantGlobalId: string,
-    payload: UpdateTenantRequest
-  ): Promise<Tenant | null> => {
+  update = async (tenantGlobalId: string, payload: UpdateTenantRequest): Promise<Tenant | null> => {
     const requestVersion = this.requestVersion;
     const tenant = await tenantApi.updateTenant(tenantGlobalId, payload);
     if (!tenant || requestVersion !== this.requestVersion) {
@@ -133,7 +128,7 @@ export class TenantStore {
 
     runInAction(() => {
       this.tenants = this.tenants.map((existingTenant) =>
-        existingTenant.globalId === tenant.globalId ? tenant : existingTenant
+        existingTenant.globalId === tenant.globalId ? tenant : existingTenant,
       );
       this.hasLoaded = true;
     });
@@ -193,7 +188,7 @@ export class TenantStore {
   private replaceTenant = (tenant: Tenant): void => {
     runInAction(() => {
       this.tenants = this.tenants.map((existingTenant) =>
-        existingTenant.globalId === tenant.globalId ? tenant : existingTenant
+        existingTenant.globalId === tenant.globalId ? tenant : existingTenant,
       );
       this.hasLoaded = true;
     });

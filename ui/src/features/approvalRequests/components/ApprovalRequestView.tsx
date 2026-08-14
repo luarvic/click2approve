@@ -5,9 +5,7 @@ import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approv
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { getIncompleteParticipantNameWarning } from "@/features/approvalRequests/utils/incompleteParticipantNameWarning";
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
-import DiscussionPanel, {
-  DiscussionPanelHandle,
-} from "@/features/discussions/components/DiscussionPanel";
+import DiscussionPanel, { DiscussionPanelHandle } from "@/features/discussions/components/DiscussionPanel";
 import { createSharedVerificationLinkForRequest } from "@/features/sharedVerificationLinks/api/sharedVerificationLinksApi";
 import SharedVerificationLinksPanel from "@/features/sharedVerificationLinks/components/SharedVerificationLinksPanel";
 import { TenantType } from "@/features/tenants/models/tenant";
@@ -41,45 +39,25 @@ const resubmittableApprovalRequestStatuses = [
   ApprovalRequestStatus.Completed,
 ];
 
-const cancelableApprovalRequestStatuses = [
-  ApprovalRequestStatus.Pending,
-  ApprovalRequestStatus.Started,
-];
+const cancelableApprovalRequestStatuses = [ApprovalRequestStatus.Pending, ApprovalRequestStatus.Started];
 
-const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
-  approvalRequestGlobalId,
-  onClose,
-  tab,
-}) => {
+const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalRequestGlobalId, onClose, tab }) => {
   const navigate = useNavigate();
   const approvalRequest = stores.approvalRequestStore.currentApprovalRequest;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const nameWarning = getIncompleteParticipantNameWarning(
-    stores.tenantStore.currentTenant?.type,
-  );
-  const outboxPath = tenantGlobalId
-    ? Routes.tenantPath(tenantGlobalId, "/outbox")
-    : "/";
+  const nameWarning = getIncompleteParticipantNameWarning(stores.tenantStore.currentTenant?.type);
+  const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
   const [nameWarningDialogIsOpen, setNameWarningDialogIsOpen] = useState(false);
-  const [hasSharedVerificationLink, setHasSharedVerificationLink] =
-    useState(false);
-  const [
-    sharedVerificationLinksRefreshKey,
-    setSharedVerificationLinksRefreshKey,
-  ] = useState(0);
+  const [hasSharedVerificationLink, setHasSharedVerificationLink] = useState(false);
+  const [sharedVerificationLinksRefreshKey, setSharedVerificationLinksRefreshKey] = useState(0);
   const discussionPanel = useRef<DiscussionPanelHandle>(null);
-  const cancelLoader = ActionLoaders.approvalRequests.cancel(
+  const cancelLoader = ActionLoaders.approvalRequests.cancel(approvalRequest?.globalId);
+  const cancelAction = useAsyncAction(cancelLoader);
+  const createSharedVerificationLinkLoader = ActionLoaders.sharedVerificationLinks.createForRequest(
     approvalRequest?.globalId,
   );
-  const cancelAction = useAsyncAction(cancelLoader);
-  const createSharedVerificationLinkLoader =
-    ActionLoaders.sharedVerificationLinks.createForRequest(
-      approvalRequest?.globalId,
-    );
-  const createSharedVerificationLinkAction = useAsyncAction(
-    createSharedVerificationLinkLoader,
-  );
+  const createSharedVerificationLinkAction = useAsyncAction(createSharedVerificationLinkLoader);
   const canResubmit = Boolean(
     approvalRequest &&
     stores.applicationConfigurationStore.approvalRequestRevisionsAreEnabled &&
@@ -88,9 +66,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
     approvalRequest.result !== true,
   );
   const canCancel = Boolean(
-    approvalRequest &&
-    tenantGlobalId &&
-    cancelableApprovalRequestStatuses.includes(approvalRequest.status),
+    approvalRequest && tenantGlobalId && cancelableApprovalRequestStatuses.includes(approvalRequest.status),
   );
   const canManageSharedVerificationLinks = Boolean(
     approvalRequest &&
@@ -101,16 +77,11 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
   const canSendDiscussion =
     approvalRequest?.status !== ApprovalRequestStatus.Completed &&
     approvalRequest?.steps.some((step) =>
-      step.tasks?.some(
-        (task) => task.status === ApprovalRequestTaskStatus.Pending,
-      ),
+      step.tasks?.some((task) => task.status === ApprovalRequestTaskStatus.Pending),
     ) === true;
-  const discussionsAreEnabled =
-    stores.applicationConfigurationStore.discussionsAreEnabled;
-  const discussionAttachmentsAreEnabled =
-    stores.applicationConfigurationStore.discussionAttachmentsAreEnabled;
-  const approvalRequestIsCanceling =
-    cancelAction.isRunning || stores.commonStore.isActionLoading(cancelLoader);
+  const discussionsAreEnabled = stores.applicationConfigurationStore.discussionsAreEnabled;
+  const discussionAttachmentsAreEnabled = stores.applicationConfigurationStore.discussionAttachmentsAreEnabled;
+  const approvalRequestIsCanceling = cancelAction.isRunning || stores.commonStore.isActionLoading(cancelLoader);
   const sharedVerificationLinkIsCreating =
     createSharedVerificationLinkAction.isRunning ||
     stores.commonStore.isActionLoading(createSharedVerificationLinkLoader);
@@ -118,10 +89,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
   const navigateToTab = (value: ApprovalRequestViewProps["tab"]) => {
     if (!tenantGlobalId) return;
     navigate(
-      Routes.tenantPath(
-        tenantGlobalId,
-        `/outbox/${approvalRequestGlobalId}${value === "request" ? "" : `/${value}`}`,
-      ),
+      Routes.tenantPath(tenantGlobalId, `/outbox/${approvalRequestGlobalId}${value === "request" ? "" : `/${value}`}`),
     );
   };
 
@@ -134,14 +102,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
       return;
     }
 
-    navigate(
-      tenantGlobalId
-        ? Routes.tenantPath(
-          tenantGlobalId,
-          `/outbox/${approvalRequest.globalId}/resubmit`,
-        )
-        : "/",
-    );
+    navigate(tenantGlobalId ? Routes.tenantPath(tenantGlobalId, `/outbox/${approvalRequest.globalId}/resubmit`) : "/");
   };
 
   const cancel = async (): Promise<boolean> => {
@@ -150,14 +111,9 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
     }
 
     const isCanceled = await cancelAction.run(async () => {
-      const canceled = await stores.approvalRequestStore.cancel(
-        tenantGlobalId,
-        approvalRequest.globalId,
-      );
+      const canceled = await stores.approvalRequestStore.cancel(tenantGlobalId, approvalRequest.globalId);
       if (canceled) {
-        showPersistenceSuccessNotification(
-          PersistenceSuccessMessages.approvalRequestCanceled,
-        );
+        showPersistenceSuccessNotification(PersistenceSuccessMessages.approvalRequestCanceled);
       }
       return canceled;
     });
@@ -174,10 +130,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
       currentTenant?.type === TenantType.Business
         ? currentTenant.currentEmployeeLastName
         : stores.userProfileStore.profile?.lastName;
-    if (
-      (!firstName?.trim() || !lastName?.trim()) &&
-      currentTenant?.type === TenantType.Business
-    ) {
+    if ((!firstName?.trim() || !lastName?.trim()) && currentTenant?.type === TenantType.Business) {
       setCancelDialogIsOpen(false);
       setNameWarningDialogIsOpen(true);
       return false;
@@ -192,17 +145,10 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
     }
 
     await createSharedVerificationLinkAction.run(async () => {
-      const linkGlobalId = await createSharedVerificationLinkForRequest(
-        tenantGlobalId,
-        approvalRequest.globalId,
-      );
+      const linkGlobalId = await createSharedVerificationLinkForRequest(tenantGlobalId, approvalRequest.globalId);
       if (linkGlobalId) {
-        await navigator.clipboard?.writeText(
-          `${window.location.origin}/app/verification/${linkGlobalId}`,
-        );
-        showPersistenceSuccessNotification(
-          PersistenceSuccessMessages.sharedVerificationLinkCreated,
-        );
+        await navigator.clipboard?.writeText(`${window.location.origin}/app/verification/${linkGlobalId}`);
+        showPersistenceSuccessNotification(PersistenceSuccessMessages.sharedVerificationLinkCreated);
         setSharedVerificationLinksRefreshKey((current) => current + 1);
       }
     });
@@ -221,9 +167,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
         items={[
           {
             label: "Outbox",
-            state: approvalRequest
-              ? { currentApprovalRequestGlobalId: approvalRequest.globalId }
-              : undefined,
+            state: approvalRequest ? { currentApprovalRequestGlobalId: approvalRequest.globalId } : undefined,
             to: outboxPath,
           },
           {
@@ -235,9 +179,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
         scrollButtons={false}
         value={tab}
         variant="scrollable"
-        onChange={(_, value: ApprovalRequestViewProps["tab"]) =>
-          navigateToTab(value)
-        }
+        onChange={(_, value: ApprovalRequestViewProps["tab"]) => navigateToTab(value)}
         aria-label="Request sections"
       >
         <Tab label="Request" value="request" />
@@ -249,9 +191,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
           <ApprovalRequestDetails
             approvalRequest={approvalRequest}
             taskAttachmentsTenantGlobalId={
-              stores.applicationConfigurationStore.taskAttachmentsAreEnabled
-                ? tenantGlobalId ?? undefined
-                : undefined
+              stores.applicationConfigurationStore.taskAttachmentsAreEnabled ? (tenantGlobalId ?? undefined) : undefined
             }
           />
           <Stack
@@ -263,11 +203,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
               Close
             </Button>
             {canResubmit && (
-              <Button
-                startIcon={<Replay />}
-                variant="outlined"
-                onClick={handleResubmit}
-              >
+              <Button startIcon={<Replay />} variant="outlined" onClick={handleResubmit}>
                 Resubmit
               </Button>
             )}
@@ -287,16 +223,14 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
       )}
       {tab === "chat" && discussionsAreEnabled && approvalRequest && (
         <>
-            <DiscussionPanel
-              attachmentsAreEnabled={discussionAttachmentsAreEnabled}
+          <DiscussionPanel
+            attachmentsAreEnabled={discussionAttachmentsAreEnabled}
             canSend={canSendDiscussion}
             ref={discussionPanel}
             requestGlobalId={approvalRequest.globalId}
             requesterDisplayName={approvalRequest.createdByDisplayName}
             requesterEmail={approvalRequest.createdByEmail}
-            requesterType={approvalRequest.createdByEmployeeGlobalId
-              ? AssigneeType.Employee
-              : AssigneeType.User}
+            requesterType={approvalRequest.createdByEmployeeGlobalId ? AssigneeType.Employee : AssigneeType.User}
             stepLabels={Object.fromEntries(
               approvalRequest.steps
                 .filter((step) => step.globalId)
@@ -314,10 +248,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
               Close
             </Button>
             {canSendDiscussion && (
-              <Button
-                variant="outlined"
-                onClick={() => void discussionPanel.current?.send()}
-              >
+              <Button variant="outlined" onClick={() => void discussionPanel.current?.send()}>
                 Send
               </Button>
             )}
@@ -333,26 +264,20 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
         />
       )}
       {tab === "link" && canManageSharedVerificationLinks && (
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={Dialogs.stepHeaderSpacing}
-            sx={Dialogs.addStepButtonSx}
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
+          <Button variant="outlined" onClick={handleClose}>
+            Close
+          </Button>
+          <LoadingButton
+            disabled={hasSharedVerificationLink || sharedVerificationLinkIsCreating}
+            loading={sharedVerificationLinkIsCreating}
+            startIcon={<LinkOutlined />}
+            variant="outlined"
+            onClick={handleCreateSharedVerificationLink}
           >
-            <Button variant="outlined" onClick={handleClose}>
-              Close
-            </Button>
-            <LoadingButton
-              disabled={
-                hasSharedVerificationLink || sharedVerificationLinkIsCreating
-              }
-              loading={sharedVerificationLinkIsCreating}
-              startIcon={<LinkOutlined />}
-              variant="outlined"
-              onClick={handleCreateSharedVerificationLink}
-            >
-              Create link
-            </LoadingButton>
-          </Stack>
+            Create link
+          </LoadingButton>
+        </Stack>
       )}
       {approvalRequest && (
         <ConfirmationDialog

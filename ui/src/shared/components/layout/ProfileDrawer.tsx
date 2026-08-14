@@ -31,25 +31,16 @@ const ProfileDrawer = () => {
       onClose={() => stores.commonStore.setProfileDrawerIsOpen(false)}
       sx={Shell.profileDrawerSx}
     >
-      <Box
-        sx={Shell.profileDrawerContentSx}
-        onClick={() => stores.commonStore.setProfileDrawerIsOpen(false)}
-      >
+      <Box sx={Shell.profileDrawerContentSx} onClick={() => stores.commonStore.setProfileDrawerIsOpen(false)}>
         <List>
           <ListItem key="manageAccount" disablePadding>
             <ListItemButton onClick={() => navigate("/userProfile")}>
               <ListItemIcon sx={Lists.itemIconSx}>
-                <Avatar
-                  src={getPublicApiUrl(profile?.avatar)}
-                  sx={Shell.profileDrawerAvatarSx}
-                >
+                <Avatar src={getPublicApiUrl(profile?.avatar)} sx={Shell.profileDrawerAvatarSx}>
                   <Settings fontSize="small" />
                 </Avatar>
               </ListItemIcon>
-              <ListItemText
-                disableTypography
-                primary={<DisplayName displayName={displayName} email={email} />}
-              />
+              <ListItemText disableTypography primary={<DisplayName displayName={displayName} email={email} />} />
             </ListItemButton>
           </ListItem>
           <Divider />

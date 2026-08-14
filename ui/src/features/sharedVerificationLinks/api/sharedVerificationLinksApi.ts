@@ -3,10 +3,7 @@ import {
   SharedVerificationReceipt,
 } from "@/features/sharedVerificationLinks/models/sharedVerificationLink";
 import axios from "@/shared/api/axios";
-import {
-  getApiErrorNotification,
-  isResourceNotFoundOrForbiddenError,
-} from "@/shared/utils/apiErrorNotifications";
+import { getApiErrorNotification, isResourceNotFoundOrForbiddenError } from "@/shared/utils/apiErrorNotifications";
 import { parseUtcDateTime } from "@/shared/utils/dateTime";
 import { notification } from "@/shared/utils/notifications";
 
@@ -46,13 +43,9 @@ export const createSharedVerificationLinkForTask = async (
   }
 };
 
-export const getSharedVerificationReceipt = async (
-  globalId: string,
-): Promise<SharedVerificationReceipt | null> => {
+export const getSharedVerificationReceipt = async (globalId: string): Promise<SharedVerificationReceipt | null> => {
   try {
-    const { data } = await axios.get<SharedVerificationReceipt>(
-      `api/v1/sharedVerificationLinks/${globalId}`,
-    );
+    const { data } = await axios.get<SharedVerificationReceipt>(`api/v1/sharedVerificationLinks/${globalId}`);
     normalizeReceiptDates(data);
     return data;
   } catch (e) {
@@ -143,9 +136,7 @@ const normalizeReceiptDates = (receipt: SharedVerificationReceipt): void => {
     : undefined;
   receipt.createdAt = parseReceiptDate(receipt.createdAt);
   receipt.participants?.forEach((participant) => {
-    participant.completedAt = participant.completedAt
-      ? parseReceiptDate(participant.completedAt)
-      : undefined;
+    participant.completedAt = participant.completedAt ? parseReceiptDate(participant.completedAt) : undefined;
   });
 };
 

@@ -23,12 +23,7 @@ const userFileRowSx: SxProps<Theme> = {
   columnGap: StackSpacing.tight,
 };
 
-const UserFilesList: React.FC<UserFilesListProps> = ({
-  userFiles,
-  direction,
-  sx,
-  onDownload,
-}) => {
+const UserFilesList: React.FC<UserFilesListProps> = ({ userFiles, direction, sx, onDownload }) => {
   return (
     <Stack
       spacing={Lists.itemSpacing}
@@ -39,12 +34,7 @@ const UserFilesList: React.FC<UserFilesListProps> = ({
     >
       {userFiles &&
         userFiles.map((userFile) => (
-          <Stack
-            key={userFile.globalId}
-            direction="row"
-            alignItems="center"
-            sx={userFileRowSx}
-          >
+          <Stack key={userFile.globalId} direction="row" alignItems="center" sx={userFileRowSx}>
             <FileTypeIcon fontSize="small" fileName={userFile.name} />
             <Link
               component="button"

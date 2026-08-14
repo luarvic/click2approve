@@ -17,9 +17,7 @@ import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/
 import { createApprovalRequestTaskClientAuditContext } from "@/features/approvalRequests/utils/approvalRequestTaskClientAuditContext";
 import { getIncompleteParticipantNameWarning } from "@/features/approvalRequests/utils/incompleteParticipantNameWarning";
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
-import DiscussionPanel, {
-  DiscussionPanelHandle,
-} from "@/features/discussions/components/DiscussionPanel";
+import DiscussionPanel, { DiscussionPanelHandle } from "@/features/discussions/components/DiscussionPanel";
 import { createSharedVerificationLinkForTask } from "@/features/sharedVerificationLinks/api/sharedVerificationLinksApi";
 import SharedVerificationLinksPanel from "@/features/sharedVerificationLinks/components/SharedVerificationLinksPanel";
 import { TenantType } from "@/features/tenants/models/tenant";
@@ -63,9 +61,7 @@ const emptyElectronicSignatureErrors: ElectronicSignatureErrors = {
   signature: "",
 };
 
-const getDefaultLegalName = (
-  isAssigneeEmployee: boolean | undefined,
-): string => {
+const getDefaultLegalName = (isAssigneeEmployee: boolean | undefined): string => {
   const currentTenant = stores.tenantStore.currentTenant;
   const firstName = isAssigneeEmployee
     ? currentTenant?.currentEmployeeFirstName
@@ -80,11 +76,7 @@ const getDefaultLegalName = (
     .join(" ");
 };
 
-const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
-  onClose,
-  tab,
-  taskGlobalId,
-}) => {
+const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab, taskGlobalId }) => {
   const navigate = useNavigate();
   const [decisionError, setDecisionError] = useState(false);
   const [commentError, setCommentError] = useState(false);
@@ -95,63 +87,36 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
   const [signatureJson, setSignatureJson] = useState("");
   const [electronicSignatureErrors, setElectronicSignatureErrors] =
     useState<ElectronicSignatureErrors>(emptyElectronicSignatureErrors);
-  const [approvalRequest, setApprovalRequest] =
-    useState<ApprovalRequest | null>(null);
-  const [hasSharedVerificationLink, setHasSharedVerificationLink] =
-    useState(false);
-  const [
-    sharedVerificationLinksRefreshKey,
-    setSharedVerificationLinksRefreshKey,
-  ] = useState(0);
+  const [approvalRequest, setApprovalRequest] = useState<ApprovalRequest | null>(null);
+  const [hasSharedVerificationLink, setHasSharedVerificationLink] = useState(false);
+  const [sharedVerificationLinksRefreshKey, setSharedVerificationLinksRefreshKey] = useState(0);
   const [nameWarningDialogIsOpen, setNameWarningDialogIsOpen] = useState(false);
   const discussionPanel = useRef<DiscussionPanelHandle>(null);
   const taskAttachments = useRef<ApprovalRequestTaskAttachmentsHandle>(null);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const nameWarning = getIncompleteParticipantNameWarning(
-    stores.tenantStore.currentTenant?.type,
-  );
-  const inboxPath = tenantGlobalId
-    ? Routes.tenantPath(tenantGlobalId, "/inbox")
-    : "/";
+  const nameWarning = getIncompleteParticipantNameWarning(stores.tenantStore.currentTenant?.type);
+  const inboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/inbox") : "/";
   const currentTask = stores.approvalRequestTaskStore.currentTask;
-  const requestTabLabel = approvalRequest
-    ? `Request ${getApprovalRequestNumber(approvalRequest.globalId)}`
-    : "Request";
+  const requestTabLabel = approvalRequest ? `Request ${getApprovalRequestNumber(approvalRequest.globalId)}` : "Request";
   const currentTaskAssigneeType = approvalRequest?.steps
     .find((step) => step.globalId === currentTask?.approvalRequestStepGlobalId)
-    ?.assignees.find(
-      (assignee) =>
-        assignee.globalId === currentTask?.approvalRequestStepAssigneeGlobalId,
-    )?.type;
+    ?.assignees.find((assignee) => assignee.globalId === currentTask?.approvalRequestStepAssigneeGlobalId)?.type;
   const discussionStep = approvalRequest?.steps.find(
     (step) => step.globalId === currentTask?.approvalRequestStepGlobalId,
   );
   const canSendDiscussion =
     approvalRequest?.status !== ApprovalRequestStatus.Completed &&
-    discussionStep?.tasks?.some(
-      (task) => task.status === ApprovalRequestTaskStatus.Pending,
-    ) === true;
-  const discussionsAreEnabled =
-    stores.applicationConfigurationStore.discussionsAreEnabled;
-  const discussionAttachmentsAreEnabled =
-    stores.applicationConfigurationStore.discussionAttachmentsAreEnabled;
-  const taskAttachmentsAreEnabled =
-    stores.applicationConfigurationStore.taskAttachmentsAreEnabled;
-  const isCompleted = Boolean(
-    currentTask && currentTask.status !== ApprovalRequestTaskStatus.Pending,
-  );
+    discussionStep?.tasks?.some((task) => task.status === ApprovalRequestTaskStatus.Pending) === true;
+  const discussionsAreEnabled = stores.applicationConfigurationStore.discussionsAreEnabled;
+  const discussionAttachmentsAreEnabled = stores.applicationConfigurationStore.discussionAttachmentsAreEnabled;
+  const taskAttachmentsAreEnabled = stores.applicationConfigurationStore.taskAttachmentsAreEnabled;
+  const isCompleted = Boolean(currentTask && currentTask.status !== ApprovalRequestTaskStatus.Pending);
   const actionLabels = getApprovalRequestTaskActionLabels(currentTask?.action);
-  const completeTaskLoader = ActionLoaders.approvalRequestTasks.complete(
-    currentTask?.globalId,
-  );
-  const createSharedVerificationLinkLoader =
-    ActionLoaders.sharedVerificationLinks.createForTask(currentTask?.globalId);
-  const createSharedVerificationLinkAction = useAsyncAction(
-    createSharedVerificationLinkLoader,
-  );
+  const completeTaskLoader = ActionLoaders.approvalRequestTasks.complete(currentTask?.globalId);
+  const createSharedVerificationLinkLoader = ActionLoaders.sharedVerificationLinks.createForTask(currentTask?.globalId);
+  const createSharedVerificationLinkAction = useAsyncAction(createSharedVerificationLinkLoader);
   const submitAction = useAsyncAction(completeTaskLoader);
-  const requiresElectronicSignature =
-    currentTask?.action === ApprovalRequestTaskAction.Sign;
+  const requiresElectronicSignature = currentTask?.action === ApprovalRequestTaskAction.Sign;
   const canEnterAssigneeOrganization = !currentTask?.isAssigneeEmployee;
   const canManageSharedVerificationLinks = Boolean(
     currentTask &&
@@ -159,31 +124,18 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
     approvalRequest?.status === ApprovalRequestStatus.Completed &&
     approvalRequest.result === true,
   );
-  const taskIsSubmitting =
-    submitAction.isRunning ||
-    stores.commonStore.isActionLoading(completeTaskLoader);
+  const taskIsSubmitting = submitAction.isRunning || stores.commonStore.isActionLoading(completeTaskLoader);
   const sharedVerificationLinkIsCreating =
     createSharedVerificationLinkAction.isRunning ||
     stores.commonStore.isActionLoading(createSharedVerificationLinkLoader);
 
   useEffect(() => {
-    setDecision(
-      currentTask?.result === true
-        ? "approve"
-        : currentTask?.result === false
-          ? "reject"
-          : "",
-    );
+    setDecision(currentTask?.result === true ? "approve" : currentTask?.result === false ? "reject" : "");
     setComment(currentTask?.comment ?? "");
-    setLegalName(
-      currentTask?.assigneeLegalName?.trim() ||
-        getDefaultLegalName(currentTask?.isAssigneeEmployee),
-    );
+    setLegalName(currentTask?.assigneeLegalName?.trim() || getDefaultLegalName(currentTask?.isAssigneeEmployee));
     setOrganization(currentTask?.assigneeOrganization ?? "");
     setSignatureJson(
-      currentTask?.assigneeSignatureJson?.trim() ||
-        stores.userProfileStore.profile?.defaultSignatureJson ||
-        "",
+      currentTask?.assigneeSignatureJson?.trim() || stores.userProfileStore.profile?.defaultSignatureJson || "",
     );
     setElectronicSignatureErrors(emptyElectronicSignatureErrors);
     setApprovalRequest(currentTask?.approvalRequest ?? null);
@@ -191,12 +143,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
 
   const navigateToTab = (value: ApprovalRequestTaskProps["tab"]) => {
     if (!tenantGlobalId) return;
-    navigate(
-      Routes.tenantPath(
-        tenantGlobalId,
-        `/inbox/${taskGlobalId}${value === "task" ? "" : `/${value}`}`,
-      ),
-    );
+    navigate(Routes.tenantPath(tenantGlobalId, `/inbox/${taskGlobalId}${value === "task" ? "" : `/${value}`}`));
   };
 
   const cleanUp = () => {
@@ -220,9 +167,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
     setElectronicSignatureErrors((current) => ({ ...current, signature: "" }));
   }, []);
 
-  const clearElectronicSignatureError = (
-    field: keyof ElectronicSignatureErrors,
-  ) => {
+  const clearElectronicSignatureError = (field: keyof ElectronicSignatureErrors) => {
     setElectronicSignatureErrors((current) => ({ ...current, [field]: "" }));
   };
 
@@ -256,7 +201,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
     }
 
     await submitAction.run(async () => {
-      if (taskAttachments.current && !await taskAttachments.current.attach()) {
+      if (taskAttachments.current && !(await taskAttachments.current.attach())) {
         return;
       }
 
@@ -268,18 +213,14 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
         requiresElectronicSignature
           ? {
               assigneeLegalName: legalName.trim(),
-              assigneeOrganization: canEnterAssigneeOrganization
-                ? organization
-                : undefined,
+              assigneeOrganization: canEnterAssigneeOrganization ? organization : undefined,
               assigneeSignatureJson: signatureJson,
             }
           : undefined,
         createApprovalRequestTaskClientAuditContext(),
       );
       if (didComplete) {
-        showPersistenceSuccessNotification(
-          PersistenceSuccessMessages.approvalDecisionSubmitted,
-        );
+        showPersistenceSuccessNotification(PersistenceSuccessMessages.approvalDecisionSubmitted);
         cleanUp();
         stores.approvalRequestTaskStore.clear();
         stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
@@ -303,10 +244,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
       currentTenant?.type === TenantType.Business
         ? currentTenant.currentEmployeeLastName
         : stores.userProfileStore.profile?.lastName;
-    if (
-      (!firstName?.trim() || !lastName?.trim()) &&
-      currentTenant?.type === TenantType.Business
-    ) {
+    if ((!firstName?.trim() || !lastName?.trim()) && currentTenant?.type === TenantType.Business) {
       setNameWarningDialogIsOpen(true);
       return;
     }
@@ -320,17 +258,10 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
     }
 
     await createSharedVerificationLinkAction.run(async () => {
-      const linkGlobalId = await createSharedVerificationLinkForTask(
-        tenantGlobalId,
-        currentTask.globalId,
-      );
+      const linkGlobalId = await createSharedVerificationLinkForTask(tenantGlobalId, currentTask.globalId);
       if (linkGlobalId) {
-        await navigator.clipboard?.writeText(
-          `${window.location.origin}/app/verification/${linkGlobalId}`,
-        );
-        showPersistenceSuccessNotification(
-          PersistenceSuccessMessages.sharedVerificationLinkCreated,
-        );
+        await navigator.clipboard?.writeText(`${window.location.origin}/app/verification/${linkGlobalId}`);
+        showPersistenceSuccessNotification(PersistenceSuccessMessages.sharedVerificationLinkCreated);
         setSharedVerificationLinksRefreshKey((current) => current + 1);
       }
     });
@@ -349,9 +280,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
         items={[
           {
             label: "Inbox",
-            state: currentTask
-              ? { currentTaskGlobalId: currentTask.globalId }
-              : undefined,
+            state: currentTask ? { currentTaskGlobalId: currentTask.globalId } : undefined,
             to: inboxPath,
           },
           { label: `Task ${getApprovalRequestNumber(currentTask?.globalId)}` },
@@ -361,9 +290,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
         scrollButtons={false}
         value={tab}
         variant="scrollable"
-        onChange={(_, value: ApprovalRequestTaskProps["tab"]) =>
-          navigateToTab(value)
-        }
+        onChange={(_, value: ApprovalRequestTaskProps["tab"]) => navigateToTab(value)}
         aria-label="Task sections"
       >
         <Tab label="Task" value="task" />
@@ -373,126 +300,105 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
       </Tabs>
       {tab === "task" && (
         <Stack sx={Dialogs.tabContentSx}>
-            <Stack spacing={Dialogs.formStackSpacing}>
-              {currentTask && (
-                <ApprovalRequestTaskSummaryBlock
-                  additionalMetadata={
-                    isCompleted &&
-                    taskAttachmentsAreEnabled &&
-                    currentTask.taskFiles?.length &&
-                    tenantGlobalId ? (
-                      <>
-                        <ApprovalRequestParticipantLabel>
-                          Files attached to this decision
-                        </ApprovalRequestParticipantLabel>
-                        <ApprovalRequestTaskAttachments
-                          canManageFiles={false}
-                          showLabel={false}
-                          taskFiles={currentTask.taskFiles ?? []}
-                          taskGlobalId={currentTask.globalId}
-                          tenantGlobalId={tenantGlobalId}
-                        />
-                      </>
-                    ) : undefined
-                  }
-                  participant="assignee"
-                  participantType={currentTaskAssigneeType}
-                  showComment
-                  showElectronicSignature={requiresElectronicSignature}
-                  task={currentTask}
-                />
-              )}
-              {!isCompleted && taskAttachmentsAreEnabled && currentTask && tenantGlobalId && (
-                <ApprovalRequestTaskAttachments
-                  canManageFiles={!isCompleted}
-                  ref={taskAttachments}
-                  taskFiles={currentTask.taskFiles ?? []}
-                  taskGlobalId={currentTask.globalId}
-                  tenantGlobalId={tenantGlobalId}
-                />
-              )}
-              {!isCompleted && (
-                <>
-                  <FormControl key="decision" error={decisionError}>
-                    <RadioGroup
-                      row
-                      name="decision"
-                      value={decision}
-                      onChange={(event) => {
-                        setDecision(event.target.value);
-                        setDecisionError(false);
-                      }}
-                    >
-                      <FormControlLabel
-                        value="approve"
-                        control={<Radio />}
-                        label={actionLabels.positive}
+          <Stack spacing={Dialogs.formStackSpacing}>
+            {currentTask && (
+              <ApprovalRequestTaskSummaryBlock
+                additionalMetadata={
+                  isCompleted && taskAttachmentsAreEnabled && currentTask.taskFiles?.length && tenantGlobalId ? (
+                    <>
+                      <ApprovalRequestParticipantLabel>Files attached to this decision</ApprovalRequestParticipantLabel>
+                      <ApprovalRequestTaskAttachments
+                        canManageFiles={false}
+                        showLabel={false}
+                        taskFiles={currentTask.taskFiles ?? []}
+                        taskGlobalId={currentTask.globalId}
+                        tenantGlobalId={tenantGlobalId}
                       />
-                      <FormControlLabel
-                        value="reject"
-                        control={<Radio />}
-                        label={actionLabels.negative}
-                      />
-                    </RadioGroup>
-                    {decisionError && (
-                      <FormHelperText sx={Dialogs.fieldHelperTextSx}>
-                        {actionLabels.missing}
-                      </FormHelperText>
-                    )}
-                  </FormControl>
-                  <TextField
-                    key="comment"
-                    id="comment"
-                    name="comment"
-                    margin="normal"
-                    fullWidth
-                    label="Comment"
-                    autoFocus
-                    multiline
-                    value={comment}
-                    error={commentError}
-                    helperText={
-                      commentError ? "Comment is required." : undefined
-                    }
+                    </>
+                  ) : undefined
+                }
+                participant="assignee"
+                participantType={currentTaskAssigneeType}
+                showComment
+                showElectronicSignature={requiresElectronicSignature}
+                task={currentTask}
+              />
+            )}
+            {!isCompleted && taskAttachmentsAreEnabled && currentTask && tenantGlobalId && (
+              <ApprovalRequestTaskAttachments
+                canManageFiles={!isCompleted}
+                ref={taskAttachments}
+                taskFiles={currentTask.taskFiles ?? []}
+                taskGlobalId={currentTask.globalId}
+                tenantGlobalId={tenantGlobalId}
+              />
+            )}
+            {!isCompleted && (
+              <>
+                <FormControl key="decision" error={decisionError}>
+                  <RadioGroup
+                    row
+                    name="decision"
+                    value={decision}
                     onChange={(event) => {
-                      setComment(event.target.value);
-                      setCommentError(false);
+                      setDecision(event.target.value);
+                      setDecisionError(false);
                     }}
-                  />
-                  {requiresElectronicSignature && (
-                    <ApprovalRequestElectronicSignatureForm
-                      errors={electronicSignatureErrors}
-                      legalName={legalName}
-                      organization={organization}
-                      onFieldErrorClear={clearElectronicSignatureError}
-                      onLegalNameChange={setLegalName}
-                      onOrganizationChange={setOrganization}
-                      onSignatureChange={handleSignatureChange}
-                      signatureJson={signatureJson}
-                      showOrganization={canEnterAssigneeOrganization}
-                    />
+                  >
+                    <FormControlLabel value="approve" control={<Radio />} label={actionLabels.positive} />
+                    <FormControlLabel value="reject" control={<Radio />} label={actionLabels.negative} />
+                  </RadioGroup>
+                  {decisionError && (
+                    <FormHelperText sx={Dialogs.fieldHelperTextSx}>{actionLabels.missing}</FormHelperText>
                   )}
-                </>
-              )}
-            </Stack>
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={Dialogs.stepHeaderSpacing}
-              sx={Dialogs.addStepButtonSx}
-            >
-              <Button variant="outlined" onClick={handleClose}>
-                {!isCompleted ? "Cancel" : "Close"}
-              </Button>
-              {!isCompleted && (
-                <LoadingButton
-                  loading={taskIsSubmitting}
-                  variant="outlined"
-                  onClick={handleSubmit}
-                >
-                  Submit
-                </LoadingButton>
-              )}
-            </Stack>
+                </FormControl>
+                <TextField
+                  key="comment"
+                  id="comment"
+                  name="comment"
+                  margin="normal"
+                  fullWidth
+                  label="Comment"
+                  autoFocus
+                  multiline
+                  value={comment}
+                  error={commentError}
+                  helperText={commentError ? "Comment is required." : undefined}
+                  onChange={(event) => {
+                    setComment(event.target.value);
+                    setCommentError(false);
+                  }}
+                />
+                {requiresElectronicSignature && (
+                  <ApprovalRequestElectronicSignatureForm
+                    errors={electronicSignatureErrors}
+                    legalName={legalName}
+                    organization={organization}
+                    onFieldErrorClear={clearElectronicSignatureError}
+                    onLegalNameChange={setLegalName}
+                    onOrganizationChange={setOrganization}
+                    onSignatureChange={handleSignatureChange}
+                    signatureJson={signatureJson}
+                    showOrganization={canEnterAssigneeOrganization}
+                  />
+                )}
+              </>
+            )}
+          </Stack>
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={Dialogs.stepHeaderSpacing}
+            sx={Dialogs.addStepButtonSx}
+          >
+            <Button variant="outlined" onClick={handleClose}>
+              {!isCompleted ? "Cancel" : "Close"}
+            </Button>
+            {!isCompleted && (
+              <LoadingButton loading={taskIsSubmitting} variant="outlined" onClick={handleSubmit}>
+                Submit
+              </LoadingButton>
+            )}
+          </Stack>
         </Stack>
       )}
       {tab === "request" && (
@@ -502,9 +408,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
             approvalRequestTaskGlobalId={currentTask?.globalId}
             highlightedTaskGlobalId={currentTask?.globalId}
             showVisibleStepVisibility={false}
-            taskAttachmentsTenantGlobalId={
-              taskAttachmentsAreEnabled ? tenantGlobalId ?? undefined : undefined
-            }
+            taskAttachmentsTenantGlobalId={taskAttachmentsAreEnabled ? (tenantGlobalId ?? undefined) : undefined}
           />
           <Stack
             direction={{ xs: "column", sm: "row" }}
@@ -517,54 +421,42 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
           </Stack>
         </>
       )}
-      {tab === "chat" &&
-        discussionsAreEnabled &&
-        approvalRequest &&
-        currentTask && (
-          <>
-            <DiscussionPanel
-              attachmentsAreEnabled={discussionAttachmentsAreEnabled}
-              canSend={canSendDiscussion}
-              ref={discussionPanel}
-              requestGlobalId={approvalRequest.globalId}
-              requesterDisplayName={approvalRequest.createdByDisplayName}
-              requesterEmail={approvalRequest.createdByEmail}
-              requesterType={
-                approvalRequest.createdByEmployeeGlobalId
-                  ? AssigneeType.Employee
-                  : AssigneeType.User
-              }
-              stepLabels={Object.fromEntries(
-                approvalRequest.steps
-                  .filter((step) => step.globalId)
-                  .map((step) => [step.globalId!, `Step ${step.sequence}`]),
-              )}
-              steps={approvalRequest.steps}
-              taskApprovalRequestStepGlobalId={
-                currentTask.approvalRequestStepGlobalId
-              }
-              taskGlobalId={currentTask.globalId}
-              tenantGlobalId={tenantGlobalId}
-            />
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={Dialogs.stepHeaderSpacing}
-              sx={Dialogs.addStepButtonSx}
-            >
-              <Button variant="outlined" onClick={handleClose}>
-                Close
+      {tab === "chat" && discussionsAreEnabled && approvalRequest && currentTask && (
+        <>
+          <DiscussionPanel
+            attachmentsAreEnabled={discussionAttachmentsAreEnabled}
+            canSend={canSendDiscussion}
+            ref={discussionPanel}
+            requestGlobalId={approvalRequest.globalId}
+            requesterDisplayName={approvalRequest.createdByDisplayName}
+            requesterEmail={approvalRequest.createdByEmail}
+            requesterType={approvalRequest.createdByEmployeeGlobalId ? AssigneeType.Employee : AssigneeType.User}
+            stepLabels={Object.fromEntries(
+              approvalRequest.steps
+                .filter((step) => step.globalId)
+                .map((step) => [step.globalId!, `Step ${step.sequence}`]),
+            )}
+            steps={approvalRequest.steps}
+            taskApprovalRequestStepGlobalId={currentTask.approvalRequestStepGlobalId}
+            taskGlobalId={currentTask.globalId}
+            tenantGlobalId={tenantGlobalId}
+          />
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={Dialogs.stepHeaderSpacing}
+            sx={Dialogs.addStepButtonSx}
+          >
+            <Button variant="outlined" onClick={handleClose}>
+              Close
+            </Button>
+            {canSendDiscussion && (
+              <Button variant="outlined" onClick={() => void discussionPanel.current?.send()}>
+                Send
               </Button>
-              {canSendDiscussion && (
-                <Button
-                  variant="outlined"
-                  onClick={() => void discussionPanel.current?.send()}
-                >
-                  Send
-                </Button>
-              )}
-            </Stack>
-          </>
-        )}
+            )}
+          </Stack>
+        </>
+      )}
       {tab === "link" && canManageSharedVerificationLinks && (
         <SharedVerificationLinksPanel
           approvalRequestTaskGlobalId={currentTask?.globalId}
@@ -574,18 +466,12 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
         />
       )}
       {tab === "link" && canManageSharedVerificationLinks && (
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          spacing={Dialogs.stepHeaderSpacing}
-          sx={Dialogs.addStepButtonSx}
-        >
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
           <Button variant="outlined" onClick={handleClose}>
             Close
           </Button>
           <LoadingButton
-            disabled={
-              hasSharedVerificationLink || sharedVerificationLinkIsCreating
-            }
+            disabled={hasSharedVerificationLink || sharedVerificationLinkIsCreating}
             loading={sharedVerificationLinkIsCreating}
             startIcon={<LinkOutlined />}
             variant="outlined"

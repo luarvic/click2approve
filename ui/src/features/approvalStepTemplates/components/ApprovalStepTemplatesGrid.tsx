@@ -7,12 +7,7 @@ import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add } from "@mui/icons-material";
 import { Box, Button, LinearProgress } from "@mui/material";
-import {
-  DataGrid,
-  GridColDef,
-  GridSlots,
-  GridToolbarContainer,
-} from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridSlots, GridToolbarContainer } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -21,9 +16,7 @@ interface ApprovalStepTemplatesGridProps {
   currentTemplateGlobalId?: string;
 }
 
-const ApprovalStepTemplatesGrid: React.FC<ApprovalStepTemplatesGridProps> = ({
-  currentTemplateGlobalId,
-}) => {
+const ApprovalStepTemplatesGrid: React.FC<ApprovalStepTemplatesGridProps> = ({ currentTemplateGlobalId }) => {
   const navigate = useNavigate();
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const gridLoader = ActionLoaders.grids.approvalStepTemplates(tenantGlobalId);
@@ -36,22 +29,22 @@ const ApprovalStepTemplatesGrid: React.FC<ApprovalStepTemplatesGridProps> = ({
     stores.approvalStepTemplateStore.clear();
   }, [tenantGlobalId]);
 
-  const gridIsLoading = useGridRefresh(() => {
-    if (tenantGlobalId) {
-      return stores.approvalStepTemplateStore.load(tenantGlobalId);
-    }
-  }, tenantGlobalId, gridLoader);
+  const gridIsLoading = useGridRefresh(
+    () => {
+      if (tenantGlobalId) {
+        return stores.approvalStepTemplateStore.load(tenantGlobalId);
+      }
+    },
+    tenantGlobalId,
+    gridLoader,
+  );
 
   const customToolbar = () => {
     return (
       <GridToolbarContainer>
         <Button
           startIcon={<Add />}
-          onClick={() =>
-            navigate(
-              Routes.tenantPath(tenantGlobalId!, "/approvalStepTemplates/new"),
-            )
-          }
+          onClick={() => navigate(Routes.tenantPath(tenantGlobalId!, "/approvalStepTemplates/new"))}
         >
           New template
         </Button>
@@ -73,15 +66,15 @@ const ApprovalStepTemplatesGrid: React.FC<ApprovalStepTemplatesGridProps> = ({
         rows={stores.approvalStepTemplateStore.templates}
         getRowId={(row) => row.globalId}
         columns={columns}
-        rowSelectionModel={
-          currentTemplateGlobalId === undefined ? [] : [currentTemplateGlobalId]
-        }
+        rowSelectionModel={currentTemplateGlobalId === undefined ? [] : [currentTemplateGlobalId]}
         hideFooterSelectedRowCount
         onRowClick={(params) =>
-          navigate(Routes.tenantPath(
-            tenantGlobalId!,
-            `/approvalStepTemplates/${(params.row as ApprovalStepTemplate).globalId}`,
-          ))
+          navigate(
+            Routes.tenantPath(
+              tenantGlobalId!,
+              `/approvalStepTemplates/${(params.row as ApprovalStepTemplate).globalId}`,
+            ),
+          )
         }
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}

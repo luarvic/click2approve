@@ -9,11 +9,7 @@ import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { AuthForms, Dialogs, Pages, StackSpacing } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
-import {
-  NotificationChannel,
-  NotificationType,
-  UserNotificationPreference,
-} from "@/shared/models/userProfile";
+import { NotificationChannel, NotificationType, UserNotificationPreference } from "@/shared/models/userProfile";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   PersistenceSuccessMessages,
@@ -52,9 +48,7 @@ const UserProfilePage = () => {
   const [lastName, setLastName] = useState("");
   const [defaultTenantGlobalId, setDefaultTenantGlobalId] = useState<string | "">("");
   const [defaultSignatureJson, setDefaultSignatureJson] = useState("");
-  const [notificationPreferences, setNotificationPreferences] = useState<
-    UserNotificationPreference[]
-  >([]);
+  const [notificationPreferences, setNotificationPreferences] = useState<UserNotificationPreference[]>([]);
   const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
   const [selectedTab, setSelectedTab] = useState("profile");
   const removeAvatarAction = useAsyncAction(ActionLoaders.userProfile.removeAvatar());
@@ -87,8 +81,8 @@ const UserProfilePage = () => {
       current.map((preference) =>
         preference.type === type && preference.channel === NotificationChannel.Email
           ? { ...preference, isEnabled: !preference.isEnabled }
-          : preference
-      )
+          : preference,
+      ),
     );
   };
 
@@ -132,19 +126,13 @@ const UserProfilePage = () => {
         items={[
           {
             label: "User profile",
-            titleAction: (
-              <HelpPopover helpText="Update your profile, signature, and notification preferences." />
-            ),
+            titleAction: <HelpPopover helpText="Update your profile, signature, and notification preferences." />,
           },
         ]}
       />
       <NarrowContent>
         <Stack component="form" noValidate spacing={StackSpacing.loose} sx={AuthForms.formSx}>
-          <Tabs
-            value={selectedTab}
-            onChange={(_, value: string) => setSelectedTab(value)}
-            variant="scrollable"
-          >
+          <Tabs value={selectedTab} onChange={(_, value: string) => setSelectedTab(value)} variant="scrollable">
             <Tab label="Profile" value="profile" />
             <Tab label="Signature" value="signature" />
             <Tab label="Notifications" value="notifications" />
@@ -161,30 +149,16 @@ const UserProfilePage = () => {
                 selectedFile={selectedAvatar}
                 title="Edit avatar"
               />
-              <TextField
-                label="First name"
-                value={firstName}
-                onChange={(event) => setFirstName(event.target.value)}
-              />
-              <TextField
-                label="Last name"
-                value={lastName}
-                onChange={(event) => setLastName(event.target.value)}
-              />
+              <TextField label="First name" value={firstName} onChange={(event) => setFirstName(event.target.value)} />
+              <TextField label="Last name" value={lastName} onChange={(event) => setLastName(event.target.value)} />
               {stores.tenantStore.tenants.length > 0 && (
                 <FormControl>
-                  <InputLabel id="default-organization-label">
-                    Default organization
-                  </InputLabel>
+                  <InputLabel id="default-organization-label">Default organization</InputLabel>
                   <Select
                     labelId="default-organization-label"
                     label="Default organization"
                     value={defaultTenantGlobalId}
-                    onChange={(event) =>
-                      setDefaultTenantGlobalId(
-                        event.target.value === "" ? "" : event.target.value
-                      )
-                    }
+                    onChange={(event) => setDefaultTenantGlobalId(event.target.value === "" ? "" : event.target.value)}
                   >
                     <MenuItem value="">No default organization</MenuItem>
                     {stores.tenantStore.tenants.map((tenant) => (
@@ -220,10 +194,7 @@ const UserProfilePage = () => {
               <Typography color="text.secondary">
                 Your saved signature will be prefilled when you sign an approval request.
               </Typography>
-              <ApprovalRequestSignatureField
-                onChange={handleSignatureChange}
-                value={defaultSignatureJson}
-              />
+              <ApprovalRequestSignatureField onChange={handleSignatureChange} value={defaultSignatureJson} />
             </Stack>
           )}
           <Box>

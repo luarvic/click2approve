@@ -35,14 +35,13 @@ const TimelineTimestamp: React.FC<TimelineTimestampProps> = ({
     {icon &&
       (label ? (
         <Tooltip title={label}>
-          <Box
-            component="span"
-            sx={iconSize === "small" ? smallIconSx : undefined}
-          >
+          <Box component="span" sx={iconSize === "small" ? smallIconSx : undefined}>
             {icon}
           </Box>
         </Tooltip>
-      ) : icon)}
+      ) : (
+        icon
+      ))}
     <Typography color={color} sx={sx} variant="caption">
       {text ?? (date ? getLocaleDateTimeString(date) : "")}
     </Typography>

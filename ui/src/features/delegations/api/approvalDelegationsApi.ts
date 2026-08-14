@@ -1,18 +1,11 @@
-import {
-  ApprovalDelegation,
-  ApprovalDelegationUpsert,
-} from "@/features/delegations/models/approvalDelegation";
+import { ApprovalDelegation, ApprovalDelegationUpsert } from "@/features/delegations/models/approvalDelegation";
 import axios from "@/shared/api/axios";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
 
-export const listApprovalDelegations = async (
-  tenantGlobalId: string,
-): Promise<ApprovalDelegation[]> => {
+export const listApprovalDelegations = async (tenantGlobalId: string): Promise<ApprovalDelegation[]> => {
   try {
-    const { data } = await axios.get<ApprovalDelegation[]>(
-      `api/v1/tenants/${tenantGlobalId}/delegations`,
-    );
+    const { data } = await axios.get<ApprovalDelegation[]>(`api/v1/tenants/${tenantGlobalId}/delegations`);
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
@@ -25,10 +18,7 @@ export const createApprovalDelegation = async (
   payload: ApprovalDelegationUpsert,
 ): Promise<ApprovalDelegation | null> => {
   try {
-    const { data } = await axios.post<ApprovalDelegation>(
-      `api/v1/tenants/${tenantGlobalId}/delegations`,
-      payload,
-    );
+    const { data } = await axios.post<ApprovalDelegation>(`api/v1/tenants/${tenantGlobalId}/delegations`, payload);
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));

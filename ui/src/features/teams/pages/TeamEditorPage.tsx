@@ -24,7 +24,9 @@ const TeamEditorPage = () => {
   const isNewTeam = teamGlobalId === undefined;
   const [teamDataHasLoaded, setTeamDataHasLoaded] = useState(isNewTeam);
   const team = stores.teamStore.teams.find((item) => item.globalId === teamGlobalId);
-  const canEdit = stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Admin || stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Owner;
+  const canEdit =
+    stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Admin ||
+    stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Owner;
 
   useEffect(() => {
     let active = true;
@@ -50,30 +52,37 @@ const TeamEditorPage = () => {
   if (!teamDataHasLoaded) return <LoadingOverlay />;
   if (!isNewTeam && !team) return <NotFoundPage />;
 
-  return <NarrowContent>
-    <TeamEditor
-      team={team ?? null}
-      employees={stores.employeeStore.employees}
-      canEdit={canEdit}
-      onClose={(currentTeamGlobalId) => navigate(teamsPath, { state: currentTeamGlobalId ? { currentTeamGlobalId } : undefined })}
-      onDelete={async (globalId: string) => {
-        const deleted = await stores.teamStore.delete(tenantGlobalId, globalId);
-        if (deleted) {
-          showPersistenceSuccessNotification(PersistenceSuccessMessages.teamDeleted);
-          navigate(teamsPath);
+  return (
+    <NarrowContent>
+      <TeamEditor
+        team={team ?? null}
+        employees={stores.employeeStore.employees}
+        canEdit={canEdit}
+        onClose={(currentTeamGlobalId) =>
+          navigate(teamsPath, {
+            state: currentTeamGlobalId ? { currentTeamGlobalId } : undefined,
+          })
         }
-        return deleted;
-      }}
-      onSubmit={async (payload: UpsertTeamRequest, globalId?: string) => {
-        const saved = globalId
-          ? await stores.teamStore.update(tenantGlobalId, globalId, payload)
-          : await stores.teamStore.create(tenantGlobalId, payload);
-        if (saved) {
-          showPersistenceSuccessNotification(PersistenceSuccessMessages.teamSaved);
-        }
-        return saved;
-      }} />
-  </NarrowContent>;
+        onDelete={async (globalId: string) => {
+          const deleted = await stores.teamStore.delete(tenantGlobalId, globalId);
+          if (deleted) {
+            showPersistenceSuccessNotification(PersistenceSuccessMessages.teamDeleted);
+            navigate(teamsPath);
+          }
+          return deleted;
+        }}
+        onSubmit={async (payload: UpsertTeamRequest, globalId?: string) => {
+          const saved = globalId
+            ? await stores.teamStore.update(tenantGlobalId, globalId, payload)
+            : await stores.teamStore.create(tenantGlobalId, payload);
+          if (saved) {
+            showPersistenceSuccessNotification(PersistenceSuccessMessages.teamSaved);
+          }
+          return saved;
+        }}
+      />
+    </NarrowContent>
+  );
 };
 
 export default observer(TeamEditorPage);

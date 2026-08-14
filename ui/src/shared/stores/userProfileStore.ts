@@ -1,9 +1,4 @@
-import {
-  deleteUserAvatar,
-  getUserProfile,
-  updateUserProfile,
-  uploadUserAvatar,
-} from "@/shared/api/userProfilesApi";
+import { deleteUserAvatar, getUserProfile, updateUserProfile, uploadUserAvatar } from "@/shared/api/userProfilesApi";
 import { UserProfile, UserProfileUpdateRequest } from "@/shared/models/userProfile";
 import { makeAutoObservable, runInAction } from "mobx";
 
@@ -23,9 +18,7 @@ export class UserProfileStore {
     });
   };
 
-  update = async (
-    payload: UserProfileUpdateRequest
-  ): Promise<UserProfile | null> => {
+  update = async (payload: UserProfileUpdateRequest): Promise<UserProfile | null> => {
     const profile = await updateUserProfile(payload);
     if (profile) {
       runInAction(() => {

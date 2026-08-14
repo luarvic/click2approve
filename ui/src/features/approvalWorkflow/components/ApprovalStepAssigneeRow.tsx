@@ -1,20 +1,10 @@
-import {
-  AssigneeType,
-  ApprovalStepAssignee,
-} from "@/features/approvalWorkflow/models/approvalStep";
+import { AssigneeType, ApprovalStepAssignee } from "@/features/approvalWorkflow/models/approvalStep";
 import { Employee } from "@/features/employees/models/employee";
 import DisplayName from "@/shared/components/identity/DisplayName";
 import { Dialogs } from "@/shared/constants/constants";
 import { Close } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
-import {
-  Autocomplete,
-  IconButton,
-  MenuItem,
-  Stack,
-  TextField,
-  Tooltip,
-} from "@mui/material";
+import { Autocomplete, IconButton, MenuItem, Stack, TextField, Tooltip } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 
 interface ApprovalStepAssigneeRowProps {
@@ -62,12 +52,8 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
 }) => {
   const recipientTypes = [
     { value: AssigneeType.User, label: "User" },
-    ...(canUseEmployees
-      ? [{ value: AssigneeType.Employee, label: "Employee" }]
-      : []),
-    ...(canUseTeams
-      ? [{ value: AssigneeType.Team, label: "Team" }]
-      : []),
+    ...(canUseEmployees ? [{ value: AssigneeType.Employee, label: "Employee" }] : []),
+    ...(canUseTeams ? [{ value: AssigneeType.Team, label: "Team" }] : []),
   ];
 
   return (
@@ -101,20 +87,14 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
             </MenuItem>
           ))}
         </TextField>
-        <Stack
-          direction="row"
-          spacing={Dialogs.assigneeStackSpacing}
-          sx={assigneeFieldControlsSx}
-        >
+        <Stack direction="row" spacing={Dialogs.assigneeStackSpacing} sx={assigneeFieldControlsSx}>
           {assignee.type === AssigneeType.User && (
             <TextField
               fullWidth
               label="Email"
               value={assignee.email ?? ""}
               disabled={disabled}
-              onChange={(event) =>
-                onChange({ ...assignee, email: event.target.value })
-              }
+              onChange={(event) => onChange({ ...assignee, email: event.target.value })}
               sx={assigneeFieldSx}
             />
           )}
@@ -124,24 +104,17 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
               fullWidth
               options={employees}
               getOptionLabel={(option) => option.displayName}
-              value={
-                employees.find((user) => user.globalId === assignee.employeeGlobalId) ?? null
-              }
+              value={employees.find((user) => user.globalId === assignee.employeeGlobalId) ?? null}
               disabled={disabled}
-              renderInput={(params) => (
-                <TextField {...params} label="Employee" />
-              )}
+              renderInput={(params) => <TextField {...params} label="Employee" />}
               renderOption={
                 compactEmployeeOptions
                   ? undefined
                   : (props, option) => (
-                    <li {...props}>
-                      <DisplayName
-                        displayName={option.displayName}
-                        email={option.email}
-                      />
-                    </li>
-                  )
+                      <li {...props}>
+                        <DisplayName displayName={option.displayName} email={option.email} />
+                      </li>
+                    )
               }
               onChange={(_, value) =>
                 onChange({
@@ -160,9 +133,7 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
               getOptionLabel={(option) => option.name}
               value={teams.find((team) => team.globalId === assignee.teamGlobalId) ?? null}
               disabled={disabled}
-              renderInput={(params) => (
-                <TextField {...params} label="Team" />
-              )}
+              renderInput={(params) => <TextField {...params} label="Team" />}
               onChange={(_, value) =>
                 onChange({
                   ...assignee,

@@ -28,12 +28,7 @@ const OneLineDisplayName: React.FC<OneLineDisplayNameProps> = ({
   sx,
   variant = "body1",
 }) => (
-  <Box
-    sx={[
-      rootSx,
-      ...(Array.isArray(sx) ? sx : [sx]),
-    ]}
-  >
+  <Box sx={[rootSx, ...(Array.isArray(sx) ? sx : [sx])]}>
     <Typography noWrap sx={textSx} variant={variant}>
       {stripInlineEmail(displayName) || fallback}
     </Typography>

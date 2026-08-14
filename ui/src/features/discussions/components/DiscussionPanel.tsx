@@ -1,7 +1,4 @@
-import type {
-  ApprovalStep,
-  AssigneeType,
-} from "@/features/approvalWorkflow/models/approvalStep";
+import type { ApprovalStep, AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import ApprovalRequestFilesList from "@/features/approvalRequests/components/ApprovalRequestFilesList";
 import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
 import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
@@ -22,15 +19,7 @@ import { Files, Refresh, StackSpacing } from "@/shared/constants/constants";
 import { AttachFile } from "@mui/icons-material";
 import { Box, Button, Divider, Stack, TextField, Typography } from "@mui/material";
 import { alpha, type SxProps, type Theme } from "@mui/material/styles";
-import {
-  Fragment,
-  forwardRef,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from "react";
+import { Fragment, forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 
 interface DiscussionPanelProps {
   attachmentsAreEnabled: boolean;
@@ -51,23 +40,15 @@ export interface DiscussionPanelHandle {
   canSend: boolean;
 }
 
-export const getDiscussionMessageSender = (
-  message: DiscussionMessage,
-) => {
-  const representedSender =
-    message.sentOnBehalfOfDisplayName?.trim() || undefined;
+export const getDiscussionMessageSender = (message: DiscussionMessage) => {
+  const representedSender = message.sentOnBehalfOfDisplayName?.trim() || undefined;
   const sendingUser = message.sentByDisplayName.trim() || "Unknown user";
-  return message.isDelegated
-    ? sendingUser
-    : (representedSender ?? sendingUser);
+  return message.isDelegated ? sendingUser : (representedSender ?? sendingUser);
 };
 
 const getMessageBubbleSx = (isOutgoing: boolean): SxProps<Theme> => ({
   alignSelf: isOutgoing ? "flex-end" : "flex-start",
-  backgroundColor: (theme) =>
-    isOutgoing
-      ? alpha(theme.palette.primary.main, 0.1)
-      : theme.palette.action.selected,
+  backgroundColor: (theme) => (isOutgoing ? alpha(theme.palette.primary.main, 0.1) : theme.palette.action.selected),
   borderRadius: 2,
   color: "text.primary",
   maxWidth: "80%",
@@ -122,9 +103,7 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
     }, [messages?.length]);
     const send = useCallback(async () => {
       if (!tenantGlobalId || (!body.trim() && (!attachmentsAreEnabled || files.length === 0))) return;
-      const uploadedFiles = attachmentsAreEnabled
-        ? await uploadUserFiles(tenantGlobalId, files)
-        : [];
+      const uploadedFiles = attachmentsAreEnabled ? await uploadUserFiles(tenantGlobalId, files) : [];
       if (uploadedFiles.length !== files.length) return;
       const message = taskGlobalId
         ? await sendTaskDiscussion(
@@ -144,45 +123,32 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
       setFiles([]);
     }, [attachmentsAreEnabled, body, files, requestGlobalId, taskGlobalId, tenantGlobalId]);
 
-    useImperativeHandle(ref, () => ({ canSend: Boolean(body.trim() || (attachmentsAreEnabled && files.length)), send }), [
-      attachmentsAreEnabled,
-      body,
-      files.length,
-      send,
-    ]);
+    useImperativeHandle(
+      ref,
+      () => ({
+        canSend: Boolean(body.trim() || (attachmentsAreEnabled && files.length)),
+        send,
+      }),
+      [attachmentsAreEnabled, body, files.length, send],
+    );
     const taskStep = taskApprovalRequestStepGlobalId
       ? steps.find((step) => step.globalId === taskApprovalRequestStepGlobalId)
       : undefined;
-    const discussionSteps = steps.filter(
-      (step) => (step.tasks?.length ?? 0) > 0,
-    );
+    const discussionSteps = steps.filter((step) => (step.tasks?.length ?? 0) > 0);
     const renderMessage = (message: DiscussionMessage) => {
       const isOutgoing = message.isOutgoing === true;
-      const representedSender =
-        message.sentOnBehalfOfDisplayName?.trim() || undefined;
+      const representedSender = message.sentOnBehalfOfDisplayName?.trim() || undefined;
       const sender = getDiscussionMessageSender(message);
       return (
-        <Box
-          key={message.globalId}
-          sx={getMessageBubbleSx(isOutgoing)}
-        >
+        <Box key={message.globalId} sx={getMessageBubbleSx(isOutgoing)}>
           <Stack spacing={StackSpacing.default}>
             <Stack spacing={StackSpacing.tight}>
               <ApprovalRequestParticipantLine
-                label={(
-                  <DisplayName
-                    displayName={sender}
-                    showEmailAddress={false}
-                  />
-                )}
+                label={<DisplayName displayName={sender} showEmailAddress={false} />}
                 type={message.sentByType}
               />
               {message.isDelegated && representedSender && (
-                <Typography
-                  color="inherit"
-                  sx={{ mt: -0.25, opacity: 0.8 }}
-                  variant="caption"
-                >
+                <Typography color="inherit" sx={{ mt: -0.25, opacity: 0.8 }} variant="caption">
                   On behalf of {representedSender}
                 </Typography>
               )}
@@ -190,22 +156,17 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
             <UserProvidedText text={message.body} />
             {attachmentsAreEnabled && (message.userFiles?.length ?? 0) > 0 && tenantGlobalId && (
               <ApprovalRequestFilesList
-                existingFiles={(message.userFiles ?? []).map((file) => ({ file }))}
+                existingFiles={(message.userFiles ?? []).map((file) => ({
+                  file,
+                }))}
                 newFiles={[]}
                 onDownloadExisting={(file) =>
-                  void downloadDiscussionMessageFile(
-                    tenantGlobalId,
-                    file,
-                    message.globalId,
-                  )
+                  void downloadDiscussionMessageFile(tenantGlobalId, file, message.globalId)
                 }
                 onRemoveNew={() => undefined}
               />
             )}
-            <TimelineTimestamp
-              color="text.secondary"
-              date={new Date(message.createdAt)}
-            />
+            <TimelineTimestamp color="text.secondary" date={new Date(message.createdAt)} />
           </Stack>
         </Box>
       );
@@ -225,9 +186,9 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
             <Fragment key={step.globalId ?? step.sequence}>
               <Divider>
                 <Typography color="text.secondary" variant="body2">
-                  {`${step.globalId
-                    ? (stepLabels[step.globalId] ?? "Step")
-                    : "Step"} · ${getApprovalRequestTaskActionLabels(step.action).positive}`}
+                  {`${
+                    step.globalId ? (stepLabels[step.globalId] ?? "Step") : "Step"
+                  } · ${getApprovalRequestTaskActionLabels(step.action).positive}`}
                 </Typography>
               </Divider>
               <DiscussionParticipants
@@ -237,10 +198,7 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
                 requesterType={requesterType}
               />
               {(messages ?? [])
-                .filter(
-                  (message) =>
-                    message.approvalRequestStepGlobalId === step.globalId,
-                )
+                .filter((message) => message.approvalRequestStepGlobalId === step.globalId)
                 .map(renderMessage)}
             </Fragment>
           ))}
@@ -264,19 +222,12 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
               <ApprovalRequestFilesList
                 existingFiles={[]}
                 newFiles={files}
-                onRemoveNew={(index) =>
-                  setFiles((files) =>
-                    files.filter((_, fileIndex) => fileIndex !== index),
-                  )
-                }
+                onRemoveNew={(index) => setFiles((files) => files.filter((_, fileIndex) => fileIndex !== index))}
               />
             )}
             {attachmentsAreEnabled && (
               <>
-                <Button
-                  startIcon={<AttachFile />}
-                  onClick={() => fileInput.current?.click()}
-                >
+                <Button startIcon={<AttachFile />} onClick={() => fileInput.current?.click()}>
                   Attach files
                 </Button>
                 <input
@@ -285,10 +236,7 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
                   style={Files.inputStyle}
                   type="file"
                   onChange={(event) => {
-                    setFiles((files) => [
-                      ...files,
-                      ...Array.from(event.target.files ?? []),
-                    ]);
+                    setFiles((files) => [...files, ...Array.from(event.target.files ?? [])]);
                     event.target.value = "";
                   }}
                 />

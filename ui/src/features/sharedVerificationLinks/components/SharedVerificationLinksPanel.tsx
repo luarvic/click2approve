@@ -10,18 +10,12 @@ import { Dialogs, StackSpacing } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getLocaleDateTimeString } from "@/shared/utils/dateTime";
-import { PersistenceSuccessMessages, showPersistenceSuccessNotification } from "@/shared/utils/persistenceNotifications";
-import { ContentCopyOutlined, DeleteOutline } from "@mui/icons-material";
 import {
-  IconButton,
-  Link,
-  List,
-  ListItem,
-  ListItemText,
-  Stack,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+  PersistenceSuccessMessages,
+  showPersistenceSuccessNotification,
+} from "@/shared/utils/persistenceNotifications";
+import { ContentCopyOutlined, DeleteOutline } from "@mui/icons-material";
+import { IconButton, Link, List, ListItem, ListItemText, Stack, Tooltip, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
@@ -34,8 +28,7 @@ interface SharedVerificationLinksPanelProps {
   tenantGlobalId?: string | null;
 }
 
-const getVerificationUrl = (globalId: string): string =>
-  `${window.location.origin}/app/verification/${globalId}`;
+const getVerificationUrl = (globalId: string): string => `${window.location.origin}/app/verification/${globalId}`;
 
 const linksPanelSx: SxProps<Theme> = {
   mt: Dialogs.formStackSpacing,
@@ -109,9 +102,7 @@ const SharedVerificationLinksPanel: React.FC<SharedVerificationLinksPanelProps> 
           {links.map((link) => {
             const verificationUrl = getVerificationUrl(link.globalId);
             const deleteLoader = ActionLoaders.sharedVerificationLinks.delete(link.globalId);
-            const deleteIsLoading =
-              deleteAction.isRunning ||
-              stores.commonStore.isActionLoading(deleteLoader);
+            const deleteIsLoading = deleteAction.isRunning || stores.commonStore.isActionLoading(deleteLoader);
             return (
               <ListItem
                 key={link.globalId}

@@ -26,12 +26,12 @@ const ApprovalRequestDetails: React.FC<ApprovalRequestDetailsProps> = ({
       <ApprovalSteps
         approvalRequest={approvalRequest}
         highlightedTaskGlobalId={highlightedTaskGlobalId}
-        leadingItem={(
+        leadingItem={
           <ApprovalRequestSummaryBlock
             approvalRequest={approvalRequest}
             approvalRequestTaskGlobalId={approvalRequestTaskGlobalId}
           />
-        )}
+        }
         onHighlightedTaskClick={onHighlightedTaskClick}
         showVisibleStepVisibility={showVisibleStepVisibility}
         taskAttachmentsTenantGlobalId={taskAttachmentsTenantGlobalId}

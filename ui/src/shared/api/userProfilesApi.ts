@@ -27,9 +27,7 @@ export const getUserProfile = async (): Promise<UserProfile | null> => {
   }
 };
 
-export const updateUserProfile = async (
-  payload: UserProfileUpdateRequest
-): Promise<UserProfile | null> => {
+export const updateUserProfile = async (payload: UserProfileUpdateRequest): Promise<UserProfile | null> => {
   try {
     const { data } = await axios.put<UserProfile>("api/v1/userProfiles", payload);
     return data;
@@ -39,16 +37,11 @@ export const updateUserProfile = async (
   }
 };
 
-export const uploadUserAvatar = async (
-  avatar: File
-): Promise<UserProfile | null> => {
+export const uploadUserAvatar = async (avatar: File): Promise<UserProfile | null> => {
   try {
     const formData = new FormData();
     formData.append("avatar", avatar);
-    const { data } = await axios.post<UserProfile>(
-      "api/v1/userProfiles/avatar",
-      formData
-    );
+    const { data } = await axios.post<UserProfile>("api/v1/userProfiles/avatar", formData);
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));

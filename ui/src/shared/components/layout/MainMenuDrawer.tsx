@@ -60,8 +60,7 @@ const MainMenuDrawer = () => {
     currentTenant?.type === TenantType.Business &&
     currentTenant?.currentEmployeeRole !== undefined;
   const delegationsIsVisible =
-    currentTenant?.type === TenantType.Business &&
-    currentTenant.currentEmployeeRole !== undefined;
+    currentTenant?.type === TenantType.Business && currentTenant.currentEmployeeRole !== undefined;
   const teamsManagerIsVisible =
     employeeManagerIsVisible && stores.applicationConfigurationStore.teamAssigneesAreEnabled;
   const templatesIsVisible =
@@ -69,30 +68,20 @@ const MainMenuDrawer = () => {
     currentTenant?.type === TenantType.Business &&
     currentTenant?.currentEmployeeRole !== undefined;
   const accessGroupIsVisible =
-    organizationsIsVisible ||
-    employeeManagerIsVisible ||
-    teamsManagerIsVisible ||
-    delegationsIsVisible;
+    organizationsIsVisible || employeeManagerIsVisible || teamsManagerIsVisible || delegationsIsVisible;
   const currentTenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const tenantScopeIsReady =
-    stores.tenantStore.hasLoaded && currentTenantGlobalId !== null;
-  const tenantPath = (path: string) =>
-    currentTenantGlobalId ? Routes.tenantPath(currentTenantGlobalId, path) : "/";
+  const tenantScopeIsReady = stores.tenantStore.hasLoaded && currentTenantGlobalId !== null;
+  const tenantPath = (path: string) => (currentTenantGlobalId ? Routes.tenantPath(currentTenantGlobalId, path) : "/");
   const inboxPath = tenantPath(Routes.inboxPath);
   const outboxPath = tenantPath("/outbox");
   const templatesPath = tenantPath("/approvalStepTemplates");
   const teamsPath = tenantPath("/teams");
   const employeesPath = tenantPath("/employees");
   const delegationsPath = tenantPath("/delegations");
-  const inboxIsSelected =
-    location.pathname === "/" ||
-    location.pathname.startsWith(inboxPath);
+  const inboxIsSelected = location.pathname === "/" || location.pathname.startsWith(inboxPath);
   const outboxIsSelected = location.pathname.startsWith(outboxPath);
-  const numberOfUncompletedTasks =
-    stores.approvalRequestTaskStore.numberOfUncompletedTasks;
-  const organizationsIsSelected = /^\/tenants(?:\/[^/]+)?$/.test(
-    location.pathname
-  );
+  const numberOfUncompletedTasks = stores.approvalRequestTaskStore.numberOfUncompletedTasks;
+  const organizationsIsSelected = /^\/tenants(?:\/[^/]+)?$/.test(location.pathname);
 
   useEffect(() => {
     if (!currentUser) {
@@ -143,10 +132,7 @@ const MainMenuDrawer = () => {
   const drawerContent = (
     <Box>
       <Toolbar disableGutters sx={Shell.mainMenuDrawerToolbarSx}>
-        <IconButton
-          aria-label="Collapse menu"
-          onClick={() => stores.commonStore.setMainMenuDrawerIsOpen(false)}
-        >
+        <IconButton aria-label="Collapse menu" onClick={() => stores.commonStore.setMainMenuDrawerIsOpen(false)}>
           <ChevronLeftTwoTone />
         </IconButton>
       </Toolbar>
@@ -188,19 +174,15 @@ const MainMenuDrawer = () => {
               <InboxTwoTone />
             </ListItemIcon>
             <ListItemText
-              primary={(
-                numberOfUncompletedTasks > 0
-                  ? (
-                    <Badge
-                      badgeContent={numberOfUncompletedTasks}
-                      color="error"
-                      sx={inboxTextBadgeSx}
-                    >
-                      <span>Inbox</span>
-                    </Badge>
-                  )
-                  : "Inbox"
-              )}
+              primary={
+                numberOfUncompletedTasks > 0 ? (
+                  <Badge badgeContent={numberOfUncompletedTasks} color="error" sx={inboxTextBadgeSx}>
+                    <span>Inbox</span>
+                  </Badge>
+                ) : (
+                  "Inbox"
+                )
+              }
             />
           </ListItemButton>
         </ListItem>
@@ -236,13 +218,7 @@ const MainMenuDrawer = () => {
         )}
       </List>
       {accessGroupIsVisible && (
-        <List
-          subheader={
-            <ListSubheader component="div">
-              Access
-            </ListSubheader>
-          }
-        >
+        <List subheader={<ListSubheader component="div">Access</ListSubheader>}>
           {organizationsIsVisible && (
             <ListItem key="organizations" disablePadding>
               <ListItemButton
@@ -309,19 +285,9 @@ const MainMenuDrawer = () => {
           )}
         </List>
       )}
-      <List
-        subheader={
-          <ListSubheader component="div">
-            Docs
-          </ListSubheader>
-        }
-      >
+      <List subheader={<ListSubheader component="div">Docs</ListSubheader>}>
         <ListItem key="help" disablePadding>
-          <ListItemButton
-            component="a"
-            href={Api.uiBaseUri}
-            onClick={closeTemporaryDrawer}
-          >
+          <ListItemButton component="a" href={Api.uiBaseUri} onClick={closeTemporaryDrawer}>
             <ListItemIcon sx={Lists.itemIconSx}>
               <HelpOutlineTwoTone />
             </ListItemIcon>
@@ -337,10 +303,7 @@ const MainMenuDrawer = () => {
   }
 
   return (
-    <Box
-      component="nav"
-      sx={Shell.mainMenuDrawerNavSx(stores.commonStore.mainMenuDrawerIsOpen)}
-    >
+    <Box component="nav" sx={Shell.mainMenuDrawerNavSx(stores.commonStore.mainMenuDrawerIsOpen)}>
       <Drawer
         variant="temporary"
         open={!isDesktop && stores.commonStore.mainMenuDrawerIsOpen}

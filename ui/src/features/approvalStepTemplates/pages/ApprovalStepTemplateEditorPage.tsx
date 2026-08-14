@@ -21,17 +21,13 @@ const ApprovalStepTemplateEditorPage = () => {
   const [hasLoadedTemplates, setHasLoadedTemplates] = useState(false);
   const currentTenant = stores.tenantStore.currentTenant;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const templatesPath = tenantGlobalId
-    ? Routes.tenantPath(tenantGlobalId, "/approvalStepTemplates")
-    : "/";
+  const templatesPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/approvalStepTemplates") : "/";
   const canViewTemplates =
     stores.applicationConfigurationStore.approvalStepTemplatesAreEnabled &&
     currentTenant?.type === TenantType.Business &&
     currentTenant.currentEmployeeRole !== undefined;
   const isNewTemplate = templateGlobalId === undefined;
-  const template = stores.approvalStepTemplateStore.templates.find(
-    (item) => item.globalId === templateGlobalId,
-  );
+  const template = stores.approvalStepTemplateStore.templates.find((item) => item.globalId === templateGlobalId);
 
   useEffect(() => {
     if (isNewTemplate) {
@@ -52,10 +48,7 @@ const ApprovalStepTemplateEditorPage = () => {
     return <LoadingOverlay />;
   }
 
-  if (
-    !canViewTemplates ||
-    (!isNewTemplate && templateGlobalId === undefined)
-  ) {
+  if (!canViewTemplates || (!isNewTemplate && templateGlobalId === undefined)) {
     return <Navigate to={templatesPath} />;
   }
 
@@ -70,26 +63,20 @@ const ApprovalStepTemplateEditorPage = () => {
   return (
     <NarrowContent>
       <ApprovalStepTemplateEditor
-      template={template ?? null}
-      onClose={(currentTemplateGlobalId) =>
-        navigate(templatesPath, {
-          state: currentTemplateGlobalId
-            ? { currentTemplateGlobalId }
-            : undefined,
-        })
-      }
-      onDelete={async  (id: string) => {
-        const deleted = tenantGlobalId
-          ? await stores.approvalStepTemplateStore.delete(tenantGlobalId, id)
-          : false;
-        if (deleted) {
-          showPersistenceSuccessNotification(
-            PersistenceSuccessMessages.templateDeleted,
-          );
-          navigate(templatesPath);
+        template={template ?? null}
+        onClose={(currentTemplateGlobalId) =>
+          navigate(templatesPath, {
+            state: currentTemplateGlobalId ? { currentTemplateGlobalId } : undefined,
+          })
         }
-        return deleted;
-      }}
+        onDelete={async (id: string) => {
+          const deleted = tenantGlobalId ? await stores.approvalStepTemplateStore.delete(tenantGlobalId, id) : false;
+          if (deleted) {
+            showPersistenceSuccessNotification(PersistenceSuccessMessages.templateDeleted);
+            navigate(templatesPath);
+          }
+          return deleted;
+        }}
       />
     </NarrowContent>
   );

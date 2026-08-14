@@ -23,20 +23,23 @@ export class TeamStore {
     }
 
     const requestVersion = ++this.requestVersion;
-    const request = teamApi.listTeams(tenantGlobalId).then((teams) => {
-      if (requestVersion !== this.requestVersion) {
-        return;
-      }
-      runInAction(() => {
-        this.teams = teams;
-        this.loadedTenantGlobalId = tenantGlobalId;
+    const request = teamApi
+      .listTeams(tenantGlobalId)
+      .then((teams) => {
+        if (requestVersion !== this.requestVersion) {
+          return;
+        }
+        runInAction(() => {
+          this.teams = teams;
+          this.loadedTenantGlobalId = tenantGlobalId;
+        });
+      })
+      .finally(() => {
+        if (this.loadRequest === request) {
+          this.loadRequest = null;
+          this.loadingTenantGlobalId = null;
+        }
       });
-    }).finally(() => {
-      if (this.loadRequest === request) {
-        this.loadRequest = null;
-        this.loadingTenantGlobalId = null;
-      }
-    });
     this.loadRequest = request;
     this.loadingTenantGlobalId = tenantGlobalId;
     return request;
@@ -55,11 +58,7 @@ export class TeamStore {
     return team;
   };
 
-  update = async (
-    tenantGlobalId: string,
-    teamGlobalId: string,
-    payload: UpsertTeamRequest
-  ): Promise<Team | null> => {
+  update = async (tenantGlobalId: string, teamGlobalId: string, payload: UpsertTeamRequest): Promise<Team | null> => {
     const requestVersion = this.requestVersion;
     const team = await teamApi.updateTeam(tenantGlobalId, teamGlobalId, payload);
     if (!team || requestVersion !== this.requestVersion) {
@@ -67,9 +66,7 @@ export class TeamStore {
     }
 
     runInAction(() => {
-      this.teams = this.teams.map((item) =>
-        item.globalId === team.globalId ? team : item
-      );
+      this.teams = this.teams.map((item) => (item.globalId === team.globalId ? team : item));
     });
     return team;
   };

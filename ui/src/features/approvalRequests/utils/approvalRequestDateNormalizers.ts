@@ -4,23 +4,20 @@ import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/
 import { parseUtcDateTime } from "@/shared/utils/dateTime";
 
 type NormalizableTask =
-  | Pick<ApprovalRequestTask | ApprovalRequestTaskListItem, "createdAt" | "completedAt"> & {
-    createdAtDate?: Date;
-    completedAtDate?: Date;
-  }
+  | (Pick<ApprovalRequestTask | ApprovalRequestTaskListItem, "createdAt" | "completedAt"> & {
+      createdAtDate?: Date;
+      completedAtDate?: Date;
+    })
   | null
   | undefined;
 
-type NormalizableApprovalRequest =
-  Pick<ApprovalRequest, "createdAt" | "completedAt"> & {
-    createdAtDate?: Date;
-    completedAtDate?: Date;
-    steps?: ApprovalRequest["steps"];
-  };
+type NormalizableApprovalRequest = Pick<ApprovalRequest, "createdAt" | "completedAt"> & {
+  createdAtDate?: Date;
+  completedAtDate?: Date;
+  steps?: ApprovalRequest["steps"];
+};
 
-export const normalizeApprovalRequestDates = (
-  approvalRequest: NormalizableApprovalRequest,
-): void => {
+export const normalizeApprovalRequestDates = (approvalRequest: NormalizableApprovalRequest): void => {
   approvalRequest.createdAtDate = parseUtcDateTime(approvalRequest.createdAt);
   approvalRequest.completedAtDate = approvalRequest.completedAt
     ? parseUtcDateTime(approvalRequest.completedAt)
@@ -30,15 +27,11 @@ export const normalizeApprovalRequestDates = (
   });
 };
 
-export const normalizeApprovalRequestTaskDates = (
-  task: NormalizableTask,
-): void => {
+export const normalizeApprovalRequestTaskDates = (task: NormalizableTask): void => {
   if (!task) {
     return;
   }
 
   task.createdAtDate = parseUtcDateTime(task.createdAt);
-  task.completedAtDate = task.completedAt
-    ? parseUtcDateTime(task.completedAt)
-    : undefined;
+  task.completedAtDate = task.completedAt ? parseUtcDateTime(task.completedAt) : undefined;
 };

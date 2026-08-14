@@ -9,13 +9,7 @@ import { Dialogs, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import LoadingButton from "@mui/lab/LoadingButton";
-import {
-  Autocomplete,
-  Button,
-  Chip,
-  Stack,
-  TextField,
-} from "@mui/material";
+import { Autocomplete, Button, Chip, Stack, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 
 interface TeamDialogProps {
@@ -31,14 +25,7 @@ const getEmployeeLabel = (employee: Employee) => {
   return employee.displayName;
 };
 
-const TeamDialog: React.FC<TeamDialogProps> = ({
-  team,
-  employees,
-  canEdit,
-  onClose,
-  onDelete,
-  onSubmit,
-}) => {
+const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClose, onDelete, onSubmit }) => {
   const [name, setName] = useState("");
   const [members, setMembers] = useState<Employee[]>([]);
   const [nameTouched, setNameTouched] = useState(false);
@@ -49,9 +36,7 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const teamsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/teams") : "/";
   const nameHasError = nameTouched && !name.trim();
-  const saveIsLoading =
-    saveAction.isRunning ||
-    stores.commonStore.isActionLoading(saveLoader);
+  const saveIsLoading = saveAction.isRunning || stores.commonStore.isActionLoading(saveLoader);
 
   useEffect(() => {
     setName(team?.name ?? "");
@@ -99,9 +84,7 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
           onChange={(event) => setName(event.target.value)}
           onBlur={() => setNameTouched(true)}
           error={nameHasError}
-          helperText={
-            nameHasError ? "Team name is required." : undefined
-          }
+          helperText={nameHasError ? "Team name is required." : undefined}
           fullWidth
           required
           disabled={!isNew && !canEdit}
@@ -115,44 +98,24 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
           onChange={(_, value) => setMembers(value)}
           disabled={!isNew && !canEdit}
           renderTags={(value, getTagProps) =>
-            value.map((option, index) => (
-              <Chip
-                label={getEmployeeLabel(option)}
-                {...getTagProps({ index })}
-              />
-            ))
+            value.map((option, index) => <Chip label={getEmployeeLabel(option)} {...getTagProps({ index })} />)
           }
           renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Employees"
-              helperText="Assign employees to this team."
-            />
+            <TextField {...params} label="Employees" helperText="Assign employees to this team." />
           )}
           renderOption={(props, option) => (
             <li {...props}>
-              <DisplayName
-                displayName={option.displayName}
-                email={option.email}
-              />
+              <DisplayName displayName={option.displayName} email={option.email} />
             </li>
           )}
         />
       </Stack>
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        spacing={Dialogs.stepHeaderSpacing}
-        sx={Dialogs.addStepButtonSx}
-      >
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
         <Button variant="outlined" onClick={() => onClose(team?.globalId)}>
           Cancel
         </Button>
         {!isNew && canEdit && (
-          <Button
-            color="error"
-            variant="outlined"
-            onClick={() => setDeleteDialogIsOpen(true)}
-          >
+          <Button color="error" variant="outlined" onClick={() => setDeleteDialogIsOpen(true)}>
             Delete
           </Button>
         )}

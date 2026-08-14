@@ -6,10 +6,7 @@ import {
   updateApprovalDelegation,
 } from "@/features/delegations/api/approvalDelegationsApi";
 import DelegationEditor from "@/features/delegations/components/DelegationDialog";
-import {
-  ApprovalDelegation,
-  ApprovalDelegationUpsert,
-} from "@/features/delegations/models/approvalDelegation";
+import { ApprovalDelegation, ApprovalDelegationUpsert } from "@/features/delegations/models/approvalDelegation";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
@@ -27,18 +24,16 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 const DelegationEditorPage = () => {
   const navigate = useNavigate();
   const { delegationGlobalId } = useParams<{ delegationGlobalId: string }>();
-  usePageTitle(
-    delegationGlobalId === undefined ? "New delegation" : "Edit delegation",
-  );
+  usePageTitle(delegationGlobalId === undefined ? "New delegation" : "Edit delegation");
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const delegationsPath = tenantGlobalId
-    ? Routes.tenantPath(tenantGlobalId, "/delegations")
-    : "/";
+  const delegationsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/delegations") : "/";
   const isNewDelegation = delegationGlobalId === undefined;
   const [delegations, setDelegations] = useState<ApprovalDelegation[]>([]);
   const [delegationsHaveLoaded, setDelegationsHaveLoaded] = useState(false);
   const delegation = delegations.find((item) => item.globalId === delegationGlobalId);
-  const canEdit = stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Admin || stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Owner;
+  const canEdit =
+    stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Admin ||
+    stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Owner;
 
   useEffect(() => {
     setDelegations([]);
@@ -56,49 +51,41 @@ const DelegationEditorPage = () => {
 
   if (!tenantGlobalId) return <Navigate to={delegationsPath} />;
   if (!isNewDelegation && !delegation) {
-    return delegationsHaveLoaded ? (
-      <NotFoundPage />
-    ) : (
-      <LoadingOverlay />
-    );
+    return delegationsHaveLoaded ? <NotFoundPage /> : <LoadingOverlay />;
   }
 
   return (
     <NarrowContent>
       <DelegationEditor
-      delegation={delegation ?? null}
-      employees={stores.employeeStore.employees}
-      canEdit={canEdit}
-      onClose={(currentDelegationGlobalId) =>
-        navigate(delegationsPath, {
-          state: currentDelegationGlobalId ? { currentDelegationGlobalId } : undefined,
-        })
-      }
-      onDelete={async  (id: string) => {
-        const deleted = await deleteApprovalDelegation(tenantGlobalId, id);
-        if (deleted) {
-          await stores.tenantStore.load();
-          await stores.refreshTenantScope();
-          showPersistenceSuccessNotification(
-            PersistenceSuccessMessages.delegationDeleted,
-          );
-          navigate(delegationsPath);
+        delegation={delegation ?? null}
+        employees={stores.employeeStore.employees}
+        canEdit={canEdit}
+        onClose={(currentDelegationGlobalId) =>
+          navigate(delegationsPath, {
+            state: currentDelegationGlobalId ? { currentDelegationGlobalId } : undefined,
+          })
         }
-        return deleted;
-      }}
-      onSubmit={async (payload: ApprovalDelegationUpsert, globalId?: string) => {
-        const saved = globalId
-          ? await updateApprovalDelegation(tenantGlobalId, globalId, payload)
-          : await createApprovalDelegation(tenantGlobalId, payload);
-        if (saved) {
-          await stores.tenantStore.load();
-          await stores.refreshTenantScope();
-          showPersistenceSuccessNotification(
-            PersistenceSuccessMessages.delegationSaved,
-          );
-        }
-        return saved;
-      }}
+        onDelete={async (id: string) => {
+          const deleted = await deleteApprovalDelegation(tenantGlobalId, id);
+          if (deleted) {
+            await stores.tenantStore.load();
+            await stores.refreshTenantScope();
+            showPersistenceSuccessNotification(PersistenceSuccessMessages.delegationDeleted);
+            navigate(delegationsPath);
+          }
+          return deleted;
+        }}
+        onSubmit={async (payload: ApprovalDelegationUpsert, globalId?: string) => {
+          const saved = globalId
+            ? await updateApprovalDelegation(tenantGlobalId, globalId, payload)
+            : await createApprovalDelegation(tenantGlobalId, payload);
+          if (saved) {
+            await stores.tenantStore.load();
+            await stores.refreshTenantScope();
+            showPersistenceSuccessNotification(PersistenceSuccessMessages.delegationSaved);
+          }
+          return saved;
+        }}
       />
     </NarrowContent>
   );

@@ -8,10 +8,7 @@ interface ApprovalRequestNumberTextProps {
   variant?: TypographyProps["variant"];
 }
 
-export const getApprovalRequestNumber = (
-  globalId?: string,
-  includeHash: boolean = true,
-): string => {
+export const getApprovalRequestNumber = (globalId?: string, includeHash: boolean = true): string => {
   if (!globalId) {
     return "";
   }
@@ -32,11 +29,7 @@ const ApprovalRequestNumberText: React.FC<ApprovalRequestNumberTextProps> = ({
   }
 
   return (
-    <Typography
-      color={color}
-      component="span"
-      variant={variant}
-    >
+    <Typography color={color} component="span" variant={variant}>
       {prefix ? `${prefix} ${number}` : number}
     </Typography>
   );

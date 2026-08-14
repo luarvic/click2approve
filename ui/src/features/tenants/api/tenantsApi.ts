@@ -23,9 +23,7 @@ export const listTenants = async (): Promise<Tenant[]> => {
   }
 };
 
-export const createTenant = async (
-  payload: CreateTenantRequest
-): Promise<Tenant | null> => {
+export const createTenant = async (payload: CreateTenantRequest): Promise<Tenant | null> => {
   try {
     const { data } = await axios.post<Tenant>("api/v1/tenants", payload);
     return data;
@@ -35,10 +33,7 @@ export const createTenant = async (
   }
 };
 
-export const createTenantWithLogo = async (
-  payload: CreateTenantRequest,
-  logo: File
-): Promise<Tenant | null> => {
+export const createTenantWithLogo = async (payload: CreateTenantRequest, logo: File): Promise<Tenant | null> => {
   try {
     const formData = new FormData();
     formData.append("businessName", payload.businessName);
@@ -56,10 +51,7 @@ export const createTenantWithLogo = async (
     }
     formData.append("logo", logo);
 
-    const { data } = await axios.post<Tenant>(
-      "api/v1/tenants/withLogo",
-      formData
-    );
+    const { data } = await axios.post<Tenant>("api/v1/tenants/withLogo", formData);
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
@@ -67,10 +59,7 @@ export const createTenantWithLogo = async (
   }
 };
 
-export const updateTenant = async (
-  tenantGlobalId: string,
-  payload: UpdateTenantRequest
-): Promise<Tenant | null> => {
+export const updateTenant = async (tenantGlobalId: string, payload: UpdateTenantRequest): Promise<Tenant | null> => {
   try {
     const { data } = await axios.put<Tenant>(`api/v1/tenants/${tenantGlobalId}`, payload);
     return data;
@@ -80,17 +69,11 @@ export const updateTenant = async (
   }
 };
 
-export const uploadTenantLogo = async (
-  tenantGlobalId: string,
-  logo: File
-): Promise<Tenant | null> => {
+export const uploadTenantLogo = async (tenantGlobalId: string, logo: File): Promise<Tenant | null> => {
   try {
     const formData = new FormData();
     formData.append("logo", logo);
-    const { data } = await axios.post<Tenant>(
-      `api/v1/tenants/${tenantGlobalId}/logo`,
-      formData
-    );
+    const { data } = await axios.post<Tenant>(`api/v1/tenants/${tenantGlobalId}/logo`, formData);
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
@@ -98,9 +81,7 @@ export const uploadTenantLogo = async (
   }
 };
 
-export const deleteTenantLogo = async (
-  tenantGlobalId: string
-): Promise<Tenant | null> => {
+export const deleteTenantLogo = async (tenantGlobalId: string): Promise<Tenant | null> => {
   try {
     const { data } = await axios.delete<Tenant>(`api/v1/tenants/${tenantGlobalId}/logo`);
     return data;

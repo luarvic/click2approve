@@ -4,10 +4,7 @@ import {
   ApprovalRequestFileRevisionAction,
 } from "@/features/approvalRequests/models/approvalRequest";
 import { UserFile } from "@/features/userFiles/models/userFile";
-import {
-  downloadApprovalRequestFile,
-  downloadApprovalRequestTaskFile,
-} from "@/features/userFiles/utils/downloaders";
+import { downloadApprovalRequestFile, downloadApprovalRequestTaskFile } from "@/features/userFiles/utils/downloaders";
 import FileTypeIcon from "@/shared/components/icons/FileTypeIcon";
 import CommentPaper from "@/shared/components/papers/CommentPaper";
 import { StackSpacing } from "@/shared/constants/constants";
@@ -57,39 +54,20 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const onDownload =
     tenantGlobalId && approvalRequestTaskGlobalId
-      ? (userFile: UserFile) =>
-          downloadApprovalRequestTaskFile(
-            tenantGlobalId,
-            userFile,
-            approvalRequestTaskGlobalId,
-          )
+      ? (userFile: UserFile) => downloadApprovalRequestTaskFile(tenantGlobalId, userFile, approvalRequestTaskGlobalId)
       : tenantGlobalId && approvalRequestGlobalId
-        ? (userFile: UserFile) =>
-            downloadApprovalRequestFile(
-              tenantGlobalId,
-              userFile,
-              approvalRequestGlobalId,
-            )
+        ? (userFile: UserFile) => downloadApprovalRequestFile(tenantGlobalId, userFile, approvalRequestGlobalId)
         : undefined;
 
   const files = requestFiles ?? [];
-  const orderedFiles = [...files].sort(
-    (left, right) => left.sequence - right.sequence,
-  );
-  const isPreviousFileForReplacement = (
-    file: ApprovalRequestFile,
-    index: number,
-  ) =>
+  const orderedFiles = [...files].sort((left, right) => left.sequence - right.sequence);
+  const isPreviousFileForReplacement = (file: ApprovalRequestFile, index: number) =>
     file.revisionAction === ApprovalRequestFileRevisionAction.Removed &&
-    orderedFiles[index + 1]?.revisionAction ===
-      ApprovalRequestFileRevisionAction.Replaced;
+    orderedFiles[index + 1]?.revisionAction === ApprovalRequestFileRevisionAction.Replaced;
 
   const getReplacedOriginalFile = (replacementIndex: number) => {
     const previousFile = orderedFiles[replacementIndex - 1];
-    return previousFile?.revisionAction ===
-      ApprovalRequestFileRevisionAction.Removed
-      ? previousFile
-      : undefined;
+    return previousFile?.revisionAction === ApprovalRequestFileRevisionAction.Removed ? previousFile : undefined;
   };
 
   const renderFileLink = (
@@ -101,13 +79,7 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
     tooltip?: string,
   ) => {
     const fileLink = (
-      <Stack
-        key={key}
-        direction="row"
-        alignItems="center"
-        spacing={StackSpacing.default}
-        sx={fileRowSx}
-      >
+      <Stack key={key} direction="row" alignItems="center" spacing={StackSpacing.default} sx={fileRowSx}>
         <Link
           component={onDownload ? "button" : "span"}
           onClick={onDownload ? () => onDownload(userFile) : undefined}
@@ -117,14 +89,7 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
           <FileTypeIcon fontSize="small" fileName={userFile.name} />
           {userFile.name}
         </Link>
-        {statusLabel && (
-          <Chip
-            color={statusColor}
-            label={statusLabel}
-            size="small"
-            variant="outlined"
-          />
-        )}
+        {statusLabel && <Chip color={statusColor} label={statusLabel} size="small" variant="outlined" />}
       </Stack>
     );
 
@@ -143,12 +108,8 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
       file.globalId,
       undefined,
       "success",
-      showFileStateIndicators &&
-        file.revisionAction === ApprovalRequestFileRevisionAction.Added
-        ? "Added"
-        : undefined,
-      showFileStateIndicators &&
-        file.revisionAction === ApprovalRequestFileRevisionAction.Added
+      showFileStateIndicators && file.revisionAction === ApprovalRequestFileRevisionAction.Added ? "Added" : undefined,
+      showFileStateIndicators && file.revisionAction === ApprovalRequestFileRevisionAction.Added
         ? "New file"
         : undefined,
     );
@@ -158,15 +119,10 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
       <Stack alignItems="flex-start" spacing={StackSpacing.default}>
         {orderedFiles.map((file, index) => {
           if (!compareWithPrevious) {
-            return file.revisionAction ===
-              ApprovalRequestFileRevisionAction.Removed
-              ? null
-              : renderCurrentFile(file);
+            return file.revisionAction === ApprovalRequestFileRevisionAction.Removed ? null : renderCurrentFile(file);
           }
 
-          if (
-            file.revisionAction === ApprovalRequestFileRevisionAction.Removed
-          ) {
+          if (file.revisionAction === ApprovalRequestFileRevisionAction.Removed) {
             if (isPreviousFileForReplacement(file, index)) {
               return null;
             }
@@ -181,17 +137,11 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
             );
           }
 
-          if (
-            file.revisionAction === ApprovalRequestFileRevisionAction.Replaced
-          ) {
+          if (file.revisionAction === ApprovalRequestFileRevisionAction.Replaced) {
             const previousRequestFile = getReplacedOriginalFile(index);
 
             return (
-              <Stack
-                key={file.globalId}
-                alignItems="flex-start"
-                spacing={StackSpacing.default}
-              >
+              <Stack key={file.globalId} alignItems="flex-start" spacing={StackSpacing.default}>
                 {renderFileLink(
                   file.userFile,
                   `${file.globalId}-current`,
@@ -205,9 +155,7 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
                     {renderFileLink(
                       previousRequestFile?.userFile ?? file.previousUserFile!,
                       `${file.globalId}-previous`,
-                      showFileStateIndicators
-                        ? replacedOriginalFileLinkSx
-                        : undefined,
+                      showFileStateIndicators ? replacedOriginalFileLinkSx : undefined,
                       "default",
                       undefined,
                       showFileStateIndicators ? "Replaced file" : undefined,

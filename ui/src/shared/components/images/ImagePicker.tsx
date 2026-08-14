@@ -72,11 +72,7 @@ const zoomSliderSx: SxProps<Theme> = {
   mt: 2,
 };
 
-const createCroppedFile = async (
-  imageSource: string,
-  cropArea: Area,
-  imageSize: number,
-): Promise<File> => {
+const createCroppedFile = async (imageSource: string, cropArea: Area, imageSize: number): Promise<File> => {
   const image = new Image();
   image.crossOrigin = "anonymous";
   image.src = imageSource;
@@ -94,17 +90,7 @@ const createCroppedFile = async (
     throw new Error("The image could not be processed.");
   }
 
-  context.drawImage(
-    image,
-    cropArea.x,
-    cropArea.y,
-    cropArea.width,
-    cropArea.height,
-    0,
-    0,
-    outputSize,
-    outputSize,
-  );
+  context.drawImage(image, cropArea.x, cropArea.y, cropArea.width, cropArea.height, 0, 0, outputSize, outputSize);
 
   const blob = await new Promise<Blob | null>((resolve) => {
     canvas.toBlob(resolve, "image/jpeg", 0.9);
@@ -158,11 +144,14 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
     return loadPreview();
   }, [imageUrl, selectedFile]);
 
-  useEffect(() => () => {
-    if (dialogFileSource.current) {
-      URL.revokeObjectURL(dialogFileSource.current);
-    }
-  }, []);
+  useEffect(
+    () => () => {
+      if (dialogFileSource.current) {
+        URL.revokeObjectURL(dialogFileSource.current);
+      }
+    },
+    [],
+  );
 
   const resetCrop = () => {
     setCrop({ x: 0, y: 0 });
@@ -235,13 +224,7 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
     <>
       <Box sx={pickerContainerSx}>
         <Tooltip title={title}>
-          <Avatar
-            alt={alt}
-            aria-label={title}
-            onClick={openDialog}
-            src={imagePreviewUrl}
-            sx={pickerSx}
-          >
+          <Avatar alt={alt} aria-label={title} onClick={openDialog} src={imagePreviewUrl} sx={pickerSx}>
             {fallback}
           </Avatar>
         </Tooltip>
@@ -299,21 +282,13 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
           <Button disabled={isSaving} onClick={() => fileInput.current?.click()}>
             Choose file
           </Button>
-          <Button
-            color="error"
-            disabled={isSaving || (!imageUrl && !selectedFile)}
-            onClick={handleDelete}
-          >
+          <Button color="error" disabled={isSaving || (!imageUrl && !selectedFile)} onClick={handleDelete}>
             Delete
           </Button>
           <Button disabled={isSaving} onClick={closeDialog}>
             Cancel
           </Button>
-          <LoadingButton
-            disabled={!dialogImageSource || !croppedAreaPixels}
-            loading={isSaving}
-            onClick={handleSave}
-          >
+          <LoadingButton disabled={!dialogImageSource || !croppedAreaPixels} loading={isSaving} onClick={handleSave}>
             Save
           </LoadingButton>
         </DialogActions>

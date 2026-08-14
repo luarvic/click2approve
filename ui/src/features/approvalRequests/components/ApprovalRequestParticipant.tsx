@@ -22,9 +22,7 @@ interface ApprovalRequestParticipantProps {
   type?: AssigneeType;
 }
 
-const getParticipantDisplayName = (
-  displayName?: string | null,
-) => stripInlineEmail(displayName);
+const getParticipantDisplayName = (displayName?: string | null) => stripInlineEmail(displayName);
 
 const ApprovalRequestParticipant: React.FC<ApprovalRequestParticipantProps> = ({
   displayName,
@@ -38,32 +36,25 @@ const ApprovalRequestParticipant: React.FC<ApprovalRequestParticipantProps> = ({
   sx,
   type = AssigneeType.Employee,
 }) => {
-  const participantDisplayName = getParticipantDisplayName(
-    displayName,
-  );
+  const participantDisplayName = getParticipantDisplayName(displayName);
   const emailLabel = email ?? participantDisplayName ?? fallback;
   const participantPrimaryLabel =
-    !isSystemParticipant && type === AssigneeType.User
-      ? emailLabel
-      : participantDisplayName;
+    !isSystemParticipant && type === AssigneeType.User ? emailLabel : participantDisplayName;
   const organizationIsVisible =
-    !isSystemParticipant &&
-    showOrganization &&
-    type === AssigneeType.Employee &&
-    Boolean(organizationDisplayName);
+    !isSystemParticipant && showOrganization && type === AssigneeType.Employee && Boolean(organizationDisplayName);
 
   return (
     <Stack spacing={organizationIsVisible ? StackSpacing.tight : undefined} sx={sx}>
       <ApprovalRequestParticipantLine
         icon={isSystemParticipant ? <Terminal color="action" fontSize="small" /> : icon}
-        label={(
+        label={
           <DisplayName
             displayName={participantPrimaryLabel}
             email={email}
             fallback={fallback}
             showEmailAddress={type !== AssigneeType.Employee || showEmployeeEmailAddress}
           />
-        )}
+        }
         type={type}
       />
       {organizationIsVisible && (

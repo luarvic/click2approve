@@ -1,6 +1,4 @@
-import {
-  getApprovalRequestStatusLabel,
-} from "@/features/approvalRequests/components/ApprovalStatusLines";
+import { getApprovalRequestStatusLabel } from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { Icons } from "@/shared/constants/constants";
 import { Check, Close, Loop, QuestionMark, Replay } from "@mui/icons-material";
@@ -19,9 +17,11 @@ const StatusIcon: React.FC<StatusIconProps> = ({ result, status }) => {
       case ApprovalRequestStatus.Started:
         return <Loop sx={Icons.verticalAlignSx} color="disabled" />;
       case ApprovalRequestStatus.Completed:
-        return result === false
-          ? <Close sx={Icons.verticalAlignSx} color="error" />
-          : <Check sx={Icons.verticalAlignSx} color="success" />;
+        return result === false ? (
+          <Close sx={Icons.verticalAlignSx} color="error" />
+        ) : (
+          <Check sx={Icons.verticalAlignSx} color="success" />
+        );
       case ApprovalRequestStatus.Canceled:
         return <Close sx={Icons.verticalAlignSx} color="warning" />;
       case ApprovalRequestStatus.Superseded:
@@ -31,9 +31,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ result, status }) => {
     }
   };
 
-  return (
-    <Tooltip title={getApprovalRequestStatusLabel(status)}>{renderStatus()}</Tooltip>
-  );
+  return <Tooltip title={getApprovalRequestStatusLabel(status)}>{renderStatus()}</Tooltip>;
 };
 
 export default StatusIcon;

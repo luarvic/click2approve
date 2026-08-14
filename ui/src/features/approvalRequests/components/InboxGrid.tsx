@@ -1,5 +1,7 @@
 import { stores } from "@/app/rootStore";
-import ApprovalRequestNumberText, { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
+import ApprovalRequestNumberText, {
+  getApprovalRequestNumber,
+} from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
 import {
   ApprovalRequestTaskStatusLineLabel,
@@ -14,14 +16,7 @@ import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow"
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate } from "@/shared/utils/dateTime";
-import {
-  Box,
-  LinearProgress,
-  Stack,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, LinearProgress, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { DataGrid, GridColDef, GridSlots } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
@@ -35,36 +30,34 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
   const theme = useTheme();
   const createdColumnIsVisible = useMediaQuery(theme.breakpoints.up("md"));
   const requestedByColumnIsVisible = useMediaQuery(theme.breakpoints.up("sm"));
-  const numberColumnIsVisible = useMediaQuery(
-    theme.breakpoints.up(DataGrids.approvalNumberColumnMinDisplayWidth),
-  );
+  const numberColumnIsVisible = useMediaQuery(theme.breakpoints.up(DataGrids.approvalNumberColumnMinDisplayWidth));
   const tenantScopeIsReady =
     !stores.applicationConfigurationStore.tenantsAreEnabled ||
-    (stores.tenantStore.hasLoaded &&
-      stores.tenantStore.currentTenantGlobalId !== null);
+    (stores.tenantStore.hasLoaded && stores.tenantStore.currentTenantGlobalId !== null);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const gridLoader = ActionLoaders.grids.inbox(tenantGlobalId);
-  const organizationColumnIsVisible =
-    stores.tenantStore.currentTenant?.type === TenantType.Personal;
+  const organizationColumnIsVisible = stores.tenantStore.currentTenant?.type === TenantType.Personal;
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     stores.approvalRequestTaskStore.tasks,
     currentTaskGlobalId,
   );
 
-  const gridIsLoading = useGridRefresh(() => {
-    if (tenantScopeIsReady && tenantGlobalId) {
-      return stores.approvalRequestTaskStore.loadIncoming(tenantGlobalId);
-    }
-  }, tenantScopeIsReady && tenantGlobalId !== null, gridLoader);
+  const gridIsLoading = useGridRefresh(
+    () => {
+      if (tenantScopeIsReady && tenantGlobalId) {
+        return stores.approvalRequestTaskStore.loadIncoming(tenantGlobalId);
+      }
+    },
+    tenantScopeIsReady && tenantGlobalId !== null,
+    gridLoader,
+  );
 
   const columns: GridColDef[] = [
     {
       field: "globalId",
       headerName: "Number",
       width: DataGrids.approvalNumberColumnWidth,
-      renderCell: (params) => (
-        <ApprovalRequestNumberText globalId={params.row.globalId} includeHash={false} />
-      ),
+      renderCell: (params) => <ApprovalRequestNumberText globalId={params.row.globalId} includeHash={false} />,
       valueGetter: (_value, row) => getApprovalRequestNumber(row.globalId, false),
     },
     {
@@ -73,11 +66,7 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
       flex: DataGrids.approvalColumnFlex.content,
       renderCell: (params) => (
         <Stack sx={DataGrids.approvalTitleCellSx}>
-          <Stack
-            direction="row"
-            spacing={StackSpacing.tight}
-            alignItems="center"
-          >
+          <Stack direction="row" spacing={StackSpacing.tight} alignItems="center">
             <Typography variant="body2">{params.row.title}</Typography>
             <ApprovalRequestRevisionChip revisionNumber={params.row.revisionNumber} />
           </Stack>
@@ -102,12 +91,7 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
       field: "requestedByDisplayName",
       headerName: "Requested by",
       flex: DataGrids.approvalColumnFlex.metadata,
-      renderCell: (params) => (
-        <OneLineDisplayName
-          displayName={params.row.requestedByDisplayName}
-          variant="body2"
-        />
-      ),
+      renderCell: (params) => <OneLineDisplayName displayName={params.row.requestedByDisplayName} variant="body2" />,
       valueGetter: (_value, row) => row.requestedByDisplayName,
     },
     {

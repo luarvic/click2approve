@@ -65,17 +65,9 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   const hasFiles = showFiles && Boolean(requestFiles?.length);
   const header = (
     <Stack spacing={StackSpacing.tight}>
-      <Stack
-        direction="row"
-        spacing={StackSpacing.tight}
-        alignItems="center"
-      >
+      <Stack direction="row" spacing={StackSpacing.tight} alignItems="center">
         {showTitle && title && (
-          <Typography
-            component="h2"
-            variant={titleVariant}
-            sx={summaryTitleSx}
-          >
+          <Typography component="h2" variant={titleVariant} sx={summaryTitleSx}>
             {title}
           </Typography>
         )}
@@ -96,20 +88,21 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
       />
     </Stack>
   );
-  const content = hasDescription || hasFiles ? (
-    <Stack spacing={StackSpacing.default}>
-      {hasDescription && <UserProvidedText text={description} />}
-      {hasFiles && (
-        <ApprovalRequestFilesBox
-          requestFiles={requestFiles}
-          approvalRequestGlobalId={approvalRequestGlobalId}
-          approvalRequestTaskGlobalId={approvalRequestTaskGlobalId}
-          compareWithPrevious={compareFilesWithPrevious}
-          showFileStateIndicators={showFileStateIndicators}
-        />
-      )}
-    </Stack>
-  ) : undefined;
+  const content =
+    hasDescription || hasFiles ? (
+      <Stack spacing={StackSpacing.default}>
+        {hasDescription && <UserProvidedText text={description} />}
+        {hasFiles && (
+          <ApprovalRequestFilesBox
+            requestFiles={requestFiles}
+            approvalRequestGlobalId={approvalRequestGlobalId}
+            approvalRequestTaskGlobalId={approvalRequestTaskGlobalId}
+            compareWithPrevious={compareFilesWithPrevious}
+            showFileStateIndicators={showFileStateIndicators}
+          />
+        )}
+      </Stack>
+    ) : undefined;
 
   return <ApprovalRequestContentGroups content={content} header={header} metadata={metadata} />;
 };

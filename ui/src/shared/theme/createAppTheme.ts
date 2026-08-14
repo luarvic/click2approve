@@ -16,8 +16,7 @@ export const createAppTheme = (colorMode: PaletteMode) =>
         styleOverrides: {
           input: {
             "&[type='password']": {
-              fontFamily:
-                'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+              fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
             },
           },
         },

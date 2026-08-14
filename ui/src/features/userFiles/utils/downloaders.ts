@@ -29,9 +29,7 @@ const browserOpenableExtensions = new Set([
 ]);
 
 export const downloadUserFile = async (tenantGlobalId: string, userFile: UserFile) => {
-  return downloadFile(userFile, () =>
-    downloadUserFileBase64(tenantGlobalId, userFile.globalId),
-  );
+  return downloadFile(userFile, () => downloadUserFileBase64(tenantGlobalId, userFile.globalId));
 };
 
 export const downloadApprovalRequestFile = async (
@@ -49,11 +47,7 @@ export const downloadApprovalRequestTaskFile = async (
   approvalRequestTaskGlobalId: string,
 ) =>
   downloadFile(userFile, () =>
-    downloadApprovalRequestTaskFileBase64(
-      tenantGlobalId,
-      userFile.globalId,
-      approvalRequestTaskGlobalId,
-    ),
+    downloadApprovalRequestTaskFileBase64(tenantGlobalId, userFile.globalId, approvalRequestTaskGlobalId),
   );
 
 export const downloadApprovalRequestTaskAttachment = async (
@@ -62,11 +56,7 @@ export const downloadApprovalRequestTaskAttachment = async (
   approvalRequestTaskGlobalId: string,
 ) =>
   downloadFile(userFile, () =>
-    downloadApprovalRequestTaskAttachmentBase64(
-      tenantGlobalId,
-      approvalRequestTaskGlobalId,
-      userFile.globalId,
-    ),
+    downloadApprovalRequestTaskAttachmentBase64(tenantGlobalId, approvalRequestTaskGlobalId, userFile.globalId),
   );
 
 export const downloadDiscussionMessageFile = async (
@@ -74,21 +64,10 @@ export const downloadDiscussionMessageFile = async (
   userFile: UserFile,
   messageGlobalId: string,
 ) =>
-  downloadFile(userFile, () =>
-    downloadDiscussionMessageFileBase64(
-      tenantGlobalId,
-      messageGlobalId,
-      userFile.globalId,
-    ),
-  );
+  downloadFile(userFile, () => downloadDiscussionMessageFileBase64(tenantGlobalId, messageGlobalId, userFile.globalId));
 
-const downloadFile = async (
-  userFile: UserFile,
-  download: () => Promise<string | null>,
-) => {
-  const previewTab = canOpenInBrowser(userFile)
-    ? window.open("about:blank", "_blank")
-    : null;
+const downloadFile = async (userFile: UserFile, download: () => Promise<string | null>) => {
+  const previewTab = canOpenInBrowser(userFile) ? window.open("about:blank", "_blank") : null;
   if (previewTab) {
     previewTab.opener = null;
   }

@@ -26,7 +26,9 @@ export class ApprovalRequestStore {
   }
 
   get approvalRequests(): ApprovalRequestListItem[] {
-    return Array.from(this.registry.values()).sort((a, b) => Date.parse(b.createdAt.toString()) - Date.parse(a.createdAt.toString()));
+    return Array.from(this.registry.values()).sort(
+      (a, b) => Date.parse(b.createdAt.toString()) - Date.parse(a.createdAt.toString()),
+    );
   }
 
   getDetail = (globalId: string): ApprovalRequest | null => this.details.get(globalId) ?? null;
@@ -47,20 +49,23 @@ export class ApprovalRequestStore {
     }
 
     const requestVersion = ++this.requestVersion;
-    const request = approvalRequestApi.listApprovalRequests(tenantGlobalId).then((approvalRequests) => {
-      if (requestVersion !== this.requestVersion) {
-        return;
-      }
+    const request = approvalRequestApi
+      .listApprovalRequests(tenantGlobalId)
+      .then((approvalRequests) => {
+        if (requestVersion !== this.requestVersion) {
+          return;
+        }
 
-      approvalRequests.forEach(normalizeApprovalRequestDates);
-      runInAction(() => {
-        this.registry = new Map(
-          approvalRequests.map((approvalRequest) => [approvalRequest.globalId, approvalRequest]),
-        );
+        approvalRequests.forEach(normalizeApprovalRequestDates);
+        runInAction(() => {
+          this.registry = new Map(
+            approvalRequests.map((approvalRequest) => [approvalRequest.globalId, approvalRequest]),
+          );
+        });
+      })
+      .finally(() => {
+        this.listRequest = null;
       });
-    }).finally(() => {
-      this.listRequest = null;
-    });
     this.listRequest = request;
     return request;
   };
@@ -71,24 +76,27 @@ export class ApprovalRequestStore {
       return inFlight;
     }
 
-    const request = approvalRequestApi.getApprovalRequest(tenantGlobalId, globalId).then((approvalRequest) => {
-      if (approvalRequest) {
-        normalizeApprovalRequestDates(approvalRequest);
-        runInAction(() => {
-          this.details.set(approvalRequest.globalId, approvalRequest);
-          this.registry.set(approvalRequest.globalId, approvalRequest);
-          if (this.currentApprovalRequest?.globalId === approvalRequest.globalId) {
-            this.currentApprovalRequest = approvalRequest;
-          }
-          if (this.requestToClone?.globalId === approvalRequest.globalId) {
-            this.requestToClone = approvalRequest;
-          }
-        });
-      }
-      return approvalRequest;
-    }).finally(() => {
-      this.detailRequests.delete(globalId);
-    });
+    const request = approvalRequestApi
+      .getApprovalRequest(tenantGlobalId, globalId)
+      .then((approvalRequest) => {
+        if (approvalRequest) {
+          normalizeApprovalRequestDates(approvalRequest);
+          runInAction(() => {
+            this.details.set(approvalRequest.globalId, approvalRequest);
+            this.registry.set(approvalRequest.globalId, approvalRequest);
+            if (this.currentApprovalRequest?.globalId === approvalRequest.globalId) {
+              this.currentApprovalRequest = approvalRequest;
+            }
+            if (this.requestToClone?.globalId === approvalRequest.globalId) {
+              this.requestToClone = approvalRequest;
+            }
+          });
+        }
+        return approvalRequest;
+      })
+      .finally(() => {
+        this.detailRequests.delete(globalId);
+      });
 
     this.detailRequests.set(globalId, request);
     return request;

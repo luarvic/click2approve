@@ -12,8 +12,7 @@ interface ApprovalStepTemplatesLocationState {
 const ApprovalStepTemplatesPage = () => {
   usePageTitle("Templates");
   const location = useLocation();
-  const { currentTemplateGlobalId } =
-    (location.state as ApprovalStepTemplatesLocationState | null) ?? {};
+  const { currentTemplateGlobalId } = (location.state as ApprovalStepTemplatesLocationState | null) ?? {};
   return (
     <>
       <PageBreadcrumbs

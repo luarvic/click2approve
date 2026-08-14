@@ -40,10 +40,8 @@ const ApprovalUpcomingTaskBlock: React.FC<ApprovalUpcomingTaskBlockProps> = ({
   showTimeline = true,
   title = "Upcoming task",
 }) => {
-  const organizationIsVisible =
-    stores.tenantStore.currentTenant?.type === TenantType.Personal;
-  const organizationDisplayName =
-    stores.tenantStore.currentTenant?.businessName;
+  const organizationIsVisible = stores.tenantStore.currentTenant?.type === TenantType.Personal;
+  const organizationDisplayName = stores.tenantStore.currentTenant?.businessName;
 
   return (
     <ApprovalRequestDetailsCard
@@ -55,11 +53,7 @@ const ApprovalUpcomingTaskBlock: React.FC<ApprovalUpcomingTaskBlockProps> = ({
       <ApprovalRequestContentGroups
         header={
           showTitle ? (
-            <Typography
-              component="h2"
-              sx={upcomingTaskTitleSx}
-              variant="subtitle1"
-            >
+            <Typography component="h2" sx={upcomingTaskTitleSx} variant="subtitle1">
               {title}
             </Typography>
           ) : undefined
@@ -68,9 +62,7 @@ const ApprovalUpcomingTaskBlock: React.FC<ApprovalUpcomingTaskBlockProps> = ({
           <ApprovalRequestParticipantPair
             firstLabel={
               showAssigneeLabel ? (
-                <ApprovalRequestParticipantLabel>
-                  Assignee
-                </ApprovalRequestParticipantLabel>
+                <ApprovalRequestParticipantLabel>Assignee</ApprovalRequestParticipantLabel>
               ) : undefined
             }
             firstParticipant={

@@ -1,10 +1,6 @@
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { StackSpacing } from "@/shared/constants/constants";
-import {
-  Email,
-  Groups,
-  Person,
-} from "@mui/icons-material";
+import { Email, Groups, Person } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import { Stack, Typography } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
@@ -17,9 +13,7 @@ interface ApprovalRequestParticipantLineProps {
   type?: AssigneeType;
 }
 
-export const getAssigneeIcon = (
-  type: AssigneeType,
-) => {
+export const getAssigneeIcon = (type: AssigneeType) => {
   switch (type) {
     case AssigneeType.Employee:
       return <Person color="action" fontSize="small" />;
@@ -36,18 +30,9 @@ const ApprovalRequestParticipantLine: React.FC<ApprovalRequestParticipantLinePro
   sx,
   type = AssigneeType.Employee,
 }) => (
-  <Stack
-    direction="row"
-    spacing={StackSpacing.tight}
-    alignItems="center"
-    sx={sx}
-  >
+  <Stack direction="row" spacing={StackSpacing.tight} alignItems="center" sx={sx}>
     {icon ?? getAssigneeIcon(type)}
-    {typeof label === "string" || typeof label === "number" ? (
-      <Typography variant="body1">
-        {label}
-      </Typography>
-    ) : label}
+    {typeof label === "string" || typeof label === "number" ? <Typography variant="body1">{label}</Typography> : label}
   </Stack>
 );
 

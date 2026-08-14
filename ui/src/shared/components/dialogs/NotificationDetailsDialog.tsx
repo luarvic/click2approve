@@ -1,12 +1,5 @@
 import type { NotificationDetail } from "@/shared/utils/notifications";
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Typography,
-} from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
 
 interface NotificationDetailsDialogProps {
   details: NotificationDetail[];
@@ -14,11 +7,7 @@ interface NotificationDetailsDialogProps {
   onClose: () => void;
 }
 
-const NotificationDetailsDialog = ({
-  details,
-  open,
-  onClose,
-}: NotificationDetailsDialogProps) => {
+const NotificationDetailsDialog = ({ details, open, onClose }: NotificationDetailsDialogProps) => {
   return (
     <Dialog fullWidth maxWidth="sm" onClose={onClose} open={open}>
       <DialogTitle>Error details</DialogTitle>

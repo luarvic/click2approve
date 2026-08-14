@@ -52,19 +52,14 @@ export class RootStore {
     this.teamStore = teamStore;
     this.approvalStepTemplateStore = approvalStepTemplateStore;
     this.notificationStore = notificationStore;
-    this.userAccountStore.configureSessionLifecycle(
-      async () => {
-        await this.userProfileStore.load();
-        if (this.applicationConfigurationStore.tenantsAreEnabled) {
-          await this.tenantStore.load(
-            this.userProfileStore.profile?.defaultTenantGlobalId
-          );
-        } else {
-          await this.tenantStore.loadCurrent();
-        }
-      },
-      this.clearSession,
-    );
+    this.userAccountStore.configureSessionLifecycle(async () => {
+      await this.userProfileStore.load();
+      if (this.applicationConfigurationStore.tenantsAreEnabled) {
+        await this.tenantStore.load(this.userProfileStore.profile?.defaultTenantGlobalId);
+      } else {
+        await this.tenantStore.loadCurrent();
+      }
+    }, this.clearSession);
     configureRequestContext({
       getWorkEmployeeGlobalId: () => this.tenantStore.currentWorkEmployeeGlobalId,
       onWorkEmployeeInvalid: async () => {
@@ -84,9 +79,7 @@ export class RootStore {
     await this.refreshTenantScope(loadIncomingTasks);
   };
 
-  refreshTenantScope = async (
-    loadIncomingTasks: boolean = false,
-  ): Promise<void> => {
+  refreshTenantScope = async (loadIncomingTasks: boolean = false): Promise<void> => {
     this.clearTenantScope();
     if (!this.tenantStore.currentTenantGlobalId) {
       return;
@@ -95,9 +88,7 @@ export class RootStore {
     await Promise.all([
       this.approvalRequestStore.load(tenantGlobalId),
       this.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId),
-      loadIncomingTasks
-        ? this.approvalRequestTaskStore.loadIncoming(tenantGlobalId)
-        : Promise.resolve(),
+      loadIncomingTasks ? this.approvalRequestTaskStore.loadIncoming(tenantGlobalId) : Promise.resolve(),
     ]);
   };
 
@@ -130,5 +121,5 @@ export const stores = new RootStore(
   new EmployeeStore(),
   new TeamStore(),
   new ApprovalStepTemplateStore(),
-  new NotificationStore()
+  new NotificationStore(),
 );

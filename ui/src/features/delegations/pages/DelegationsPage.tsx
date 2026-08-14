@@ -12,8 +12,7 @@ interface DelegationsLocationState {
 const DelegationsPage = () => {
   usePageTitle("Delegations");
   const location = useLocation();
-  const { currentDelegationGlobalId } =
-    (location.state as DelegationsLocationState | null) ?? {};
+  const { currentDelegationGlobalId } = (location.state as DelegationsLocationState | null) ?? {};
 
   return (
     <>

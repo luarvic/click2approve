@@ -9,11 +9,7 @@ interface AssigneesListProps {
   sx?: SxProps<Theme>;
 }
 
-const AssigneesList: React.FC<AssigneesListProps> = ({
-  assignees,
-  direction,
-  sx,
-}) => {
+const AssigneesList: React.FC<AssigneesListProps> = ({ assignees, direction, sx }) => {
   return (
     <Stack
       spacing={Lists.itemSpacing}

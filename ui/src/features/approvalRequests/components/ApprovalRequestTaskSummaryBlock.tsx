@@ -44,18 +44,14 @@ interface ApprovalRequestTaskSummaryBlockProps {
   taskNumberPrefix?: string;
 }
 
-const getTaskBorderLeftColor = (
-  status: ApprovalRequestTaskStatus,
-  result: boolean | undefined,
-): string => {
+const getTaskBorderLeftColor = (status: ApprovalRequestTaskStatus, result: boolean | undefined): string => {
   const lineColor = getApprovalRequestTaskStatusLineColor(status, result);
 
   return lineColor === "other" ? "text.disabled" : StatusLineColors[lineColor];
 };
 
 const taskElectronicSignatureIsVisible = (task: ApprovalRequestTask) =>
-  task.hasAssigneeSignature === true &&
-  task.status !== ApprovalRequestTaskStatus.Pending;
+  task.hasAssigneeSignature === true && task.status !== ApprovalRequestTaskStatus.Pending;
 
 const getTaskCompletionLabel = (task: ApprovalRequestTask): string | undefined => {
   switch (task.status) {
@@ -89,33 +85,25 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   task,
   taskNumberPrefix,
 }) => {
-  const organizationIsVisible =
-    stores.tenantStore.currentTenant?.type === TenantType.Personal;
+  const organizationIsVisible = stores.tenantStore.currentTenant?.type === TenantType.Personal;
   const requestedByEmail = task.requestedByEmail ?? task.approvalRequest?.createdByEmail;
-  const participantDisplayName = participant === "assignee"
-    ? task.assigneeDisplayName
-    : task.requestedByDisplayName;
-  const participantEmail = participant === "assignee"
-    ? task.assigneeEmail
-    : requestedByEmail;
+  const participantDisplayName = participant === "assignee" ? task.assigneeDisplayName : task.requestedByDisplayName;
+  const participantEmail = participant === "assignee" ? task.assigneeEmail : requestedByEmail;
   const participantOrganizationDisplayName = task.organizationDisplayName;
-  const resolvedParticipantType = participantType ??
-    (participant === "assignee" && !task.assigneeUserId
-      ? AssigneeType.User
-      : AssigneeType.Employee);
+  const resolvedParticipantType =
+    participantType ?? (participant === "assignee" && !task.assigneeUserId ? AssigneeType.User : AssigneeType.Employee);
   const taskBorderLeftColor = getTaskBorderLeftColor(task.status, task.result);
   const completedTimestamp = getTaskCompletedTimestamp(task);
   const completionLabel = getTaskCompletionLabel(task);
-  const completedBySystem = task.status === ApprovalRequestTaskStatus.Skipped
-    || task.status === ApprovalRequestTaskStatus.Canceled;
+  const completedBySystem =
+    task.status === ApprovalRequestTaskStatus.Skipped || task.status === ApprovalRequestTaskStatus.Canceled;
   const completionDisplayName = completedBySystem
     ? "System"
-    : task.completedByDisplayName ?? task.assigneeDisplayName;
-  const completionEmail = completedBySystem
-    ? undefined
-    : task.completedByEmail || task.assigneeEmail;
+    : (task.completedByDisplayName ?? task.assigneeDisplayName);
+  const completionEmail = completedBySystem ? undefined : task.completedByEmail || task.assigneeEmail;
   const completionType = resolvedParticipantType;
-  const hasMetadata = participant !== "none" ||
+  const hasMetadata =
+    participant !== "none" ||
     (showComment && Boolean(task.comment?.trim())) ||
     Boolean(additionalMetadata) ||
     (showElectronicSignature && taskElectronicSignatureIsVisible(task)) ||
@@ -126,9 +114,11 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
         <>
           {completionLabel && completedTimestamp ? (
             <ApprovalRequestParticipantPair
-              firstLabel={participant === "assignee" && (
-                <ApprovalRequestParticipantLabel>Assigned to</ApprovalRequestParticipantLabel>
-              )}
+              firstLabel={
+                participant === "assignee" && (
+                  <ApprovalRequestParticipantLabel>Assigned to</ApprovalRequestParticipantLabel>
+                )
+              }
               firstParticipant={
                 <ApprovalRequestParticipant
                   icon={icon}
@@ -139,13 +129,11 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
                   type={resolvedParticipantType}
                 />
               }
-              firstTimestamp={showTimeline && (
-                <ApprovalRequestTimestamp
-                  date={task.createdAtDate}
-                  label="Assigned at"
-                  type="created"
-                />
-              )}
+              firstTimestamp={
+                showTimeline && (
+                  <ApprovalRequestTimestamp date={task.createdAtDate} label="Assigned at" type="created" />
+                )
+              }
               secondLabel={<ApprovalRequestParticipantLabel>{completionLabel}</ApprovalRequestParticipantLabel>}
               secondParticipant={
                 <ApprovalRequestParticipant
@@ -157,19 +145,23 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
                   type={completedBySystem ? AssigneeType.Employee : completionType}
                 />
               }
-              secondTimestamp={showTimeline && (
-                <ApprovalRequestTimestamp
-                  date={completedTimestamp.date}
-                  label={completedTimestamp.label}
-                  type={completedTimestamp.type}
-                />
-              )}
+              secondTimestamp={
+                showTimeline && (
+                  <ApprovalRequestTimestamp
+                    date={completedTimestamp.date}
+                    label={completedTimestamp.label}
+                    type={completedTimestamp.type}
+                  />
+                )
+              }
             />
           ) : (
             <ApprovalRequestParticipantPair
-              firstLabel={participant === "assignee" && (
-                <ApprovalRequestParticipantLabel>Assigned to</ApprovalRequestParticipantLabel>
-              )}
+              firstLabel={
+                participant === "assignee" && (
+                  <ApprovalRequestParticipantLabel>Assigned to</ApprovalRequestParticipantLabel>
+                )
+              }
               firstParticipant={
                 <ApprovalRequestParticipant
                   icon={icon}
@@ -180,18 +172,20 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
                   type={resolvedParticipantType}
                 />
               }
-              firstTimestamp={showTimeline && (
-                <ApprovalRequestTimestampRow
-                  items={[
-                    {
-                      date: task.createdAtDate,
-                      label: "Assigned at",
-                      type: "created",
-                    },
-                    completedTimestamp,
-                  ]}
-                />
-              )}
+              firstTimestamp={
+                showTimeline && (
+                  <ApprovalRequestTimestampRow
+                    items={[
+                      {
+                        date: task.createdAtDate,
+                        label: "Assigned at",
+                        type: "created",
+                      },
+                      completedTimestamp,
+                    ]}
+                  />
+                )
+              }
             />
           )}
         </>

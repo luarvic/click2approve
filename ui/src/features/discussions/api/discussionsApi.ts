@@ -35,7 +35,12 @@ export const listTaskDiscussion = async (tenantId: string, taskId: string) => {
   return data;
 };
 
-export const sendRequestDiscussion = async (tenantId: string, requestId: string, body: string, userFileGlobalIds: string[] = []) => {
+export const sendRequestDiscussion = async (
+  tenantId: string,
+  requestId: string,
+  body: string,
+  userFileGlobalIds: string[] = [],
+) => {
   const { data } = await axios.post<DiscussionMessage>(
     `api/v1/tenants/${tenantId}/discussions/requests/${requestId}`,
     { body, userFileGlobalIds },
@@ -44,7 +49,12 @@ export const sendRequestDiscussion = async (tenantId: string, requestId: string,
   return data;
 };
 
-export const sendTaskDiscussion = async (tenantId: string, taskId: string, body: string, userFileGlobalIds: string[] = []) => {
+export const sendTaskDiscussion = async (
+  tenantId: string,
+  taskId: string,
+  body: string,
+  userFileGlobalIds: string[] = [],
+) => {
   const { data } = await axios.post<DiscussionMessage>(
     `api/v1/tenants/${tenantId}/discussions/tasks/${taskId}`,
     { body, userFileGlobalIds },

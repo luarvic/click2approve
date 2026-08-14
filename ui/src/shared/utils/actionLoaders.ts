@@ -1,5 +1,4 @@
-const formatActionLoader = (...parts: Array<string | undefined>): string =>
-  parts.filter(Boolean).join(".");
+const formatActionLoader = (...parts: Array<string | undefined>): string => parts.filter(Boolean).join(".");
 
 export const ActionLoaders = {
   approvalRequests: {
@@ -18,16 +17,14 @@ export const ActionLoaders = {
       formatActionLoader("approvalStepTemplates", "save", templateGlobalId),
   },
   delegations: {
-    save: (delegationGlobalId: string | undefined) =>
-      formatActionLoader("delegations", "save", delegationGlobalId),
+    save: (delegationGlobalId: string | undefined) => formatActionLoader("delegations", "save", delegationGlobalId),
   },
   dialogs: {
     confirm: () => formatActionLoader("dialogs", "confirm"),
     delete: () => formatActionLoader("dialogs", "delete"),
   },
   employees: {
-    save: (employeeGlobalId: string | undefined) =>
-      formatActionLoader("employees", "save", employeeGlobalId),
+    save: (employeeGlobalId: string | undefined) => formatActionLoader("employees", "save", employeeGlobalId),
   },
   notifications: {
     delete: (tenantGlobalId: string | null | undefined) =>
@@ -57,16 +54,13 @@ export const ActionLoaders = {
       formatActionLoader("sharedVerificationLinks", "createForRequest", approvalRequestGlobalId),
     createForTask: (approvalRequestTaskGlobalId: string | undefined) =>
       formatActionLoader("sharedVerificationLinks", "createForTask", approvalRequestTaskGlobalId),
-    delete: (linkGlobalId: string | undefined) =>
-      formatActionLoader("sharedVerificationLinks", "delete", linkGlobalId),
+    delete: (linkGlobalId: string | undefined) => formatActionLoader("sharedVerificationLinks", "delete", linkGlobalId),
   },
   teams: {
-    save: (teamGlobalId: string | undefined) =>
-      formatActionLoader("teams", "save", teamGlobalId),
+    save: (teamGlobalId: string | undefined) => formatActionLoader("teams", "save", teamGlobalId),
   },
   tenants: {
-    save: (tenantGlobalId: string | undefined) =>
-      formatActionLoader("tenants", "save", tenantGlobalId),
+    save: (tenantGlobalId: string | undefined) => formatActionLoader("tenants", "save", tenantGlobalId),
   },
   userProfile: {
     removeAvatar: () => formatActionLoader("userProfile", "removeAvatar"),

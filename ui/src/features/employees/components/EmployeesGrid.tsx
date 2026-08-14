@@ -8,19 +8,8 @@ import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow"
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add } from "@mui/icons-material";
-import {
-  Box,
-  Button,
-  LinearProgress,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
-import {
-  DataGrid,
-  GridColDef,
-  GridSlots,
-  GridToolbarContainer,
-} from "@mui/x-data-grid";
+import { Box, Button, LinearProgress, useMediaQuery, useTheme } from "@mui/material";
+import { DataGrid, GridColDef, GridSlots, GridToolbarContainer } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -46,7 +35,9 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
   const isLargeDisplay = useMediaQuery(theme.breakpoints.down("lg"));
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const gridLoader = ActionLoaders.grids.employees(tenantGlobalId);
-  const canModifyEmployees = stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Admin || stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Owner;
+  const canModifyEmployees =
+    stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Admin ||
+    stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Owner;
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     stores.employeeStore.employees,
     currentEmployeeGlobalId,
@@ -57,24 +48,23 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
     stores.teamStore.clear();
   }, [tenantGlobalId]);
 
-  const gridIsLoading = useGridRefresh(() => {
-    if (tenantGlobalId) {
-      return Promise.all([
-        stores.employeeStore.load(tenantGlobalId, true),
-        stores.teamStore.load(tenantGlobalId, true),
-      ]).then(() => undefined);
-    }
-  }, tenantGlobalId, gridLoader);
+  const gridIsLoading = useGridRefresh(
+    () => {
+      if (tenantGlobalId) {
+        return Promise.all([
+          stores.employeeStore.load(tenantGlobalId, true),
+          stores.teamStore.load(tenantGlobalId, true),
+        ]).then(() => undefined);
+      }
+    },
+    tenantGlobalId,
+    gridLoader,
+  );
 
   const customToolbar = () => {
     return (
       <GridToolbarContainer>
-        <Button
-          startIcon={<Add />}
-          onClick={() =>
-            navigate(Routes.tenantPath(tenantGlobalId!, "/employees/new"))
-          }
-        >
+        <Button startIcon={<Add />} onClick={() => navigate(Routes.tenantPath(tenantGlobalId!, "/employees/new"))}>
           New employee
         </Button>
       </GridToolbarContainer>
@@ -135,9 +125,7 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
         rowSelectionModel={currentEmployeeGlobalId === undefined ? [] : [currentEmployeeGlobalId]}
         hideFooterSelectedRowCount
         onRowClick={(params) =>
-          navigate(
-            Routes.tenantPath(tenantGlobalId!, `/employees/${(params.row as Employee).globalId}`),
-          )
+          navigate(Routes.tenantPath(tenantGlobalId!, `/employees/${(params.row as Employee).globalId}`))
         }
         columnVisibilityModel={{
           firstName: !isMediumDisplay,

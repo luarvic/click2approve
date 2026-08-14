@@ -7,12 +7,7 @@ import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add } from "@mui/icons-material";
 import { Box, Button, LinearProgress, useMediaQuery, useTheme } from "@mui/material";
-import {
-  DataGrid,
-  GridColDef,
-  GridSlots,
-  GridToolbarContainer,
-} from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridSlots, GridToolbarContainer } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 
@@ -31,19 +26,10 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
   const theme = useTheme();
   const isSmallDisplay = useMediaQuery(theme.breakpoints.down("sm"));
   const gridLoader = ActionLoaders.grids.tenants();
-  const businessTenants = stores.tenantStore.tenants.filter(
-    (tenant) => tenant.type === TenantType.Business,
-  );
-  const { paginationModel, setPaginationModel } = useGridPaginationForRow(
-    businessTenants,
-    currentTenantGlobalId,
-  );
+  const businessTenants = stores.tenantStore.tenants.filter((tenant) => tenant.type === TenantType.Business);
+  const { paginationModel, setPaginationModel } = useGridPaginationForRow(businessTenants, currentTenantGlobalId);
 
-  const gridIsLoading = useGridRefresh(
-    () => stores.tenantStore.load(),
-    "tenants",
-    gridLoader,
-  );
+  const gridIsLoading = useGridRefresh(() => stores.tenantStore.load(), "tenants", gridLoader);
 
   const customToolbar = () => {
     return (

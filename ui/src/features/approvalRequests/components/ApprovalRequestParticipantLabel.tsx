@@ -10,9 +10,7 @@ const labelSx: SxProps<Theme> = {
   fontWeight: (theme) => theme.typography.fontWeightMedium,
 };
 
-const ApprovalRequestParticipantLabel: React.FC<ApprovalRequestParticipantLabelProps> = ({
-  children,
-}) => (
+const ApprovalRequestParticipantLabel: React.FC<ApprovalRequestParticipantLabelProps> = ({ children }) => (
   <Typography sx={labelSx} variant="body2">
     {children}
   </Typography>

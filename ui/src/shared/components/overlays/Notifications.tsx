@@ -1,10 +1,6 @@
 import NotificationDetailsDialog from "@/shared/components/dialogs/NotificationDetailsDialog";
 import { Notifications } from "@/shared/constants/constants";
-import {
-  dismissNotification,
-  type Notification,
-  subscribeToNotifications,
-} from "@/shared/utils/notifications";
+import { dismissNotification, type Notification, subscribeToNotifications } from "@/shared/utils/notifications";
 import CloseIcon from "@mui/icons-material/Close";
 import type { SlideProps, SxProps } from "@mui/material";
 import { Alert, Button, IconButton, Slide, Snackbar } from "@mui/material";
@@ -29,9 +25,11 @@ const NotificationHost = () => {
       {currentNotification !== undefined && (
         <Snackbar
           anchorOrigin={Notifications.successAnchorOrigin}
-          autoHideDuration={currentNotification.severity === "success"
-            ? Notifications.successAutoHideDuration
-            : Notifications.errorAutoHideDuration}
+          autoHideDuration={
+            currentNotification.severity === "success"
+              ? Notifications.successAutoHideDuration
+              : Notifications.errorAutoHideDuration
+          }
           key={currentNotification.id}
           onClose={(_, reason) => {
             if (reason !== "clickaway") {
@@ -43,28 +41,30 @@ const NotificationHost = () => {
           TransitionComponent={SlideTransition}
         >
           <Alert
-            action={currentNotification.details.length > 0 ? (
-              <>
-                <Button
-                  color="inherit"
-                  onClick={() => {
-                    setDetailsNotification(currentNotification);
-                    dismissNotification(currentNotification.id);
-                  }}
-                  size="small"
-                >
-                  Details
-                </Button>
-                <IconButton
-                  aria-label={closeButtonAriaLabel}
-                  color="inherit"
-                  onClick={() => dismissNotification(currentNotification.id)}
-                  size="small"
-                >
-                  <CloseIcon fontSize="small" />
-                </IconButton>
-              </>
-            ) : undefined}
+            action={
+              currentNotification.details.length > 0 ? (
+                <>
+                  <Button
+                    color="inherit"
+                    onClick={() => {
+                      setDetailsNotification(currentNotification);
+                      dismissNotification(currentNotification.id);
+                    }}
+                    size="small"
+                  >
+                    Details
+                  </Button>
+                  <IconButton
+                    aria-label={closeButtonAriaLabel}
+                    color="inherit"
+                    onClick={() => dismissNotification(currentNotification.id)}
+                    size="small"
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </>
+              ) : undefined
+            }
             onClose={() => dismissNotification(currentNotification.id)}
             severity={currentNotification.severity}
             sx={notificationAlertSx}

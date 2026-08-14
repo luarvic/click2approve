@@ -3,14 +3,7 @@ import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import LoadingButton from "@mui/lab/LoadingButton";
 import type { ButtonProps } from "@mui/material";
 import type { ReactNode } from "react";
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 
 interface ConfirmationDialogProps {
   cancelFirst?: boolean;
@@ -48,20 +41,17 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth="sm"
-    >
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>{title}</DialogTitle>
       <DialogContent dividers>
-        <DialogContentText>
-          {message}
-        </DialogContentText>
+        <DialogContentText>{message}</DialogContentText>
       </DialogContent>
       <DialogActions>
-        {cancelFirst && <Button disabled={confirmAction.isRunning} onClick={onClose}>{cancelLabel}</Button>}
+        {cancelFirst && (
+          <Button disabled={confirmAction.isRunning} onClick={onClose}>
+            {cancelLabel}
+          </Button>
+        )}
         <LoadingButton
           color={confirmColor}
           disabled={confirmDisabled}
@@ -70,7 +60,11 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
         >
           {confirmLabel}
         </LoadingButton>
-        {!cancelFirst && <Button disabled={confirmAction.isRunning} onClick={onClose}>{cancelLabel}</Button>}
+        {!cancelFirst && (
+          <Button disabled={confirmAction.isRunning} onClick={onClose}>
+            {cancelLabel}
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   );

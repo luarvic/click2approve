@@ -19,10 +19,7 @@ export const registerUser = async (credentials: CredentialsData): Promise<boolea
   }
 };
 
-export const confirmUserEmail = async (
-  userId: string,
-  code: string
-): Promise<boolean> => {
+export const confirmUserEmail = async (userId: string, code: string): Promise<boolean> => {
   try {
     await axios.get(`api/v1/account/confirmEmail?userId=${userId}&code=${code}`);
     return true;
@@ -46,9 +43,7 @@ export const loginUser = async (credentials: CredentialsData): Promise<boolean> 
   }
 };
 
-export const resendUserConfirmationEmail = async (
-  email: string
-): Promise<boolean> => {
+export const resendUserConfirmationEmail = async (email: string): Promise<boolean> => {
   try {
     await axios.post("api/v1/account/resendConfirmationEmail", {
       email: email,
@@ -60,9 +55,7 @@ export const resendUserConfirmationEmail = async (
   }
 };
 
-export const requestUserPasswordReset = async (
-  email: string
-): Promise<boolean> => {
+export const requestUserPasswordReset = async (email: string): Promise<boolean> => {
   try {
     await axios.post("api/v1/account/forgotPassword", {
       email: email,
@@ -74,11 +67,7 @@ export const requestUserPasswordReset = async (
   }
 };
 
-export const resetUserPassword = async (
-  email: string,
-  code: string,
-  password: string
-): Promise<boolean> => {
+export const resetUserPassword = async (email: string, code: string, password: string): Promise<boolean> => {
   try {
     await axios.post("api/v1/account/resetPassword", {
       email: email,
@@ -92,9 +81,7 @@ export const resetUserPassword = async (
   }
 };
 
-export const refreshAuthSession = async (
-  refreshToken: string
-): Promise<AuthResponse | null> => {
+export const refreshAuthSession = async (refreshToken: string): Promise<AuthResponse | null> => {
   try {
     const { data } = await axios.post<AuthResponse>("api/v1/account/refresh", {
       refreshToken: refreshToken,

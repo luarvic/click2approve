@@ -1,12 +1,7 @@
 import { stores } from "@/app/rootStore";
 import { Credentials } from "@/features/identity/models/credentials";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import {
-  AuthForms,
-  Information,
-  Routes,
-  Validation,
-} from "@/shared/constants/constants";
+import { AuthForms, Information, Routes, Validation } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { validateEmail, validatePassword } from "@/shared/utils/validators";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
@@ -32,22 +27,17 @@ import { notification } from "@/shared/utils/notifications";
 const SignUpPage = () => {
   usePageTitle("Sign up");
   const [showPassword, setShowPassword] = React.useState(false);
-  const [showPasswordConfirmation, setShowPasswordConfirmation] =
-    React.useState(false);
+  const [showPasswordConfirmation, setShowPasswordConfirmation] = React.useState(false);
   const [emailError, setEmailError] = useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<boolean>(false);
-  const [passwordConfirmationError, setPasswordConfirmationError] =
-    useState<boolean>(false);
+  const [passwordConfirmationError, setPasswordConfirmationError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
-  const handleClickShowPasswordConfirmation = () =>
-    setShowPasswordConfirmation((show) => !show);
+  const handleClickShowPasswordConfirmation = () => setShowPasswordConfirmation((show) => !show);
 
-  const handleMouseDownPassword = (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
+  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
   };
 
@@ -68,17 +58,11 @@ const SignUpPage = () => {
       setEmailError(!email || !validateEmail(email.toString()));
       setPasswordError(!password || !validatePassword(password.toString()));
       setPasswordConfirmationError(
-        !password ||
-        !passwordConfirmation ||
-        password.toString() !== passwordConfirmation.toString(),
+        !password || !passwordConfirmation || password.toString() !== passwordConfirmation.toString(),
       );
       notification.warning("Invalid input.");
     } else {
-      const credentials = new Credentials(
-        email.toString(),
-        password.toString(),
-        passwordConfirmation.toString(),
-      );
+      const credentials = new Credentials(email.toString(), password.toString(), passwordConfirmation.toString());
       setIsLoading(true);
       if (await stores.userAccountStore.signUp(credentials)) {
         if (stores.applicationConfigurationStore.requiresConfirmedEmail) {
@@ -116,12 +100,7 @@ const SignUpPage = () => {
             helperText={emailError && "Invalid email address"}
             onChange={() => setEmailError(false)}
           />
-          <FormControl
-            margin="normal"
-            fullWidth
-            variant={AuthForms.inputVariant}
-            required
-          >
+          <FormControl margin="normal" fullWidth variant={AuthForms.inputVariant} required>
             <InputLabel error={passwordError}>Password</InputLabel>
             <OutlinedInput
               id="password"
@@ -146,15 +125,8 @@ const SignUpPage = () => {
               {passwordError && Validation.passwordValidatorError}
             </FormHelperText>
           </FormControl>
-          <FormControl
-            margin="normal"
-            fullWidth
-            variant={AuthForms.inputVariant}
-            required
-          >
-            <InputLabel error={passwordConfirmationError}>
-              Password confirmation
-            </InputLabel>
+          <FormControl margin="normal" fullWidth variant={AuthForms.inputVariant} required>
+            <InputLabel error={passwordConfirmationError}>Password confirmation</InputLabel>
             <OutlinedInput
               id="passwordConfirmation"
               name="passwordConfirmation"
@@ -167,11 +139,7 @@ const SignUpPage = () => {
                     onMouseDown={handleMouseDownPassword}
                     edge="end"
                   >
-                    {showPasswordConfirmation ? (
-                      <VisibilityOff />
-                    ) : (
-                      <Visibility />
-                    )}
+                    {showPasswordConfirmation ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
               }
@@ -179,28 +147,15 @@ const SignUpPage = () => {
               onChange={() => setPasswordConfirmationError(false)}
             />
             <FormHelperText error id="passwordConfirmationError">
-              {!passwordError &&
-                passwordConfirmationError &&
-                "Does not match password"}
+              {!passwordError && passwordConfirmationError && "Does not match password"}
             </FormHelperText>
           </FormControl>
-          <LoadingButton
-            loading={isLoading}
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={AuthForms.submitButtonSx}
-          >
+          <LoadingButton loading={isLoading} type="submit" fullWidth variant="contained" sx={AuthForms.submitButtonSx}>
             Sign up
           </LoadingButton>
           <Grid container>
             <Grid item>
-              <Link
-                component="button"
-                type="button"
-                variant="body2"
-                onClick={() => navigate("/signIn")}
-              >
+              <Link component="button" type="button" variant="body2" onClick={() => navigate("/signIn")}>
                 Already have an account? Sign in
               </Link>
             </Grid>

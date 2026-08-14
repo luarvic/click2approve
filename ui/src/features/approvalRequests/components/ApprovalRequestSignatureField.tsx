@@ -15,22 +15,24 @@ interface ApprovalRequestSignatureFieldProps {
   value?: string;
 }
 
-const signaturePadContainerSx = (error: boolean): SxProps<Theme> => (theme) => ({
-  border: "1px solid",
-  borderColor: error
-    ? theme.palette.error.main
-    : theme.palette.mode === "dark"
-      ? "rgba(255, 255, 255, 0.23)"
-      : "rgba(0, 0, 0, 0.23)",
-  borderRadius: 1,
-  overflow: "hidden",
-  position: "relative",
-  width: "100%",
-  "&:focus-within": {
-    borderColor: error ? theme.palette.error.main : theme.palette.primary.main,
-    borderWidth: 2,
-  },
-});
+const signaturePadContainerSx =
+  (error: boolean): SxProps<Theme> =>
+  (theme) => ({
+    border: "1px solid",
+    borderColor: error
+      ? theme.palette.error.main
+      : theme.palette.mode === "dark"
+        ? "rgba(255, 255, 255, 0.23)"
+        : "rgba(0, 0, 0, 0.23)",
+    borderRadius: 1,
+    overflow: "hidden",
+    position: "relative",
+    width: "100%",
+    "&:focus-within": {
+      borderColor: error ? theme.palette.error.main : theme.palette.primary.main,
+      borderWidth: 2,
+    },
+  });
 
 const signatureCanvasStyle: CSSProperties = {
   display: "block",
@@ -66,9 +68,7 @@ const stripSignaturePenColor = (signatureData: PointGroup[]): Omit<PointGroup, "
   });
 
 const serializeSignature = (signatureData: PointGroup[]): string =>
-  signatureData.length === 0
-    ? ""
-    : JSON.stringify(stripSignaturePenColor(normalizeSignatureLeft(signatureData)));
+  signatureData.length === 0 ? "" : JSON.stringify(stripSignaturePenColor(normalizeSignatureLeft(signatureData)));
 
 const deserializeSignature = (value: string | undefined): PointGroup[] => {
   if (!value) {
@@ -77,7 +77,7 @@ const deserializeSignature = (value: string | undefined): PointGroup[] => {
 
   try {
     const signatureData: unknown = JSON.parse(value);
-    return Array.isArray(signatureData) ? signatureData as PointGroup[] : [];
+    return Array.isArray(signatureData) ? (signatureData as PointGroup[]) : [];
   } catch {
     return [];
   }
@@ -143,9 +143,7 @@ const ApprovalRequestSignatureField: React.FC<ApprovalRequestSignatureFieldProps
 
   useEffect(() => {
     const signatureData = normalizeSignatureLeft(deserializeSignature(value));
-    if (
-      serializeSignature(signatureDataRef.current) === serializeSignature(signatureData)
-    ) {
+    if (serializeSignature(signatureDataRef.current) === serializeSignature(signatureData)) {
       return;
     }
 
@@ -171,12 +169,7 @@ const ApprovalRequestSignatureField: React.FC<ApprovalRequestSignatureFieldProps
     <Stack spacing={1} sx={signatureActionsSx}>
       <Stack sx={signaturePadContainerSx(error)}>
         <Tooltip title="Clear signature">
-          <IconButton
-            aria-label="Clear signature"
-            onClick={handleClear}
-            size="small"
-            sx={clearSignatureButtonSx}
-          >
+          <IconButton aria-label="Clear signature" onClick={handleClear} size="small" sx={clearSignatureButtonSx}>
             <ClearIcon fontSize="small" />
           </IconButton>
         </Tooltip>

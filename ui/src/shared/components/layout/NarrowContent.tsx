@@ -28,29 +28,31 @@ const getNarrowContentSx = (width: number): SxProps<Theme> => ({
   width: { sm: width },
 });
 
-const getResizeHandleSx = (isResizing: boolean): SxProps<Theme> => (theme) => ({
-  "&::after": {
-    borderLeft: "2px dotted transparent",
-    borderLeftColor: isResizing ? theme.palette.primary.main : "transparent",
+const getResizeHandleSx =
+  (isResizing: boolean): SxProps<Theme> =>
+  (theme) => ({
+    "&::after": {
+      borderLeft: "2px dotted transparent",
+      borderLeftColor: isResizing ? theme.palette.primary.main : "transparent",
+      bottom: 0,
+      content: '""',
+      left: "50%",
+      position: "absolute",
+      top: 0,
+      transform: "translateX(-50%)",
+      width: 0,
+    },
+    "&:focus-visible::after, &:hover::after": {
+      borderLeftColor: theme.palette.primary.main,
+    },
     bottom: 0,
-    content: '""',
-    left: "50%",
+    cursor: "col-resize",
     position: "absolute",
+    right: -6,
     top: 0,
-    transform: "translateX(-50%)",
-    width: 0,
-  },
-  "&:focus-visible::after, &:hover::after": {
-    borderLeftColor: theme.palette.primary.main,
-  },
-  bottom: 0,
-  cursor: "col-resize",
-  position: "absolute",
-  right: -6,
-  top: 0,
-  width: 12,
-  zIndex: 1,
-});
+    width: 12,
+    zIndex: 1,
+  });
 
 /** Provides a responsive, narrow content area for forms and focused pages. */
 const NarrowContent: React.FC<NarrowContentProps> = ({ children }) => {

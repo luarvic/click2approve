@@ -5,7 +5,10 @@ import NarrowContent from "@/shared/components/layout/NarrowContent";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
-import { PersistenceSuccessMessages, showPersistenceSuccessNotification } from "@/shared/utils/persistenceNotifications";
+import {
+  PersistenceSuccessMessages,
+  showPersistenceSuccessNotification,
+} from "@/shared/utils/persistenceNotifications";
 import { observer } from "mobx-react-lite";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -19,9 +22,12 @@ const TenantEditorPage = () => {
   const tenant = stores.tenantStore.tenants.find((item) => item.globalId === tenantGlobalId);
 
   if (!stores.tenantStore.hasLoaded) return <LoadingOverlay />;
-  if (!isNewTenant && (!tenant)) return <NotFoundPage />;
+  if (!isNewTenant && !tenant) return <NotFoundPage />;
 
-  const close = (currentTenantGlobalId?: string) => navigate(tenantsPath, { state: currentTenantGlobalId ? { currentTenantGlobalId } : undefined });
+  const close = (currentTenantGlobalId?: string) =>
+    navigate(tenantsPath, {
+      state: currentTenantGlobalId ? { currentTenantGlobalId } : undefined,
+    });
   const submit = async (payload: CreateTenantRequest | UpdateTenantRequest, globalId?: string) => {
     const saved = globalId
       ? await stores.tenantStore.update(globalId, payload as UpdateTenantRequest)
@@ -33,15 +39,22 @@ const TenantEditorPage = () => {
     return saved;
   };
 
-  return <NarrowContent>
-    <TenantEditor
-      tenant={tenant ?? null}
-      canEdit={isNewTenant || tenant?.currentEmployeeRole === EmployeeRole.Admin || tenant?.currentEmployeeRole === EmployeeRole.Owner}
-      onClose={close}
-      onSubmit={submit}
-      onLogoUpload={stores.tenantStore.uploadLogo}
-      onLogoDelete={stores.tenantStore.deleteLogo} />
-  </NarrowContent>;
+  return (
+    <NarrowContent>
+      <TenantEditor
+        tenant={tenant ?? null}
+        canEdit={
+          isNewTenant ||
+          tenant?.currentEmployeeRole === EmployeeRole.Admin ||
+          tenant?.currentEmployeeRole === EmployeeRole.Owner
+        }
+        onClose={close}
+        onSubmit={submit}
+        onLogoUpload={stores.tenantStore.uploadLogo}
+        onLogoDelete={stores.tenantStore.deleteLogo}
+      />
+    </NarrowContent>
+  );
 };
 
 export default observer(TenantEditorPage);

@@ -20,16 +20,18 @@ const EmployeeEditorPage = () => {
   const { employeeGlobalId } = useParams<{ employeeGlobalId: string }>();
   usePageTitle(employeeGlobalId === undefined ? "New employee" : "Edit employee");
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const employeesPath = tenantGlobalId
-    ? Routes.tenantPath(tenantGlobalId, "/employees")
-    : "/";
+  const employeesPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/employees") : "/";
   const isNewEmployee = employeeGlobalId === undefined;
   const [employeeDataHasLoaded, setEmployeeDataHasLoaded] = useState(isNewEmployee);
   const employee = stores.employeeStore.employees.find((item) => item.globalId === employeeGlobalId);
   const currentEmployeeRole = stores.tenantStore.currentTenant?.currentEmployeeRole;
   const canEdit = currentEmployeeRole === EmployeeRole.Admin || currentEmployeeRole === EmployeeRole.Owner;
   const canTransferOwnership = currentEmployeeRole === EmployeeRole.Owner;
-  const selectedTeamGlobalIds = employee ? stores.teamStore.teams.filter((team) => team.members.some((member) => member.globalId === employee.globalId)).map((team) => team.globalId) : [];
+  const selectedTeamGlobalIds = employee
+    ? stores.teamStore.teams
+        .filter((team) => team.members.some((member) => member.globalId === employee.globalId))
+        .map((team) => team.globalId)
+    : [];
 
   useEffect(() => {
     let active = true;
@@ -60,45 +62,55 @@ const EmployeeEditorPage = () => {
     for (const team of stores.teamStore.teams) {
       const memberGlobalIds = team.members.map((member) => member.globalId);
       if (memberGlobalIds.includes(employeeGlobalIdToSync) === selected.has(team.globalId)) continue;
-      const saved = await stores.teamStore.update(tenantGlobalId, team.globalId, { name: team.name, employeeGlobalIds: selected.has(team.globalId) ? [...memberGlobalIds, employeeGlobalIdToSync] : memberGlobalIds.filter((id: string) => id !== employeeGlobalIdToSync) });
+      const saved = await stores.teamStore.update(tenantGlobalId, team.globalId, {
+        name: team.name,
+        employeeGlobalIds: selected.has(team.globalId)
+          ? [...memberGlobalIds, employeeGlobalIdToSync]
+          : memberGlobalIds.filter((id: string) => id !== employeeGlobalIdToSync),
+      });
       if (!saved) return false;
     }
     await stores.teamStore.load(tenantGlobalId, true);
     return true;
   };
 
-  return <NarrowContent>
-    <EmployeeEditor
-      employee={employee ?? null}
-      teams={stores.teamStore.teams}
-      selectedTeamGlobalIds={selectedTeamGlobalIds}
-      canEdit={canEdit}
-      canTransferOwnership={canTransferOwnership}
-      onClose={(currentEmployeeGlobalId) => navigate(employeesPath, { state: currentEmployeeGlobalId ? { currentEmployeeGlobalId } : undefined })}
-      onDelete={async (id: string) => {
-        const deleted = await stores.employeeStore.delete(tenantGlobalId, id);
-        if (deleted) {
+  return (
+    <NarrowContent>
+      <EmployeeEditor
+        employee={employee ?? null}
+        teams={stores.teamStore.teams}
+        selectedTeamGlobalIds={selectedTeamGlobalIds}
+        canEdit={canEdit}
+        canTransferOwnership={canTransferOwnership}
+        onClose={(currentEmployeeGlobalId) =>
+          navigate(employeesPath, {
+            state: currentEmployeeGlobalId ? { currentEmployeeGlobalId } : undefined,
+          })
+        }
+        onDelete={async (id: string) => {
+          const deleted = await stores.employeeStore.delete(tenantGlobalId, id);
+          if (deleted) {
+            showPersistenceSuccessNotification(PersistenceSuccessMessages.employeeDeleted);
+            navigate(employeesPath);
+          }
+          return deleted;
+        }}
+        onSubmit={async (payload: CreateEmployeeRequest | UpdateEmployeeRequest, teamGlobalIds, id) => {
+          const saved = id
+            ? await stores.employeeStore.update(tenantGlobalId, id, payload as UpdateEmployeeRequest)
+            : await stores.employeeStore.create(tenantGlobalId, payload as CreateEmployeeRequest);
+          if (!saved || !(await syncTeams(saved.globalId, teamGlobalIds))) {
+            return null;
+          }
+          await stores.tenantStore.load(tenantGlobalId);
           showPersistenceSuccessNotification(
-            PersistenceSuccessMessages.employeeDeleted,
+            id ? PersistenceSuccessMessages.employeeSaved : PersistenceSuccessMessages.employeeSavedInvitationSent,
           );
-          navigate(employeesPath);
-        }
-        return deleted;
-      }}
-      onSubmit={async (payload: CreateEmployeeRequest | UpdateEmployeeRequest, teamGlobalIds, id) => {
-        const saved = id ? await stores.employeeStore.update(tenantGlobalId, id, payload as UpdateEmployeeRequest) : await stores.employeeStore.create(tenantGlobalId, payload as CreateEmployeeRequest);
-        if (!saved || !(await syncTeams(saved.globalId, teamGlobalIds))) {
-          return null;
-        }
-        await stores.tenantStore.load(tenantGlobalId);
-        showPersistenceSuccessNotification(
-          id
-            ? PersistenceSuccessMessages.employeeSaved
-            : PersistenceSuccessMessages.employeeSavedInvitationSent,
-        );
-        return saved;
-      }} />
-  </NarrowContent>;
+          return saved;
+        }}
+      />
+    </NarrowContent>
+  );
 };
 
 export default observer(EmployeeEditorPage);

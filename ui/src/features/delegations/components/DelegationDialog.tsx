@@ -1,8 +1,5 @@
 import { stores } from "@/app/rootStore";
-import {
-  ApprovalDelegation,
-  ApprovalDelegationUpsert,
-} from "@/features/delegations/models/approvalDelegation";
+import { ApprovalDelegation, ApprovalDelegationUpsert } from "@/features/delegations/models/approvalDelegation";
 import { Employee } from "@/features/employees/models/employee";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import DisplayName from "@/shared/components/identity/DisplayName";
@@ -12,12 +9,7 @@ import { Dialogs, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import LoadingButton from "@mui/lab/LoadingButton";
-import {
-  Button,
-  MenuItem,
-  Stack,
-  TextField,
-} from "@mui/material";
+import { Button, MenuItem, Stack, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 
 interface DelegationDialogProps {
@@ -26,10 +18,7 @@ interface DelegationDialogProps {
   employees: Employee[];
   onClose: (currentDelegationGlobalId?: string) => void;
   onDelete: (delegationGlobalId: string) => Promise<boolean>;
-  onSubmit: (
-    payload: ApprovalDelegationUpsert,
-    delegationGlobalId?: string,
-  ) => Promise<ApprovalDelegation | null>;
+  onSubmit: (payload: ApprovalDelegationUpsert, delegationGlobalId?: string) => Promise<ApprovalDelegation | null>;
 }
 
 const employeeSelectionDefault = "";
@@ -42,12 +31,8 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
   onDelete,
   onSubmit,
 }) => {
-  const [delegatorEmployeeId, setDelegatorEmployeeId] = useState(
-    employeeSelectionDefault,
-  );
-  const [delegateEmployeeId, setDelegateEmployeeId] = useState(
-    employeeSelectionDefault,
-  );
+  const [delegatorEmployeeId, setDelegatorEmployeeId] = useState(employeeSelectionDefault);
+  const [delegateEmployeeId, setDelegateEmployeeId] = useState(employeeSelectionDefault);
   const [delegatorTouched, setDelegatorTouched] = useState(false);
   const [delegateTouched, setDelegateTouched] = useState(false);
   const [submitAttempted, setSubmitAttempted] = useState(false);
@@ -56,38 +41,26 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
   const saveAction = useAsyncAction(saveLoader);
   const isNew = delegation === null;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const delegationsPath = tenantGlobalId
-    ? Routes.tenantPath(tenantGlobalId, "/delegations")
-    : "/";
-  const selectionsAreMissing =
-    !delegatorEmployeeId || !delegateEmployeeId;
+  const delegationsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/delegations") : "/";
+  const selectionsAreMissing = !delegatorEmployeeId || !delegateEmployeeId;
   const employeesMatch =
     delegatorEmployeeId !== employeeSelectionDefault &&
     delegateEmployeeId !== employeeSelectionDefault &&
     delegatorEmployeeId === delegateEmployeeId;
-  const delegatorHasError =
-    (delegatorTouched || submitAttempted) && !delegatorEmployeeId;
-  const delegateHasError =
-    ((delegateTouched || submitAttempted) && !delegateEmployeeId) ||
-    employeesMatch;
+  const delegatorHasError = (delegatorTouched || submitAttempted) && !delegatorEmployeeId;
+  const delegateHasError = ((delegateTouched || submitAttempted) && !delegateEmployeeId) || employeesMatch;
   const delegateHelperText = employeesMatch
     ? "Delegator and delegate must be different employees."
     : "Select a delegate.";
-  const saveIsLoading =
-    saveAction.isRunning ||
-    stores.commonStore.isActionLoading(saveLoader);
+  const saveIsLoading = saveAction.isRunning || stores.commonStore.isActionLoading(saveLoader);
   const delegationName = `${getEmployeeName(
     employees,
     delegatorEmployeeId,
   )} to ${getEmployeeName(employees, delegateEmployeeId)}`;
 
   useEffect(() => {
-    setDelegatorEmployeeId(
-      delegation?.delegatorEmployeeGlobalId ?? employeeSelectionDefault,
-    );
-    setDelegateEmployeeId(
-      delegation?.delegateEmployeeGlobalId ?? employeeSelectionDefault,
-    );
+    setDelegatorEmployeeId(delegation?.delegatorEmployeeGlobalId ?? employeeSelectionDefault);
+    setDelegateEmployeeId(delegation?.delegateEmployeeGlobalId ?? employeeSelectionDefault);
     setDelegatorTouched(false);
     setDelegateTouched(false);
     setSubmitAttempted(false);
@@ -126,7 +99,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           { label: isNew ? "New delegation" : "Delegation" },
         ]}
       />
-        <Stack spacing={Dialogs.formStackSpacing}>
+      <Stack spacing={Dialogs.formStackSpacing}>
         <TextField
           select
           label="Employee"
@@ -142,10 +115,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           <MenuItem value={employeeSelectionDefault}>Select employee</MenuItem>
           {employees.map((employee) => (
             <MenuItem key={employee.globalId} value={employee.globalId}>
-              <DisplayName
-                displayName={employee.displayName}
-                email={employee.email}
-              />
+              <DisplayName displayName={employee.displayName} email={employee.email} />
             </MenuItem>
           ))}
         </TextField>
@@ -164,37 +134,26 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           <MenuItem value={employeeSelectionDefault}>Select delegate</MenuItem>
           {employees.map((employee) => (
             <MenuItem key={employee.globalId} value={employee.globalId}>
-              <DisplayName
-                displayName={employee.displayName}
-                email={employee.email}
-              />
+              <DisplayName displayName={employee.displayName} email={employee.email} />
             </MenuItem>
           ))}
         </TextField>
-        </Stack>
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          spacing={Dialogs.stepHeaderSpacing}
-          sx={Dialogs.addStepButtonSx}
-        >
-          <Button variant="outlined" onClick={() => onClose(delegation?.globalId)}>
-            Cancel
+      </Stack>
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
+        <Button variant="outlined" onClick={() => onClose(delegation?.globalId)}>
+          Cancel
+        </Button>
+        {!isNew && canEdit && (
+          <Button color="error" variant="outlined" onClick={() => setDeleteDialogIsOpen(true)}>
+            Delete
           </Button>
-          {!isNew && canEdit && (
-            <Button
-              color="error"
-              variant="outlined"
-              onClick={() => setDeleteDialogIsOpen(true)}
-            >
-              Delete
-            </Button>
-          )}
-          {(isNew || canEdit) && (
-            <LoadingButton loading={saveIsLoading} variant="outlined" onClick={handleSubmit}>
-              Save
-            </LoadingButton>
-          )}
-        </Stack>
+        )}
+        {(isNew || canEdit) && (
+          <LoadingButton loading={saveIsLoading} variant="outlined" onClick={handleSubmit}>
+            Save
+          </LoadingButton>
+        )}
+      </Stack>
       {delegation && (
         <DeleteConfirmationDialog
           entityName={delegationName}
@@ -209,7 +168,6 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
 };
 
 const getEmployeeName = (employees: Employee[], employeeGlobalId: string) =>
-  employees.find((employee) => employee.globalId === employeeGlobalId)?.displayName ??
-  "unknown employee";
+  employees.find((employee) => employee.globalId === employeeGlobalId)?.displayName ?? "unknown employee";
 
 export default DelegationDialog;

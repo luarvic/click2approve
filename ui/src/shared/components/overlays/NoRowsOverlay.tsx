@@ -10,38 +10,23 @@ const NoRowsOverlayComponent = () => {
     justifyContent: "center",
     height: "100%",
     "& .ant-empty-img-1": {
-      fill:
-        theme.palette.mode === "light"
-          ? NoRowsOverlay.colors.image1.light
-          : NoRowsOverlay.colors.image1.dark,
+      fill: theme.palette.mode === "light" ? NoRowsOverlay.colors.image1.light : NoRowsOverlay.colors.image1.dark,
     },
     "& .ant-empty-img-2": {
-      fill:
-        theme.palette.mode === "light"
-          ? NoRowsOverlay.colors.image2.light
-          : NoRowsOverlay.colors.image2.dark,
+      fill: theme.palette.mode === "light" ? NoRowsOverlay.colors.image2.light : NoRowsOverlay.colors.image2.dark,
     },
     "& .ant-empty-img-3": {
-      fill:
-        theme.palette.mode === "light"
-          ? NoRowsOverlay.colors.image3.light
-          : NoRowsOverlay.colors.image3.dark,
+      fill: theme.palette.mode === "light" ? NoRowsOverlay.colors.image3.light : NoRowsOverlay.colors.image3.dark,
     },
     "& .ant-empty-img-4": {
-      fill:
-        theme.palette.mode === "light"
-          ? NoRowsOverlay.colors.image4.light
-          : NoRowsOverlay.colors.image4.dark,
+      fill: theme.palette.mode === "light" ? NoRowsOverlay.colors.image4.light : NoRowsOverlay.colors.image4.dark,
     },
     "& .ant-empty-img-5": {
       fillOpacity:
         theme.palette.mode === "light"
           ? NoRowsOverlay.colors.image5FillOpacity.light
           : NoRowsOverlay.colors.image5FillOpacity.dark,
-      fill:
-        theme.palette.mode === "light"
-          ? NoRowsOverlay.colors.image5.light
-          : NoRowsOverlay.colors.image5.dark,
+      fill: theme.palette.mode === "light" ? NoRowsOverlay.colors.image5.light : NoRowsOverlay.colors.image5.dark,
     },
   }));
   return (
@@ -56,13 +41,7 @@ const NoRowsOverlayComponent = () => {
       >
         <g fill="none" fillRule="evenodd">
           <g transform="translate(24 31.67)">
-            <ellipse
-              className="ant-empty-img-5"
-              cx="67.797"
-              cy="106.89"
-              rx="67.797"
-              ry="12.668"
-            />
+            <ellipse className="ant-empty-img-5" cx="67.797" cy="106.89" rx="67.797" ry="12.668" />
             <path
               className="ant-empty-img-1"
               d="M122.034 69.674L98.109 40.229c-1.148-1.386-2.826-2.225-4.593-2.225h-51.44c-1.766 0-3.444.839-4.592 2.225L13.56 69.674v15.383h108.475V69.674z"

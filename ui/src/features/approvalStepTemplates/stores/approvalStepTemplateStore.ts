@@ -28,7 +28,7 @@ export class ApprovalStepTemplateStore {
 
   create = async (
     tenantGlobalId: string,
-    payload: UpsertApprovalStepTemplateRequest
+    payload: UpsertApprovalStepTemplateRequest,
   ): Promise<ApprovalStepTemplate | null> => {
     const requestVersion = this.requestVersion;
     const template = await approvalStepTemplateApi.createApprovalStepTemplate(tenantGlobalId, payload);
@@ -45,22 +45,20 @@ export class ApprovalStepTemplateStore {
   update = async (
     tenantGlobalId: string,
     templateGlobalId: string,
-    payload: UpsertApprovalStepTemplateRequest
+    payload: UpsertApprovalStepTemplateRequest,
   ): Promise<ApprovalStepTemplate | null> => {
     const requestVersion = this.requestVersion;
     const template = await approvalStepTemplateApi.updateApprovalStepTemplate(
       tenantGlobalId,
       templateGlobalId,
-      payload
+      payload,
     );
     if (!template || requestVersion !== this.requestVersion) {
       return null;
     }
 
     runInAction(() => {
-      this.templates = this.templates.map((item) =>
-        item.globalId === template.globalId ? template : item
-      );
+      this.templates = this.templates.map((item) => (item.globalId === template.globalId ? template : item));
     });
     return template;
   };
@@ -75,9 +73,7 @@ export class ApprovalStepTemplateStore {
     }
 
     runInAction(() => {
-      this.templates = this.templates.filter(
-        (template) => template.globalId !== templateGlobalId
-      );
+      this.templates = this.templates.filter((template) => template.globalId !== templateGlobalId);
     });
     return true;
   };

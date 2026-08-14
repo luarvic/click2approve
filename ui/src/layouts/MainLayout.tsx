@@ -14,17 +14,11 @@ interface MainLayoutProps {
   children?: ReactNode;
 }
 
-const MainLayout = ({
-  appBarOptions: configuredAppBarOptions,
-  children,
-}: MainLayoutProps) => {
-  const appBarOptions =
-    configuredAppBarOptions ?? stores.commonStore.appBarOptions ?? {};
+const MainLayout = ({ appBarOptions: configuredAppBarOptions, children }: MainLayoutProps) => {
+  const appBarOptions = configuredAppBarOptions ?? stores.commonStore.appBarOptions ?? {};
   const showMainMenuButton = appBarOptions.showMainMenuButton ?? true;
   const drawerIsVisible =
-    Boolean(stores.userAccountStore.currentUser) &&
-    showMainMenuButton &&
-    stores.commonStore.mainMenuDrawerIsOpen;
+    Boolean(stores.userAccountStore.currentUser) && showMainMenuButton && stores.commonStore.mainMenuDrawerIsOpen;
 
   return (
     <Box sx={Shell.outerBackgroundSx}>

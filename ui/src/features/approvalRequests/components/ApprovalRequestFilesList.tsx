@@ -3,17 +3,7 @@ import FileTypeIcon from "@/shared/components/icons/FileTypeIcon";
 import CommentPaper from "@/shared/components/papers/CommentPaper";
 import { StackSpacing } from "@/shared/constants/constants";
 import { Close, MoreVert, Undo } from "@mui/icons-material";
-import {
-  Box,
-  Chip,
-  IconButton,
-  Link,
-  Menu,
-  MenuItem,
-  Stack,
-  Tooltip,
-  type SxProps,
-} from "@mui/material";
+import { Box, Chip, IconButton, Link, Menu, MenuItem, Stack, Tooltip, type SxProps } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import { useState } from "react";
 
@@ -100,19 +90,11 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
     closeMenu();
   };
 
-  const renderFileLink = (
-    fileName: string,
-    sx?: SxProps<Theme>,
-    onClick?: () => void,
-  ) => (
+  const renderFileLink = (fileName: string, sx?: SxProps<Theme>, onClick?: () => void) => (
     <Link
       component={onClick ? "button" : "span"}
       onClick={onClick}
-      sx={[
-        fileLinkSx,
-        ...(Array.isArray(linkSx) ? linkSx : [linkSx]),
-        ...(Array.isArray(sx) ? sx : [sx]),
-      ]}
+      sx={[fileLinkSx, ...(Array.isArray(linkSx) ? linkSx : [linkSx]), ...(Array.isArray(sx) ? sx : [sx])]}
       variant="body2"
     >
       <FileTypeIcon fontSize="small" fileName={fileName} />
@@ -124,37 +106,21 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
     const fileEntry = (
       <Stack direction="row" alignItems="center">
         {renderFileLink(file.name)}
-        <IconButton
-          aria-label={`Remove ${file.name}`}
-          onClick={() => onRemoveNew(index)}
-          size="small"
-        >
+        <IconButton aria-label={`Remove ${file.name}`} onClick={() => onRemoveNew(index)} size="small">
           <Close fontSize="small" />
         </IconButton>
       </Stack>
     );
 
     return onReplaceExisting ? (
-      <Tooltip
-        key={`${file.name}-${file.lastModified}-${index}`}
-        title="New file"
-      >
-        <Stack
-          direction="row"
-          alignItems="center"
-          spacing={StackSpacing.default}
-          sx={fileRowSx}
-        >
+      <Tooltip key={`${file.name}-${file.lastModified}-${index}`} title="New file">
+        <Stack direction="row" alignItems="center" spacing={StackSpacing.default} sx={fileRowSx}>
           {fileEntry}
           <Chip color="success" label="Added" size="small" variant="outlined" />
         </Stack>
       </Tooltip>
     ) : (
-      <Stack
-        key={`${file.name}-${file.lastModified}-${index}`}
-        direction="row"
-        alignItems="center"
-      >
+      <Stack key={`${file.name}-${file.lastModified}-${index}`} direction="row" alignItems="center">
         {fileEntry}
       </Stack>
     );
@@ -175,11 +141,7 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
               <>
                 {file.removed ? (
                   <Tooltip title="Deleted file">
-                    <Stack
-                      direction="row"
-                      alignItems="center"
-                      spacing={StackSpacing.default}
-                    >
+                    <Stack direction="row" alignItems="center" spacing={StackSpacing.default}>
                       {renderFileLink(file.file.name, replacedOriginalFileLinkSx)}
                       <Chip color="error" label="Deleted" size="small" variant="outlined" />
                       <IconButton
@@ -194,18 +156,9 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
                 ) : file.replacement ? (
                   <Stack alignItems="flex-start" spacing={StackSpacing.default}>
                     <Tooltip title="Replacement file">
-                      <Stack
-                        direction="row"
-                        alignItems="center"
-                        spacing={StackSpacing.default}
-                      >
+                      <Stack direction="row" alignItems="center" spacing={StackSpacing.default}>
                         {renderFileLink(file.replacement.name)}
-                        <Chip
-                          color="warning"
-                          label="Replacement"
-                          size="small"
-                          variant="outlined"
-                        />
+                        <Chip color="warning" label="Replacement" size="small" variant="outlined" />
                         <IconButton
                           aria-label={`Remove ${file.replacement.name}`}
                           onClick={() => onRemoveReplacement?.(index)}
@@ -217,10 +170,7 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
                     </Tooltip>
                     <Box sx={replacedFilesGroupSx}>
                       <Tooltip title="Replaced file">
-                        {renderFileLink(
-                          file.file.name,
-                          replacedOriginalFileLinkSx,
-                        )}
+                        {renderFileLink(file.file.name, replacedOriginalFileLinkSx)}
                       </Tooltip>
                     </Box>
                   </Stack>
@@ -242,9 +192,7 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
                 {renderFileLink(
                   file.file.name,
                   undefined,
-                  onDownloadExisting
-                    ? () => onDownloadExisting(file.file)
-                    : undefined,
+                  onDownloadExisting ? () => onDownloadExisting(file.file) : undefined,
                 )}
                 {onRemoveExisting && (
                   <IconButton
@@ -261,11 +209,7 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
         ))}
         {newFiles.map(renderNewFile)}
       </Stack>
-      <Menu
-        anchorEl={menuAnchor}
-        open={Boolean(menuAnchor)}
-        onClose={closeMenu}
-      >
+      <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={closeMenu}>
         <MenuItem onClick={removeMenuFile}>Delete</MenuItem>
         <MenuItem onClick={replaceMenuFile}>Replace</MenuItem>
       </Menu>

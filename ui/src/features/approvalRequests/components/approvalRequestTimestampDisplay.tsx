@@ -19,9 +19,7 @@ export type ApprovalRequestTimestampType =
   | "skipped"
   | "superseded";
 
-export const getApprovalRequestTimestampIcon = (
-  type: ApprovalRequestTimestampType,
-) => {
+export const getApprovalRequestTimestampIcon = (type: ApprovalRequestTimestampType) => {
   switch (type) {
     case "created":
       return <TimerOutlined color={Icons.secondaryColor} fontSize="inherit" />;

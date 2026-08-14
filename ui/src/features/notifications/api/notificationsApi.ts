@@ -24,7 +24,12 @@ export const countUnreadNotifications = async (tenantId: string) =>
   (await axios.get<number>(`${route(tenantId)}/unread/count`, config)).data;
 
 export const listNotifications = async (tenantId: string, unreadOnly = true, take = 50) =>
-  (await axios.get<Notification[]>(route(tenantId), { ...config, params: { unreadOnly, take } })).data;
+  (
+    await axios.get<Notification[]>(route(tenantId), {
+      ...config,
+      params: { unreadOnly, take },
+    })
+  ).data;
 
 export const markNotificationRead = async (tenantId: string, deliveryId: string) =>
   await axios.post(`${route(tenantId)}/${deliveryId}/read`, undefined, config);

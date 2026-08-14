@@ -29,20 +29,14 @@ export const StatusLineColors = {
 
 export type StatusLineColor = keyof typeof StatusLineColors;
 
-const statusLineSectionSx = (
-  color: StatusLineColor,
-  lineVariant?: "solid" | "dotted",
-): SxProps<Theme> => ({
+const statusLineSectionSx = (color: StatusLineColor, lineVariant?: "solid" | "dotted"): SxProps<Theme> => ({
   borderLeft: `${statusLineWidth} ${lineVariant ?? (color === "started" ? "dotted" : "solid")}`,
   borderLeftColor: StatusLineColors[color],
   minWidth: 0,
   pl: statusLineOffset,
 });
 
-const statusLineLabelSx = (
-  color: StatusLineColor,
-  lineVariant?: "solid" | "dotted",
-): SxProps<Theme> => ({
+const statusLineLabelSx = (color: StatusLineColor, lineVariant?: "solid" | "dotted"): SxProps<Theme> => ({
   borderLeft: `${statusLineWidth} ${lineVariant ?? (color === "started" ? "dotted" : "solid")}`,
   borderLeftColor: StatusLineColors[color],
   height: "100%",
@@ -60,42 +54,20 @@ const getStatusLineSectionSx = (
   color: StatusLineColor,
   lineVariant?: "solid" | "dotted",
   sx?: SxProps<Theme>,
-): SxProps<Theme> => sx
-  ? ([statusLineSectionSx(color, lineVariant), sx] as SxProps<Theme>)
-  : statusLineSectionSx(color, lineVariant);
+): SxProps<Theme> =>
+  sx ? ([statusLineSectionSx(color, lineVariant), sx] as SxProps<Theme>) : statusLineSectionSx(color, lineVariant);
 
-export const getStatusBorderSx = (
-  color: StatusLineColor,
-  sx?: SxProps<Theme>,
-): SxProps<Theme> => sx
-  ? ([sx, statusBorderSx(color)] as SxProps<Theme>)
-  : statusBorderSx(color);
+export const getStatusBorderSx = (color: StatusLineColor, sx?: SxProps<Theme>): SxProps<Theme> =>
+  sx ? ([sx, statusBorderSx(color)] as SxProps<Theme>) : statusBorderSx(color);
 
-export const StatusLineSection: React.FC<StatusLineSectionProps> = ({
-  children,
-  color,
-  label,
-  lineVariant,
-  sx,
-}) => (
-  <Box
-    aria-label={label}
-    sx={getStatusLineSectionSx(color, lineVariant, sx)}
-  >
+export const StatusLineSection: React.FC<StatusLineSectionProps> = ({ children, color, label, lineVariant, sx }) => (
+  <Box aria-label={label} sx={getStatusLineSectionSx(color, lineVariant, sx)}>
     {children}
   </Box>
 );
 
-export const StatusLineLabel: React.FC<StatusLineLabelProps> = ({
-  color,
-  label,
-  lineVariant,
-}) => (
-  <Stack
-    sx={statusLineLabelSx(color, lineVariant)}
-  >
-    <Typography variant="body2">
-      {label}
-    </Typography>
+export const StatusLineLabel: React.FC<StatusLineLabelProps> = ({ color, label, lineVariant }) => (
+  <Stack sx={statusLineLabelSx(color, lineVariant)}>
+    <Typography variant="body2">{label}</Typography>
   </Stack>
 );

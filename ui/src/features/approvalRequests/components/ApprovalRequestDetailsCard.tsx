@@ -72,21 +72,21 @@ const ApprovalRequestDetailsCard: React.FC<ApprovalRequestDetailsCardProps> = ({
     <Card
       aria-label={ariaLabel}
       onClick={onClick}
-      onKeyDown={isClickable
-        ? (event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            onClick?.();
-          }
-        }
-        : undefined}
+      onKeyDown={
+        isClickable
+          ? (event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                onClick?.();
+              }
+            }
+          : undefined
+      }
       role={isClickable ? "button" : undefined}
       sx={cardSx}
       tabIndex={isClickable ? 0 : undefined}
     >
-      <CardContent sx={cardContentSx}>
-        {children}
-      </CardContent>
+      <CardContent sx={cardContentSx}>{children}</CardContent>
     </Card>
   );
 };

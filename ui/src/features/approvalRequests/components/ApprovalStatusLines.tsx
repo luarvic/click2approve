@@ -2,11 +2,7 @@ import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approv
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { getApprovalRequestTaskCompletedActionLabel } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
-import {
-  StatusLineColor,
-  StatusLineLabel,
-  StatusLineSection,
-} from "@/shared/components/status/StatusLines";
+import { StatusLineColor, StatusLineLabel, StatusLineSection } from "@/shared/components/status/StatusLines";
 import type { SxProps } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
@@ -29,10 +25,7 @@ interface ApprovalRequestTaskStatusLineLabelProps {
   status: ApprovalRequestTaskStatus;
 }
 
-export const getApprovalRequestStatusLineColor = (
-  status: ApprovalRequestStatus,
-  result?: boolean,
-): StatusLineColor => {
+export const getApprovalRequestStatusLineColor = (status: ApprovalRequestStatus, result?: boolean): StatusLineColor => {
   switch (status) {
     case ApprovalRequestStatus.Completed:
       return result === false ? "completedUnsuccessfully" : "completedSuccessfully";
@@ -73,20 +66,17 @@ const getCompletedStatusLabel = (result?: boolean) => {
   return "Completed";
 };
 
-export const getApprovalRequestStatusLabel = (
-  status: ApprovalRequestStatus,
-  result?: boolean,
-) => status === ApprovalRequestStatus.Completed
-  ? getCompletedStatusLabel(result)
-  : ApprovalRequestStatus[status];
+export const getApprovalRequestStatusLabel = (status: ApprovalRequestStatus, result?: boolean) =>
+  status === ApprovalRequestStatus.Completed ? getCompletedStatusLabel(result) : ApprovalRequestStatus[status];
 
 export const getApprovalRequestTaskStatusLabel = (
   status: ApprovalRequestTaskStatus,
   action: ApprovalRequestTaskAction,
   result?: boolean,
-) => status === ApprovalRequestTaskStatus.Completed
-  ? getApprovalRequestTaskCompletedActionLabel(action, result)
-  : ApprovalRequestTaskStatus[status];
+) =>
+  status === ApprovalRequestTaskStatus.Completed
+    ? getApprovalRequestTaskCompletedActionLabel(action, result)
+    : ApprovalRequestTaskStatus[status];
 
 export const ApprovalRequestStatusLineSection: React.FC<ApprovalRequestStatusLineSectionProps> = ({
   children,
@@ -103,10 +93,7 @@ export const ApprovalRequestStatusLineSection: React.FC<ApprovalRequestStatusLin
   </StatusLineSection>
 );
 
-export const ApprovalRequestStatusLineLabel: React.FC<ApprovalRequestStatusLineLabelProps> = ({
-  result,
-  status,
-}) => (
+export const ApprovalRequestStatusLineLabel: React.FC<ApprovalRequestStatusLineLabelProps> = ({ result, status }) => (
   <StatusLineLabel
     color={getApprovalRequestStatusLineColor(status, result)}
     label={getApprovalRequestStatusLabel(status, result)}

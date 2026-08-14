@@ -27,20 +27,14 @@ const emit = (): void => {
   listeners.forEach((listener) => listener(notifications));
 };
 
-const show = (
-  severity: NotificationSeverity,
-  message: string,
-  details: NotificationDetail[] = [],
-): void => {
+const show = (severity: NotificationSeverity, message: string, details: NotificationDetail[] = []): void => {
   notifications = [{ details, id: nextNotificationId++, message, severity }];
   emit();
 };
 
 export const notification = {
   error: (error: ErrorNotification | string): void => {
-    const errorNotification = typeof error === "string"
-      ? { details: [], message: error }
-      : error;
+    const errorNotification = typeof error === "string" ? { details: [], message: error } : error;
     show("error", errorNotification.message, errorNotification.details);
   },
   success: (message: string): void => show("success", message),

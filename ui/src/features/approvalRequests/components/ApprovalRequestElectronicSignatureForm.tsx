@@ -41,11 +41,7 @@ const ApprovalRequestElectronicSignatureForm: React.FC<ApprovalRequestElectronic
 }) => (
   <Box sx={electronicSignatureFormSx}>
     <Stack spacing={Dialogs.formStackSpacing}>
-      <Stack
-        alignItems="center"
-        direction="row"
-        spacing={Dialogs.stepHeaderSpacing}
-      >
+      <Stack alignItems="center" direction="row" spacing={Dialogs.stepHeaderSpacing}>
         <DrawOutlinedIcon color="secondary" />
         <Typography color="secondary" variant="subtitle1">
           Electronic signature

@@ -8,21 +8,14 @@ import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Business } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
-import {
-  Button,
-  Stack,
-  TextField,
-} from "@mui/material";
+import { Button, Stack, TextField } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 
 interface TenantDialogProps {
   canEdit: boolean;
   tenant?: Tenant | null;
   onClose: (currentTenantGlobalId?: string) => void;
-  onSubmit: (
-    payload: CreateTenantRequest | UpdateTenantRequest,
-    tenantGlobalId?: string,
-  ) => Promise<Tenant | null>;
+  onSubmit: (payload: CreateTenantRequest | UpdateTenantRequest, tenantGlobalId?: string) => Promise<Tenant | null>;
   onLogoUpload: (tenantGlobalId: string, logo: File) => Promise<boolean>;
   onLogoDelete: (tenantGlobalId: string) => Promise<boolean>;
 }
@@ -162,11 +155,7 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
           disabled={!isNew && !canEdit}
         />
       </Stack>
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        spacing={Dialogs.stepHeaderSpacing}
-        sx={Dialogs.addStepButtonSx}
-      >
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
         <Button variant="outlined" onClick={() => onClose(tenant?.globalId)}>
           Cancel
         </Button>

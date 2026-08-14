@@ -1,9 +1,5 @@
 import { Pages } from "@/shared/constants/constants";
-import {
-  Breadcrumbs,
-  Link,
-  Typography,
-} from "@mui/material";
+import { Breadcrumbs, Link, Typography } from "@mui/material";
 import type { ReactNode } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
@@ -38,12 +34,14 @@ const PageBreadcrumbs: React.FC<PageBreadcrumbsProps> = ({ items }) => (
         <Link
           key={`${item.label}-${index}`}
           component={RouterLink}
-          onClick={item.onClick
-            ? (event) => {
-              event.preventDefault();
-              item.onClick?.();
-            }
-            : undefined}
+          onClick={
+            item.onClick
+              ? (event) => {
+                  event.preventDefault();
+                  item.onClick?.();
+                }
+              : undefined
+          }
           state={item.state}
           to={to ?? "#"}
           variant="h5"

@@ -5,9 +5,7 @@ import { ApprovalRequestTask } from "@/features/approvalRequests/models/approval
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { getApprovalRequestTaskCompletedActionLabel } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
 
-const getCompletedTimestampType = (
-  result?: boolean,
-): ApprovalRequestTimestampRowItem["type"] =>
+const getCompletedTimestampType = (result?: boolean): ApprovalRequestTimestampRowItem["type"] =>
   result === false ? "completedUnsuccessfully" : "completedSuccessfully";
 
 const getGenericCompletedTimestampLabel = (result?: boolean) =>
@@ -44,9 +42,7 @@ export const getRequestCompletedTimestamp = (
   }
 };
 
-export const getTaskCompletedTimestamp = (
-  task: ApprovalRequestTask,
-): ApprovalRequestTimestampRowItem | null => {
+export const getTaskCompletedTimestamp = (task: ApprovalRequestTask): ApprovalRequestTimestampRowItem | null => {
   if (!task.completedAtDate) {
     return null;
   }

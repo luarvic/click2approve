@@ -16,10 +16,7 @@ import { Stack, Step, StepContent, StepLabel, Stepper } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
 import ApprovalStepTitle from "./ApprovalStepTitle";
-import ApprovalStepBlock, {
-  ApprovalStepLabel,
-  getStepStatus,
-} from "./ApprovalStepBlock";
+import ApprovalStepBlock, { ApprovalStepLabel, getStepStatus } from "./ApprovalStepBlock";
 import ApprovalStepVisibilitySummary from "./ApprovalStepVisibilitySummary";
 
 interface ApprovalStepsProps {
@@ -35,25 +32,18 @@ interface ApprovalStepsProps {
 const getStepTasks = (step: ApprovalStep) => {
   return (step.tasks ?? [])
     .filter(Boolean)
-    .filter(
-      (task, index, tasks) =>
-        tasks.findIndex((item) => item.globalId === task.globalId) === index,
-    );
+    .filter((task, index, tasks) => tasks.findIndex((item) => item.globalId === task.globalId) === index);
 };
 
 const getActiveStepIndex = (steps: ApprovalStep[]) => {
   const activeStepIndex = steps.findIndex((step) =>
-    getStepTasks(step).some(
-      (task) => task.status === ApprovalRequestTaskStatus.Pending,
-    ),
+    getStepTasks(step).some((task) => task.status === ApprovalRequestTaskStatus.Pending),
   );
   return activeStepIndex === -1 ? steps.length : activeStepIndex;
 };
 
 const stepIsCompleted = (status: string) =>
-  status === "Completed successfully" ||
-  status === "Skipped" ||
-  status === "Canceled";
+  status === "Completed successfully" || status === "Skipped" || status === "Canceled";
 
 const stepHasError = (status: string) => status === "Completed unsuccessfully";
 
@@ -78,12 +68,7 @@ const getStepIcon = (status: string) => {
   }
 };
 
-const HiddenStepIcon = () => (
-  <VisibilityOffOutlined
-    color={Icons.secondaryColor}
-    data-testid="hidden-step-icon"
-  />
-);
+const HiddenStepIcon = () => <VisibilityOffOutlined color={Icons.secondaryColor} data-testid="hidden-step-icon" />;
 
 const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
   approvalRequest,
@@ -94,77 +79,51 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
   sx,
   taskAttachmentsTenantGlobalId,
 }) => {
-  const steps = (approvalRequest.steps ?? [])
-    .filter(Boolean)
-    .sort((a, b) => a.sequence - b.sequence);
+  const steps = (approvalRequest.steps ?? []).filter(Boolean).sort((a, b) => a.sequence - b.sequence);
   const activeStepIndex = getActiveStepIndex(steps);
 
   return (
     <Stack spacing={Dialogs.stepStackSpacing} sx={sx}>
       <Stack spacing={Dialogs.stepStackSpacing}>
         {leadingItem}
-        <Stepper
-          activeStep={activeStepIndex}
-          nonLinear
-          orientation="vertical"
-        >
+        <Stepper activeStep={activeStepIndex} nonLinear orientation="vertical">
           {steps.map((step) => {
-              const tasks = getStepTasks(step);
-              const stepStatus = getStepStatus(step, tasks);
-              const stepIcon = () => getStepIcon(stepStatus);
+            const tasks = getStepTasks(step);
+            const stepStatus = getStepStatus(step, tasks);
+            const stepIcon = () => getStepIcon(stepStatus);
 
-              if (step.isVisible === false) {
-                return (
-                  <Step
-                    key={step.globalId ?? step.sequence}
-                    completed={stepIsCompleted(stepStatus)}
-                  >
-                    <StepLabel
-                      error={stepHasError(stepStatus)}
-                      StepIconComponent={HiddenStepIcon}
-                    >
-                      <ApprovalStepTitle sequence={step.sequence} />
-                    </StepLabel>
-                  </Step>
-                );
-              }
-
+            if (step.isVisible === false) {
               return (
-                <Step
-                  key={step.globalId ?? step.sequence}
-                  completed={stepIsCompleted(stepStatus)}
-                >
-                  <StepLabel
-                    error={stepHasError(stepStatus)}
-                    StepIconComponent={stepIcon}
-                  >
-                    <ApprovalStepLabel
-                      showVisibility={showVisibleStepVisibility}
-                      step={step}
-                    />
+                <Step key={step.globalId ?? step.sequence} completed={stepIsCompleted(stepStatus)}>
+                  <StepLabel error={stepHasError(stepStatus)} StepIconComponent={HiddenStepIcon}>
+                    <ApprovalStepTitle sequence={step.sequence} />
                   </StepLabel>
-                  <StepContent
-                    sx={stepContentSx}
-                    TransitionProps={{ in: true, unmountOnExit: false }}
-                  >
-                    <Stack spacing={Dialogs.stepHeaderSpacing}>
-                      {showVisibleStepVisibility && (
-                        <ApprovalStepVisibilitySummary step={step} />
-                      )}
-                      <ApprovalStepBlock
-                        highlightedTaskGlobalId={highlightedTaskGlobalId}
-                        onHighlightedTaskClick={onHighlightedTaskClick}
-                        showMetadata={false}
-                        showStepBox={false}
-                        showStepTitle={false}
-                        step={step}
-                        taskAttachmentsTenantGlobalId={taskAttachmentsTenantGlobalId}
-                        tasks={tasks}
-                      />
-                    </Stack>
-                  </StepContent>
                 </Step>
               );
+            }
+
+            return (
+              <Step key={step.globalId ?? step.sequence} completed={stepIsCompleted(stepStatus)}>
+                <StepLabel error={stepHasError(stepStatus)} StepIconComponent={stepIcon}>
+                  <ApprovalStepLabel showVisibility={showVisibleStepVisibility} step={step} />
+                </StepLabel>
+                <StepContent sx={stepContentSx} TransitionProps={{ in: true, unmountOnExit: false }}>
+                  <Stack spacing={Dialogs.stepHeaderSpacing}>
+                    {showVisibleStepVisibility && <ApprovalStepVisibilitySummary step={step} />}
+                    <ApprovalStepBlock
+                      highlightedTaskGlobalId={highlightedTaskGlobalId}
+                      onHighlightedTaskClick={onHighlightedTaskClick}
+                      showMetadata={false}
+                      showStepBox={false}
+                      showStepTitle={false}
+                      step={step}
+                      taskAttachmentsTenantGlobalId={taskAttachmentsTenantGlobalId}
+                      tasks={tasks}
+                    />
+                  </Stack>
+                </StepContent>
+              </Step>
+            );
           })}
         </Stepper>
       </Stack>

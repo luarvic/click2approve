@@ -14,12 +14,7 @@ import {
   ApprovalStepMode,
   ApprovalStepVisibilityMode,
 } from "@/features/approvalWorkflow/models/approvalStep";
-import {
-  Dialogs,
-  Flex,
-  Icons,
-  StackSpacing,
-} from "@/shared/constants/constants";
+import { Dialogs, Flex, Icons, StackSpacing } from "@/shared/constants/constants";
 import {
   AssignmentOutlined,
   ChecklistRtlOutlined,
@@ -30,15 +25,7 @@ import {
   VisibilityOutlined,
 } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Stack,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Stack, Tooltip, Typography } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
 import ApprovalStepHeader from "./ApprovalStepHeader";
@@ -107,61 +94,30 @@ const teamTaskListSx: SxProps<Theme> = {
 };
 const individualAssigneesGroupTitle = "Individual assignees";
 
-export const getStepStatus = (
-  step: ApprovalStep,
-  tasks: ApprovalRequestTask[],
-) => {
+export const getStepStatus = (step: ApprovalStep, tasks: ApprovalRequestTask[]) => {
   if (tasks.length === 0) {
     return "Not started";
   }
 
   if (step.mode === ApprovalStepMode.All) {
-    if (
-      tasks.some(
-        (task) =>
-          task.status === ApprovalRequestTaskStatus.Completed &&
-          task.result === false,
-      )
-    ) {
+    if (tasks.some((task) => task.status === ApprovalRequestTaskStatus.Completed && task.result === false)) {
       return "Completed unsuccessfully";
     }
-    if (
-      tasks.every(
-        (task) =>
-          task.status === ApprovalRequestTaskStatus.Completed &&
-          task.result === true,
-      )
-    ) {
+    if (tasks.every((task) => task.status === ApprovalRequestTaskStatus.Completed && task.result === true)) {
       return "Completed successfully";
     }
   } else {
-    if (
-      tasks.some(
-        (task) =>
-          task.status === ApprovalRequestTaskStatus.Completed &&
-          task.result === true,
-      )
-    ) {
+    if (tasks.some((task) => task.status === ApprovalRequestTaskStatus.Completed && task.result === true)) {
       return "Completed successfully";
     }
-    if (
-      tasks.some(
-        (task) =>
-          task.status === ApprovalRequestTaskStatus.Completed &&
-          task.result === false,
-      )
-    ) {
+    if (tasks.some((task) => task.status === ApprovalRequestTaskStatus.Completed && task.result === false)) {
       return "Completed unsuccessfully";
     }
   }
-  if (
-    tasks.every((task) => task.status === ApprovalRequestTaskStatus.Skipped)
-  ) {
+  if (tasks.every((task) => task.status === ApprovalRequestTaskStatus.Skipped)) {
     return "Skipped";
   }
-  if (
-    tasks.every((task) => task.status === ApprovalRequestTaskStatus.Canceled)
-  ) {
+  if (tasks.every((task) => task.status === ApprovalRequestTaskStatus.Canceled)) {
     return "Canceled";
   }
   return "Pending";
@@ -186,16 +142,12 @@ const getStepBorderLeftColor = (status: string) => {
 };
 
 const getTaskAssigneeIcon = (step: ApprovalStep, task: ApprovalRequestTask) => {
-  const assignee = step.assignees.find(
-    (item) => item.globalId === task.approvalRequestStepAssigneeGlobalId,
-  );
+  const assignee = step.assignees.find((item) => item.globalId === task.approvalRequestStepAssigneeGlobalId);
   return getAssigneeIcon(assignee?.type ?? AssigneeType.User);
 };
 
 const getTaskAssigneeType = (step: ApprovalStep, task: ApprovalRequestTask) =>
-  step.assignees.find(
-    (item) => item.globalId === task.approvalRequestStepAssigneeGlobalId,
-  )?.type;
+  step.assignees.find((item) => item.globalId === task.approvalRequestStepAssigneeGlobalId)?.type;
 
 const getStepModeSummary = (mode: ApprovalStepMode) => {
   switch (mode) {
@@ -215,8 +167,7 @@ const getStepModeLabel = (mode: ApprovalStepMode) => {
   }
 };
 
-const getStepAction = (step: ApprovalStep) =>
-  step.action ?? ApprovalRequestTaskAction.Approve;
+const getStepAction = (step: ApprovalStep) => step.action ?? ApprovalRequestTaskAction.Approve;
 
 const getStepVisibilityModeLabel = (step: ApprovalStep) => {
   switch (step.visibilityMode) {
@@ -245,28 +196,17 @@ const getStepVisibilityModeSummary = (step: ApprovalStep) => {
 };
 
 const getStepVisibilityModeIcon = (step: ApprovalStep) =>
-  step.visibilityMode === undefined ||
-  step.visibilityMode === ApprovalStepVisibilityMode.AllParticipants ? (
+  step.visibilityMode === undefined || step.visibilityMode === ApprovalStepVisibilityMode.AllParticipants ? (
     <VisibilityOutlined color={Icons.secondaryColor} fontSize="small" />
   ) : (
     <VisibilityOffOutlined color={Icons.secondaryColor} fontSize="small" />
   );
 
-const renderStepMetadataPiece = (
-  key: string,
-  icon: ReactNode,
-  label: string,
-  tooltip: string,
-  ariaLabel: string,
-) => (
+const renderStepMetadataPiece = (key: string, icon: ReactNode, label: string, tooltip: string, ariaLabel: string) => (
   <Tooltip key={key} title={tooltip}>
     <Box aria-label={ariaLabel} sx={stepMetadataPieceSx}>
       {icon}
-      <Typography
-        variant="caption"
-        color="text.secondary"
-        sx={stepMetadataTextSx}
-      >
+      <Typography variant="caption" color="text.secondary" sx={stepMetadataTextSx}>
         {label}
       </Typography>
     </Box>
@@ -325,9 +265,7 @@ export const ApprovalStepLabel: React.FC<{
   step: ApprovalStep;
 }> = ({ showVisibility = true, step }) => {
   const stepMode = step.mode ?? ApprovalStepMode.Any;
-  const actionLabel = getApprovalRequestTaskActionLabels(
-    getStepAction(step),
-  ).positive;
+  const actionLabel = getApprovalRequestTaskActionLabels(getStepAction(step)).positive;
 
   return (
     <ApprovalStepHeader
@@ -337,21 +275,11 @@ export const ApprovalStepLabel: React.FC<{
   );
 };
 
-const getAssigneeTasks = (
-  assignee: ApprovalStep["assignees"][number],
-  tasks: ApprovalRequestTask[],
-) =>
-  tasks.filter(
-    (task) => task.approvalRequestStepAssigneeGlobalId === assignee.globalId,
-  );
+const getAssigneeTasks = (assignee: ApprovalStep["assignees"][number], tasks: ApprovalRequestTask[]) =>
+  tasks.filter((task) => task.approvalRequestStepAssigneeGlobalId === assignee.globalId);
 
-const getUnassignedTasks = (
-  step: ApprovalStep,
-  tasks: ApprovalRequestTask[],
-) => {
-  const assigneeGlobalIds = new Set(
-    (step.assignees ?? []).map((assignee) => assignee.globalId),
-  );
+const getUnassignedTasks = (step: ApprovalStep, tasks: ApprovalRequestTask[]) => {
+  const assigneeGlobalIds = new Set((step.assignees ?? []).map((assignee) => assignee.globalId));
   return tasks.filter(
     (task) =>
       task.approvalRequestStepAssigneeGlobalId === undefined ||
@@ -369,26 +297,25 @@ const renderTaskDetails = (
   taskAttachmentsTenantGlobalId?: string,
 ) => (
   <ApprovalRequestTaskSummaryBlock
-    additionalMetadata={taskAttachmentsTenantGlobalId && task.taskFiles?.length ? (
-      <>
-        <ApprovalRequestParticipantLabel>
-          Files attached to this decision
-        </ApprovalRequestParticipantLabel>
-        <ApprovalRequestTaskAttachments
-          canManageFiles={false}
-          showLabel={false}
-          taskFiles={task.taskFiles ?? []}
-          taskGlobalId={task.globalId}
-          tenantGlobalId={taskAttachmentsTenantGlobalId}
-        />
-      </>
-    ) : undefined}
+    additionalMetadata={
+      taskAttachmentsTenantGlobalId && task.taskFiles?.length ? (
+        <>
+          <ApprovalRequestParticipantLabel>Files attached to this decision</ApprovalRequestParticipantLabel>
+          <ApprovalRequestTaskAttachments
+            canManageFiles={false}
+            showLabel={false}
+            taskFiles={task.taskFiles ?? []}
+            taskGlobalId={task.globalId}
+            tenantGlobalId={taskAttachmentsTenantGlobalId}
+          />
+        </>
+      ) : undefined
+    }
     key={task.globalId}
     icon={icon}
     onClick={isCurrentTask ? onCurrentTaskClick : undefined}
     numberColor={
-      task.status === ApprovalRequestTaskStatus.Pending ||
-      task.status === ApprovalRequestTaskStatus.Completed
+      task.status === ApprovalRequestTaskStatus.Pending || task.status === ApprovalRequestTaskStatus.Completed
         ? "text.primary"
         : "text.secondary"
     }
@@ -400,22 +327,14 @@ const renderTaskDetails = (
     showFiles={false}
     showElectronicSignature
     showRevision={false}
-    stepperBorderLeftColor={
-      task.status === ApprovalRequestTaskStatus.Pending
-        ? stepperBorderLeftColor
-        : undefined
-    }
+    stepperBorderLeftColor={task.status === ApprovalRequestTaskStatus.Pending ? stepperBorderLeftColor : undefined}
     showTitle={false}
     task={task}
     taskNumberPrefix="Task"
   />
 );
 
-const renderAssigneeWithoutTasks = (
-  assignee: ApprovalStepAssignee,
-  index: number,
-  setupFutureTasks: boolean,
-) => (
+const renderAssigneeWithoutTasks = (assignee: ApprovalStepAssignee, index: number, setupFutureTasks: boolean) => (
   <ApprovalUpcomingTaskBlock
     key={assignee.globalId ?? index}
     assignee={assignee}
@@ -440,30 +359,14 @@ const renderTeamAssignee = (
   taskAttachmentsTenantGlobalId?: string,
 ) => {
   if (assigneeTasks.length === 0) {
-    return showEmptyTeamTasksMessage
-      ? renderAssigneeWithoutTasks(assignee, index, setupFutureTasks)
-      : null;
+    return showEmptyTeamTasksMessage ? renderAssigneeWithoutTasks(assignee, index, setupFutureTasks) : null;
   }
 
   return (
-    <Accordion
-      key={assignee.globalId ?? index}
-      defaultExpanded
-      disableGutters
-      sx={teamAccordionSx}
-    >
+    <Accordion key={assignee.globalId ?? index} defaultExpanded disableGutters sx={teamAccordionSx}>
       <AccordionSummary expandIcon={<ExpandMore />} sx={teamAccordionSummarySx}>
-        <Stack
-          direction="row"
-          spacing={StackSpacing.tight}
-          alignItems="center"
-          sx={Flex.growSx}
-        >
-          <ApprovalRequestParticipant
-            displayName={assignee.displayName}
-            email={assignee.email}
-            type={assignee.type}
-          />
+        <Stack direction="row" spacing={StackSpacing.tight} alignItems="center" sx={Flex.growSx}>
+          <ApprovalRequestParticipant displayName={assignee.displayName} email={assignee.email} type={assignee.type} />
         </Stack>
       </AccordionSummary>
       <AccordionDetails sx={teamAccordionDetailsSx}>
@@ -513,11 +416,7 @@ const renderAssignee = (
   }
 
   if (assigneeTasks.length === 0) {
-    return renderAssigneeWithoutTasks(
-      assignee,
-      index,
-      setupFutureTasks ?? false,
-    );
+    return renderAssigneeWithoutTasks(assignee, index, setupFutureTasks ?? false);
   }
 
   return assigneeTasks.map((task) =>
@@ -549,20 +448,13 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
   tasks,
 }) => {
   const assignees = (step.assignees ?? []).filter(Boolean);
-  const teamAssignees = assignees.filter(
-    (assignee) => assignee.type === AssigneeType.Team,
-  );
-  const individualAssignees = assignees.filter(
-    (assignee) => assignee.type !== AssigneeType.Team,
-  );
-  const hasMixedAssigneeTypes =
-    teamAssignees.length > 0 && individualAssignees.length > 0;
+  const teamAssignees = assignees.filter((assignee) => assignee.type === AssigneeType.Team);
+  const individualAssignees = assignees.filter((assignee) => assignee.type !== AssigneeType.Team);
+  const hasMixedAssigneeTypes = teamAssignees.length > 0 && individualAssignees.length > 0;
   const unassignedTasks = getUnassignedTasks(step, tasks);
   const stepStatus = getStepStatus(step, tasks);
   const stepMode = step.mode ?? ApprovalStepMode.Any;
-  const actionLabel = getApprovalRequestTaskActionLabels(
-    getStepAction(step),
-  ).positive;
+  const actionLabel = getApprovalRequestTaskActionLabels(getStepAction(step)).positive;
   const stepperBorderLeftColor = getStepBorderLeftColor(stepStatus);
   const renderAssigneeItem = (assignee: ApprovalStepAssignee, index: number) =>
     renderAssignee(
@@ -583,41 +475,27 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
       {(showStepTitle || showMetadata || headerAccessory) && (
         <ApprovalStepHeader
           accessory={headerAccessory}
-          details={
-            showMetadata && renderStepMetadata(step, stepMode, actionLabel)
-          }
+          details={showMetadata && renderStepMetadata(step, stepMode, actionLabel)}
           hasBottomMargin
           sequence={step.sequence}
           showTitle={showStepTitle}
         />
       )}
       <Stack spacing={Dialogs.assigneeStackSpacing} sx={contentSx}>
-        {teamAssignees.map((assignee) =>
-          renderAssigneeItem(assignee, assignees.indexOf(assignee)),
-        )}
+        {teamAssignees.map((assignee) => renderAssigneeItem(assignee, assignees.indexOf(assignee)))}
         {hasMixedAssigneeTypes ? (
           <Accordion defaultExpanded disableGutters sx={teamAccordionSx}>
-            <AccordionSummary
-              expandIcon={<ExpandMore />}
-              sx={teamAccordionSummarySx}
-            >
-              <ApprovalRequestParticipant
-                displayName={individualAssigneesGroupTitle}
-                type={AssigneeType.Team}
-              />
+            <AccordionSummary expandIcon={<ExpandMore />} sx={teamAccordionSummarySx}>
+              <ApprovalRequestParticipant displayName={individualAssigneesGroupTitle} type={AssigneeType.Team} />
             </AccordionSummary>
             <AccordionDetails sx={teamAccordionDetailsSx}>
               <Stack spacing={Dialogs.assigneeStackSpacing}>
-                {individualAssignees.map((assignee) =>
-                  renderAssigneeItem(assignee, assignees.indexOf(assignee)),
-                )}
+                {individualAssignees.map((assignee) => renderAssigneeItem(assignee, assignees.indexOf(assignee)))}
               </Stack>
             </AccordionDetails>
           </Accordion>
         ) : (
-          individualAssignees.map((assignee) =>
-            renderAssigneeItem(assignee, assignees.indexOf(assignee)),
-          )
+          individualAssignees.map((assignee) => renderAssigneeItem(assignee, assignees.indexOf(assignee)))
         )}
         {unassignedTasks.map((task) =>
           renderTaskDetails(

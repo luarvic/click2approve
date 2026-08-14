@@ -8,11 +8,7 @@ interface ApprovalRequestContentGroupsProps {
   metadata?: ReactNode;
 }
 
-const ApprovalRequestContentGroups: React.FC<ApprovalRequestContentGroupsProps> = ({
-  content,
-  header,
-  metadata,
-}) => {
+const ApprovalRequestContentGroups: React.FC<ApprovalRequestContentGroupsProps> = ({ content, header, metadata }) => {
   const groups = Children.toArray([header, content, metadata]);
 
   return <Stack spacing={StackSpacing.loose}>{groups}</Stack>;

@@ -116,11 +116,7 @@ export class CommonStore {
     });
   };
 
-  private updateCounter = (
-    counters: Dictionary<number>,
-    key: string,
-    delta: number,
-  ): void => {
+  private updateCounter = (counters: Dictionary<number>, key: string, delta: number): void => {
     const nextCounter = (counters[key] ?? 0) + delta;
     if (nextCounter > 0) {
       counters[key] = nextCounter;

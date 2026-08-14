@@ -23,8 +23,7 @@ const MainAppBar = ({
   const profile = stores.userProfileStore.profile;
   const mainMenuDrawerIsOpen = stores.commonStore.mainMenuDrawerIsOpen;
   const profileDrawerIsOpen = stores.commonStore.profileDrawerIsOpen;
-  const mainMenuDrawerIsVisible =
-    Boolean(currentUser) && showMainMenuButton && mainMenuDrawerIsOpen;
+  const mainMenuDrawerIsVisible = Boolean(currentUser) && showMainMenuButton && mainMenuDrawerIsOpen;
   const tenantPickerIsVisible =
     showTenantPicker &&
     stores.applicationConfigurationStore.tenantsAreEnabled &&
@@ -33,9 +32,7 @@ const MainAppBar = ({
   const currentTenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const tenantPickerOptions = stores.tenantStore.tenants.flatMap((tenant) => {
     if (!tenant.delegators?.length) {
-      return [
-        { employeeDisplayName: undefined, employeeGlobalId: null, tenant },
-      ];
+      return [{ employeeDisplayName: undefined, employeeGlobalId: null, tenant }];
     }
     return [
       {
@@ -54,15 +51,9 @@ const MainAppBar = ({
     tenantPickerOptions.find(
       (option) =>
         option.tenant.globalId === currentTenantGlobalId &&
-        option.employeeGlobalId ===
-        stores.tenantStore.currentWorkEmployeeGlobalId,
-    ) ??
-    tenantPickerOptions.find(
-      (option) => option.tenant.globalId === currentTenantGlobalId,
-    );
-  const inboxPath = currentTenantGlobalId
-    ? Routes.tenantPath(currentTenantGlobalId, Routes.inboxPath)
-    : "/";
+        option.employeeGlobalId === stores.tenantStore.currentWorkEmployeeGlobalId,
+    ) ?? tenantPickerOptions.find((option) => option.tenant.globalId === currentTenantGlobalId);
+  const inboxPath = currentTenantGlobalId ? Routes.tenantPath(currentTenantGlobalId, Routes.inboxPath) : "/";
   return (
     <PublicAppBar
       brandTitleHideBelowWidth={
@@ -82,9 +73,7 @@ const MainAppBar = ({
             color="inherit"
             edge="start"
             aria-label={mainMenuDrawerIsOpen ? "Close menu" : "Open menu"}
-            onClick={() =>
-              stores.commonStore.setMainMenuDrawerIsOpen(!mainMenuDrawerIsOpen)
-            }
+            onClick={() => stores.commonStore.setMainMenuDrawerIsOpen(!mainMenuDrawerIsOpen)}
             sx={Shell.mainMenuButtonSx(mainMenuDrawerIsOpen)}
           >
             <Menu />
@@ -93,85 +82,66 @@ const MainAppBar = ({
       }
     >
       <>
-            {tenantPickerIsVisible && (
-              <Select
-                name="tenant-picker"
-                size="small"
-                value={
-                  selectedTenantPickerOption
-                    ? `${selectedTenantPickerOption.tenant.globalId}:${selectedTenantPickerOption.employeeGlobalId ?? ""}`
-                    : ""
-                }
-                renderValue={() =>
-                  selectedTenantPickerOption && (
-                    <TenantPickerOption
-                      employeeDisplayName={
-                        selectedTenantPickerOption.employeeDisplayName
-                      }
-                      tenant={selectedTenantPickerOption.tenant}
-                    />
-                  )
-                }
-                onChange={async (event) => {
-                  const option = tenantPickerOptions.find(
-                    (candidate) =>
-                      `${candidate.tenant.globalId}:${candidate.employeeGlobalId ?? ""}` ===
-                      event.target.value,
-                  );
-                  if (!option) return;
-                  const tenantGlobalId = option.tenant.globalId;
-                  await stores.switchTenant(
-                    tenantGlobalId,
-                    option.employeeGlobalId,
-                    location.pathname === inboxPath,
-                  );
-                  navigate(Routes.tenantPath(tenantGlobalId, Routes.inboxPath));
-                }}
-                sx={Shell.tenantPickerSx}
+        {tenantPickerIsVisible && (
+          <Select
+            name="tenant-picker"
+            size="small"
+            value={
+              selectedTenantPickerOption
+                ? `${selectedTenantPickerOption.tenant.globalId}:${selectedTenantPickerOption.employeeGlobalId ?? ""}`
+                : ""
+            }
+            renderValue={() =>
+              selectedTenantPickerOption && (
+                <TenantPickerOption
+                  employeeDisplayName={selectedTenantPickerOption.employeeDisplayName}
+                  tenant={selectedTenantPickerOption.tenant}
+                />
+              )
+            }
+            onChange={async (event) => {
+              const option = tenantPickerOptions.find(
+                (candidate) =>
+                  `${candidate.tenant.globalId}:${candidate.employeeGlobalId ?? ""}` === event.target.value,
+              );
+              if (!option) return;
+              const tenantGlobalId = option.tenant.globalId;
+              await stores.switchTenant(tenantGlobalId, option.employeeGlobalId, location.pathname === inboxPath);
+              navigate(Routes.tenantPath(tenantGlobalId, Routes.inboxPath));
+            }}
+            sx={Shell.tenantPickerSx}
+          >
+            {tenantPickerOptions.map((option) => (
+              <MenuItem
+                key={`${option.tenant.globalId}:${option.employeeGlobalId ?? ""}`}
+                value={`${option.tenant.globalId}:${option.employeeGlobalId ?? ""}`}
               >
-                {tenantPickerOptions.map((option) => (
-                  <MenuItem
-                    key={`${option.tenant.globalId}:${option.employeeGlobalId ?? ""}`}
-                    value={`${option.tenant.globalId}:${option.employeeGlobalId ?? ""}`}
-                  >
-                    <TenantPickerOption
-                      employeeDisplayName={option.employeeDisplayName}
-                      tenant={option.tenant}
-                    />
-                  </MenuItem>
-                ))}
-              </Select>
-            )}
-            <ColorModeSwitch
-              checked={stores.userPreferencesStore.theme.palette.mode === "dark"}
-              inputProps={{
-                "aria-label": "Dark mode",
-                name: "color-mode",
-              }}
-              onChange={(event) =>
-                stores.userPreferencesStore.setColorMode(
-                  event.target.checked ? "dark" : "light",
-                )
-              }
-            />
-            {currentUser && <NotificationBell />}
-            {currentUser && showProfileButton && (
-              <IconButton
-                color="inherit"
-                edge="end"
-                aria-label="Open profile"
-                onClick={() =>
-                  stores.commonStore.setProfileDrawerIsOpen(true)
-                }
-              >
-                <Avatar
-                  src={getPublicApiUrl(profile?.avatar)}
-                  sx={Shell.profileAvatarSx}
-                >
-                  {getEmailInitials(currentUser.email)}
-                </Avatar>
-              </IconButton>
-            )}
+                <TenantPickerOption employeeDisplayName={option.employeeDisplayName} tenant={option.tenant} />
+              </MenuItem>
+            ))}
+          </Select>
+        )}
+        <ColorModeSwitch
+          checked={stores.userPreferencesStore.theme.palette.mode === "dark"}
+          inputProps={{
+            "aria-label": "Dark mode",
+            name: "color-mode",
+          }}
+          onChange={(event) => stores.userPreferencesStore.setColorMode(event.target.checked ? "dark" : "light")}
+        />
+        {currentUser && <NotificationBell />}
+        {currentUser && showProfileButton && (
+          <IconButton
+            color="inherit"
+            edge="end"
+            aria-label="Open profile"
+            onClick={() => stores.commonStore.setProfileDrawerIsOpen(true)}
+          >
+            <Avatar src={getPublicApiUrl(profile?.avatar)} sx={Shell.profileAvatarSx}>
+              {getEmailInitials(currentUser.email)}
+            </Avatar>
+          </IconButton>
+        )}
       </>
     </PublicAppBar>
   );

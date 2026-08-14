@@ -3,9 +3,7 @@ import {
   ApprovalStep,
   ApprovalStepVisibilityMode,
 } from "@/features/approvalWorkflow/models/approvalStep";
-import ApprovalStepBlock, {
-  ApprovalStepLabel,
-} from "@/features/approvalWorkflow/components/ApprovalStepBlock";
+import ApprovalStepBlock, { ApprovalStepLabel } from "@/features/approvalWorkflow/components/ApprovalStepBlock";
 import { Dialogs } from "@/shared/constants/constants";
 import { AccountTreeOutlined } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
@@ -45,13 +43,12 @@ const visibilityModes: Record<VisibilityMode, ApprovalStepVisibilityMode> = {
   assignees: ApprovalStepVisibilityMode.AssigneesOnly,
   selected: ApprovalStepVisibilityMode.AssigneesAndSelectedParticipants,
 };
-const visibilityModeValues: Record<ApprovalStepVisibilityMode, VisibilityMode> =
-  {
-    [ApprovalStepVisibilityMode.AllParticipants]: "all",
-    [ApprovalStepVisibilityMode.AllParticipantsExceptSelected]: "allExcept",
-    [ApprovalStepVisibilityMode.AssigneesAndSelectedParticipants]: "selected",
-    [ApprovalStepVisibilityMode.AssigneesOnly]: "assignees",
-  };
+const visibilityModeValues: Record<ApprovalStepVisibilityMode, VisibilityMode> = {
+  [ApprovalStepVisibilityMode.AllParticipants]: "all",
+  [ApprovalStepVisibilityMode.AllParticipantsExceptSelected]: "allExcept",
+  [ApprovalStepVisibilityMode.AssigneesAndSelectedParticipants]: "selected",
+  [ApprovalStepVisibilityMode.AssigneesOnly]: "assignees",
+};
 const options: { label: string; value: VisibilityMode }[] = [
   { label: "All participants", value: "all" },
   { label: "All participants except selected", value: "allExcept" },
@@ -60,10 +57,9 @@ const options: { label: string; value: VisibilityMode }[] = [
 ];
 const stepContentSx: SxProps<Theme> = { pr: 0 };
 const stepLabelSx: SxProps<Theme> = {
-  "& .MuiStepLabel-label, & .MuiStepLabel-label.Mui-active, & .MuiStepLabel-label.Mui-completed":
-    {
-      color: "text.primary",
-    },
+  "& .MuiStepLabel-label, & .MuiStepLabel-label.Mui-active, & .MuiStepLabel-label.Mui-completed": {
+    color: "text.primary",
+  },
 };
 const toggleButtonGroupSx: SxProps<Theme> = {
   display: { xs: "none", sm: "flex" },
@@ -78,18 +74,15 @@ const mobileModeOptionsSx: SxProps<Theme> = {
   display: { sm: "none", xs: "flex" },
   flexDirection: "column",
 };
-const VisibilityStepIcon = () => (
-  <AccountTreeOutlined color="action" fontSize="small" />
-);
+const VisibilityStepIcon = () => <AccountTreeOutlined color="action" fontSize="small" />;
 
-const ApprovalStepTemplateVisibilityEditor: React.FC<
-  ApprovalStepTemplateVisibilityEditorProps
-> = ({ steps, onUpdateStep }) => {
+const ApprovalStepTemplateVisibilityEditor: React.FC<ApprovalStepTemplateVisibilityEditorProps> = ({
+  steps,
+  onUpdateStep,
+}) => {
   const getDisplayAssignee = (assignee: ApprovalStep["assignees"][number]) => {
     if (assignee.type === AssigneeType.Employee) {
-      const employee = stores.employeeStore.employees.find(
-        (item) => item.globalId === assignee.employeeGlobalId,
-      );
+      const employee = stores.employeeStore.employees.find((item) => item.globalId === assignee.employeeGlobalId);
       return {
         ...assignee,
         displayName: assignee.displayName ?? employee?.displayName,
@@ -97,9 +90,7 @@ const ApprovalStepTemplateVisibilityEditor: React.FC<
       };
     }
     if (assignee.type === AssigneeType.Team) {
-      const team = stores.teamStore.teams.find(
-        (item) => item.globalId === assignee.teamGlobalId,
-      );
+      const team = stores.teamStore.teams.find((item) => item.globalId === assignee.teamGlobalId);
       return { ...assignee, displayName: assignee.displayName ?? team?.name };
     }
     return assignee;
@@ -114,10 +105,7 @@ const ApprovalStepTemplateVisibilityEditor: React.FC<
         ? [
             {
               globalId: assignee.globalId,
-              label:
-                getDisplayAssignee(assignee).displayName ??
-                assignee.email ??
-                "Assignee",
+              label: getDisplayAssignee(assignee).displayName ?? assignee.email ?? "Assignee",
               type: assignee.type,
             },
           ]
@@ -125,18 +113,10 @@ const ApprovalStepTemplateVisibilityEditor: React.FC<
     ),
   );
 
-  const updateVisibility = (
-    stepIndex: number,
-    mode: VisibilityMode,
-    selectedAssignees: AssigneeOption[],
-  ) => {
+  const updateVisibility = (stepIndex: number, mode: VisibilityMode, selectedAssignees: AssigneeOption[]) => {
     const step = steps[stepIndex];
-    const ownAssigneeIds = new Set(
-      step.assignees.map((assignee) => assignee.globalId),
-    );
-    const selectedAssigneeIds = new Set(
-      selectedAssignees.map((assignee) => assignee.globalId),
-    );
+    const ownAssigneeIds = new Set(step.assignees.map((assignee) => assignee.globalId));
+    const selectedAssigneeIds = new Set(selectedAssignees.map((assignee) => assignee.globalId));
     const visibility = allAssignees.map((assignee) => ({
       assigneeGlobalId: assignee.globalId,
       assigneeType: assignee.type,
@@ -157,21 +137,12 @@ const ApprovalStepTemplateVisibilityEditor: React.FC<
     <Stepper activeStep={-1} nonLinear orientation="vertical">
       {steps.map((step, stepIndex) => {
         const displayStep = getDisplayStep(step);
-        const mode =
-          visibilityModeValues[
-            step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants
-          ];
-        const ownAssigneeIds = new Set(
-          step.assignees.map((assignee) => assignee.globalId),
-        );
-        const additionalAssignees = allAssignees.filter(
-          (assignee) => !ownAssigneeIds.has(assignee.globalId),
-        );
+        const mode = visibilityModeValues[step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants];
+        const ownAssigneeIds = new Set(step.assignees.map((assignee) => assignee.globalId));
+        const additionalAssignees = allAssignees.filter((assignee) => !ownAssigneeIds.has(assignee.globalId));
         const selectedAssignees = additionalAssignees.filter((assignee) => {
           const isVisible =
-            step.visibility?.find(
-              (visibility) => visibility.assigneeGlobalId === assignee.globalId,
-            )?.isVisible ??
+            step.visibility?.find((visibility) => visibility.assigneeGlobalId === assignee.globalId)?.isVisible ??
             (mode === "all" || mode === "allExcept");
           return mode === "allExcept" ? !isVisible : isVisible;
         });
@@ -181,10 +152,7 @@ const ApprovalStepTemplateVisibilityEditor: React.FC<
             <StepLabel StepIconComponent={VisibilityStepIcon} sx={stepLabelSx}>
               <ApprovalStepLabel showVisibility={false} step={displayStep} />
             </StepLabel>
-            <StepContent
-              sx={stepContentSx}
-              TransitionProps={{ in: true, unmountOnExit: false }}
-            >
+            <StepContent sx={stepContentSx} TransitionProps={{ in: true, unmountOnExit: false }}>
               <ApprovalStepBlock
                 setupFutureTasks
                 showMetadata={false}
@@ -200,13 +168,7 @@ const ApprovalStepTemplateVisibilityEditor: React.FC<
                       row={false}
                       sx={mobileModeOptionsSx}
                       value={mode}
-                      onChange={(event) =>
-                        updateVisibility(
-                          stepIndex,
-                          event.target.value as VisibilityMode,
-                          [],
-                        )
-                      }
+                      onChange={(event) => updateVisibility(stepIndex, event.target.value as VisibilityMode, [])}
                     >
                       {options.map((option) => (
                         <FormControlLabel
@@ -221,9 +183,7 @@ const ApprovalStepTemplateVisibilityEditor: React.FC<
                       exclusive
                       sx={toggleButtonGroupSx}
                       value={mode}
-                      onChange={(_, value: VisibilityMode | null) =>
-                        value && updateVisibility(stepIndex, value, [])
-                      }
+                      onChange={(_, value: VisibilityMode | null) => value && updateVisibility(stepIndex, value, [])}
                     >
                       {options.map((option) => (
                         <ToggleButton key={option.value} value={option.value}>
@@ -238,12 +198,8 @@ const ApprovalStepTemplateVisibilityEditor: React.FC<
                         options={additionalAssignees}
                         value={selectedAssignees}
                         getOptionLabel={(option) => option.label}
-                        isOptionEqualToValue={(option, value) =>
-                          option.globalId === value.globalId
-                        }
-                        onChange={(_, value) =>
-                          updateVisibility(stepIndex, mode, value)
-                        }
+                        isOptionEqualToValue={(option, value) => option.globalId === value.globalId}
+                        onChange={(_, value) => updateVisibility(stepIndex, mode, value)}
                         renderInput={(params) => (
                           <TextField
                             {...params}

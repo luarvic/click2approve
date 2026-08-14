@@ -1,9 +1,5 @@
 import { stores } from "@/app/rootStore";
-import {
-  CreateEmployeeRequest,
-  Employee,
-  UpdateEmployeeRequest,
-} from "@/features/employees/models/employee";
+import { CreateEmployeeRequest, Employee, UpdateEmployeeRequest } from "@/features/employees/models/employee";
 import { Team } from "@/features/teams/models/team";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
@@ -14,17 +10,7 @@ import { Dialogs, Routes, Validation } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import LoadingButton from "@mui/lab/LoadingButton";
-import {
-  Autocomplete,
-  Button,
-  Chip,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Stack,
-  TextField,
-} from "@mui/material";
+import { Autocomplete, Button, Chip, FormControl, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 
 interface EmployeeDialogProps {
@@ -65,23 +51,17 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
   const [selectedTeams, setSelectedTeams] = useState<Team[]>([]);
   const [emailTouched, setEmailTouched] = useState(false);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
-  const [ownershipTransferDialogIsOpen, setOwnershipTransferDialogIsOpen] =
-    useState(false);
+  const [ownershipTransferDialogIsOpen, setOwnershipTransferDialogIsOpen] = useState(false);
   const saveLoader = ActionLoaders.employees.save(employee?.globalId);
   const saveAction = useAsyncAction(saveLoader);
   const isNew = employee === null;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const employeesPath = tenantGlobalId
-    ? Routes.tenantPath(tenantGlobalId, "/employees")
-    : "/";
-  const emailHasError =
-    isNew && emailTouched && !Validation.emailRegex.test(email);
-  const saveIsLoading =
-    saveAction.isRunning || stores.commonStore.isActionLoading(saveLoader);
+  const employeesPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/employees") : "/";
+  const emailHasError = isNew && emailTouched && !Validation.emailRegex.test(email);
+  const saveIsLoading = saveAction.isRunning || stores.commonStore.isActionLoading(saveLoader);
   const availableRoleOptions = [
     ...roleOptions,
-    ...(employee?.role === EmployeeRole.Owner ||
-      (canTransferOwnership && !isNew)
+    ...(employee?.role === EmployeeRole.Owner || (canTransferOwnership && !isNew)
       ? [{ label: "Owner", value: EmployeeRole.Owner }]
       : []),
   ];
@@ -92,9 +72,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
     setLastName(employee?.lastName ?? "");
     setPosition(employee?.position ?? "");
     setRole(employee?.role ?? EmployeeRole.User);
-    setSelectedTeams(
-      teams.filter((team) => selectedTeamGlobalIds.includes(team.globalId)),
-    );
+    setSelectedTeams(teams.filter((team) => selectedTeamGlobalIds.includes(team.globalId)));
     setEmailTouched(false);
   }, [employee, teams, selectedTeamGlobalIds]);
 
@@ -109,14 +87,14 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
       (await saveAction.run(async () => {
         const savedEmployee = !isNew
           ? await onSubmit(
-            payload,
-            selectedTeams.map((team) => team.globalId),
-            employee.globalId,
-          )
+              payload,
+              selectedTeams.map((team) => team.globalId),
+              employee.globalId,
+            )
           : await onSubmit(
-            { ...payload, email: email.trim() },
-            selectedTeams.map((team) => team.globalId),
-          );
+              { ...payload, email: email.trim() },
+              selectedTeams.map((team) => team.globalId),
+            );
 
         if (savedEmployee) {
           onClose(savedEmployee.globalId);
@@ -133,11 +111,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
       return;
     }
 
-    if (
-      !isNew &&
-      employee.role !== EmployeeRole.Owner &&
-      role === EmployeeRole.Owner
-    ) {
+    if (!isNew && employee.role !== EmployeeRole.Owner && role === EmployeeRole.Owner) {
       setOwnershipTransferDialogIsOpen(true);
       return;
     }
@@ -151,9 +125,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
         items={[
           {
             label: "Employees",
-            state: employee
-              ? { currentEmployeeGlobalId: employee.globalId }
-              : undefined,
+            state: employee ? { currentEmployeeGlobalId: employee.globalId } : undefined,
             to: employeesPath,
           },
           { label: isNew ? "New employee" : "Employee" },
@@ -167,9 +139,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
           onBlur={() => setEmailTouched(true)}
           disabled={!isNew}
           error={emailHasError}
-          helperText={
-            emailHasError ? "Enter a valid email address." : undefined
-          }
+          helperText={emailHasError ? "Enter a valid email address." : undefined}
           fullWidth
           required
         />
@@ -201,9 +171,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
             label="Role"
             value={role}
             onChange={(event) => setRole(Number(event.target.value))}
-            disabled={
-              !isNew && (!canEdit || employee.role === EmployeeRole.Owner)
-            }
+            disabled={!isNew && (!canEdit || employee.role === EmployeeRole.Owner)}
           >
             {availableRoleOptions.map((option) => (
               <MenuItem key={option.value} value={option.value}>
@@ -217,48 +185,26 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
           options={teams}
           value={selectedTeams}
           getOptionLabel={(option) => option.name}
-          isOptionEqualToValue={(option, value) =>
-            option.globalId === value.globalId
-          }
+          isOptionEqualToValue={(option, value) => option.globalId === value.globalId}
           onChange={(_, value) => setSelectedTeams(value)}
           disabled={!isNew && !canEdit}
           renderTags={(value, getTagProps) =>
-            value.map((option, index) => (
-              <Chip label={option.name} {...getTagProps({ index })} />
-            ))
+            value.map((option, index) => <Chip label={option.name} {...getTagProps({ index })} />)
           }
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Teams"
-              helperText="Assign this employee to teams."
-            />
-          )}
+          renderInput={(params) => <TextField {...params} label="Teams" helperText="Assign this employee to teams." />}
         />
       </Stack>
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        spacing={Dialogs.stepHeaderSpacing}
-        sx={Dialogs.addStepButtonSx}
-      >
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
         <Button variant="outlined" onClick={() => onClose(employee?.globalId)}>
           Cancel
         </Button>
         {!isNew && canEdit && employee?.role !== EmployeeRole.Owner && (
-          <Button
-            color="error"
-            variant="outlined"
-            onClick={() => setDeleteDialogIsOpen(true)}
-          >
+          <Button color="error" variant="outlined" onClick={() => setDeleteDialogIsOpen(true)}>
             Delete
           </Button>
         )}
         {(isNew || canEdit) && (
-          <LoadingButton
-            loading={saveIsLoading}
-            variant="outlined"
-            onClick={handleSubmit}
-          >
+          <LoadingButton loading={saveIsLoading} variant="outlined" onClick={handleSubmit}>
             Save
           </LoadingButton>
         )}
@@ -276,12 +222,12 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
         cancelLabel="Keep current owner"
         confirmColor="warning"
         confirmLabel="Transfer ownership"
-        message={(
+        message={
           <>
-            You are transferring ownership of this organization. You will become an Admin and will not be
-            able to transfer ownership back yourself.
+            You are transferring ownership of this organization. You will become an Admin and will not be able to
+            transfer ownership back yourself.
           </>
-        )}
+        }
         open={ownershipTransferDialogIsOpen}
         title="Transfer organization ownership?"
         onClose={() => setOwnershipTransferDialogIsOpen(false)}

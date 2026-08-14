@@ -4,29 +4,19 @@ import passwordValidator from "password-validator";
 import type { CSSProperties } from "react";
 
 const refreshSecondsDefault = 30;
-const gridRefreshSeconds = Number(
-  import.meta.env.VITE_GRID_REFRESH_SECONDS ?? String(refreshSecondsDefault),
-);
+const gridRefreshSeconds = Number(import.meta.env.VITE_GRID_REFRESH_SECONDS ?? String(refreshSecondsDefault));
 const uncompletedTasksRefreshSeconds = Number(
-  import.meta.env.VITE_UNCOMPLETED_TASKS_REFRESH_SECONDS ??
-  String(refreshSecondsDefault),
+  import.meta.env.VITE_UNCOMPLETED_TASKS_REFRESH_SECONDS ?? String(refreshSecondsDefault),
 );
 const discussionsRefreshSeconds = Number(
-  import.meta.env.VITE_DISCUSSIONS_REFRESH_SECONDS ??
-  String(refreshSecondsDefault),
+  import.meta.env.VITE_DISCUSSIONS_REFRESH_SECONDS ?? String(refreshSecondsDefault),
 );
 const notificationsRefreshSeconds = Number(
-  import.meta.env.VITE_NOTIFICATIONS_REFRESH_SECONDS ??
-  String(refreshSecondsDefault),
+  import.meta.env.VITE_NOTIFICATIONS_REFRESH_SECONDS ?? String(refreshSecondsDefault),
 );
-const discussionNotificationLimit = Number(
-  import.meta.env.VITE_DISCUSSION_NOTIFICATION_LIMIT ?? "10",
-);
-const notificationBellLimit = Number(
-  import.meta.env.VITE_NOTIFICATION_BELL_LIMIT ?? "10",
-);
-const showPersistenceSuccessNotifications =
-  import.meta.env.VITE_SHOW_PERSISTENCE_SUCCESS_NOTIFICATIONS !== "false";
+const discussionNotificationLimit = Number(import.meta.env.VITE_DISCUSSION_NOTIFICATION_LIMIT ?? "10");
+const notificationBellLimit = Number(import.meta.env.VITE_NOTIFICATION_BELL_LIMIT ?? "10");
+const showPersistenceSuccessNotifications = import.meta.env.VITE_SHOW_PERSISTENCE_SUCCESS_NOTIFICATIONS !== "false";
 const appBarHeight = 64;
 const appBarBrandTitleWithoutTenantPickerHideBelowWidth = 400;
 const appBarBrandTitleWithTenantPickerHideBelowWidth = 800;
@@ -76,17 +66,14 @@ export const Refresh = {
 
 export const Discussions = {
   notificationLimit:
-    Number.isFinite(discussionNotificationLimit) &&
-      discussionNotificationLimit > 0
+    Number.isFinite(discussionNotificationLimit) && discussionNotificationLimit > 0
       ? Math.floor(discussionNotificationLimit)
       : 10,
 } as const;
 
 export const Notifications = {
   bellLimit:
-    Number.isFinite(notificationBellLimit) && notificationBellLimit > 0
-      ? Math.floor(notificationBellLimit)
-      : 10,
+    Number.isFinite(notificationBellLimit) && notificationBellLimit > 0 ? Math.floor(notificationBellLimit) : 10,
   errorAutoHideDuration: 6000,
   errorMessageMaxLength: 160,
   showPersistenceSuccess: showPersistenceSuccessNotifications,
@@ -157,13 +144,10 @@ export const AuthForms = {
 
 export const Information = {
   emailVerificationTitle: "Verify your email address",
-  emailVerificationMessage:
-    "We have sent a verification link to your email address. Click the link to continue.",
+  emailVerificationMessage: "We have sent a verification link to your email address. Click the link to continue.",
   emailVerificationResultTitle: "Email address verification",
-  emailVerificationSuccessMessage:
-    "Your email address has been verified. {link} to continue.",
-  emailVerificationFailureMessage:
-    "Your email address verification failed. Try again or {link}.",
+  emailVerificationSuccessMessage: "Your email address has been verified. {link} to continue.",
+  emailVerificationFailureMessage: "Your email address verification failed. Try again or {link}.",
   passwordResetTitle: "Password reset",
   passwordResetMessage: "A reset password link was sent to your email address.",
 } as const;
@@ -331,10 +315,7 @@ export const Shell = {
       md: drawerIsVisible ? `calc(100% - ${mainMenuDrawerWidth}px)` : "100%",
     },
   }),
-  appBarSx: (
-    mainMenuDrawerIsVisible: boolean,
-    profileDrawerIsOpen: boolean,
-  ): SxProps<Theme> => ({
+  appBarSx: (mainMenuDrawerIsVisible: boolean, profileDrawerIsOpen: boolean): SxProps<Theme> => ({
     bgcolor: "background.default",
     borderBottom: 1,
     borderColor: "divider",
@@ -350,8 +331,7 @@ export const Shell = {
           ? `min(calc(100% - ${mainMenuDrawerWidth}px), ${theme.breakpoints.values.xl - mainMenuDrawerWidth}px)`
           : `min(100%, ${theme.breakpoints.values.xl}px)`,
     },
-    zIndex: (theme) =>
-      profileDrawerIsOpen ? theme.zIndex.drawer - 1 : theme.zIndex.drawer + 1,
+    zIndex: (theme) => (profileDrawerIsOpen ? theme.zIndex.drawer - 1 : theme.zIndex.drawer + 1),
     transition: (theme) =>
       theme.transitions.create(["margin", "width"], {
         easing: theme.transitions.easing.sharp,
@@ -370,15 +350,11 @@ export const Shell = {
     mr: 1,
     display: mainMenuDrawerIsOpen ? "none" : "inline-flex",
   }),
-  appBarBrandContainerSx: (
-    titleHideBelowWidth: number,
-    collapseWhenTitleHidden: boolean,
-  ): SxProps<Theme> => ({
+  appBarBrandContainerSx: (titleHideBelowWidth: number, collapseWhenTitleHidden: boolean): SxProps<Theme> => ({
     flex: "1 1 auto",
     minWidth: 0,
     overflow: "hidden",
-    [`@media (max-width: ${titleHideBelowWidth}px)`]:
-      collapseWhenTitleHidden ? { flex: "0 0 auto" } : undefined,
+    [`@media (max-width: ${titleHideBelowWidth}px)`]: collapseWhenTitleHidden ? { flex: "0 0 auto" } : undefined,
   }),
   appBarBrandTitleWithoutTenantPickerHideBelowWidth,
   appBarBrandTitleWithTenantPickerHideBelowWidth,
@@ -476,16 +452,14 @@ export const Shell = {
       display: { xs: "none", lg: "block" },
       "& .MuiDrawer-paper": {
         boxSizing: "border-box",
-        left: (theme) =>
-          `max(0px, calc((100vw - ${theme.breakpoints.values.xl}px) / 2))`,
+        left: (theme) => `max(0px, calc((100vw - ${theme.breakpoints.values.xl}px) / 2))`,
         width: mainMenuDrawerWidth,
       },
     };
   },
   profileDrawerSx: {
     "& .MuiDrawer-paper": {
-      right: (theme) =>
-        `max(0px, calc((100vw - ${theme.breakpoints.values.xl}px) / 2))`,
+      right: (theme) => `max(0px, calc((100vw - ${theme.breakpoints.values.xl}px) / 2))`,
     },
   } as SxProps<Theme>,
   profileDrawerContentSx: { minWidth: 280 } as SxProps<Theme>,
@@ -571,8 +545,7 @@ export const Errors = {
 
 const inboxPath = "/inbox";
 
-const tenantPath = (tenantGlobalId: string, path: string): string =>
-  `/tenants/${tenantGlobalId}${path}`;
+const tenantPath = (tenantGlobalId: string, path: string): string => `/tenants/${tenantGlobalId}${path}`;
 
 export const Routes = {
   defaultPath: "/",

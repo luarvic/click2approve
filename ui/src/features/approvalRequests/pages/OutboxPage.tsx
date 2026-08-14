@@ -20,9 +20,7 @@ const OutboxPage = () => {
         items={[
           {
             label: "Outbox",
-            titleAction: (
-              <HelpPopover helpText="Track requests you created and their progress." />
-            ),
+            titleAction: <HelpPopover helpText="Track requests you created and their progress." />,
           },
         ]}
       />

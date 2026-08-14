@@ -51,8 +51,7 @@ export class ApplicationConfigurationStore {
   }
 
   load = async (): Promise<void> => {
-    const configuration =
-      await applicationConfigurationApi.getApplicationConfiguration();
+    const configuration = await applicationConfigurationApi.getApplicationConfiguration();
     runInAction(() => {
       this.applicationConfiguration = configuration;
     });

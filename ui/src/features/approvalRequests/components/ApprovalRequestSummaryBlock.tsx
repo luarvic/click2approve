@@ -52,93 +52,82 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
   approvalRequest,
   approvalRequestTaskGlobalId,
 }) => {
-  const organizationIsVisible =
-    stores.tenantStore.currentTenant?.type === TenantType.Personal;
+  const organizationIsVisible = stores.tenantStore.currentTenant?.type === TenantType.Personal;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const requesterType = approvalRequest.createdByEmployeeGlobalId
-    ? AssigneeType.Employee
-    : AssigneeType.User;
-  const completionType = approvalRequest.completedByEmployeeGlobalId
-    ? AssigneeType.Employee
-    : AssigneeType.User;
+  const requesterType = approvalRequest.createdByEmployeeGlobalId ? AssigneeType.Employee : AssigneeType.User;
+  const completionType = approvalRequest.completedByEmployeeGlobalId ? AssigneeType.Employee : AssigneeType.User;
   const completionLabel = getRequestCompletionLabel(approvalRequest.status);
   const completedTimestamp = getRequestCompletedTimestamp(approvalRequest);
-  const completedBySystem = approvalRequest.status === ApprovalRequestStatus.Completed
-    && !approvalRequest.completedByDisplayName;
+  const completedBySystem =
+    approvalRequest.status === ApprovalRequestStatus.Completed && !approvalRequest.completedByDisplayName;
   const completionDisplayName = completedBySystem
     ? "System"
-    : approvalRequest.completedByDisplayName ?? approvalRequest.createdByDisplayName;
+    : (approvalRequest.completedByDisplayName ?? approvalRequest.createdByDisplayName);
   const completionEmail = completedBySystem
     ? undefined
-    : approvalRequest.completedByEmail ?? approvalRequest.createdByEmail;
-  const requestBorder = getRequestBorder(
-    approvalRequest.status,
-    approvalRequest.result,
-  );
-  const metadata = completionLabel && completedTimestamp ? (
-    <ApprovalRequestParticipantPair
-      firstLabel={<ApprovalRequestParticipantLabel>Requested by</ApprovalRequestParticipantLabel>}
-      firstParticipant={
-        <ApprovalRequestParticipant
-          displayName={approvalRequest.createdByDisplayName}
-          email={approvalRequest.createdByEmail}
-          organizationDisplayName={approvalRequest.organizationDisplayName}
-          showOrganization={organizationIsVisible}
-          type={requesterType}
-        />
-      }
-      firstTimestamp={
-        <ApprovalRequestTimestamp
-          date={approvalRequest.createdAtDate}
-          label="Requested at"
-          type="created"
-        />
-      }
-      secondLabel={<ApprovalRequestParticipantLabel>{completionLabel}</ApprovalRequestParticipantLabel>}
-      secondParticipant={
-        <ApprovalRequestParticipant
-          displayName={completionDisplayName}
-          email={completionEmail}
-          isSystemParticipant={completedBySystem}
-          organizationDisplayName={approvalRequest.organizationDisplayName}
-          showOrganization={organizationIsVisible}
-          type={completionType}
-        />
-      }
-      secondTimestamp={
-        <ApprovalRequestTimestamp
-          date={completedTimestamp.date}
-          label={completedTimestamp.label}
-          type={completedTimestamp.type}
-        />
-      }
-    />
-  ) : (
-    <ApprovalRequestParticipantPair
-      firstLabel={<ApprovalRequestParticipantLabel>Requested by</ApprovalRequestParticipantLabel>}
-      firstParticipant={
-        <ApprovalRequestParticipant
-          displayName={approvalRequest.createdByDisplayName}
-          email={approvalRequest.createdByEmail}
-          organizationDisplayName={approvalRequest.organizationDisplayName}
-          showOrganization={organizationIsVisible}
-          type={requesterType}
-        />
-      }
-      firstTimestamp={
-        <ApprovalRequestTimestampRow
-          items={[
-            {
-              date: approvalRequest.createdAtDate,
-              label: "Requested at",
-              type: "created",
-            },
-            completedTimestamp,
-          ]}
-        />
-      }
-    />
-  );
+    : (approvalRequest.completedByEmail ?? approvalRequest.createdByEmail);
+  const requestBorder = getRequestBorder(approvalRequest.status, approvalRequest.result);
+  const metadata =
+    completionLabel && completedTimestamp ? (
+      <ApprovalRequestParticipantPair
+        firstLabel={<ApprovalRequestParticipantLabel>Requested by</ApprovalRequestParticipantLabel>}
+        firstParticipant={
+          <ApprovalRequestParticipant
+            displayName={approvalRequest.createdByDisplayName}
+            email={approvalRequest.createdByEmail}
+            organizationDisplayName={approvalRequest.organizationDisplayName}
+            showOrganization={organizationIsVisible}
+            type={requesterType}
+          />
+        }
+        firstTimestamp={
+          <ApprovalRequestTimestamp date={approvalRequest.createdAtDate} label="Requested at" type="created" />
+        }
+        secondLabel={<ApprovalRequestParticipantLabel>{completionLabel}</ApprovalRequestParticipantLabel>}
+        secondParticipant={
+          <ApprovalRequestParticipant
+            displayName={completionDisplayName}
+            email={completionEmail}
+            isSystemParticipant={completedBySystem}
+            organizationDisplayName={approvalRequest.organizationDisplayName}
+            showOrganization={organizationIsVisible}
+            type={completionType}
+          />
+        }
+        secondTimestamp={
+          <ApprovalRequestTimestamp
+            date={completedTimestamp.date}
+            label={completedTimestamp.label}
+            type={completedTimestamp.type}
+          />
+        }
+      />
+    ) : (
+      <ApprovalRequestParticipantPair
+        firstLabel={<ApprovalRequestParticipantLabel>Requested by</ApprovalRequestParticipantLabel>}
+        firstParticipant={
+          <ApprovalRequestParticipant
+            displayName={approvalRequest.createdByDisplayName}
+            email={approvalRequest.createdByEmail}
+            organizationDisplayName={approvalRequest.organizationDisplayName}
+            showOrganization={organizationIsVisible}
+            type={requesterType}
+          />
+        }
+        firstTimestamp={
+          <ApprovalRequestTimestampRow
+            items={[
+              {
+                date: approvalRequest.createdAtDate,
+                label: "Requested at",
+                type: "created",
+              },
+              completedTimestamp,
+            ]}
+          />
+        }
+      />
+    );
 
   return (
     <ApprovalRequestDetailsCard
@@ -151,12 +140,12 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
         description={approvalRequest.description}
         approvalRequestGlobalId={approvalRequest.globalId}
         approvalRequestTaskGlobalId={approvalRequestTaskGlobalId}
-        nextRevisionApprovalRequestGlobalId={approvalRequestTaskGlobalId
-          ? undefined
-          : approvalRequest.nextRevisionApprovalRequestGlobalId}
-        previousRevisionApprovalRequestGlobalId={approvalRequestTaskGlobalId
-          ? undefined
-          : approvalRequest.previousRevisionApprovalRequestGlobalId}
+        nextRevisionApprovalRequestGlobalId={
+          approvalRequestTaskGlobalId ? undefined : approvalRequest.nextRevisionApprovalRequestGlobalId
+        }
+        previousRevisionApprovalRequestGlobalId={
+          approvalRequestTaskGlobalId ? undefined : approvalRequest.previousRevisionApprovalRequestGlobalId
+        }
         requestFiles={approvalRequest.requestFiles}
         revisionNumber={approvalRequest.revisionNumber}
         tenantGlobalId={tenantGlobalId}

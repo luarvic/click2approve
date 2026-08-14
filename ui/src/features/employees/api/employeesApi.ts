@@ -1,19 +1,11 @@
-import {
-  CreateEmployeeRequest,
-  Employee,
-  UpdateEmployeeRequest,
-} from "@/features/employees/models/employee";
+import { CreateEmployeeRequest, Employee, UpdateEmployeeRequest } from "@/features/employees/models/employee";
 import axios from "@/shared/api/axios";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
 
-export const listEmployees = async (
-  tenantGlobalId: string
-): Promise<Employee[]> => {
+export const listEmployees = async (tenantGlobalId: string): Promise<Employee[]> => {
   try {
-    const { data } = await axios.get<Employee[]>(
-      `api/v1/tenants/${tenantGlobalId}/employees`
-    );
+    const { data } = await axios.get<Employee[]>(`api/v1/tenants/${tenantGlobalId}/employees`);
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
@@ -23,13 +15,10 @@ export const listEmployees = async (
 
 export const createEmployee = async (
   tenantGlobalId: string,
-  payload: CreateEmployeeRequest
+  payload: CreateEmployeeRequest,
 ): Promise<Employee | null> => {
   try {
-    const { data } = await axios.post<Employee>(
-      `api/v1/tenants/${tenantGlobalId}/employees`,
-      payload
-    );
+    const { data } = await axios.post<Employee>(`api/v1/tenants/${tenantGlobalId}/employees`, payload);
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
@@ -40,12 +29,12 @@ export const createEmployee = async (
 export const updateEmployee = async (
   tenantGlobalId: string,
   employeeGlobalId: string,
-  payload: UpdateEmployeeRequest
+  payload: UpdateEmployeeRequest,
 ): Promise<Employee | null> => {
   try {
     const { data } = await axios.put<Employee>(
       `api/v1/tenants/${tenantGlobalId}/employees/${employeeGlobalId}`,
-      payload
+      payload,
     );
     return data;
   } catch (e) {
@@ -54,10 +43,7 @@ export const updateEmployee = async (
   }
 };
 
-export const deleteEmployee = async (
-  tenantGlobalId: string,
-  employeeGlobalId: string
-): Promise<boolean> => {
+export const deleteEmployee = async (tenantGlobalId: string, employeeGlobalId: string): Promise<boolean> => {
   try {
     await axios.delete(`api/v1/tenants/${tenantGlobalId}/employees/${employeeGlobalId}`);
     return true;

@@ -1,8 +1,6 @@
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 
-export const getApprovalRequestTaskActionLabels = (
-  action?: ApprovalRequestTaskAction,
-) => {
+export const getApprovalRequestTaskActionLabels = (action?: ApprovalRequestTaskAction) => {
   switch (action) {
     case ApprovalRequestTaskAction.Sign:
       return {
@@ -31,10 +29,7 @@ export const getApprovalRequestTaskActionLabels = (
   }
 };
 
-export const getApprovalRequestTaskCompletedActionLabel = (
-  action: ApprovalRequestTaskAction,
-  result?: boolean,
-) => {
+export const getApprovalRequestTaskCompletedActionLabel = (action: ApprovalRequestTaskAction, result?: boolean) => {
   if (result === false) {
     switch (action) {
       case ApprovalRequestTaskAction.Sign:

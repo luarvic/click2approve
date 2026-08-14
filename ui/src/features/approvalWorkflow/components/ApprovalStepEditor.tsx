@@ -2,22 +2,12 @@ import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/A
 import ApprovalStepAssigneeRow from "@/features/approvalWorkflow/components/ApprovalStepAssigneeRow";
 import ApprovalStepTitle from "@/features/approvalWorkflow/components/ApprovalStepTitle";
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
-import {
-  AssigneeType,
-  ApprovalStepAssignee,
-  ApprovalStepMode,
-} from "@/features/approvalWorkflow/models/approvalStep";
+import { AssigneeType, ApprovalStepAssignee, ApprovalStepMode } from "@/features/approvalWorkflow/models/approvalStep";
 import { EditableApprovalStep } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { Employee } from "@/features/employees/models/employee";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { Dialogs, Icons } from "@/shared/constants/constants";
-import {
-  Add,
-  AccountTreeOutlined,
-  DeleteOutline,
-  North,
-  South,
-} from "@mui/icons-material";
+import { Add, AccountTreeOutlined, DeleteOutline, North, South } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import {
   Box,
@@ -61,10 +51,7 @@ interface ApprovalStepEditorProps {
   compactEmployeeOptions?: boolean;
   employees: Employee[];
   teams: { globalId: string; name: string }[];
-  getStepState?: (
-    step: EditableApprovalStep,
-    stepIndex: number,
-  ) => ApprovalStepEditorStepState;
+  getStepState?: (step: EditableApprovalStep, stepIndex: number) => ApprovalStepEditorStepState;
   getAssigneeState?: (
     step: EditableApprovalStep,
     stepIndex: number,
@@ -78,23 +65,15 @@ interface ApprovalStepEditorProps {
   onMoveStep: (stepIndex: number, direction: -1 | 1) => void;
   onRemoveAssignee: (stepIndex: number, assigneeIndex: number) => void;
   onRemoveStep: (stepIndex: number) => void;
-  onUpdateAssignee: (
-    stepIndex: number,
-    assigneeIndex: number,
-    assignee: ApprovalStepAssignee,
-  ) => void;
-  onUpdateStep: (
-    stepIndex: number,
-    updater: (step: EditableApprovalStep) => EditableApprovalStep,
-  ) => void;
+  onUpdateAssignee: (stepIndex: number, assigneeIndex: number, assignee: ApprovalStepAssignee) => void;
+  onUpdateStep: (stepIndex: number, updater: (step: EditableApprovalStep) => EditableApprovalStep) => void;
 }
 
 const stepContentSx: SxProps<Theme> = { pr: 0 };
 const stepLabelSx: SxProps<Theme> = {
-  "& .MuiStepLabel-label, & .MuiStepLabel-label.Mui-active, & .MuiStepLabel-label.Mui-completed":
-    {
-      color: "text.primary",
-    },
+  "& .MuiStepLabel-label, & .MuiStepLabel-label.Mui-active, & .MuiStepLabel-label.Mui-completed": {
+    color: "text.primary",
+  },
 };
 const stepLabelContentSx: SxProps<Theme> = {
   alignItems: "center",
@@ -119,12 +98,9 @@ const actionOptions = [
   { value: ApprovalRequestTaskAction.Confirm, label: "Confirm" },
   { value: ApprovalRequestTaskAction.Acknowledge, label: "Acknowledge" },
 ];
-const getStepContentSx = (sx?: SxProps<Theme>): SxProps<Theme> =>
-  sx ? (Array.isArray(sx) ? sx : [sx]) : [];
+const getStepContentSx = (sx?: SxProps<Theme>): SxProps<Theme> => (sx ? (Array.isArray(sx) ? sx : [sx]) : []);
 
-const EditableStepIcon = () => (
-  <AccountTreeOutlined color={Icons.secondaryColor} fontSize="small" />
-);
+const EditableStepIcon = () => <AccountTreeOutlined color={Icons.secondaryColor} fontSize="small" />;
 
 const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
   steps,
@@ -156,10 +132,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
           const canRemove = state.canRemove ?? !disabled;
           const canAddAssignee = state.canAddAssignee ?? !disabled;
           const showCompletionRule =
-            step.assignees.length > 1 ||
-            step.assignees.some(
-              (assignee) => assignee.type === AssigneeType.Team,
-            );
+            step.assignees.length > 1 || step.assignees.some((assignee) => assignee.type === AssigneeType.Team);
 
           return (
             <Step expanded key={step.globalId ?? `new-${step.sequence}`}>
@@ -167,9 +140,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                 <Box sx={stepLabelContentSx}>
                   <ApprovalStepTitle sequence={step.sequence} />
                   {state.isPassed && <Chip label="Locked" size="small" />}
-                  {state.isCurrent && (
-                    <Chip label="Current" size="small" color="warning" />
-                  )}
+                  {state.isCurrent && <Chip label="Current" size="small" color="warning" />}
                   <Box sx={stepLabelActionsSx}>
                     {(canMoveUp || canMoveDown) && (
                       <>
@@ -220,10 +191,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                   </Box>
                 </Box>
               </StepLabel>
-              <StepContent
-                sx={stepContentSx}
-                TransitionProps={{ in: true, unmountOnExit: false }}
-              >
+              <StepContent sx={stepContentSx} TransitionProps={{ in: true, unmountOnExit: false }}>
                 <ApprovalRequestDetailsCard
                   ariaLabel={`Step ${step.sequence}`}
                   showStatusBorder={false}
@@ -239,9 +207,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                       onChange={(event) =>
                         onUpdateStep(stepIndex, (current) => ({
                           ...current,
-                          action: Number(
-                            event.target.value,
-                          ) as ApprovalRequestTaskAction,
+                          action: Number(event.target.value) as ApprovalRequestTaskAction,
                         }))
                       }
                     >
@@ -254,13 +220,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                     <Stack spacing={Dialogs.assigneeStackSpacing}>
                       {step.assignees.map((assignee, assigneeIndex) =>
                         (() => {
-                          const assigneeState =
-                            getAssigneeState?.(
-                              step,
-                              stepIndex,
-                              assignee,
-                              assigneeIndex,
-                            ) ?? {};
+                          const assigneeState = getAssigneeState?.(step, stepIndex, assignee, assigneeIndex) ?? {};
                           return (
                             <ApprovalStepAssigneeRow
                               assignee={assignee}
@@ -270,26 +230,12 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                               disabled={assigneeState.disabled ?? disabled}
                               employees={employees}
                               key={assignee.globalId ?? assigneeIndex}
-                              muted={
-                                assigneeState.muted ?? state.isPassed ?? false
-                              }
-                              removeDisabled={
-                                assigneeState.removeDisabled ?? disabled
-                              }
+                              muted={assigneeState.muted ?? state.isPassed ?? false}
+                              removeDisabled={assigneeState.removeDisabled ?? disabled}
                               teams={teams}
-                              stackControlsOnSmallScreens={
-                                stackAssigneeControlsOnSmallScreens
-                              }
-                              onChange={(nextAssignee) =>
-                                onUpdateAssignee(
-                                  stepIndex,
-                                  assigneeIndex,
-                                  nextAssignee,
-                                )
-                              }
-                              onRemove={() =>
-                                onRemoveAssignee(stepIndex, assigneeIndex)
-                              }
+                              stackControlsOnSmallScreens={stackAssigneeControlsOnSmallScreens}
+                              onChange={(nextAssignee) => onUpdateAssignee(stepIndex, assigneeIndex, nextAssignee)}
+                              onRemove={() => onRemoveAssignee(stepIndex, assigneeIndex)}
                             />
                           );
                         })(),
@@ -299,17 +245,12 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                       <FormControlLabel
                         control={
                           <Switch
-                            checked={
-                              (step.mode ?? ApprovalStepMode.Any) ===
-                              ApprovalStepMode.All
-                            }
+                            checked={(step.mode ?? ApprovalStepMode.Any) === ApprovalStepMode.All}
                             disabled={disabled}
                             onChange={(_, checked) =>
                               onUpdateStep(stepIndex, (current) => ({
                                 ...current,
-                                mode: checked
-                                  ? ApprovalStepMode.All
-                                  : ApprovalStepMode.Any,
+                                mode: checked ? ApprovalStepMode.All : ApprovalStepMode.Any,
                               }))
                             }
                           />

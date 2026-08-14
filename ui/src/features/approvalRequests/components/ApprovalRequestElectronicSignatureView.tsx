@@ -2,13 +2,7 @@ import ApprovalRequestSignatureView from "@/features/approvalRequests/components
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { Dialogs } from "@/shared/constants/constants";
 import { DrawOutlined, ExpandMore } from "@mui/icons-material";
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import type { SxProps, Theme } from "@mui/material/styles";
 
@@ -39,22 +33,10 @@ const electronicSignatureDetailsSx: SxProps<Theme> = {
   pt: 0,
 };
 
-const ApprovalRequestElectronicSignatureView: React.FC<ApprovalRequestElectronicSignatureViewProps> = ({
-  task,
-}) => (
-  <Accordion
-    disableGutters
-    sx={electronicSignatureAccordionSx}
-  >
-    <AccordionSummary
-      expandIcon={<ExpandMore />}
-      sx={electronicSignatureSummarySx}
-    >
-      <Stack
-        alignItems="center"
-        direction="row"
-        spacing={Dialogs.stepHeaderSpacing}
-      >
+const ApprovalRequestElectronicSignatureView: React.FC<ApprovalRequestElectronicSignatureViewProps> = ({ task }) => (
+  <Accordion disableGutters sx={electronicSignatureAccordionSx}>
+    <AccordionSummary expandIcon={<ExpandMore />} sx={electronicSignatureSummarySx}>
+      <Stack alignItems="center" direction="row" spacing={Dialogs.stepHeaderSpacing}>
         <DrawOutlined color="secondary" />
         <Typography color="secondary" variant="subtitle1">
           Electronic signature
@@ -68,9 +50,7 @@ const ApprovalRequestElectronicSignatureView: React.FC<ApprovalRequestElectronic
             <Typography color="text.secondary" variant="caption">
               Legal name
             </Typography>
-            <Typography>
-              {task.assigneeLegalName || "Not provided"}
-            </Typography>
+            <Typography>{task.assigneeLegalName || "Not provided"}</Typography>
           </Stack>
           {task.assigneeOrganization && (
             <Stack spacing={Dialogs.stepHeaderSpacing}>

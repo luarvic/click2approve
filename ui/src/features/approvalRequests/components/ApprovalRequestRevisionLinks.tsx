@@ -18,19 +18,14 @@ const ApprovalRequestRevisionLinks: React.FC<ApprovalRequestRevisionLinksProps> 
     return null;
   }
 
-  const getRequestPath = (globalId: string) =>
-    Routes.tenantPath(tenantGlobalId, `/outbox/${globalId}`);
+  const getRequestPath = (globalId: string) => Routes.tenantPath(tenantGlobalId, `/outbox/${globalId}`);
 
   return (
     <Typography color="text.secondary" variant="body2">
       {previousRevisionApprovalRequestGlobalId && (
         <>
-          Supersedes {" "}
-          <Link
-            color="inherit"
-            component={RouterLink}
-            to={getRequestPath(previousRevisionApprovalRequestGlobalId)}
-          >
+          Supersedes{" "}
+          <Link color="inherit" component={RouterLink} to={getRequestPath(previousRevisionApprovalRequestGlobalId)}>
             {getApprovalRequestNumber(previousRevisionApprovalRequestGlobalId)}
           </Link>
         </>
@@ -38,12 +33,8 @@ const ApprovalRequestRevisionLinks: React.FC<ApprovalRequestRevisionLinksProps> 
       {previousRevisionApprovalRequestGlobalId && nextRevisionApprovalRequestGlobalId && " | "}
       {nextRevisionApprovalRequestGlobalId && (
         <>
-          Superseded by {" "}
-          <Link
-            color="inherit"
-            component={RouterLink}
-            to={getRequestPath(nextRevisionApprovalRequestGlobalId)}
-          >
+          Superseded by{" "}
+          <Link color="inherit" component={RouterLink} to={getRequestPath(nextRevisionApprovalRequestGlobalId)}>
             {getApprovalRequestNumber(nextRevisionApprovalRequestGlobalId)}
           </Link>
         </>

@@ -10,13 +10,7 @@ import { downloadApprovalRequestTaskAttachment } from "@/features/userFiles/util
 import { Files, StackSpacing } from "@/shared/constants/constants";
 import { AttachFile } from "@mui/icons-material";
 import { Button, Stack } from "@mui/material";
-import {
-  forwardRef,
-  useCallback,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from "react";
+import { forwardRef, useCallback, useImperativeHandle, useRef, useState } from "react";
 
 interface ApprovalRequestTaskAttachmentsProps {
   canManageFiles: boolean;
@@ -44,11 +38,14 @@ const ApprovalRequestTaskAttachments = forwardRef<
     const uploadedFiles = await uploadUserFiles(tenantGlobalId, newFiles);
     if (uploadedFiles.length !== newFiles.length) return false;
 
-    if (!await addApprovalRequestTaskAttachments(
-      tenantGlobalId,
-      taskGlobalId,
-      uploadedFiles.map((file) => file.globalId),
-    )) return false;
+    if (
+      !(await addApprovalRequestTaskAttachments(
+        tenantGlobalId,
+        taskGlobalId,
+        uploadedFiles.map((file) => file.globalId),
+      ))
+    )
+      return false;
 
     setNewFiles([]);
     setFiles((files) => [...files, ...uploadedFiles]);
@@ -59,44 +56,31 @@ const ApprovalRequestTaskAttachments = forwardRef<
 
   return (
     <Stack alignItems="flex-start" spacing={StackSpacing.default}>
-      {showLabel && (
-        <ApprovalRequestParticipantLabel>{label}</ApprovalRequestParticipantLabel>
-      )}
+      {showLabel && <ApprovalRequestParticipantLabel>{label}</ApprovalRequestParticipantLabel>}
       <ApprovalRequestFilesList
         existingFiles={files.map((file) => ({ file }))}
         newFiles={newFiles}
-        onDownloadExisting={(file) =>
-          void downloadApprovalRequestTaskAttachment(
-            tenantGlobalId,
-            file,
-            taskGlobalId,
-          )
+        onDownloadExisting={(file) => void downloadApprovalRequestTaskAttachment(tenantGlobalId, file, taskGlobalId)}
+        onRemoveExisting={
+          canManageFiles
+            ? (index) => {
+                const file = files[index];
+                if (!file) return;
+                void removeApprovalRequestTaskAttachment(tenantGlobalId, taskGlobalId, file.globalId).then(
+                  (removed) => {
+                    if (removed) {
+                      setFiles((files) => files.filter((_, fileIndex) => fileIndex !== index));
+                    }
+                  },
+                );
+              }
+            : undefined
         }
-        onRemoveExisting={canManageFiles ? (index) => {
-          const file = files[index];
-          if (!file) return;
-          void removeApprovalRequestTaskAttachment(
-            tenantGlobalId,
-            taskGlobalId,
-            file.globalId,
-          ).then((removed) => {
-            if (removed) {
-              setFiles((files) => files.filter((_, fileIndex) => fileIndex !== index));
-            }
-          });
-        } : undefined}
-        onRemoveNew={(index) =>
-          setNewFiles((files) =>
-            files.filter((_, fileIndex) => fileIndex !== index),
-          )
-        }
+        onRemoveNew={(index) => setNewFiles((files) => files.filter((_, fileIndex) => fileIndex !== index))}
       />
       {canManageFiles && (
         <>
-          <Button
-            startIcon={<AttachFile />}
-            onClick={() => fileInput.current?.click()}
-          >
+          <Button startIcon={<AttachFile />} onClick={() => fileInput.current?.click()}>
             Attach files
           </Button>
           <input
@@ -105,10 +89,7 @@ const ApprovalRequestTaskAttachments = forwardRef<
             style={Files.inputStyle}
             type="file"
             onChange={(event) => {
-              setNewFiles((files) => [
-                ...files,
-                ...Array.from(event.target.files ?? []),
-              ]);
+              setNewFiles((files) => [...files, ...Array.from(event.target.files ?? [])]);
               event.target.value = "";
             }}
           />

@@ -17,11 +17,7 @@ const PublicLayout = ({ children }: PublicLayoutProps) => {
         <ColorModeSwitch
           checked={stores.userPreferencesStore.theme.palette.mode === "dark"}
           inputProps={{ "aria-label": "Dark mode" }}
-          onChange={(event) =>
-            stores.userPreferencesStore.setColorMode(
-              event.target.checked ? "dark" : "light"
-            )
-          }
+          onChange={(event) => stores.userPreferencesStore.setColorMode(event.target.checked ? "dark" : "light")}
         />
       </PublicAppBar>
       <Container maxWidth="xl" disableGutters sx={Shell.contentBackgroundSx}>
