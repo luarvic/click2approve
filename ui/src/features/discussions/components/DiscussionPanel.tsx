@@ -60,6 +60,12 @@ const getMessageTimelineSx = (isOutgoing: boolean): SxProps<Theme> => ({
   opacity: isOutgoing ? 0.8 : 1,
 });
 
+const getMessageSenderSx = (isOutgoing: boolean): SxProps<Theme> => ({
+  "& .MuiSvgIcon-root": {
+    color: isOutgoing ? "inherit" : undefined,
+  },
+});
+
 const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
   (
     {
@@ -148,6 +154,7 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
                     showEmailAddress={false}
                   />
                 )}
+                sx={getMessageSenderSx(isOutgoing)}
                 type={message.sentByType}
               />
               {message.isDelegated && representedSender && (

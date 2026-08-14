@@ -21,6 +21,7 @@ describe("<DiscussionParticipants />", () => {
 
     expect(screen.getByText("Requester")).toBeTruthy();
     expect(screen.getByText("requester@example.com")).toBeTruthy();
+    expect(screen.getByText("Participants · 2")).toBeTruthy();
     expect(screen.getByTestId("PersonIcon")).toBeTruthy();
     expect(screen.getByTestId("EmailIcon")).toBeTruthy();
   });
@@ -42,5 +43,6 @@ describe("<DiscussionParticipants />", () => {
     );
 
     expect(screen.getAllByText("Taylor Jones, Director")).toHaveLength(1);
+    expect(screen.getByText("Participants · 1")).toBeTruthy();
   });
 });
