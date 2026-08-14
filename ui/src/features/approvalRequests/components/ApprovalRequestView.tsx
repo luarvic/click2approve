@@ -12,6 +12,7 @@ import { createSharedVerificationLinkForRequest } from "@/features/sharedVerific
 import SharedVerificationLinksPanel from "@/features/sharedVerificationLinks/components/SharedVerificationLinksPanel";
 import { TenantType } from "@/features/tenants/models/tenant";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
+import NarrowContent from "@/shared/components/layout/NarrowContent";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
@@ -246,23 +247,25 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
         <ApprovalRequestDetails approvalRequest={approvalRequest} />
       )}
       {tab === "chat" && discussionsAreEnabled && approvalRequest && (
-        <DiscussionPanel
-          canSend={canSendDiscussion}
-          ref={discussionPanel}
-          requestGlobalId={approvalRequest.globalId}
-          requesterDisplayName={approvalRequest.createdByDisplayName}
-          requesterEmail={approvalRequest.createdByEmail}
-          requesterType={approvalRequest.createdByEmployeeGlobalId
-            ? AssigneeType.Employee
-            : AssigneeType.User}
-          stepLabels={Object.fromEntries(
-            approvalRequest.steps
-              .filter((step) => step.globalId)
-              .map((step) => [step.globalId!, `Step ${step.sequence}`]),
-          )}
-          steps={approvalRequest.steps}
-          tenantGlobalId={tenantGlobalId}
-        />
+        <NarrowContent>
+          <DiscussionPanel
+            canSend={canSendDiscussion}
+            ref={discussionPanel}
+            requestGlobalId={approvalRequest.globalId}
+            requesterDisplayName={approvalRequest.createdByDisplayName}
+            requesterEmail={approvalRequest.createdByEmail}
+            requesterType={approvalRequest.createdByEmployeeGlobalId
+              ? AssigneeType.Employee
+              : AssigneeType.User}
+            stepLabels={Object.fromEntries(
+              approvalRequest.steps
+                .filter((step) => step.globalId)
+                .map((step) => [step.globalId!, `Step ${step.sequence}`]),
+            )}
+            steps={approvalRequest.steps}
+            tenantGlobalId={tenantGlobalId}
+          />
+        </NarrowContent>
       )}
       {tab === "link" && canManageSharedVerificationLinks && (
         <SharedVerificationLinksPanel
