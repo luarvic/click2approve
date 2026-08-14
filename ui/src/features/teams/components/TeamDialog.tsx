@@ -3,6 +3,7 @@ import { Employee } from "@/features/employees/models/employee";
 import { Team, UpsertTeamRequest } from "@/features/teams/models/team";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import DisplayName from "@/shared/components/identity/DisplayName";
+import NarrowContent from "@/shared/components/layout/NarrowContent";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
@@ -92,7 +93,8 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
           { label: isNew ? "New team" : "Team" },
         ]}
       />
-      <Stack spacing={Dialogs.formStackSpacing}>
+      <NarrowContent>
+        <Stack spacing={Dialogs.formStackSpacing}>
         <TextField
           label="Name"
           value={name}
@@ -138,30 +140,31 @@ const TeamDialog: React.FC<TeamDialogProps> = ({
             </li>
           )}
         />
-      </Stack>
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        spacing={Dialogs.stepHeaderSpacing}
-        sx={Dialogs.addStepButtonSx}
-      >
-        <Button variant="outlined" onClick={() => onClose(team?.globalId)}>
-          Cancel
-        </Button>
-        {!isNew && canEdit && (
-          <Button
-            color="error"
-            variant="outlined"
-            onClick={() => setDeleteDialogIsOpen(true)}
-          >
-            Delete
+        </Stack>
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={Dialogs.stepHeaderSpacing}
+          sx={Dialogs.addStepButtonSx}
+        >
+          <Button variant="outlined" onClick={() => onClose(team?.globalId)}>
+            Cancel
           </Button>
-        )}
-        {(isNew || canEdit) && (
-          <LoadingButton loading={saveIsLoading} variant="outlined" onClick={handleSubmit}>
-            Save
-          </LoadingButton>
-        )}
-      </Stack>
+          {!isNew && canEdit && (
+            <Button
+              color="error"
+              variant="outlined"
+              onClick={() => setDeleteDialogIsOpen(true)}
+            >
+              Delete
+            </Button>
+          )}
+          {(isNew || canEdit) && (
+            <LoadingButton loading={saveIsLoading} variant="outlined" onClick={handleSubmit}>
+              Save
+            </LoadingButton>
+          )}
+        </Stack>
+      </NarrowContent>
       {team && (
         <DeleteConfirmationDialog
           entityName={team.name}

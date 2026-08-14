@@ -8,6 +8,7 @@ import { Team } from "@/features/teams/models/team";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
+import NarrowContent from "@/shared/components/layout/NarrowContent";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes, Validation } from "@/shared/constants/constants";
@@ -159,7 +160,8 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
           { label: isNew ? "New employee" : "Employee" },
         ]}
       />
-      <Stack spacing={Dialogs.formStackSpacing}>
+      <NarrowContent>
+        <Stack spacing={Dialogs.formStackSpacing}>
         <TextField
           label="Email"
           value={email}
@@ -235,34 +237,35 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
             />
           )}
         />
-      </Stack>
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        spacing={Dialogs.stepHeaderSpacing}
-        sx={Dialogs.addStepButtonSx}
-      >
-        <Button variant="outlined" onClick={() => onClose(employee?.globalId)}>
-          Cancel
-        </Button>
-        {!isNew && canEdit && employee?.role !== EmployeeRole.Owner && (
-          <Button
-            color="error"
-            variant="outlined"
-            onClick={() => setDeleteDialogIsOpen(true)}
-          >
-            Delete
+        </Stack>
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={Dialogs.stepHeaderSpacing}
+          sx={Dialogs.addStepButtonSx}
+        >
+          <Button variant="outlined" onClick={() => onClose(employee?.globalId)}>
+            Cancel
           </Button>
-        )}
-        {(isNew || canEdit) && (
-          <LoadingButton
-            loading={saveIsLoading}
-            variant="outlined"
-            onClick={handleSubmit}
-          >
-            Save
-          </LoadingButton>
-        )}
-      </Stack>
+          {!isNew && canEdit && employee?.role !== EmployeeRole.Owner && (
+            <Button
+              color="error"
+              variant="outlined"
+              onClick={() => setDeleteDialogIsOpen(true)}
+            >
+              Delete
+            </Button>
+          )}
+          {(isNew || canEdit) && (
+            <LoadingButton
+              loading={saveIsLoading}
+              variant="outlined"
+              onClick={handleSubmit}
+            >
+              Save
+            </LoadingButton>
+          )}
+        </Stack>
+      </NarrowContent>
       {employee && (
         <DeleteConfirmationDialog
           entityName={employee.email}

@@ -2,6 +2,7 @@ import { stores } from "@/app/rootStore";
 import ApprovalRequestSignatureField from "@/features/approvalRequests/components/ApprovalRequestSignatureField";
 import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
 import ImagePicker from "@/shared/components/images/ImagePicker";
+import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { AuthForms, Dialogs, Pages, StackSpacing } from "@/shared/constants/constants";
@@ -127,99 +128,101 @@ const UserProfilePage = () => {
   return (
     <Box sx={Pages.userProfileContainerSx}>
       <PageBreadcrumbs items={[{ label: "User profile" }]} />
-      <Stack component="form" noValidate spacing={StackSpacing.loose} sx={AuthForms.formSx}>
-        <Tabs
-          value={selectedTab}
-          onChange={(_, value: string) => setSelectedTab(value)}
-          variant="scrollable"
-        >
-          <Tab label="Profile" value="profile" />
-          <Tab label="Signature" value="signature" />
-          <Tab label="Notifications" value="notifications" />
-        </Tabs>
-        {selectedTab === "profile" && (
-          <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
-            <ImagePicker
-              alt="User avatar"
-              fallback={<Person fontSize="large" />}
-              imageSize={stores.applicationConfigurationStore.applicationConfiguration?.avatarImageSize ?? 256}
-              imageUrl={getPublicApiUrl(profile.avatar)}
-              onDelete={handleRemoveAvatar}
-              onSave={setSelectedAvatar}
-              selectedFile={selectedAvatar}
-              title="Edit avatar"
-            />
-            <TextField
-              label="First name"
-              value={firstName}
-              onChange={(event) => setFirstName(event.target.value)}
-            />
-            <TextField
-              label="Last name"
-              value={lastName}
-              onChange={(event) => setLastName(event.target.value)}
-            />
-            {stores.tenantStore.tenants.length > 0 && (
-              <FormControl>
-                <InputLabel id="default-organization-label">
-                  Default organization
-                </InputLabel>
-                <Select
-                  labelId="default-organization-label"
-                  label="Default organization"
-                  value={defaultTenantGlobalId}
-                  onChange={(event) =>
-                    setDefaultTenantGlobalId(
-                      event.target.value === "" ? "" : event.target.value
-                    )
-                  }
-                >
-                  <MenuItem value="">No default organization</MenuItem>
-                  {stores.tenantStore.tenants.map((tenant) => (
-                    <MenuItem key={tenant.globalId} value={tenant.globalId}>
-                      {tenant.businessName}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            )}
-          </Stack>
-        )}
-        {selectedTab === "notifications" && (
-          <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
-            <FormGroup>
-              {notificationPreferences.map((preference) => (
-                <FormControlLabel
-                  key={`${preference.channel}-${preference.type}`}
-                  control={
-                    <Switch
-                      checked={preference.isEnabled}
-                      onChange={() => handleNotificationToggle(preference.type)}
-                    />
-                  }
-                  label={notificationLabels[preference.type]}
-                />
-              ))}
-            </FormGroup>
-          </Stack>
-        )}
-        {selectedTab === "signature" && (
-          <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
-            <Typography color="text.secondary">
-              Your saved signature will be prefilled when you sign an approval request.
-            </Typography>
-            <ApprovalRequestSignatureField
-              onChange={handleSignatureChange}
-              value={defaultSignatureJson}
-            />
-          </Stack>
-        )}
-        <Box>
-          <LoadingButton loading={saveAction.isRunning} variant="outlined" onClick={handleSave}>
-            Save
-          </LoadingButton>
-        </Box>
-      </Stack>
+      <NarrowContent>
+        <Stack component="form" noValidate spacing={StackSpacing.loose} sx={AuthForms.formSx}>
+          <Tabs
+            value={selectedTab}
+            onChange={(_, value: string) => setSelectedTab(value)}
+            variant="scrollable"
+          >
+            <Tab label="Profile" value="profile" />
+            <Tab label="Signature" value="signature" />
+            <Tab label="Notifications" value="notifications" />
+          </Tabs>
+          {selectedTab === "profile" && (
+            <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
+              <ImagePicker
+                alt="User avatar"
+                fallback={<Person fontSize="large" />}
+                imageSize={stores.applicationConfigurationStore.applicationConfiguration?.avatarImageSize ?? 256}
+                imageUrl={getPublicApiUrl(profile.avatar)}
+                onDelete={handleRemoveAvatar}
+                onSave={setSelectedAvatar}
+                selectedFile={selectedAvatar}
+                title="Edit avatar"
+              />
+              <TextField
+                label="First name"
+                value={firstName}
+                onChange={(event) => setFirstName(event.target.value)}
+              />
+              <TextField
+                label="Last name"
+                value={lastName}
+                onChange={(event) => setLastName(event.target.value)}
+              />
+              {stores.tenantStore.tenants.length > 0 && (
+                <FormControl>
+                  <InputLabel id="default-organization-label">
+                    Default organization
+                  </InputLabel>
+                  <Select
+                    labelId="default-organization-label"
+                    label="Default organization"
+                    value={defaultTenantGlobalId}
+                    onChange={(event) =>
+                      setDefaultTenantGlobalId(
+                        event.target.value === "" ? "" : event.target.value
+                      )
+                    }
+                  >
+                    <MenuItem value="">No default organization</MenuItem>
+                    {stores.tenantStore.tenants.map((tenant) => (
+                      <MenuItem key={tenant.globalId} value={tenant.globalId}>
+                        {tenant.businessName}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
+            </Stack>
+          )}
+          {selectedTab === "notifications" && (
+            <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
+              <FormGroup>
+                {notificationPreferences.map((preference) => (
+                  <FormControlLabel
+                    key={`${preference.channel}-${preference.type}`}
+                    control={
+                      <Switch
+                        checked={preference.isEnabled}
+                        onChange={() => handleNotificationToggle(preference.type)}
+                      />
+                    }
+                    label={notificationLabels[preference.type]}
+                  />
+                ))}
+              </FormGroup>
+            </Stack>
+          )}
+          {selectedTab === "signature" && (
+            <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
+              <Typography color="text.secondary">
+                Your saved signature will be prefilled when you sign an approval request.
+              </Typography>
+              <ApprovalRequestSignatureField
+                onChange={handleSignatureChange}
+                value={defaultSignatureJson}
+              />
+            </Stack>
+          )}
+          <Box>
+            <LoadingButton loading={saveAction.isRunning} variant="outlined" onClick={handleSave}>
+              Save
+            </LoadingButton>
+          </Box>
+        </Stack>
+      </NarrowContent>
     </Box>
   );
 };
