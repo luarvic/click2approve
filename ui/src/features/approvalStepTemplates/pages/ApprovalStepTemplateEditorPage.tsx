@@ -1,6 +1,7 @@
 import { stores } from "@/app/rootStore";
 import ApprovalStepTemplateEditor from "@/features/approvalStepTemplates/components/ApprovalStepTemplateDialog";
 import { TenantType } from "@/features/tenants/models/tenant";
+import NarrowContent from "@/shared/components/layout/NarrowContent";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
@@ -67,7 +68,8 @@ const ApprovalStepTemplateEditorPage = () => {
   }
 
   return (
-    <ApprovalStepTemplateEditor
+    <NarrowContent>
+      <ApprovalStepTemplateEditor
       template={template ?? null}
       onClose={(currentTemplateGlobalId) =>
         navigate(templatesPath, {
@@ -88,7 +90,8 @@ const ApprovalStepTemplateEditorPage = () => {
         }
         return deleted;
       }}
-    />
+      />
+    </NarrowContent>
   );
 };
 

@@ -1,7 +1,5 @@
 using Click2Approve.Application.Abstractions.Email;
 using Click2Approve.Application.Models.Emails;
-using Click2Approve.Application.Models.Files;
-using Click2Approve.Application.Models.Notifications;
 using FluentEmail.Core;
 using Hangfire;
 using Hangfire.Common;

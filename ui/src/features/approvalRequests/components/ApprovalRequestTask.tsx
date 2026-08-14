@@ -5,6 +5,10 @@ import type { ElectronicSignatureErrors } from "@/features/approvalRequests/comp
 import ApprovalRequestElectronicSignatureForm from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureForm";
 import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestTaskSummaryBlock";
+import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
+import ApprovalRequestTaskAttachments, {
+  ApprovalRequestTaskAttachmentsHandle,
+} from "@/features/approvalRequests/components/ApprovalRequestTaskAttachments";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
@@ -20,7 +24,6 @@ import { createSharedVerificationLinkForTask } from "@/features/sharedVerificati
 import SharedVerificationLinksPanel from "@/features/sharedVerificationLinks/components/SharedVerificationLinksPanel";
 import { TenantType } from "@/features/tenants/models/tenant";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
-import NarrowContent from "@/shared/components/layout/NarrowContent";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
@@ -102,6 +105,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
   ] = useState(0);
   const [nameWarningDialogIsOpen, setNameWarningDialogIsOpen] = useState(false);
   const discussionPanel = useRef<DiscussionPanelHandle>(null);
+  const taskAttachments = useRef<ApprovalRequestTaskAttachmentsHandle>(null);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const nameWarning = getIncompleteParticipantNameWarning(
     stores.tenantStore.currentTenant?.type,
@@ -129,6 +133,10 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
     ) === true;
   const discussionsAreEnabled =
     stores.applicationConfigurationStore.discussionsAreEnabled;
+  const discussionAttachmentsAreEnabled =
+    stores.applicationConfigurationStore.discussionAttachmentsAreEnabled;
+  const taskAttachmentsAreEnabled =
+    stores.applicationConfigurationStore.taskAttachmentsAreEnabled;
   const isCompleted = Boolean(
     currentTask && currentTask.status !== ApprovalRequestTaskStatus.Pending,
   );
@@ -248,6 +256,10 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
     }
 
     await submitAction.run(async () => {
+      if (taskAttachments.current && !await taskAttachments.current.attach()) {
+        return;
+      }
+
       const didComplete = await completeApprovalRequestTask(
         tenantGlobalId,
         currentTask.globalId,
@@ -361,15 +373,42 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
       </Tabs>
       {tab === "task" && (
         <Stack sx={Dialogs.tabContentSx}>
-          <NarrowContent>
             <Stack spacing={Dialogs.formStackSpacing}>
               {currentTask && (
                 <ApprovalRequestTaskSummaryBlock
+                  additionalMetadata={
+                    isCompleted &&
+                    taskAttachmentsAreEnabled &&
+                    currentTask.taskFiles?.length &&
+                    tenantGlobalId ? (
+                      <>
+                        <ApprovalRequestParticipantLabel>
+                          Files attached to this decision
+                        </ApprovalRequestParticipantLabel>
+                        <ApprovalRequestTaskAttachments
+                          canManageFiles={false}
+                          showLabel={false}
+                          taskFiles={currentTask.taskFiles ?? []}
+                          taskGlobalId={currentTask.globalId}
+                          tenantGlobalId={tenantGlobalId}
+                        />
+                      </>
+                    ) : undefined
+                  }
                   participant="assignee"
                   participantType={currentTaskAssigneeType}
                   showComment
                   showElectronicSignature={requiresElectronicSignature}
                   task={currentTask}
+                />
+              )}
+              {!isCompleted && taskAttachmentsAreEnabled && currentTask && tenantGlobalId && (
+                <ApprovalRequestTaskAttachments
+                  canManageFiles={!isCompleted}
+                  ref={taskAttachments}
+                  taskFiles={currentTask.taskFiles ?? []}
+                  taskGlobalId={currentTask.globalId}
+                  tenantGlobalId={tenantGlobalId}
                 />
               )}
               {!isCompleted && (
@@ -454,16 +493,18 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
                 </LoadingButton>
               )}
             </Stack>
-          </NarrowContent>
         </Stack>
       )}
       {tab === "request" && (
-        <NarrowContent>
+        <>
           <ApprovalRequestDetails
             approvalRequest={approvalRequest}
             approvalRequestTaskGlobalId={currentTask?.globalId}
             highlightedTaskGlobalId={currentTask?.globalId}
             showVisibleStepVisibility={false}
+            taskAttachmentsTenantGlobalId={
+              taskAttachmentsAreEnabled ? tenantGlobalId ?? undefined : undefined
+            }
           />
           <Stack
             direction={{ xs: "column", sm: "row" }}
@@ -474,14 +515,15 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
               Close
             </Button>
           </Stack>
-        </NarrowContent>
+        </>
       )}
       {tab === "chat" &&
         discussionsAreEnabled &&
         approvalRequest &&
         currentTask && (
-          <NarrowContent>
+          <>
             <DiscussionPanel
+              attachmentsAreEnabled={discussionAttachmentsAreEnabled}
               canSend={canSendDiscussion}
               ref={discussionPanel}
               requestGlobalId={approvalRequest.globalId}
@@ -521,7 +563,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({
                 </Button>
               )}
             </Stack>
-          </NarrowContent>
+          </>
         )}
       {tab === "link" && canManageSharedVerificationLinks && (
         <SharedVerificationLinksPanel

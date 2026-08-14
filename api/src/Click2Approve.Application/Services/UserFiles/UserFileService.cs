@@ -1,6 +1,4 @@
-using Click2Approve.Application.Models.Emails;
 using Click2Approve.Application.Models.Files;
-using Click2Approve.Application.Models.Notifications;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 
@@ -89,6 +87,38 @@ public class UserFileService(
     public async Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestTaskFileAsync(AppUser user, Guid globalId, Guid approvalRequestTaskGlobalId, CancellationToken cancellationToken)
     {
         var userFile = await _userFileRepository.GetForApprovalRequestTaskDownloadAsync(user, globalId, approvalRequestTaskGlobalId, cancellationToken)
+            ?? throw new NotFoundException("File was not found.");
+        return await ReadAsync(userFile, cancellationToken);
+    }
+
+    /// <summary>Downloads a file attached directly to an approval request task.</summary>
+    public async Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestTaskAttachmentAsync(
+        AppUser user,
+        Guid globalId,
+        Guid approvalRequestTaskGlobalId,
+        CancellationToken cancellationToken)
+    {
+        var userFile = await _userFileRepository.GetForApprovalRequestTaskAttachmentDownloadAsync(
+            user,
+            globalId,
+            approvalRequestTaskGlobalId,
+            cancellationToken)
+            ?? throw new NotFoundException("File was not found.");
+        return await ReadAsync(userFile, cancellationToken);
+    }
+
+    /// <summary>Downloads a file attached to a discussion message visible to the user.</summary>
+    public async Task<(string Filename, byte[] Bytes)> DownloadDiscussionMessageFileAsync(
+        AppUser user,
+        Guid globalId,
+        Guid discussionMessageGlobalId,
+        CancellationToken cancellationToken)
+    {
+        var userFile = await _userFileRepository.GetForDiscussionMessageDownloadAsync(
+            user,
+            globalId,
+            discussionMessageGlobalId,
+            cancellationToken)
             ?? throw new NotFoundException("File was not found.");
         return await ReadAsync(userFile, cancellationToken);
     }

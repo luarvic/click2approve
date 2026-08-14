@@ -10,6 +10,7 @@ interface ApprovalRequestDetailsProps {
   highlightedTaskGlobalId?: string;
   onHighlightedTaskClick?: () => void;
   showVisibleStepVisibility?: boolean;
+  taskAttachmentsTenantGlobalId?: string;
 }
 
 const ApprovalRequestDetails: React.FC<ApprovalRequestDetailsProps> = ({
@@ -18,6 +19,7 @@ const ApprovalRequestDetails: React.FC<ApprovalRequestDetailsProps> = ({
   highlightedTaskGlobalId,
   onHighlightedTaskClick,
   showVisibleStepVisibility = true,
+  taskAttachmentsTenantGlobalId,
 }) => (
   <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
     {approvalRequest && (
@@ -32,6 +34,7 @@ const ApprovalRequestDetails: React.FC<ApprovalRequestDetailsProps> = ({
         )}
         onHighlightedTaskClick={onHighlightedTaskClick}
         showVisibleStepVisibility={showVisibleStepVisibility}
+        taskAttachmentsTenantGlobalId={taskAttachmentsTenantGlobalId}
       />
     )}
   </Stack>

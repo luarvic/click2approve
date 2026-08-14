@@ -1,14 +1,13 @@
 import { stores } from "@/app/rootStore";
 import { CreateTenantRequest, Tenant, UpdateTenantRequest } from "@/features/tenants/models/tenant";
 import ImagePicker from "@/shared/components/images/ImagePicker";
-import NarrowContent from "@/shared/components/layout/NarrowContent";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
-import LoadingButton from "@mui/lab/LoadingButton";
 import { Business } from "@mui/icons-material";
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Button,
   Stack,
@@ -119,8 +118,7 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
           { label: isNew ? "New organization" : "Organization" },
         ]}
       />
-      <NarrowContent>
-        <Stack spacing={Dialogs.formStackSpacing}>
+      <Stack spacing={Dialogs.formStackSpacing}>
         <ImagePicker
           alt="Organization logo"
           fallback={<Business fontSize="large" />}
@@ -163,27 +161,26 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
           onChange={(event) => setWebsiteUrl(event.target.value)}
           disabled={!isNew && !canEdit}
         />
-        </Stack>
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          spacing={Dialogs.stepHeaderSpacing}
-          sx={Dialogs.addStepButtonSx}
-        >
-          <Button variant="outlined" onClick={() => onClose(tenant?.globalId)}>
-            Cancel
-          </Button>
-          {(isNew || canEdit) && (
-            <LoadingButton
-              variant="outlined"
-              disabled={!businessName.trim()}
-              loading={saveIsLoading}
-              onClick={handleSubmit}
-            >
-              Save
-            </LoadingButton>
-          )}
-        </Stack>
-      </NarrowContent>
+      </Stack>
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={Dialogs.stepHeaderSpacing}
+        sx={Dialogs.addStepButtonSx}
+      >
+        <Button variant="outlined" onClick={() => onClose(tenant?.globalId)}>
+          Cancel
+        </Button>
+        {(isNew || canEdit) && (
+          <LoadingButton
+            variant="outlined"
+            disabled={!businessName.trim()}
+            loading={saveIsLoading}
+            onClick={handleSubmit}
+          >
+            Save
+          </LoadingButton>
+        )}
+      </Stack>
     </CloseOnEscape>
   );
 };

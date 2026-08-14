@@ -1,5 +1,4 @@
 using Click2Approve.Application.Models.Results.UserFiles;
-using Click2Approve.WebApi.Models.Responses.UserFiles;
 
 namespace Click2Approve.WebApi.Mappers.UserFiles;
 

@@ -2,8 +2,6 @@ using System.Web;
 using Click2Approve.Application.Abstractions.Email;
 using Click2Approve.Application.Helpers;
 using Click2Approve.Application.Models.Emails;
-using Click2Approve.Application.Models.Files;
-using Click2Approve.Application.Models.Notifications;
 using Click2Approve.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 

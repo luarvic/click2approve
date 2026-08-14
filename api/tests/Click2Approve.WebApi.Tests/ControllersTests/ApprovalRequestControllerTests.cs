@@ -2,7 +2,6 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Click2Approve.Application.Helpers;
 using Click2Approve.Domain.Models;
 using Click2Approve.WebApi.Tests.Extensions;
 using Click2Approve.WebApi.Tests.Models;

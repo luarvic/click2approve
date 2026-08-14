@@ -1,6 +1,7 @@
 import { stores } from "@/app/rootStore";
 import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestView from "@/features/approvalRequests/components/ApprovalRequestView";
+import NarrowContent from "@/shared/components/layout/NarrowContent";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
@@ -61,7 +62,8 @@ const ApprovalRequestViewPage: React.FC<ApprovalRequestViewPageProps> = ({
   if (!approvalRequest || !approvalRequestHasLoaded) return <LoadingOverlay />;
 
   return (
-    <ApprovalRequestView
+    <NarrowContent>
+      <ApprovalRequestView
       onClose={(currentApprovalRequestGlobalId) =>
         navigate(outboxPath, {
           state: currentApprovalRequestGlobalId
@@ -71,7 +73,8 @@ const ApprovalRequestViewPage: React.FC<ApprovalRequestViewPageProps> = ({
       }
       approvalRequestGlobalId={approvalRequestGlobalId}
       tab={tab}
-    />
+      />
+    </NarrowContent>
   );
 };
 

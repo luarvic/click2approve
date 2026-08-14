@@ -1,6 +1,4 @@
-using Hangfire.Common;
 using Hangfire.Server;
-using Hangfire.Storage;
 
 namespace Click2Approve.Infrastructure.Notifications;
 

@@ -1,4 +1,3 @@
-global using Click2Approve.Application.Abstractions.Email;
 global using Click2Approve.Application.Abstractions.FileStorage;
 global using Click2Approve.Application.Abstractions.Identity;
 global using Click2Approve.Application.Abstractions.Persistence;

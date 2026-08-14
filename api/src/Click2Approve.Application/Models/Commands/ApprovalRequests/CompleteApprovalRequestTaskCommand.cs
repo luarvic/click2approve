@@ -1,5 +1,3 @@
-using Click2Approve.Domain.Models;
-
 namespace Click2Approve.Application.Models.Commands.ApprovalRequests;
 
 /// <summary>

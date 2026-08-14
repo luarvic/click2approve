@@ -3,7 +3,6 @@ using Click2Approve.Application.Abstractions.Services.Notifications;
 using Click2Approve.Application.Abstractions.TenantContext;
 using Click2Approve.Domain.Models;
 using Click2Approve.WebApi.Extensions;
-using Click2Approve.WebApi.Mappers;
 using Click2Approve.WebApi.Mappers.Notifications;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

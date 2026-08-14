@@ -1,6 +1,7 @@
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestFile } from "./approvalRequest";
 import { ApprovalRequestTaskListItem } from "./approvalRequestTaskListItem";
+import { UserFile } from "@/features/userFiles/models/userFile";
 
 export interface ApprovalRequestTask extends ApprovalRequestTaskListItem {
   approvalRequest?: ApprovalRequest;
@@ -25,4 +26,5 @@ export interface ApprovalRequestTask extends ApprovalRequestTaskListItem {
   isAssigneeEmployee?: boolean;
   assigneeSignatureJson?: string;
   requestFiles: ApprovalRequestFile[];
+  taskFiles?: UserFile[];
 }

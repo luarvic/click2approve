@@ -3,6 +3,7 @@ import ApprovalRequestSubmit, {
   cacheApprovalRequestSubmitDraft,
   getCachedApprovalRequestSubmitDraft,
 } from "@/features/approvalRequests/components/ApprovalRequestSubmit";
+import NarrowContent from "@/shared/components/layout/NarrowContent";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
@@ -85,7 +86,8 @@ const ApprovalRequestSubmitPage = () => {
   }
 
   return (
-    <ApprovalRequestSubmit
+    <NarrowContent>
+      <ApprovalRequestSubmit
       initialDraft={initialDraft ?? undefined}
       initialTemplateGlobalId={initialTemplateGlobalId}
       isVisibilityPage={isVisibilityPage}
@@ -114,7 +116,8 @@ const ApprovalRequestSubmitPage = () => {
           state: { hasDraft: true },
         });
       }}
-    />
+      />
+    </NarrowContent>
   );
 };
 

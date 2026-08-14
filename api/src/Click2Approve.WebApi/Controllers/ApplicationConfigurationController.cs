@@ -1,5 +1,4 @@
 using Asp.Versioning;
-using Click2Approve.WebApi.Models.Responses;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Click2Approve.WebApi.Controllers;
@@ -32,11 +31,13 @@ public class ApplicationConfigurationController(IConfiguration configuration) : 
             {
                 Tenants = _configuration.GetValue<bool>("Product:Capabilities:Tenants"),
                 Discussions = _configuration.GetValue<bool>("Product:Capabilities:Discussions"),
+                DiscussionAttachments = _configuration.GetValue<bool>("Product:Capabilities:DiscussionAttachments"),
                 EmployeeAssignees = _configuration.GetValue<bool>("Product:Capabilities:EmployeeAssignees"),
                 TeamAssignees = _configuration.GetValue<bool>("Product:Capabilities:TeamAssignees"),
                 ApprovalStepTemplates = _configuration.GetValue<bool>("Product:Capabilities:ApprovalStepTemplates"),
                 ApprovalRequestRevisions = _configuration.GetValue<bool>("Product:Capabilities:ApprovalRequestRevisions"),
-                SharedVerificationLinks = _configuration.GetValue<bool>("Product:Capabilities:SharedVerificationLinks")
+                SharedVerificationLinks = _configuration.GetValue<bool>("Product:Capabilities:SharedVerificationLinks"),
+                TaskAttachments = _configuration.GetValue<bool>("Product:Capabilities:TaskAttachments")
             }
         });
     }

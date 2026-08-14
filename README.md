@@ -2,9 +2,9 @@
 
 # Click2Approve
 
-`Click2Approve` is a free, open-source document approval system. It provides a
-responsive web UI for uploading files, sending approval requests, collecting
-review decisions, and tracking request history.
+`Click2Approve` is a free, open-source document workflow system. It provides a
+responsive web UI for uploading files, sending workflow requests, collecting
+decisions and discussion, and tracking request history.
 
 ## Table of Contents
 
@@ -20,15 +20,13 @@ review decisions, and tracking request history.
 
 - Sign up, sign in, confirm email addresses, reset passwords, and use
   authenticated browser sessions through the built-in account API.
-- Upload, list, download, preview, and delete files stored in filesystem-backed
-  user file storage.
-- Compose approval requests with one or more files, a title, description, and
+- Compose workflow requests with one or more files, a title, description, and
   email-based assignees.
-- Build multi-step approval workflows with serial or parallel assignee steps.
-- Track sent approval requests in the outbox, inspect request details, see
+- Build multi-step review workflows with serial or parallel assignee steps.
+- Track sent workflow requests in the outbox, inspect request details, see
   in-progress request state, cancel pending requests, and delete requests.
-- Review incoming approval tasks in the inbox, open task details, preview
-  attached files, approve or reject with comments, and see the uncompleted task
+- Review incoming tasks in the inbox, open task details, preview attached
+  files, record decisions with comments, and see the uncompleted task
   count.
 - Capture electronic-signature evidence for sign tasks, including legal name,
   signature strokes, IP address, and browser data on completed tasks.
@@ -36,10 +34,6 @@ review decisions, and tracking request history.
   and email notification preferences.
 - Notify requesters and assignees by email when email delivery is enabled,
   including account, task, cancellation, deletion, and review notifications.
-- Expose product edition and capability metadata so the shared UI can hide or
-  block commercial-only features when it is connected to the open-source API.
-- Run the complete React, ASP.NET Core, and SQL Server stack locally with Docker
-  Compose.
 
 ## Demo
 
@@ -177,7 +171,7 @@ The application consists of three containerized services:
 ### Client-Side UI
 
 The UI provides the browser-based experience for uploading files, submitting
-approval requests, reviewing tasks, and viewing request state.
+workflow requests, reviewing tasks, discussing work, and viewing request state.
 
 It is written in [TypeScript](https://www.typescriptlang.org/) and uses:
 
@@ -191,8 +185,8 @@ application and serves it with [Nginx](https://www.nginx.com/).
 
 ### Server-Side API
 
-The API exposes the HTTP endpoints used by the UI and implements the approval
-workflow, identity, file, and notification behavior.
+The API exposes the HTTP endpoints used by the UI and implements workflow,
+identity, file, discussion, and notification behavior.
 
 It is written in [C#](https://learn.microsoft.com/en-us/dotnet/csharp/) and
 uses:
@@ -207,7 +201,7 @@ files.
 
 ### Relational Database
 
-SQL Server stores user accounts, approval requests, approval tasks, file metadata,
+SQL Server stores user accounts, workflow requests, tasks, file metadata,
 and other application data required by the API.
 
 ## License and Trademark

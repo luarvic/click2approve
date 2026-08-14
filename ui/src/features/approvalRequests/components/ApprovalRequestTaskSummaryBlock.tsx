@@ -25,6 +25,7 @@ import type { TypographyProps } from "@mui/material";
 import type { ReactNode } from "react";
 
 interface ApprovalRequestTaskSummaryBlockProps {
+  additionalMetadata?: ReactNode;
   icon?: ReactNode;
   onClick?: () => void;
   stepperBorderLeftColor?: string;
@@ -70,6 +71,7 @@ const getTaskCompletionLabel = (task: ApprovalRequestTask): string | undefined =
 };
 
 const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockProps> = ({
+  additionalMetadata,
   icon,
   onClick,
   stepperBorderLeftColor,
@@ -115,6 +117,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   const completionType = resolvedParticipantType;
   const hasMetadata = participant !== "none" ||
     (showComment && Boolean(task.comment?.trim())) ||
+    Boolean(additionalMetadata) ||
     (showElectronicSignature && taskElectronicSignatureIsVisible(task)) ||
     (showTimeline && participant === "none");
   const metadata = hasMetadata ? (
@@ -199,6 +202,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
           <UserProvidedText text={task.comment} />
         </>
       )}
+      {additionalMetadata}
       {showElectronicSignature && taskElectronicSignatureIsVisible(task) && (
         <ApprovalRequestElectronicSignatureView task={task} />
       )}

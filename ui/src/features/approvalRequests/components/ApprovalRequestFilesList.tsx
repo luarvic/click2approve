@@ -27,9 +27,12 @@ export interface RevisionExistingFile {
 interface ApprovalRequestFilesListProps {
   existingFiles: RevisionExistingFile[];
   newFiles: File[];
-  onRemoveExisting: (index: number) => void;
+  onRemoveExisting?: (index: number) => void;
   onRemoveNew: (index: number) => void;
   onRemoveReplacement?: (index: number) => void;
+  onDownloadExisting?: (file: UserFile) => void;
+  linkSx?: SxProps<Theme>;
+  sx?: SxProps<Theme>;
   onRestoreExisting?: (index: number) => void;
   onReplaceExisting?: (index: number) => void;
 }
@@ -60,6 +63,9 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
   onRemoveExisting,
   onRemoveNew,
   onRemoveReplacement,
+  onDownloadExisting,
+  linkSx,
+  sx,
   onRestoreExisting,
   onReplaceExisting,
 }) => {
@@ -89,15 +95,24 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
 
   const removeMenuFile = () => {
     if (menuFileIndex !== null) {
-      onRemoveExisting(menuFileIndex);
+      onRemoveExisting?.(menuFileIndex);
     }
     closeMenu();
   };
 
-  const renderFileLink = (fileName: string, sx?: SxProps<Theme>) => (
+  const renderFileLink = (
+    fileName: string,
+    sx?: SxProps<Theme>,
+    onClick?: () => void,
+  ) => (
     <Link
-      component="span"
-      sx={[fileLinkSx, ...(Array.isArray(sx) ? sx : [sx])]}
+      component={onClick ? "button" : "span"}
+      onClick={onClick}
+      sx={[
+        fileLinkSx,
+        ...(Array.isArray(linkSx) ? linkSx : [linkSx]),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       variant="body2"
     >
       <FileTypeIcon fontSize="small" fileName={fileName} />
@@ -146,7 +161,7 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
   };
 
   return (
-    <CommentPaper>
+    <CommentPaper sx={sx}>
       <Stack alignItems="flex-start" spacing={StackSpacing.default}>
         {existingFiles.map((file, index) => (
           <Stack
@@ -154,6 +169,7 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
             direction="row"
             spacing={StackSpacing.tight}
             alignItems="center"
+            sx={fileRowSx}
           >
             {onReplaceExisting ? (
               <>
@@ -223,14 +239,22 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
               </>
             ) : (
               <Stack direction="row" alignItems="center">
-                {renderFileLink(file.file.name)}
-                <IconButton
-                  aria-label={`Remove ${file.file.name}`}
-                  onClick={() => onRemoveExisting(index)}
-                  size="small"
-                >
-                  <Close fontSize="small" />
-                </IconButton>
+                {renderFileLink(
+                  file.file.name,
+                  undefined,
+                  onDownloadExisting
+                    ? () => onDownloadExisting(file.file)
+                    : undefined,
+                )}
+                {onRemoveExisting && (
+                  <IconButton
+                    aria-label={`Remove ${file.file.name}`}
+                    onClick={() => onRemoveExisting(index)}
+                    size="small"
+                  >
+                    <Close fontSize="small" />
+                  </IconButton>
+                )}
               </Stack>
             )}
           </Stack>

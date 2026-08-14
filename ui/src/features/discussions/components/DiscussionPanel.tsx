@@ -2,6 +2,7 @@ import type {
   ApprovalStep,
   AssigneeType,
 } from "@/features/approvalWorkflow/models/approvalStep";
+import ApprovalRequestFilesList from "@/features/approvalRequests/components/ApprovalRequestFilesList";
 import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
 import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
 import {
@@ -12,23 +13,27 @@ import {
   sendTaskDiscussion,
 } from "@/features/discussions/api/discussionsApi";
 import DiscussionParticipants from "@/features/discussions/components/DiscussionParticipants";
+import { uploadUserFiles } from "@/features/userFiles/api/userFilesApi";
+import { downloadDiscussionMessageFile } from "@/features/userFiles/utils/downloaders";
 import DisplayName from "@/shared/components/identity/DisplayName";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
 import TimelineTimestamp from "@/shared/components/timeline/TimelineTimestamp";
-import { Refresh, StackSpacing } from "@/shared/constants/constants";
-import type { SxProps } from "@mui/material";
-import { Box, Divider, Stack, TextField, Typography } from "@mui/material";
-import type { Theme } from "@mui/material/styles";
+import { Files, Refresh, StackSpacing } from "@/shared/constants/constants";
+import { AttachFile } from "@mui/icons-material";
+import { Box, Button, Divider, Stack, TextField, Typography } from "@mui/material";
+import { alpha, type SxProps, type Theme } from "@mui/material/styles";
 import {
   Fragment,
   forwardRef,
   useCallback,
   useEffect,
   useImperativeHandle,
+  useRef,
   useState,
 } from "react";
 
 interface DiscussionPanelProps {
+  attachmentsAreEnabled: boolean;
   canSend: boolean;
   requestGlobalId: string;
   requesterDisplayName: string;
@@ -57,19 +62,23 @@ export const getDiscussionMessageSender = (
     : (representedSender ?? sendingUser);
 };
 
-const getMessageTimelineSx = (isOutgoing: boolean): SxProps<Theme> => ({
-  opacity: isOutgoing ? 0.8 : 1,
-});
-
-const getMessageSenderSx = (isOutgoing: boolean): SxProps<Theme> => ({
-  "& .MuiSvgIcon-root": {
-    color: isOutgoing ? "inherit" : undefined,
-  },
+const getMessageBubbleSx = (isOutgoing: boolean): SxProps<Theme> => ({
+  alignSelf: isOutgoing ? "flex-end" : "flex-start",
+  backgroundColor: (theme) =>
+    isOutgoing
+      ? alpha(theme.palette.primary.main, 0.1)
+      : theme.palette.action.selected,
+  borderRadius: 2,
+  color: "text.primary",
+  maxWidth: "80%",
+  px: 1.5,
+  py: 1,
 });
 
 const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
   (
     {
+      attachmentsAreEnabled,
       canSend,
       requestGlobalId,
       requesterDisplayName,
@@ -85,6 +94,8 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
   ) => {
     const [messages, setMessages] = useState<DiscussionMessage[] | null>(null);
     const [body, setBody] = useState("");
+    const [files, setFiles] = useState<File[]>([]);
+    const fileInput = useRef<HTMLInputElement>(null);
     const load = useCallback(async () => {
       if (!tenantGlobalId) return;
       setMessages(
@@ -110,16 +121,33 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
       return () => window.cancelAnimationFrame(frame);
     }, [messages?.length]);
     const send = useCallback(async () => {
-      if (!tenantGlobalId || !body.trim()) return;
+      if (!tenantGlobalId || (!body.trim() && (!attachmentsAreEnabled || files.length === 0))) return;
+      const uploadedFiles = attachmentsAreEnabled
+        ? await uploadUserFiles(tenantGlobalId, files)
+        : [];
+      if (uploadedFiles.length !== files.length) return;
       const message = taskGlobalId
-        ? await sendTaskDiscussion(tenantGlobalId, taskGlobalId, body)
-        : await sendRequestDiscussion(tenantGlobalId, requestGlobalId, body);
+        ? await sendTaskDiscussion(
+            tenantGlobalId,
+            taskGlobalId,
+            body,
+            uploadedFiles.map((file) => file.globalId),
+          )
+        : await sendRequestDiscussion(
+            tenantGlobalId,
+            requestGlobalId,
+            body,
+            uploadedFiles.map((file) => file.globalId),
+          );
       setMessages((current) => [...(current ?? []), message]);
       setBody("");
-    }, [body, requestGlobalId, taskGlobalId, tenantGlobalId]);
+      setFiles([]);
+    }, [attachmentsAreEnabled, body, files, requestGlobalId, taskGlobalId, tenantGlobalId]);
 
-    useImperativeHandle(ref, () => ({ canSend: Boolean(body.trim()), send }), [
+    useImperativeHandle(ref, () => ({ canSend: Boolean(body.trim() || (attachmentsAreEnabled && files.length)), send }), [
+      attachmentsAreEnabled,
       body,
+      files.length,
       send,
     ]);
     const taskStep = taskApprovalRequestStepGlobalId
@@ -136,15 +164,7 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
       return (
         <Box
           key={message.globalId}
-          sx={{
-            alignSelf: isOutgoing ? "flex-end" : "flex-start",
-            backgroundColor: isOutgoing ? "primary.main" : "action.selected",
-            borderRadius: 2,
-            color: isOutgoing ? "primary.contrastText" : "text.primary",
-            maxWidth: "80%",
-            px: 1.5,
-            py: 1,
-          }}
+          sx={getMessageBubbleSx(isOutgoing)}
         >
           <Stack spacing={StackSpacing.default}>
             <Stack spacing={StackSpacing.tight}>
@@ -155,7 +175,6 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
                     showEmailAddress={false}
                   />
                 )}
-                sx={getMessageSenderSx(isOutgoing)}
                 type={message.sentByType}
               />
               {message.isDelegated && representedSender && (
@@ -168,14 +187,24 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
                 </Typography>
               )}
             </Stack>
-            <UserProvidedText
-              color="inherit"
-              text={message.body}
-            />
+            <UserProvidedText text={message.body} />
+            {attachmentsAreEnabled && (message.userFiles?.length ?? 0) > 0 && tenantGlobalId && (
+              <ApprovalRequestFilesList
+                existingFiles={(message.userFiles ?? []).map((file) => ({ file }))}
+                newFiles={[]}
+                onDownloadExisting={(file) =>
+                  void downloadDiscussionMessageFile(
+                    tenantGlobalId,
+                    file,
+                    message.globalId,
+                  )
+                }
+                onRemoveNew={() => undefined}
+              />
+            )}
             <TimelineTimestamp
-              color={isOutgoing ? "inherit" : "text.secondary"}
+              color="text.secondary"
               date={new Date(message.createdAt)}
-              sx={getMessageTimelineSx(isOutgoing)}
             />
           </Stack>
         </Box>
@@ -217,19 +246,55 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
           ))}
         {taskGlobalId && (messages ?? []).map(renderMessage)}
         {canSend && (
-          <TextField
-            fullWidth
-            label="Message"
-            multiline
-            value={body}
-            onChange={(event) => setBody(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                void send();
-              }
-            }}
-          />
+          <Stack alignItems="flex-start" spacing={StackSpacing.tight}>
+            <TextField
+              fullWidth
+              label="Message"
+              multiline
+              value={body}
+              onChange={(event) => setBody(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && !event.shiftKey) {
+                  event.preventDefault();
+                  void send();
+                }
+              }}
+            />
+            {attachmentsAreEnabled && (
+              <ApprovalRequestFilesList
+                existingFiles={[]}
+                newFiles={files}
+                onRemoveNew={(index) =>
+                  setFiles((files) =>
+                    files.filter((_, fileIndex) => fileIndex !== index),
+                  )
+                }
+              />
+            )}
+            {attachmentsAreEnabled && (
+              <>
+                <Button
+                  startIcon={<AttachFile />}
+                  onClick={() => fileInput.current?.click()}
+                >
+                  Attach files
+                </Button>
+                <input
+                  multiple
+                  ref={fileInput}
+                  style={Files.inputStyle}
+                  type="file"
+                  onChange={(event) => {
+                    setFiles((files) => [
+                      ...files,
+                      ...Array.from(event.target.files ?? []),
+                    ]);
+                    event.target.value = "";
+                  }}
+                />
+              </>
+            )}
+          </Stack>
         )}
       </Stack>
     );

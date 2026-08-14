@@ -287,7 +287,8 @@ internal static class ApprovalRequestMapper
                 : task.AssigneeOrganization,
             HasAssigneeSignature = !string.IsNullOrWhiteSpace(task.AssigneeSignatureJson),
             IsAssigneeEmployee = task.AssigneeEmployeeId.HasValue,
-            AssigneeSignatureJson = task.AssigneeSignatureJson
+            AssigneeSignatureJson = task.AssigneeSignatureJson,
+            TaskFiles = [.. task.TaskFiles.Select(MapUserFile)]
         };
     }
 

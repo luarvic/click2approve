@@ -1,6 +1,8 @@
 import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
 import { getAssigneeIcon } from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
 import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestTaskSummaryBlock";
+import ApprovalRequestTaskAttachments from "@/features/approvalRequests/components/ApprovalRequestTaskAttachments";
+import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
@@ -55,6 +57,7 @@ interface ApprovalStepBlockProps {
   setupFutureTasks?: boolean;
   step: ApprovalStep;
   tasks: ApprovalRequestTask[];
+  taskAttachmentsTenantGlobalId?: string;
 }
 
 const stepMetadataSx: SxProps<Theme> = {
@@ -363,8 +366,23 @@ const renderTaskDetails = (
   isCurrentTask: boolean,
   stepperBorderLeftColor: string,
   onCurrentTaskClick?: () => void,
+  taskAttachmentsTenantGlobalId?: string,
 ) => (
   <ApprovalRequestTaskSummaryBlock
+    additionalMetadata={taskAttachmentsTenantGlobalId && task.taskFiles?.length ? (
+      <>
+        <ApprovalRequestParticipantLabel>
+          Files attached to this decision
+        </ApprovalRequestParticipantLabel>
+        <ApprovalRequestTaskAttachments
+          canManageFiles={false}
+          showLabel={false}
+          taskFiles={task.taskFiles ?? []}
+          taskGlobalId={task.globalId}
+          tenantGlobalId={taskAttachmentsTenantGlobalId}
+        />
+      </>
+    ) : undefined}
     key={task.globalId}
     icon={icon}
     onClick={isCurrentTask ? onCurrentTaskClick : undefined}
@@ -419,6 +437,7 @@ const renderTeamAssignee = (
   onHighlightedTaskClick?: () => void,
   showEmptyTeamTasksMessage: boolean = true,
   setupFutureTasks: boolean = false,
+  taskAttachmentsTenantGlobalId?: string,
 ) => {
   if (assigneeTasks.length === 0) {
     return showEmptyTeamTasksMessage
@@ -457,6 +476,7 @@ const renderTeamAssignee = (
               task.globalId === highlightedTaskGlobalId,
               stepperBorderLeftColor,
               onHighlightedTaskClick,
+              taskAttachmentsTenantGlobalId,
             ),
           )}
         </Stack>
@@ -475,6 +495,7 @@ const renderAssignee = (
   showEmptyTeamTasksMessage?: boolean,
   stepperBorderLeftColor?: string,
   setupFutureTasks?: boolean,
+  taskAttachmentsTenantGlobalId?: string,
 ) => {
   const assigneeTasks = getAssigneeTasks(assignee, tasks);
   if (assignee.type === AssigneeType.Team) {
@@ -487,6 +508,7 @@ const renderAssignee = (
       onHighlightedTaskClick,
       showEmptyTeamTasksMessage,
       setupFutureTasks,
+      taskAttachmentsTenantGlobalId,
     );
   }
 
@@ -506,6 +528,7 @@ const renderAssignee = (
       task.globalId === highlightedTaskGlobalId,
       stepperBorderLeftColor ?? "text.disabled",
       onHighlightedTaskClick,
+      taskAttachmentsTenantGlobalId,
     ),
   );
 };
@@ -522,6 +545,7 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
   showStepTitle = true,
   setupFutureTasks = false,
   step,
+  taskAttachmentsTenantGlobalId,
   tasks,
 }) => {
   const assignees = (step.assignees ?? []).filter(Boolean);
@@ -551,6 +575,7 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
       showEmptyTeamTasksMessage,
       stepperBorderLeftColor,
       setupFutureTasks,
+      taskAttachmentsTenantGlobalId,
     );
 
   const stepContent = (
@@ -602,6 +627,7 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
             task.globalId === highlightedTaskGlobalId,
             stepperBorderLeftColor,
             onHighlightedTaskClick,
+            taskAttachmentsTenantGlobalId,
           ),
         )}
       </Stack>

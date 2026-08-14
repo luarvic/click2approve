@@ -11,6 +11,16 @@ public interface IUserFileRepository
     Task<UserFile?> GetForDownloadAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task<UserFile?> GetForApprovalRequestDownloadAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken);
     Task<UserFile?> GetForApprovalRequestTaskDownloadAsync(AppUser user, Guid globalId, Guid approvalRequestTaskGlobalId, CancellationToken cancellationToken);
+    Task<UserFile?> GetForApprovalRequestTaskAttachmentDownloadAsync(
+        AppUser user,
+        Guid globalId,
+        Guid approvalRequestTaskGlobalId,
+        CancellationToken cancellationToken);
+    Task<UserFile?> GetForDiscussionMessageDownloadAsync(
+        AppUser user,
+        Guid globalId,
+        Guid discussionMessageGlobalId,
+        CancellationToken cancellationToken);
     Task<UserFile?> GetForDeleteAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken);
     Task<List<UserFile>> ListAsync(AppUser user, IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken);

@@ -42,6 +42,7 @@ public class ApprovalRequestTaskResult : ApprovalRequestTaskListItemResult
         IsAssigneeEmployee = source.IsAssigneeEmployee;
         HasAssigneeSignature = source.HasAssigneeSignature;
         AssigneeSignatureJson = source.AssigneeSignatureJson;
+        TaskFiles = source.TaskFiles;
     }
 
     public Guid ApprovalRequestGlobalId { get; init; }
@@ -61,4 +62,5 @@ public class ApprovalRequestTaskResult : ApprovalRequestTaskListItemResult
     public bool HasAssigneeSignature { get; init; }
     public bool IsAssigneeEmployee { get; init; }
     public string? AssigneeSignatureJson { get; init; }
+    public List<UserFileResult> TaskFiles { get; init; } = [];
 }

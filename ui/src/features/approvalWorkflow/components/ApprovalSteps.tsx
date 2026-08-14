@@ -29,6 +29,7 @@ interface ApprovalStepsProps {
   onHighlightedTaskClick?: () => void;
   showVisibleStepVisibility?: boolean;
   sx?: SxProps<Theme>;
+  taskAttachmentsTenantGlobalId?: string;
 }
 
 const getStepTasks = (step: ApprovalStep) => {
@@ -91,6 +92,7 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
   onHighlightedTaskClick,
   showVisibleStepVisibility = true,
   sx,
+  taskAttachmentsTenantGlobalId,
 }) => {
   const steps = (approvalRequest.steps ?? [])
     .filter(Boolean)
@@ -156,6 +158,7 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
                         showStepBox={false}
                         showStepTitle={false}
                         step={step}
+                        taskAttachmentsTenantGlobalId={taskAttachmentsTenantGlobalId}
                         tasks={tasks}
                       />
                     </Stack>

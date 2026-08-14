@@ -19,7 +19,6 @@ import {
 } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
-import NarrowContent from "@/shared/components/layout/NarrowContent";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
@@ -264,7 +263,6 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
           ...(isVisibilitySetup ? [{ label: "Visibility" }] : []),
         ]}
       />
-      <NarrowContent>
         {!isVisibilitySetup && (
           <Stack spacing={Dialogs.formStackSpacing}>
             <ApprovalRequestDetailsCard
@@ -386,7 +384,6 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
             </LoadingButton>
           )}
         </Stack>
-      </NarrowContent>
       {template && (
         <DeleteConfirmationDialog
           cancelFirst

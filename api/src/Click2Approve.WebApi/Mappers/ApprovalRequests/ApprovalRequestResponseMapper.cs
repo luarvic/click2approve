@@ -1,6 +1,5 @@
 using Click2Approve.Application.Models.Results.ApprovalRequests;
 using Click2Approve.WebApi.Mappers.UserFiles;
-using Click2Approve.WebApi.Models.Responses.ApprovalRequests;
 
 namespace Click2Approve.WebApi.Mappers.ApprovalRequests;
 
@@ -152,6 +151,7 @@ internal static class ApprovalRequestResponseMapper
         Result = result.Result,
         RevisionNumber = result.RevisionNumber,
         Status = result.Status,
+        TaskFiles = UserFileResponseMapper.Map(result.TaskFiles),
         Title = result.Title
     };
 }

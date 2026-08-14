@@ -2,7 +2,6 @@ using Asp.Versioning;
 using Click2Approve.Application.Abstractions.Services.UserFiles;
 using Click2Approve.Domain.Models;
 using Click2Approve.WebApi.Extensions;
-using Click2Approve.WebApi.Mappers;
 using Click2Approve.WebApi.Mappers.UserFiles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

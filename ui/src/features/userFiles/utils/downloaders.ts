@@ -1,5 +1,7 @@
 import { downloadApprovalRequestFileBase64 } from "@/features/approvalRequests/api/approvalRequestFilesApi";
 import { downloadApprovalRequestTaskFileBase64 } from "@/features/approvalRequests/api/approvalRequestTaskFilesApi";
+import { downloadApprovalRequestTaskAttachmentBase64 } from "@/features/approvalRequests/api/approvalRequestTaskAttachmentsApi";
+import { downloadDiscussionMessageFileBase64 } from "@/features/discussions/api/discussionsApi";
 import { downloadUserFileBase64 } from "@/features/userFiles/api/userFilesApi";
 import { UserFile } from "@/features/userFiles/models/userFile";
 
@@ -51,6 +53,32 @@ export const downloadApprovalRequestTaskFile = async (
       tenantGlobalId,
       userFile.globalId,
       approvalRequestTaskGlobalId,
+    ),
+  );
+
+export const downloadApprovalRequestTaskAttachment = async (
+  tenantGlobalId: string,
+  userFile: UserFile,
+  approvalRequestTaskGlobalId: string,
+) =>
+  downloadFile(userFile, () =>
+    downloadApprovalRequestTaskAttachmentBase64(
+      tenantGlobalId,
+      approvalRequestTaskGlobalId,
+      userFile.globalId,
+    ),
+  );
+
+export const downloadDiscussionMessageFile = async (
+  tenantGlobalId: string,
+  userFile: UserFile,
+  messageGlobalId: string,
+) =>
+  downloadFile(userFile, () =>
+    downloadDiscussionMessageFileBase64(
+      tenantGlobalId,
+      messageGlobalId,
+      userFile.globalId,
     ),
   );
 

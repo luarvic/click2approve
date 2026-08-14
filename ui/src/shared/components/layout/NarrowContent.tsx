@@ -30,17 +30,18 @@ const getNarrowContentSx = (width: number): SxProps<Theme> => ({
 
 const getResizeHandleSx = (isResizing: boolean): SxProps<Theme> => (theme) => ({
   "&::after": {
-    backgroundColor: isResizing ? theme.palette.primary.main : "transparent",
+    borderLeft: "2px dotted transparent",
+    borderLeftColor: isResizing ? theme.palette.primary.main : "transparent",
     bottom: 0,
     content: '""',
     left: "50%",
     position: "absolute",
     top: 0,
     transform: "translateX(-50%)",
-    width: 2,
+    width: 0,
   },
   "&:focus-visible::after, &:hover::after": {
-    backgroundColor: theme.palette.primary.main,
+    borderLeftColor: theme.palette.primary.main,
   },
   bottom: 0,
   cursor: "col-resize",

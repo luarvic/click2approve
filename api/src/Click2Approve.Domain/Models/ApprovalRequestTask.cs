@@ -51,4 +51,9 @@ public class ApprovalRequestTask : DbEntity
     public AppUser AssigneeUser { get; set; } = null!;
     public AppUser? CompletedByUser { get; set; }
     public Tenant Tenant { get; set; } = null!;
+
+    /// <summary>
+    /// Files attached directly to this task when the active product supports task attachments.
+    /// </summary>
+    public List<UserFile> TaskFiles { get; set; } = [];
 }

@@ -18,6 +18,10 @@ export class ApplicationConfigurationStore {
     return this.applicationConfiguration?.capabilities.discussions === true;
   }
 
+  get discussionAttachmentsAreEnabled(): boolean {
+    return this.applicationConfiguration?.capabilities.discussionAttachments === true;
+  }
+
   get employeeAssigneesAreEnabled(): boolean {
     return this.applicationConfiguration?.capabilities.employeeAssignees === true;
   }
@@ -36,6 +40,10 @@ export class ApplicationConfigurationStore {
 
   get sharedVerificationLinksAreEnabled(): boolean {
     return this.applicationConfiguration?.capabilities.sharedVerificationLinks === true;
+  }
+
+  get taskAttachmentsAreEnabled(): boolean {
+    return this.applicationConfiguration?.capabilities.taskAttachments === true;
   }
 
   get requiresConfirmedEmail(): boolean {

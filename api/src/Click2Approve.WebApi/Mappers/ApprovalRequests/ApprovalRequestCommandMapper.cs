@@ -1,6 +1,3 @@
-using Click2Approve.Application.Models.Commands.ApprovalRequests;
-using Click2Approve.WebApi.Models.Requests.ApprovalRequests;
-
 namespace Click2Approve.WebApi.Mappers.ApprovalRequests;
 
 /// <summary>

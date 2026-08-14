@@ -9,9 +9,11 @@ export interface ApplicationConfiguration {
 export interface ProductCapabilities {
   tenants: boolean;
   discussions: boolean;
+  discussionAttachments: boolean;
   employeeAssignees: boolean;
   teamAssignees: boolean;
   approvalStepTemplates: boolean;
   approvalRequestRevisions: boolean;
   sharedVerificationLinks: boolean;
+  taskAttachments: boolean;
 }

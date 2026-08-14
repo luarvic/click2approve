@@ -57,6 +57,20 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
                         && task.AssigneeUserId == user.Id))), cancellationToken);
     }
 
+    public virtual Task<UserFile?> GetForApprovalRequestTaskAttachmentDownloadAsync(
+        AppUser user,
+        Guid globalId,
+        Guid approvalRequestTaskGlobalId,
+        CancellationToken cancellationToken) =>
+        Task.FromResult<UserFile?>(null);
+
+    public virtual Task<UserFile?> GetForDiscussionMessageDownloadAsync(
+        AppUser user,
+        Guid globalId,
+        Guid discussionMessageGlobalId,
+        CancellationToken cancellationToken) =>
+        Task.FromResult<UserFile?>(null);
+
     public virtual async Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);

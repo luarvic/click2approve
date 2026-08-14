@@ -1,7 +1,4 @@
-using Click2Approve.Application.Models.Commands.UserProfiles;
 using Click2Approve.Application.Models.Results.UserProfiles;
-using Click2Approve.WebApi.Models.Requests.UserProfiles;
-using Click2Approve.WebApi.Models.Responses.UserProfiles;
 
 namespace Click2Approve.WebApi.Mappers.UserProfiles;
 

@@ -1,4 +1,3 @@
-using Click2Approve.Application.Abstractions.Services.ApprovalRequests;
 using Click2Approve.Application.Extensions;
 using Click2Approve.Domain.Models;
 

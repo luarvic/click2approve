@@ -1,5 +1,3 @@
-using Click2Approve.Application.Models.Emails;
-using Click2Approve.Application.Models.Files;
 using Click2Approve.Application.Models.Notifications;
 using Click2Approve.Domain.Models;
 

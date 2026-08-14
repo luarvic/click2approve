@@ -3,8 +3,6 @@ using Click2Approve.Application.Abstractions.Services.Notifications;
 using Click2Approve.Application.Extensions;
 using Click2Approve.Application.Helpers;
 using Click2Approve.Application.Models.Emails;
-using Click2Approve.Application.Models.Files;
-using Click2Approve.Application.Models.Notifications;
 using Click2Approve.Domain.Models;
 using Click2Approve.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;

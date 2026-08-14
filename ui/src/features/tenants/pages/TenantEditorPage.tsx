@@ -1,12 +1,13 @@
 import { stores } from "@/app/rootStore";
 import TenantEditor from "@/features/tenants/components/TenantDialog";
 import { CreateTenantRequest, EmployeeRole, UpdateTenantRequest } from "@/features/tenants/models/tenant";
+import NarrowContent from "@/shared/components/layout/NarrowContent";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { PersistenceSuccessMessages, showPersistenceSuccessNotification } from "@/shared/utils/persistenceNotifications";
 import { observer } from "mobx-react-lite";
 import { useNavigate, useParams } from "react-router-dom";
-import NotFoundPage from "@/shared/pages/NotFoundPage";
 
 const tenantsPath = "/tenants";
 
@@ -32,14 +33,15 @@ const TenantEditorPage = () => {
     return saved;
   };
 
-  return <TenantEditor
-    tenant={tenant ?? null}
-    canEdit={isNewTenant || tenant?.currentEmployeeRole === EmployeeRole.Admin || tenant?.currentEmployeeRole === EmployeeRole.Owner}
-    onClose={close}
-    onSubmit={submit}
-    onLogoUpload={stores.tenantStore.uploadLogo}
-    onLogoDelete={stores.tenantStore.deleteLogo}
-  />;
+  return <NarrowContent>
+    <TenantEditor
+      tenant={tenant ?? null}
+      canEdit={isNewTenant || tenant?.currentEmployeeRole === EmployeeRole.Admin || tenant?.currentEmployeeRole === EmployeeRole.Owner}
+      onClose={close}
+      onSubmit={submit}
+      onLogoUpload={stores.tenantStore.uploadLogo}
+      onLogoDelete={stores.tenantStore.deleteLogo} />
+  </NarrowContent>;
 };
 
 export default observer(TenantEditorPage);

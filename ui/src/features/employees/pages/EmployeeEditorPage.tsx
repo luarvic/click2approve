@@ -2,6 +2,7 @@ import { stores } from "@/app/rootStore";
 import EmployeeEditor from "@/features/employees/components/EmployeeDialog";
 import { CreateEmployeeRequest, UpdateEmployeeRequest } from "@/features/employees/models/employee";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
+import NarrowContent from "@/shared/components/layout/NarrowContent";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
@@ -59,44 +60,45 @@ const EmployeeEditorPage = () => {
     for (const team of stores.teamStore.teams) {
       const memberGlobalIds = team.members.map((member) => member.globalId);
       if (memberGlobalIds.includes(employeeGlobalIdToSync) === selected.has(team.globalId)) continue;
-      const saved = await stores.teamStore.update(tenantGlobalId, team.globalId, { name: team.name, employeeGlobalIds: selected.has(team.globalId) ? [...memberGlobalIds, employeeGlobalIdToSync] : memberGlobalIds.filter( (id: string) => id !== employeeGlobalIdToSync) });
+      const saved = await stores.teamStore.update(tenantGlobalId, team.globalId, { name: team.name, employeeGlobalIds: selected.has(team.globalId) ? [...memberGlobalIds, employeeGlobalIdToSync] : memberGlobalIds.filter((id: string) => id !== employeeGlobalIdToSync) });
       if (!saved) return false;
     }
     await stores.teamStore.load(tenantGlobalId, true);
     return true;
   };
 
-  return <EmployeeEditor
-    employee={employee ?? null}
-    teams={stores.teamStore.teams}
-    selectedTeamGlobalIds={selectedTeamGlobalIds}
-    canEdit={canEdit}
-    canTransferOwnership={canTransferOwnership}
-    onClose={(currentEmployeeGlobalId) => navigate(employeesPath, { state: currentEmployeeGlobalId ? { currentEmployeeGlobalId } : undefined })}
-    onDelete={async  (id: string) => {
-      const deleted = await stores.employeeStore.delete(tenantGlobalId, id);
-      if (deleted) {
+  return <NarrowContent>
+    <EmployeeEditor
+      employee={employee ?? null}
+      teams={stores.teamStore.teams}
+      selectedTeamGlobalIds={selectedTeamGlobalIds}
+      canEdit={canEdit}
+      canTransferOwnership={canTransferOwnership}
+      onClose={(currentEmployeeGlobalId) => navigate(employeesPath, { state: currentEmployeeGlobalId ? { currentEmployeeGlobalId } : undefined })}
+      onDelete={async (id: string) => {
+        const deleted = await stores.employeeStore.delete(tenantGlobalId, id);
+        if (deleted) {
+          showPersistenceSuccessNotification(
+            PersistenceSuccessMessages.employeeDeleted,
+          );
+          navigate(employeesPath);
+        }
+        return deleted;
+      }}
+      onSubmit={async (payload: CreateEmployeeRequest | UpdateEmployeeRequest, teamGlobalIds, id) => {
+        const saved = id ? await stores.employeeStore.update(tenantGlobalId, id, payload as UpdateEmployeeRequest) : await stores.employeeStore.create(tenantGlobalId, payload as CreateEmployeeRequest);
+        if (!saved || !(await syncTeams(saved.globalId, teamGlobalIds))) {
+          return null;
+        }
+        await stores.tenantStore.load(tenantGlobalId);
         showPersistenceSuccessNotification(
-          PersistenceSuccessMessages.employeeDeleted,
+          id
+            ? PersistenceSuccessMessages.employeeSaved
+            : PersistenceSuccessMessages.employeeSavedInvitationSent,
         );
-        navigate(employeesPath);
-      }
-      return deleted;
-    }}
-    onSubmit={async (payload: CreateEmployeeRequest | UpdateEmployeeRequest, teamGlobalIds, id) => {
-      const saved = id ? await stores.employeeStore.update(tenantGlobalId, id, payload as UpdateEmployeeRequest) : await stores.employeeStore.create(tenantGlobalId, payload as CreateEmployeeRequest);
-      if (!saved || !(await syncTeams(saved.globalId, teamGlobalIds))) {
-        return null;
-      }
-      await stores.tenantStore.load(tenantGlobalId);
-      showPersistenceSuccessNotification(
-        id
-          ? PersistenceSuccessMessages.employeeSaved
-          : PersistenceSuccessMessages.employeeSavedInvitationSent,
-      );
-      return saved;
-    }}
-  />;
+        return saved;
+      }} />
+  </NarrowContent>;
 };
 
 export default observer(EmployeeEditorPage);

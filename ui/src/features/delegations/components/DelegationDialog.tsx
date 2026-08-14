@@ -6,7 +6,6 @@ import {
 import { Employee } from "@/features/employees/models/employee";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import DisplayName from "@/shared/components/identity/DisplayName";
-import NarrowContent from "@/shared/components/layout/NarrowContent";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
@@ -127,7 +126,6 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           { label: isNew ? "New delegation" : "Delegation" },
         ]}
       />
-      <NarrowContent>
         <Stack spacing={Dialogs.formStackSpacing}>
         <TextField
           select
@@ -197,7 +195,6 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
             </LoadingButton>
           )}
         </Stack>
-      </NarrowContent>
       {delegation && (
         <DeleteConfirmationDialog
           entityName={delegationName}

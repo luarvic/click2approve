@@ -11,6 +11,7 @@ import {
   ApprovalDelegationUpsert,
 } from "@/features/delegations/models/approvalDelegation";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
+import NarrowContent from "@/shared/components/layout/NarrowContent";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
@@ -63,7 +64,8 @@ const DelegationEditorPage = () => {
   }
 
   return (
-    <DelegationEditor
+    <NarrowContent>
+      <DelegationEditor
       delegation={delegation ?? null}
       employees={stores.employeeStore.employees}
       canEdit={canEdit}
@@ -97,7 +99,8 @@ const DelegationEditorPage = () => {
         }
         return saved;
       }}
-    />
+      />
+    </NarrowContent>
   );
 };
 

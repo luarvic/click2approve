@@ -12,7 +12,6 @@ import { createSharedVerificationLinkForRequest } from "@/features/sharedVerific
 import SharedVerificationLinksPanel from "@/features/sharedVerificationLinks/components/SharedVerificationLinksPanel";
 import { TenantType } from "@/features/tenants/models/tenant";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
-import NarrowContent from "@/shared/components/layout/NarrowContent";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
@@ -108,6 +107,8 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
     ) === true;
   const discussionsAreEnabled =
     stores.applicationConfigurationStore.discussionsAreEnabled;
+  const discussionAttachmentsAreEnabled =
+    stores.applicationConfigurationStore.discussionAttachmentsAreEnabled;
   const approvalRequestIsCanceling =
     cancelAction.isRunning || stores.commonStore.isActionLoading(cancelLoader);
   const sharedVerificationLinkIsCreating =
@@ -244,8 +245,15 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
         {canManageSharedVerificationLinks && <Tab label="Link" value="link" />}
       </Tabs>
       {tab === "request" && (
-        <NarrowContent>
-          <ApprovalRequestDetails approvalRequest={approvalRequest} />
+        <>
+          <ApprovalRequestDetails
+            approvalRequest={approvalRequest}
+            taskAttachmentsTenantGlobalId={
+              stores.applicationConfigurationStore.taskAttachmentsAreEnabled
+                ? tenantGlobalId ?? undefined
+                : undefined
+            }
+          />
           <Stack
             direction={{ xs: "column", sm: "row" }}
             spacing={Dialogs.stepHeaderSpacing}
@@ -275,11 +283,12 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
               </LoadingButton>
             )}
           </Stack>
-        </NarrowContent>
+        </>
       )}
       {tab === "chat" && discussionsAreEnabled && approvalRequest && (
-        <NarrowContent>
-          <DiscussionPanel
+        <>
+            <DiscussionPanel
+              attachmentsAreEnabled={discussionAttachmentsAreEnabled}
             canSend={canSendDiscussion}
             ref={discussionPanel}
             requestGlobalId={approvalRequest.globalId}
@@ -313,7 +322,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
               </Button>
             )}
           </Stack>
-        </NarrowContent>
+        </>
       )}
       {tab === "link" && canManageSharedVerificationLinks && (
         <SharedVerificationLinksPanel
@@ -324,7 +333,6 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
         />
       )}
       {tab === "link" && canManageSharedVerificationLinks && (
-        <NarrowContent>
           <Stack
             direction={{ xs: "column", sm: "row" }}
             spacing={Dialogs.stepHeaderSpacing}
@@ -345,7 +353,6 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({
               Create link
             </LoadingButton>
           </Stack>
-        </NarrowContent>
       )}
       {approvalRequest && (
         <ConfirmationDialog

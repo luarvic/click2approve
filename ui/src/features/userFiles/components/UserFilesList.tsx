@@ -38,9 +38,9 @@ const UserFilesList: React.FC<UserFilesListProps> = ({
       sx={[Lists.overflowHiddenSx, ...(Array.isArray(sx) ? sx : [sx])]}
     >
       {userFiles &&
-        userFiles.map((userFile, index) => (
+        userFiles.map((userFile) => (
           <Stack
-            key={index}
+            key={userFile.globalId}
             direction="row"
             alignItems="center"
             sx={userFileRowSx}

@@ -8,6 +8,8 @@ export const ActionLoaders = {
     submit: () => formatActionLoader("approvalRequests", "submit"),
   },
   approvalRequestTasks: {
+    attachFiles: (taskGlobalId: string | undefined) =>
+      formatActionLoader("approvalRequestTasks", "attachFiles", taskGlobalId),
     complete: (taskGlobalId: string | undefined) =>
       formatActionLoader("approvalRequestTasks", "complete", taskGlobalId),
   },

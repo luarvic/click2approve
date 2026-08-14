@@ -1,6 +1,7 @@
 import { stores } from "@/app/rootStore";
 import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestTask from "@/features/approvalRequests/components/ApprovalRequestTask";
+import NarrowContent from "@/shared/components/layout/NarrowContent";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
@@ -59,7 +60,8 @@ const ApprovalRequestTaskPage: React.FC<ApprovalRequestTaskPageProps> = ({
   if (!task || !taskHasLoaded) return <LoadingOverlay />;
 
   return (
-    <ApprovalRequestTask
+    <NarrowContent>
+      <ApprovalRequestTask
       onClose={(currentTaskGlobalId) =>
         navigate(inboxPath, {
           state: currentTaskGlobalId ? { currentTaskGlobalId } : undefined,
@@ -67,7 +69,8 @@ const ApprovalRequestTaskPage: React.FC<ApprovalRequestTaskPageProps> = ({
       }
       tab={tab}
       taskGlobalId={taskGlobalId}
-    />
+      />
+    </NarrowContent>
   );
 };
 

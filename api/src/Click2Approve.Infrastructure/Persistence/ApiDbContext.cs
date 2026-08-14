@@ -252,6 +252,9 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasConversion<int>();
 
         modelBuilder.Entity<ApprovalRequestTask>()
+            .Ignore(task => task.TaskFiles);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
             .Property(t => t.Action)
             .HasConversion<int>();
 
