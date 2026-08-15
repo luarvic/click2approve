@@ -1,5 +1,8 @@
 using Click2Approve.Application.Abstractions.Persistence;
+using Click2Approve.Application.Abstractions.Authorization;
+using Click2Approve.Application.Abstractions.Services.ApprovalRequests;
 using Click2Approve.Application.Models.Results.ApprovalRequests;
+using Click2Approve.Application.Services.ApprovalRequests;
 using Click2Approve.Application.Abstractions.TenantContext;
 using Click2Approve.Domain.Models;
 using Microsoft.EntityFrameworkCore;
@@ -9,10 +12,18 @@ namespace Click2Approve.Infrastructure.Persistence;
 /// <summary>
 /// Provides EF Core persistence operations for approval request tasks.
 /// </summary>
-public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenantContext) : IApprovalRequestTaskRepository
+public class ApprovalRequestTaskRepository(
+    ApiDbContext db,
+    ITenantContext tenantContext,
+    IAccessScopeProvider accessScopeProvider,
+    IAccessPolicy accessPolicy,
+    IApprovalRequestAssigneeGlobalIdResolver assigneeGlobalIdResolver) : IApprovalRequestTaskRepository
 {
     protected readonly ApiDbContext Db = db;
     protected readonly ITenantContext TenantContext = tenantContext;
+    protected readonly IAccessScopeProvider AccessScopeProvider = accessScopeProvider;
+    protected readonly IAccessPolicy AccessPolicy = accessPolicy;
+    protected readonly IApprovalRequestAssigneeGlobalIdResolver AssigneeGlobalIdResolver = assigneeGlobalIdResolver;
 
     public virtual async Task<ApprovalRequestTask> AddAsync(ApprovalRequestTask approvalRequestTask, CancellationToken cancellationToken)
     {
@@ -38,19 +49,18 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
 
     public virtual async Task<List<ApprovalRequestTask>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
-        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        var scope = await AccessScopeProvider.GetAsync(user, cancellationToken);
         return await Db.ApprovalRequestTasks
             .AsNoTracking()
             .Include(task => task.AssigneeUser)
             .Include(task => task.CompletedByUser)
             .Include(task => task.ApprovalRequest)
                 .ThenInclude(request => request.CreatedByUser)
-            .Where(t => t.AssigneeUserId == user.Id
-                && t.TenantId == tenantId)
+            .Where(AccessPolicy.CanWorkTask(scope))
             .ToListAsync(cancellationToken);
     }
 
-    public virtual async Task<ApprovalRequestTaskWithHiddenStepSequencesResult?> GetAsync(
+    public virtual async Task<ApprovalRequestTaskDetailsResult?> GetAsync(
         AppUser user,
         Guid globalId,
         CancellationToken cancellationToken)
@@ -63,7 +73,7 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
 
     public virtual async Task<ApprovalRequestTask?> GetForCompletionAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
-        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        var scope = await AccessScopeProvider.GetAsync(user, cancellationToken);
         return await Db.ApprovalRequestTasks
             .AsSplitQuery()
             .Include(t => t.ApprovalRequest)
@@ -94,19 +104,17 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
                     .ThenInclude(task => task.CompletedByUser)
             .Include(t => t.AssigneeUser)
             .Include(t => t.CompletedByUser)
-                .FirstOrDefaultAsync(t => t.GlobalId == globalId
-                    && t.AssigneeUserId == user.Id
-                    && t.TenantId == tenantId,
-                    cancellationToken);
+            .Where(AccessPolicy.CanWorkTask(scope))
+            .FirstOrDefaultAsync(t => t.GlobalId == globalId,
+                cancellationToken);
     }
 
     public virtual async Task<long> CountUncompletedAsync(AppUser user, CancellationToken cancellationToken)
     {
-        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        var scope = await AccessScopeProvider.GetAsync(user, cancellationToken);
         return await Db.ApprovalRequestTasks
-            .Where(t => t.AssigneeUserId == user.Id
-                && t.Status == ApprovalRequestTaskStatus.Pending
-                && t.TenantId == tenantId)
+            .Where(AccessPolicy.CanWorkTask(scope))
+            .Where(t => t.Status == ApprovalRequestTaskStatus.Pending)
             .LongCountAsync(cancellationToken);
     }
 
@@ -115,7 +123,7 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
         Guid globalId,
         CancellationToken cancellationToken)
     {
-        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        var scope = await AccessScopeProvider.GetAsync(user, cancellationToken);
         return await Db.ApprovalRequestTasks
             .AsNoTracking()
             .Include(task => task.AssigneeUser)
@@ -128,13 +136,12 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
             .Include(task => task.ApprovalRequest)
                 .ThenInclude(request => request.RequestFiles)
                     .ThenInclude(file => file.UserFile)
-            .FirstOrDefaultAsync(task => task.GlobalId == globalId
-                && task.AssigneeUserId == user.Id
-                && task.TenantId == tenantId,
+            .Where(AccessPolicy.CanWorkTask(scope))
+            .FirstOrDefaultAsync(task => task.GlobalId == globalId,
                 cancellationToken);
     }
 
-    protected virtual async Task<ApprovalRequestTaskWithHiddenStepSequencesResult?> GetRequestForTaskAsync(
+    protected virtual async Task<ApprovalRequestTaskDetailsResult?> GetRequestForTaskAsync(
         ApprovalRequestTask task,
         CancellationToken cancellationToken)
     {
@@ -153,11 +160,8 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
 
         await PopulateTaskFilesAsync(approvalRequest.Steps.SelectMany(step => step.Tasks), cancellationToken);
         task.ApprovalRequest = approvalRequest;
-        return new ApprovalRequestTaskWithHiddenStepSequencesResult
-        {
-            HiddenStepSequences = hiddenStepSequences,
-            Task = task
-        };
+        var assigneeGlobalIdMaps = await AssigneeGlobalIdResolver.ResolveAsync(approvalRequest, cancellationToken);
+        return ApprovalRequestMapper.MapTaskDetail(task, hiddenStepSequences, assigneeGlobalIdMaps);
     }
 
     protected virtual IQueryable<ApprovalRequest> GetRequestDetailsQuery(

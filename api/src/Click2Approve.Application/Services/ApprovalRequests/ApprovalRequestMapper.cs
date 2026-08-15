@@ -7,7 +7,7 @@ namespace Click2Approve.Application.Services.ApprovalRequests;
 /// <summary>
 /// Maps approval request domain models to approval request results.
 /// </summary>
-internal static class ApprovalRequestMapper
+public static class ApprovalRequestMapper
 {
     public static ApprovalRequestListItemResult MapApprovalRequestListItem(ApprovalRequest approvalRequest) => new()
     {
@@ -87,19 +87,21 @@ internal static class ApprovalRequestMapper
     }
 
     public static ApprovalRequestTaskDetailsResult MapTaskDetail(
-        ApprovalRequestTaskWithHiddenStepSequencesResult taskWithHiddenStepSequences,
-        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps) => new(MapTask(taskWithHiddenStepSequences.Task))
+        ApprovalRequestTask task,
+        IReadOnlyCollection<int> hiddenStepSequences,
+        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps) => new(MapTask(task))
         {
-            RequestFiles = [.. OrderRequestFiles(taskWithHiddenStepSequences.Task.ApprovalRequest).Select(MapRequestFile)],
-            ApprovalRequest = MapApprovalRequestForTask(taskWithHiddenStepSequences, assigneeGlobalIdMaps),
-            AssigneeSignatureJson = taskWithHiddenStepSequences.Task.AssigneeSignatureJson
+            RequestFiles = [.. OrderRequestFiles(task.ApprovalRequest).Select(MapRequestFile)],
+            ApprovalRequest = MapApprovalRequestForTask(task, hiddenStepSequences, assigneeGlobalIdMaps),
+            AssigneeSignatureJson = task.AssigneeSignatureJson
         };
 
     private static ApprovalRequestDetailsResult MapApprovalRequestForTask(
-        ApprovalRequestTaskWithHiddenStepSequencesResult taskWithHiddenStepSequences,
+        ApprovalRequestTask task,
+        IReadOnlyCollection<int> hiddenStepSequences,
         ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps)
     {
-        var approvalRequest = taskWithHiddenStepSequences.Task.ApprovalRequest;
+        var approvalRequest = task.ApprovalRequest;
         var assigneeGlobalIdsById = approvalRequest.Steps
             .SelectMany(step => step.Assignees)
             .ToDictionary(assignee => assignee.Id, assignee => assignee.GlobalId);
@@ -119,7 +121,7 @@ internal static class ApprovalRequestMapper
                 approvalRequest.OrganizationDisplayName,
                 assigneeGlobalIdsById,
                 assigneeGlobalIdMaps,
-                includeVisibility: false)), .. taskWithHiddenStepSequences.HiddenStepSequences.Select(MapHiddenStep)],
+                includeVisibility: false)), .. hiddenStepSequences.Select(MapHiddenStep)],
             Description = approvalRequest.Description,
             CreatedAt = approvalRequest.CreatedAt,
             CompletedAt = approvalRequest.CompletedAt,

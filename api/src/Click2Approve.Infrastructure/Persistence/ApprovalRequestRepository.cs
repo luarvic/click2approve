@@ -1,4 +1,5 @@
 using Click2Approve.Application.Abstractions.Persistence;
+using Click2Approve.Application.Abstractions.Authorization;
 using Click2Approve.Application.Abstractions.TenantContext;
 using Click2Approve.Domain.Models;
 using Microsoft.EntityFrameworkCore;
@@ -8,10 +9,16 @@ namespace Click2Approve.Infrastructure.Persistence;
 /// <summary>
 /// Provides EF Core persistence operations for approval requests.
 /// </summary>
-public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantContext) : IApprovalRequestRepository
+public class ApprovalRequestRepository(
+    ApiDbContext db,
+    ITenantContext tenantContext,
+    IAccessScopeProvider accessScopeProvider,
+    IAccessPolicy accessPolicy) : IApprovalRequestRepository
 {
     protected readonly ApiDbContext Db = db;
     protected readonly ITenantContext TenantContext = tenantContext;
+    protected readonly IAccessScopeProvider AccessScopeProvider = accessScopeProvider;
+    protected readonly IAccessPolicy AccessPolicy = accessPolicy;
 
     public virtual async Task<ApprovalRequest> AddAsync(ApprovalRequest approvalRequest, CancellationToken cancellationToken)
     {
@@ -21,46 +28,36 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
 
     public virtual async Task<ApprovalRequest?> GetForUpdateAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
-        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        var scope = await AccessScopeProvider.GetAsync(user, cancellationToken);
         return await IncludeDetails(Db.ApprovalRequests)
-            .FirstOrDefaultAsync(r => r.TenantId == tenantId && r.GlobalId == globalId && r.CreatedByUserId == user.Id, cancellationToken);
+            .Where(AccessPolicy.CanManageRequest(scope))
+            .FirstOrDefaultAsync(r => r.GlobalId == globalId, cancellationToken);
     }
 
     public virtual async Task<ApprovalRequest?> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
-        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        var scope = await AccessScopeProvider.GetAsync(user, cancellationToken);
         return await IncludeDetails(Db.ApprovalRequests)
             .AsNoTracking()
-            .FirstOrDefaultAsync(r => r.GlobalId == globalId
-                && r.TenantId == tenantId
-                && r.CreatedByUserId == user.Id, cancellationToken);
-    }
-
-    public async Task<IList<ApprovalRequest>> ListAsync(AppUser user, Guid userFileGlobalId, CancellationToken cancellationToken)
-    {
-        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await Db.ApprovalRequests
-            .Where(r => r.TenantId == tenantId
-                && r.RequestFiles.Any(file => file.UserFile.GlobalId == userFileGlobalId))
-            .ToListAsync(cancellationToken);
+            .Where(AccessPolicy.CanManageRequest(scope))
+            .FirstOrDefaultAsync(r => r.GlobalId == globalId, cancellationToken);
     }
 
     public virtual async Task<List<ApprovalRequest>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
-        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        var scope = await AccessScopeProvider.GetAsync(user, cancellationToken);
         return await Db.ApprovalRequests
             .AsNoTracking()
             .Include(r => r.CreatedByUser)
-            .Where(r => r.TenantId == tenantId && r.CreatedByUserId == user.Id)
+            .Where(AccessPolicy.CanManageRequest(scope))
             .ToListAsync(cancellationToken);
     }
 
     public async Task<int> CountAsync(AppUser user, DateTime start, DateTime end, CancellationToken cancellationToken)
     {
-        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await Db.ApprovalRequests.CountAsync(r => r.TenantId == tenantId
-            && r.CreatedByUserId == user.Id
-            && r.CreatedAt >= start
+        var scope = await AccessScopeProvider.GetAsync(user, cancellationToken);
+        return await Db.ApprovalRequests.Where(AccessPolicy.CanManageRequest(scope)).CountAsync(r =>
+            r.CreatedAt >= start
             && r.CreatedAt < end, cancellationToken);
     }
 

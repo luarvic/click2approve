@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Asp.Versioning;
+using Click2Approve.Application.Abstractions.Authorization;
 using Click2Approve.Application.Abstractions.Persistence;
 using Click2Approve.Application.Abstractions.Services.ApprovalRequests;
 using Click2Approve.Application.Abstractions.Services.Notifications;
@@ -13,6 +14,7 @@ using Click2Approve.Application.Services.Tenants;
 using Click2Approve.Application.Services.UserFiles;
 using Click2Approve.Application.Services.UserProfiles;
 using Click2Approve.Domain.Models;
+using Click2Approve.Infrastructure.Authorization;
 using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.WebApi.Extensions;
 using Click2Approve.WebApi.Middlewares;
@@ -76,6 +78,8 @@ builder.Services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRe
 builder.Services.AddScoped<IUserNotificationPreferenceRepository, UserNotificationPreferenceRepository>();
 builder.Services.AddScoped<IEventDeliveryRepository, EventDeliveryRepository>();
 builder.Services.AddScoped<IUserFileRepository, UserFileRepository>();
+builder.Services.AddScoped<IAccessScopeProvider, AccessScopeProvider>();
+builder.Services.AddScoped<IAccessPolicy, DefaultAccessPolicy>();
 
 builder.Services.AddScoped<ITenantContext, RequestTenantContext>();
 

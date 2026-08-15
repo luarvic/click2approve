@@ -10,7 +10,6 @@ namespace Click2Approve.Application.Services.UserFiles;
 /// </summary>
 public class UserFileService(
     IConfiguration configuration,
-    IApprovalRequestRepository approvalRequestRepository,
     IUserFileRepository userFileRepository,
     ITenantContext tenantContext,
     IUnitOfWork unitOfWork,
@@ -18,7 +17,6 @@ public class UserFileService(
     ILogger<UserFileService> logger) : IUserFileService
 {
     private readonly IConfiguration _configuration = configuration;
-    private readonly IApprovalRequestRepository _approvalRequestRepository = approvalRequestRepository;
     private readonly IUserFileRepository _userFileRepository = userFileRepository;
     private readonly ITenantContext _tenantContext = tenantContext;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
@@ -147,14 +145,6 @@ public class UserFileService(
     /// </summary>
     public async Task DeleteAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
-        // Delete related approval requests first.
-        var approvalRequests = await _approvalRequestRepository.ListAsync(user, globalId, cancellationToken);
-        if (approvalRequests.Count > 0)
-        {
-            throw new BusinessRuleException("Files attached to approval requests cannot be deleted.");
-        }
-
-        // Delete the file.
         var userFile = await _userFileRepository.GetForDeleteAsync(user, globalId, cancellationToken)
             ?? throw new NotFoundException("File was not found.");
         _userFileRepository.Remove(userFile);

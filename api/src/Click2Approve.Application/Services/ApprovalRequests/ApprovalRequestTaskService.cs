@@ -33,12 +33,8 @@ public class ApprovalRequestTaskService(
     /// </summary>
     public async Task<ApprovalRequestTaskDetailsResult> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
-        var taskWithHiddenStepSequences = await _approvalRequestTaskRepository.GetAsync(user, globalId, cancellationToken)
+        return await _approvalRequestTaskRepository.GetAsync(user, globalId, cancellationToken)
             ?? throw new NotFoundException("Approval request task was not found.");
-        var assigneeGlobalIdMaps = await _assigneeGlobalIdResolver.ResolveAsync(
-            taskWithHiddenStepSequences.Task.ApprovalRequest,
-            cancellationToken);
-        return ApprovalRequestMapper.MapTaskDetail(taskWithHiddenStepSequences, assigneeGlobalIdMaps);
     }
 
     /// <summary>
