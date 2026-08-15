@@ -45,11 +45,11 @@ public class UserProfileController(IUserProfileService userProfileService, UserM
         return Ok(UserProfileContractMapper.Map(await _userProfileService.UploadAvatarAsync(user, await avatar.ToUploadedFileAsync(cancellationToken), cancellationToken)));
     }
 
-    [HttpGet("{userId}/avatar")]
+    [HttpGet("{userGlobalId:guid}/avatar")]
     [AllowAnonymous]
-    public async Task<IActionResult> DownloadAvatarAsync(string userId, CancellationToken cancellationToken)
+    public async Task<IActionResult> DownloadAvatarAsync(Guid userGlobalId, CancellationToken cancellationToken)
     {
-        return Redirect(await _userProfileService.GetAvatarUrlAsync(userId, cancellationToken));
+        return Redirect(await _userProfileService.GetAvatarUrlAsync(userGlobalId, cancellationToken));
     }
 
     [HttpDelete("avatar")]

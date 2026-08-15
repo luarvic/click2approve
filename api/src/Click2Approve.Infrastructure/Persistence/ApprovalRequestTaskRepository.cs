@@ -1,4 +1,5 @@
 using Click2Approve.Application.Abstractions.Persistence;
+using Click2Approve.Application.Models.Results.ApprovalRequests;
 using Click2Approve.Application.Abstractions.TenantContext;
 using Click2Approve.Domain.Models;
 using Microsoft.EntityFrameworkCore;
@@ -49,7 +50,21 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
             .ToListAsync(cancellationToken);
     }
 
-    public virtual async Task<ApprovalRequestTask?> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    public virtual async Task<ApprovalRequestTaskWithHiddenStepSequencesResult?> GetAsync(
+        AppUser user,
+        Guid globalId,
+        CancellationToken cancellationToken)
+    {
+        var task = await GetTaskAsync(user, globalId, cancellationToken);
+        return task is null
+            ? null
+            : await GetRequestForTaskAsync(task, cancellationToken);
+    }
+
+    protected virtual async Task<ApprovalRequestTask?> GetTaskAsync(
+        AppUser user,
+        Guid globalId,
+        CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.ApprovalRequestTasks
@@ -70,40 +85,68 @@ public class ApprovalRequestTaskRepository(ApiDbContext db, ITenantContext tenan
                 cancellationToken);
     }
 
-    public virtual async Task<ApprovalRequest?> GetRequestForTaskAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    protected virtual async Task<ApprovalRequestTaskWithHiddenStepSequencesResult?> GetRequestForTaskAsync(
+        ApprovalRequestTask task,
+        CancellationToken cancellationToken)
     {
-        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await Db.ApprovalRequests
+        var hiddenStepSequences = await ListHiddenStepSequencesAsync(
+            task.ApprovalRequestId,
+            task.ApprovalRequestStepAssigneeId,
+            cancellationToken);
+        var approvalRequest = await Db.ApprovalRequests
             .AsNoTracking()
+            .AsSplitQuery()
             .Include(request => request.CreatedByUser)
             .Include(request => request.CompletedByUser)
             .Include(request => request.NextRevisionApprovalRequest)
                 .ThenInclude(nextRevision => nextRevision!.CreatedByUser)
             .Include(request => request.RequestFiles)
                 .ThenInclude(file => file.UserFile)
-            .Include(request => request.Steps)
+            .Include(request => request.Steps.Where(step => !hiddenStepSequences.Contains(step.Sequence)))
                 .ThenInclude(step => step.Assignees)
                     .ThenInclude(assignee => assignee.User)
-            .Include(request => request.Steps)
-                .ThenInclude(step => step.StepVisibilities)
-                    .ThenInclude(visibility => visibility.ApprovalRequestStepAssignee)
-                        .ThenInclude(assignee => assignee!.User)
-            .Include(request => request.Steps)
-                .ThenInclude(step => step.StepVisibilities)
-            .Include(request => request.Steps)
+            .Include(request => request.Steps.Where(step => !hiddenStepSequences.Contains(step.Sequence)))
                 .ThenInclude(step => step.Tasks)
                     .ThenInclude(requestTask => requestTask.ApprovalRequestStepAssignee)
                         .ThenInclude(assignee => assignee!.User)
-            .Include(request => request.Steps)
+            .Include(request => request.Steps.Where(step => !hiddenStepSequences.Contains(step.Sequence)))
                 .ThenInclude(step => step.Tasks)
                     .ThenInclude(requestTask => requestTask.AssigneeUser)
-            .Include(request => request.Steps)
+            .Include(request => request.Steps.Where(step => !hiddenStepSequences.Contains(step.Sequence)))
                 .ThenInclude(step => step.Tasks)
                     .ThenInclude(requestTask => requestTask.CompletedByUser)
-            .FirstOrDefaultAsync(request => request.Steps.Any(step => step.Tasks.Any(task => task.GlobalId == globalId
-                && task.AssigneeUserId == user.Id
-                && task.TenantId == tenantId)),
-                cancellationToken);
+            .FirstOrDefaultAsync(request => request.Id == task.ApprovalRequestId, cancellationToken);
+        if (approvalRequest is null)
+        {
+            return null;
+        }
+
+        task.ApprovalRequest = approvalRequest;
+        return new ApprovalRequestTaskWithHiddenStepSequencesResult
+        {
+            HiddenStepSequences = hiddenStepSequences,
+            Task = task
+        };
+    }
+
+    protected async Task<List<int>> ListHiddenStepSequencesAsync(
+        long approvalRequestId,
+        long? approvalRequestStepAssigneeId,
+        CancellationToken cancellationToken)
+    {
+        if (!approvalRequestStepAssigneeId.HasValue)
+        {
+            return [];
+        }
+
+        return await Db.ApprovalRequestSteps
+            .AsNoTracking()
+            .Where(step => step.ApprovalRequestId == approvalRequestId
+                && step.StepVisibilities.Any(visibility =>
+                    visibility.ApprovalRequestStepAssigneeId == approvalRequestStepAssigneeId.Value
+                    && !visibility.IsVisible))
+            .Select(step => step.Sequence)
+            .ToListAsync(cancellationToken);
     }
 
     public virtual async Task<ApprovalRequestTask?> GetForCompletionAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)

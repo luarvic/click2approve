@@ -8,7 +8,7 @@ export enum EmployeeStatus {
 export interface Employee {
   globalId: string;
   tenantGlobalId: string;
-  userId?: string;
+  userGlobalId?: string;
   email: string;
   displayName: string;
   firstName?: string;

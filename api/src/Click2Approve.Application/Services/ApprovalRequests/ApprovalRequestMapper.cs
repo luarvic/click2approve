@@ -87,25 +87,19 @@ internal static class ApprovalRequestMapper
     }
 
     public static ApprovalRequestTaskDetailsResult MapTaskDetail(
-        ApprovalRequestTask task,
-        ApprovalRequest? approvalRequest,
-        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps) => new(MapTask(task))
+        ApprovalRequestTaskWithHiddenStepSequencesResult taskWithHiddenStepSequences,
+        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps) => new(MapTask(taskWithHiddenStepSequences.Task))
         {
-            RequestFiles = [.. OrderRequestFiles(task.ApprovalRequest).Select(MapRequestFile)],
-            ApprovalRequest = approvalRequest is not null
-            ? MapApprovalRequestForTask(approvalRequest, task.ApprovalRequestStepAssigneeId, assigneeGlobalIdMaps)
-            : null,
-            AssigneeSignatureJson = task.AssigneeSignatureJson
+            RequestFiles = [.. OrderRequestFiles(taskWithHiddenStepSequences.Task.ApprovalRequest).Select(MapRequestFile)],
+            ApprovalRequest = MapApprovalRequestForTask(taskWithHiddenStepSequences, assigneeGlobalIdMaps),
+            AssigneeSignatureJson = taskWithHiddenStepSequences.Task.AssigneeSignatureJson
         };
 
     private static ApprovalRequestDetailsResult MapApprovalRequestForTask(
-        ApprovalRequest approvalRequest,
-        long? approvalRequestStepAssigneeId,
+        ApprovalRequestTaskWithHiddenStepSequencesResult taskWithHiddenStepSequences,
         ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps)
     {
-        var visibleSteps = approvalRequest.Steps
-            .Where(step => StepIsVisibleToAssignee(step, approvalRequestStepAssigneeId))
-            .ToList();
+        var approvalRequest = taskWithHiddenStepSequences.Task.ApprovalRequest;
         var assigneeGlobalIdsById = approvalRequest.Steps
             .SelectMany(step => step.Assignees)
             .ToDictionary(assignee => assignee.Id, assignee => assignee.GlobalId);
@@ -117,15 +111,15 @@ internal static class ApprovalRequestMapper
             GlobalId = approvalRequest.GlobalId,
             Title = approvalRequest.Title,
             RequestFiles = [.. OrderRequestFiles(approvalRequest).Select(MapRequestFile)],
-            Steps = [.. approvalRequest.Steps.Select(step => MapStepForTask(
+            Steps = [.. approvalRequest.Steps.Select(step => MapStep(
                 step,
                 approvalRequest.GlobalId,
                 createdByDisplayName,
                 createdByEmail,
                 approvalRequest.OrganizationDisplayName,
-                approvalRequestStepAssigneeId,
                 assigneeGlobalIdsById,
-                assigneeGlobalIdMaps))],
+                assigneeGlobalIdMaps,
+                includeVisibility: false)), .. taskWithHiddenStepSequences.HiddenStepSequences.Select(MapHiddenStep)],
             Description = approvalRequest.Description,
             CreatedAt = approvalRequest.CreatedAt,
             CompletedAt = approvalRequest.CompletedAt,
@@ -202,35 +196,11 @@ internal static class ApprovalRequestMapper
         };
     }
 
-    private static ApprovalRequestStepResult MapStepForTask(
-        ApprovalRequestStep step,
-        Guid approvalRequestGlobalId,
-        string createdByDisplayName,
-        string createdByEmail,
-        string organizationDisplayName,
-        long? approvalRequestStepAssigneeId,
-        IReadOnlyDictionary<long, Guid> assigneeGlobalIdsById,
-        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps)
+    private static ApprovalRequestStepResult MapHiddenStep(int sequence) => new()
     {
-        if (!StepIsVisibleToAssignee(step, approvalRequestStepAssigneeId))
-        {
-            return new ApprovalRequestStepResult
-            {
-                Sequence = step.Sequence,
-                IsVisible = false
-            };
-        }
-
-        return MapStep(
-            step,
-            approvalRequestGlobalId,
-            createdByDisplayName,
-            createdByEmail,
-            organizationDisplayName,
-            assigneeGlobalIdsById,
-            assigneeGlobalIdMaps,
-            includeVisibility: false);
-    }
+        Sequence = sequence,
+        IsVisible = false
+    };
 
     private static ApprovalRequestStepVisibilityResult MapStepVisibility(
         ApprovalRequestStepVisibility visibility,
@@ -261,7 +231,6 @@ internal static class ApprovalRequestMapper
             ApprovalRequestGlobalId = approvalRequestGlobalId ?? task.ApprovalRequest.GlobalId,
             ApprovalRequestStepGlobalId = approvalRequestStepGlobalId ?? task.ApprovalRequestStep.GlobalId,
             ApprovalRequestStepAssigneeGlobalId = approvalRequestStepAssigneeGlobalId ?? task.ApprovalRequestStepAssignee?.GlobalId,
-            AssigneeUserId = task.AssigneeUserId,
             AssigneeEmail = task.AssigneeUser.NormalizedEmailOrEmpty(),
             AssigneeDisplayName = GetAssigneeDisplayName(task),
             CompletedByDisplayName = GetTaskCompleterDisplayName(task),
@@ -387,11 +356,4 @@ internal static class ApprovalRequestMapper
     private static IEnumerable<ApprovalRequestFile> OrderRequestFiles(ApprovalRequest approvalRequest) =>
         approvalRequest.RequestFiles.OrderBy(file => file.Sequence);
 
-    private static bool StepIsVisibleToAssignee(ApprovalRequestStep step, long? approvalRequestStepAssigneeId)
-    {
-        return approvalRequestStepAssigneeId is null
-            || (step.StepVisibilities.SingleOrDefault(visibility =>
-                visibility.ApprovalRequestStepAssigneeId == approvalRequestStepAssigneeId)
-            ?.IsVisible ?? true);
-    }
 }

@@ -8,5 +8,6 @@ namespace Click2Approve.Application.Abstractions.Identity;
 public interface IUserIdentityService
 {
     Task<AppUser?> FindByIdAsync(string userId, CancellationToken cancellationToken);
+    Task<AppUser?> FindByGlobalIdAsync(Guid globalId, CancellationToken cancellationToken);
     Task UpdateAsync(AppUser user, CancellationToken cancellationToken);
 }

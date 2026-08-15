@@ -88,9 +88,9 @@ public class UserProfileService(
             cancellationToken);
     }
 
-    public async Task<string> GetAvatarUrlAsync(string userId, CancellationToken cancellationToken)
+    public async Task<string> GetAvatarUrlAsync(Guid userGlobalId, CancellationToken cancellationToken)
     {
-        var user = await _userIdentityService.FindByIdAsync(userId, cancellationToken)
+        var user = await _userIdentityService.FindByGlobalIdAsync(userGlobalId, cancellationToken)
             ?? throw new NotFoundException("User was not found.");
         var avatarPath = user.Avatar;
         if (string.IsNullOrWhiteSpace(avatarPath))

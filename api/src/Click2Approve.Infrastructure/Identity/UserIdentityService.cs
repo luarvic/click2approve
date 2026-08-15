@@ -1,6 +1,7 @@
 using Click2Approve.Application.Abstractions.Identity;
 using Click2Approve.Domain.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Click2Approve.Infrastructure.Identity;
 
@@ -14,6 +15,11 @@ public class UserIdentityService(UserManager<AppUser> userManager) : IUserIdenti
     public async Task<AppUser?> FindByIdAsync(string userId, CancellationToken cancellationToken)
     {
         return await _userManager.FindByIdAsync(userId);
+    }
+
+    public async Task<AppUser?> FindByGlobalIdAsync(Guid globalId, CancellationToken cancellationToken)
+    {
+        return await _userManager.Users.FirstOrDefaultAsync(user => user.GlobalId == globalId, cancellationToken);
     }
 
     public async Task UpdateAsync(AppUser user, CancellationToken cancellationToken)

@@ -1,27 +1,27 @@
 import { stores } from "@/app/rootStore";
+import { getTaskCompletedTimestamp } from "@/features/approvalRequests/components/approvalRequestCompletionTimestamps";
+import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
 import ApprovalRequestElectronicSignatureView from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureView";
 import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
 import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
 import ApprovalRequestParticipantPair from "@/features/approvalRequests/components/ApprovalRequestParticipantPair";
 import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
-import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
 import ApprovalRequestTimestamp from "@/features/approvalRequests/components/ApprovalRequestTimestamp";
 import ApprovalRequestTimestampRow from "@/features/approvalRequests/components/ApprovalRequestTimestampRow";
-import { getTaskCompletedTimestamp } from "@/features/approvalRequests/components/approvalRequestCompletionTimestamps";
 import {
   getApprovalRequestTaskStatusLabel,
   getApprovalRequestTaskStatusLineColor,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
+import { getApprovalRequestTaskCompletedActionLabel } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
-import { getApprovalRequestTaskCompletedActionLabel } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
 import { StatusLineColors } from "@/shared/components/status/StatusLines";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
-import { Stack } from "@mui/material";
 import { StackSpacing } from "@/shared/constants/constants";
 import type { TypographyProps } from "@mui/material";
+import { Stack } from "@mui/material";
 import type { ReactNode } from "react";
 
 interface ApprovalRequestTaskSummaryBlockProps {
@@ -91,7 +91,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   const participantEmail = participant === "assignee" ? task.assigneeEmail : requestedByEmail;
   const participantOrganizationDisplayName = task.organizationDisplayName;
   const resolvedParticipantType =
-    participantType ?? (participant === "assignee" && !task.assigneeUserId ? AssigneeType.User : AssigneeType.Employee);
+    participantType ?? (participant === "assignee" ? AssigneeType.User : AssigneeType.Employee);
   const taskBorderLeftColor = getTaskBorderLeftColor(task.status, task.result);
   const completedTimestamp = getTaskCompletedTimestamp(task);
   const completionLabel = getTaskCompletionLabel(task);

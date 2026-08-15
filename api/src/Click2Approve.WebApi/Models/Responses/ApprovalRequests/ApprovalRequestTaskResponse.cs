@@ -25,7 +25,6 @@ public class ApprovalRequestTaskResponse : ApprovalRequestTaskListItemResponse
         ApprovalRequestGlobalId = source.ApprovalRequestGlobalId;
         ApprovalRequestStepGlobalId = source.ApprovalRequestStepGlobalId;
         ApprovalRequestStepAssigneeGlobalId = source.ApprovalRequestStepAssigneeGlobalId;
-        AssigneeUserId = source.AssigneeUserId;
         AssigneeEmail = source.AssigneeEmail;
         AssigneeDisplayName = source.AssigneeDisplayName;
         CompletedByDisplayName = source.CompletedByDisplayName;
@@ -48,7 +47,6 @@ public class ApprovalRequestTaskResponse : ApprovalRequestTaskListItemResponse
     public Guid ApprovalRequestGlobalId { get; init; }
     public Guid ApprovalRequestStepGlobalId { get; init; }
     public Guid? ApprovalRequestStepAssigneeGlobalId { get; init; }
-    public required string AssigneeUserId { get; init; }
     public required string AssigneeEmail { get; init; }
     public required string AssigneeDisplayName { get; init; }
     public string? CompletedByDisplayName { get; init; }

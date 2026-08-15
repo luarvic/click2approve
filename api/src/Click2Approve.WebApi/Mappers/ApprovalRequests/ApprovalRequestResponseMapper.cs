@@ -135,7 +135,6 @@ internal static class ApprovalRequestResponseMapper
         AssigneeLegalName = result.AssigneeLegalName,
         AssigneeOrganization = result.AssigneeOrganization,
         AssigneeSignatureJson = result.AssigneeSignatureJson,
-        AssigneeUserId = result.AssigneeUserId,
         Comment = result.Comment,
         CompletedAt = result.CompletedAt,
         CompletedByDisplayName = result.CompletedByDisplayName,

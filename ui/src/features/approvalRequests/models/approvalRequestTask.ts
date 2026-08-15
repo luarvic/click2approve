@@ -8,7 +8,6 @@ export interface ApprovalRequestTask extends ApprovalRequestTaskListItem {
   approvalRequestGlobalId: string;
   approvalRequestStepGlobalId: string;
   approvalRequestStepAssigneeGlobalId?: string;
-  assigneeUserId?: string;
   assigneeEmail: string;
   assigneeDisplayName: string;
   completedByDisplayName?: string;
