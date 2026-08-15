@@ -6,7 +6,7 @@ namespace Click2Approve.Domain.Models;
 public class AuditLog : DbEntity
 {
     // Foreign key identifiers
-    public string? UserId { get; set; }
+    public long? UserId { get; set; }
 
     // Scalar properties
     public required string ChangesJson { get; set; }

@@ -18,7 +18,7 @@ public class EventDeliveryRepository(ApiDbContext db) : IEventDeliveryRepository
         await _db.EventDeliveries.AddAsync(delivery, cancellationToken);
 
     public Task<long> CountUnreadAsync(
-        string userId,
+        long userId,
         long tenantId,
         EventDeliveryChannel channel,
         CancellationToken cancellationToken) =>
@@ -30,7 +30,7 @@ public class EventDeliveryRepository(ApiDbContext db) : IEventDeliveryRepository
             cancellationToken);
 
     public Task<List<EventDelivery>> ListAsync(
-        string userId,
+        long userId,
         long tenantId,
         EventDeliveryChannel channel,
         bool unreadOnly,
@@ -53,7 +53,7 @@ public class EventDeliveryRepository(ApiDbContext db) : IEventDeliveryRepository
     }
 
     public Task<EventDelivery?> GetForReadAsync(
-        string userId,
+        long userId,
         long tenantId,
         Guid globalId,
         EventDeliveryChannel channel,
@@ -68,7 +68,7 @@ public class EventDeliveryRepository(ApiDbContext db) : IEventDeliveryRepository
                 cancellationToken);
 
     public Task<List<EventDelivery>> ListForReadAsync(
-        string userId,
+        long userId,
         long tenantId,
         IReadOnlyCollection<Guid> globalIds,
         EventDeliveryChannel channel,
@@ -82,7 +82,7 @@ public class EventDeliveryRepository(ApiDbContext db) : IEventDeliveryRepository
             .ToListAsync(cancellationToken);
 
     public Task<List<EventDelivery>> ListUnreadForReadAsync(
-        string userId,
+        long userId,
         long tenantId,
         EventDeliveryChannel channel,
         CancellationToken cancellationToken) =>

@@ -15,4 +15,4 @@ public record DomainEventCreate(
 /// <summary>
 /// Identifies one intended recipient and delivery channel for a domain event.
 /// </summary>
-public record DomainEventRecipient(string UserId, EventDeliveryChannel Channel);
+public record DomainEventRecipient(long UserId, EventDeliveryChannel Channel);

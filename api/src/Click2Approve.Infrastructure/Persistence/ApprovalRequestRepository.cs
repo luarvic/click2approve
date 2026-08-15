@@ -65,6 +65,7 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
     }
 
     protected static IQueryable<ApprovalRequest> IncludeDetails(IQueryable<ApprovalRequest> requests) => requests
+        .AsSplitQuery()
         .Include(request => request.CreatedByUser)
             .Include(request => request.CompletedByUser)
         .Include(request => request.NextRevisionApprovalRequest)
@@ -72,6 +73,7 @@ public class ApprovalRequestRepository(ApiDbContext db, ITenantContext tenantCon
         .Include(request => request.PreviousRevisionApprovalRequest)
         .Include(request => request.RequestFiles)
             .ThenInclude(file => file.UserFile)
+                .ThenInclude(userFile => userFile.Owner)
         .Include(request => request.Steps)
             .ThenInclude(step => step.Assignees)
                 .ThenInclude(assignee => assignee.User)

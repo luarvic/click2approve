@@ -8,7 +8,7 @@ public class EventDelivery : DbEntity
     // Foreign key identifiers
     public required long DomainEventId { get; set; }
     public long TenantId { get; set; }
-    public required string UserId { get; set; }
+    public required long UserId { get; set; }
 
     // Scalar properties
     public required EventDeliveryChannel Channel { get; set; }

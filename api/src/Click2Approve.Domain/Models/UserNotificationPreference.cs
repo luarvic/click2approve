@@ -6,7 +6,7 @@ namespace Click2Approve.Domain.Models;
 public class UserNotificationPreference : DbEntity
 {
     // Foreign key identifiers
-    public required string UserId { get; set; }
+    public required long UserId { get; set; }
 
     // Scalar properties
     public required NotificationChannel Channel { get; set; }

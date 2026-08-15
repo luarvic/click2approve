@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using Click2Approve.Application.Abstractions.Persistence;
 using Click2Approve.Domain.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -11,7 +12,8 @@ namespace Click2Approve.Infrastructure.Persistence;
 /// <summary>
 /// Represents an entity framework database context.
 /// </summary>
-public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpContextAccessor) : IdentityDbContext<AppUser>(options), IUnitOfWork
+public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpContextAccessor)
+    : IdentityDbContext<AppUser, IdentityRole<long>, long>(options), IUnitOfWork
 {
     private static readonly JsonSerializerOptions AuditJsonOptions = new(JsonSerializerDefaults.Web);
 
@@ -457,7 +459,8 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
 
     private List<PendingAuditLog> CreatePendingAuditLogs()
     {
-        var userId = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userIdClaim = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        long? userId = long.TryParse(userIdClaim, out var parsedUserId) ? parsedUserId : null;
 
         return [.. ChangeTracker
             .Entries()
@@ -466,7 +469,7 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .Select(entry => CreatePendingAuditLog(entry, userId))];
     }
 
-    private static PendingAuditLog CreatePendingAuditLog(EntityEntry entry, string? userId)
+    private static PendingAuditLog CreatePendingAuditLog(EntityEntry entry, long? userId)
     {
         var entity = (DbEntity)entry.Entity;
 
@@ -518,7 +521,7 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
     /// Contains audit log data waiting to be persisted.
     /// </summary>
     private sealed record PendingAuditLog(
-        string? UserId,
+        long? UserId,
         string EntityType,
         DbEntity Entity,
         EntityState EntityState,

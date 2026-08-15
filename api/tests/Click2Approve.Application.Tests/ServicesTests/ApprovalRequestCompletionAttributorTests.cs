@@ -13,7 +13,7 @@ public class ApprovalRequestCompletionAttributorTests
     {
         var user = new AppUser
         {
-            Id = "user-id",
+            Id = 1,
             Email = "person@example.com",
             FirstName = "Person",
             LastName = "Example",

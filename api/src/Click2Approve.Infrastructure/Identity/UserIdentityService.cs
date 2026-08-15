@@ -12,12 +12,7 @@ public class UserIdentityService(UserManager<AppUser> userManager) : IUserIdenti
 {
     private readonly UserManager<AppUser> _userManager = userManager;
 
-    public async Task<AppUser?> FindByIdAsync(string userId, CancellationToken cancellationToken)
-    {
-        return await _userManager.FindByIdAsync(userId);
-    }
-
-    public async Task<AppUser?> FindByGlobalIdAsync(Guid globalId, CancellationToken cancellationToken)
+    public async Task<AppUser?> FindAsync(Guid globalId, CancellationToken cancellationToken)
     {
         return await _userManager.Users.FirstOrDefaultAsync(user => user.GlobalId == globalId, cancellationToken);
     }

@@ -9,7 +9,7 @@ public class ApprovalRequestStepAssignee : DbEntity
     public long ApprovalRequestStepId { get; set; }
     public long? EmployeeId { get; set; }
     public long? TeamId { get; set; }
-    public string? UserId { get; set; }
+    public long? UserId { get; set; }
 
     // Scalar properties
     public string? AssigneeDisplayName { get; set; }

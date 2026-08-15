@@ -40,7 +40,7 @@ public class TenantRepository(ApiDbContext db) : ITenantRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public virtual Task<List<Tenant>> ListPersonalAsync(IReadOnlyCollection<string> userIds, CancellationToken cancellationToken)
+    public virtual Task<List<Tenant>> ListPersonalAsync(IReadOnlyCollection<long> userIds, CancellationToken cancellationToken)
     {
         return Db.Tenants
             .Include(t => t.Owner)

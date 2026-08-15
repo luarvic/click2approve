@@ -1,3 +1,4 @@
+using System.Globalization;
 using Click2Approve.Application.Models.Files;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
@@ -55,7 +56,7 @@ public class UserFileService(
             var id = savedUserFile.Id.ToString();
 
             // Save the file.
-            await _fileStorage.SaveAsync(GetFilePath(user.Id, id, Path.GetFileName(file.FileName)), file.Bytes, cancellationToken);
+            await _fileStorage.SaveAsync(GetFilePath(user.GlobalId, id, Path.GetFileName(file.FileName)), file.Bytes, cancellationToken);
         }
 
         return [.. userFiles.Select(UserFileMapper.MapUserFile)];
@@ -128,7 +129,7 @@ public class UserFileService(
         return
         (
             userFile.Name,
-            await _fileStorage.ReadAsync(GetFilePath(userFile.OwnerId, userFile.Id.ToString(), userFile.Name), cancellationToken)
+            await _fileStorage.ReadAsync(GetFilePath(userFile.Owner.GlobalId, userFile.Id.ToString(CultureInfo.InvariantCulture), userFile.Name), cancellationToken)
         );
     }
 
@@ -158,7 +159,7 @@ public class UserFileService(
             ?? throw new NotFoundException("File was not found.");
         _userFileRepository.Remove(userFile);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        await _fileStorage.DeleteAsync(GetFilePath(userFile.OwnerId, userFile.Id.ToString(), userFile.Name), cancellationToken);
+        await _fileStorage.DeleteAsync(GetFilePath(userFile.Owner.GlobalId, userFile.Id.ToString(CultureInfo.InvariantCulture), userFile.Name), cancellationToken);
     }
 
     /// <summary>
@@ -187,9 +188,9 @@ public class UserFileService(
     /// <summary>
     /// Gets the file path out of the user and file properties.
     /// </summary>
-    private static string GetFilePath(string userId, string fileId, string fileName)
+    private static string GetFilePath(Guid userGlobalId, string fileId, string fileName)
     {
-        return Path.Combine(userId, fileId, fileName);
+        return Path.Combine(userGlobalId.ToString(), fileId, fileName);
     }
 
 }

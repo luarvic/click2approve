@@ -89,7 +89,7 @@ public class NotificationEmailDispatchJob(
             _ => (NotificationType?)null
         };
         return notificationType.HasValue
-            ? _notificationPreferenceService.IsEnabledAsync(delivery.UserId, notificationType.Value, NotificationChannel.Email, CancellationToken.None)
+            ? _notificationPreferenceService.IsEnabledAsync(delivery.User, notificationType.Value, NotificationChannel.Email, CancellationToken.None)
             : Task.FromResult(false);
     }
 

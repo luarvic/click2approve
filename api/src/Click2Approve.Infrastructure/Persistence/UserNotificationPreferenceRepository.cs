@@ -18,7 +18,7 @@ public class UserNotificationPreferenceRepository(ApiDbContext db) : IUserNotifi
     }
 
     public Task<UserNotificationPreference?> GetAsync(
-        string userId,
+        long userId,
         NotificationType type,
         NotificationChannel channel,
         CancellationToken cancellationToken)
@@ -32,7 +32,7 @@ public class UserNotificationPreferenceRepository(ApiDbContext db) : IUserNotifi
                 cancellationToken);
     }
 
-    public Task<List<UserNotificationPreference>> ListAsync(string userId, CancellationToken cancellationToken)
+    public Task<List<UserNotificationPreference>> ListAsync(long userId, CancellationToken cancellationToken)
     {
         return _db.UserNotificationPreferences
             .AsNoTracking()
@@ -40,7 +40,7 @@ public class UserNotificationPreferenceRepository(ApiDbContext db) : IUserNotifi
             .ToListAsync(cancellationToken);
     }
 
-    public Task<List<UserNotificationPreference>> ListForUpdateAsync(string userId, CancellationToken cancellationToken)
+    public Task<List<UserNotificationPreference>> ListForUpdateAsync(long userId, CancellationToken cancellationToken)
     {
         return _db.UserNotificationPreferences
             .Where(preference => preference.UserId == userId)

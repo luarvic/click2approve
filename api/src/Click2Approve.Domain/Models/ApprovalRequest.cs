@@ -7,9 +7,9 @@ public class ApprovalRequest : DbEntity
 {
     // Foreign key identifiers
     public long? CompletedByEmployeeId { get; set; }
-    public string? CompletedByUserId { get; set; }
+    public long? CompletedByUserId { get; set; }
     public long? CreatedByEmployeeId { get; set; }
-    public required string CreatedByUserId { get; set; }
+    public required long CreatedByUserId { get; set; }
     public long? PreviousRevisionApprovalRequestId { get; set; }
     public long TenantId { get; set; }
 

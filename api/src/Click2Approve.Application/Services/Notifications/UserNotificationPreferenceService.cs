@@ -57,14 +57,9 @@ public class UserNotificationPreferenceService(IUserNotificationPreferenceReposi
         }
     }
 
-    public async Task<bool> IsEnabledAsync(string? userId, NotificationType type, NotificationChannel channel, CancellationToken cancellationToken)
+    public async Task<bool> IsEnabledAsync(AppUser user, NotificationType type, NotificationChannel channel, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(userId))
-        {
-            return true;
-        }
-
-        var preference = await _notificationPreferenceRepository.GetAsync(userId, type, channel, cancellationToken);
+        var preference = await _notificationPreferenceRepository.GetAsync(user.Id, type, channel, cancellationToken);
         return preference?.IsEnabled ?? true;
     }
 

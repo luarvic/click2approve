@@ -9,5 +9,5 @@ public interface IUserNotificationPreferenceService
 {
     Task<List<UserNotificationPreferenceResult>> ListAsync(AppUser user, CancellationToken cancellationToken);
     Task ReplaceAsync(AppUser user, List<UserNotificationPreferenceCommand> preferences, CancellationToken cancellationToken);
-    Task<bool> IsEnabledAsync(string? userId, NotificationType type, NotificationChannel channel, CancellationToken cancellationToken);
+    Task<bool> IsEnabledAsync(AppUser user, NotificationType type, NotificationChannel channel, CancellationToken cancellationToken);
 }

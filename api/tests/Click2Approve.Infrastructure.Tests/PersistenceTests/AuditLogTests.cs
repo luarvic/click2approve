@@ -22,13 +22,13 @@ public class AuditLogTests
         var options = new DbContextOptionsBuilder<ApiDbContext>()
             .UseSqlite(connection)
             .Options;
-        var userId = Guid.NewGuid().ToString();
+        const long userId = 1;
         var httpContextAccessor = new HttpContextAccessor
         {
             HttpContext = new DefaultHttpContext
             {
                 User = new ClaimsPrincipal(new ClaimsIdentity(
-                    [new Claim(ClaimTypes.NameIdentifier, userId)],
+                    [new Claim(ClaimTypes.NameIdentifier, userId.ToString())],
                     authenticationType: "Test"))
             }
         };
@@ -87,13 +87,13 @@ public class AuditLogTests
         var options = new DbContextOptionsBuilder<ApiDbContext>()
             .UseSqlite(connection)
             .Options;
-        var userId = Guid.NewGuid().ToString();
+        const long userId = 2;
         var httpContextAccessor = new HttpContextAccessor
         {
             HttpContext = new DefaultHttpContext
             {
                 User = new ClaimsPrincipal(new ClaimsIdentity(
-                    [new Claim(ClaimTypes.NameIdentifier, userId)],
+                    [new Claim(ClaimTypes.NameIdentifier, userId.ToString())],
                     authenticationType: "Test"))
             }
         };
@@ -168,13 +168,13 @@ public class AuditLogTests
         var options = new DbContextOptionsBuilder<ApiDbContext>()
             .UseSqlite(connection)
             .Options;
-        var userId = Guid.NewGuid().ToString();
+        const long userId = 3;
         var httpContextAccessor = new HttpContextAccessor
         {
             HttpContext = new DefaultHttpContext
             {
                 User = new ClaimsPrincipal(new ClaimsIdentity(
-                    [new Claim(ClaimTypes.NameIdentifier, userId)],
+                    [new Claim(ClaimTypes.NameIdentifier, userId.ToString())],
                     authenticationType: "Test"))
             }
         };

@@ -6,7 +6,7 @@ namespace Click2Approve.Domain.Models;
 public class UserFile : DbEntity
 {
     // Foreign key identifiers
-    public required string OwnerId { get; set; }
+    public required long OwnerId { get; set; }
     public long TenantId { get; set; }
 
     // Scalar properties

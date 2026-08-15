@@ -10,7 +10,7 @@ namespace Click2Approve.Infrastructure.Identity;
 /// Converts placeholder Identity rows into registered users when stock registration creates the same email.
 /// </summary>
 public class PlaceholderAwareUserStore(ApiDbContext context, IdentityErrorDescriber? describer = null)
-    : UserStore<AppUser, IdentityRole, ApiDbContext, string>(context, describer)
+    : UserStore<AppUser, IdentityRole<long>, ApiDbContext, long>(context, describer)
 {
     public override async Task<IdentityResult> CreateAsync(AppUser user, CancellationToken cancellationToken = default)
     {

@@ -5,7 +5,7 @@ namespace Click2Approve.Application.Services.UserFiles;
 /// <summary>
 /// Maps user file domain models to user file results.
 /// </summary>
-internal static class UserFileMapper
+public static class UserFileMapper
 {
     public static UserFileResult MapUserFile(UserFile userFile) => new()
     {

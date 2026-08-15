@@ -69,7 +69,7 @@ public class UserProfileService(
 
         var oldAvatarPath = user.Avatar;
         var extension = Path.GetExtension(avatar.FileName).ToLowerInvariant();
-        var avatarPath = GetAvatarPath(user.Id, extension);
+        var avatarPath = GetAvatarPath(user.GlobalId, extension);
         await _fileStorage.SaveAsync(avatarPath, avatar.Bytes, cancellationToken);
 
         user.Avatar = avatarPath;
@@ -90,7 +90,7 @@ public class UserProfileService(
 
     public async Task<string> GetAvatarUrlAsync(Guid userGlobalId, CancellationToken cancellationToken)
     {
-        var user = await _userIdentityService.FindByGlobalIdAsync(userGlobalId, cancellationToken)
+        var user = await _userIdentityService.FindAsync(userGlobalId, cancellationToken)
             ?? throw new NotFoundException("User was not found.");
         var avatarPath = user.Avatar;
         if (string.IsNullOrWhiteSpace(avatarPath))
@@ -168,9 +168,9 @@ public class UserProfileService(
             || avatar.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static string GetAvatarPath(string userId, string extension)
+    private static string GetAvatarPath(Guid userGlobalId, string extension)
     {
-        return Path.Combine("users", userId, "avatars", $"{Guid.NewGuid()}{extension}");
+        return Path.Combine("users", userGlobalId.ToString(), "avatars", $"{Guid.NewGuid()}{extension}");
     }
 
     private HashSet<string> GetAllowedAvatarExtensions()

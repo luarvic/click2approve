@@ -28,6 +28,7 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         return await Db.UserFiles
+            .Include(file => file.Owner)
             .Include(f => f.ApprovalRequestFiles)
                 .ThenInclude(requestFile => requestFile.ApprovalRequest)
                     .ThenInclude(request => request.Steps)

@@ -10,12 +10,12 @@ public interface IEventDeliveryRepository
     Task<DomainEvent> AddEventAsync(DomainEvent domainEvent, CancellationToken cancellationToken);
     Task AddDeliveryAsync(EventDelivery delivery, CancellationToken cancellationToken);
     Task<long> CountUnreadAsync(
-        string userId,
+        long userId,
         long tenantId,
         EventDeliveryChannel channel,
         CancellationToken cancellationToken);
     Task<List<EventDelivery>> ListAsync(
-        string userId,
+        long userId,
         long tenantId,
         EventDeliveryChannel channel,
         bool unreadOnly,
@@ -23,19 +23,19 @@ public interface IEventDeliveryRepository
         int take,
         CancellationToken cancellationToken);
     Task<EventDelivery?> GetForReadAsync(
-        string userId,
+        long userId,
         long tenantId,
         Guid globalId,
         EventDeliveryChannel channel,
         CancellationToken cancellationToken);
     Task<List<EventDelivery>> ListForReadAsync(
-        string userId,
+        long userId,
         long tenantId,
         IReadOnlyCollection<Guid> globalIds,
         EventDeliveryChannel channel,
         CancellationToken cancellationToken);
     Task<List<EventDelivery>> ListUnreadForReadAsync(
-        string userId,
+        long userId,
         long tenantId,
         EventDeliveryChannel channel,
         CancellationToken cancellationToken);

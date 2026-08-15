@@ -307,7 +307,7 @@ public class ApprovalWorkflowService(
         CancellationToken cancellationToken) =>
         _domainEventService.CreateEventsAsync([.. events], cancellationToken);
 
-    private static DomainEventRecipient[] CreateDeliveryRecipients(string userId) =>
+    private static DomainEventRecipient[] CreateDeliveryRecipients(long userId) =>
     [
         new DomainEventRecipient(userId, EventDeliveryChannel.InApp),
         new DomainEventRecipient(userId, EventDeliveryChannel.Email)

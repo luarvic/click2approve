@@ -10,9 +10,9 @@ public class ApprovalRequestTask : DbEntity
     public long? ApprovalRequestStepAssigneeId { get; set; }
     public long ApprovalRequestStepId { get; set; }
     public long? AssigneeEmployeeId { get; set; }
-    public required string AssigneeUserId { get; set; }
+    public required long AssigneeUserId { get; set; }
     public long? CompletedByEmployeeId { get; set; }
-    public string? CompletedByUserId { get; set; }
+    public long? CompletedByUserId { get; set; }
     public long TenantId { get; set; }
 
     // Scalar properties

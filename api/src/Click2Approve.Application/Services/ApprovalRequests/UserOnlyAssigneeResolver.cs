@@ -57,7 +57,7 @@ public class UserOnlyAssigneeResolver(
             approvalRequest,
             assignee,
             assignee.User,
-            tenant is null ? [] : new Dictionary<string, Tenant> { [assignee.User.Id] = tenant });
+            tenant is null ? [] : new Dictionary<long, Tenant> { [assignee.User.Id] = tenant });
     }
 
     private static string GetEmail(AssigneeResolveItem assignee)
@@ -74,7 +74,7 @@ public class UserOnlyAssigneeResolver(
         ApprovalRequest approvalRequest,
         ApprovalRequestStepAssignee assignee,
         AppUser assigneeUser,
-        Dictionary<string, Tenant> tenantByOwnerId)
+        Dictionary<long, Tenant> tenantByOwnerId)
     {
         assignee.User = assigneeUser;
         assignee.UserId = assigneeUser.Id;

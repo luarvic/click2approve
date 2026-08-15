@@ -5,7 +5,7 @@ namespace Click2Approve.Domain.Models;
 /// <summary>
 /// Represents a user in Identity framework.
 /// </summary>
-public class AppUser : IdentityUser
+public class AppUser : IdentityUser<long>
 {
     // Entity identifiers
     public Guid GlobalId { get; set; } = Guid.NewGuid();
