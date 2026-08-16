@@ -28,20 +28,6 @@ public static class DisplayNameHelpers
         return normalizedEmail ?? throw new ArgumentException("Email must be provided if no name or title is available.", nameof(email));
     }
 
-    public static string FormatParticipantName(string? firstName, string? lastName, string? email) =>
-        FormatParticipantDisplayName(firstName, lastName, position: null, email);
-    /// <summary>
-    /// Formats a user display name as "FirstName LastName (email)".
-    /// </summary>
-    public static string FormatUser(string? firstName, string? lastName, string email)
-    {
-        var normalizedEmail = NormalizeEmailForDisplay(email);
-        var name = JoinNonEmpty(firstName, lastName);
-        return string.IsNullOrWhiteSpace(name)
-            ? normalizedEmail
-            : $"{name} ({normalizedEmail})";
-    }
-
     /// <summary>
     /// Normalizes an email address for display labels.
     /// </summary>

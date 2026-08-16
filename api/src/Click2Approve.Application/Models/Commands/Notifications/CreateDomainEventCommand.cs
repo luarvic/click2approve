@@ -1,11 +1,11 @@
 using Click2Approve.Domain.Models;
 
-namespace Click2Approve.Application.Models.Notifications;
+namespace Click2Approve.Application.Models.Commands.Notifications;
 
 /// <summary>
 /// Contains reference-only data needed to persist a domain event.
 /// </summary>
-public record DomainEventCreate(
+public record CreateDomainEventCommand(
     DomainEventType Type,
     long TenantId,
     Guid EntityGlobalId,

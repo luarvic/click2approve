@@ -9,16 +9,10 @@ namespace Click2Approve.Infrastructure.FileStorage;
 /// <summary>
 /// Stores public and private user-file content in Azure Blob Storage.
 /// </summary>
-public class AzureUserFileStorage : IUserFileStorage
+public class AzureUserFileStorage(IConfiguration configuration) : IUserFileStorage
 {
-    private readonly Lazy<Task<BlobContainerClient>> _private;
-    private readonly Lazy<Task<BlobContainerClient>> _public;
-
-    public AzureUserFileStorage(IConfiguration configuration)
-    {
-        _private = new(() => CreateAsync(configuration, "PrivateContainerName", PublicAccessType.None));
-        _public = new(() => CreateAsync(configuration, "PublicContainerName", PublicAccessType.Blob));
-    }
+    private readonly Lazy<Task<BlobContainerClient>> _private = new(() => CreateAsync(configuration, "PrivateContainerName", PublicAccessType.None));
+    private readonly Lazy<Task<BlobContainerClient>> _public = new(() => CreateAsync(configuration, "PublicContainerName", PublicAccessType.Blob));
 
     public async Task SaveAsync(UserFile userFile, byte[] bytes, CancellationToken cancellationToken)
     {

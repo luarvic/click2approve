@@ -1,4 +1,4 @@
-using Click2Approve.Application.Models.Notifications;
+using Click2Approve.Application.Models.Commands.Notifications;
 using Click2Approve.Domain.Models;
 
 namespace Click2Approve.Application.Abstractions.Services.Notifications;
@@ -8,7 +8,7 @@ namespace Click2Approve.Application.Abstractions.Services.Notifications;
 /// </summary>
 public interface IDomainEventService
 {
-    Task CreateEventsAsync(IReadOnlyCollection<DomainEventCreate> events, CancellationToken cancellationToken);
+    Task CreateEventsAsync(IReadOnlyCollection<CreateDomainEventCommand> events, CancellationToken cancellationToken);
     Task<long> CountInAppUnreadAsync(
         AppUser user,
         long tenantId,

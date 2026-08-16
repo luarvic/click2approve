@@ -8,6 +8,7 @@ using Click2Approve.Application.Abstractions.Services.Tenants;
 using Click2Approve.Application.Abstractions.Services.UserFiles;
 using Click2Approve.Application.Abstractions.Services.UserProfiles;
 using Click2Approve.Application.Abstractions.TenantContext;
+using Click2Approve.Application.Authorization;
 using Click2Approve.Application.Services.ApprovalRequests;
 using Click2Approve.Application.Services.Notifications;
 using Click2Approve.Application.Services.Tenants;
@@ -57,31 +58,32 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddSwagger();
 
+// Application services
+builder.Services.AddScoped<IAccessPolicy, DefaultAccessPolicy>();
 builder.Services.AddScoped<IAssigneeResolver, UserOnlyAssigneeResolver>();
 builder.Services.AddScoped<IApprovalRequestAssigneeGlobalIdResolver, DefaultApprovalRequestAssigneeGlobalIdResolver>();
-builder.Services.AddScoped<IApprovalRequestService, ApprovalRequestService>();
 builder.Services.AddScoped<IApprovalRequestCompletionAttributor, ApprovalRequestCompletionAttributor>();
-builder.Services.AddScoped<IApprovalRequestTaskService, ApprovalRequestTaskService>();
+builder.Services.AddScoped<IApprovalRequestService, ApprovalRequestService>();
 builder.Services.AddScoped<IApprovalRequestTaskCompletionAttributor, ApprovalRequestTaskCompletionAttributor>();
+builder.Services.AddScoped<IApprovalRequestTaskService, ApprovalRequestTaskService>();
 builder.Services.AddScoped<IApprovalWorkflowService, ApprovalWorkflowService>();
+builder.Services.AddScoped<IDomainEventService, DomainEventService>();
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<IUserFileService, UserFileService>();
 builder.Services.AddScoped<IUserNotificationPreferenceService, UserNotificationPreferenceService>();
-builder.Services.AddScoped<IDomainEventService, DomainEventService>();
 builder.Services.AddScoped<IUserProfileAccessService, DefaultUserProfileAccessService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 
+// Infrastructure services
+builder.Services.AddScoped<IAccessScopeProvider, AccessScopeProvider>();
 builder.Services.AddScoped<IApprovalRequestRepository, ApprovalRequestRepository>();
 builder.Services.AddScoped<IApprovalRequestTaskRepository, ApprovalRequestTaskRepository>();
+builder.Services.AddScoped<IEventDeliveryRepository, EventDeliveryRepository>();
+builder.Services.AddScoped<ITenantContext, RequestTenantContext>();
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 builder.Services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApiDbContext>());
-builder.Services.AddScoped<IUserNotificationPreferenceRepository, UserNotificationPreferenceRepository>();
-builder.Services.AddScoped<IEventDeliveryRepository, EventDeliveryRepository>();
 builder.Services.AddScoped<IUserFileRepository, UserFileRepository>();
-builder.Services.AddScoped<IAccessScopeProvider, AccessScopeProvider>();
-builder.Services.AddScoped<IAccessPolicy, DefaultAccessPolicy>();
-
-builder.Services.AddScoped<ITenantContext, RequestTenantContext>();
+builder.Services.AddScoped<IUserNotificationPreferenceRepository, UserNotificationPreferenceRepository>();
 
 var app = builder.Build();
 

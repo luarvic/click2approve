@@ -1,4 +1,4 @@
-using Click2Approve.Application.Models.Notifications;
+using Click2Approve.Application.Models.Commands.Notifications;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 
@@ -12,7 +12,9 @@ public class DomainEventService(IEventDeliveryRepository eventDeliveryRepository
     private readonly IEventDeliveryRepository _eventDeliveryRepository = eventDeliveryRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    public async Task CreateEventsAsync(IReadOnlyCollection<DomainEventCreate> events, CancellationToken cancellationToken)
+    public async Task CreateEventsAsync(
+        IReadOnlyCollection<CreateDomainEventCommand> events,
+        CancellationToken cancellationToken)
     {
         foreach (var domainEvent in events)
         {

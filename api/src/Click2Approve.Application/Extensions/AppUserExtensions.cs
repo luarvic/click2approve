@@ -26,11 +26,4 @@ public static class AppUserExtensions
             position: null,
             user.NormalizedEmailOrEmpty());
 
-    /// <summary>
-    /// Formats a user display name as "FirstName LastName (email)".
-    /// </summary>
-    public static string FormatUser(this AppUser user)
-    {
-        return DisplayNameHelpers.FormatUser(user.FirstName, user.LastName, user.NormalizedEmailOrEmpty());
-    }
 }

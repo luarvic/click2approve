@@ -1,5 +1,5 @@
 using Click2Approve.Application.Models.ApprovalRequests;
-using Click2Approve.Application.Models.Notifications;
+using Click2Approve.Application.Models.Commands.Notifications;
 using Click2Approve.Domain.Models;
 
 namespace Click2Approve.Application.Services.ApprovalRequests;
@@ -220,7 +220,7 @@ public class ApprovalWorkflowService(
         CancellationToken cancellationToken)
     {
         await CreateEventsAsync(
-            tasks.Select(task => new DomainEventCreate(
+            tasks.Select(task => new CreateDomainEventCommand(
                 DomainEventType.ApprovalRequestTaskCreated,
                 task.TenantId,
                 task.GlobalId,
@@ -236,7 +236,7 @@ public class ApprovalWorkflowService(
     {
         await CreateEventsAsync(
             tasks.GroupBy(task => new { task.AssigneeUserId, task.TenantId })
-                .Select(group => new DomainEventCreate(
+                .Select(group => new CreateDomainEventCommand(
                     DomainEventType.ApprovalRequestCancelled,
                     group.Key.TenantId,
                     approvalRequest.GlobalId,
@@ -251,7 +251,7 @@ public class ApprovalWorkflowService(
     {
         var approvalRequest = approvalRequestTask.ApprovalRequest;
         return CreateEventsAsync(
-            [new DomainEventCreate(
+            [new CreateDomainEventCommand(
                 DomainEventType.ApprovalRequestReviewed,
                 approvalRequest.TenantId,
                 approvalRequest.GlobalId,
@@ -303,7 +303,7 @@ public class ApprovalWorkflowService(
     }
 
     private Task CreateEventsAsync(
-        IEnumerable<DomainEventCreate> events,
+        IEnumerable<CreateDomainEventCommand> events,
         CancellationToken cancellationToken) =>
         _domainEventService.CreateEventsAsync([.. events], cancellationToken);
 

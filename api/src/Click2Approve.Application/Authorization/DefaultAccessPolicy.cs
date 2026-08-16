@@ -3,7 +3,7 @@ using Click2Approve.Application.Abstractions.Authorization;
 using Click2Approve.Application.Models.Authorization;
 using Click2Approve.Domain.Models;
 
-namespace Click2Approve.Infrastructure.Authorization;
+namespace Click2Approve.Application.Authorization;
 
 /// <summary>
 /// Defines the default requester and assignee access policies.
