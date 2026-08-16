@@ -11,5 +11,4 @@ public interface IAccessPolicy
 {
     Expression<Func<ApprovalRequest, bool>> CanManageRequest(AccessScope scope);
     Expression<Func<ApprovalRequestTask, bool>> CanWorkTask(AccessScope scope);
-    Expression<Func<ApprovalRequestTask, bool>> CanViewTaskAttachments(AccessScope scope);
 }

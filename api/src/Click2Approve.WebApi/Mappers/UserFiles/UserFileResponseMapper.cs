@@ -5,7 +5,7 @@ namespace Click2Approve.WebApi.Mappers.UserFiles;
 /// <summary>
 /// Maps user-file application results to HTTP responses.
 /// </summary>
-internal static class UserFileResponseMapper
+public static class UserFileResponseMapper
 {
     public static UserFileResponse Map(UserFileResult result) => new()
     {

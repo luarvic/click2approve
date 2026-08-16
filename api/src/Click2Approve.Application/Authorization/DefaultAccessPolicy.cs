@@ -15,8 +15,4 @@ public class DefaultAccessPolicy : IAccessPolicy
 
     public virtual Expression<Func<ApprovalRequestTask, bool>> CanWorkTask(AccessScope scope) =>
         task => task.TenantId == scope.TenantId && task.AssigneeUserId == scope.UserId;
-
-    public virtual Expression<Func<ApprovalRequestTask, bool>> CanViewTaskAttachments(AccessScope scope) =>
-        task => task.TenantId == scope.TenantId
-            && (task.AssigneeUserId == scope.UserId || task.ApprovalRequest.CreatedByUserId == scope.UserId);
 }
