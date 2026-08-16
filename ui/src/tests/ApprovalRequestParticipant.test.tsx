@@ -26,7 +26,7 @@ describe("<ApprovalRequestParticipant />", () => {
         displayName="requester@example.com"
         organizationDisplayName="Acme Corporation"
         showOrganization
-        type={AssigneeType.Email}
+        type={AssigneeType.User}
       />,
     );
 

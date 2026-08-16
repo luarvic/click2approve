@@ -9,7 +9,6 @@ public interface IUserFileRepository
 {
     Task<UserFile> AddAsync(UserFile userFile, CancellationToken cancellationToken);
     Task<UserFile?> GetPublicAsync(long id, CancellationToken cancellationToken);
-    Task<UserFile?> GetTemporaryOwnedAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task<UserFile?> GetForDownloadAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task<UserFile?> GetApprovalRequestAttachmentForDownloadAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken);
     Task<UserFile?> GetApprovalRequestAttachmentForTaskDownloadAsync(

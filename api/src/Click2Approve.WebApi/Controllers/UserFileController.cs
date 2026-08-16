@@ -10,22 +10,22 @@ using Microsoft.AspNetCore.Mvc;
 namespace Click2Approve.WebApi.Controllers;
 
 /// <summary>
-/// API endpoints that manage temporary user files.
+/// API endpoints that manage user files.
 /// </summary>
 /// <param name="logger">The logger service.</param>
 /// <param name="userFileService">The service that manages user files.</param>
 /// <param name="userManager">The service that manages users.</param>
-[Tags("Click2Approve.WebApi.TemporaryUserFile")]
+[Tags("Click2Approve.WebApi.UserFile")]
 [ApiController]
 [ApiVersion(1.0)]
-[Route("api/v{version:apiVersion}/tenants/{tenantGlobalId:guid}/temporaryFiles")]
+[Route("api/v{version:apiVersion}/tenants/{tenantGlobalId:guid}/files")]
 [Authorize]
-public class TemporaryUserFileController(
-    ILogger<TemporaryUserFileController> logger,
+public class UserFileController(
+    ILogger<UserFileController> logger,
     IUserFileService userFileService,
     UserManager<AppUser> userManager) : ControllerBase
 {
-    private readonly ILogger<TemporaryUserFileController> _logger = logger;
+    private readonly ILogger<UserFileController> _logger = logger;
     private readonly IUserFileService _userFileService = userFileService;
     private readonly UserManager<AppUser> _userManager = userManager;
 
@@ -39,7 +39,7 @@ public class TemporaryUserFileController(
     public async Task<ActionResult<List<UserFileResponse>>> UploadAsync(IFormFileCollection files, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        var userFiles = await _userFileService.UploadTemporaryAsync(user, await files.ToUploadedFilesAsync(cancellationToken), cancellationToken);
+        var userFiles = await _userFileService.UploadAsync(user, await files.ToUploadedFilesAsync(cancellationToken), cancellationToken);
         return Ok(UserFileResponseMapper.Map(userFiles));
     }
 

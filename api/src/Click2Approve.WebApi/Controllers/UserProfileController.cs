@@ -40,12 +40,12 @@ public class UserProfileController(IUserProfileService userProfileService, UserM
     [HttpPost("avatar")]
     [Authorize]
     public async Task<ActionResult<UserProfileResponse>> SetAvatarAsync(
-        [FromBody] UploadAvatarRequest payload,
+        IFormFile avatar,
         CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
         return Ok(UserProfileContractMapper.Map(
-            await _userProfileService.SetAvatarAsync(user, payload.UserFileGlobalId, cancellationToken)));
+            await _userProfileService.SetAvatarAsync(user, await avatar.ToUploadedFileAsync(cancellationToken), cancellationToken)));
     }
 
     [HttpGet("{userGlobalId:guid}/avatar")]

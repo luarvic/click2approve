@@ -1,9 +1,9 @@
 import { stores } from "@/app/rootStore";
 import { resubmitApprovalRequest, submitApprovalRequest } from "@/features/approvalRequests/api/approvalRequestsApi";
+import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
 import ApprovalRequestFilesList, {
   RevisionExistingFile,
 } from "@/features/approvalRequests/components/ApprovalRequestFilesList";
-import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
 import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
 import ApprovalRequestParticipantLine, {
   getAssigneeIcon,
@@ -32,7 +32,8 @@ import {
   toApprovalStepSubmissions,
 } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
-import { uploadUserFiles } from "@/features/userFiles/api/userFilesApi";
+import { deleteUserFile, uploadUserFiles } from "@/features/userFiles/api/userFilesApi";
+import { UserFile } from "@/features/userFiles/models/userFile";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import DisplayName from "@/shared/components/identity/DisplayName";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
@@ -83,7 +84,7 @@ interface ApprovalRequestSubmitProps {
 export interface ApprovalRequestSubmitDraft {
   description: string;
   existingFiles: RevisionExistingFile[];
-  newFiles: File[];
+  newFiles: UserFile[];
   stepVisibility: Record<string, boolean>;
   stepVisibilityModes: Record<number, StepVisibilityMode>;
   steps: EditableApprovalStep[];
@@ -207,16 +208,15 @@ const visibilityMobileModeOptionSx: SxProps<Theme> = {
 const VisibilityStepIcon = () => <AccountTreeOutlined color="action" fontSize="small" />;
 
 const toDraftRequestFile = (
-  file: File,
+  file: UserFile,
   sequence: number,
   revisionAction: ApprovalRequestFileRevisionAction,
   previousApprovalRequestFileGlobalId?: string,
 ): ApprovalRequestFile => {
-  const globalId = `draft-${sequence}-${file.name}-${file.lastModified}`;
   return {
-    globalId,
+    globalId: file.globalId,
     userFile: {
-      globalId,
+      globalId: file.globalId,
       name: file.name,
       type: file.type,
       size: file.size,
@@ -242,7 +242,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   const fileInput = useRef<HTMLInputElement>(null);
   const replacementFileInput = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState(initialDraft?.title ?? "");
-  const [newFiles, setNewFiles] = useState<File[]>(initialDraft?.newFiles ?? []);
+  const [newFiles, setNewFiles] = useState<UserFile[]>(initialDraft?.newFiles ?? []);
   const [existingFiles, setExistingFiles] = useState<RevisionExistingFile[]>(initialDraft?.existingFiles ?? []);
   const [steps, setSteps] = useState<EditableApprovalStep[]>(initialDraft?.steps ?? []);
   const [description, setDescription] = useState(initialDraft?.description ?? "");
@@ -329,23 +329,31 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     fileInput.current?.click();
   };
 
-  const handleFilesChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFilesChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(event.currentTarget.files ?? []);
-    setNewFiles((currentFiles) => [...currentFiles, ...selectedFiles]);
     event.currentTarget.value = "";
+    if (!tenantGlobalId || selectedFiles.length === 0) {
+      return;
+    }
+
+    const uploadedFiles = await uploadUserFiles(tenantGlobalId, selectedFiles);
+    setNewFiles((currentFiles) => [...currentFiles, ...uploadedFiles]);
   };
 
-  const handleReplacementFilesChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleReplacementFilesChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.currentTarget.files?.[0];
-    if (replacementFileIndex !== null && selectedFile) {
+    event.currentTarget.value = "";
+    if (replacementFileIndex !== null && selectedFile && tenantGlobalId) {
+      const [replacement] = await uploadUserFiles(tenantGlobalId, [selectedFile]);
+      if (!replacement) {
+        return;
+      }
+
       setExistingFiles((files) =>
-        files.map((file, index) =>
-          index === replacementFileIndex ? { ...file, removed: false, replacement: selectedFile } : file,
-        ),
+        files.map((file, index) => (index === replacementFileIndex ? { ...file, removed: false, replacement } : file)),
       );
     }
     setReplacementFileIndex(null);
-    event.currentTarget.value = "";
   };
 
   const removeExistingFile = (index: number) => {
@@ -359,6 +367,34 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
         ? files.map((file, i) => (i === index ? { ...file, removed: true, replacement: undefined } : file))
         : files.filter((_, i) => i !== index),
     );
+  };
+
+  const removeNewFile = async (index: number) => {
+    const file = newFiles[index];
+    if (!file || !tenantGlobalId) {
+      setNewFiles((files) => files.filter((_, fileIndex) => fileIndex !== index));
+      return;
+    }
+
+    if (await deleteUserFile(tenantGlobalId, file.globalId)) {
+      setNewFiles((files) => files.filter((_, fileIndex) => fileIndex !== index));
+    }
+  };
+
+  const removeReplacementFile = async (index: number) => {
+    const replacement = existingFiles[index]?.replacement;
+    if (!replacement || !tenantGlobalId) {
+      setExistingFiles((files) =>
+        files.map((file, fileIndex) => (fileIndex === index ? { ...file, replacement: undefined } : file)),
+      );
+      return;
+    }
+
+    if (await deleteUserFile(tenantGlobalId, replacement.globalId)) {
+      setExistingFiles((files) =>
+        files.map((file, fileIndex) => (fileIndex === index ? { ...file, replacement: undefined } : file)),
+      );
+    }
   };
 
   const cleanUp = () => {
@@ -631,19 +667,6 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     }
 
     await submitAction.run(async () => {
-      const replacementFiles = existingFiles
-        .map((file) => file.replacement)
-        .filter((file): file is File => Boolean(file));
-      const filesToUpload = [...replacementFiles, ...newFiles];
-      const uploadedFiles = await uploadUserFiles(tenantGlobalId, filesToUpload);
-      if (uploadedFiles.length !== filesToUpload.length) {
-        notification.warning("One or more files could not be uploaded.");
-        return;
-      }
-
-      const uploadedReplacements = uploadedFiles.slice(0, replacementFiles.length);
-      const uploadedNewFiles = uploadedFiles.slice(replacementFiles.length);
-      let replacementIndex = 0;
       const requestFiles: ApprovalRequestFileSubmission[] = [];
 
       existingFiles.forEach((file, index) => {
@@ -658,9 +681,8 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
         }
 
         if (file.replacement) {
-          const replacement = uploadedReplacements[replacementIndex++];
           requestFiles.push({
-            userFileGlobalId: replacement.globalId,
+            userFileGlobalId: file.replacement.globalId,
             sequence: index,
             revisionAction: ApprovalRequestFileRevisionAction.Replaced,
             previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
@@ -678,13 +700,11 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
         });
       });
 
-      uploadedNewFiles.forEach((file, index) => {
+      newFiles.forEach((file, index) => {
         requestFiles.push({
           userFileGlobalId: file.globalId,
           sequence: existingFiles.length + index,
-          revisionAction: isRevision
-            ? ApprovalRequestFileRevisionAction.Added
-            : ApprovalRequestFileRevisionAction.Unchanged,
+          revisionAction: ApprovalRequestFileRevisionAction.Added,
         });
       });
 
@@ -783,11 +803,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
           },
     ),
     ...newFiles.map((file, index) =>
-      toDraftRequestFile(
-        file,
-        existingFiles.length + index,
-        isRevision ? ApprovalRequestFileRevisionAction.Added : ApprovalRequestFileRevisionAction.Unchanged,
-      ),
+      toDraftRequestFile(file, existingFiles.length + index, ApprovalRequestFileRevisionAction.Added),
     ),
   ];
 
@@ -810,7 +826,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       {!isVisibilityPage && (
         <Box component="form" onSubmit={handleComposeSubmit}>
           <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
-            <ApprovalRequestDetailsCard ariaLabel="Request details" showStatusBorder={false}>
+            <ApprovalRequestDetailsCard ariaLabel="Request details" mode="edit" showStatusBorder={false}>
               <Stack spacing={Dialogs.formStackSpacing}>
                 <TextField
                   autoFocus
@@ -826,12 +842,8 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
                   existingFiles={existingFiles}
                   newFiles={newFiles}
                   onRemoveExisting={removeExistingFile}
-                  onRemoveNew={(index) => setNewFiles((files) => files.filter((_, i) => i !== index))}
-                  onRemoveReplacement={(index) =>
-                    setExistingFiles((files) =>
-                      files.map((file, i) => (i === index ? { ...file, replacement: undefined } : file)),
-                    )
-                  }
+                  onRemoveNew={(index) => void removeNewFile(index)}
+                  onRemoveReplacement={(index) => void removeReplacementFile(index)}
                   onRestoreExisting={(index) =>
                     setExistingFiles((files) =>
                       files.map((file, i) => (i === index ? { ...file, removed: false } : file)),
@@ -925,7 +937,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
         <>
           <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
             <Stack spacing={Dialogs.stepStackSpacing}>
-              <ApprovalRequestDetailsCard ariaLabel="Request summary" showStatusBorder={false}>
+              <ApprovalRequestDetailsCard ariaLabel="Request summary" mode="edit" showStatusBorder={false}>
                 <ApprovalRequestSummary
                   title={title}
                   description={description}

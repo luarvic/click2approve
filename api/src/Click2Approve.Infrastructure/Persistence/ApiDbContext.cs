@@ -355,6 +355,10 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasConversion<int>();
 
         modelBuilder.Entity<UserFile>()
+            .Property(file => file.Status)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<UserFile>()
             .HasOne(f => f.Owner)
             .WithMany()
             .HasForeignKey(f => f.OwnerId)

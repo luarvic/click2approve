@@ -1,3 +1,4 @@
+using Click2Approve.Application.Models.Files;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 
@@ -10,8 +11,8 @@ public class UserProfileService(
     IUserIdentityService userIdentityService,
     ITenantRepository tenantRepository,
     IUserFileRepository userFileRepository,
-    IUserFileService userFileService,
     IUnitOfWork unitOfWork,
+    ITenantContext tenantContext,
     IUserNotificationPreferenceService notificationPreferenceService,
     IUserProfileAccessService profileAccessService,
     IUserFileStorage fileStorage,
@@ -23,8 +24,8 @@ public class UserProfileService(
     private readonly IUserIdentityService _userIdentityService = userIdentityService;
     private readonly ITenantRepository _tenantRepository = tenantRepository;
     private readonly IUserFileRepository _userFileRepository = userFileRepository;
-    private readonly IUserFileService _userFileService = userFileService;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly ITenantContext _tenantContext = tenantContext;
     private readonly IUserNotificationPreferenceService _notificationPreferenceService = notificationPreferenceService;
     private readonly IUserProfileAccessService _profileAccessService = profileAccessService;
     private readonly IUserFileStorage _fileStorage = fileStorage;
@@ -72,20 +73,29 @@ public class UserProfileService(
             cancellationToken);
     }
 
-    public async Task<UserProfileResult> SetAvatarAsync(
-        AppUser user,
-        Guid avatarUserFileGlobalId,
-        CancellationToken cancellationToken)
+    public async Task<UserProfileResult> SetAvatarAsync(AppUser user, UploadedFile avatar, CancellationToken cancellationToken)
     {
-        var avatarFile = await _userFileRepository.GetTemporaryOwnedAsync(user, avatarUserFileGlobalId, cancellationToken)
-            ?? throw new NotFoundException("Temporary avatar file was not found.");
-        EnsureAvatarFile(avatarFile);
+        EnsureAvatarFile(avatar);
+        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         var oldAvatar = user.AvatarUserFileId is null
             ? null
             : await _userFileRepository.GetPublicAsync(user.AvatarUserFileId.Value, cancellationToken);
+        var avatarFile = await _userFileRepository.AddAsync(new UserFile
+        {
+            CreatedAt = DateTime.UtcNow,
+            Name = Path.GetFileName(avatar.FileName),
+            Owner = user,
+            OwnerId = user.Id,
+            Size = avatar.Length,
+            Status = UserFileStatus.Attached,
+            StorageType = UserFileStorageType.Public,
+            TenantId = tenantId,
+            Type = Path.GetExtension(avatar.FileName)
+        }, cancellationToken);
         try
         {
-            await _userFileService.PromoteToPublicAsync([avatarFile], cancellationToken);
+            await _fileStorage.SaveAsync(avatarFile, avatar.Bytes, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
         catch
         {
@@ -212,21 +222,22 @@ public class UserProfileService(
         return trimmedSignatureJson;
     }
 
-    private void EnsureAvatarFile(UserFile avatar)
+    private void EnsureAvatarFile(UploadedFile avatar)
     {
-        if (avatar.Size == 0)
+        if (avatar.Length == 0)
         {
             throw new BusinessRuleException("Avatar image is required.");
         }
 
         var maxFileSizeBytes = _configuration.GetValue<int>("Limitations:MaxFileSizeBytes");
-        if (maxFileSizeBytes > 0 && avatar.Size > maxFileSizeBytes)
+        if (maxFileSizeBytes > 0 && avatar.Length > maxFileSizeBytes)
         {
             throw new LimitExceededException($"The maximum file size ({maxFileSizeBytes} bytes) has been exceeded.");
         }
 
-        var extension = Path.GetExtension(avatar.Name).ToLowerInvariant();
-        if (!GetAllowedAvatarExtensions().Contains(extension))
+        var extension = Path.GetExtension(avatar.FileName).ToLowerInvariant();
+        if (!avatar.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)
+            || !GetAllowedAvatarExtensions().Contains(extension))
         {
             throw new BusinessRuleException("Avatar must be an image file.");
         }

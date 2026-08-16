@@ -168,6 +168,8 @@ export const Text = {
   } as SxProps<Theme>,
 } as const;
 
+export const AssigneeTypeFieldMinWidth = 130;
+
 export const Dialogs = {
   sectionSx: { my: 1 } as SxProps<Theme>,
   bottomSpacingSx: { mb: 1 } as SxProps<Theme>,
@@ -184,7 +186,7 @@ export const Dialogs = {
   stepTitleSx: { flexGrow: 1 } as SxProps<Theme>,
   stepActionSpacing: 0.5,
   assigneeStackSpacing: 1,
-  assigneeTypeFieldSx: { minWidth: 130 } as SxProps<Theme>,
+  assigneeTypeFieldSx: { minWidth: AssigneeTypeFieldMinWidth } as SxProps<Theme>,
   removeAssigneeButtonSx: {
     alignSelf: { xs: "flex-end", sm: "center" },
     height: 40,

@@ -25,7 +25,7 @@ public class UserFileService(
     /// <summary>
     /// Uploads a user file.
     /// </summary>
-    public async Task<IList<UserFileResult>> UploadTemporaryAsync(AppUser user, IReadOnlyCollection<UploadedFile> files, CancellationToken cancellationToken)
+    public async Task<IList<UserFileResult>> UploadAsync(AppUser user, IReadOnlyCollection<UploadedFile> files, CancellationToken cancellationToken)
     {
         await CheckLimitations(user, files, cancellationToken);
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
@@ -42,7 +42,7 @@ public class UserFileService(
                     Owner = user,
                     OwnerId = user.Id,
                     Size = file.Length,
-                    StorageType = UserFileStorageType.Temporary,
+                    StorageType = UserFileStorageType.Private,
                     TenantId = tenantId,
                     Type = Path.GetExtension(file.FileName)
                 }, cancellationToken);
@@ -61,70 +61,26 @@ public class UserFileService(
         return [.. userFiles.Select(UserFileMapper.MapUserFile)];
     }
 
-    public async Task PromoteToPrivateAsync(IReadOnlyCollection<UserFile> userFiles, CancellationToken cancellationToken)
+    public async Task AttachAsync(AppUser user, IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken)
     {
-        var temporaryFiles = userFiles
-            .Where(file => file.StorageType == UserFileStorageType.Temporary)
-            .ToList();
-        foreach (var userFile in temporaryFiles)
+        var distinctGlobalIds = globalIds.Distinct().ToList();
+        if (distinctGlobalIds.Count == 0)
         {
-            await _fileStorage.CopyToPrivateAsync(userFile, cancellationToken);
+            return;
         }
 
-        foreach (var userFile in temporaryFiles)
+        var userFiles = await _userFileRepository.ListAsync(user, distinctGlobalIds, cancellationToken);
+        var userFileGlobalIds = userFiles.Select(file => file.GlobalId).ToHashSet();
+        if (!distinctGlobalIds.All(userFileGlobalIds.Contains))
         {
-            userFile.StorageType = UserFileStorageType.Private;
+            throw new BusinessRuleException("One or more files could not be found.");
         }
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        foreach (var userFile in temporaryFiles)
+        foreach (var userFile in userFiles)
         {
-            try
-            {
-                userFile.StorageType = UserFileStorageType.Temporary;
-                await _fileStorage.DeleteTemporaryAsync(userFile, CancellationToken.None);
-                userFile.StorageType = UserFileStorageType.Private;
-            }
-            catch (Exception exception)
-            {
-                userFile.StorageType = UserFileStorageType.Private;
-                _logger.LogError(exception, "Failed to delete temporary file {UserFileGlobalId} after promotion.", userFile.GlobalId);
-            }
-        }
-    }
-
-    public async Task PromoteToPublicAsync(IReadOnlyCollection<UserFile> userFiles, CancellationToken cancellationToken)
-    {
-        var temporaryFiles = userFiles
-            .Where(file => file.StorageType == UserFileStorageType.Temporary)
-            .ToList();
-        foreach (var userFile in temporaryFiles)
-        {
-            await _fileStorage.CopyToPublicAsync(userFile, cancellationToken);
+            userFile.Status = UserFileStatus.Attached;
         }
 
-        foreach (var userFile in temporaryFiles)
-        {
-            userFile.StorageType = UserFileStorageType.Public;
-        }
-
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        foreach (var userFile in temporaryFiles)
-        {
-            try
-            {
-                userFile.StorageType = UserFileStorageType.Temporary;
-                await _fileStorage.DeleteTemporaryAsync(userFile, CancellationToken.None);
-                userFile.StorageType = UserFileStorageType.Public;
-            }
-            catch (Exception exception)
-            {
-                userFile.StorageType = UserFileStorageType.Public;
-                _logger.LogError(exception, "Failed to delete temporary file {UserFileGlobalId} after public promotion.", userFile.GlobalId);
-            }
-        }
     }
 
     /// <summary>

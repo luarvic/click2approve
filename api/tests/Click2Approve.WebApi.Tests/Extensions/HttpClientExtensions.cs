@@ -126,7 +126,7 @@ public static class HttpClientExtensions
         }
         var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
         return await httpClient.SendAsync<List<UserFileResponse>>(HttpMethod.Post,
-            $"api/v1/tenants/{tenantId}/temporaryFiles/upload",
+            $"api/v1/tenants/{tenantId}/files/upload",
             new Dictionary<string, string> {
                 {"Authorization", $"Bearer {accessToken}"}
             },
@@ -145,7 +145,7 @@ public static class HttpClientExtensions
     {
         var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
         return await httpClient.SendAsync<List<UserFileResponse>>(HttpMethod.Get,
-            $"api/v1/tenants/{tenantId}/temporaryFiles",
+            $"api/v1/tenants/{tenantId}/files",
             new Dictionary<string, string> {
                 {"Authorization", $"Bearer {accessToken}"}
             },
@@ -164,7 +164,7 @@ public static class HttpClientExtensions
     {
         var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
         return await httpClient.SendAsync<string>(HttpMethod.Get,
-            $"api/v1/tenants/{tenantId}/temporaryFiles/{globalId}/download",
+            $"api/v1/tenants/{tenantId}/files/{globalId}/download",
             new Dictionary<string, string> {
                 {"Authorization", $"Bearer {accessToken}"}
             },
@@ -184,7 +184,7 @@ public static class HttpClientExtensions
     {
         var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
         return await httpClient.SendAsync<string>(HttpMethod.Get,
-            $"api/v1/tenants/{tenantId}/temporaryFiles/{globalId}/downloadBase64",
+            $"api/v1/tenants/{tenantId}/files/{globalId}/downloadBase64",
             new Dictionary<string, string> {
                 {"Authorization", $"Bearer {accessToken}"}
             },
@@ -240,7 +240,7 @@ public static class HttpClientExtensions
     {
         var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
         return await httpClient.SendAsync<string>(HttpMethod.Delete,
-            $"api/v1/tenants/{tenantId}/temporaryFiles/{globalId}",
+            $"api/v1/tenants/{tenantId}/files/{globalId}",
             new Dictionary<string, string> {
                 {"Authorization", $"Bearer {accessToken}"}
             },

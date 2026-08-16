@@ -29,8 +29,8 @@ export class UserProfileStore {
     return profile;
   };
 
-  uploadAvatar = async (tenantGlobalId: string, avatar: File): Promise<boolean> => {
-    const profile = await uploadUserAvatar(tenantGlobalId, avatar);
+  uploadAvatar = async (avatar: File): Promise<boolean> => {
+    const profile = await uploadUserAvatar(avatar);
     if (!profile) {
       return false;
     }

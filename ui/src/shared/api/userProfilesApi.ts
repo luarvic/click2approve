@@ -37,23 +37,11 @@ export const updateUserProfile = async (payload: UserProfileUpdateRequest): Prom
   }
 };
 
-export const uploadUserAvatar = async (tenantGlobalId: string, avatar: File): Promise<UserProfile | null> => {
+export const uploadUserAvatar = async (avatar: File): Promise<UserProfile | null> => {
   try {
     const formData = new FormData();
-    formData.append("files", avatar);
-    const { data: files } = await axios.post<{ globalId: string }[]>(
-      `api/v1/tenants/${tenantGlobalId}/temporaryFiles/upload`,
-      formData,
-      { headers: { "Content-Type": "multipart/form-data" } },
-    );
-    const temporaryAvatar = files[0];
-    if (!temporaryAvatar) {
-      return null;
-    }
-
-    const { data } = await axios.post<UserProfile>("api/v1/userProfiles/avatar", {
-      userFileGlobalId: temporaryAvatar.globalId,
-    });
+    formData.append("avatar", avatar);
+    const { data } = await axios.post<UserProfile>("api/v1/userProfiles/avatar", formData);
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));

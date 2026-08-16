@@ -232,7 +232,6 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
         requestFiles={task.requestFiles}
         revisionNumber={task.revisionNumber}
         showDescription={showDescription}
-        showFileStateIndicators={false}
         showFiles={showFiles}
         showRevision={showRevision}
         showTitle={showTitle}

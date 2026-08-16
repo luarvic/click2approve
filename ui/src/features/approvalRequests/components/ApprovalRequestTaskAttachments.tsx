@@ -4,7 +4,7 @@ import {
 } from "@/features/approvalRequests/api/approvalRequestTaskAttachmentsApi";
 import ApprovalRequestFilesList from "@/features/approvalRequests/components/ApprovalRequestFilesList";
 import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
-import { uploadUserFiles } from "@/features/userFiles/api/userFilesApi";
+import { deleteUserFile, uploadUserFiles } from "@/features/userFiles/api/userFilesApi";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import { downloadApprovalRequestTaskAttachment } from "@/features/userFiles/utils/downloaders";
 import { Files, StackSpacing } from "@/shared/constants/constants";
@@ -31,24 +31,21 @@ const ApprovalRequestTaskAttachments = forwardRef<
 >(({ canManageFiles, label = "Files to attach", showLabel = true, taskFiles, taskGlobalId, tenantGlobalId }, ref) => {
   const fileInput = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<UserFile[]>(taskFiles);
-  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [newFiles, setNewFiles] = useState<UserFile[]>([]);
 
   const attach = useCallback(async (): Promise<boolean> => {
     if (newFiles.length === 0) return true;
-    const uploadedFiles = await uploadUserFiles(tenantGlobalId, newFiles);
-    if (uploadedFiles.length !== newFiles.length) return false;
-
     if (
       !(await addApprovalRequestTaskAttachments(
         tenantGlobalId,
         taskGlobalId,
-        uploadedFiles.map((file) => file.globalId),
+        newFiles.map((file) => file.globalId),
       ))
     )
       return false;
 
     setNewFiles([]);
-    setFiles((files) => [...files, ...uploadedFiles]);
+    setFiles((files) => [...files, ...newFiles]);
     return true;
   }, [newFiles, taskGlobalId, tenantGlobalId]);
 
@@ -76,7 +73,15 @@ const ApprovalRequestTaskAttachments = forwardRef<
               }
             : undefined
         }
-        onRemoveNew={(index) => setNewFiles((files) => files.filter((_, fileIndex) => fileIndex !== index))}
+        onRemoveNew={(index) => {
+          const file = newFiles[index];
+          if (!file) return;
+          void deleteUserFile(tenantGlobalId, file.globalId).then((removed) => {
+            if (removed) {
+              setNewFiles((files) => files.filter((_, fileIndex) => fileIndex !== index));
+            }
+          });
+        }}
       />
       {canManageFiles && (
         <>
@@ -88,9 +93,13 @@ const ApprovalRequestTaskAttachments = forwardRef<
             ref={fileInput}
             style={Files.inputStyle}
             type="file"
-            onChange={(event) => {
-              setNewFiles((files) => [...files, ...Array.from(event.target.files ?? [])]);
+            onChange={async (event) => {
+              const selectedFiles = Array.from(event.target.files ?? []);
               event.target.value = "";
+              if (selectedFiles.length === 0) return;
+
+              const uploadedFiles = await uploadUserFiles(tenantGlobalId, selectedFiles);
+              setNewFiles((files) => [...files, ...uploadedFiles]);
             }}
           />
         </>

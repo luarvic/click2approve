@@ -475,7 +475,7 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
       {(showStepTitle || showMetadata || headerAccessory) && (
         <ApprovalStepHeader
           accessory={headerAccessory}
-          details={showMetadata && renderStepMetadata(step, stepMode, actionLabel)}
+          details={showMetadata && renderStepMetadata(step, stepMode, actionLabel, true)}
           hasBottomMargin
           sequence={step.sequence}
           showTitle={showStepTitle}

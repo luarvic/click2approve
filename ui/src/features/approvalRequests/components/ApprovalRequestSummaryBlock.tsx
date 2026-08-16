@@ -149,7 +149,6 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
         requestFiles={approvalRequest.requestFiles}
         revisionNumber={approvalRequest.revisionNumber}
         tenantGlobalId={tenantGlobalId}
-        compareFilesWithPrevious={(approvalRequest.revisionNumber ?? 1) > 1}
         metadata={metadata}
       />
     </ApprovalRequestDetailsCard>

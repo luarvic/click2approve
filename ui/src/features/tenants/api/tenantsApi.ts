@@ -1,5 +1,4 @@
 import { CreateTenantRequest, Tenant, UpdateTenantRequest } from "@/features/tenants/models/tenant";
-import { uploadUserFiles } from "@/features/userFiles/api/userFilesApi";
 import axios from "@/shared/api/axios";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
@@ -34,21 +33,16 @@ export const createTenant = async (payload: CreateTenantRequest): Promise<Tenant
   }
 };
 
-export const createTenantWithLogo = async (
-  currentTenantGlobalId: string,
-  payload: CreateTenantRequest,
-  logo: File,
-): Promise<Tenant | null> => {
+export const createTenantWithLogo = async (payload: CreateTenantRequest, logo: File): Promise<Tenant | null> => {
   try {
-    const [temporaryLogo] = await uploadUserFiles(currentTenantGlobalId, [logo]);
-    if (!temporaryLogo) {
-      return null;
-    }
-
-    const { data } = await axios.post<Tenant>("api/v1/tenants/withLogo", {
-      ...payload,
-      logoUserFileGlobalId: temporaryLogo.globalId,
-    });
+    const formData = new FormData();
+    formData.append("businessName", payload.businessName);
+    formData.append("email", payload.email ?? "");
+    formData.append("phone", payload.phone ?? "");
+    formData.append("address", payload.address ?? "");
+    formData.append("websiteUrl", payload.websiteUrl ?? "");
+    formData.append("logo", logo);
+    const { data } = await axios.post<Tenant>("api/v1/tenants/withLogo", formData);
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
@@ -66,20 +60,11 @@ export const updateTenant = async (tenantGlobalId: string, payload: UpdateTenant
   }
 };
 
-export const uploadTenantLogo = async (
-  currentTenantGlobalId: string,
-  tenantGlobalId: string,
-  logo: File,
-): Promise<Tenant | null> => {
+export const uploadTenantLogo = async (tenantGlobalId: string, logo: File): Promise<Tenant | null> => {
   try {
-    const [temporaryLogo] = await uploadUserFiles(currentTenantGlobalId, [logo]);
-    if (!temporaryLogo) {
-      return null;
-    }
-
-    const { data } = await axios.post<Tenant>(`api/v1/tenants/${tenantGlobalId}/logo`, {
-      userFileGlobalId: temporaryLogo.globalId,
-    });
+    const formData = new FormData();
+    formData.append("logo", logo);
+    const { data } = await axios.post<Tenant>(`api/v1/tenants/${tenantGlobalId}/logo`, formData);
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));

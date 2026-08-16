@@ -10,7 +10,8 @@ import {
   sendTaskDiscussion,
 } from "@/features/discussions/api/discussionsApi";
 import DiscussionParticipants from "@/features/discussions/components/DiscussionParticipants";
-import { uploadUserFiles } from "@/features/userFiles/api/userFilesApi";
+import { deleteUserFile, uploadUserFiles } from "@/features/userFiles/api/userFilesApi";
+import { UserFile } from "@/features/userFiles/models/userFile";
 import { downloadDiscussionMessageFile } from "@/features/userFiles/utils/downloaders";
 import DisplayName from "@/shared/components/identity/DisplayName";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
@@ -75,7 +76,7 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
   ) => {
     const [messages, setMessages] = useState<DiscussionMessage[] | null>(null);
     const [body, setBody] = useState("");
-    const [files, setFiles] = useState<File[]>([]);
+    const [files, setFiles] = useState<UserFile[]>([]);
     const fileInput = useRef<HTMLInputElement>(null);
     const load = useCallback(async () => {
       if (!tenantGlobalId) return;
@@ -103,20 +104,18 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
     }, [messages?.length]);
     const send = useCallback(async () => {
       if (!tenantGlobalId || (!body.trim() && (!attachmentsAreEnabled || files.length === 0))) return;
-      const uploadedFiles = attachmentsAreEnabled ? await uploadUserFiles(tenantGlobalId, files) : [];
-      if (uploadedFiles.length !== files.length) return;
       const message = taskGlobalId
         ? await sendTaskDiscussion(
             tenantGlobalId,
             taskGlobalId,
             body,
-            uploadedFiles.map((file) => file.globalId),
+            files.map((file) => file.globalId),
           )
         : await sendRequestDiscussion(
             tenantGlobalId,
             requestGlobalId,
             body,
-            uploadedFiles.map((file) => file.globalId),
+            files.map((file) => file.globalId),
           );
       setMessages((current) => [...(current ?? []), message]);
       setBody("");
@@ -222,7 +221,15 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
               <ApprovalRequestFilesList
                 existingFiles={[]}
                 newFiles={files}
-                onRemoveNew={(index) => setFiles((files) => files.filter((_, fileIndex) => fileIndex !== index))}
+                onRemoveNew={(index) => {
+                  const file = files[index];
+                  if (!file || !tenantGlobalId) return;
+                  void deleteUserFile(tenantGlobalId, file.globalId).then((removed) => {
+                    if (removed) {
+                      setFiles((files) => files.filter((_, fileIndex) => fileIndex !== index));
+                    }
+                  });
+                }}
               />
             )}
             {attachmentsAreEnabled && (
@@ -235,9 +242,13 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
                   ref={fileInput}
                   style={Files.inputStyle}
                   type="file"
-                  onChange={(event) => {
-                    setFiles((files) => [...files, ...Array.from(event.target.files ?? [])]);
+                  onChange={async (event) => {
+                    const selectedFiles = Array.from(event.target.files ?? []);
                     event.target.value = "";
+                    if (!tenantGlobalId || selectedFiles.length === 0) return;
+
+                    const uploadedFiles = await uploadUserFiles(tenantGlobalId, selectedFiles);
+                    setFiles((files) => [...files, ...uploadedFiles]);
                   }}
                 />
               </>

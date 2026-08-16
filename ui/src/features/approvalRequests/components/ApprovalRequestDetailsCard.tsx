@@ -1,3 +1,7 @@
+import {
+  ApprovalRequestDetailsCardMode,
+  ApprovalRequestDetailsCardModeContext,
+} from "@/features/approvalRequests/components/ApprovalRequestDetailsCardContext";
 import { Card, CardContent } from "@mui/material";
 import type { SxProps } from "@mui/material";
 import { alpha } from "@mui/material/styles";
@@ -11,6 +15,7 @@ interface ApprovalRequestDetailsCardProps {
   borderLeftStyle?: "dotted" | "solid";
   children: ReactNode;
   contentSx?: SxProps<Theme>;
+  mode?: ApprovalRequestDetailsCardMode;
   onClick?: () => void;
   showStatusBorder?: boolean;
   sx?: SxProps<Theme>;
@@ -48,6 +53,7 @@ const ApprovalRequestDetailsCard: React.FC<ApprovalRequestDetailsCardProps> = ({
   borderLeftStyle = "solid",
   children,
   contentSx,
+  mode = "display",
   onClick,
   showStatusBorder = true,
   sx,
@@ -69,25 +75,27 @@ const ApprovalRequestDetailsCard: React.FC<ApprovalRequestDetailsCardProps> = ({
   ];
 
   return (
-    <Card
-      aria-label={ariaLabel}
-      onClick={onClick}
-      onKeyDown={
-        isClickable
-          ? (event) => {
-              if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                onClick?.();
+    <ApprovalRequestDetailsCardModeContext.Provider value={mode}>
+      <Card
+        aria-label={ariaLabel}
+        onClick={onClick}
+        onKeyDown={
+          isClickable
+            ? (event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  onClick?.();
+                }
               }
-            }
-          : undefined
-      }
-      role={isClickable ? "button" : undefined}
-      sx={cardSx}
-      tabIndex={isClickable ? 0 : undefined}
-    >
-      <CardContent sx={cardContentSx}>{children}</CardContent>
-    </Card>
+            : undefined
+        }
+        role={isClickable ? "button" : undefined}
+        sx={cardSx}
+        tabIndex={isClickable ? 0 : undefined}
+      >
+        <CardContent sx={cardContentSx}>{children}</CardContent>
+      </Card>
+    </ApprovalRequestDetailsCardModeContext.Provider>
   );
 };
 

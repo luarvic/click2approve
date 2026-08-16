@@ -11,12 +11,12 @@ export interface RevisionExistingFile {
   file: UserFile;
   requestFileGlobalId?: string;
   removed?: boolean;
-  replacement?: File;
+  replacement?: UserFile;
 }
 
 interface ApprovalRequestFilesListProps {
   existingFiles: RevisionExistingFile[];
-  newFiles: File[];
+  newFiles: UserFile[];
   onRemoveExisting?: (index: number) => void;
   onRemoveNew: (index: number) => void;
   onRemoveReplacement?: (index: number) => void;
@@ -102,7 +102,7 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
     </Link>
   );
 
-  const renderNewFile = (file: File, index: number) => {
+  const renderNewFile = (file: UserFile, index: number) => {
     const fileEntry = (
       <Stack direction="row" alignItems="center">
         {renderFileLink(file.name)}
@@ -113,14 +113,14 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
     );
 
     return onReplaceExisting ? (
-      <Tooltip key={`${file.name}-${file.lastModified}-${index}`} title="New file">
+      <Tooltip key={file.globalId} title="New file">
         <Stack direction="row" alignItems="center" spacing={StackSpacing.default} sx={fileRowSx}>
           {fileEntry}
           <Chip color="success" label="Added" size="small" variant="outlined" />
         </Stack>
       </Tooltip>
     ) : (
-      <Stack key={`${file.name}-${file.lastModified}-${index}`} direction="row" alignItems="center">
+      <Stack key={file.globalId} direction="row" alignItems="center">
         {fileEntry}
       </Stack>
     );

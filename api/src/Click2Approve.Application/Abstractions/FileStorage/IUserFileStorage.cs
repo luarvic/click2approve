@@ -8,9 +8,6 @@ namespace Click2Approve.Application.Abstractions.FileStorage;
 public interface IUserFileStorage
 {
     Task SaveAsync(UserFile userFile, byte[] bytes, CancellationToken cancellationToken);
-    Task CopyToPrivateAsync(UserFile userFile, CancellationToken cancellationToken);
-    Task CopyToPublicAsync(UserFile userFile, CancellationToken cancellationToken);
-    Task DeleteTemporaryAsync(UserFile userFile, CancellationToken cancellationToken);
     Task<byte[]> ReadAsync(UserFile userFile, CancellationToken cancellationToken);
     Task DeleteAsync(UserFile userFile, CancellationToken cancellationToken);
     string GetPublicUrl(UserFile userFile);

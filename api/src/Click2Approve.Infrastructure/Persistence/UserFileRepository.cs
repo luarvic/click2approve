@@ -33,15 +33,6 @@ public class UserFileRepository(
             cancellationToken);
     }
 
-    public async Task<UserFile?> GetTemporaryOwnedAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
-    {
-        return await Db.UserFiles.FirstOrDefaultAsync(
-            file => file.GlobalId == globalId
-                && file.OwnerId == user.Id
-                && file.StorageType == UserFileStorageType.Temporary,
-            cancellationToken);
-    }
-
     public virtual Task<UserFile?> GetForDownloadAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
         return GetForDownloadCoreAsync(user, globalId, cancellationToken);

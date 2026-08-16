@@ -37,12 +37,6 @@ public class MockFileStorage : IUserFileStorage
         }
     }
 
-    public Task CopyToPrivateAsync(UserFile userFile, CancellationToken cancellationToken) => Task.CompletedTask;
-
-    public Task CopyToPublicAsync(UserFile userFile, CancellationToken cancellationToken) => Task.CompletedTask;
-
-    public Task DeleteTemporaryAsync(UserFile userFile, CancellationToken cancellationToken) => DeleteAsync(userFile, cancellationToken);
-
     public Task<byte[]> ReadAsync(UserFile userFile, CancellationToken cancellationToken)
     {
         try

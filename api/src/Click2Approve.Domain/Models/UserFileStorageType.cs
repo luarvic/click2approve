@@ -5,7 +5,6 @@ namespace Click2Approve.Domain.Models;
 /// </summary>
 public enum UserFileStorageType
 {
-    Temporary = 0,
-    Private = 1,
-    Public = 2
+    Private = 0,
+    Public = 1
 }

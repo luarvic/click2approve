@@ -11,6 +11,7 @@ public class ApprovalRequestService(
     IApprovalRequestRepository approvalRequestRepository,
     ITenantRepository tenantRepository,
     IUserFileRepository userFileRepository,
+    IUserFileService userFileService,
     IUnitOfWork unitOfWork,
     IApprovalRequestAssigneeGlobalIdResolver assigneeGlobalIdResolver,
     IApprovalWorkflowService workflowService,
@@ -24,6 +25,7 @@ public class ApprovalRequestService(
     protected readonly IApprovalWorkflowService _workflowService = workflowService;
 
     private readonly IUserFileRepository _userFileRepository = userFileRepository;
+    private readonly IUserFileService _userFileService = userFileService;
     private readonly ITenantRepository _tenantRepository = tenantRepository;
     private readonly IApprovalRequestAssigneeGlobalIdResolver _assigneeGlobalIdResolver = assigneeGlobalIdResolver;
     private readonly ITenantContext _tenantContext = tenantContext;
@@ -34,6 +36,55 @@ public class ApprovalRequestService(
     /// </summary>
     public async Task<Guid> SubmitAsync(AppUser user, SubmitApprovalRequestCommand payload, CancellationToken cancellationToken)
     {
+        await AttachFilesAsync(user, payload.RequestFiles.Select(file => file.UserFileGlobalId), cancellationToken);
+        return await CreateAsync(user, payload, cancellationToken);
+    }
+
+    /// <summary>
+    /// Cancels an approval request.
+    /// </summary>
+    public async Task CancelAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    {
+        var approvalRequest = await _approvalRequestRepository.GetForUpdateAsync(user, globalId, cancellationToken)
+            ?? throw new NotFoundException("Approval request was not found.");
+        if (approvalRequest.Status is not (ApprovalRequestStatus.Pending or ApprovalRequestStatus.Started))
+        {
+            throw new BusinessRuleException("The approval request cannot be cancelled.");
+        }
+
+        var now = DateTime.UtcNow;
+        approvalRequest.Status = ApprovalRequestStatus.Canceled;
+        approvalRequest.CompletedAt = now;
+        await _completionAttributor.AttributeAsync(user, approvalRequest, cancellationToken);
+        await _workflowService.CancelRequestAsync(approvalRequest, now, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Lists approval requests of the user.
+    /// </summary>
+    public async Task<List<ApprovalRequestListItemResult>> ListAsync(AppUser user, CancellationToken cancellationToken)
+    {
+        var approvalRequests = await _approvalRequestRepository.ListAsync(user, cancellationToken);
+        return [.. approvalRequests.Select(ApprovalRequestMapper.MapApprovalRequestListItem)];
+    }
+
+    /// <summary>
+    /// Gets an approval request with all data required by its editor.
+    /// </summary>
+    public async Task<ApprovalRequestDetailsResult> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    {
+        var approvalRequest = await _approvalRequestRepository.GetAsync(user, globalId, cancellationToken)
+            ?? throw new NotFoundException("Approval request was not found.");
+        var assigneeGlobalIdMaps = await _assigneeGlobalIdResolver.ResolveAsync(approvalRequest, cancellationToken);
+        return ApprovalRequestMapper.MapApprovalRequest(approvalRequest, assigneeGlobalIdMaps);
+    }
+
+    protected async Task<Guid> CreateAsync(
+        AppUser user,
+        SubmitApprovalRequestCommand payload,
+        CancellationToken cancellationToken)
+    {
         var title = (payload.Title ?? string.Empty).Trim();
         if (title.Length == 0)
         {
@@ -42,10 +93,7 @@ public class ApprovalRequestService(
 
         await CheckLimitationsAsync(user, payload, cancellationToken);
 
-        var userFileGlobalIds = payload.RequestFiles
-            .Select(file => file.UserFileGlobalId)
-            .Distinct()
-            .ToList();
+        var userFileGlobalIds = payload.RequestFiles.Select(file => file.UserFileGlobalId).Distinct().ToList();
         if (userFileGlobalIds.Count == 0)
         {
             throw new BusinessRuleException("Add one or more files.");
@@ -94,45 +142,11 @@ public class ApprovalRequestService(
         return newApprovalRequest.GlobalId;
     }
 
-    /// <summary>
-    /// Cancels an approval request.
-    /// </summary>
-    public async Task CancelAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
-    {
-        var approvalRequest = await _approvalRequestRepository.GetForUpdateAsync(user, globalId, cancellationToken)
-            ?? throw new NotFoundException("Approval request was not found.");
-        if (approvalRequest.Status is not (ApprovalRequestStatus.Pending or ApprovalRequestStatus.Started))
-        {
-            throw new BusinessRuleException("The approval request cannot be cancelled.");
-        }
-
-        var now = DateTime.UtcNow;
-        approvalRequest.Status = ApprovalRequestStatus.Canceled;
-        approvalRequest.CompletedAt = now;
-        await _completionAttributor.AttributeAsync(user, approvalRequest, cancellationToken);
-        await _workflowService.CancelRequestAsync(approvalRequest, now, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-    }
-
-    /// <summary>
-    /// Lists approval requests of the user.
-    /// </summary>
-    public async Task<List<ApprovalRequestListItemResult>> ListAsync(AppUser user, CancellationToken cancellationToken)
-    {
-        var approvalRequests = await _approvalRequestRepository.ListAsync(user, cancellationToken);
-        return [.. approvalRequests.Select(ApprovalRequestMapper.MapApprovalRequestListItem)];
-    }
-
-    /// <summary>
-    /// Gets an approval request with all data required by its editor.
-    /// </summary>
-    public async Task<ApprovalRequestDetailsResult> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
-    {
-        var approvalRequest = await _approvalRequestRepository.GetAsync(user, globalId, cancellationToken)
-            ?? throw new NotFoundException("Approval request was not found.");
-        var assigneeGlobalIdMaps = await _assigneeGlobalIdResolver.ResolveAsync(approvalRequest, cancellationToken);
-        return ApprovalRequestMapper.MapApprovalRequest(approvalRequest, assigneeGlobalIdMaps);
-    }
+    protected Task AttachFilesAsync(
+        AppUser user,
+        IEnumerable<Guid> userFileGlobalIds,
+        CancellationToken cancellationToken) =>
+        _userFileService.AttachAsync(user, [.. userFileGlobalIds], cancellationToken);
 
     protected virtual Task<ApprovalRequestCreator> ResolveCreatorAsync(
         AppUser user,

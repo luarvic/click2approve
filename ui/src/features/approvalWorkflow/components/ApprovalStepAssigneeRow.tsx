@@ -1,7 +1,7 @@
-import { AssigneeType, ApprovalStepAssignee } from "@/features/approvalWorkflow/models/approvalStep";
+import { ApprovalStepAssignee, AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { Employee } from "@/features/employees/models/employee";
 import DisplayName from "@/shared/components/identity/DisplayName";
-import { Dialogs } from "@/shared/constants/constants";
+import { AssigneeTypeFieldMinWidth, Dialogs } from "@/shared/constants/constants";
 import { Close } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import { Autocomplete, IconButton, MenuItem, Stack, TextField, Tooltip } from "@mui/material";
@@ -33,6 +33,7 @@ const assigneeFieldControlsSx: SxProps<Theme> = {
   minWidth: 0,
 };
 const responsiveAssigneeTypeFieldSx: SxProps<Theme> = {
+  minWidth: AssigneeTypeFieldMinWidth,
   width: { xs: "100%", sm: "auto" },
 };
 
@@ -75,11 +76,7 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
               type: Number(event.target.value) as AssigneeType,
             })
           }
-          sx={
-            stackControlsOnSmallScreens
-              ? [Dialogs.assigneeTypeFieldSx, responsiveAssigneeTypeFieldSx]
-              : Dialogs.assigneeTypeFieldSx
-          }
+          sx={stackControlsOnSmallScreens ? responsiveAssigneeTypeFieldSx : Dialogs.assigneeTypeFieldSx}
         >
           {recipientTypes.map((type) => (
             <MenuItem key={type.value} value={type.value}>
@@ -104,7 +101,7 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
               fullWidth
               options={employees}
               getOptionLabel={(option) => option.displayName}
-              value={employees.find((user) => user.globalId === assignee.employeeGlobalId) ?? null}
+              value={employees.find((user) => user.globalId === assignee.employeeGlobalId)}
               disabled={disabled}
               renderInput={(params) => <TextField {...params} label="Employee" />}
               renderOption={
@@ -131,7 +128,7 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
               fullWidth
               options={teams}
               getOptionLabel={(option) => option.name}
-              value={teams.find((team) => team.globalId === assignee.teamGlobalId) ?? null}
+              value={teams.find((team) => team.globalId === assignee.teamGlobalId)}
               disabled={disabled}
               renderInput={(params) => <TextField {...params} label="Team" />}
               onChange={(_, value) =>

@@ -1,4 +1,5 @@
 import ApprovalRequestContentGroups from "@/features/approvalRequests/components/ApprovalRequestContentGroups";
+import { useApprovalRequestDetailsCardMode } from "@/features/approvalRequests/components/ApprovalRequestDetailsCardContext";
 import ApprovalRequestFilesBox from "@/features/approvalRequests/components/ApprovalRequestFilesBox";
 import ApprovalRequestNumberText from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
@@ -18,14 +19,12 @@ interface ApprovalRequestSummaryProps {
   title?: string;
   requestFiles?: ApprovalRequestFile[];
   revisionNumber?: number;
-  compareFilesWithPrevious?: boolean;
   numberPrefix?: string;
   numberColor?: TypographyProps["color"];
   nextRevisionApprovalRequestGlobalId?: string;
   numberVariant?: TypographyProps["variant"];
   previousRevisionApprovalRequestGlobalId?: string;
   metadata?: ReactNode;
-  showFileStateIndicators?: boolean;
   showDescription?: boolean;
   showFiles?: boolean;
   showRevision?: boolean;
@@ -45,14 +44,12 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   title,
   requestFiles,
   revisionNumber,
-  compareFilesWithPrevious = false,
   numberPrefix,
   numberColor,
   nextRevisionApprovalRequestGlobalId,
   numberVariant = "h6",
   previousRevisionApprovalRequestGlobalId,
   metadata,
-  showFileStateIndicators = true,
   showDescription = true,
   showFiles = true,
   showRevision = true,
@@ -60,6 +57,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   tenantGlobalId,
   titleVariant = "h6",
 }) => {
+  const detailsCardMode = useApprovalRequestDetailsCardMode();
   const numberGlobalId = approvalRequestGlobalId ?? approvalRequestTaskGlobalId;
   const hasDescription = showDescription && Boolean(description?.trim());
   const hasFiles = showFiles && Boolean(requestFiles?.length);
@@ -97,8 +95,8 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
             requestFiles={requestFiles}
             approvalRequestGlobalId={approvalRequestGlobalId}
             approvalRequestTaskGlobalId={approvalRequestTaskGlobalId}
-            compareWithPrevious={compareFilesWithPrevious}
-            showFileStateIndicators={showFileStateIndicators}
+            compareWithPrevious={detailsCardMode === "edit" && (revisionNumber ?? 1) > 1}
+            showFileStateIndicators={detailsCardMode === "edit"}
           />
         )}
       </Stack>

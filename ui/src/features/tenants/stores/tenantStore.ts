@@ -105,12 +105,7 @@ export class TenantStore {
 
   createWithLogo = async (payload: CreateTenantRequest, logo: File): Promise<Tenant | null> => {
     const requestVersion = this.requestVersion;
-    const currentTenantGlobalId = this.currentTenantGlobalId;
-    if (!currentTenantGlobalId) {
-      return null;
-    }
-
-    const tenant = await tenantApi.createTenantWithLogo(currentTenantGlobalId, payload, logo);
+    const tenant = await tenantApi.createTenantWithLogo(payload, logo);
     if (!tenant || requestVersion !== this.requestVersion) {
       return null;
     }
@@ -142,12 +137,7 @@ export class TenantStore {
 
   uploadLogo = async (tenantGlobalId: string, logo: File): Promise<boolean> => {
     const requestVersion = this.requestVersion;
-    const currentTenantGlobalId = this.currentTenantGlobalId;
-    if (!currentTenantGlobalId) {
-      return false;
-    }
-
-    const tenant = await tenantApi.uploadTenantLogo(currentTenantGlobalId, tenantGlobalId, logo);
+    const tenant = await tenantApi.uploadTenantLogo(tenantGlobalId, logo);
     if (!tenant || requestVersion !== this.requestVersion) {
       return false;
     }
