@@ -8,16 +8,22 @@ namespace Click2Approve.Application.Abstractions.Services.UserFiles;
 /// </summary>
 public interface IUserFileService
 {
-    Task<IList<UserFileResult>> UploadAsync(AppUser user, IReadOnlyCollection<UploadedFile> files, CancellationToken cancellationToken);
+    Task<IList<UserFileResult>> UploadTemporaryAsync(AppUser user, IReadOnlyCollection<UploadedFile> files, CancellationToken cancellationToken);
+    Task PromoteToPrivateAsync(IReadOnlyCollection<UserFile> userFiles, CancellationToken cancellationToken);
+    Task PromoteToPublicAsync(IReadOnlyCollection<UserFile> userFiles, CancellationToken cancellationToken);
     Task<(string Filename, byte[] Bytes)> DownloadAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
-    Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestFileAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken);
-    Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestTaskFileAsync(AppUser user, Guid globalId, Guid approvalRequestTaskGlobalId, CancellationToken cancellationToken);
+    Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestAttachmentAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken);
+    Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestAttachmentForTaskAsync(
+        AppUser user,
+        Guid globalId,
+        Guid approvalRequestTaskGlobalId,
+        CancellationToken cancellationToken);
     Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestTaskAttachmentAsync(
         AppUser user,
         Guid globalId,
         Guid approvalRequestTaskGlobalId,
         CancellationToken cancellationToken);
-    Task<(string Filename, byte[] Bytes)> DownloadDiscussionMessageFileAsync(
+    Task<(string Filename, byte[] Bytes)> DownloadDiscussionMessageAttachmentAsync(
         AppUser user,
         Guid globalId,
         Guid discussionMessageGlobalId,

@@ -1,3 +1,4 @@
+using Click2Approve.Application.Abstractions.Authorization;
 using Click2Approve.Application.Abstractions.Persistence;
 using Click2Approve.Application.Abstractions.TenantContext;
 using Click2Approve.Domain.Models;
@@ -8,15 +9,37 @@ namespace Click2Approve.Infrastructure.Persistence;
 /// <summary>
 /// Provides EF Core persistence operations for user files.
 /// </summary>
-public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) : IUserFileRepository
+public class UserFileRepository(
+    ApiDbContext db,
+    ITenantContext tenantContext,
+    IAccessScopeProvider accessScopeProvider,
+    IAccessPolicy accessPolicy) : IUserFileRepository
 {
     protected readonly ApiDbContext Db = db;
     protected readonly ITenantContext TenantContext = tenantContext;
+    protected readonly IAccessScopeProvider AccessScopeProvider = accessScopeProvider;
+    protected readonly IAccessPolicy AccessPolicy = accessPolicy;
 
     public async Task<UserFile> AddAsync(UserFile userFile, CancellationToken cancellationToken)
     {
         var entry = await Db.UserFiles.AddAsync(userFile, cancellationToken);
         return entry.Entity;
+    }
+
+    public async Task<UserFile?> GetPublicAsync(long id, CancellationToken cancellationToken)
+    {
+        return await Db.UserFiles.FirstOrDefaultAsync(
+            file => file.Id == id && file.StorageType == UserFileStorageType.Public,
+            cancellationToken);
+    }
+
+    public async Task<UserFile?> GetTemporaryOwnedAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    {
+        return await Db.UserFiles.FirstOrDefaultAsync(
+            file => file.GlobalId == globalId
+                && file.OwnerId == user.Id
+                && file.StorageType == UserFileStorageType.Temporary,
+            cancellationToken);
     }
 
     public virtual Task<UserFile?> GetForDownloadAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
@@ -36,36 +59,41 @@ public class UserFileRepository(ApiDbContext db, ITenantContext tenantContext) :
             .FirstOrDefaultAsync(f => f.TenantId == tenantId && f.GlobalId == globalId && f.OwnerId == user.Id, cancellationToken);
     }
 
-    public virtual async Task<UserFile?> GetForApprovalRequestDownloadAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken)
+    public virtual async Task<UserFile?> GetApprovalRequestAttachmentForDownloadAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken)
     {
-        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        var scope = await AccessScopeProvider.GetAsync(user, cancellationToken);
+        var visibleRequests = Db.ApprovalRequests.Where(AccessPolicy.CanManageRequest(scope));
         return await Db.UserFiles
             .Include(file => file.Owner)
             .FirstOrDefaultAsync(file => file.GlobalId == globalId
                 && file.ApprovalRequestFiles.Any(requestFile => requestFile.ApprovalRequest.GlobalId == approvalRequestGlobalId
-                        && requestFile.ApprovalRequest.TenantId == tenantId
-                        && requestFile.ApprovalRequest.CreatedByUserId == user.Id), cancellationToken);
+                    && visibleRequests.Any(request => request.Id == requestFile.ApprovalRequestId)), cancellationToken);
     }
 
-    public virtual async Task<UserFile?> GetForApprovalRequestTaskDownloadAsync(AppUser user, Guid globalId, Guid approvalRequestTaskGlobalId, CancellationToken cancellationToken)
+    public virtual async Task<UserFile?> GetApprovalRequestAttachmentForTaskDownloadAsync(
+        AppUser user,
+        Guid globalId,
+        Guid approvalRequestTaskGlobalId,
+        CancellationToken cancellationToken)
     {
-        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        var scope = await AccessScopeProvider.GetAsync(user, cancellationToken);
+        var availableTasks = Db.ApprovalRequestTasks.Where(AccessPolicy.CanWorkTask(scope));
         return await Db.UserFiles
             .Include(file => file.Owner)
             .FirstOrDefaultAsync(file => file.GlobalId == globalId
-                && file.ApprovalRequestFiles.Any(requestFile => requestFile.ApprovalRequest.Steps.Any(step => step.Tasks.Any(task => task.GlobalId == approvalRequestTaskGlobalId
-                        && task.TenantId == tenantId
-                        && task.AssigneeUserId == user.Id))), cancellationToken);
+                && file.ApprovalRequestFiles.Any(requestFile => requestFile.ApprovalRequest.Steps.Any(step => step.Tasks.Any(task =>
+                    task.GlobalId == approvalRequestTaskGlobalId
+                    && availableTasks.Any(availableTask => availableTask.Id == task.Id)))), cancellationToken);
     }
 
-    public virtual Task<UserFile?> GetForApprovalRequestTaskAttachmentDownloadAsync(
+    public virtual Task<UserFile?> GetApprovalRequestTaskAttachmentForDownloadAsync(
         AppUser user,
         Guid globalId,
         Guid approvalRequestTaskGlobalId,
         CancellationToken cancellationToken) =>
         Task.FromResult<UserFile?>(null);
 
-    public virtual Task<UserFile?> GetForDiscussionMessageDownloadAsync(
+    public virtual Task<UserFile?> GetDiscussionMessageAttachmentForDownloadAsync(
         AppUser user,
         Guid globalId,
         Guid discussionMessageGlobalId,

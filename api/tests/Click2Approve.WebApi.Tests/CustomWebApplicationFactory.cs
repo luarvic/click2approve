@@ -44,11 +44,9 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
             });
 
             // Replace file storage with in-memory test storage.
-            services.RemoveAll<IPrivateFileStorage>();
-            services.RemoveAll<IPublicFileStorage>();
+            services.RemoveAll<IUserFileStorage>();
             services.AddSingleton<MockFileStorage>();
-            services.AddSingleton<IPrivateFileStorage>(serviceProvider => serviceProvider.GetRequiredService<MockFileStorage>());
-            services.AddSingleton<IPublicFileStorage>(serviceProvider => serviceProvider.GetRequiredService<MockFileStorage>());
+            services.AddSingleton<IUserFileStorage>(serviceProvider => serviceProvider.GetRequiredService<MockFileStorage>());
         });
     }
 }

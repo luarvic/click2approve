@@ -10,15 +10,20 @@ internal static class UserProfileMapper
     public static async Task<UserProfileResult> MapUserProfileAsync(
         AppUser user,
         ITenantRepository tenantRepository,
+        IUserFileRepository userFileRepository,
         IUserNotificationPreferenceService notificationPreferenceService,
-        IPublicFileStorage fileStorage,
+        IUserFileStorage fileStorage,
         CancellationToken cancellationToken)
     {
         return new UserProfileResult
         {
             FirstName = user.FirstName,
             LastName = user.LastName,
-            Avatar = user.Avatar is null ? null : fileStorage.GetUrl(user.Avatar),
+            Avatar = user.AvatarUserFileId is null
+                ? null
+                : (await userFileRepository.GetPublicAsync(user.AvatarUserFileId.Value, cancellationToken)) is { } avatar
+                    ? fileStorage.GetPublicUrl(avatar)
+                    : null,
             DefaultTenantGlobalId = user.DefaultTenantId is null
                 ? null
                 : (await tenantRepository.GetAsync(user.DefaultTenantId.Value, cancellationToken))?.GlobalId,

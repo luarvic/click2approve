@@ -21,6 +21,7 @@ public class TenantRepository(ApiDbContext db) : ITenantRepository
     {
         return Db.Tenants
             .Include(t => t.Owner)
+            .Include(t => t.LogoUserFile)
             .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 
@@ -28,6 +29,7 @@ public class TenantRepository(ApiDbContext db) : ITenantRepository
     {
         return Db.Tenants
             .Include(t => t.Owner)
+            .Include(t => t.LogoUserFile)
             .FirstOrDefaultAsync(t => t.GlobalId == globalId, cancellationToken);
     }
 
@@ -35,6 +37,7 @@ public class TenantRepository(ApiDbContext db) : ITenantRepository
     {
         return Db.Tenants
             .Include(t => t.Owner)
+            .Include(t => t.LogoUserFile)
             .Where(t => t.Owner == user && t.Type == TenantType.Personal)
             .OrderBy(t => t.Id)
             .FirstOrDefaultAsync(cancellationToken);
@@ -44,6 +47,7 @@ public class TenantRepository(ApiDbContext db) : ITenantRepository
     {
         return Db.Tenants
             .Include(t => t.Owner)
+            .Include(t => t.LogoUserFile)
             .Where(t => userIds.Contains(t.Owner.Id) && t.Type == TenantType.Personal)
             .OrderBy(t => t.Id)
             .ToListAsync(cancellationToken);
@@ -53,6 +57,7 @@ public class TenantRepository(ApiDbContext db) : ITenantRepository
     {
         return Db.Tenants
             .Include(t => t.Owner)
+            .Include(t => t.LogoUserFile)
             .Where(t => t.Owner == user)
             .OrderBy(t => t.BusinessName)
             .ToListAsync(cancellationToken);

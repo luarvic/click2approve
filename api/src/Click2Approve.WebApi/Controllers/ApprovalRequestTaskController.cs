@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Asp.Versioning;
 using Click2Approve.Application.Abstractions.Services.ApprovalRequests;
+using Click2Approve.Application.Abstractions.Services.UserFiles;
 using Click2Approve.Domain.Models;
 using Click2Approve.WebApi.Extensions;
 using Click2Approve.WebApi.Mappers.ApprovalRequests;
@@ -16,6 +17,7 @@ namespace Click2Approve.WebApi.Controllers;
 /// </summary>
 /// <param name="logger">The logger service.</param>
 /// <param name="approvalRequestTaskService">The service that manages approval request tasks.</param>
+/// <param name="userFileService">The service that reads approval-request attachments.</param>
 /// <param name="userManager">The service that manages users.</param>
 [Tags("Click2Approve.WebApi.ApprovalRequestTask")]
 [ApiController]
@@ -25,6 +27,7 @@ namespace Click2Approve.WebApi.Controllers;
 public class ApprovalRequestTaskController(
     ILogger<ApprovalRequestTaskController> logger,
     IApprovalRequestTaskService approvalRequestTaskService,
+    IUserFileService userFileService,
     UserManager<AppUser> userManager) : ControllerBase
 {
     private const int MaxBrowserDataLength = 1024;
@@ -42,6 +45,7 @@ public class ApprovalRequestTaskController(
 
     private readonly ILogger<ApprovalRequestTaskController> _logger = logger;
     private readonly IApprovalRequestTaskService _approvalRequestTaskService = approvalRequestTaskService;
+    private readonly IUserFileService _userFileService = userFileService;
     private readonly UserManager<AppUser> _userManager = userManager;
 
     /// <summary>
@@ -80,6 +84,24 @@ public class ApprovalRequestTaskController(
     {
         var user = await _userManager.GetAppUserAsync(User);
         return Ok(ApprovalRequestResponseMapper.Map(await _approvalRequestTaskService.GetAsync(user, globalId, cancellationToken)));
+    }
+
+    /// <summary>
+    /// Downloads a base64 representation of an approval-request attachment visible through a task.
+    /// </summary>
+    [HttpGet("{approvalRequestTaskGlobalId:guid}/requestAttachments/{globalId:guid}/downloadBase64")]
+    public async Task<ActionResult<string>> DownloadRequestAttachmentBase64Async(
+        Guid approvalRequestTaskGlobalId,
+        Guid globalId,
+        CancellationToken cancellationToken)
+    {
+        var user = await _userManager.GetAppUserAsync(User);
+        var (filename, bytes) = await _userFileService.DownloadApprovalRequestAttachmentForTaskAsync(
+            user,
+            globalId,
+            approvalRequestTaskGlobalId,
+            cancellationToken);
+        return $"data:{MimeTypes.GetMimeType(filename)};base64,{Convert.ToBase64String(bytes)}";
     }
 
     /// <summary>

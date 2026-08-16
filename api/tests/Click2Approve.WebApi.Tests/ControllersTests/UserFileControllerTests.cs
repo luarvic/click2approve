@@ -22,13 +22,13 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
     /// Makes sure an anonymous user cannot access the controller's endpoints.
     /// </summary>
     [Theory]
-    [InlineData("POST", "api/v1/tenants/00000000-0000-0000-0000-000000000001/files/upload")]
-    [InlineData("GET", "api/v1/tenants/00000000-0000-0000-0000-000000000001/files")]
-    [InlineData("GET", "api/v1/tenants/00000000-0000-0000-0000-000000000001/files/00000000-0000-0000-0000-000000000002/download")]
-    [InlineData("GET", "api/v1/tenants/00000000-0000-0000-0000-000000000001/files/00000000-0000-0000-0000-000000000002/downloadBase64")]
-    [InlineData("GET", "api/v1/tenants/00000000-0000-0000-0000-000000000001/requests/00000000-0000-0000-0000-000000000002/files/00000000-0000-0000-0000-000000000003/downloadBase64")]
-    [InlineData("GET", "api/v1/tenants/00000000-0000-0000-0000-000000000001/tasks/00000000-0000-0000-0000-000000000002/files/00000000-0000-0000-0000-000000000003/downloadBase64")]
-    [InlineData("DELETE", "api/v1/tenants/00000000-0000-0000-0000-000000000001/files/00000000-0000-0000-0000-000000000002")]
+    [InlineData("POST", "api/v1/tenants/00000000-0000-0000-0000-000000000001/temporaryFiles/upload")]
+    [InlineData("GET", "api/v1/tenants/00000000-0000-0000-0000-000000000001/temporaryFiles")]
+    [InlineData("GET", "api/v1/tenants/00000000-0000-0000-0000-000000000001/temporaryFiles/00000000-0000-0000-0000-000000000002/download")]
+    [InlineData("GET", "api/v1/tenants/00000000-0000-0000-0000-000000000001/temporaryFiles/00000000-0000-0000-0000-000000000002/downloadBase64")]
+    [InlineData("GET", "api/v1/tenants/00000000-0000-0000-0000-000000000001/requests/00000000-0000-0000-0000-000000000002/attachments/00000000-0000-0000-0000-000000000003/downloadBase64")]
+    [InlineData("GET", "api/v1/tenants/00000000-0000-0000-0000-000000000001/tasks/00000000-0000-0000-0000-000000000003/requestAttachments/00000000-0000-0000-0000-000000000004/downloadBase64")]
+    [InlineData("DELETE", "api/v1/tenants/00000000-0000-0000-0000-000000000001/temporaryFiles/00000000-0000-0000-0000-000000000002")]
     public async Task AllEndpoints_WhenRequestedWithoutBearerToken_ShouldReturnUnauthorized(string httpMethod, string url)
     {
         var request = new HttpRequestMessage(HttpMethod.Parse(httpMethod), url);
@@ -49,19 +49,19 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
         var missingApprovalRequestGlobalId = Guid.NewGuid();
         var missingTaskGlobalId = Guid.NewGuid();
 
-        var downloadResponse = await _client.GetAsync($"api/v1/tenants/{tenantGlobalId}/files/{missingFileGlobalId}/download");
+        var downloadResponse = await _client.GetAsync($"api/v1/tenants/{tenantGlobalId}/temporaryFiles/{missingFileGlobalId}/download");
         Assert.Equal(HttpStatusCode.NotFound, downloadResponse.StatusCode);
 
-        var downloadBase64Response = await _client.GetAsync($"api/v1/tenants/{tenantGlobalId}/files/{missingFileGlobalId}/downloadBase64");
+        var downloadBase64Response = await _client.GetAsync($"api/v1/tenants/{tenantGlobalId}/temporaryFiles/{missingFileGlobalId}/downloadBase64");
         Assert.Equal(HttpStatusCode.NotFound, downloadBase64Response.StatusCode);
 
-        var deleteResponse = await _client.DeleteAsync($"api/v1/tenants/{tenantGlobalId}/files/{missingFileGlobalId}");
+        var deleteResponse = await _client.DeleteAsync($"api/v1/tenants/{tenantGlobalId}/temporaryFiles/{missingFileGlobalId}");
         Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
 
-        var requestFileResponse = await _client.GetAsync($"api/v1/tenants/{tenantGlobalId}/requests/{missingApprovalRequestGlobalId}/files/{missingFileGlobalId}/downloadBase64");
+        var requestFileResponse = await _client.GetAsync($"api/v1/tenants/{tenantGlobalId}/requests/{missingApprovalRequestGlobalId}/attachments/{missingFileGlobalId}/downloadBase64");
         Assert.Equal(HttpStatusCode.NotFound, requestFileResponse.StatusCode);
 
-        var taskFileResponse = await _client.GetAsync($"api/v1/tenants/{tenantGlobalId}/tasks/{missingTaskGlobalId}/files/{missingFileGlobalId}/downloadBase64");
+        var taskFileResponse = await _client.GetAsync($"api/v1/tenants/{tenantGlobalId}/tasks/{missingTaskGlobalId}/requestAttachments/{missingFileGlobalId}/downloadBase64");
         Assert.Equal(HttpStatusCode.NotFound, taskFileResponse.StatusCode);
     }
 

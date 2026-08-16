@@ -1,4 +1,3 @@
-using System.Globalization;
 using Click2Approve.Application.Models.Files;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
@@ -13,51 +12,119 @@ public class UserFileService(
     IUserFileRepository userFileRepository,
     ITenantContext tenantContext,
     IUnitOfWork unitOfWork,
-    IPrivateFileStorage fileStorage,
+    IUserFileStorage fileStorage,
     ILogger<UserFileService> logger) : IUserFileService
 {
     private readonly IConfiguration _configuration = configuration;
     private readonly IUserFileRepository _userFileRepository = userFileRepository;
     private readonly ITenantContext _tenantContext = tenantContext;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly IPrivateFileStorage _fileStorage = fileStorage;
+    private readonly IUserFileStorage _fileStorage = fileStorage;
     private readonly ILogger<UserFileService> _logger = logger;
 
     /// <summary>
     /// Uploads a user file.
     /// </summary>
-    public async Task<IList<UserFileResult>> UploadAsync(AppUser user, IReadOnlyCollection<UploadedFile> files, CancellationToken cancellationToken)
+    public async Task<IList<UserFileResult>> UploadTemporaryAsync(AppUser user, IReadOnlyCollection<UploadedFile> files, CancellationToken cancellationToken)
     {
         await CheckLimitations(user, files, cancellationToken);
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
 
-        // A collection of uploaded files to return.
         var userFiles = new List<UserFile>();
-        foreach (var file in files)
+        try
         {
-            // Record new user file to the database.
-            var userFile = new UserFile
+            foreach (var file in files)
             {
-                Name = Path.GetFileName(file.FileName),
-                Type = Path.GetExtension(file.FileName),
-                CreatedAt = DateTime.UtcNow,
-                OwnerId = user.Id,
-                Owner = user,
-                TenantId = tenantId,
-                Size = file.Length
-            };
-            var savedUserFile = await _userFileRepository.AddAsync(userFile, cancellationToken);
-            userFiles.Add(savedUserFile);
+                var userFile = await _userFileRepository.AddAsync(new UserFile
+                {
+                    CreatedAt = DateTime.UtcNow,
+                    Name = Path.GetFileName(file.FileName),
+                    Owner = user,
+                    OwnerId = user.Id,
+                    Size = file.Length,
+                    StorageType = UserFileStorageType.Temporary,
+                    TenantId = tenantId,
+                    Type = Path.GetExtension(file.FileName)
+                }, cancellationToken);
+                userFiles.Add(userFile);
 
-            // Save the user file entity to the database to generate its Id.
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-            var id = savedUserFile.Id.ToString();
-
-            // Save the file.
-            await _fileStorage.SaveAsync(GetFilePath(user.GlobalId, id, Path.GetFileName(file.FileName)), file.Bytes, cancellationToken);
+                await _fileStorage.SaveAsync(userFile, file.Bytes, cancellationToken);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+            }
+        }
+        catch
+        {
+            await CleanupUploadAsync(userFiles);
+            throw;
         }
 
         return [.. userFiles.Select(UserFileMapper.MapUserFile)];
+    }
+
+    public async Task PromoteToPrivateAsync(IReadOnlyCollection<UserFile> userFiles, CancellationToken cancellationToken)
+    {
+        var temporaryFiles = userFiles
+            .Where(file => file.StorageType == UserFileStorageType.Temporary)
+            .ToList();
+        foreach (var userFile in temporaryFiles)
+        {
+            await _fileStorage.CopyToPrivateAsync(userFile, cancellationToken);
+        }
+
+        foreach (var userFile in temporaryFiles)
+        {
+            userFile.StorageType = UserFileStorageType.Private;
+        }
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        foreach (var userFile in temporaryFiles)
+        {
+            try
+            {
+                userFile.StorageType = UserFileStorageType.Temporary;
+                await _fileStorage.DeleteTemporaryAsync(userFile, CancellationToken.None);
+                userFile.StorageType = UserFileStorageType.Private;
+            }
+            catch (Exception exception)
+            {
+                userFile.StorageType = UserFileStorageType.Private;
+                _logger.LogError(exception, "Failed to delete temporary file {UserFileGlobalId} after promotion.", userFile.GlobalId);
+            }
+        }
+    }
+
+    public async Task PromoteToPublicAsync(IReadOnlyCollection<UserFile> userFiles, CancellationToken cancellationToken)
+    {
+        var temporaryFiles = userFiles
+            .Where(file => file.StorageType == UserFileStorageType.Temporary)
+            .ToList();
+        foreach (var userFile in temporaryFiles)
+        {
+            await _fileStorage.CopyToPublicAsync(userFile, cancellationToken);
+        }
+
+        foreach (var userFile in temporaryFiles)
+        {
+            userFile.StorageType = UserFileStorageType.Public;
+        }
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        foreach (var userFile in temporaryFiles)
+        {
+            try
+            {
+                userFile.StorageType = UserFileStorageType.Temporary;
+                await _fileStorage.DeleteTemporaryAsync(userFile, CancellationToken.None);
+                userFile.StorageType = UserFileStorageType.Public;
+            }
+            catch (Exception exception)
+            {
+                userFile.StorageType = UserFileStorageType.Public;
+                _logger.LogError(exception, "Failed to delete temporary file {UserFileGlobalId} after public promotion.", userFile.GlobalId);
+            }
+        }
     }
 
     /// <summary>
@@ -73,9 +140,9 @@ public class UserFileService(
     /// <summary>
     /// Downloads a file attached to an approval request the user can access.
     /// </summary>
-    public async Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestFileAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken)
+    public async Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestAttachmentAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken)
     {
-        var userFile = await _userFileRepository.GetForApprovalRequestDownloadAsync(user, globalId, approvalRequestGlobalId, cancellationToken)
+        var userFile = await _userFileRepository.GetApprovalRequestAttachmentForDownloadAsync(user, globalId, approvalRequestGlobalId, cancellationToken)
             ?? throw new NotFoundException("File was not found.");
         return await ReadAsync(userFile, cancellationToken);
     }
@@ -83,9 +150,17 @@ public class UserFileService(
     /// <summary>
     /// Downloads a file attached to an approval request task the user can access.
     /// </summary>
-    public async Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestTaskFileAsync(AppUser user, Guid globalId, Guid approvalRequestTaskGlobalId, CancellationToken cancellationToken)
+    public async Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestAttachmentForTaskAsync(
+        AppUser user,
+        Guid globalId,
+        Guid approvalRequestTaskGlobalId,
+        CancellationToken cancellationToken)
     {
-        var userFile = await _userFileRepository.GetForApprovalRequestTaskDownloadAsync(user, globalId, approvalRequestTaskGlobalId, cancellationToken)
+        var userFile = await _userFileRepository.GetApprovalRequestAttachmentForTaskDownloadAsync(
+            user,
+            globalId,
+            approvalRequestTaskGlobalId,
+            cancellationToken)
             ?? throw new NotFoundException("File was not found.");
         return await ReadAsync(userFile, cancellationToken);
     }
@@ -97,7 +172,7 @@ public class UserFileService(
         Guid approvalRequestTaskGlobalId,
         CancellationToken cancellationToken)
     {
-        var userFile = await _userFileRepository.GetForApprovalRequestTaskAttachmentDownloadAsync(
+        var userFile = await _userFileRepository.GetApprovalRequestTaskAttachmentForDownloadAsync(
             user,
             globalId,
             approvalRequestTaskGlobalId,
@@ -107,13 +182,13 @@ public class UserFileService(
     }
 
     /// <summary>Downloads a file attached to a discussion message visible to the user.</summary>
-    public async Task<(string Filename, byte[] Bytes)> DownloadDiscussionMessageFileAsync(
+    public async Task<(string Filename, byte[] Bytes)> DownloadDiscussionMessageAttachmentAsync(
         AppUser user,
         Guid globalId,
         Guid discussionMessageGlobalId,
         CancellationToken cancellationToken)
     {
-        var userFile = await _userFileRepository.GetForDiscussionMessageDownloadAsync(
+        var userFile = await _userFileRepository.GetDiscussionMessageAttachmentForDownloadAsync(
             user,
             globalId,
             discussionMessageGlobalId,
@@ -127,8 +202,38 @@ public class UserFileService(
         return
         (
             userFile.Name,
-            await _fileStorage.ReadAsync(GetFilePath(userFile.Owner.GlobalId, userFile.Id.ToString(CultureInfo.InvariantCulture), userFile.Name), cancellationToken)
+            await _fileStorage.ReadAsync(userFile, cancellationToken)
         );
+    }
+
+    private async Task CleanupUploadAsync(IEnumerable<UserFile> userFiles)
+    {
+        var files = userFiles.ToList();
+        foreach (var userFile in files)
+        {
+            _userFileRepository.Remove(userFile);
+        }
+
+        try
+        {
+            await _unitOfWork.SaveChangesAsync(CancellationToken.None);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Failed to clean up user-file records after an upload failure.");
+        }
+
+        foreach (var userFile in files)
+        {
+            try
+            {
+                await _fileStorage.DeleteAsync(userFile, CancellationToken.None);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Failed to clean up stored user file {UserFileGlobalId} after an upload failure.", userFile.GlobalId);
+            }
+        }
     }
 
     /// <summary>
@@ -149,7 +254,7 @@ public class UserFileService(
             ?? throw new NotFoundException("File was not found.");
         _userFileRepository.Remove(userFile);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        await _fileStorage.DeleteAsync(GetFilePath(userFile.Owner.GlobalId, userFile.Id.ToString(CultureInfo.InvariantCulture), userFile.Name), cancellationToken);
+        await _fileStorage.DeleteAsync(userFile, cancellationToken);
     }
 
     /// <summary>
@@ -173,14 +278,6 @@ public class UserFileService(
         {
             throw new LimitExceededException($"The maximum file size ({maxFileSizeBytes} bytes) has been exceeded.");
         }
-    }
-
-    /// <summary>
-    /// Gets the file path out of the user and file properties.
-    /// </summary>
-    private static string GetFilePath(Guid userGlobalId, string fileId, string fileName)
-    {
-        return Path.Combine(userGlobalId.ToString(), fileId, fileName);
     }
 
 }

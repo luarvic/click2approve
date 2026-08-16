@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using Click2Approve.Application.Abstractions.Services.ApprovalRequests;
+using Click2Approve.Application.Abstractions.Services.UserFiles;
 using Click2Approve.Domain.Models;
 using Click2Approve.WebApi.Extensions;
 using Click2Approve.WebApi.Mappers.ApprovalRequests;
@@ -14,6 +15,7 @@ namespace Click2Approve.WebApi.Controllers;
 /// </summary>
 /// <param name="logger">The logger service.</param>
 /// <param name="approvalRequestService">The service that manages approval requests.</param>
+/// <param name="userFileService">The service that reads approval-request attachments.</param>
 /// <param name="userManager">The service that manages users.</param>
 [Tags("Click2Approve.WebApi.ApprovalRequest")]
 [ApiController]
@@ -23,10 +25,12 @@ namespace Click2Approve.WebApi.Controllers;
 public class ApprovalRequestController(
     ILogger<ApprovalRequestController> logger,
     IApprovalRequestService approvalRequestService,
+    IUserFileService userFileService,
     UserManager<AppUser> userManager) : ControllerBase
 {
     private readonly ILogger<ApprovalRequestController> _logger = logger;
     private readonly IApprovalRequestService _approvalRequestService = approvalRequestService;
+    private readonly IUserFileService _userFileService = userFileService;
     private readonly UserManager<AppUser> _userManager = userManager;
 
     /// <summary>
@@ -73,5 +77,23 @@ public class ApprovalRequestController(
     {
         var user = await _userManager.GetAppUserAsync(User);
         return Ok(ApprovalRequestResponseMapper.Map(await _approvalRequestService.GetAsync(user, globalId, cancellationToken)));
+    }
+
+    /// <summary>
+    /// Downloads a base64 representation of an attachment belonging to an approval request.
+    /// </summary>
+    [HttpGet("{approvalRequestGlobalId:guid}/attachments/{globalId:guid}/downloadBase64")]
+    public async Task<ActionResult<string>> DownloadAttachmentBase64Async(
+        Guid approvalRequestGlobalId,
+        Guid globalId,
+        CancellationToken cancellationToken)
+    {
+        var user = await _userManager.GetAppUserAsync(User);
+        var (filename, bytes) = await _userFileService.DownloadApprovalRequestAttachmentAsync(
+            user,
+            globalId,
+            approvalRequestGlobalId,
+            cancellationToken);
+        return $"data:{MimeTypes.GetMimeType(filename)};base64,{Convert.ToBase64String(bytes)}";
     }
 }

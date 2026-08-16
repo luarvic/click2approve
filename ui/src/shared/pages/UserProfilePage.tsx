@@ -100,7 +100,12 @@ const UserProfilePage = () => {
       }
 
       if (selectedAvatar) {
-        const uploaded = await stores.userProfileStore.uploadAvatar(selectedAvatar);
+        const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+        if (!tenantGlobalId) {
+          return;
+        }
+
+        const uploaded = await stores.userProfileStore.uploadAvatar(tenantGlobalId, selectedAvatar);
         if (!uploaded) {
           return;
         }

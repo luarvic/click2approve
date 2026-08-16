@@ -9,7 +9,7 @@ export const downloadApprovalRequestTaskFileBase64 = async (
 ): Promise<string | null> => {
   try {
     const { data } = await axios.get(
-      `api/v1/tenants/${tenantGlobalId}/tasks/${approvalRequestTaskGlobalId}/files/${globalId}/downloadBase64`,
+      `api/v1/tenants/${tenantGlobalId}/tasks/${approvalRequestTaskGlobalId}/requestAttachments/${globalId}/downloadBase64`,
     );
     return data;
   } catch (e) {

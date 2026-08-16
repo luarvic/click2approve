@@ -11,10 +11,10 @@ public class AppUser : IdentityUser<long>
     public Guid GlobalId { get; set; } = Guid.NewGuid();
 
     // Foreign key identifiers
+    public long? AvatarUserFileId { get; set; }
     public long? DefaultTenantId { get; set; }
 
     // Scalar properties
-    public string? Avatar { get; set; }
     public string? DefaultSignatureJson { get; set; }
     public string? FirstName { get; set; }
     public bool HasLoggedIn { get; set; }
@@ -22,5 +22,6 @@ public class AppUser : IdentityUser<long>
     public string? LastName { get; set; }
 
     // Navigation properties
+    public UserFile? AvatarUserFile { get; set; }
     public List<UserNotificationPreference> NotificationPreferences { get; set; } = [];
 }

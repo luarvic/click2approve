@@ -1,6 +1,6 @@
+using System.Linq.Expressions;
 using Click2Approve.Application.Models.Authorization;
 using Click2Approve.Domain.Models;
-using System.Linq.Expressions;
 
 namespace Click2Approve.Application.Abstractions.Authorization;
 

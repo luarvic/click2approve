@@ -60,7 +60,8 @@ public class AuditLogTests
             CreatedAt = DateTime.UtcNow,
             OwnerId = owner.Id,
             TenantId = tenant.Id,
-            Size = 42
+            Size = 42,
+            StorageType = UserFileStorageType.Private
         };
 
         db.UserFiles.Add(userFile);
@@ -121,7 +122,8 @@ public class AuditLogTests
             Owner = owner,
             OwnerId = owner.Id,
             Tenant = tenant,
-            Size = 42
+            Size = 42,
+            StorageType = UserFileStorageType.Private
         };
         var approvalRequest = new ApprovalRequest
         {
@@ -201,7 +203,8 @@ public class AuditLogTests
             CreatedAt = DateTime.UtcNow,
             OwnerId = owner.Id,
             Tenant = tenant,
-            Size = 42
+            Size = 42,
+            StorageType = UserFileStorageType.Private
         };
 
         db.UserFiles.Add(userFile);

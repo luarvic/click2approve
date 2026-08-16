@@ -8,15 +8,21 @@ namespace Click2Approve.Application.Abstractions.Persistence;
 public interface IUserFileRepository
 {
     Task<UserFile> AddAsync(UserFile userFile, CancellationToken cancellationToken);
+    Task<UserFile?> GetPublicAsync(long id, CancellationToken cancellationToken);
+    Task<UserFile?> GetTemporaryOwnedAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task<UserFile?> GetForDownloadAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
-    Task<UserFile?> GetForApprovalRequestDownloadAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken);
-    Task<UserFile?> GetForApprovalRequestTaskDownloadAsync(AppUser user, Guid globalId, Guid approvalRequestTaskGlobalId, CancellationToken cancellationToken);
-    Task<UserFile?> GetForApprovalRequestTaskAttachmentDownloadAsync(
+    Task<UserFile?> GetApprovalRequestAttachmentForDownloadAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken);
+    Task<UserFile?> GetApprovalRequestAttachmentForTaskDownloadAsync(
         AppUser user,
         Guid globalId,
         Guid approvalRequestTaskGlobalId,
         CancellationToken cancellationToken);
-    Task<UserFile?> GetForDiscussionMessageDownloadAsync(
+    Task<UserFile?> GetApprovalRequestTaskAttachmentForDownloadAsync(
+        AppUser user,
+        Guid globalId,
+        Guid approvalRequestTaskGlobalId,
+        CancellationToken cancellationToken);
+    Task<UserFile?> GetDiscussionMessageAttachmentForDownloadAsync(
         AppUser user,
         Guid globalId,
         Guid discussionMessageGlobalId,

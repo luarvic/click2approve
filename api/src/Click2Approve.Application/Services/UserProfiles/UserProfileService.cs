@@ -1,4 +1,3 @@
-using Click2Approve.Application.Models.Files;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 
@@ -10,25 +9,34 @@ namespace Click2Approve.Application.Services.UserProfiles;
 public class UserProfileService(
     IUserIdentityService userIdentityService,
     ITenantRepository tenantRepository,
+    IUserFileRepository userFileRepository,
+    IUserFileService userFileService,
+    IUnitOfWork unitOfWork,
     IUserNotificationPreferenceService notificationPreferenceService,
     IUserProfileAccessService profileAccessService,
-    IPublicFileStorage fileStorage,
-    IConfiguration configuration) : IUserProfileService
+    IUserFileStorage fileStorage,
+    IConfiguration configuration,
+    ILogger<UserProfileService> logger) : IUserProfileService
 {
     private const string AllowedAvatarExtensionsConfigurationKey = "Limitations:AllowedAvatarExtensions";
 
     private readonly IUserIdentityService _userIdentityService = userIdentityService;
     private readonly ITenantRepository _tenantRepository = tenantRepository;
+    private readonly IUserFileRepository _userFileRepository = userFileRepository;
+    private readonly IUserFileService _userFileService = userFileService;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IUserNotificationPreferenceService _notificationPreferenceService = notificationPreferenceService;
     private readonly IUserProfileAccessService _profileAccessService = profileAccessService;
-    private readonly IPublicFileStorage _fileStorage = fileStorage;
+    private readonly IUserFileStorage _fileStorage = fileStorage;
     private readonly IConfiguration _configuration = configuration;
+    private readonly ILogger<UserProfileService> _logger = logger;
 
     public async Task<UserProfileResult> GetAsync(AppUser user, CancellationToken cancellationToken)
     {
         return await UserProfileMapper.MapUserProfileAsync(
             user,
             _tenantRepository,
+            _userFileRepository,
             _notificationPreferenceService,
             _fileStorage,
             cancellationToken);
@@ -58,31 +66,65 @@ public class UserProfileService(
         return await UserProfileMapper.MapUserProfileAsync(
             user,
             _tenantRepository,
+            _userFileRepository,
             _notificationPreferenceService,
             _fileStorage,
             cancellationToken);
     }
 
-    public async Task<UserProfileResult> UploadAvatarAsync(AppUser user, UploadedFile avatar, CancellationToken cancellationToken)
+    public async Task<UserProfileResult> SetAvatarAsync(
+        AppUser user,
+        Guid avatarUserFileGlobalId,
+        CancellationToken cancellationToken)
     {
-        EnsureAvatarFile(avatar);
-
-        var oldAvatarPath = user.Avatar;
-        var extension = Path.GetExtension(avatar.FileName).ToLowerInvariant();
-        var avatarPath = GetAvatarPath(user.GlobalId, extension);
-        await _fileStorage.SaveAsync(avatarPath, avatar.Bytes, cancellationToken);
-
-        user.Avatar = avatarPath;
-        await UpdateUserAsync(user, cancellationToken);
-
-        if (!string.IsNullOrWhiteSpace(oldAvatarPath))
+        var avatarFile = await _userFileRepository.GetTemporaryOwnedAsync(user, avatarUserFileGlobalId, cancellationToken)
+            ?? throw new NotFoundException("Temporary avatar file was not found.");
+        EnsureAvatarFile(avatarFile);
+        var oldAvatar = user.AvatarUserFileId is null
+            ? null
+            : await _userFileRepository.GetPublicAsync(user.AvatarUserFileId.Value, cancellationToken);
+        try
         {
-            await _fileStorage.DeleteAsync(oldAvatarPath, cancellationToken);
+            await _userFileService.PromoteToPublicAsync([avatarFile], cancellationToken);
+        }
+        catch
+        {
+            await CleanupAvatarUploadAsync(avatarFile);
+            throw;
+        }
+
+        user.AvatarUserFileId = avatarFile.Id;
+        user.AvatarUserFile = avatarFile;
+        try
+        {
+            await UpdateUserAsync(user, cancellationToken);
+        }
+        catch
+        {
+            user.AvatarUserFileId = oldAvatar?.Id;
+            user.AvatarUserFile = oldAvatar;
+            await CleanupAvatarUploadAsync(avatarFile);
+            throw;
+        }
+
+        if (oldAvatar is not null)
+        {
+            try
+            {
+                _userFileRepository.Remove(oldAvatar);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                await _fileStorage.DeleteAsync(oldAvatar, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Failed to delete previous avatar file {UserFileGlobalId}.", oldAvatar.GlobalId);
+            }
         }
 
         return await UserProfileMapper.MapUserProfileAsync(
             user,
             _tenantRepository,
+            _userFileRepository,
             _notificationPreferenceService,
             _fileStorage,
             cancellationToken);
@@ -92,34 +134,41 @@ public class UserProfileService(
     {
         var user = await _userIdentityService.FindAsync(userGlobalId, cancellationToken)
             ?? throw new NotFoundException("User was not found.");
-        var avatarPath = user.Avatar;
-        if (string.IsNullOrWhiteSpace(avatarPath))
+        if (user.AvatarUserFileId is null)
         {
             throw new NotFoundException("User avatar was not found.");
         }
 
-        return _fileStorage.GetUrl(avatarPath);
+        var avatar = await _userFileRepository.GetPublicAsync(user.AvatarUserFileId.Value, cancellationToken)
+            ?? throw new NotFoundException("User avatar was not found.");
+        return _fileStorage.GetPublicUrl(avatar);
     }
 
     public async Task<UserProfileResult> DeleteAvatarAsync(AppUser user, CancellationToken cancellationToken)
     {
-        var avatarPath = user.Avatar;
-        if (string.IsNullOrWhiteSpace(avatarPath))
+        if (user.AvatarUserFileId is null)
         {
             return await UserProfileMapper.MapUserProfileAsync(
                 user,
                 _tenantRepository,
+                _userFileRepository,
                 _notificationPreferenceService,
                 _fileStorage,
                 cancellationToken);
         }
 
-        user.Avatar = null;
+        var avatar = await _userFileRepository.GetPublicAsync(user.AvatarUserFileId.Value, cancellationToken)
+            ?? throw new NotFoundException("User avatar was not found.");
+        user.AvatarUserFileId = null;
+        user.AvatarUserFile = null;
         await UpdateUserAsync(user, cancellationToken);
-        await _fileStorage.DeleteAsync(avatarPath, cancellationToken);
+        _userFileRepository.Remove(avatar);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _fileStorage.DeleteAsync(avatar, cancellationToken);
         return await UserProfileMapper.MapUserProfileAsync(
             user,
             _tenantRepository,
+            _userFileRepository,
             _notificationPreferenceService,
             _fileStorage,
             cancellationToken);
@@ -128,6 +177,28 @@ public class UserProfileService(
     private async Task UpdateUserAsync(AppUser user, CancellationToken cancellationToken)
     {
         await _userIdentityService.UpdateAsync(user, cancellationToken);
+    }
+
+    private async Task CleanupAvatarUploadAsync(UserFile avatarFile)
+    {
+        _userFileRepository.Remove(avatarFile);
+        try
+        {
+            await _unitOfWork.SaveChangesAsync(CancellationToken.None);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Failed to clean up avatar user-file record {UserFileGlobalId}.", avatarFile.GlobalId);
+        }
+
+        try
+        {
+            await _fileStorage.DeleteAsync(avatarFile, CancellationToken.None);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Failed to clean up avatar file {UserFileGlobalId}.", avatarFile.GlobalId);
+        }
     }
 
     private static string? GetDefaultSignatureJson(string? signatureJson)
@@ -141,36 +212,24 @@ public class UserProfileService(
         return trimmedSignatureJson;
     }
 
-    private void EnsureAvatarFile(UploadedFile avatar)
+    private void EnsureAvatarFile(UserFile avatar)
     {
-        if (avatar.Length == 0)
+        if (avatar.Size == 0)
         {
             throw new BusinessRuleException("Avatar image is required.");
         }
 
         var maxFileSizeBytes = _configuration.GetValue<int>("Limitations:MaxFileSizeBytes");
-        if (maxFileSizeBytes > 0 && avatar.Length > maxFileSizeBytes)
+        if (maxFileSizeBytes > 0 && avatar.Size > maxFileSizeBytes)
         {
             throw new LimitExceededException($"The maximum file size ({maxFileSizeBytes} bytes) has been exceeded.");
         }
 
-        var extension = Path.GetExtension(avatar.FileName).ToLowerInvariant();
-        if (!GetAllowedAvatarExtensions().Contains(extension) || !HasImageContentType(avatar))
+        var extension = Path.GetExtension(avatar.Name).ToLowerInvariant();
+        if (!GetAllowedAvatarExtensions().Contains(extension))
         {
             throw new BusinessRuleException("Avatar must be an image file.");
         }
-    }
-
-    private static bool HasImageContentType(UploadedFile avatar)
-    {
-        return string.IsNullOrWhiteSpace(avatar.ContentType)
-            || string.Equals(avatar.ContentType, "application/octet-stream", StringComparison.OrdinalIgnoreCase)
-            || avatar.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static string GetAvatarPath(Guid userGlobalId, string extension)
-    {
-        return Path.Combine("users", userGlobalId.ToString(), "avatars", $"{Guid.NewGuid()}{extension}");
     }
 
     private HashSet<string> GetAllowedAvatarExtensions()

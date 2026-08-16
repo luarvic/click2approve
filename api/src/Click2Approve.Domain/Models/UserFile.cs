@@ -13,6 +13,7 @@ public class UserFile : DbEntity
     public required DateTime CreatedAt { get; set; }
     public required string Name { get; set; }
     public required long Size { get; set; }
+    public required UserFileStorageType StorageType { get; set; }
     public required string Type { get; set; }
 
     // Navigation properties

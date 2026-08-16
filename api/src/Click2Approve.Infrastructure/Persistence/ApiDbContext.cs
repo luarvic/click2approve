@@ -109,6 +109,18 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasForeignKey(u => u.DefaultTenantId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<AppUser>()
+            .HasOne(user => user.AvatarUserFile)
+            .WithMany()
+            .HasForeignKey(user => user.AvatarUserFileId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Tenant>()
+            .HasOne(tenant => tenant.LogoUserFile)
+            .WithMany()
+            .HasForeignKey(tenant => tenant.LogoUserFileId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder.Entity<Tenant>()
             .HasIndex(t => t.BusinessName);
 
@@ -337,6 +349,10 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
 
         modelBuilder.Entity<UserFile>()
             .HasIndex(f => new { f.TenantId, f.OwnerId });
+
+        modelBuilder.Entity<UserFile>()
+            .Property(file => file.StorageType)
+            .HasConversion<int>();
 
         modelBuilder.Entity<UserFile>()
             .HasOne(f => f.Owner)

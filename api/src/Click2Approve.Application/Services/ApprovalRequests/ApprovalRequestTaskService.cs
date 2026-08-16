@@ -9,13 +9,11 @@ namespace Click2Approve.Application.Services.ApprovalRequests;
 public class ApprovalRequestTaskService(
     IApprovalRequestTaskRepository approvalRequestTaskRepository,
     IUnitOfWork unitOfWork,
-    IApprovalRequestAssigneeGlobalIdResolver assigneeGlobalIdResolver,
     IApprovalWorkflowService workflowService,
     IApprovalRequestTaskCompletionAttributor completionAttributor) : IApprovalRequestTaskService
 {
     private readonly IApprovalRequestTaskRepository _approvalRequestTaskRepository = approvalRequestTaskRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly IApprovalRequestAssigneeGlobalIdResolver _assigneeGlobalIdResolver = assigneeGlobalIdResolver;
     private readonly IApprovalWorkflowService _workflowService = workflowService;
     private readonly IApprovalRequestTaskCompletionAttributor _completionAttributor = completionAttributor;
 
