@@ -10,6 +10,7 @@ export const downloadApprovalRequestTaskFileBase64 = async (
   try {
     const { data } = await axios.get(
       `api/v1/tenants/${tenantGlobalId}/tasks/${approvalRequestTaskGlobalId}/requestAttachments/${globalId}/downloadBase64`,
+      { useWorkEmployeeContext: true },
     );
     return data;
   } catch (e) {

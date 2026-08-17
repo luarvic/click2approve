@@ -9,6 +9,7 @@ import DiscussionPanel, { DiscussionPanelHandle } from "@/features/discussions/c
 import { createSharedVerificationLinkForRequest } from "@/features/sharedVerificationLinks/api/sharedVerificationLinksApi";
 import SharedVerificationLinksPanel from "@/features/sharedVerificationLinks/components/SharedVerificationLinksPanel";
 import { TenantType } from "@/features/tenants/models/tenant";
+import { UserFile } from "@/features/userFiles/models/userFile";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
@@ -24,7 +25,7 @@ import { BlockOutlined, LinkOutlined, Replay } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { Button, Stack, Tab, Tabs } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface ApprovalRequestViewProps {
@@ -51,6 +52,8 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
   const [nameWarningDialogIsOpen, setNameWarningDialogIsOpen] = useState(false);
   const [hasSharedVerificationLink, setHasSharedVerificationLink] = useState(false);
   const [sharedVerificationLinksRefreshKey, setSharedVerificationLinksRefreshKey] = useState(0);
+  const [discussionBody, setDiscussionBody] = useState("");
+  const [discussionFiles, setDiscussionFiles] = useState<UserFile[]>([]);
   const discussionPanel = useRef<DiscussionPanelHandle>(null);
   const cancelLoader = ActionLoaders.approvalRequests.cancel(approvalRequest?.globalId);
   const cancelAction = useAsyncAction(cancelLoader);
@@ -85,6 +88,11 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
   const sharedVerificationLinkIsCreating =
     createSharedVerificationLinkAction.isRunning ||
     stores.commonStore.isActionLoading(createSharedVerificationLinkLoader);
+
+  useEffect(() => {
+    setDiscussionBody("");
+    setDiscussionFiles([]);
+  }, [approvalRequestGlobalId]);
 
   const navigateToTab = (value: ApprovalRequestViewProps["tab"]) => {
     if (!tenantGlobalId) return;
@@ -225,7 +233,11 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
         <>
           <DiscussionPanel
             attachmentsAreEnabled={discussionAttachmentsAreEnabled}
+            body={discussionBody}
             canSend={canSendDiscussion}
+            files={discussionFiles}
+            onBodyChange={setDiscussionBody}
+            onFilesChange={setDiscussionFiles}
             ref={discussionPanel}
             requestGlobalId={approvalRequest.globalId}
             requesterDisplayName={approvalRequest.createdByDisplayName}

@@ -21,6 +21,7 @@ import DiscussionPanel, { DiscussionPanelHandle } from "@/features/discussions/c
 import { createSharedVerificationLinkForTask } from "@/features/sharedVerificationLinks/api/sharedVerificationLinksApi";
 import SharedVerificationLinksPanel from "@/features/sharedVerificationLinks/components/SharedVerificationLinksPanel";
 import { TenantType } from "@/features/tenants/models/tenant";
+import { UserFile } from "@/features/userFiles/models/userFile";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
@@ -91,6 +92,9 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
   const [hasSharedVerificationLink, setHasSharedVerificationLink] = useState(false);
   const [sharedVerificationLinksRefreshKey, setSharedVerificationLinksRefreshKey] = useState(0);
   const [nameWarningDialogIsOpen, setNameWarningDialogIsOpen] = useState(false);
+  const [discussionBody, setDiscussionBody] = useState("");
+  const [discussionFiles, setDiscussionFiles] = useState<UserFile[]>([]);
+  const [taskAttachmentFiles, setTaskAttachmentFiles] = useState<UserFile[]>([]);
   const discussionPanel = useRef<DiscussionPanelHandle>(null);
   const taskAttachments = useRef<ApprovalRequestTaskAttachmentsHandle>(null);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
@@ -141,6 +145,12 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
     setApprovalRequest(currentTask?.approvalRequest ?? null);
   }, [currentTask]);
 
+  useEffect(() => {
+    setDiscussionBody("");
+    setDiscussionFiles([]);
+    setTaskAttachmentFiles([]);
+  }, [taskGlobalId]);
+
   const navigateToTab = (value: ApprovalRequestTaskProps["tab"]) => {
     if (!tenantGlobalId) return;
     navigate(Routes.tenantPath(tenantGlobalId, `/inbox/${taskGlobalId}${value === "task" ? "" : `/${value}`}`));
@@ -155,6 +165,9 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
     setOrganization("");
     setSignatureJson("");
     setElectronicSignatureErrors(emptyElectronicSignatureErrors);
+    setDiscussionBody("");
+    setDiscussionFiles([]);
+    setTaskAttachmentFiles([]);
   };
 
   const handleClose = () => {
@@ -309,6 +322,8 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
                       <ApprovalRequestParticipantLabel>Files attached to this decision</ApprovalRequestParticipantLabel>
                       <ApprovalRequestTaskAttachments
                         canManageFiles={false}
+                        newFiles={[]}
+                        onNewFilesChange={() => undefined}
                         showLabel={false}
                         taskFiles={currentTask.taskFiles ?? []}
                         taskGlobalId={currentTask.globalId}
@@ -327,6 +342,8 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
             {!isCompleted && taskAttachmentsAreEnabled && currentTask && tenantGlobalId && (
               <ApprovalRequestTaskAttachments
                 canManageFiles={!isCompleted}
+                newFiles={taskAttachmentFiles}
+                onNewFilesChange={setTaskAttachmentFiles}
                 ref={taskAttachments}
                 taskFiles={currentTask.taskFiles ?? []}
                 taskGlobalId={currentTask.globalId}
@@ -425,7 +442,11 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
         <>
           <DiscussionPanel
             attachmentsAreEnabled={discussionAttachmentsAreEnabled}
+            body={discussionBody}
             canSend={canSendDiscussion}
+            files={discussionFiles}
+            onBodyChange={setDiscussionBody}
+            onFilesChange={setDiscussionFiles}
             ref={discussionPanel}
             requestGlobalId={approvalRequest.globalId}
             requesterDisplayName={approvalRequest.createdByDisplayName}

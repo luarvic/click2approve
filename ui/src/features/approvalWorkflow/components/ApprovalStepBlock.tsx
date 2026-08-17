@@ -303,6 +303,8 @@ const renderTaskDetails = (
           <ApprovalRequestParticipantLabel>Files attached to this decision</ApprovalRequestParticipantLabel>
           <ApprovalRequestTaskAttachments
             canManageFiles={false}
+            newFiles={[]}
+            onNewFilesChange={() => undefined}
             showLabel={false}
             taskFiles={task.taskFiles ?? []}
             taskGlobalId={task.globalId}

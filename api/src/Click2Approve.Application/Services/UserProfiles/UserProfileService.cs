@@ -12,7 +12,6 @@ public class UserProfileService(
     ITenantRepository tenantRepository,
     IUserFileRepository userFileRepository,
     IUnitOfWork unitOfWork,
-    ITenantContext tenantContext,
     IUserNotificationPreferenceService notificationPreferenceService,
     IUserProfileAccessService profileAccessService,
     IUserFileStorage fileStorage,
@@ -25,7 +24,6 @@ public class UserProfileService(
     private readonly ITenantRepository _tenantRepository = tenantRepository;
     private readonly IUserFileRepository _userFileRepository = userFileRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly ITenantContext _tenantContext = tenantContext;
     private readonly IUserNotificationPreferenceService _notificationPreferenceService = notificationPreferenceService;
     private readonly IUserProfileAccessService _profileAccessService = profileAccessService;
     private readonly IUserFileStorage _fileStorage = fileStorage;
@@ -76,7 +74,8 @@ public class UserProfileService(
     public async Task<UserProfileResult> SetAvatarAsync(AppUser user, UploadedFile avatar, CancellationToken cancellationToken)
     {
         EnsureAvatarFile(avatar);
-        var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+        var personalTenant = await _tenantRepository.GetPersonalAsync(user, cancellationToken)
+            ?? throw new BusinessRuleException("A personal tenant is required.");
         var oldAvatar = user.AvatarUserFileId is null
             ? null
             : await _userFileRepository.GetPublicAsync(user.AvatarUserFileId.Value, cancellationToken);
@@ -89,7 +88,7 @@ public class UserProfileService(
             Size = avatar.Length,
             Status = UserFileStatus.Attached,
             StorageType = UserFileStorageType.Public,
-            TenantId = tenantId,
+            TenantId = personalTenant.Id,
             Type = Path.GetExtension(avatar.FileName)
         }, cancellationToken);
         try

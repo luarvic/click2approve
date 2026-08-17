@@ -20,11 +20,25 @@ import { Files, Refresh, StackSpacing } from "@/shared/constants/constants";
 import { AttachFile } from "@mui/icons-material";
 import { Box, Button, Divider, Stack, TextField, Typography } from "@mui/material";
 import { alpha, type SxProps, type Theme } from "@mui/material/styles";
-import { Fragment, forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
+import {
+  Dispatch,
+  Fragment,
+  forwardRef,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 
 interface DiscussionPanelProps {
   attachmentsAreEnabled: boolean;
+  body: string;
   canSend: boolean;
+  files: UserFile[];
+  onBodyChange: (body: string) => void;
+  onFilesChange: Dispatch<SetStateAction<UserFile[]>>;
   requestGlobalId: string;
   requesterDisplayName: string;
   requesterEmail: string;
@@ -61,7 +75,11 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
   (
     {
       attachmentsAreEnabled,
+      body,
       canSend,
+      files,
+      onBodyChange,
+      onFilesChange,
       requestGlobalId,
       requesterDisplayName,
       requesterEmail,
@@ -75,8 +93,6 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
     ref,
   ) => {
     const [messages, setMessages] = useState<DiscussionMessage[] | null>(null);
-    const [body, setBody] = useState("");
-    const [files, setFiles] = useState<UserFile[]>([]);
     const fileInput = useRef<HTMLInputElement>(null);
     const load = useCallback(async () => {
       if (!tenantGlobalId) return;
@@ -118,9 +134,18 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
             files.map((file) => file.globalId),
           );
       setMessages((current) => [...(current ?? []), message]);
-      setBody("");
-      setFiles([]);
-    }, [attachmentsAreEnabled, body, files, requestGlobalId, taskGlobalId, tenantGlobalId]);
+      onBodyChange("");
+      onFilesChange([]);
+    }, [
+      attachmentsAreEnabled,
+      body,
+      files,
+      onBodyChange,
+      onFilesChange,
+      requestGlobalId,
+      taskGlobalId,
+      tenantGlobalId,
+    ]);
 
     useImperativeHandle(
       ref,
@@ -209,7 +234,7 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
               label="Message"
               multiline
               value={body}
-              onChange={(event) => setBody(event.target.value)}
+              onChange={(event) => onBodyChange(event.target.value)}
               onKeyDown={(event) => {
                 if (event.key === "Enter" && !event.shiftKey) {
                   event.preventDefault();
@@ -226,7 +251,7 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
                   if (!file || !tenantGlobalId) return;
                   void deleteUserFile(tenantGlobalId, file.globalId).then((removed) => {
                     if (removed) {
-                      setFiles((files) => files.filter((_, fileIndex) => fileIndex !== index));
+                      onFilesChange((files) => files.filter((_, fileIndex) => fileIndex !== index));
                     }
                   });
                 }}
@@ -248,7 +273,7 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
                     if (!tenantGlobalId || selectedFiles.length === 0) return;
 
                     const uploadedFiles = await uploadUserFiles(tenantGlobalId, selectedFiles);
-                    setFiles((files) => [...files, ...uploadedFiles]);
+                    onFilesChange((files) => [...files, ...uploadedFiles]);
                   }}
                 />
               </>
