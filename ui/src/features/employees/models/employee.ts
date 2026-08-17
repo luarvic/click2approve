@@ -24,6 +24,7 @@ export interface CreateEmployeeRequest {
   lastName?: string;
   position?: string;
   role: EmployeeRole;
+  teamGlobalIds: string[];
 }
 
 export interface UpdateEmployeeRequest {
@@ -31,4 +32,5 @@ export interface UpdateEmployeeRequest {
   lastName?: string;
   position?: string;
   role: EmployeeRole;
+  teamGlobalIds: string[];
 }

@@ -57,23 +57,6 @@ const EmployeeEditorPage = () => {
   if (!employeeDataHasLoaded) return <LoadingOverlay />;
   if (!isNewEmployee && !employee) return <NotFoundPage />;
 
-  const syncTeams = async (employeeGlobalIdToSync: string, teamGlobalIds: string[]) => {
-    const selected = new Set(teamGlobalIds);
-    for (const team of stores.teamStore.teams) {
-      const memberGlobalIds = team.members.map((member) => member.globalId);
-      if (memberGlobalIds.includes(employeeGlobalIdToSync) === selected.has(team.globalId)) continue;
-      const saved = await stores.teamStore.update(tenantGlobalId, team.globalId, {
-        name: team.name,
-        employeeGlobalIds: selected.has(team.globalId)
-          ? [...memberGlobalIds, employeeGlobalIdToSync]
-          : memberGlobalIds.filter((id: string) => id !== employeeGlobalIdToSync),
-      });
-      if (!saved) return false;
-    }
-    await stores.teamStore.load(tenantGlobalId, true);
-    return true;
-  };
-
   return (
     <NarrowContent>
       <EmployeeEditor
@@ -95,14 +78,18 @@ const EmployeeEditorPage = () => {
           }
           return deleted;
         }}
-        onSubmit={async (payload: CreateEmployeeRequest | UpdateEmployeeRequest, teamGlobalIds, id) => {
+        onSubmit={async (payload: CreateEmployeeRequest | UpdateEmployeeRequest, id) => {
           const saved = id
             ? await stores.employeeStore.update(tenantGlobalId, id, payload as UpdateEmployeeRequest)
             : await stores.employeeStore.create(tenantGlobalId, payload as CreateEmployeeRequest);
-          if (!saved || !(await syncTeams(saved.globalId, teamGlobalIds))) {
+          if (!saved) {
             return null;
           }
-          await stores.tenantStore.load(tenantGlobalId);
+          await Promise.all([
+            stores.employeeStore.load(tenantGlobalId, true),
+            stores.teamStore.load(tenantGlobalId, true),
+            stores.tenantStore.load(tenantGlobalId),
+          ]);
           showPersistenceSuccessNotification(
             id ? PersistenceSuccessMessages.employeeSaved : PersistenceSuccessMessages.employeeSavedInvitationSent,
           );

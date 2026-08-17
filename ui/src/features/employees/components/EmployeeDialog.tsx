@@ -23,7 +23,6 @@ interface EmployeeDialogProps {
   onDelete: (employeeGlobalId: string) => Promise<boolean>;
   onSubmit: (
     payload: CreateEmployeeRequest | UpdateEmployeeRequest,
-    teamGlobalIds: string[],
     employeeGlobalId?: string,
   ) => Promise<Employee | null>;
 }
@@ -82,19 +81,13 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
       lastName: lastName.trim() || undefined,
       position: position.trim() || undefined,
       role,
+      teamGlobalIds: selectedTeams.map((team) => team.globalId),
     };
     return (
       (await saveAction.run(async () => {
         const savedEmployee = !isNew
-          ? await onSubmit(
-              payload,
-              selectedTeams.map((team) => team.globalId),
-              employee.globalId,
-            )
-          : await onSubmit(
-              { ...payload, email: email.trim() },
-              selectedTeams.map((team) => team.globalId),
-            );
+          ? await onSubmit(payload, employee.globalId)
+          : await onSubmit({ ...payload, email: email.trim() });
 
         if (savedEmployee) {
           onClose(savedEmployee.globalId);

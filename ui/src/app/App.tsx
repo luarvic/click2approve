@@ -21,7 +21,7 @@ import NotificationsPage from "@/features/notifications/pages/NotificationsPage"
 import SharedVerificationReceiptPage from "@/features/sharedVerificationLinks/pages/SharedVerificationReceiptPage";
 import TeamEditorPage from "@/features/teams/pages/TeamEditorPage";
 import TeamsPage from "@/features/teams/pages/TeamsPage";
-import { EmployeeRole, TenantType } from "@/features/tenants/models/tenant";
+import { getTenantCapabilities } from "@/features/tenants/utils/tenantCapabilities";
 import TenantEditorPage from "@/features/tenants/pages/TenantEditorPage";
 import TenantsPage from "@/features/tenants/pages/TenantsPage";
 import MainLayout from "@/layouts/MainLayout";
@@ -46,24 +46,10 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 const App = () => {
   const currentTenant = stores.tenantStore.currentTenant;
-  const canManageTeams =
-    stores.applicationConfigurationStore.teamAssigneesAreEnabled &&
-    currentTenant?.type === TenantType.Business &&
-    currentTenant.currentEmployeeRole !== undefined;
-  const canManageEmployees =
-    stores.applicationConfigurationStore.tenantsAreEnabled &&
-    currentTenant?.type === TenantType.Business &&
-    currentTenant.currentEmployeeRole !== undefined;
-  const canViewTemplates =
-    stores.applicationConfigurationStore.approvalStepTemplatesAreEnabled &&
-    currentTenant?.type === TenantType.Business &&
-    currentTenant.currentEmployeeRole !== undefined;
-  const canManageDelegations =
-    currentTenant?.type === TenantType.Business &&
-    (currentTenant.currentEmployeeRole === EmployeeRole.Admin ||
-      currentTenant.currentEmployeeRole === EmployeeRole.Owner);
-  const canViewDelegations =
-    currentTenant?.type === TenantType.Business && currentTenant.currentEmployeeRole !== undefined;
+  const capabilities = getTenantCapabilities(
+    stores.applicationConfigurationStore.applicationConfiguration,
+    currentTenant,
+  );
 
   useEffect(() => {
     const load = async () => {
@@ -138,20 +124,28 @@ const App = () => {
                       path="outbox/:approvalRequestGlobalId/link"
                       element={<ApprovalRequestViewPage tab="link" />}
                     />
-                    <Route element={<RouteGuard isAllowed={canViewTemplates} />}>
+                    <Route element={<RouteGuard isAllowed={capabilities.canViewTemplates} />}>
                       <Route path="approvalStepTemplates" element={<ApprovalStepTemplatesPage />} />
                     </Route>
-                    <Route element={<RouteGuard isAllowed={canManageTeams} />}>
+                    <Route element={<RouteGuard isAllowed={capabilities.canViewTeams} />}>
                       <Route path="teams" element={<TeamsPage />} />
+                      <Route path="teams/:teamGlobalId" element={<TeamEditorPage />} />
                     </Route>
-                    <Route element={<RouteGuard isAllowed={canManageEmployees} />}>
+                    <Route element={<RouteGuard isAllowed={capabilities.canManageTeams} />}>
+                      <Route path="teams/new" element={<TeamEditorPage />} />
+                    </Route>
+                    <Route element={<RouteGuard isAllowed={capabilities.canViewEmployees} />}>
                       <Route path="employees" element={<EmployeesPage />} />
+                      <Route path="employees/:employeeGlobalId" element={<EmployeeEditorPage />} />
                     </Route>
-                    <Route element={<RouteGuard isAllowed={canViewDelegations} />}>
+                    <Route element={<RouteGuard isAllowed={capabilities.canManageEmployees} />}>
+                      <Route path="employees/new" element={<EmployeeEditorPage />} />
+                    </Route>
+                    <Route element={<RouteGuard isAllowed={capabilities.canViewDelegations} />}>
                       <Route path="delegations" element={<DelegationsPage />} />
                       <Route path="delegations/:delegationGlobalId" element={<DelegationEditorPage />} />
                     </Route>
-                    <Route element={<RouteGuard isAllowed={canManageDelegations} />}>
+                    <Route element={<RouteGuard isAllowed={capabilities.canManageDelegations} />}>
                       <Route path="delegations/new" element={<DelegationEditorPage />} />
                     </Route>
                     <Route path="approvalStepTemplates/new" element={<ApprovalStepTemplateEditorPage />} />
@@ -159,10 +153,6 @@ const App = () => {
                       path="approvalStepTemplates/:templateGlobalId"
                       element={<ApprovalStepTemplateEditorPage />}
                     />
-                    <Route path="teams/new" element={<TeamEditorPage />} />
-                    <Route path="teams/:teamGlobalId" element={<TeamEditorPage />} />
-                    <Route path="employees/new" element={<EmployeeEditorPage />} />
-                    <Route path="employees/:employeeGlobalId" element={<EmployeeEditorPage />} />
                   </Route>
                 </Route>
               </Route>
