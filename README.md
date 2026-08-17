@@ -22,7 +22,8 @@ decisions and discussion, and tracking request history.
   authenticated browser sessions through the built-in account API.
 - Compose workflow requests with one or more files, a title, description, and
   email-based assignees.
-- Build multi-step review workflows with serial or parallel assignee steps.
+- Build multi-step workflows with serial or parallel assignee steps, choosing approval, signature, confirmation,
+  acknowledgement, review, verification, acceptance, or completion actions.
 - Track sent workflow requests in the outbox, inspect request details, see
   in-progress request state, cancel pending requests, and delete requests.
 - Review incoming tasks in the inbox, open task details, preview attached

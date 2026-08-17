@@ -32,10 +32,18 @@ describe("approval status line styles", () => {
     [ApprovalRequestTaskAction.Sign, true, "Signed"],
     [ApprovalRequestTaskAction.Confirm, true, "Confirmed"],
     [ApprovalRequestTaskAction.Acknowledge, true, "Acknowledged"],
+    [ApprovalRequestTaskAction.Review, true, "Reviewed"],
+    [ApprovalRequestTaskAction.Verify, true, "Verified"],
+    [ApprovalRequestTaskAction.Accept, true, "Accepted"],
+    [ApprovalRequestTaskAction.Complete, true, "Completed"],
     [ApprovalRequestTaskAction.Approve, false, "Rejected"],
     [ApprovalRequestTaskAction.Sign, false, "Declined"],
     [ApprovalRequestTaskAction.Confirm, false, "Rejected"],
     [ApprovalRequestTaskAction.Acknowledge, false, "Disputed"],
+    [ApprovalRequestTaskAction.Review, false, "Changes requested"],
+    [ApprovalRequestTaskAction.Verify, false, "Verification failed"],
+    [ApprovalRequestTaskAction.Accept, false, "Declined"],
+    [ApprovalRequestTaskAction.Complete, false, "Could not complete"],
   ])("uses action-specific completed task label %#", (action, result, expectedLabel) => {
     expect(getApprovalRequestTaskStatusLabel(ApprovalRequestTaskStatus.Completed, action, result)).toBe(expectedLabel);
   });

@@ -20,6 +20,30 @@ export const getApprovalRequestTaskActionLabels = (action?: ApprovalRequestTaskA
         negative: "Dispute",
         missing: "Choose whether to acknowledge or dispute.",
       };
+    case ApprovalRequestTaskAction.Review:
+      return {
+        positive: "Review",
+        negative: "Request changes",
+        missing: "Choose whether to review or request changes.",
+      };
+    case ApprovalRequestTaskAction.Verify:
+      return {
+        positive: "Verify",
+        negative: "Fail verification",
+        missing: "Choose whether to verify or fail verification.",
+      };
+    case ApprovalRequestTaskAction.Accept:
+      return {
+        positive: "Accept",
+        negative: "Decline",
+        missing: "Choose whether to accept or decline.",
+      };
+    case ApprovalRequestTaskAction.Complete:
+      return {
+        positive: "Complete",
+        negative: "Cannot complete",
+        missing: "Choose whether to complete or indicate that you cannot complete the task.",
+      };
     default:
       return {
         positive: "Approve",
@@ -36,6 +60,14 @@ export const getApprovalRequestTaskCompletedActionLabel = (action: ApprovalReque
         return "Declined";
       case ApprovalRequestTaskAction.Acknowledge:
         return "Disputed";
+      case ApprovalRequestTaskAction.Review:
+        return "Changes requested";
+      case ApprovalRequestTaskAction.Verify:
+        return "Verification failed";
+      case ApprovalRequestTaskAction.Accept:
+        return "Declined";
+      case ApprovalRequestTaskAction.Complete:
+        return "Could not complete";
       default:
         return "Rejected";
     }
@@ -48,6 +80,14 @@ export const getApprovalRequestTaskCompletedActionLabel = (action: ApprovalReque
       return "Confirmed";
     case ApprovalRequestTaskAction.Acknowledge:
       return "Acknowledged";
+    case ApprovalRequestTaskAction.Review:
+      return "Reviewed";
+    case ApprovalRequestTaskAction.Verify:
+      return "Verified";
+    case ApprovalRequestTaskAction.Accept:
+      return "Accepted";
+    case ApprovalRequestTaskAction.Complete:
+      return "Completed";
     default:
       return "Approved";
   }

@@ -97,6 +97,10 @@ const actionOptions = [
   { value: ApprovalRequestTaskAction.Sign, label: "Sign" },
   { value: ApprovalRequestTaskAction.Confirm, label: "Confirm" },
   { value: ApprovalRequestTaskAction.Acknowledge, label: "Acknowledge" },
+  { value: ApprovalRequestTaskAction.Review, label: "Review" },
+  { value: ApprovalRequestTaskAction.Verify, label: "Verify" },
+  { value: ApprovalRequestTaskAction.Accept, label: "Accept" },
+  { value: ApprovalRequestTaskAction.Complete, label: "Complete" },
 ];
 const getStepContentSx = (sx?: SxProps<Theme>): SxProps<Theme> => (sx ? (Array.isArray(sx) ? sx : [sx]) : []);
 
