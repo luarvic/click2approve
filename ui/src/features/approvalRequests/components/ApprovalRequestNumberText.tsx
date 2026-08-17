@@ -1,7 +1,9 @@
 import { Typography, TypographyProps } from "@mui/material";
+import type { ElementType } from "react";
 
 interface ApprovalRequestNumberTextProps {
   color?: TypographyProps["color"];
+  component?: ElementType;
   globalId?: string;
   includeHash?: boolean;
   prefix?: string;
@@ -18,6 +20,7 @@ export const getApprovalRequestNumber = (globalId?: string, includeHash: boolean
 
 const ApprovalRequestNumberText: React.FC<ApprovalRequestNumberTextProps> = ({
   color = "text.secondary",
+  component = "span",
   globalId,
   includeHash = true,
   prefix,
@@ -29,7 +32,7 @@ const ApprovalRequestNumberText: React.FC<ApprovalRequestNumberTextProps> = ({
   }
 
   return (
-    <Typography color={color} component="span" variant={variant}>
+    <Typography color={color} component={component} variant={variant}>
       {prefix ? `${prefix} ${number}` : number}
     </Typography>
   );

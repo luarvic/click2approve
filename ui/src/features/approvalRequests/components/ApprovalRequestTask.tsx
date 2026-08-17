@@ -11,7 +11,6 @@ import ApprovalRequestTaskAttachments, {
 } from "@/features/approvalRequests/components/ApprovalRequestTaskAttachments";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
-import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
 import { createApprovalRequestTaskClientAuditContext } from "@/features/approvalRequests/utils/approvalRequestTaskClientAuditContext";
@@ -29,6 +28,7 @@ import { Dialogs, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { notification } from "@/shared/utils/notifications";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
@@ -81,10 +81,10 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
   const navigate = useNavigate();
   const [decisionError, setDecisionError] = useState(false);
   const [commentError, setCommentError] = useState(false);
-  const [decision, setDecision] = useState("");
+  const [result, setResult] = useState<boolean | undefined>(undefined);
   const [comment, setComment] = useState("");
   const [legalName, setLegalName] = useState("");
-  const [organization, setOrganization] = useState("");
+  const [representationDetails, setRepresentationDetails] = useState("");
   const [signatureJson, setSignatureJson] = useState("");
   const [electronicSignatureErrors, setElectronicSignatureErrors] =
     useState<ElectronicSignatureErrors>(emptyElectronicSignatureErrors);
@@ -120,8 +120,8 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
   const createSharedVerificationLinkLoader = ActionLoaders.sharedVerificationLinks.createForTask(currentTask?.globalId);
   const createSharedVerificationLinkAction = useAsyncAction(createSharedVerificationLinkLoader);
   const submitAction = useAsyncAction(completeTaskLoader);
-  const requiresElectronicSignature = currentTask?.action === ApprovalRequestTaskAction.Sign;
-  const canEnterAssigneeOrganization = !currentTask?.isAssigneeEmployee;
+  const requiresElectronicSignature = result === true && currentTask?.isElectronicSignatureRequired === true;
+  const canEnterRepresentationDetails = !currentTask?.isAssigneeEmployee;
   const canManageSharedVerificationLinks = Boolean(
     currentTask &&
     stores.applicationConfigurationStore.sharedVerificationLinksAreEnabled &&
@@ -134,10 +134,10 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
     stores.commonStore.isActionLoading(createSharedVerificationLinkLoader);
 
   useEffect(() => {
-    setDecision(currentTask?.result === true ? "approve" : currentTask?.result === false ? "reject" : "");
+    setResult(currentTask?.result);
     setComment(currentTask?.comment ?? "");
     setLegalName(currentTask?.assigneeLegalName?.trim() || getDefaultLegalName(currentTask?.isAssigneeEmployee));
-    setOrganization(currentTask?.assigneeOrganization ?? "");
+    setRepresentationDetails(currentTask?.assigneeRepresentationDetails ?? "");
     setSignatureJson(
       currentTask?.assigneeSignatureJson?.trim() || stores.userProfileStore.profile?.defaultSignatureJson || "",
     );
@@ -159,10 +159,10 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
   const cleanUp = () => {
     setDecisionError(false);
     setCommentError(false);
-    setDecision("");
+    setResult(undefined);
     setComment("");
     setLegalName("");
-    setOrganization("");
+    setRepresentationDetails("");
     setSignatureJson("");
     setElectronicSignatureErrors(emptyElectronicSignatureErrors);
     setDiscussionBody("");
@@ -196,15 +196,24 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
 
   const submit = async () => {
     if (isCompleted) return;
-    if (!decision) {
+    if (result === undefined) {
       setDecisionError(true);
       return;
     }
     if (!currentTask || !stores.userAccountStore.currentUser) return;
     const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
     if (!tenantGlobalId) return;
-    if (decision === "reject" && !comment.trim()) {
+    if ((result === false || currentTask.isCommentRequired) && !comment.trim()) {
       setCommentError(true);
+      return;
+    }
+    if (
+      result === true &&
+      currentTask.isAttachmentRequired &&
+      taskAttachmentFiles.length === 0 &&
+      (currentTask.taskFiles?.length ?? 0) === 0
+    ) {
+      notification.warning("At least one attachment is required.");
       return;
     }
     if (requiresElectronicSignature) {
@@ -221,12 +230,12 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
       const didComplete = await completeApprovalRequestTask(
         tenantGlobalId,
         currentTask.globalId,
-        decision === "approve",
+        result,
         comment,
         requiresElectronicSignature
           ? {
               assigneeLegalName: legalName.trim(),
-              assigneeOrganization: canEnterAssigneeOrganization ? organization : undefined,
+              assigneeRepresentationDetails: canEnterRepresentationDetails ? representationDetails : undefined,
               assigneeSignatureJson: signatureJson,
             }
           : undefined,
@@ -335,7 +344,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
                 participant="assignee"
                 participantType={currentTaskAssigneeType}
                 showComment
-                showElectronicSignature={requiresElectronicSignature}
+                showElectronicSignature={requiresElectronicSignature || currentTask.hasAssigneeSignature}
                 task={currentTask}
               />
             )}
@@ -356,14 +365,14 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
                   <RadioGroup
                     row
                     name="decision"
-                    value={decision}
+                    value={result === undefined ? "" : String(result)}
                     onChange={(event) => {
-                      setDecision(event.target.value);
+                      setResult(event.target.value === "true");
                       setDecisionError(false);
                     }}
                   >
-                    <FormControlLabel value="approve" control={<Radio />} label={actionLabels.positive} />
-                    <FormControlLabel value="reject" control={<Radio />} label={actionLabels.negative} />
+                    <FormControlLabel value="true" control={<Radio />} label={actionLabels.positive} />
+                    <FormControlLabel value="false" control={<Radio />} label={actionLabels.negative} />
                   </RadioGroup>
                   {decisionError && (
                     <FormHelperText sx={Dialogs.fieldHelperTextSx}>{actionLabels.missing}</FormHelperText>
@@ -390,13 +399,13 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
                   <ApprovalRequestElectronicSignatureForm
                     errors={electronicSignatureErrors}
                     legalName={legalName}
-                    organization={organization}
+                    representationDetails={representationDetails}
                     onFieldErrorClear={clearElectronicSignatureError}
                     onLegalNameChange={setLegalName}
-                    onOrganizationChange={setOrganization}
+                    onRepresentationDetailsChange={setRepresentationDetails}
                     onSignatureChange={handleSignatureChange}
                     signatureJson={signatureJson}
-                    showOrganization={canEnterAssigneeOrganization}
+                    showRepresentationDetails={canEnterRepresentationDetails}
                   />
                 )}
               </>

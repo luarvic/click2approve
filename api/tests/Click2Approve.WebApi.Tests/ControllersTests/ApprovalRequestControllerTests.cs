@@ -233,6 +233,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                     Sequence = 1,
                     Mode = ApprovalStepMode.Any,
                     Action = ApprovalRequestTaskAction.Sign,
+                    IsElectronicSignatureRequired = true,
                     Assignees =
                     [
                         new ApprovalRequestAssigneeRequest
@@ -273,7 +274,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
             Result = true,
             Comment = "Approved",
             AssigneeLegalName = "Assignee Person",
-            AssigneeOrganization = "Assignee Organization",
+            AssigneeRepresentationDetails = "Assignee representation details",
             AssigneeSignatureJson = """[{"points":[{"x":1,"y":2}]}]""",
             Title = "Modified task title",
             Description = "Modified task description"
@@ -294,7 +295,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         Assert.Equal("Original task title", completedTask.Title);
         Assert.Equal("Original task description", completedTask.Description);
         Assert.Equal("Assignee Person", completedTask.AssigneeLegalName);
-        Assert.Equal("Assignee Organization", completedTask.AssigneeOrganization);
+        Assert.Equal("Assignee representation details", completedTask.AssigneeRepresentationDetails);
         Assert.True(completedTask.HasAssigneeSignature);
     }
 

@@ -16,7 +16,7 @@ import { Stack, Step, StepContent, StepLabel, Stepper } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
 import ApprovalStepTitle from "./ApprovalStepTitle";
-import ApprovalStepBlock, { ApprovalStepLabel, getStepStatus } from "./ApprovalStepBlock";
+import ApprovalStepBlock, { ApprovalStepMetadata, getStepStatus } from "./ApprovalStepBlock";
 import ApprovalStepVisibilitySummary from "./ApprovalStepVisibilitySummary";
 
 interface ApprovalStepsProps {
@@ -105,10 +105,11 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
             return (
               <Step key={step.globalId ?? step.sequence} completed={stepIsCompleted(stepStatus)}>
                 <StepLabel error={stepHasError(stepStatus)} StepIconComponent={stepIcon}>
-                  <ApprovalStepLabel showVisibility={showVisibleStepVisibility} step={step} />
+                  <ApprovalStepTitle sequence={step.sequence} />
                 </StepLabel>
                 <StepContent sx={stepContentSx} TransitionProps={{ in: true, unmountOnExit: false }}>
                   <Stack spacing={Dialogs.stepHeaderSpacing}>
+                    <ApprovalStepMetadata showVisibility={showVisibleStepVisibility} step={step} />
                     {showVisibleStepVisibility && <ApprovalStepVisibilitySummary step={step} />}
                     <ApprovalStepBlock
                       highlightedTaskGlobalId={highlightedTaskGlobalId}

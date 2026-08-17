@@ -54,7 +54,7 @@ export class TenantStore {
     }
   };
 
-  load = async (defaultTenantGlobalId?: string): Promise<void> => {
+  load = async (defaultTenantGlobalId?: string, preferredTenantGlobalId?: string): Promise<void> => {
     const requestVersion = ++this.requestVersion;
     const tenants = await tenantApi.listTenants();
     if (requestVersion !== this.requestVersion) {
@@ -63,6 +63,7 @@ export class TenantStore {
     const cachedTenantId = readCurrentTenantGlobalId();
     const cachedWorkEmployeeGlobalId = readCurrentWorkEmployeeGlobalId();
     const currentTenant =
+      tenants.find((tenant) => tenant.globalId === preferredTenantGlobalId) ??
       tenants.find((tenant) => tenant.globalId === defaultTenantGlobalId) ??
       tenants.find((tenant) => tenant.globalId === cachedTenantId) ??
       tenants[0] ??

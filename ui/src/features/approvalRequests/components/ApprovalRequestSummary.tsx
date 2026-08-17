@@ -10,9 +10,10 @@ import { StackSpacing } from "@/shared/constants/constants";
 import type { SxProps, TypographyProps } from "@mui/material";
 import { Stack, Typography } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
-import type { ReactNode } from "react";
+import type { ElementType, ReactNode } from "react";
 
 interface ApprovalRequestSummaryProps {
+  additionalContent?: ReactNode;
   approvalRequestGlobalId?: string;
   approvalRequestTaskGlobalId?: string;
   description?: string;
@@ -21,6 +22,7 @@ interface ApprovalRequestSummaryProps {
   revisionNumber?: number;
   numberPrefix?: string;
   numberColor?: TypographyProps["color"];
+  numberComponent?: ElementType;
   nextRevisionApprovalRequestGlobalId?: string;
   numberVariant?: TypographyProps["variant"];
   previousRevisionApprovalRequestGlobalId?: string;
@@ -38,6 +40,7 @@ const summaryTitleSx: SxProps<Theme> = {
 };
 
 const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
+  additionalContent,
   approvalRequestGlobalId,
   approvalRequestTaskGlobalId,
   description,
@@ -46,6 +49,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   revisionNumber,
   numberPrefix,
   numberColor,
+  numberComponent,
   nextRevisionApprovalRequestGlobalId,
   numberVariant = "h6",
   previousRevisionApprovalRequestGlobalId,
@@ -55,7 +59,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   showRevision = true,
   showTitle = true,
   tenantGlobalId,
-  titleVariant = "h6",
+  titleVariant = "h5",
 }) => {
   const detailsCardMode = useApprovalRequestDetailsCardMode();
   const numberGlobalId = approvalRequestGlobalId ?? approvalRequestTaskGlobalId;
@@ -73,6 +77,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
         {!showTitle && (
           <ApprovalRequestNumberText
             color={numberColor}
+            component={numberComponent}
             globalId={numberGlobalId}
             prefix={numberPrefix}
             variant={numberVariant}
@@ -87,7 +92,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
     </Stack>
   );
   const content =
-    hasDescription || hasFiles ? (
+    hasDescription || hasFiles || additionalContent ? (
       <Stack spacing={StackSpacing.default}>
         {hasDescription && <UserProvidedText text={description} />}
         {hasFiles && (
@@ -99,6 +104,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
             showFileStateIndicators={detailsCardMode === "edit"}
           />
         )}
+        {additionalContent}
       </Stack>
     ) : undefined;
 

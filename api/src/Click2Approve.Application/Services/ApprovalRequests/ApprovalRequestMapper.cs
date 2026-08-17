@@ -165,8 +165,12 @@ public static class ApprovalRequestMapper
             Sequence = step.Sequence,
             Mode = step.Mode,
             Action = step.Action,
+            Instructions = step.Instructions,
+            IsAttachmentRequired = step.IsAttachmentRequired,
+            IsCommentRequired = step.IsCommentRequired,
+            IsElectronicSignatureRequired = step.IsElectronicSignatureRequired,
             VisibilityMode = includeVisibility ? step.VisibilityMode : null,
-            Assignees = step.Assignees.Select(assignee => MapAssignee(assignee, assigneeGlobalIdMaps)).ToList(),
+            Assignees = [.. step.Assignees.Select(assignee => MapAssignee(assignee, assigneeGlobalIdMaps))],
             Tasks = [.. step.Tasks.Select(task => MapTask(
                 task,
                 createdByDisplayName,
@@ -249,13 +253,17 @@ public static class ApprovalRequestMapper
             CreatedAt = task.CreatedAt,
             CompletedAt = task.CompletedAt,
             Description = task.Description,
+            Instructions = task.Instructions,
+            IsAttachmentRequired = task.IsAttachmentRequired,
+            IsCommentRequired = task.IsCommentRequired,
+            IsElectronicSignatureRequired = task.IsElectronicSignatureRequired,
             Comment = task.Comment,
             AssigneeIpAddress = task.AssigneeIpAddress,
             AssigneeBrowserData = task.AssigneeBrowserData,
             AssigneeLegalName = task.AssigneeLegalName,
-            AssigneeOrganization = task.AssigneeEmployeeId.HasValue
+            AssigneeRepresentationDetails = task.AssigneeEmployeeId.HasValue
                 ? null
-                : task.AssigneeOrganization,
+                : task.AssigneeRepresentationDetails,
             HasAssigneeSignature = !string.IsNullOrWhiteSpace(task.AssigneeSignatureJson),
             IsAssigneeEmployee = task.AssigneeEmployeeId.HasValue,
             AssigneeSignatureJson = task.AssigneeSignatureJson,

@@ -1,13 +1,13 @@
 import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
+import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import ApprovalStepAssigneeRow from "@/features/approvalWorkflow/components/ApprovalStepAssigneeRow";
 import ApprovalStepTitle from "@/features/approvalWorkflow/components/ApprovalStepTitle";
-import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
-import { AssigneeType, ApprovalStepAssignee, ApprovalStepMode } from "@/features/approvalWorkflow/models/approvalStep";
+import { ApprovalStepAssignee, ApprovalStepMode, AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { EditableApprovalStep } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { Employee } from "@/features/employees/models/employee";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { Dialogs, Icons } from "@/shared/constants/constants";
-import { Add, AccountTreeOutlined, DeleteOutline, North, South } from "@mui/icons-material";
+import { AccountTreeOutlined, Add, DeleteOutline, North, South } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import {
   Box,
@@ -26,6 +26,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
+import type { ReactNode } from "react";
 
 interface ApprovalStepEditorStepState {
   canAddAssignee?: boolean;
@@ -67,6 +68,8 @@ interface ApprovalStepEditorProps {
   onRemoveStep: (stepIndex: number) => void;
   onUpdateAssignee: (stepIndex: number, assigneeIndex: number, assignee: ApprovalStepAssignee) => void;
   onUpdateStep: (stepIndex: number, updater: (step: EditableApprovalStep) => EditableApprovalStep) => void;
+  renderStepFooter?: (step: EditableApprovalStep, stepIndex: number) => ReactNode;
+  showAttachmentRequirement?: boolean;
 }
 
 const stepContentSx: SxProps<Theme> = { pr: 0 };
@@ -124,6 +127,8 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
   onRemoveStep,
   onUpdateAssignee,
   onUpdateStep,
+  renderStepFooter,
+  showAttachmentRequirement = false,
 }) => (
   <>
     {steps.length > 0 && (
@@ -221,6 +226,57 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                         </MenuItem>
                       ))}
                     </TextField>
+                    <TextField
+                      fullWidth
+                      label="Instructions"
+                      multiline
+                      value={step.instructions ?? ""}
+                      disabled={disabled}
+                      onChange={(event) =>
+                        onUpdateStep(stepIndex, (current) => ({ ...current, instructions: event.target.value }))
+                      }
+                    />
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={step.isCommentRequired ?? false}
+                          disabled={disabled}
+                          onChange={(_, checked) =>
+                            onUpdateStep(stepIndex, (current) => ({ ...current, isCommentRequired: checked }))
+                          }
+                        />
+                      }
+                      label="Require a comment"
+                    />
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={step.isElectronicSignatureRequired ?? false}
+                          disabled={disabled}
+                          onChange={(_, checked) =>
+                            onUpdateStep(stepIndex, (current) => ({
+                              ...current,
+                              isElectronicSignatureRequired: checked,
+                            }))
+                          }
+                        />
+                      }
+                      label="Require an electronic signature"
+                    />
+                    {showAttachmentRequirement && (
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={step.isAttachmentRequired ?? false}
+                            disabled={disabled}
+                            onChange={(_, checked) =>
+                              onUpdateStep(stepIndex, (current) => ({ ...current, isAttachmentRequired: checked }))
+                            }
+                          />
+                        }
+                        label="Require an attachment"
+                      />
+                    )}
                     <Stack spacing={Dialogs.assigneeStackSpacing}>
                       {step.assignees.map((assignee, assigneeIndex) =>
                         (() => {
@@ -275,6 +331,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                     >
                       Add assignee
                     </Button>
+                    {renderStepFooter?.(step, stepIndex)}
                   </Stack>
                 </ApprovalRequestDetailsCard>
               </StepContent>

@@ -11,6 +11,10 @@ public class ApprovalRequestStepResult
     public int Sequence { get; init; }
     public ApprovalStepMode? Mode { get; init; }
     public ApprovalRequestTaskAction Action { get; init; }
+    public string? Instructions { get; init; }
+    public bool IsAttachmentRequired { get; init; }
+    public bool IsCommentRequired { get; init; }
+    public bool IsElectronicSignatureRequired { get; init; }
     public ApprovalStepVisibilityMode? VisibilityMode { get; init; }
     public bool IsVisible { get; init; } = true;
     public List<ApprovalRequestAssigneeResult> Assignees { get; init; } = [];

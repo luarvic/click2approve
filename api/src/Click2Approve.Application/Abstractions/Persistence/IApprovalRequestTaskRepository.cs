@@ -12,5 +12,6 @@ public interface IApprovalRequestTaskRepository
     Task<List<ApprovalRequestTask>> ListAsync(AppUser user, CancellationToken cancellationToken);
     Task<ApprovalRequestTaskDetailsResult?> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task<ApprovalRequestTask?> GetForCompletionAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
+    Task<bool> HasAttachmentsAsync(ApprovalRequestTask task, CancellationToken cancellationToken);
     Task<long> CountUncompletedAsync(AppUser user, CancellationToken cancellationToken);
 }

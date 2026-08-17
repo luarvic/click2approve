@@ -4,7 +4,6 @@ import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/A
 import ApprovalRequestFilesList, {
   RevisionExistingFile,
 } from "@/features/approvalRequests/components/ApprovalRequestFilesList";
-import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
 import ApprovalRequestParticipantLine, {
   getAssigneeIcon,
 } from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
@@ -16,7 +15,6 @@ import {
   ApprovalRequestStepVisibilitySubmission,
 } from "@/features/approvalRequests/models/approvalRequest";
 import { getIncompleteParticipantNameWarning } from "@/features/approvalRequests/utils/incompleteParticipantNameWarning";
-import ApprovalStepBlock, { ApprovalStepLabel } from "@/features/approvalWorkflow/components/ApprovalStepBlock";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
 import {
   ApprovalStep,
@@ -46,7 +44,7 @@ import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
 } from "@/shared/utils/persistenceNotifications";
-import { AccountTreeOutlined, Add, ArrowBack, ArrowForward, AttachFile } from "@mui/icons-material";
+import { Add, ArrowBack, ArrowForward, AttachFile } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import type { SxProps } from "@mui/material";
 import {
@@ -54,17 +52,13 @@ import {
   Box,
   Button,
   Chip,
+  FormControl,
   FormControlLabel,
+  FormLabel,
   Radio,
   RadioGroup,
   Stack,
-  Step,
-  StepContent,
-  StepLabel,
-  Stepper,
   TextField,
-  ToggleButton,
-  ToggleButtonGroup,
   Typography,
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
@@ -182,30 +176,14 @@ const visibilityModeOptions: {
   },
 ];
 
-const visibilityStepContentSx: SxProps<Theme> = { pr: 0 };
-const visibilityStepLabelSx: SxProps<Theme> = {
-  "& .MuiStepLabel-label, & .MuiStepLabel-label.Mui-active, & .MuiStepLabel-label.Mui-completed": {
-    color: "text.primary",
-  },
-};
-const visibilityToggleButtonGroupSx: SxProps<Theme> = {
-  display: { xs: "none", sm: "flex" },
-  "& .MuiToggleButton-root": {
-    flex: 1,
-    textTransform: "none",
-    typography: "body2",
-  },
-};
 const visibilityMobileModeOptionsSx: SxProps<Theme> = {
   alignItems: "flex-start",
-  display: { sm: "none", xs: "flex" },
+  display: "flex",
   flexDirection: "column",
 };
 const visibilityMobileModeOptionSx: SxProps<Theme> = {
   alignItems: "center",
 };
-
-const VisibilityStepIcon = () => <AccountTreeOutlined color="action" fontSize="small" />;
 
 const toDraftRequestFile = (
   file: UserFile,
@@ -903,6 +881,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
                 onRemoveStep={removeStep}
                 onUpdateAssignee={updateAssignee}
                 onUpdateStep={updateStep}
+                showAttachmentRequirement={stores.applicationConfigurationStore.taskAttachmentsAreEnabled}
                 showAddStep={false}
                 stackAssigneeControlsOnSmallScreens
               />
@@ -945,124 +924,116 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
                   showRevision={false}
                 />
               </ApprovalRequestDetailsCard>
-              <Stepper activeStep={-1} nonLinear orientation="vertical">
-                {steps.map((step) => {
+              <ApprovalStepEditor
+                canUseEmployees={canUseEmployees}
+                canUseTeams={canUseTeams}
+                compactEmployeeOptions
+                employees={stores.employeeStore.employees}
+                getStepState={() => ({
+                  canAddAssignee: false,
+                  canMoveDown: false,
+                  canMoveUp: false,
+                  canRemove: false,
+                  disabled: true,
+                })}
+                onAddAssignee={() => undefined}
+                onAddStep={() => undefined}
+                onMoveStep={() => undefined}
+                onRemoveAssignee={() => undefined}
+                onRemoveStep={() => undefined}
+                onUpdateAssignee={() => undefined}
+                onUpdateStep={() => undefined}
+                renderStepFooter={(step, stepIndex) => {
                   const additionalViewerOptions = getAdditionalViewerOptions(step.sequence, requestAssignees);
                   const visibleAssignees = getVisibleAssignees(step.sequence, additionalViewerOptions);
                   const hiddenAssignees = getHiddenAssignees(step.sequence, additionalViewerOptions);
                   const visibilityMode = stepVisibilityModes[step.sequence] ?? "all";
+                  const visibilityLabelId = `visibility-label-${stepIndex}`;
                   return (
-                    <Step expanded key={step.sequence}>
-                      <StepLabel StepIconComponent={VisibilityStepIcon} sx={visibilityStepLabelSx}>
-                        <ApprovalStepLabel showVisibility={false} step={getDisplayStep(step)} />
-                      </StepLabel>
-                      <StepContent sx={visibilityStepContentSx} TransitionProps={{ in: true, unmountOnExit: false }}>
-                        <ApprovalStepBlock
-                          setupFutureTasks
-                          showMetadata={false}
-                          showStepBox={false}
-                          showStepTitle={false}
-                          step={getDisplayStep(step)}
-                          tasks={[]}
-                          footerContent={
-                            <Stack spacing={Dialogs.stepHeaderSpacing}>
-                              <ApprovalRequestParticipantLabel>Visibility</ApprovalRequestParticipantLabel>
-                              <RadioGroup
-                                aria-label="Visibility"
-                                row={false}
-                                sx={visibilityMobileModeOptionsSx}
-                                value={visibilityMode}
-                                onChange={(event) =>
-                                  setVisibilityMode(
-                                    step.sequence,
-                                    event.target.value as StepVisibilityMode,
-                                    additionalViewerOptions,
-                                  )
-                                }
-                              >
-                                {visibilityModeOptions.map((option) => (
-                                  <FormControlLabel
-                                    control={<Radio />}
-                                    key={option.value}
-                                    label={<Typography variant="body2">{option.label}</Typography>}
-                                    sx={visibilityMobileModeOptionSx}
-                                    value={option.value}
-                                  />
-                                ))}
-                              </RadioGroup>
-                              <ToggleButtonGroup
-                                exclusive
-                                sx={visibilityToggleButtonGroupSx}
-                                value={visibilityMode}
-                                onChange={(_, value: StepVisibilityMode | null) => {
-                                  if (value) {
-                                    setVisibilityMode(step.sequence, value, additionalViewerOptions);
-                                  }
-                                }}
-                              >
-                                {visibilityModeOptions.map((option) => (
-                                  <ToggleButton key={option.value} value={option.value}>
-                                    {option.label}
-                                  </ToggleButton>
-                                ))}
-                              </ToggleButtonGroup>
-                              {(visibilityMode === "selected" || visibilityMode === "allExcept") && (
-                                <Autocomplete
-                                  multiple
-                                  filterSelectedOptions
-                                  options={additionalViewerOptions}
-                                  value={visibilityMode === "selected" ? visibleAssignees : hiddenAssignees}
-                                  getOptionLabel={(option) => `${option.label} (Step ${option.stepSequence})`}
-                                  isOptionEqualToValue={(option, value) => option.key === value.key}
-                                  disableCloseOnSelect
-                                  onChange={(_, value) => {
-                                    setVisibleAssignees(
-                                      step.sequence,
-                                      additionalViewerOptions,
-                                      visibilityMode === "selected"
-                                        ? value
-                                        : additionalViewerOptions.filter(
-                                            (option) => !value.some((excluded) => excluded.key === option.key),
-                                          ),
-                                    );
-                                  }}
-                                  renderTags={(value, getTagProps) =>
-                                    value.map((option, index) => (
-                                      <Chip
-                                        {...getTagProps({ index })}
-                                        icon={getAssigneeIcon(option.type)}
-                                        label={option.label}
-                                      />
-                                    ))
-                                  }
-                                  renderInput={(params) => (
-                                    <TextField
-                                      {...params}
-                                      label={
-                                        visibilityMode === "selected"
-                                          ? "Additional participants who can view this step"
-                                          : "Participants who cannot view this step"
-                                      }
-                                    />
-                                  )}
-                                  renderOption={(props, option) => (
-                                    <li {...props}>
-                                      <ApprovalRequestParticipantLine
-                                        label={<DisplayName displayName={option.label} showEmailAddress={false} />}
-                                        type={option.type}
-                                      />
-                                    </li>
-                                  )}
-                                />
-                              )}
-                            </Stack>
+                    <Stack spacing={Dialogs.stepHeaderSpacing}>
+                      <FormControl>
+                        <FormLabel id={visibilityLabelId}>Visibility</FormLabel>
+                        <RadioGroup
+                          aria-labelledby={visibilityLabelId}
+                          row={false}
+                          sx={visibilityMobileModeOptionsSx}
+                          value={visibilityMode}
+                          onChange={(event) =>
+                            setVisibilityMode(
+                              step.sequence,
+                              event.target.value as StepVisibilityMode,
+                              additionalViewerOptions,
+                            )
                           }
+                        >
+                          {visibilityModeOptions.map((option) => (
+                            <FormControlLabel
+                              control={<Radio />}
+                              key={option.value}
+                              label={<Typography variant="body2">{option.label}</Typography>}
+                              sx={visibilityMobileModeOptionSx}
+                              value={option.value}
+                            />
+                          ))}
+                        </RadioGroup>
+                      </FormControl>
+                      {(visibilityMode === "selected" || visibilityMode === "allExcept") && (
+                        <Autocomplete
+                          multiple
+                          filterSelectedOptions
+                          options={additionalViewerOptions}
+                          value={visibilityMode === "selected" ? visibleAssignees : hiddenAssignees}
+                          getOptionLabel={(option) => `${option.label} (Step ${option.stepSequence})`}
+                          isOptionEqualToValue={(option, value) => option.key === value.key}
+                          disableCloseOnSelect
+                          onChange={(_, value) => {
+                            setVisibleAssignees(
+                              step.sequence,
+                              additionalViewerOptions,
+                              visibilityMode === "selected"
+                                ? value
+                                : additionalViewerOptions.filter(
+                                    (option) => !value.some((excluded) => excluded.key === option.key),
+                                  ),
+                            );
+                          }}
+                          renderTags={(value, getTagProps) =>
+                            value.map((option, index) => (
+                              <Chip
+                                {...getTagProps({ index })}
+                                icon={getAssigneeIcon(option.type)}
+                                label={option.label}
+                              />
+                            ))
+                          }
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label={
+                                visibilityMode === "selected"
+                                  ? "Additional participants who can view this step"
+                                  : "Participants who cannot view this step"
+                              }
+                            />
+                          )}
+                          renderOption={(props, option) => (
+                            <li {...props}>
+                              <ApprovalRequestParticipantLine
+                                label={<DisplayName displayName={option.label} showEmailAddress={false} />}
+                                type={option.type}
+                              />
+                            </li>
+                          )}
                         />
-                      </StepContent>
-                    </Step>
+                      )}
+                    </Stack>
                   );
-                })}
-              </Stepper>
+                }}
+                showAddStep={false}
+                showAttachmentRequirement={stores.applicationConfigurationStore.taskAttachmentsAreEnabled}
+                steps={steps.map(getDisplayStep)}
+                teams={stores.teamStore.teams}
+              />
             </Stack>
           </Stack>
           <Stack

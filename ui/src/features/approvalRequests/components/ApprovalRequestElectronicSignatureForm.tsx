@@ -1,7 +1,8 @@
 import ApprovalRequestSignatureField from "@/features/approvalRequests/components/ApprovalRequestSignatureField";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { Dialogs } from "@/shared/constants/constants";
 import DrawOutlinedIcon from "@mui/icons-material/DrawOutlined";
-import { Box, Stack, TextField, Typography } from "@mui/material";
+import { Box, InputAdornment, Stack, TextField, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import type { SxProps, Theme } from "@mui/material/styles";
 
@@ -13,12 +14,12 @@ export interface ElectronicSignatureErrors {
 interface ApprovalRequestElectronicSignatureFormProps {
   errors: ElectronicSignatureErrors;
   legalName: string;
-  organization: string;
+  representationDetails: string;
   onFieldErrorClear: (field: keyof ElectronicSignatureErrors) => void;
   onLegalNameChange: (value: string) => void;
-  onOrganizationChange: (value: string) => void;
+  onRepresentationDetailsChange: (value: string) => void;
   onSignatureChange: (value: string) => void;
-  showOrganization: boolean;
+  showRepresentationDetails: boolean;
   signatureJson: string;
 }
 
@@ -31,12 +32,12 @@ const electronicSignatureFormSx: SxProps<Theme> = (theme) => ({
 const ApprovalRequestElectronicSignatureForm: React.FC<ApprovalRequestElectronicSignatureFormProps> = ({
   errors,
   legalName,
-  organization,
+  representationDetails,
   onFieldErrorClear,
   onLegalNameChange,
-  onOrganizationChange,
+  onRepresentationDetailsChange,
   onSignatureChange,
-  showOrganization,
+  showRepresentationDetails,
   signatureJson,
 }) => (
   <Box sx={electronicSignatureFormSx}>
@@ -60,12 +61,19 @@ const ApprovalRequestElectronicSignatureForm: React.FC<ApprovalRequestElectronic
             onFieldErrorClear("legalName");
           }}
         />
-        {showOrganization && (
+        {showRepresentationDetails && (
           <TextField
             fullWidth
-            label="Organization"
-            value={organization}
-            onChange={(event) => onOrganizationChange(event.target.value)}
+            label="Representation details"
+            value={representationDetails}
+            onChange={(event) => onRepresentationDetailsChange(event.target.value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <HelpPopover helpText="Add an organization name, address, or other context about who or what you represent when signing." />
+                </InputAdornment>
+              ),
+            }}
           />
         )}
       </Stack>

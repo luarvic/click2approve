@@ -24,6 +24,9 @@ export const createEmptyStep = (
   mode: ApprovalStepMode.Any,
   visibilityMode: ApprovalStepVisibilityMode.AllParticipants,
   action: ApprovalRequestTaskAction.Approve,
+  isAttachmentRequired: false,
+  isCommentRequired: false,
+  isElectronicSignatureRequired: false,
   assignees: includeEmptyAssignee ? [createEmptyAssignee(assigneeType)] : [],
 });
 
@@ -32,6 +35,10 @@ export const createEditableSteps = (steps: ApprovalStep[]): EditableApprovalStep
     ...step,
     sequence: index + 1,
     action: step.action ?? ApprovalRequestTaskAction.Approve,
+    instructions: step.instructions,
+    isAttachmentRequired: step.isAttachmentRequired ?? false,
+    isCommentRequired: step.isCommentRequired ?? false,
+    isElectronicSignatureRequired: step.isElectronicSignatureRequired ?? false,
     visibilityMode: step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants,
     assignees: step.assignees.map((assignee) => ({ ...assignee })),
     visibility: step.visibility?.map((visibility) => ({ ...visibility })),
@@ -42,6 +49,10 @@ const toApprovalStep = (step: EditableApprovalStep): ApprovalStep => ({
   mode: step.mode ?? ApprovalStepMode.Any,
   visibilityMode: step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants,
   action: step.action ?? ApprovalRequestTaskAction.Approve,
+  instructions: step.instructions,
+  isAttachmentRequired: step.isAttachmentRequired ?? false,
+  isCommentRequired: step.isCommentRequired ?? false,
+  isElectronicSignatureRequired: step.isElectronicSignatureRequired ?? false,
   assignees: step.assignees.map((assignee) => ({
     type: assignee.type,
     email: assignee.email,

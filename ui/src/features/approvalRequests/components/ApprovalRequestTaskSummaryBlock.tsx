@@ -22,7 +22,7 @@ import UserProvidedText from "@/shared/components/text/UserProvidedText";
 import { StackSpacing } from "@/shared/constants/constants";
 import type { TypographyProps } from "@mui/material";
 import { Stack } from "@mui/material";
-import type { ReactNode } from "react";
+import type { ElementType, ReactNode } from "react";
 
 interface ApprovalRequestTaskSummaryBlockProps {
   additionalMetadata?: ReactNode;
@@ -30,6 +30,7 @@ interface ApprovalRequestTaskSummaryBlockProps {
   onClick?: () => void;
   stepperBorderLeftColor?: string;
   numberColor?: TypographyProps["color"];
+  numberComponent?: ElementType;
   numberVariant?: TypographyProps["variant"];
   participant?: "assignee" | "requester" | "none";
   participantType?: AssigneeType;
@@ -37,6 +38,7 @@ interface ApprovalRequestTaskSummaryBlockProps {
   showDescription?: boolean;
   showElectronicSignature?: boolean;
   showFiles?: boolean;
+  showInstructionsLabel?: boolean;
   showRevision?: boolean;
   showTimeline?: boolean;
   showTitle?: boolean;
@@ -72,6 +74,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   onClick,
   stepperBorderLeftColor,
   numberColor,
+  numberComponent,
   numberVariant,
   participant = "requester",
   participantType,
@@ -79,6 +82,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   showDescription = true,
   showElectronicSignature = false,
   showFiles = true,
+  showInstructionsLabel = true,
   showRevision = true,
   showTimeline = true,
   showTitle = true,
@@ -102,94 +106,98 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
     : (task.completedByDisplayName ?? task.assigneeDisplayName);
   const completionEmail = completedBySystem ? undefined : task.completedByEmail || task.assigneeEmail;
   const completionType = resolvedParticipantType;
+  const participants =
+    participant !== "none" ? (
+      completionLabel && completedTimestamp ? (
+        <ApprovalRequestParticipantPair
+          firstLabel={
+            participant === "assignee" && <ApprovalRequestParticipantLabel>Assigned to</ApprovalRequestParticipantLabel>
+          }
+          firstParticipant={
+            <ApprovalRequestParticipant
+              icon={icon}
+              displayName={participantDisplayName}
+              email={participantEmail}
+              organizationDisplayName={participantOrganizationDisplayName}
+              showOrganization={organizationIsVisible}
+              type={resolvedParticipantType}
+            />
+          }
+          firstTimestamp={
+            showTimeline && <ApprovalRequestTimestamp date={task.createdAtDate} label="Assigned at" type="created" />
+          }
+          secondLabel={<ApprovalRequestParticipantLabel>{completionLabel}</ApprovalRequestParticipantLabel>}
+          secondParticipant={
+            <ApprovalRequestParticipant
+              displayName={completionDisplayName}
+              email={completionEmail}
+              isSystemParticipant={completedBySystem}
+              organizationDisplayName={participantOrganizationDisplayName}
+              showOrganization={organizationIsVisible}
+              type={completedBySystem ? AssigneeType.Employee : completionType}
+            />
+          }
+          secondTimestamp={
+            showTimeline && (
+              <ApprovalRequestTimestamp
+                date={completedTimestamp.date}
+                label={completedTimestamp.label}
+                type={completedTimestamp.type}
+              />
+            )
+          }
+        />
+      ) : (
+        <ApprovalRequestParticipantPair
+          firstLabel={
+            participant === "assignee" && <ApprovalRequestParticipantLabel>Assigned to</ApprovalRequestParticipantLabel>
+          }
+          firstParticipant={
+            <ApprovalRequestParticipant
+              icon={icon}
+              displayName={participantDisplayName}
+              email={participantEmail}
+              organizationDisplayName={participantOrganizationDisplayName}
+              showOrganization={organizationIsVisible}
+              type={resolvedParticipantType}
+            />
+          }
+          firstTimestamp={
+            showTimeline && (
+              <ApprovalRequestTimestampRow
+                items={[
+                  {
+                    date: task.createdAtDate,
+                    label: "Assigned at",
+                    type: "created",
+                  },
+                  completedTimestamp,
+                ]}
+              />
+            )
+          }
+        />
+      )
+    ) : undefined;
+  const taskContent =
+    task.instructions?.trim() || participants ? (
+      <>
+        {task.instructions?.trim() && (
+          <>
+            {showInstructionsLabel && <ApprovalRequestParticipantLabel>Instructions</ApprovalRequestParticipantLabel>}
+            <UserProvidedText text={task.instructions} />
+          </>
+        )}
+        {participants}
+      </>
+    ) : undefined;
   const hasMetadata =
-    participant !== "none" ||
     (showComment && Boolean(task.comment?.trim())) ||
     Boolean(additionalMetadata) ||
     (showElectronicSignature && taskElectronicSignatureIsVisible(task)) ||
     (showTimeline && participant === "none");
   const metadata = hasMetadata ? (
     <Stack spacing={StackSpacing.default}>
-      {participant !== "none" && (
-        <>
-          {completionLabel && completedTimestamp ? (
-            <ApprovalRequestParticipantPair
-              firstLabel={
-                participant === "assignee" && (
-                  <ApprovalRequestParticipantLabel>Assigned to</ApprovalRequestParticipantLabel>
-                )
-              }
-              firstParticipant={
-                <ApprovalRequestParticipant
-                  icon={icon}
-                  displayName={participantDisplayName}
-                  email={participantEmail}
-                  organizationDisplayName={participantOrganizationDisplayName}
-                  showOrganization={organizationIsVisible}
-                  type={resolvedParticipantType}
-                />
-              }
-              firstTimestamp={
-                showTimeline && (
-                  <ApprovalRequestTimestamp date={task.createdAtDate} label="Assigned at" type="created" />
-                )
-              }
-              secondLabel={<ApprovalRequestParticipantLabel>{completionLabel}</ApprovalRequestParticipantLabel>}
-              secondParticipant={
-                <ApprovalRequestParticipant
-                  displayName={completionDisplayName}
-                  email={completionEmail}
-                  isSystemParticipant={completedBySystem}
-                  organizationDisplayName={participantOrganizationDisplayName}
-                  showOrganization={organizationIsVisible}
-                  type={completedBySystem ? AssigneeType.Employee : completionType}
-                />
-              }
-              secondTimestamp={
-                showTimeline && (
-                  <ApprovalRequestTimestamp
-                    date={completedTimestamp.date}
-                    label={completedTimestamp.label}
-                    type={completedTimestamp.type}
-                  />
-                )
-              }
-            />
-          ) : (
-            <ApprovalRequestParticipantPair
-              firstLabel={
-                participant === "assignee" && (
-                  <ApprovalRequestParticipantLabel>Assigned to</ApprovalRequestParticipantLabel>
-                )
-              }
-              firstParticipant={
-                <ApprovalRequestParticipant
-                  icon={icon}
-                  displayName={participantDisplayName}
-                  email={participantEmail}
-                  organizationDisplayName={participantOrganizationDisplayName}
-                  showOrganization={organizationIsVisible}
-                  type={resolvedParticipantType}
-                />
-              }
-              firstTimestamp={
-                showTimeline && (
-                  <ApprovalRequestTimestampRow
-                    items={[
-                      {
-                        date: task.createdAtDate,
-                        label: "Assigned at",
-                        type: "created",
-                      },
-                      completedTimestamp,
-                    ]}
-                  />
-                )
-              }
-            />
-          )}
-        </>
-      )}
       {showComment && task.comment?.trim() && (
         <>
           <ApprovalRequestParticipantLabel>Comment</ApprovalRequestParticipantLabel>
@@ -222,12 +230,14 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
       onClick={onClick}
     >
       <ApprovalRequestSummary
+        additionalContent={taskContent}
         title={task.title}
         description={task.description}
         approvalRequestTaskGlobalId={task.globalId}
         metadata={metadata}
         numberPrefix={taskNumberPrefix}
         numberColor={numberColor}
+        numberComponent={numberComponent}
         numberVariant={numberVariant}
         requestFiles={task.requestFiles}
         revisionNumber={task.revisionNumber}

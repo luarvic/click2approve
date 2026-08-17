@@ -23,13 +23,14 @@ decisions and discussion, and tracking request history.
 - Compose workflow requests with one or more files, a title, description, and
   email-based assignees.
 - Build multi-step workflows with serial or parallel assignee steps, choosing approval, signature, confirmation,
-  acknowledgement, review, verification, acceptance, or completion actions.
+  acknowledgement, review, verification, acceptance, or completion actions, with optional instructions and
+  positive-result comment or electronic-signature requirements.
 - Track sent workflow requests in the outbox, inspect request details, see
   in-progress request state, cancel pending requests, and delete requests.
 - Review incoming tasks in the inbox, open task details, preview attached
   files, record decisions with comments, and see the uncompleted task
   count.
-- Capture electronic-signature evidence for sign tasks, including legal name,
+- Capture electronic-signature evidence when required by a task, including legal name,
   signature strokes, IP address, and browser data on completed tasks.
 - Maintain a user profile with display name, avatar, reusable signature,
   and email notification preferences.

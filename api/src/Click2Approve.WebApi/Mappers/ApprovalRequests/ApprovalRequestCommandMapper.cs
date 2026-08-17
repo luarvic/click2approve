@@ -28,7 +28,7 @@ public static class ApprovalRequestCommandMapper
         AssigneeBrowserData = request.AssigneeBrowserData,
         AssigneeIpAddress = request.AssigneeIpAddress,
         AssigneeLegalName = request.AssigneeLegalName,
-        AssigneeOrganization = request.AssigneeOrganization,
+        AssigneeRepresentationDetails = request.AssigneeRepresentationDetails,
         AssigneeSignatureJson = request.AssigneeSignatureJson,
         ClientAuditContext = request.ClientAuditContext is null ? null : Map(request.ClientAuditContext),
         Comment = request.Comment,
@@ -41,6 +41,10 @@ public static class ApprovalRequestCommandMapper
         Action = request.Action,
         Assignees = [.. request.Assignees.Select(Map)],
         Mode = request.Mode,
+        Instructions = request.Instructions,
+        IsAttachmentRequired = request.IsAttachmentRequired,
+        IsCommentRequired = request.IsCommentRequired,
+        IsElectronicSignatureRequired = request.IsElectronicSignatureRequired,
         Sequence = request.Sequence,
         VisibilityMode = request.VisibilityMode
     };

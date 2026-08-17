@@ -12,7 +12,7 @@ export const completeApprovalRequestTask = async (
   comment: string | undefined,
   electronicSignature?: {
     assigneeLegalName?: string;
-    assigneeOrganization?: string;
+    assigneeRepresentationDetails?: string;
     assigneeSignatureJson?: string;
   },
   clientAuditContext?: ApprovalRequestTaskClientAuditContext,

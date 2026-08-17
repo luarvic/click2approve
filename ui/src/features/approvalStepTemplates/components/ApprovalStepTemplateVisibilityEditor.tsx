@@ -1,28 +1,22 @@
+import { stores } from "@/app/rootStore";
+import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
 import {
-  AssigneeType,
   ApprovalStep,
   ApprovalStepVisibilityMode,
+  AssigneeType,
 } from "@/features/approvalWorkflow/models/approvalStep";
-import ApprovalStepBlock, { ApprovalStepLabel } from "@/features/approvalWorkflow/components/ApprovalStepBlock";
 import { Dialogs } from "@/shared/constants/constants";
-import { AccountTreeOutlined } from "@mui/icons-material";
-import type { SxProps } from "@mui/material";
 import {
   Autocomplete,
+  FormControl,
   FormControlLabel,
+  FormLabel,
   Radio,
   RadioGroup,
   Stack,
-  Step,
-  StepContent,
-  StepLabel,
-  Stepper,
   TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography,
 } from "@mui/material";
-import type { Theme } from "@mui/material/styles";
+import type { SxProps, Theme } from "@mui/material/styles";
 
 type VisibilityMode = "all" | "allExcept" | "selected" | "assignees";
 
@@ -55,27 +49,11 @@ const options: { label: string; value: VisibilityMode }[] = [
   { label: "Assignees and selected participants", value: "selected" },
   { label: "Assignees only", value: "assignees" },
 ];
-const stepContentSx: SxProps<Theme> = { pr: 0 };
-const stepLabelSx: SxProps<Theme> = {
-  "& .MuiStepLabel-label, & .MuiStepLabel-label.Mui-active, & .MuiStepLabel-label.Mui-completed": {
-    color: "text.primary",
-  },
-};
-const toggleButtonGroupSx: SxProps<Theme> = {
-  display: { xs: "none", sm: "flex" },
-  "& .MuiToggleButton-root": {
-    flex: 1,
-    textTransform: "none",
-    typography: "body2",
-  },
-};
 const mobileModeOptionsSx: SxProps<Theme> = {
   alignItems: "flex-start",
-  display: { sm: "none", xs: "flex" },
+  display: "flex",
   flexDirection: "column",
 };
-const VisibilityStepIcon = () => <AccountTreeOutlined color="action" fontSize="small" />;
-
 const ApprovalStepTemplateVisibilityEditor: React.FC<ApprovalStepTemplateVisibilityEditorProps> = ({
   steps,
   onUpdateStep,
@@ -134,10 +112,27 @@ const ApprovalStepTemplateVisibilityEditor: React.FC<ApprovalStepTemplateVisibil
   };
 
   return (
-    <Stepper activeStep={-1} nonLinear orientation="vertical">
-      {steps.map((step, stepIndex) => {
-        const displayStep = getDisplayStep(step);
+    <ApprovalStepEditor
+      canUseEmployees
+      canUseTeams
+      employees={stores.employeeStore.employees}
+      getStepState={() => ({
+        canAddAssignee: false,
+        canMoveDown: false,
+        canMoveUp: false,
+        canRemove: false,
+        disabled: true,
+      })}
+      onAddAssignee={() => undefined}
+      onAddStep={() => undefined}
+      onMoveStep={() => undefined}
+      onRemoveAssignee={() => undefined}
+      onRemoveStep={() => undefined}
+      onUpdateAssignee={() => undefined}
+      onUpdateStep={() => undefined}
+      renderStepFooter={(step, stepIndex) => {
         const mode = visibilityModeValues[step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants];
+        const visibilityLabelId = `visibility-label-${stepIndex}`;
         const ownAssigneeIds = new Set(step.assignees.map((assignee) => assignee.globalId));
         const additionalAssignees = allAssignees.filter((assignee) => !ownAssigneeIds.has(assignee.globalId));
         const selectedAssignees = additionalAssignees.filter((assignee) => {
@@ -148,80 +143,51 @@ const ApprovalStepTemplateVisibilityEditor: React.FC<ApprovalStepTemplateVisibil
         });
 
         return (
-          <Step expanded key={step.sequence}>
-            <StepLabel StepIconComponent={VisibilityStepIcon} sx={stepLabelSx}>
-              <ApprovalStepLabel showVisibility={false} step={displayStep} />
-            </StepLabel>
-            <StepContent sx={stepContentSx} TransitionProps={{ in: true, unmountOnExit: false }}>
-              <ApprovalStepBlock
-                setupFutureTasks
-                showMetadata={false}
-                showStepBox={false}
-                showStepTitle={false}
-                step={displayStep}
-                tasks={[]}
-                footerContent={
-                  <Stack spacing={Dialogs.stepHeaderSpacing}>
-                    <Typography variant="subtitle2">Visibility</Typography>
-                    <RadioGroup
-                      aria-label="Visibility"
-                      row={false}
-                      sx={mobileModeOptionsSx}
-                      value={mode}
-                      onChange={(event) => updateVisibility(stepIndex, event.target.value as VisibilityMode, [])}
-                    >
-                      {options.map((option) => (
-                        <FormControlLabel
-                          control={<Radio />}
-                          key={option.value}
-                          label={option.label}
-                          value={option.value}
-                        />
-                      ))}
-                    </RadioGroup>
-                    <ToggleButtonGroup
-                      exclusive
-                      sx={toggleButtonGroupSx}
-                      value={mode}
-                      onChange={(_, value: VisibilityMode | null) => value && updateVisibility(stepIndex, value, [])}
-                    >
-                      {options.map((option) => (
-                        <ToggleButton key={option.value} value={option.value}>
-                          {option.label}
-                        </ToggleButton>
-                      ))}
-                    </ToggleButtonGroup>
-                    {(mode === "selected" || mode === "allExcept") && (
-                      <Autocomplete
-                        multiple
-                        filterSelectedOptions
-                        options={additionalAssignees}
-                        value={selectedAssignees}
-                        getOptionLabel={(option) => option.label}
-                        isOptionEqualToValue={(option, value) => option.globalId === value.globalId}
-                        onChange={(_, value) => updateVisibility(stepIndex, mode, value)}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label={
-                              mode === "selected"
-                                ? "Additional participants who can view this step"
-                                : "Participants who cannot view this step"
-                            }
-                          />
-                        )}
-                      />
-                    )}
-                  </Stack>
-                }
+          <Stack spacing={Dialogs.stepHeaderSpacing}>
+            <FormControl>
+              <FormLabel id={visibilityLabelId}>Visibility</FormLabel>
+              <RadioGroup
+                aria-labelledby={visibilityLabelId}
+                row={false}
+                sx={mobileModeOptionsSx}
+                value={mode}
+                onChange={(event) => updateVisibility(stepIndex, event.target.value as VisibilityMode, [])}
+              >
+                {options.map((option) => (
+                  <FormControlLabel control={<Radio />} key={option.value} label={option.label} value={option.value} />
+                ))}
+              </RadioGroup>
+            </FormControl>
+            {(mode === "selected" || mode === "allExcept") && (
+              <Autocomplete
+                multiple
+                filterSelectedOptions
+                options={additionalAssignees}
+                value={selectedAssignees}
+                getOptionLabel={(option) => option.label}
+                isOptionEqualToValue={(option, value) => option.globalId === value.globalId}
+                onChange={(_, value) => updateVisibility(stepIndex, mode, value)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={
+                      mode === "selected"
+                        ? "Additional participants who can view this step"
+                        : "Participants who cannot view this step"
+                    }
+                  />
+                )}
               />
-            </StepContent>
-          </Step>
+            )}
+          </Stack>
         );
-      })}
-    </Stepper>
+      }}
+      showAddStep={false}
+      showAttachmentRequirement={stores.applicationConfigurationStore.taskAttachmentsAreEnabled}
+      steps={steps.map(getDisplayStep)}
+      teams={stores.teamStore.teams}
+    />
   );
 };
 
 export default ApprovalStepTemplateVisibilityEditor;
-import { stores } from "@/app/rootStore";

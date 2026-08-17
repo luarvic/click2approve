@@ -20,7 +20,11 @@ export interface ApprovalRequestTask extends ApprovalRequestTaskListItem {
   assigneeIpAddress?: string;
   assigneeBrowserData?: string;
   assigneeLegalName?: string;
-  assigneeOrganization?: string;
+  assigneeRepresentationDetails?: string;
+  instructions?: string;
+  isAttachmentRequired?: boolean;
+  isCommentRequired?: boolean;
+  isElectronicSignatureRequired?: boolean;
   hasAssigneeSignature?: boolean;
   isAssigneeEmployee?: boolean;
   assigneeSignatureJson?: string;

@@ -33,11 +33,15 @@ public class ApprovalRequestTaskResult : ApprovalRequestTaskListItemResult
         RequestedByDisplayName = source.RequestedByDisplayName;
         OrganizationDisplayName = source.OrganizationDisplayName;
         Description = source.Description;
+        Instructions = source.Instructions;
+        IsAttachmentRequired = source.IsAttachmentRequired;
+        IsCommentRequired = source.IsCommentRequired;
+        IsElectronicSignatureRequired = source.IsElectronicSignatureRequired;
         Comment = source.Comment;
         AssigneeIpAddress = source.AssigneeIpAddress;
         AssigneeBrowserData = source.AssigneeBrowserData;
         AssigneeLegalName = source.AssigneeLegalName;
-        AssigneeOrganization = source.AssigneeOrganization;
+        AssigneeRepresentationDetails = source.AssigneeRepresentationDetails;
         IsAssigneeEmployee = source.IsAssigneeEmployee;
         HasAssigneeSignature = source.HasAssigneeSignature;
         AssigneeSignatureJson = source.AssigneeSignatureJson;
@@ -56,7 +60,11 @@ public class ApprovalRequestTaskResult : ApprovalRequestTaskListItemResult
     public string? AssigneeIpAddress { get; init; }
     public string? AssigneeBrowserData { get; init; }
     public string? AssigneeLegalName { get; init; }
-    public string? AssigneeOrganization { get; init; }
+    public string? AssigneeRepresentationDetails { get; init; }
+    public string? Instructions { get; init; }
+    public bool IsAttachmentRequired { get; init; }
+    public bool IsCommentRequired { get; init; }
+    public bool IsElectronicSignatureRequired { get; init; }
     public bool HasAssigneeSignature { get; init; }
     public bool IsAssigneeEmployee { get; init; }
     public string? AssigneeSignatureJson { get; init; }

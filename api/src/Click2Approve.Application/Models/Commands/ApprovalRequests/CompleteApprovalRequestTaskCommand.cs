@@ -9,7 +9,7 @@ public class CompleteApprovalRequestTaskCommand
     public required bool Result { get; set; }
     public string? Comment { get; set; }
     public string? AssigneeLegalName { get; set; }
-    public string? AssigneeOrganization { get; set; }
+    public string? AssigneeRepresentationDetails { get; set; }
     public string? AssigneeSignatureJson { get; set; }
     public string? AssigneeIpAddress { get; set; }
     public string? AssigneeBrowserData { get; set; }

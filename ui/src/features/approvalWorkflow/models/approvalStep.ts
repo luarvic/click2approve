@@ -35,6 +35,10 @@ export interface ApprovalStep {
   mode?: ApprovalStepMode;
   visibilityMode?: ApprovalStepVisibilityMode;
   action: ApprovalRequestTaskAction;
+  instructions?: string;
+  isAttachmentRequired?: boolean;
+  isCommentRequired?: boolean;
+  isElectronicSignatureRequired?: boolean;
   isVisible?: boolean;
   assignees: ApprovalStepAssignee[];
   tasks?: ApprovalRequestTask[];

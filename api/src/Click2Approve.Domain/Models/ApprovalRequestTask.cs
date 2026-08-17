@@ -21,13 +21,17 @@ public class ApprovalRequestTask : DbEntity
     public required string AssigneeDisplayName { get; set; }
     public string? AssigneeIpAddress { get; set; }
     public string? AssigneeLegalName { get; set; }
-    public string? AssigneeOrganization { get; set; }
+    public string? AssigneeRepresentationDetails { get; set; }
     public string? AssigneeSignatureJson { get; set; }
     public string? Comment { get; set; }
     public string? CompletedByDisplayName { get; set; }
     public DateTime? CompletedAt { get; set; }
     public required DateTime CreatedAt { get; set; }
     public string? Description { get; set; }
+    public string? Instructions { get; set; }
+    public bool IsAttachmentRequired { get; set; }
+    public bool IsCommentRequired { get; set; }
+    public bool IsElectronicSignatureRequired { get; set; }
     public string? OrganizationDisplayName { get; set; }
     public int RevisionNumber { get; set; } = 1;
     public bool? Result { get; set; }

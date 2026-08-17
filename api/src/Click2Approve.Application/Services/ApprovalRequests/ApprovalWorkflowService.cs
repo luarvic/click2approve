@@ -292,6 +292,10 @@ public class ApprovalWorkflowService(
                 TenantId = resolution.TenantId,
                 RevisionNumber = approvalRequest.RevisionNumber,
                 Action = step.Action,
+                Instructions = step.Instructions,
+                IsAttachmentRequired = step.IsAttachmentRequired,
+                IsCommentRequired = step.IsCommentRequired,
+                IsElectronicSignatureRequired = step.IsElectronicSignatureRequired,
                 Status = ApprovalRequestTaskStatus.Pending,
                 CreatedAt = timestamp
             }, cancellationToken);

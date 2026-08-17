@@ -1,23 +1,26 @@
 import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
-import { getAssigneeIcon } from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
-import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestTaskSummaryBlock";
-import ApprovalRequestTaskAttachments from "@/features/approvalRequests/components/ApprovalRequestTaskAttachments";
 import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
+import { getAssigneeIcon } from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
+import ApprovalRequestTaskAttachments from "@/features/approvalRequests/components/ApprovalRequestTaskAttachments";
+import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestTaskSummaryBlock";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
 import {
-  AssigneeType,
   ApprovalStep,
   ApprovalStepAssignee,
   ApprovalStepMode,
   ApprovalStepVisibilityMode,
+  AssigneeType,
 } from "@/features/approvalWorkflow/models/approvalStep";
 import { Dialogs, Flex, Icons, StackSpacing } from "@/shared/constants/constants";
 import {
   AssignmentOutlined,
+  AttachFile,
   ChecklistRtlOutlined,
+  CommentOutlined,
+  DrawOutlined,
   ExpandMore,
   Person,
   RuleOutlined,
@@ -47,18 +50,18 @@ interface ApprovalStepBlockProps {
   taskAttachmentsTenantGlobalId?: string;
 }
 
+const stepMetadataPieceSx: SxProps<Theme> = {
+  alignItems: "center",
+  display: "inline-flex",
+  gap: StackSpacing.tight,
+  minWidth: 0,
+};
 const stepMetadataSx: SxProps<Theme> = {
   alignItems: "center",
   color: "text.secondary",
   display: "flex",
   flexWrap: "wrap",
   gap: StackSpacing.default,
-  minWidth: 0,
-};
-const stepMetadataPieceSx: SxProps<Theme> = {
-  alignItems: "center",
-  display: "inline-flex",
-  gap: StackSpacing.tight,
   minWidth: 0,
 };
 const stepMetadataTextSx: SxProps<Theme> = {
@@ -240,6 +243,42 @@ const renderStepMetadata = (
     ),
   ];
 
+  if (step.isCommentRequired) {
+    pieces.push(
+      renderStepMetadataPiece(
+        "comment-required",
+        <CommentOutlined color={Icons.secondaryColor} fontSize="small" />,
+        "Comment required",
+        "A comment is required for a positive result.",
+        `Step ${step.sequence} requires a comment`,
+      ),
+    );
+  }
+
+  if (step.isElectronicSignatureRequired) {
+    pieces.push(
+      renderStepMetadataPiece(
+        "electronic-signature-required",
+        <DrawOutlined color={Icons.secondaryColor} fontSize="small" />,
+        "Electronic signature required",
+        "An electronic signature is required for a positive result.",
+        `Step ${step.sequence} requires an electronic signature`,
+      ),
+    );
+  }
+
+  if (step.isAttachmentRequired) {
+    pieces.push(
+      renderStepMetadataPiece(
+        "attachment-required",
+        <AttachFile color={Icons.secondaryColor} fontSize="small" />,
+        "Attachment required",
+        "An attachment is required for a positive result.",
+        `Step ${step.sequence} requires an attachment`,
+      ),
+    );
+  }
+
   if (showVisibility) {
     const visibilityLabel = getStepVisibilityModeLabel(step);
     pieces.push(
@@ -253,14 +292,10 @@ const renderStepMetadata = (
     );
   }
 
-  return (
-    <Stack direction="row" sx={stepMetadataSx}>
-      {pieces}
-    </Stack>
-  );
+  return <>{pieces}</>;
 };
 
-export const ApprovalStepLabel: React.FC<{
+export const ApprovalStepMetadata: React.FC<{
   showVisibility?: boolean;
   step: ApprovalStep;
 }> = ({ showVisibility = true, step }) => {
@@ -268,10 +303,9 @@ export const ApprovalStepLabel: React.FC<{
   const actionLabel = getApprovalRequestTaskActionLabels(getStepAction(step)).positive;
 
   return (
-    <ApprovalStepHeader
-      details={renderStepMetadata(step, stepMode, actionLabel, showVisibility)}
-      sequence={step.sequence}
-    />
+    <Stack direction="row" sx={stepMetadataSx}>
+      {renderStepMetadata(step, stepMode, actionLabel, showVisibility)}
+    </Stack>
   );
 };
 
@@ -321,12 +355,14 @@ const renderTaskDetails = (
         ? "text.primary"
         : "text.secondary"
     }
-    numberVariant="subtitle1"
+    numberComponent="h3"
+    numberVariant="h6"
     participant="assignee"
     participantType={participantType}
     showComment
     showDescription={false}
     showFiles={false}
+    showInstructionsLabel={false}
     showElectronicSignature
     showRevision={false}
     stepperBorderLeftColor={task.status === ApprovalRequestTaskStatus.Pending ? stepperBorderLeftColor : undefined}
@@ -336,11 +372,17 @@ const renderTaskDetails = (
   />
 );
 
-const renderAssigneeWithoutTasks = (assignee: ApprovalStepAssignee, index: number, setupFutureTasks: boolean) => (
+const renderAssigneeWithoutTasks = (
+  assignee: ApprovalStepAssignee,
+  index: number,
+  setupFutureTasks: boolean,
+  instructions?: string,
+) => (
   <ApprovalUpcomingTaskBlock
     key={assignee.globalId ?? index}
     assignee={assignee}
     compact={setupFutureTasks}
+    instructions={instructions}
     showAssigneeLabel={!setupFutureTasks}
     showStatusBorder={!setupFutureTasks}
     showTitle={!setupFutureTasks}
@@ -359,9 +401,12 @@ const renderTeamAssignee = (
   showEmptyTeamTasksMessage: boolean = true,
   setupFutureTasks: boolean = false,
   taskAttachmentsTenantGlobalId?: string,
+  instructions?: string,
 ) => {
   if (assigneeTasks.length === 0) {
-    return showEmptyTeamTasksMessage ? renderAssigneeWithoutTasks(assignee, index, setupFutureTasks) : null;
+    return showEmptyTeamTasksMessage
+      ? renderAssigneeWithoutTasks(assignee, index, setupFutureTasks, instructions)
+      : null;
   }
 
   return (
@@ -414,11 +459,12 @@ const renderAssignee = (
       showEmptyTeamTasksMessage,
       setupFutureTasks,
       taskAttachmentsTenantGlobalId,
+      step.instructions,
     );
   }
 
   if (assigneeTasks.length === 0) {
-    return renderAssigneeWithoutTasks(assignee, index, setupFutureTasks ?? false);
+    return renderAssigneeWithoutTasks(assignee, index, setupFutureTasks ?? false, step.instructions);
   }
 
   return assigneeTasks.map((task) =>

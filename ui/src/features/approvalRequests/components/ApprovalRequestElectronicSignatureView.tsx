@@ -52,12 +52,12 @@ const ApprovalRequestElectronicSignatureView: React.FC<ApprovalRequestElectronic
             </Typography>
             <Typography>{task.assigneeLegalName || "Not provided"}</Typography>
           </Stack>
-          {task.assigneeOrganization && (
+          {task.assigneeRepresentationDetails && (
             <Stack spacing={Dialogs.stepHeaderSpacing}>
               <Typography color="text.secondary" variant="caption">
-                Organization
+                Representation details
               </Typography>
-              <Typography>{task.assigneeOrganization}</Typography>
+              <Typography>{task.assigneeRepresentationDetails}</Typography>
             </Stack>
           )}
         </Stack>

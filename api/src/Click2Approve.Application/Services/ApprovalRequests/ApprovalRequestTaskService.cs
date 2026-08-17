@@ -49,9 +49,14 @@ public class ApprovalRequestTaskService(
 
         var now = DateTime.UtcNow;
         ApplyCompletionDetails(approvalRequestTask, payload);
-        if (!payload.Result && string.IsNullOrWhiteSpace(payload.Comment))
+        if ((!payload.Result || approvalRequestTask.IsCommentRequired) && string.IsNullOrWhiteSpace(payload.Comment))
         {
             throw new BusinessRuleException("Comment is required.");
+        }
+        if (payload.Result && approvalRequestTask.IsAttachmentRequired
+            && !await _approvalRequestTaskRepository.HasAttachmentsAsync(approvalRequestTask, cancellationToken))
+        {
+            throw new BusinessRuleException("At least one attachment is required.");
         }
 
         approvalRequestTask.Status = ApprovalRequestTaskStatus.Completed;
@@ -78,7 +83,7 @@ public class ApprovalRequestTaskService(
     {
         approvalRequestTask.AssigneeIpAddress = TrimToLength(payload.AssigneeIpAddress, 128);
         approvalRequestTask.AssigneeBrowserData = TrimToLength(payload.AssigneeBrowserData, 1024);
-        if (approvalRequestTask.Action != ApprovalRequestTaskAction.Sign)
+        if (!payload.Result || !approvalRequestTask.IsElectronicSignatureRequired)
         {
             return;
         }
@@ -101,7 +106,7 @@ public class ApprovalRequestTaskService(
         }
 
         approvalRequestTask.AssigneeLegalName = legalName;
-        approvalRequestTask.AssigneeOrganization = payload.AssigneeOrganization;
+        approvalRequestTask.AssigneeRepresentationDetails = TrimToLength(payload.AssigneeRepresentationDetails, 1024);
         approvalRequestTask.AssigneeSignatureJson = signatureJson;
     }
 

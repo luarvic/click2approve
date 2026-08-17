@@ -12,6 +12,10 @@ public class ApprovalRequestStepResponse
     public int Sequence { get; init; }
     public ApprovalStepMode? Mode { get; init; }
     public ApprovalRequestTaskAction Action { get; init; }
+    public string? Instructions { get; init; }
+    public bool IsAttachmentRequired { get; init; }
+    public bool IsCommentRequired { get; init; }
+    public bool IsElectronicSignatureRequired { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ApprovalStepVisibilityMode? VisibilityMode { get; init; }
     public bool IsVisible { get; init; } = true;

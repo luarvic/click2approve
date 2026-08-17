@@ -118,6 +118,9 @@ public class ApprovalRequestTaskRepository(
             .LongCountAsync(cancellationToken);
     }
 
+    public virtual Task<bool> HasAttachmentsAsync(ApprovalRequestTask task, CancellationToken cancellationToken) =>
+        Task.FromResult(false);
+
     protected virtual async Task<ApprovalRequestTask?> GetTaskAsync(
         AppUser user,
         Guid globalId,

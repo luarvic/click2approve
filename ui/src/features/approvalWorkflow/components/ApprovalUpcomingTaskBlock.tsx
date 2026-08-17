@@ -1,19 +1,23 @@
+import { stores } from "@/app/rootStore";
 import ApprovalRequestContentGroups from "@/features/approvalRequests/components/ApprovalRequestContentGroups";
+import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
 import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
 import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
 import ApprovalRequestParticipantPair from "@/features/approvalRequests/components/ApprovalRequestParticipantPair";
-import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
-import { TenantType } from "@/features/tenants/models/tenant";
 import { getApprovalRequestTimestampIcon } from "@/features/approvalRequests/components/approvalRequestTimestampDisplay";
 import { ApprovalStepAssignee } from "@/features/approvalWorkflow/models/approvalStep";
+import { TenantType } from "@/features/tenants/models/tenant";
+import UserProvidedText from "@/shared/components/text/UserProvidedText";
 import TimelineTimestamp from "@/shared/components/timeline/TimelineTimestamp";
-import { Typography } from "@mui/material";
+import { StackSpacing } from "@/shared/constants/constants";
 import type { SxProps } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 
 interface ApprovalUpcomingTaskBlockProps {
   assignee: ApprovalStepAssignee;
   compact?: boolean;
+  instructions?: string;
   showAssigneeLabel?: boolean;
   showStatusBorder?: boolean;
   showTitle?: boolean;
@@ -34,6 +38,7 @@ const compactTaskCardContentSx: SxProps<Theme> = {
 const ApprovalUpcomingTaskBlock: React.FC<ApprovalUpcomingTaskBlockProps> = ({
   assignee,
   compact = false,
+  instructions,
   showAssigneeLabel = true,
   showStatusBorder = true,
   showTitle = true,
@@ -53,38 +58,41 @@ const ApprovalUpcomingTaskBlock: React.FC<ApprovalUpcomingTaskBlockProps> = ({
       <ApprovalRequestContentGroups
         header={
           showTitle ? (
-            <Typography component="h2" sx={upcomingTaskTitleSx} variant="subtitle1">
+            <Typography component="h3" sx={upcomingTaskTitleSx} variant="h6">
               {title}
             </Typography>
           ) : undefined
         }
-        metadata={
-          <ApprovalRequestParticipantPair
-            firstLabel={
-              showAssigneeLabel ? (
-                <ApprovalRequestParticipantLabel>Assignee</ApprovalRequestParticipantLabel>
-              ) : undefined
-            }
-            firstParticipant={
-              <ApprovalRequestParticipant
-                displayName={assignee.displayName}
-                email={assignee.email}
-                organizationDisplayName={organizationDisplayName}
-                showOrganization={organizationIsVisible}
-                type={assignee.type}
-              />
-            }
-            firstTimestamp={
-              showTimeline ? (
-                <TimelineTimestamp
-                  icon={getApprovalRequestTimestampIcon("pending")}
-                  iconSize="small"
-                  label="Waiting for previous step"
-                  text="Waiting for previous step"
+        content={
+          <Stack spacing={StackSpacing.default}>
+            {instructions?.trim() && <UserProvidedText text={instructions} />}
+            <ApprovalRequestParticipantPair
+              firstLabel={
+                showAssigneeLabel ? (
+                  <ApprovalRequestParticipantLabel>Assignee</ApprovalRequestParticipantLabel>
+                ) : undefined
+              }
+              firstParticipant={
+                <ApprovalRequestParticipant
+                  displayName={assignee.displayName}
+                  email={assignee.email}
+                  organizationDisplayName={organizationDisplayName}
+                  showOrganization={organizationIsVisible}
+                  type={assignee.type}
                 />
-              ) : undefined
-            }
-          />
+              }
+              firstTimestamp={
+                showTimeline ? (
+                  <TimelineTimestamp
+                    icon={getApprovalRequestTimestampIcon("pending")}
+                    iconSize="small"
+                    label="Waiting for previous step"
+                    text="Waiting for previous step"
+                  />
+                ) : undefined
+              }
+            />
+          </Stack>
         }
       />
     </ApprovalRequestDetailsCard>
@@ -92,4 +100,3 @@ const ApprovalUpcomingTaskBlock: React.FC<ApprovalUpcomingTaskBlockProps> = ({
 };
 
 export default ApprovalUpcomingTaskBlock;
-import { stores } from "@/app/rootStore";

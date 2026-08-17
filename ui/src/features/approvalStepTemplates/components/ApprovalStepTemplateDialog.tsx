@@ -229,6 +229,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
             onRemoveStep={removeStep}
             onUpdateAssignee={updateAssignee}
             onUpdateStep={updateStep}
+            showAttachmentRequirement={stores.applicationConfigurationStore.taskAttachmentsAreEnabled}
           />
         </Stack>
       )}
