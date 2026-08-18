@@ -50,6 +50,7 @@ const TeamEditorPage = () => {
 
   if (!tenantGlobalId) return <Navigate to={teamsPath} />;
   if (!teamDataHasLoaded) return <LoadingOverlay />;
+  if (isNewTeam && !canEdit) return <Navigate replace to={teamsPath} />;
   if (!isNewTeam && !team) return <NotFoundPage />;
 
   return (

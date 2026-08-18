@@ -99,6 +99,10 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
   };
 
   const handleSubmit = async () => {
+    if (!canEdit) {
+      return;
+    }
+
     if (isNew && !Validation.emailRegex.test(email)) {
       setEmailTouched(true);
       return;
@@ -130,7 +134,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           onBlur={() => setEmailTouched(true)}
-          disabled={!isNew}
+          disabled={!isNew || !canEdit}
           error={emailHasError}
           helperText={emailHasError ? "Enter a valid email address." : undefined}
           fullWidth
@@ -141,21 +145,21 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
           value={firstName}
           onChange={(event) => setFirstName(event.target.value)}
           fullWidth
-          disabled={!isNew && !canEdit}
+          disabled={!canEdit}
         />
         <TextField
           label="Last name"
           value={lastName}
           onChange={(event) => setLastName(event.target.value)}
           fullWidth
-          disabled={!isNew && !canEdit}
+          disabled={!canEdit}
         />
         <TextField
           label="Position"
           value={position}
           onChange={(event) => setPosition(event.target.value)}
           fullWidth
-          disabled={!isNew && !canEdit}
+          disabled={!canEdit}
         />
         <FormControl fullWidth>
           <InputLabel id="tenant-user-role-label">Role</InputLabel>
@@ -164,7 +168,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
             label="Role"
             value={role}
             onChange={(event) => setRole(Number(event.target.value))}
-            disabled={!isNew && (!canEdit || employee.role === EmployeeRole.Owner)}
+            disabled={!canEdit || (!isNew && employee.role === EmployeeRole.Owner)}
           >
             {availableRoleOptions.map((option) => (
               <MenuItem key={option.value} value={option.value}>
@@ -180,7 +184,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
           getOptionLabel={(option) => option.name}
           isOptionEqualToValue={(option, value) => option.globalId === value.globalId}
           onChange={(_, value) => setSelectedTeams(value)}
-          disabled={!isNew && !canEdit}
+          disabled={!canEdit}
           renderTags={(value, getTagProps) =>
             value.map((option, index) => <Chip label={option.name} {...getTagProps({ index })} />)
           }
@@ -196,7 +200,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
             Delete
           </Button>
         )}
-        {(isNew || canEdit) && (
+        {canEdit && (
           <LoadingButton loading={saveIsLoading} variant="outlined" onClick={handleSubmit}>
             Save
           </LoadingButton>

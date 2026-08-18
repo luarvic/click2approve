@@ -45,6 +45,10 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
   }, [team]);
 
   const handleSubmit = async () => {
+    if (!canEdit) {
+      return;
+    }
+
     if (!name.trim()) {
       setNameTouched(true);
       return;
@@ -87,7 +91,7 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
           helperText={nameHasError ? "Team name is required." : undefined}
           fullWidth
           required
-          disabled={!isNew && !canEdit}
+          disabled={!canEdit}
         />
         <Autocomplete
           multiple
@@ -96,7 +100,7 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
           getOptionLabel={getEmployeeLabel}
           isOptionEqualToValue={(option, value) => option.globalId === value.globalId}
           onChange={(_, value) => setMembers(value)}
-          disabled={!isNew && !canEdit}
+          disabled={!canEdit}
           renderTags={(value, getTagProps) =>
             value.map((option, index) => <Chip label={getEmployeeLabel(option)} {...getTagProps({ index })} />)
           }
@@ -119,7 +123,7 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
             Delete
           </Button>
         )}
-        {(isNew || canEdit) && (
+        {canEdit && (
           <LoadingButton loading={saveIsLoading} variant="outlined" onClick={handleSubmit}>
             Save
           </LoadingButton>

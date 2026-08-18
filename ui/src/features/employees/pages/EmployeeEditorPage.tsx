@@ -55,6 +55,7 @@ const EmployeeEditorPage = () => {
 
   if (!tenantGlobalId) return <Navigate to={employeesPath} />;
   if (!employeeDataHasLoaded) return <LoadingOverlay />;
+  if (isNewEmployee && !canEdit) return <Navigate replace to={employeesPath} />;
   if (!isNewEmployee && !employee) return <NotFoundPage />;
 
   return (
