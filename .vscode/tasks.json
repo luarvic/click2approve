@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "format-api",
+      "label": "format-webapi",
       "type": "shell",
       "command": "dotnet",
       "args": [
@@ -16,6 +16,15 @@
       "problemMatcher": [
         "$msCompile"
       ]
+    },
+    {
+      "label": "format-ui",
+      "type": "shell",
+      "command": "npx prettier --write --print-width 120 --tab-width 2 \"**/*.{ts,tsx}\"",
+      "options": {
+        "cwd": "${workspaceFolder}/ui"
+      },
+      "problemMatcher": []
     },
     {
       "label": "build-webapi",
