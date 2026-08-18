@@ -1,4 +1,6 @@
 import { stores } from "@/app/rootStore";
+import ApprovalRequestParticipantChip from "@/features/approvalRequests/components/ApprovalRequestParticipantChip";
+import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
 import {
   ApprovalStep,
@@ -167,6 +169,20 @@ const ApprovalStepTemplateVisibilityEditor: React.FC<ApprovalStepTemplateVisibil
                 getOptionLabel={(option) => option.label}
                 isOptionEqualToValue={(option, value) => option.globalId === value.globalId}
                 onChange={(_, value) => updateVisibility(stepIndex, mode, value)}
+                renderOption={(props, option) => (
+                  <li {...props}>
+                    <ApprovalRequestParticipantLine displayName={option.label} type={option.type} />
+                  </li>
+                )}
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                    <ApprovalRequestParticipantChip
+                      {...getTagProps({ index })}
+                      displayName={option.label}
+                      type={option.type}
+                    />
+                  ))
+                }
                 renderInput={(params) => (
                   <TextField
                     {...params}

@@ -1,5 +1,12 @@
 import { stores } from "@/app/rootStore";
-import { CreateEmployeeRequest, Employee, UpdateEmployeeRequest } from "@/features/employees/models/employee";
+import {
+  CreateEmployeeRequest,
+  Employee,
+  EmployeeStatus,
+  UpdateEmployeeRequest,
+} from "@/features/employees/models/employee";
+import ApprovalRequestParticipantChip from "@/features/approvalRequests/components/ApprovalRequestParticipantChip";
+import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { Team } from "@/features/teams/models/team";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
@@ -10,7 +17,18 @@ import { Dialogs, Routes, Validation } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { Autocomplete, Button, Chip, FormControl, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material";
+import {
+  Autocomplete,
+  Button,
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  TextField,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 
 interface EmployeeDialogProps {
@@ -47,9 +65,11 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
   const [lastName, setLastName] = useState("");
   const [position, setPosition] = useState("");
   const [role, setRole] = useState(EmployeeRole.User);
+  const [isActive, setIsActive] = useState(true);
   const [selectedTeams, setSelectedTeams] = useState<Team[]>([]);
   const [emailTouched, setEmailTouched] = useState(false);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
+  const [disableDialogIsOpen, setDisableDialogIsOpen] = useState(false);
   const [ownershipTransferDialogIsOpen, setOwnershipTransferDialogIsOpen] = useState(false);
   const saveLoader = ActionLoaders.employees.save(employee?.globalId);
   const saveAction = useAsyncAction(saveLoader);
@@ -71,6 +91,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
     setLastName(employee?.lastName ?? "");
     setPosition(employee?.position ?? "");
     setRole(employee?.role ?? EmployeeRole.User);
+    setIsActive(employee?.status === EmployeeStatus.Active);
     setSelectedTeams(teams.filter((team) => selectedTeamGlobalIds.includes(team.globalId)));
     setEmailTouched(false);
   }, [employee, teams, selectedTeamGlobalIds]);
@@ -81,6 +102,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
       lastName: lastName.trim() || undefined,
       position: position.trim() || undefined,
       role,
+      ...(!isNew ? { isActive } : {}),
       teamGlobalIds: selectedTeams.map((team) => team.globalId),
     };
     return (
@@ -110,6 +132,11 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
 
     if (!isNew && employee.role !== EmployeeRole.Owner && role === EmployeeRole.Owner) {
       setOwnershipTransferDialogIsOpen(true);
+      return;
+    }
+
+    if (!isNew && employee.status === EmployeeStatus.Active && !isActive) {
+      setDisableDialogIsOpen(true);
       return;
     }
 
@@ -186,10 +213,28 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
           onChange={(_, value) => setSelectedTeams(value)}
           disabled={!canEdit}
           renderTags={(value, getTagProps) =>
-            value.map((option, index) => <Chip label={option.name} {...getTagProps({ index })} />)
+            value.map((option, index) => (
+              <ApprovalRequestParticipantChip
+                {...getTagProps({ index })}
+                displayName={option.name}
+                type={AssigneeType.Team}
+              />
+            ))
           }
           renderInput={(params) => <TextField {...params} label="Teams" helperText="Assign this employee to teams." />}
         />
+        {!isNew && employee.status !== EmployeeStatus.Pending && (
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isActive}
+                disabled={!canEdit || employee.role === EmployeeRole.Owner}
+                onChange={(event) => setIsActive(event.target.checked)}
+              />
+            }
+            label="Active"
+          />
+        )}
       </Stack>
       <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
         <Button variant="outlined" onClick={() => onClose(employee?.globalId)}>
@@ -228,6 +273,22 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
         open={ownershipTransferDialogIsOpen}
         title="Transfer organization ownership?"
         onClose={() => setOwnershipTransferDialogIsOpen(false)}
+        onConfirm={saveEmployee}
+      />
+      <ConfirmationDialog
+        cancelFirst
+        cancelLabel="Keep employee active"
+        confirmColor="warning"
+        confirmLabel="Disable employee"
+        message={
+          <>
+            This employee will immediately lose access to this organization and will no longer appear when selecting
+            employees. Existing tasks, requests, team memberships, and delegations will be retained.
+          </>
+        }
+        open={disableDialogIsOpen}
+        title="Disable employee?"
+        onClose={() => setDisableDialogIsOpen(false)}
         onConfirm={saveEmployee}
       />
     </CloseOnEscape>

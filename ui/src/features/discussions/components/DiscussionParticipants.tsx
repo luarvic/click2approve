@@ -1,7 +1,6 @@
 import { AssigneeType, type ApprovalStepAssignee } from "@/features/approvalWorkflow/models/approvalStep";
 import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
 import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
-import DisplayName from "@/shared/components/identity/DisplayName";
 import { StackSpacing } from "@/shared/constants/constants";
 import { stripInlineEmail } from "@/shared/utils/displayNameHelpers";
 import { Stack } from "@mui/material";
@@ -46,7 +45,7 @@ const DiscussionParticipants: React.FC<DiscussionParticipantsProps> = ({
         {participants.map((participant) => (
           <ApprovalRequestParticipantLine
             key={participant.key}
-            label={<DisplayName displayName={participant.label} showEmailAddress={false} />}
+            displayName={participant.label}
             type={participant.type}
           />
         ))}

@@ -1,9 +1,8 @@
 import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
-import ApprovalRequestParticipantLine, {
-  getAssigneeIcon,
-} from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
-import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
+import ApprovalRequestParticipantChip from "@/features/approvalRequests/components/ApprovalRequestParticipantChip";
+import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
 import ApprovalRequestSubmitActions from "@/features/approvalRequests/components/ApprovalRequestSubmitActions";
+import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
 import { ApprovalRequestFile } from "@/features/approvalRequests/models/approvalRequest";
 import { getApprovalRequestAssigneeVisibilityKey } from "@/features/approvalRequests/utils/approvalRequestVisibility";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
@@ -11,11 +10,10 @@ import { ApprovalStep, ApprovalStepAssignee, AssigneeType } from "@/features/app
 import { EditableApprovalStep } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { Employee } from "@/features/employees/models/employee";
 import { Team } from "@/features/teams/models/team";
-import DisplayName from "@/shared/components/identity/DisplayName";
 import { Dialogs } from "@/shared/constants/constants";
+import type { SxProps } from "@mui/material";
 import {
   Autocomplete,
-  Chip,
   FormControl,
   FormControlLabel,
   FormLabel,
@@ -25,7 +23,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import type { SxProps } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -185,7 +182,6 @@ const ApprovalRequestSubmitVisibility: React.FC<ApprovalRequestSubmitVisibilityP
           <ApprovalStepEditor
             canUseEmployees={canUseEmployees}
             canUseTeams={canUseTeams}
-            compactEmployeeOptions
             employees={employees}
             getStepState={() => ({
               canAddAssignee: false,
@@ -275,19 +271,15 @@ const ApprovalRequestSubmitVisibility: React.FC<ApprovalRequestSubmitVisibilityP
                       )}
                       renderOption={(props, option) => (
                         <li {...props}>
-                          <ApprovalRequestParticipantLine
-                            label={<DisplayName displayName={option.label} showEmailAddress={false} />}
-                            type={option.type}
-                          />
+                          <ApprovalRequestParticipantLine displayName={option.label} type={option.type} />
                         </li>
                       )}
                       renderTags={(value, getTagProps) =>
                         value.map((option, index) => (
-                          <Chip
+                          <ApprovalRequestParticipantChip
                             {...getTagProps({ index })}
-                            icon={getAssigneeIcon(option.type)}
-                            key={option.key}
-                            label={option.label}
+                            displayName={option.label}
+                            type={option.type}
                           />
                         ))
                       }

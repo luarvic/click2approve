@@ -5,7 +5,6 @@ import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/
 import DiscussionParticipants from "@/features/discussions/components/DiscussionParticipants";
 import type { DiscussionMessage } from "@/features/discussions/models/discussionMessage";
 import { downloadDiscussionMessageFile } from "@/features/userFiles/utils/downloaders";
-import DisplayName from "@/shared/components/identity/DisplayName";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
 import TimelineTimestamp from "@/shared/components/timeline/TimelineTimestamp";
 import { StackSpacing } from "@/shared/constants/constants";
@@ -69,10 +68,7 @@ const DiscussionMessageList: React.FC<DiscussionMessageListProps> = ({
       <Box key={message.globalId} sx={messageBubbleSx(isOutgoing)}>
         <Stack spacing={StackSpacing.default}>
           <Stack spacing={StackSpacing.tight}>
-            <ApprovalRequestParticipantLine
-              label={<DisplayName displayName={sender} showEmailAddress={false} />}
-              type={message.sentByType}
-            />
+            <ApprovalRequestParticipantLine displayName={sender} type={message.sentByType} />
             {message.isDelegated && representedSender && (
               <Typography color="inherit" sx={delegatedSenderSx} variant="caption">
                 On behalf of {representedSender}

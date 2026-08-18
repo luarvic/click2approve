@@ -1,15 +1,17 @@
 import { stores } from "@/app/rootStore";
-import { Employee } from "@/features/employees/models/employee";
+import EmployeeDisplayName from "@/features/employees/components/EmployeeDisplayName";
+import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
+import ApprovalRequestParticipantChip from "@/features/approvalRequests/components/ApprovalRequestParticipantChip";
+import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { Team, UpsertTeamRequest } from "@/features/teams/models/team";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
-import DisplayName from "@/shared/components/identity/DisplayName";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { Autocomplete, Button, Chip, Stack, TextField } from "@mui/material";
+import { Autocomplete, Button, Stack, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 
 interface TeamDialogProps {
@@ -37,6 +39,7 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
   const teamsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/teams") : "/";
   const nameHasError = nameTouched && !name.trim();
   const saveIsLoading = saveAction.isRunning || stores.commonStore.isActionLoading(saveLoader);
+  const activeEmployees = employees.filter((employee) => employee.status === EmployeeStatus.Active);
 
   useEffect(() => {
     setName(team?.name ?? "");
@@ -95,21 +98,29 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
         />
         <Autocomplete
           multiple
-          options={employees}
+          options={activeEmployees}
           value={members}
           getOptionLabel={getEmployeeLabel}
           isOptionEqualToValue={(option, value) => option.globalId === value.globalId}
           onChange={(_, value) => setMembers(value)}
           disabled={!canEdit}
           renderTags={(value, getTagProps) =>
-            value.map((option, index) => <Chip label={getEmployeeLabel(option)} {...getTagProps({ index })} />)
+            value.map((option, index) => (
+              <ApprovalRequestParticipantChip
+                {...getTagProps({ index })}
+                displayName={option.displayName}
+                email={option.email}
+                employeeStatus={option.status}
+                type={AssigneeType.Employee}
+              />
+            ))
           }
           renderInput={(params) => (
             <TextField {...params} label="Employees" helperText="Assign employees to this team." />
           )}
           renderOption={(props, option) => (
             <li {...props}>
-              <DisplayName displayName={option.displayName} email={option.email} />
+              <EmployeeDisplayName employee={option} />
             </li>
           )}
         />

@@ -22,6 +22,7 @@ const roleLabels: Record<EmployeeRole, string> = {
 const statusLabels: Record<EmployeeStatus, string> = {
   [EmployeeStatus.Pending]: "Invitation sent",
   [EmployeeStatus.Active]: "Active",
+  [EmployeeStatus.Disabled]: "Disabled",
 };
 
 interface EmployeesGridProps {

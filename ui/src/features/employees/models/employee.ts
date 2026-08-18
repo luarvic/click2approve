@@ -3,6 +3,7 @@ import { EmployeeRole } from "@/features/tenants/models/tenant";
 export enum EmployeeStatus {
   Pending = 0,
   Active = 1,
+  Disabled = 2,
 }
 
 export interface Employee {
@@ -28,6 +29,7 @@ export interface CreateEmployeeRequest {
 }
 
 export interface UpdateEmployeeRequest {
+  isActive?: boolean;
   firstName?: string;
   lastName?: string;
   position?: string;

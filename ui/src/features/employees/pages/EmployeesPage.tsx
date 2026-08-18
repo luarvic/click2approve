@@ -20,7 +20,7 @@ const EmployeesPage = () => {
           {
             label: "Employees",
             titleAction: (
-              <HelpPopover helpText="Manage people in this organization who can receive and complete requests." />
+              <HelpPopover helpText="Manage people in this organization who can receive and complete requests, or disable their access." />
             ),
           },
         ]}

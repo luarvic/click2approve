@@ -49,7 +49,6 @@ interface ApprovalStepEditorProps {
   steps: EditableApprovalStep[];
   canUseEmployees: boolean;
   canUseTeams: boolean;
-  compactEmployeeOptions?: boolean;
   employees: Employee[];
   teams: { globalId: string; name: string }[];
   getStepState?: (step: EditableApprovalStep, stepIndex: number) => ApprovalStepEditorStepState;
@@ -113,7 +112,6 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
   steps,
   canUseEmployees,
   canUseTeams,
-  compactEmployeeOptions = false,
   employees,
   teams,
   getAssigneeState,
@@ -286,7 +284,6 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                             assignee={assignee}
                             canUseEmployees={canUseEmployees}
                             canUseTeams={canUseTeams}
-                            compactEmployeeOptions={compactEmployeeOptions}
                             disabled={assigneeState.disabled ?? disabled}
                             employees={employees}
                             key={assignee.globalId ?? assigneeIndex}

@@ -3,9 +3,9 @@ import ApprovalRequestFilesList, {
   RevisionExistingFile,
 } from "@/features/approvalRequests/components/ApprovalRequestFilesList";
 import ApprovalRequestSubmitActions from "@/features/approvalRequests/components/ApprovalRequestSubmitActions";
-import { EditableApprovalStep } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
 import { ApprovalStepAssignee } from "@/features/approvalWorkflow/models/approvalStep";
+import { EditableApprovalStep } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { Employee } from "@/features/employees/models/employee";
 import { Team } from "@/features/teams/models/team";
 import { UserFile } from "@/features/userFiles/models/userFile";
@@ -153,7 +153,6 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
         <ApprovalStepEditor
           canUseEmployees={canUseEmployees}
           canUseTeams={canUseTeams}
-          compactEmployeeOptions
           employees={employees}
           showAddStep={false}
           showAttachmentRequirement={showAttachmentRequirement}

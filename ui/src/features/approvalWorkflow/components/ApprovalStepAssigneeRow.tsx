@@ -1,10 +1,13 @@
+import ApprovalRequestParticipantLine, {
+  getAssigneeIcon,
+} from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
 import { ApprovalStepAssignee, AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
-import { Employee } from "@/features/employees/models/employee";
-import DisplayName from "@/shared/components/identity/DisplayName";
+import EmployeeDisplayName from "@/features/employees/components/EmployeeDisplayName";
+import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import { AssigneeTypeFieldMinWidth, Dialogs } from "@/shared/constants/constants";
 import { Close } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
-import { Autocomplete, IconButton, MenuItem, Stack, TextField, Tooltip } from "@mui/material";
+import { Autocomplete, IconButton, InputAdornment, MenuItem, Stack, TextField, Tooltip } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 
 interface ApprovalStepAssigneeRowProps {
@@ -18,7 +21,6 @@ interface ApprovalStepAssigneeRowProps {
   muted?: boolean;
   onChange: (assignee: ApprovalStepAssignee) => void;
   onRemove: () => void;
-  compactEmployeeOptions?: boolean;
   stackControlsOnSmallScreens?: boolean;
 }
 
@@ -48,9 +50,9 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
   muted = false,
   onChange,
   onRemove,
-  compactEmployeeOptions = false,
   stackControlsOnSmallScreens = false,
 }) => {
+  const activeEmployees = employees.filter((employee) => employee.status === EmployeeStatus.Active);
   const recipientTypes = [
     { value: AssigneeType.User, label: "User" },
     ...(canUseEmployees ? [{ value: AssigneeType.Employee, label: "Employee" }] : []),
@@ -99,20 +101,34 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
             <Autocomplete
               disableClearable
               fullWidth
-              options={employees}
+              options={activeEmployees}
               getOptionLabel={(option) => option.displayName}
               value={employees.find((user) => user.globalId === assignee.employeeGlobalId)}
               disabled={disabled}
-              renderInput={(params) => <TextField {...params} label="Employee" />}
-              renderOption={
-                compactEmployeeOptions
-                  ? undefined
-                  : (props, option) => (
-                      <li {...props}>
-                        <DisplayName displayName={option.displayName} email={option.email} />
-                      </li>
-                    )
-              }
+              renderInput={(params) => {
+                const employee = employees.find((item) => item.globalId === assignee.employeeGlobalId);
+                return (
+                  <TextField
+                    {...params}
+                    label="Employee"
+                    InputProps={{
+                      ...params.InputProps,
+                      startAdornment: employee ? (
+                        <InputAdornment position="start">
+                          {getAssigneeIcon(AssigneeType.Employee, employee.status)}
+                        </InputAdornment>
+                      ) : (
+                        params.InputProps.startAdornment
+                      ),
+                    }}
+                  />
+                );
+              }}
+              renderOption={(props, option) => (
+                <li {...props}>
+                  <EmployeeDisplayName employee={option} />
+                </li>
+              )}
               onChange={(_, value) =>
                 onChange({
                   ...assignee,
@@ -130,7 +146,28 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
               getOptionLabel={(option) => option.name}
               value={teams.find((team) => team.globalId === assignee.teamGlobalId)}
               disabled={disabled}
-              renderInput={(params) => <TextField {...params} label="Team" />}
+              renderInput={(params) => {
+                const team = teams.find((item) => item.globalId === assignee.teamGlobalId);
+                return (
+                  <TextField
+                    {...params}
+                    label="Team"
+                    InputProps={{
+                      ...params.InputProps,
+                      startAdornment: team ? (
+                        <InputAdornment position="start">{getAssigneeIcon(AssigneeType.Team)}</InputAdornment>
+                      ) : (
+                        params.InputProps.startAdornment
+                      ),
+                    }}
+                  />
+                );
+              }}
+              renderOption={(props, option) => (
+                <li {...props}>
+                  <ApprovalRequestParticipantLine displayName={option.name} type={AssigneeType.Team} />
+                </li>
+              )}
               onChange={(_, value) =>
                 onChange({
                   ...assignee,

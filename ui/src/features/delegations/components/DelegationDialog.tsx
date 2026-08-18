@@ -1,8 +1,8 @@
 import { stores } from "@/app/rootStore";
 import { ApprovalDelegation, ApprovalDelegationUpsert } from "@/features/delegations/models/approvalDelegation";
-import { Employee } from "@/features/employees/models/employee";
+import EmployeeDisplayName from "@/features/employees/components/EmployeeDisplayName";
+import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
-import DisplayName from "@/shared/components/identity/DisplayName";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
@@ -53,10 +53,15 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
     ? "Delegator and delegate must be different employees."
     : "Select a delegate.";
   const saveIsLoading = saveAction.isRunning || stores.commonStore.isActionLoading(saveLoader);
+  const activeEmployees = employees.filter((employee) => employee.status === EmployeeStatus.Active);
   const delegationName = `${getEmployeeName(
     employees,
     delegatorEmployeeId,
   )} to ${getEmployeeName(employees, delegateEmployeeId)}`;
+  const renderEmployeeValue = (employeeGlobalId: string) => {
+    const employee = employees.find((item) => item.globalId === employeeGlobalId);
+    return employee ? <EmployeeDisplayName employee={employee} /> : getEmployeeName(employees, employeeGlobalId);
+  };
 
   useEffect(() => {
     setDelegatorEmployeeId(delegation?.delegatorEmployeeGlobalId ?? employeeSelectionDefault);
@@ -104,6 +109,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           select
           label="Employee"
           value={delegatorEmployeeId}
+          SelectProps={{ renderValue: (selected) => renderEmployeeValue(selected as string) }}
           onChange={(event) => setDelegatorEmployeeId(event.target.value)}
           onBlur={() => setDelegatorTouched(true)}
           error={delegatorHasError}
@@ -113,9 +119,9 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           disabled={!isNew && !canEdit}
         >
           <MenuItem value={employeeSelectionDefault}>Select employee</MenuItem>
-          {employees.map((employee) => (
+          {activeEmployees.map((employee) => (
             <MenuItem key={employee.globalId} value={employee.globalId}>
-              <DisplayName displayName={employee.displayName} email={employee.email} />
+              <EmployeeDisplayName employee={employee} />
             </MenuItem>
           ))}
         </TextField>
@@ -123,6 +129,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           select
           label="Delegate"
           value={delegateEmployeeId}
+          SelectProps={{ renderValue: (selected) => renderEmployeeValue(selected as string) }}
           onChange={(event) => setDelegateEmployeeId(event.target.value)}
           onBlur={() => setDelegateTouched(true)}
           error={delegateHasError}
@@ -132,9 +139,9 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           disabled={!isNew && !canEdit}
         >
           <MenuItem value={employeeSelectionDefault}>Select delegate</MenuItem>
-          {employees.map((employee) => (
+          {activeEmployees.map((employee) => (
             <MenuItem key={employee.globalId} value={employee.globalId}>
-              <DisplayName displayName={employee.displayName} email={employee.email} />
+              <EmployeeDisplayName employee={employee} />
             </MenuItem>
           ))}
         </TextField>
