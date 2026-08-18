@@ -1,9 +1,11 @@
 import { UserFile } from "@/features/userFiles/models/userFile";
-import FileTypeIcon from "@/shared/components/icons/FileTypeIcon";
+import FileNameLink from "@/shared/components/files/FileNameLink";
+import FileRow from "@/shared/components/files/FileRow";
+import ReplacedFileGroup from "@/shared/components/files/ReplacedFileGroup";
 import CommentPaper from "@/shared/components/papers/CommentPaper";
 import { StackSpacing } from "@/shared/constants/constants";
 import { Close, MoreVert, Undo } from "@mui/icons-material";
-import { Box, Chip, IconButton, Link, Menu, MenuItem, Stack, Tooltip, type SxProps } from "@mui/material";
+import { Chip, IconButton, Menu, MenuItem, Stack, Tooltip, type SxProps } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import { useState } from "react";
 
@@ -30,22 +32,6 @@ interface ApprovalRequestFilesListProps {
 
 const replacedOriginalFileLinkSx: SxProps<Theme> = {
   opacity: 0.55,
-};
-
-const replacedFilesGroupSx: SxProps<Theme> = {
-  borderLeft: (theme) => `1px solid ${theme.palette.divider}`,
-  paddingLeft: (theme) => theme.spacing(StackSpacing.default),
-};
-
-const fileLinkSx: SxProps<Theme> = {
-  alignItems: "center",
-  columnGap: StackSpacing.default,
-  display: "inline-flex",
-  textAlign: "left",
-};
-
-const fileRowSx: SxProps<Theme> = {
-  minHeight: 24,
 };
 
 const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
@@ -93,15 +79,11 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
   };
 
   const renderFileLink = (fileName: string, sx?: SxProps<Theme>, onClick?: () => void) => (
-    <Link
-      component={onClick ? "button" : "span"}
+    <FileNameLink
+      fileName={fileName}
       onClick={onClick}
-      sx={[fileLinkSx, ...(Array.isArray(linkSx) ? linkSx : [linkSx]), ...(Array.isArray(sx) ? sx : [sx])]}
-      variant="body2"
-    >
-      <FileTypeIcon fontSize="small" fileName={fileName} />
-      {fileName}
-    </Link>
+      sx={[...(Array.isArray(linkSx) ? linkSx : [linkSx]), ...(Array.isArray(sx) ? sx : [sx])]}
+    />
   );
 
   const renderNewFile = (file: UserFile, index: number) => {
@@ -121,10 +103,10 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
 
     return onReplaceExisting ? (
       <Tooltip key={file.globalId} title="New file">
-        <Stack direction="row" alignItems="center" spacing={StackSpacing.default} sx={fileRowSx}>
+        <FileRow sx={{ columnGap: StackSpacing.default }}>
           {fileEntry}
           <Chip color="success" label="Added" size="small" variant="outlined" />
-        </Stack>
+        </FileRow>
       </Tooltip>
     ) : (
       <Stack key={file.globalId} direction="row" alignItems="center">
@@ -137,12 +119,9 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
     <CommentPaper sx={sx}>
       <Stack alignItems="flex-start" spacing={StackSpacing.default}>
         {existingFiles.map((file, index) => (
-          <Stack
+          <FileRow
             key={`existing-${file.requestFileGlobalId ?? file.file.globalId}`}
-            direction="row"
-            spacing={StackSpacing.tight}
-            alignItems="center"
-            sx={fileRowSx}
+            sx={{ columnGap: StackSpacing.tight }}
           >
             {onReplaceExisting ? (
               <>
@@ -177,11 +156,11 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
                         </IconButton>
                       </Stack>
                     </Tooltip>
-                    <Box sx={replacedFilesGroupSx}>
+                    <ReplacedFileGroup>
                       <Tooltip title="Replaced file">
                         {renderFileLink(file.file.name, replacedOriginalFileLinkSx)}
                       </Tooltip>
-                    </Box>
+                    </ReplacedFileGroup>
                   </Stack>
                 ) : (
                   <Stack direction="row" alignItems="center">
@@ -216,7 +195,7 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
                 )}
               </Stack>
             )}
-          </Stack>
+          </FileRow>
         ))}
         {newFiles.map(renderNewFile)}
       </Stack>

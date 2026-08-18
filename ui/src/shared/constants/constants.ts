@@ -1,22 +1,10 @@
-import type { PopoverOrigin, SnackbarOrigin, SxProps } from "@mui/material";
+import type { PopoverOrigin, SxProps } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import passwordValidator from "password-validator";
 import type { CSSProperties } from "react";
+export { Api, Discussions, Notifications, Refresh } from "@/shared/config/application";
+export { Routes } from "@/shared/routing/routes";
 
-const refreshSecondsDefault = 30;
-const gridRefreshSeconds = Number(import.meta.env.VITE_GRID_REFRESH_SECONDS ?? String(refreshSecondsDefault));
-const uncompletedTasksRefreshSeconds = Number(
-  import.meta.env.VITE_UNCOMPLETED_TASKS_REFRESH_SECONDS ?? String(refreshSecondsDefault),
-);
-const discussionsRefreshSeconds = Number(
-  import.meta.env.VITE_DISCUSSIONS_REFRESH_SECONDS ?? String(refreshSecondsDefault),
-);
-const notificationsRefreshSeconds = Number(
-  import.meta.env.VITE_NOTIFICATIONS_REFRESH_SECONDS ?? String(refreshSecondsDefault),
-);
-const discussionNotificationLimit = Number(import.meta.env.VITE_DISCUSSION_NOTIFICATION_LIMIT ?? "10");
-const notificationBellLimit = Number(import.meta.env.VITE_NOTIFICATION_BELL_LIMIT ?? "10");
-const showPersistenceSuccessNotifications = import.meta.env.VITE_SHOW_PERSISTENCE_SUCCESS_NOTIFICATIONS !== "false";
 const appBarHeight = 64;
 const appBarBrandTitleWithoutTenantPickerHideBelowWidth = 400;
 const appBarBrandTitleWithTenantPickerHideBelowWidth = 800;
@@ -35,54 +23,6 @@ passwordValidatorInstance
   .digits()
   .has()
   .symbols();
-
-export const Api = {
-  baseUri: import.meta.env.VITE_API_BASE_URI,
-  uiBaseUri: import.meta.env.VITE_UI_BASE_URI,
-  timeoutMs: 10000,
-} as const;
-
-const toRefreshSeconds = (value: number): number =>
-  Number.isFinite(value) && value >= 0 ? value : refreshSecondsDefault;
-
-export const Refresh = {
-  gridSeconds: toRefreshSeconds(gridRefreshSeconds),
-  uncompletedTasksSeconds: toRefreshSeconds(uncompletedTasksRefreshSeconds),
-  discussionsSeconds: toRefreshSeconds(discussionsRefreshSeconds),
-  notificationsSeconds: toRefreshSeconds(notificationsRefreshSeconds),
-  get gridMs() {
-    return this.gridSeconds * 1000;
-  },
-  get uncompletedTasksMs() {
-    return this.uncompletedTasksSeconds * 1000;
-  },
-  get discussionsMs() {
-    return this.discussionsSeconds * 1000;
-  },
-  get notificationsMs() {
-    return this.notificationsSeconds * 1000;
-  },
-} as const;
-
-export const Discussions = {
-  notificationLimit:
-    Number.isFinite(discussionNotificationLimit) && discussionNotificationLimit > 0
-      ? Math.floor(discussionNotificationLimit)
-      : 10,
-} as const;
-
-export const Notifications = {
-  bellLimit:
-    Number.isFinite(notificationBellLimit) && notificationBellLimit > 0 ? Math.floor(notificationBellLimit) : 10,
-  errorAutoHideDuration: 6000,
-  errorMessageMaxLength: 160,
-  showPersistenceSuccess: showPersistenceSuccessNotifications,
-  successAnchorOrigin: {
-    horizontal: "right",
-    vertical: "bottom",
-  } as SnackbarOrigin,
-  successAutoHideDuration: 3000,
-} as const;
 
 export const GridToolbar = {
   buttonDisplay: {
@@ -543,14 +483,4 @@ export const AccountSecurity = {
 
 export const Errors = {
   unknownMessage: "Unknown error occurred.",
-} as const;
-
-const inboxPath = "/inbox";
-
-const tenantPath = (tenantGlobalId: string, path: string): string => `/tenants/${tenantGlobalId}${path}`;
-
-export const Routes = {
-  defaultPath: "/",
-  inboxPath,
-  tenantPath,
 } as const;

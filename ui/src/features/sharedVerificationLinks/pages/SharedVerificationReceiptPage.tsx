@@ -1,4 +1,5 @@
 import { getSharedVerificationReceipt } from "@/features/sharedVerificationLinks/api/sharedVerificationLinksApi";
+import CertificateSection from "@/features/sharedVerificationLinks/components/CertificateSection";
 import {
   SharedVerificationFile,
   SharedVerificationParticipantRole,
@@ -109,18 +110,6 @@ const certificateTitleSx: SxProps<Theme> = {
   color: "inherit",
   fontWeight: 700,
   overflowWrap: "anywhere",
-};
-
-const sectionSx: SxProps<Theme> = {
-  breakInside: "avoid",
-  containerType: "inline-size",
-};
-
-const sectionTitleSx: SxProps<Theme> = {
-  fontSize: "1.05rem",
-  fontWeight: 600,
-  letterSpacing: "0.04em",
-  textTransform: "uppercase",
 };
 
 const summaryGridSx: SxProps<Theme> = {
@@ -400,12 +389,6 @@ const renderField = (label: string, value?: string | React.ReactNode | null, sx:
   </Box>
 );
 
-const renderSectionTitle = (title: string) => (
-  <Typography variant="h2" sx={sectionTitleSx}>
-    {title}
-  </Typography>
-);
-
 const getMobileRecordSx = (isLast: boolean): SxProps<Theme> => [
   mobileRecordSx,
   ...(isLast ? [mobileLastRecordSx] : []),
@@ -486,8 +469,7 @@ const SharedVerificationReceiptPage = () => {
               </Box>
             </Box>
 
-            <Stack spacing={StackSpacing.default} sx={sectionSx}>
-              {renderSectionTitle("Summary")}
+            <CertificateSection title="Summary">
               <Box sx={summaryGridSx}>
                 <Stack spacing={StackSpacing.default}>
                   {renderField("Request title", receipt.approvalRequestTitle)}
@@ -514,10 +496,9 @@ const SharedVerificationReceiptPage = () => {
                   )}
                 </Stack>
               </Box>
-            </Stack>
+            </CertificateSection>
 
-            <Stack spacing={StackSpacing.default} sx={sectionSx}>
-              {renderSectionTitle("Files")}
+            <CertificateSection title="Files">
               <Table size="small" sx={filesTableSx}>
                 <TableHead>
                   <TableRow>
@@ -571,10 +552,9 @@ const SharedVerificationReceiptPage = () => {
                   </Stack>
                 )}
               </Stack>
-            </Stack>
+            </CertificateSection>
 
-            <Stack spacing={StackSpacing.default} sx={sectionSx}>
-              {renderSectionTitle("Participants")}
+            <CertificateSection title="Participants">
               <Table size="small" sx={participantTableSx}>
                 <TableHead>
                   <TableRow>
@@ -628,7 +608,7 @@ const SharedVerificationReceiptPage = () => {
                   </Stack>
                 ))}
               </Stack>
-            </Stack>
+            </CertificateSection>
           </Stack>
         </Container>
       </Box>

@@ -1,3 +1,4 @@
+import { ColorModeSwitchTokens } from "@/shared/theme/tokens";
 import { DarkMode, LightMode } from "@mui/icons-material";
 import { styled, Switch, type SwitchProps } from "@mui/material";
 
@@ -9,21 +10,14 @@ const switchBaseTranslateX = 6;
 const checkedSwitchBaseTranslateX = 22;
 const switchThumbSize = 32;
 const switchIconSize = 20;
-const switchTrackColor = "#aab4be";
-const darkSwitchTrackColor = "#8796A5";
-const switchThumbColor = "#f5f5f5";
-const darkSwitchThumbColor = "#003892";
-const sunIconColor = "#d4a72c";
-const moonIconColor = "#fff8dc";
-
 const SwitchIcon = styled("span")(({ theme }) => {
   const darkModeIsEnabled = theme.palette.mode === "dark";
 
   return {
     alignItems: "center",
-    backgroundColor: darkModeIsEnabled ? darkSwitchThumbColor : switchThumbColor,
+    backgroundColor: darkModeIsEnabled ? ColorModeSwitchTokens.darkThumb : ColorModeSwitchTokens.lightThumb,
     borderRadius: "50%",
-    color: darkModeIsEnabled ? moonIconColor : sunIconColor,
+    color: darkModeIsEnabled ? ColorModeSwitchTokens.moonIcon : ColorModeSwitchTokens.sunIcon,
     display: "flex",
     height: switchThumbSize,
     justifyContent: "center",
@@ -48,13 +42,13 @@ const StyledColorModeSwitch = styled(Switch)(({ theme }) => {
       "&.Mui-checked": {
         transform: `translateX(${checkedSwitchBaseTranslateX}px)`,
         "& + .MuiSwitch-track": {
-          backgroundColor: darkModeIsEnabled ? darkSwitchTrackColor : switchTrackColor,
+          backgroundColor: darkModeIsEnabled ? ColorModeSwitchTokens.darkTrack : ColorModeSwitchTokens.lightTrack,
           opacity: 1,
         },
       },
     },
     "& .MuiSwitch-track": {
-      backgroundColor: darkModeIsEnabled ? darkSwitchTrackColor : switchTrackColor,
+      backgroundColor: darkModeIsEnabled ? ColorModeSwitchTokens.darkTrack : ColorModeSwitchTokens.lightTrack,
       borderRadius: switchHeight / 2,
       opacity: 1,
     },

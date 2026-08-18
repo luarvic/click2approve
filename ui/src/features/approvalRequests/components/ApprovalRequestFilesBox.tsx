@@ -5,10 +5,12 @@ import {
 } from "@/features/approvalRequests/models/approvalRequest";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import { downloadApprovalRequestFile, downloadApprovalRequestTaskFile } from "@/features/userFiles/utils/downloaders";
-import FileTypeIcon from "@/shared/components/icons/FileTypeIcon";
+import FileNameLink from "@/shared/components/files/FileNameLink";
+import FileRow from "@/shared/components/files/FileRow";
+import ReplacedFileGroup from "@/shared/components/files/ReplacedFileGroup";
 import CommentPaper from "@/shared/components/papers/CommentPaper";
 import { StackSpacing } from "@/shared/constants/constants";
-import { Box, Chip, Link, Stack, Tooltip, type SxProps } from "@mui/material";
+import { Chip, Stack, Tooltip, type SxProps } from "@mui/material";
 import type { ChipProps } from "@mui/material/Chip";
 import type { Theme } from "@mui/material/styles";
 
@@ -26,22 +28,6 @@ const replacedOriginalFileLinkSx: SxProps<Theme> = {
 
 const deletedFileLinkSx: SxProps<Theme> = {
   opacity: 0.55,
-};
-
-const replacedFilesGroupSx: SxProps<Theme> = {
-  borderLeft: (theme) => `1px solid ${theme.palette.divider}`,
-  paddingLeft: (theme) => theme.spacing(StackSpacing.default),
-};
-
-const fileLinkSx: SxProps<Theme> = {
-  alignItems: "center",
-  columnGap: StackSpacing.default,
-  display: "inline-flex",
-  textAlign: "left",
-};
-
-const fileRowSx: SxProps<Theme> = {
-  minHeight: 24,
 };
 
 const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
@@ -79,18 +65,10 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
     tooltip?: string,
   ) => {
     const fileLink = (
-      <Stack key={key} direction="row" alignItems="center" spacing={StackSpacing.default} sx={fileRowSx}>
-        <Link
-          component={onDownload ? "button" : "span"}
-          onClick={onDownload ? () => onDownload(userFile) : undefined}
-          sx={[fileLinkSx, ...(Array.isArray(sx) ? sx : [sx])]}
-          variant="body2"
-        >
-          <FileTypeIcon fontSize="small" fileName={userFile.name} />
-          {userFile.name}
-        </Link>
+      <FileRow key={key} sx={{ columnGap: StackSpacing.default }}>
+        <FileNameLink fileName={userFile.name} onClick={onDownload ? () => onDownload(userFile) : undefined} sx={sx} />
         {statusLabel && <Chip color={statusColor} label={statusLabel} size="small" variant="outlined" />}
-      </Stack>
+      </FileRow>
     );
 
     return tooltip ? (
@@ -151,7 +129,7 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
                   showFileStateIndicators ? "Replacement file" : undefined,
                 )}
                 {(previousRequestFile?.userFile ?? file.previousUserFile) && (
-                  <Box sx={replacedFilesGroupSx}>
+                  <ReplacedFileGroup>
                     {renderFileLink(
                       previousRequestFile?.userFile ?? file.previousUserFile!,
                       `${file.globalId}-previous`,
@@ -160,7 +138,7 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
                       undefined,
                       showFileStateIndicators ? "Replaced file" : undefined,
                     )}
-                  </Box>
+                  </ReplacedFileGroup>
                 )}
               </Stack>
             );

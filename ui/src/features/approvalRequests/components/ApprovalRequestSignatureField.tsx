@@ -1,12 +1,10 @@
-import { normalizeSignatureLeft } from "@/features/approvalRequests/components/approvalRequestSignatureUtils";
+import { useSignatureCanvas } from "@/features/approvalRequests/hooks/useSignatureCanvas";
+import { StackSpacing } from "@/shared/constants/constants";
 import ClearIcon from "@mui/icons-material/Clear";
 import { FormHelperText, IconButton, Stack, Tooltip } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import type { SxProps, Theme } from "@mui/material/styles";
 import type { CSSProperties } from "react";
-import { useEffect, useRef } from "react";
-import SignaturePad from "signature_pad";
-import type { PointGroup } from "signature_pad";
 
 interface ApprovalRequestSignatureFieldProps {
   error?: boolean;
@@ -57,32 +55,6 @@ const clearSignatureButtonSx: SxProps<Theme> = {
   },
 };
 
-const applySignaturePenColor = (signatureData: PointGroup[], penColor: string): PointGroup[] =>
-  signatureData.map((group) => ({ ...group, penColor }));
-
-const stripSignaturePenColor = (signatureData: PointGroup[]): Omit<PointGroup, "penColor">[] =>
-  signatureData.map((group) => {
-    const { penColor, ...groupWithoutPenColor } = group;
-    void penColor;
-    return groupWithoutPenColor;
-  });
-
-const serializeSignature = (signatureData: PointGroup[]): string =>
-  signatureData.length === 0 ? "" : JSON.stringify(stripSignaturePenColor(normalizeSignatureLeft(signatureData)));
-
-const deserializeSignature = (value: string | undefined): PointGroup[] => {
-  if (!value) {
-    return [];
-  }
-
-  try {
-    const signatureData: unknown = JSON.parse(value);
-    return Array.isArray(signatureData) ? (signatureData as PointGroup[]) : [];
-  } catch {
-    return [];
-  }
-};
-
 const ApprovalRequestSignatureField: React.FC<ApprovalRequestSignatureFieldProps> = ({
   error = false,
   helperText,
@@ -92,84 +64,19 @@ const ApprovalRequestSignatureField: React.FC<ApprovalRequestSignatureFieldProps
   const theme = useTheme();
   const signatureBackgroundColor = theme.palette.background.paper;
   const signaturePenColor = theme.palette.text.primary;
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const signaturePadRef = useRef<SignaturePad | null>(null);
-  const signatureDataRef = useRef<PointGroup[]>([]);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) {
-      return undefined;
-    }
-
-    const signaturePad = new SignaturePad(canvas, {
-      backgroundColor: signatureBackgroundColor,
-      penColor: signaturePenColor,
-    });
-    signaturePadRef.current = signaturePad;
-
-    const resizeCanvas = () => {
-      const currentData = signaturePad.toData();
-      const signatureData = currentData.length > 0 ? currentData : signatureDataRef.current;
-      signatureDataRef.current = signatureData;
-      const ratio = Math.max(window.devicePixelRatio || 1, 1);
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * ratio;
-      canvas.height = rect.height * ratio;
-      canvas.getContext("2d")?.scale(ratio, ratio);
-      signaturePad.clear();
-      if (signatureData.length > 0) {
-        signaturePad.fromData(applySignaturePenColor(signatureData, signaturePenColor));
-      }
-    };
-
-    const handleEndStroke = () => {
-      signatureDataRef.current = signaturePad.toData();
-      onChange(serializeSignature(signatureDataRef.current));
-    };
-    const observer = new ResizeObserver(resizeCanvas);
-    observer.observe(canvas);
-    signaturePad.addEventListener("endStroke", handleEndStroke);
-    resizeCanvas();
-
-    return () => {
-      signatureDataRef.current = signaturePad.toData();
-      observer.disconnect();
-      signaturePad.removeEventListener("endStroke", handleEndStroke);
-      signaturePad.off();
-      signaturePadRef.current = null;
-    };
-  }, [onChange, signatureBackgroundColor, signaturePenColor]);
-
-  useEffect(() => {
-    const signatureData = normalizeSignatureLeft(deserializeSignature(value));
-    if (serializeSignature(signatureDataRef.current) === serializeSignature(signatureData)) {
-      return;
-    }
-
-    signatureDataRef.current = signatureData;
-    const signaturePad = signaturePadRef.current;
-    if (!signaturePad) {
-      return;
-    }
-
-    signaturePad.clear();
-    if (signatureData.length > 0) {
-      signaturePad.fromData(applySignaturePenColor(signatureData, signaturePenColor));
-    }
-  }, [signaturePenColor, value]);
-
-  const handleClear = () => {
-    signaturePadRef.current?.clear();
-    signatureDataRef.current = [];
-    onChange("");
-  };
+  const { canvasRef, clear } = useSignatureCanvas({
+    backgroundColor: signatureBackgroundColor,
+    editable: true,
+    onChange,
+    penColor: signaturePenColor,
+    value,
+  });
 
   return (
-    <Stack spacing={1} sx={signatureActionsSx}>
+    <Stack spacing={StackSpacing.default} sx={signatureActionsSx}>
       <Stack sx={signaturePadContainerSx(error)}>
         <Tooltip title="Clear signature">
-          <IconButton aria-label="Clear signature" onClick={handleClear} size="small" sx={clearSignatureButtonSx}>
+          <IconButton aria-label="Clear signature" onClick={clear} size="small" sx={clearSignatureButtonSx}>
             <ClearIcon fontSize="small" />
           </IconButton>
         </Tooltip>

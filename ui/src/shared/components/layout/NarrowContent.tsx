@@ -50,6 +50,7 @@ const getResizeHandleSx =
     position: "absolute",
     right: -6,
     top: 0,
+    display: { xs: "none", sm: "block" },
     width: 12,
     zIndex: 1,
   });

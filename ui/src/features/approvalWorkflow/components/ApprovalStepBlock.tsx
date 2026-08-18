@@ -1,4 +1,3 @@
-import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
 import { getAssigneeIcon } from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
 import ApprovalRequestTaskAttachmentList from "@/features/approvalRequests/components/ApprovalRequestTaskAttachmentList";
 import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestTaskSummaryBlock";
@@ -24,17 +23,17 @@ import {
   ChecklistRtlOutlined,
   CommentOutlined,
   DrawOutlined,
-  ExpandMore,
   Person,
   RuleOutlined,
   VisibilityOffOutlined,
   VisibilityOutlined,
 } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
-import { Accordion, AccordionDetails, AccordionSummary, Box, Stack, Tooltip, Typography } from "@mui/material";
+import { Box, Stack, Tooltip, Typography } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
 import ApprovalStepHeader from "./ApprovalStepHeader";
+import ApprovalStepIndividualAssignees from "./ApprovalStepIndividualAssignees";
 import ApprovalStepTeamAccordion from "./ApprovalStepTeamAccordion";
 import ApprovalUpcomingTaskBlock from "./ApprovalUpcomingTaskBlock";
 
@@ -72,31 +71,6 @@ const stepMetadataTextSx: SxProps<Theme> = {
   minWidth: 0,
   overflowWrap: "anywhere",
 };
-
-const teamAccordionSx = {
-  bgcolor: "transparent",
-  boxShadow: "none",
-  "&::before": {
-    display: "none",
-  },
-};
-
-const teamAccordionSummarySx = {
-  minHeight: 0,
-  px: 0,
-  py: 0,
-  "& .MuiAccordionSummary-content": {
-    my: 0,
-  },
-};
-
-const teamAccordionDetailsSx = {
-  px: 0,
-  pb: 0,
-  pt: Dialogs.stepHeaderSpacing,
-};
-
-const individualAssigneesGroupTitle = "Individual assignees";
 
 const getTaskAssigneeIcon = (step: ApprovalStep, task: ApprovalRequestTask) => {
   const assignee = step.assignees.find((item) => item.globalId === task.approvalRequestStepAssigneeGlobalId);
@@ -473,16 +447,11 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
       <Stack spacing={Dialogs.assigneeStackSpacing} sx={contentSx}>
         {teamAssignees.map((assignee) => renderAssigneeItem(assignee, assignees.indexOf(assignee)))}
         {hasMixedAssigneeTypes ? (
-          <Accordion defaultExpanded disableGutters sx={teamAccordionSx}>
-            <AccordionSummary expandIcon={<ExpandMore />} sx={teamAccordionSummarySx}>
-              <ApprovalRequestParticipant displayName={individualAssigneesGroupTitle} type={AssigneeType.Team} />
-            </AccordionSummary>
-            <AccordionDetails sx={teamAccordionDetailsSx}>
-              <Stack spacing={Dialogs.assigneeStackSpacing}>
-                {individualAssignees.map((assignee) => renderAssigneeItem(assignee, assignees.indexOf(assignee)))}
-              </Stack>
-            </AccordionDetails>
-          </Accordion>
+          <ApprovalStepIndividualAssignees>
+            <Stack spacing={Dialogs.assigneeStackSpacing}>
+              {individualAssignees.map((assignee) => renderAssigneeItem(assignee, assignees.indexOf(assignee)))}
+            </Stack>
+          </ApprovalStepIndividualAssignees>
         ) : (
           individualAssignees.map((assignee) => renderAssigneeItem(assignee, assignees.indexOf(assignee)))
         )}

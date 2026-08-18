@@ -1,10 +1,11 @@
 import { stores } from "@/app/rootStore";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import { downloadUserFile } from "@/features/userFiles/utils/downloaders";
-import FileTypeIcon from "@/shared/components/icons/FileTypeIcon";
+import FileNameLink from "@/shared/components/files/FileNameLink";
+import FileRow from "@/shared/components/files/FileRow";
 import { Lists, StackSpacing } from "@/shared/constants/constants";
 import type { SxProps } from "@mui/material";
-import { Link, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 
 interface UserFilesListProps {
@@ -34,12 +35,10 @@ const UserFilesList: React.FC<UserFilesListProps> = ({ userFiles, direction, sx,
     >
       {userFiles &&
         userFiles.map((userFile) => (
-          <Stack key={userFile.globalId} direction="row" alignItems="center" sx={userFileRowSx}>
-            <FileTypeIcon fontSize="small" fileName={userFile.name} />
-            <Link
-              component="button"
-              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                event.preventDefault();
+          <FileRow key={userFile.globalId} sx={userFileRowSx}>
+            <FileNameLink
+              fileName={userFile.name}
+              onClick={() => {
                 if (onDownload) {
                   onDownload(userFile);
                 } else if (stores.tenantStore.currentTenantGlobalId) {
@@ -47,11 +46,8 @@ const UserFilesList: React.FC<UserFilesListProps> = ({ userFiles, direction, sx,
                 }
               }}
               sx={userFileLinkSx}
-              variant="body2"
-            >
-              {userFile.name}
-            </Link>
-          </Stack>
+            />
+          </FileRow>
         ))}
     </Stack>
   );
