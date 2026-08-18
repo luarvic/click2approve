@@ -61,22 +61,23 @@ const ApprovalRequestElectronicSignatureForm: React.FC<ApprovalRequestElectronic
             onFieldErrorClear("legalName");
           }}
         />
-        {showRepresentationDetails && (
-          <TextField
-            fullWidth
-            label="Representation details"
-            value={representationDetails}
-            onChange={(event) => onRepresentationDetailsChange(event.target.value)}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <HelpPopover helpText="Add an organization name, address, or other context about who or what you represent when signing." />
-                </InputAdornment>
-              ),
-            }}
-          />
-        )}
       </Stack>
+      {showRepresentationDetails && (
+        <TextField
+          fullWidth
+          label="Representation details"
+          multiline
+          value={representationDetails}
+          onChange={(event) => onRepresentationDetailsChange(event.target.value)}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <HelpPopover helpText="Add an organization name, address, or other context about who or what you represent when signing." />
+              </InputAdornment>
+            ),
+          }}
+        />
+      )}
       <ApprovalRequestSignatureField
         error={Boolean(errors.signature)}
         helperText={errors.signature}
