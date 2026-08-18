@@ -16,7 +16,8 @@ import { Stack, Step, StepContent, StepLabel, Stepper } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
 import ApprovalStepTitle from "./ApprovalStepTitle";
-import ApprovalStepBlock, { ApprovalStepMetadata, getStepStatus } from "./ApprovalStepBlock";
+import ApprovalStepBlock, { ApprovalStepMetadata } from "./ApprovalStepBlock";
+import { getApprovalStepStatus } from "@/features/approvalWorkflow/utils/approvalStepStatus";
 import ApprovalStepVisibilitySummary from "./ApprovalStepVisibilitySummary";
 
 interface ApprovalStepsProps {
@@ -88,7 +89,7 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
       <Stepper activeStep={activeStepIndex} nonLinear orientation="vertical">
         {steps.map((step) => {
           const tasks = getStepTasks(step);
-          const stepStatus = getStepStatus(step, tasks);
+          const stepStatus = getApprovalStepStatus(step, tasks);
           const stepIcon = () => getStepIcon(stepStatus);
 
           if (step.isVisible === false) {

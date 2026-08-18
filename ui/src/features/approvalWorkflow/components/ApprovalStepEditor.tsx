@@ -278,28 +278,27 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                       />
                     )}
                     <Stack spacing={Dialogs.assigneeStackSpacing}>
-                      {step.assignees.map((assignee, assigneeIndex) =>
-                        (() => {
-                          const assigneeState = getAssigneeState?.(step, stepIndex, assignee, assigneeIndex) ?? {};
-                          return (
-                            <ApprovalStepAssigneeRow
-                              assignee={assignee}
-                              canUseEmployees={canUseEmployees}
-                              canUseTeams={canUseTeams}
-                              compactEmployeeOptions={compactEmployeeOptions}
-                              disabled={assigneeState.disabled ?? disabled}
-                              employees={employees}
-                              key={assignee.globalId ?? assigneeIndex}
-                              muted={assigneeState.muted ?? state.isPassed ?? false}
-                              removeDisabled={assigneeState.removeDisabled ?? disabled}
-                              teams={teams}
-                              stackControlsOnSmallScreens={stackAssigneeControlsOnSmallScreens}
-                              onChange={(nextAssignee) => onUpdateAssignee(stepIndex, assigneeIndex, nextAssignee)}
-                              onRemove={() => onRemoveAssignee(stepIndex, assigneeIndex)}
-                            />
-                          );
-                        })(),
-                      )}
+                      {step.assignees.map((assignee, assigneeIndex) => {
+                        const assigneeState = getAssigneeState?.(step, stepIndex, assignee, assigneeIndex) ?? {};
+
+                        return (
+                          <ApprovalStepAssigneeRow
+                            assignee={assignee}
+                            canUseEmployees={canUseEmployees}
+                            canUseTeams={canUseTeams}
+                            compactEmployeeOptions={compactEmployeeOptions}
+                            disabled={assigneeState.disabled ?? disabled}
+                            employees={employees}
+                            key={assignee.globalId ?? assigneeIndex}
+                            muted={assigneeState.muted ?? state.isPassed ?? false}
+                            removeDisabled={assigneeState.removeDisabled ?? disabled}
+                            teams={teams}
+                            stackControlsOnSmallScreens={stackAssigneeControlsOnSmallScreens}
+                            onChange={(nextAssignee) => onUpdateAssignee(stepIndex, assigneeIndex, nextAssignee)}
+                            onRemove={() => onRemoveAssignee(stepIndex, assigneeIndex)}
+                          />
+                        );
+                      })}
                     </Stack>
                     {showCompletionRule && (
                       <FormControlLabel

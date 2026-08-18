@@ -13,7 +13,11 @@ import {
   ApprovalStepVisibilityMode,
   AssigneeType,
 } from "@/features/approvalWorkflow/models/approvalStep";
-import { Dialogs, Flex, Icons, StackSpacing } from "@/shared/constants/constants";
+import {
+  getApprovalStepBorderLeftColor,
+  getApprovalStepStatus,
+} from "@/features/approvalWorkflow/utils/approvalStepStatus";
+import { Dialogs, Icons, StackSpacing } from "@/shared/constants/constants";
 import {
   AssignmentOutlined,
   AttachFile,
@@ -31,6 +35,7 @@ import { Accordion, AccordionDetails, AccordionSummary, Box, Stack, Tooltip, Typ
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
 import ApprovalStepHeader from "./ApprovalStepHeader";
+import ApprovalStepTeamAccordion from "./ApprovalStepTeamAccordion";
 import ApprovalUpcomingTaskBlock from "./ApprovalUpcomingTaskBlock";
 
 interface ApprovalStepBlockProps {
@@ -91,57 +96,7 @@ const teamAccordionDetailsSx = {
   pt: Dialogs.stepHeaderSpacing,
 };
 
-const teamTaskListSx: SxProps<Theme> = {
-  pl: 0,
-};
 const individualAssigneesGroupTitle = "Individual assignees";
-
-export const getStepStatus = (step: ApprovalStep, tasks: ApprovalRequestTask[]) => {
-  if (tasks.length === 0) {
-    return "Not started";
-  }
-
-  if (step.mode === ApprovalStepMode.All) {
-    if (tasks.some((task) => task.status === ApprovalRequestTaskStatus.Completed && task.result === false)) {
-      return "Completed unsuccessfully";
-    }
-    if (tasks.every((task) => task.status === ApprovalRequestTaskStatus.Completed && task.result === true)) {
-      return "Completed successfully";
-    }
-  } else {
-    if (tasks.some((task) => task.status === ApprovalRequestTaskStatus.Completed && task.result === true)) {
-      return "Completed successfully";
-    }
-    if (tasks.some((task) => task.status === ApprovalRequestTaskStatus.Completed && task.result === false)) {
-      return "Completed unsuccessfully";
-    }
-  }
-  if (tasks.every((task) => task.status === ApprovalRequestTaskStatus.Skipped)) {
-    return "Skipped";
-  }
-  if (tasks.every((task) => task.status === ApprovalRequestTaskStatus.Canceled)) {
-    return "Canceled";
-  }
-  return "Pending";
-};
-
-const getStepStatusLabel = (status: string) => status;
-
-const getStepBorderLeftColor = (status: string) => {
-  switch (status) {
-    case "Completed successfully":
-      return "success.main";
-    case "Completed unsuccessfully":
-      return "error.main";
-    case "Skipped":
-    case "Canceled":
-      return "warning.main";
-    case "Pending":
-      return "primary.main";
-    default:
-      return "divider";
-  }
-};
 
 const getTaskAssigneeIcon = (step: ApprovalStep, task: ApprovalRequestTask) => {
   const assignee = step.assignees.find((item) => item.globalId === task.approvalRequestStepAssigneeGlobalId);
@@ -332,14 +287,12 @@ const renderTaskDetails = (
   <ApprovalRequestTaskSummaryBlock
     additionalMetadata={
       taskAttachmentsTenantGlobalId && task.taskFiles?.length ? (
-        <>
-          <ApprovalRequestTaskAttachmentList
-            label="Files attached to this decision"
-            taskFiles={task.taskFiles ?? []}
-            taskGlobalId={task.globalId}
-            tenantGlobalId={taskAttachmentsTenantGlobalId}
-          />
-        </>
+        <ApprovalRequestTaskAttachmentList
+          label="Files attached to this decision"
+          taskFiles={task.taskFiles ?? []}
+          taskGlobalId={task.globalId}
+          tenantGlobalId={taskAttachmentsTenantGlobalId}
+        />
       ) : undefined
     }
     key={task.globalId}
@@ -405,28 +358,21 @@ const renderTeamAssignee = (
   }
 
   return (
-    <Accordion key={assignee.globalId ?? index} defaultExpanded disableGutters sx={teamAccordionSx}>
-      <AccordionSummary expandIcon={<ExpandMore />} sx={teamAccordionSummarySx}>
-        <Stack direction="row" spacing={StackSpacing.tight} alignItems="center" sx={Flex.growSx}>
-          <ApprovalRequestParticipant displayName={assignee.displayName} email={assignee.email} type={assignee.type} />
-        </Stack>
-      </AccordionSummary>
-      <AccordionDetails sx={teamAccordionDetailsSx}>
-        <Stack spacing={StackSpacing.default} sx={teamTaskListSx}>
-          {assigneeTasks.map((task) =>
-            renderTaskDetails(
-              task,
-              <Person color="action" fontSize="small" />,
-              AssigneeType.Employee,
-              task.globalId === highlightedTaskGlobalId,
-              stepperBorderLeftColor,
-              onHighlightedTaskClick,
-              taskAttachmentsTenantGlobalId,
-            ),
-          )}
-        </Stack>
-      </AccordionDetails>
-    </Accordion>
+    <ApprovalStepTeamAccordion assignee={assignee} index={index}>
+      <Stack spacing={StackSpacing.default}>
+        {assigneeTasks.map((task) =>
+          renderTaskDetails(
+            task,
+            <Person color="action" fontSize="small" />,
+            AssigneeType.Employee,
+            task.globalId === highlightedTaskGlobalId,
+            stepperBorderLeftColor,
+            onHighlightedTaskClick,
+            taskAttachmentsTenantGlobalId,
+          ),
+        )}
+      </Stack>
+    </ApprovalStepTeamAccordion>
   );
 };
 
@@ -495,10 +441,10 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
   const individualAssignees = assignees.filter((assignee) => assignee.type !== AssigneeType.Team);
   const hasMixedAssigneeTypes = teamAssignees.length > 0 && individualAssignees.length > 0;
   const unassignedTasks = getUnassignedTasks(step, tasks);
-  const stepStatus = getStepStatus(step, tasks);
+  const stepStatus = getApprovalStepStatus(step, tasks);
   const stepMode = step.mode ?? ApprovalStepMode.Any;
   const actionLabel = getApprovalRequestTaskActionLabels(getStepAction(step)).positive;
-  const stepperBorderLeftColor = getStepBorderLeftColor(stepStatus);
+  const stepperBorderLeftColor = getApprovalStepBorderLeftColor(stepStatus);
   const renderAssigneeItem = (assignee: ApprovalStepAssignee, index: number) =>
     renderAssignee(
       step,
@@ -557,7 +503,7 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
   );
 
   return showStepBox ? (
-    <Box aria-label={getStepStatusLabel(stepStatus)} sx={Dialogs.approvalBoxSx}>
+    <Box aria-label={stepStatus} sx={Dialogs.approvalBoxSx}>
       {stepContent}
     </Box>
   ) : (

@@ -5,6 +5,7 @@ import ApprovalRequestParticipantLine, {
 import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
 import ApprovalRequestSubmitActions from "@/features/approvalRequests/components/ApprovalRequestSubmitActions";
 import { ApprovalRequestFile } from "@/features/approvalRequests/models/approvalRequest";
+import { getApprovalRequestAssigneeVisibilityKey } from "@/features/approvalRequests/utils/approvalRequestVisibility";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
 import { ApprovalStep, ApprovalStepAssignee, AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { EditableApprovalStep } from "@/features/approvalWorkflow/models/editableApprovalStep";
@@ -73,9 +74,6 @@ const visibilityModeOptions: { label: string; value: StepVisibilityMode }[] = [
   { label: "Assignees only", value: "assignees" },
 ];
 
-const getAssigneeVisibilityKey = (stepSequence: number, assigneeStepSequence: number, assigneeIndex: number) =>
-  `${stepSequence}:${assigneeStepSequence}:${assigneeIndex}`;
-
 const ApprovalRequestSubmitVisibility: React.FC<ApprovalRequestSubmitVisibilityProps> = ({
   canUseEmployees,
   canUseTeams,
@@ -130,7 +128,7 @@ const ApprovalRequestSubmitVisibility: React.FC<ApprovalRequestSubmitVisibilityP
   );
 
   const getStepVisibilityValue = (stepSequence: number, assigneeStepSequence: number, assigneeIndex: number) =>
-    stepVisibility[getAssigneeVisibilityKey(stepSequence, assigneeStepSequence, assigneeIndex)] ??
+    stepVisibility[getApprovalRequestAssigneeVisibilityKey(stepSequence, assigneeStepSequence, assigneeIndex)] ??
     (stepVisibilityModes[stepSequence] ?? "all") === "all";
 
   const getAdditionalViewerOptions = (stepSequence: number) => {
@@ -155,7 +153,7 @@ const ApprovalRequestSubmitVisibility: React.FC<ApprovalRequestSubmitVisibilityP
       const next = { ...current };
       requestAssignees.forEach((assignee) => {
         if (assignee.stepSequence !== stepSequence) {
-          next[getAssigneeVisibilityKey(stepSequence, assignee.stepSequence, assignee.assigneeIndex)] =
+          next[getApprovalRequestAssigneeVisibilityKey(stepSequence, assignee.stepSequence, assignee.assigneeIndex)] =
             visibleAssigneeKeys.has(assignee.key);
         }
       });

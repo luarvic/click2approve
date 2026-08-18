@@ -5,16 +5,11 @@ import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/A
 import { ApprovalRequestStepVisibilitySubmission } from "@/features/approvalRequests/models/approvalRequest";
 import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
-import {
-  AssigneeType,
-  ApprovalStepAssignee,
-  ApprovalStepVisibilityMode,
-} from "@/features/approvalWorkflow/models/approvalStep";
+import { useEditableApprovalSteps } from "@/features/approvalWorkflow/hooks/useEditableApprovalSteps";
+import { AssigneeType, ApprovalStepVisibilityMode } from "@/features/approvalWorkflow/models/approvalStep";
 import {
   createEditableSteps,
-  createEmptyAssignee,
   createEmptyStep,
-  EditableApprovalStep,
   toApprovalStepSubmissions,
 } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
@@ -46,13 +41,26 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
   const [isVisibilitySetup, setIsVisibilitySetup] = useState(false);
   const saveLoader = ActionLoaders.approvalStepTemplates.save(template?.globalId);
   const saveAction = useAsyncAction(saveLoader);
-  const [steps, setSteps] = useState<EditableApprovalStep[]>([createEmptyStep(1)]);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const templatesPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/approvalStepTemplates") : "/";
   const businessTenantIsSelected = stores.tenantStore.currentTenant?.type === TenantType.Business;
   const canUseEmployees = businessTenantIsSelected && stores.applicationConfigurationStore.employeeAssigneesAreEnabled;
   const canUseTeams = businessTenantIsSelected && stores.applicationConfigurationStore.teamAssigneesAreEnabled;
   const defaultAssigneeType = canUseEmployees ? AssigneeType.Employee : AssigneeType.User;
+  const {
+    addAssignee,
+    addStep,
+    moveStep,
+    removeAssignee: removeEditableAssignee,
+    removeStep,
+    setSteps,
+    steps,
+    updateAssignee,
+    updateStep,
+  } = useEditableApprovalSteps({
+    defaultAssigneeType,
+    initialSteps: [createEmptyStep(1)],
+  });
 
   useEffect(() => {
     setName(template?.name ?? "");
@@ -66,40 +74,12 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
         stores.teamStore.load(tenantGlobalId);
       }
     }
-  }, [template, tenantGlobalId, businessTenantIsSelected, canUseEmployees, canUseTeams, defaultAssigneeType]);
+  }, [template, tenantGlobalId, businessTenantIsSelected, canUseEmployees, canUseTeams, defaultAssigneeType, setSteps]);
 
-  const updateStep = (stepIndex: number, updater: (step: EditableApprovalStep) => EditableApprovalStep) => {
-    setSteps((current) => current.map((step, index) => (index === stepIndex ? updater(step) : step)));
-  };
-
-  const addStep = () => {
-    setSteps((current) => [...current, createEmptyStep(current.length + 1, true, defaultAssigneeType)]);
-  };
-
-  const removeStep = (stepIndex: number) => {
-    setSteps((current) =>
-      current.filter((_, index) => index !== stepIndex).map((step, index) => ({ ...step, sequence: index + 1 })),
-    );
-  };
-
-  const moveStep = (stepIndex: number, direction: -1 | 1) => {
-    const nextIndex = stepIndex + direction;
-    setSteps((current) => {
-      if (nextIndex < 0 || nextIndex >= current.length) {
-        return current;
-      }
-
-      const reordered = [...current];
-      [reordered[stepIndex], reordered[nextIndex]] = [reordered[nextIndex], reordered[stepIndex]];
-      return reordered.map((step, index) => ({ ...step, sequence: index + 1 }));
-    });
-  };
-
-  const updateAssignee = (stepIndex: number, assigneeIndex: number, assignee: ApprovalStepAssignee) => {
-    updateStep(stepIndex, (step) => ({
-      ...step,
-      assignees: step.assignees.map((item, index) => (index === assigneeIndex ? assignee : item)),
-    }));
+  const removeAssignee = (stepIndex: number, assigneeIndex: number) => {
+    if ((steps[stepIndex]?.assignees.length ?? 0) > 1) {
+      removeEditableAssignee(stepIndex, assigneeIndex);
+    }
   };
 
   const validateSteps = () => {
@@ -209,23 +189,10 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
             canUseTeams={canUseTeams}
             employees={stores.employeeStore.employees}
             teams={stores.teamStore.teams}
-            onAddAssignee={(stepIndex) =>
-              updateStep(stepIndex, (current) => ({
-                ...current,
-                assignees: [...current.assignees, createEmptyAssignee(defaultAssigneeType)],
-              }))
-            }
+            onAddAssignee={addAssignee}
             onAddStep={addStep}
             onMoveStep={moveStep}
-            onRemoveAssignee={(stepIndex, assigneeIndex) =>
-              updateStep(stepIndex, (current) => ({
-                ...current,
-                assignees:
-                  current.assignees.length === 1
-                    ? current.assignees
-                    : current.assignees.filter((_, index) => index !== assigneeIndex),
-              }))
-            }
+            onRemoveAssignee={removeAssignee}
             onRemoveStep={removeStep}
             onUpdateAssignee={updateAssignee}
             onUpdateStep={updateStep}

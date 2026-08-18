@@ -14,6 +14,7 @@ import {
 import { useApprovalRequestSubmitFiles } from "@/features/approvalRequests/hooks/useApprovalRequestSubmitFiles";
 import { getIncompleteParticipantNameWarning } from "@/features/approvalRequests/utils/incompleteParticipantNameWarning";
 import { hasIncompleteBusinessParticipantName } from "@/features/approvalRequests/utils/participantName";
+import { getApprovalRequestAssigneeVisibilityKey } from "@/features/approvalRequests/utils/approvalRequestVisibility";
 import {
   ApprovalStep,
   ApprovalStepVisibilityMode,
@@ -82,9 +83,6 @@ const stepVisibilityModesByValue: Record<ApprovalStepVisibilityMode, StepVisibil
   [ApprovalStepVisibilityMode.AssigneesOnly]: "assignees",
 };
 
-const getAssigneeVisibilityKey = (stepSequence: number, assigneeStepSequence: number, assigneeIndex: number) =>
-  `${stepSequence}:${assigneeStepSequence}:${assigneeIndex}`;
-
 const getPersistedVisibilityState = (steps: ApprovalStep[]) => {
   const stepVisibility: Record<string, boolean> = {};
   const stepVisibilityModes: Record<number, StepVisibilityMode> = {};
@@ -112,7 +110,7 @@ const getPersistedVisibilityState = (steps: ApprovalStep[]) => {
         return;
       }
 
-      stepVisibility[getAssigneeVisibilityKey(step.sequence, assigneeStep.sequence, assigneeIndex)] =
+      stepVisibility[getApprovalRequestAssigneeVisibilityKey(step.sequence, assigneeStep.sequence, assigneeIndex)] =
         visibility.isVisible;
     });
   });
@@ -319,7 +317,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   };
 
   const getStepVisibilityValue = (stepSequence: number, assigneeStepSequence: number, assigneeIndex: number) =>
-    stepVisibility[getAssigneeVisibilityKey(stepSequence, assigneeStepSequence, assigneeIndex)] ??
+    stepVisibility[getApprovalRequestAssigneeVisibilityKey(stepSequence, assigneeStepSequence, assigneeIndex)] ??
     (stepVisibilityModes[stepSequence] ?? "all") === "all";
 
   const getDisplayStep = (step: EditableApprovalStep): ApprovalStep => ({
