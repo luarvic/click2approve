@@ -5,8 +5,6 @@ import ApprovalRequestActionBar from "@/features/approvalRequests/components/App
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import DiscussionPanel, { DiscussionPanelHandle } from "@/features/discussions/components/DiscussionPanel";
 import { UserFile } from "@/features/userFiles/models/userFile";
-import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
-import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { useEffect, useRef, useState } from "react";
 
@@ -29,16 +27,13 @@ const ApprovalRequestDiscussionSection: React.FC<ApprovalRequestDiscussionSectio
 }) => {
   const [body, setBody] = useState("");
   const [files, setFiles] = useState<UserFile[]>([]);
+  const [isSending, setIsSending] = useState(false);
   const discussionPanel = useRef<DiscussionPanelHandle>(null);
-  const sendAction = useAsyncAction(
-    task
-      ? ActionLoaders.discussions.sendForTask(task.globalId)
-      : ActionLoaders.discussions.sendForRequest(approvalRequest.globalId),
-  );
 
   useEffect(() => {
     setBody("");
     setFiles([]);
+    setIsSending(false);
   }, [approvalRequest.globalId, task?.globalId]);
 
   return (
@@ -50,6 +45,7 @@ const ApprovalRequestDiscussionSection: React.FC<ApprovalRequestDiscussionSectio
         files={files}
         onBodyChange={setBody}
         onFilesChange={setFiles}
+        onSendStateChange={setIsSending}
         ref={discussionPanel}
         requestGlobalId={approvalRequest.globalId}
         requesterDisplayName={approvalRequest.createdByDisplayName}
@@ -63,11 +59,7 @@ const ApprovalRequestDiscussionSection: React.FC<ApprovalRequestDiscussionSectio
       />
       <ApprovalRequestActionBar onClose={onClose}>
         {canSend && (
-          <LoadingButton
-            loading={sendAction.isRunning}
-            variant="outlined"
-            onClick={() => void sendAction.run(async () => discussionPanel.current?.send())}
-          >
+          <LoadingButton loading={isSending} variant="outlined" onClick={() => void discussionPanel.current?.send()}>
             Send
           </LoadingButton>
         )}

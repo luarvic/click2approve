@@ -2,14 +2,9 @@ import type { ApprovalStep, AssigneeType } from "@/features/approvalWorkflow/mod
 import ApprovalRequestFilesList from "@/features/approvalRequests/components/ApprovalRequestFilesList";
 import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
 import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
-import {
-  DiscussionMessage,
-  listRequestDiscussion,
-  listTaskDiscussion,
-  sendRequestDiscussion,
-  sendTaskDiscussion,
-} from "@/features/discussions/api/discussionsApi";
 import DiscussionParticipants from "@/features/discussions/components/DiscussionParticipants";
+import { useDiscussionMessages } from "@/features/discussions/hooks/useDiscussionMessages";
+import { DiscussionMessage } from "@/features/discussions/models/discussionMessage";
 import { useUserFileDelete } from "@/features/userFiles/hooks/useUserFileDelete";
 import { useUserFileUpload } from "@/features/userFiles/hooks/useUserFileUpload";
 import { UserFile } from "@/features/userFiles/models/userFile";
@@ -17,13 +12,13 @@ import { downloadDiscussionMessageFile } from "@/features/userFiles/utils/downlo
 import DisplayName from "@/shared/components/identity/DisplayName";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
 import TimelineTimestamp from "@/shared/components/timeline/TimelineTimestamp";
-import { Files, Refresh, StackSpacing } from "@/shared/constants/constants";
+import { Files, StackSpacing } from "@/shared/constants/constants";
 import { AttachFile } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { Box, Divider, Stack, TextField, Typography } from "@mui/material";
 import { alpha, type SxProps, type Theme } from "@mui/material/styles";
 import type { Dispatch, SetStateAction } from "react";
-import { Fragment, forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react";
+import { Fragment, forwardRef, useCallback, useEffect, useImperativeHandle } from "react";
 
 interface DiscussionPanelProps {
   attachmentsAreEnabled: boolean;
@@ -32,6 +27,7 @@ interface DiscussionPanelProps {
   files: UserFile[];
   onBodyChange: (body: string) => void;
   onFilesChange: Dispatch<SetStateAction<UserFile[]>>;
+  onSendStateChange?: (isSending: boolean) => void;
   requestGlobalId: string;
   requesterDisplayName: string;
   requesterEmail: string;
@@ -73,6 +69,7 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
       files,
       onBodyChange,
       onFilesChange,
+      onSendStateChange,
       requestGlobalId,
       requesterDisplayName,
       requesterEmail,
@@ -85,27 +82,20 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
     },
     ref,
   ) => {
-    const [messages, setMessages] = useState<DiscussionMessage[] | null>(null);
     const fileDeletion = useUserFileDelete(tenantGlobalId);
     const fileUpload = useUserFileUpload({
       onUploaded: (uploadedFiles) => onFilesChange((currentFiles) => [...currentFiles, ...uploadedFiles]),
       tenantGlobalId,
     });
-    const load = useCallback(async () => {
-      if (!tenantGlobalId) return;
-      setMessages(
-        taskGlobalId
-          ? await listTaskDiscussion(tenantGlobalId, taskGlobalId)
-          : await listRequestDiscussion(tenantGlobalId, requestGlobalId),
-      );
-    }, [requestGlobalId, taskGlobalId, tenantGlobalId]);
-
-    useEffect(() => {
-      void load();
-      if (Refresh.discussionsMs <= 0) return;
-      const id = window.setInterval(() => void load(), Refresh.discussionsMs);
-      return () => window.clearInterval(id);
-    }, [load]);
+    const {
+      isSending,
+      messages,
+      send: sendMessage,
+    } = useDiscussionMessages({
+      requestGlobalId,
+      taskGlobalId,
+      tenantGlobalId,
+    });
     useEffect(() => {
       const frame = window.requestAnimationFrame(() => {
         window.scrollTo({
@@ -115,34 +105,16 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
       });
       return () => window.cancelAnimationFrame(frame);
     }, [messages?.length]);
+    useEffect(() => {
+      onSendStateChange?.(isSending);
+    }, [isSending, onSendStateChange]);
     const send = useCallback(async () => {
-      if (!tenantGlobalId || (!body.trim() && (!attachmentsAreEnabled || files.length === 0))) return;
-      const message = taskGlobalId
-        ? await sendTaskDiscussion(
-            tenantGlobalId,
-            taskGlobalId,
-            body,
-            files.map((file) => file.globalId),
-          )
-        : await sendRequestDiscussion(
-            tenantGlobalId,
-            requestGlobalId,
-            body,
-            files.map((file) => file.globalId),
-          );
-      setMessages((current) => [...(current ?? []), message]);
-      onBodyChange("");
-      onFilesChange([]);
-    }, [
-      attachmentsAreEnabled,
-      body,
-      files,
-      onBodyChange,
-      onFilesChange,
-      requestGlobalId,
-      taskGlobalId,
-      tenantGlobalId,
-    ]);
+      const sent = await sendMessage(body, attachmentsAreEnabled ? files : []);
+      if (sent) {
+        onBodyChange("");
+        onFilesChange([]);
+      }
+    }, [attachmentsAreEnabled, body, files, onBodyChange, onFilesChange, sendMessage]);
 
     useImperativeHandle(
       ref,

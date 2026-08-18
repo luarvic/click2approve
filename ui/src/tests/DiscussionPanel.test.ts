@@ -1,4 +1,4 @@
-import type { DiscussionMessage } from "@/features/discussions/api/discussionsApi";
+import type { DiscussionMessage } from "@/features/discussions/models/discussionMessage";
 import { getDiscussionMessageSender } from "@/features/discussions/components/DiscussionPanel";
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { describe, expect, test } from "vitest";
