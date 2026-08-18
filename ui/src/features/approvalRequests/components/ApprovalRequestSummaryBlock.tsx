@@ -67,7 +67,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
     ? undefined
     : (approvalRequest.completedByEmail ?? approvalRequest.createdByEmail);
   const requestBorder = getRequestBorder(approvalRequest.status, approvalRequest.result);
-  const metadata =
+  const participantTimeline =
     completionLabel && completedTimestamp ? (
       <ApprovalRequestParticipantPair
         firstLabel={<ApprovalRequestParticipantLabel>Requested by</ApprovalRequestParticipantLabel>}
@@ -136,6 +136,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
       borderLeftStyle={requestBorder.style}
     >
       <ApprovalRequestSummary
+        additionalContent={participantTimeline}
         title={approvalRequest.title}
         description={approvalRequest.description}
         approvalRequestGlobalId={approvalRequest.globalId}
@@ -149,7 +150,6 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
         requestFiles={approvalRequest.requestFiles}
         revisionNumber={approvalRequest.revisionNumber}
         tenantGlobalId={tenantGlobalId}
-        metadata={metadata}
       />
     </ApprovalRequestDetailsCard>
   );

@@ -1,25 +1,27 @@
 import { stores } from "@/app/rootStore";
 import { completeApprovalRequestTask } from "@/features/approvalRequests/api/approvalRequestTasksApi";
+import ApprovalRequestActionBar from "@/features/approvalRequests/components/ApprovalRequestActionBar";
 import ApprovalRequestDetails from "@/features/approvalRequests/components/ApprovalRequestDetails";
+import ApprovalRequestDiscussionSection from "@/features/approvalRequests/components/ApprovalRequestDiscussionSection";
 import type { ElectronicSignatureErrors } from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureForm";
 import ApprovalRequestElectronicSignatureForm from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureForm";
 import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestTaskSummaryBlock";
-import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
 import ApprovalRequestTaskAttachments, {
   ApprovalRequestTaskAttachmentsHandle,
 } from "@/features/approvalRequests/components/ApprovalRequestTaskAttachments";
+import ApprovalRequestTaskAttachmentList from "@/features/approvalRequests/components/ApprovalRequestTaskAttachmentList";
+import ApprovalRequestSharedVerificationLinksSection from "@/features/approvalRequests/components/ApprovalRequestSharedVerificationLinksSection";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
 import { createApprovalRequestTaskClientAuditContext } from "@/features/approvalRequests/utils/approvalRequestTaskClientAuditContext";
 import { getIncompleteParticipantNameWarning } from "@/features/approvalRequests/utils/incompleteParticipantNameWarning";
-import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
-import DiscussionPanel, { DiscussionPanelHandle } from "@/features/discussions/components/DiscussionPanel";
-import { createSharedVerificationLinkForTask } from "@/features/sharedVerificationLinks/api/sharedVerificationLinksApi";
-import SharedVerificationLinksPanel from "@/features/sharedVerificationLinks/components/SharedVerificationLinksPanel";
-import { TenantType } from "@/features/tenants/models/tenant";
+import {
+  getParticipantName,
+  hasIncompleteBusinessParticipantName,
+} from "@/features/approvalRequests/utils/participantName";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
@@ -33,10 +35,8 @@ import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
 } from "@/shared/utils/persistenceNotifications";
-import { LinkOutlined } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
-  Button,
   FormControl,
   FormControlLabel,
   FormHelperText,
@@ -63,14 +63,11 @@ const emptyElectronicSignatureErrors: ElectronicSignatureErrors = {
 };
 
 const getDefaultLegalName = (isAssigneeEmployee: boolean | undefined): string => {
-  const currentTenant = stores.tenantStore.currentTenant;
-  const firstName = isAssigneeEmployee
-    ? currentTenant?.currentEmployeeFirstName
-    : stores.userProfileStore.profile?.firstName;
-  const lastName = isAssigneeEmployee
-    ? currentTenant?.currentEmployeeLastName
-    : stores.userProfileStore.profile?.lastName;
-
+  const { firstName, lastName } = getParticipantName(
+    stores.tenantStore.currentTenant,
+    stores.userProfileStore.profile,
+    isAssigneeEmployee,
+  );
   return [firstName, lastName]
     .map((name) => name?.trim())
     .filter((name): name is string => Boolean(name))
@@ -89,13 +86,8 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
   const [electronicSignatureErrors, setElectronicSignatureErrors] =
     useState<ElectronicSignatureErrors>(emptyElectronicSignatureErrors);
   const [approvalRequest, setApprovalRequest] = useState<ApprovalRequest | null>(null);
-  const [hasSharedVerificationLink, setHasSharedVerificationLink] = useState(false);
-  const [sharedVerificationLinksRefreshKey, setSharedVerificationLinksRefreshKey] = useState(0);
   const [nameWarningDialogIsOpen, setNameWarningDialogIsOpen] = useState(false);
-  const [discussionBody, setDiscussionBody] = useState("");
-  const [discussionFiles, setDiscussionFiles] = useState<UserFile[]>([]);
   const [taskAttachmentFiles, setTaskAttachmentFiles] = useState<UserFile[]>([]);
-  const discussionPanel = useRef<DiscussionPanelHandle>(null);
   const taskAttachments = useRef<ApprovalRequestTaskAttachmentsHandle>(null);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const nameWarning = getIncompleteParticipantNameWarning(stores.tenantStore.currentTenant?.type);
@@ -117,8 +109,6 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
   const isCompleted = Boolean(currentTask && currentTask.status !== ApprovalRequestTaskStatus.Pending);
   const actionLabels = getApprovalRequestTaskActionLabels(currentTask?.action);
   const completeTaskLoader = ActionLoaders.approvalRequestTasks.complete(currentTask?.globalId);
-  const createSharedVerificationLinkLoader = ActionLoaders.sharedVerificationLinks.createForTask(currentTask?.globalId);
-  const createSharedVerificationLinkAction = useAsyncAction(createSharedVerificationLinkLoader);
   const submitAction = useAsyncAction(completeTaskLoader);
   const requiresElectronicSignature = result === true && currentTask?.isElectronicSignatureRequired === true;
   const canEnterRepresentationDetails = !currentTask?.isAssigneeEmployee;
@@ -129,9 +119,6 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
     approvalRequest.result === true,
   );
   const taskIsSubmitting = submitAction.isRunning || stores.commonStore.isActionLoading(completeTaskLoader);
-  const sharedVerificationLinkIsCreating =
-    createSharedVerificationLinkAction.isRunning ||
-    stores.commonStore.isActionLoading(createSharedVerificationLinkLoader);
 
   useEffect(() => {
     setResult(currentTask?.result);
@@ -146,8 +133,6 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
   }, [currentTask]);
 
   useEffect(() => {
-    setDiscussionBody("");
-    setDiscussionFiles([]);
     setTaskAttachmentFiles([]);
   }, [taskGlobalId]);
 
@@ -165,8 +150,6 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
     setRepresentationDetails("");
     setSignatureJson("");
     setElectronicSignatureErrors(emptyElectronicSignatureErrors);
-    setDiscussionBody("");
-    setDiscussionFiles([]);
     setTaskAttachmentFiles([]);
   };
 
@@ -257,36 +240,12 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
       return;
     }
 
-    const currentTenant = stores.tenantStore.currentTenant;
-    const firstName =
-      currentTenant?.type === TenantType.Business
-        ? currentTenant.currentEmployeeFirstName
-        : stores.userProfileStore.profile?.firstName;
-    const lastName =
-      currentTenant?.type === TenantType.Business
-        ? currentTenant.currentEmployeeLastName
-        : stores.userProfileStore.profile?.lastName;
-    if ((!firstName?.trim() || !lastName?.trim()) && currentTenant?.type === TenantType.Business) {
+    if (hasIncompleteBusinessParticipantName(stores.tenantStore.currentTenant, stores.userProfileStore.profile)) {
       setNameWarningDialogIsOpen(true);
       return;
     }
 
     void submit();
-  };
-
-  const handleCreateSharedVerificationLink = async () => {
-    if (!currentTask || !tenantGlobalId || hasSharedVerificationLink) {
-      return;
-    }
-
-    await createSharedVerificationLinkAction.run(async () => {
-      const linkGlobalId = await createSharedVerificationLinkForTask(tenantGlobalId, currentTask.globalId);
-      if (linkGlobalId) {
-        await navigator.clipboard?.writeText(`${window.location.origin}/app/verification/${linkGlobalId}`);
-        showPersistenceSuccessNotification(PersistenceSuccessMessages.sharedVerificationLinkCreated);
-        setSharedVerificationLinksRefreshKey((current) => current + 1);
-      }
-    });
   };
 
   if (
@@ -327,18 +286,12 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
               <ApprovalRequestTaskSummaryBlock
                 additionalMetadata={
                   isCompleted && taskAttachmentsAreEnabled && currentTask.taskFiles?.length && tenantGlobalId ? (
-                    <>
-                      <ApprovalRequestParticipantLabel>Files attached to this decision</ApprovalRequestParticipantLabel>
-                      <ApprovalRequestTaskAttachments
-                        canManageFiles={false}
-                        newFiles={[]}
-                        onNewFilesChange={() => undefined}
-                        showLabel={false}
-                        taskFiles={currentTask.taskFiles ?? []}
-                        taskGlobalId={currentTask.globalId}
-                        tenantGlobalId={tenantGlobalId}
-                      />
-                    </>
+                    <ApprovalRequestTaskAttachmentList
+                      label="Files attached to this decision"
+                      taskFiles={currentTask.taskFiles ?? []}
+                      taskGlobalId={currentTask.globalId}
+                      tenantGlobalId={tenantGlobalId}
+                    />
                   ) : undefined
                 }
                 participant="assignee"
@@ -411,20 +364,13 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
               </>
             )}
           </Stack>
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={Dialogs.stepHeaderSpacing}
-            sx={Dialogs.addStepButtonSx}
-          >
-            <Button variant="outlined" onClick={handleClose}>
-              {!isCompleted ? "Cancel" : "Close"}
-            </Button>
+          <ApprovalRequestActionBar closeLabel={!isCompleted ? "Cancel" : "Close"} onClose={handleClose}>
             {!isCompleted && (
               <LoadingButton loading={taskIsSubmitting} variant="outlined" onClick={handleSubmit}>
                 Submit
               </LoadingButton>
             )}
-          </Stack>
+          </ApprovalRequestActionBar>
         </Stack>
       )}
       {tab === "request" && (
@@ -436,80 +382,25 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
             showVisibleStepVisibility={false}
             taskAttachmentsTenantGlobalId={taskAttachmentsAreEnabled ? (tenantGlobalId ?? undefined) : undefined}
           />
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={Dialogs.stepHeaderSpacing}
-            sx={Dialogs.addStepButtonSx}
-          >
-            <Button variant="outlined" onClick={handleClose}>
-              Close
-            </Button>
-          </Stack>
+          <ApprovalRequestActionBar onClose={handleClose} />
         </>
       )}
       {tab === "chat" && discussionsAreEnabled && approvalRequest && currentTask && (
-        <>
-          <DiscussionPanel
-            attachmentsAreEnabled={discussionAttachmentsAreEnabled}
-            body={discussionBody}
-            canSend={canSendDiscussion}
-            files={discussionFiles}
-            onBodyChange={setDiscussionBody}
-            onFilesChange={setDiscussionFiles}
-            ref={discussionPanel}
-            requestGlobalId={approvalRequest.globalId}
-            requesterDisplayName={approvalRequest.createdByDisplayName}
-            requesterEmail={approvalRequest.createdByEmail}
-            requesterType={approvalRequest.createdByEmployeeGlobalId ? AssigneeType.Employee : AssigneeType.User}
-            stepLabels={Object.fromEntries(
-              approvalRequest.steps
-                .filter((step) => step.globalId)
-                .map((step) => [step.globalId!, `Step ${step.sequence}`]),
-            )}
-            steps={approvalRequest.steps}
-            taskApprovalRequestStepGlobalId={currentTask.approvalRequestStepGlobalId}
-            taskGlobalId={currentTask.globalId}
-            tenantGlobalId={tenantGlobalId}
-          />
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={Dialogs.stepHeaderSpacing}
-            sx={Dialogs.addStepButtonSx}
-          >
-            <Button variant="outlined" onClick={handleClose}>
-              Close
-            </Button>
-            {canSendDiscussion && (
-              <Button variant="outlined" onClick={() => void discussionPanel.current?.send()}>
-                Send
-              </Button>
-            )}
-          </Stack>
-        </>
-      )}
-      {tab === "link" && canManageSharedVerificationLinks && (
-        <SharedVerificationLinksPanel
-          approvalRequestTaskGlobalId={currentTask?.globalId}
-          onHasLinkChange={setHasSharedVerificationLink}
-          refreshKey={sharedVerificationLinksRefreshKey}
+        <ApprovalRequestDiscussionSection
+          attachmentsAreEnabled={discussionAttachmentsAreEnabled}
+          approvalRequest={approvalRequest}
+          canSend={canSendDiscussion}
+          onClose={handleClose}
+          task={currentTask}
           tenantGlobalId={tenantGlobalId}
         />
       )}
-      {tab === "link" && canManageSharedVerificationLinks && (
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
-          <Button variant="outlined" onClick={handleClose}>
-            Close
-          </Button>
-          <LoadingButton
-            disabled={hasSharedVerificationLink || sharedVerificationLinkIsCreating}
-            loading={sharedVerificationLinkIsCreating}
-            startIcon={<LinkOutlined />}
-            variant="outlined"
-            onClick={handleCreateSharedVerificationLink}
-          >
-            Create link
-          </LoadingButton>
-        </Stack>
+      {tab === "link" && canManageSharedVerificationLinks && currentTask && tenantGlobalId && (
+        <ApprovalRequestSharedVerificationLinksSection
+          onClose={handleClose}
+          resource={{ globalId: currentTask.globalId, type: "task" }}
+          tenantGlobalId={tenantGlobalId}
+        />
       )}
       {nameWarning && (
         <ConfirmationDialog

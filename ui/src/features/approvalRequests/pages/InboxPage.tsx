@@ -3,7 +3,6 @@ import InboxGrid from "@/features/approvalRequests/components/InboxGrid";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
-import { Box } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
 
@@ -18,7 +17,7 @@ const InboxPage = () => {
   const location = useLocation();
   const { currentTaskGlobalId } = (location.state as InboxLocationState | null) ?? {};
   return (
-    <Box>
+    <>
       <PageBreadcrumbs
         items={[
           {
@@ -28,7 +27,7 @@ const InboxPage = () => {
         ]}
       />
       <InboxGrid currentTaskGlobalId={currentTaskGlobalId} />
-    </Box>
+    </>
   );
 };
 

@@ -10,7 +10,8 @@ import {
   sendTaskDiscussion,
 } from "@/features/discussions/api/discussionsApi";
 import DiscussionParticipants from "@/features/discussions/components/DiscussionParticipants";
-import { deleteUserFile, uploadUserFiles } from "@/features/userFiles/api/userFilesApi";
+import { useUserFileDelete } from "@/features/userFiles/hooks/useUserFileDelete";
+import { useUserFileUpload } from "@/features/userFiles/hooks/useUserFileUpload";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import { downloadDiscussionMessageFile } from "@/features/userFiles/utils/downloaders";
 import DisplayName from "@/shared/components/identity/DisplayName";
@@ -18,19 +19,11 @@ import UserProvidedText from "@/shared/components/text/UserProvidedText";
 import TimelineTimestamp from "@/shared/components/timeline/TimelineTimestamp";
 import { Files, Refresh, StackSpacing } from "@/shared/constants/constants";
 import { AttachFile } from "@mui/icons-material";
-import { Box, Button, Divider, Stack, TextField, Typography } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
+import { Box, Divider, Stack, TextField, Typography } from "@mui/material";
 import { alpha, type SxProps, type Theme } from "@mui/material/styles";
-import {
-  Dispatch,
-  Fragment,
-  forwardRef,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from "react";
+import type { Dispatch, SetStateAction } from "react";
+import { Fragment, forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react";
 
 interface DiscussionPanelProps {
   attachmentsAreEnabled: boolean;
@@ -93,7 +86,11 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
     ref,
   ) => {
     const [messages, setMessages] = useState<DiscussionMessage[] | null>(null);
-    const fileInput = useRef<HTMLInputElement>(null);
+    const fileDeletion = useUserFileDelete(tenantGlobalId);
+    const fileUpload = useUserFileUpload({
+      onUploaded: (uploadedFiles) => onFilesChange((currentFiles) => [...currentFiles, ...uploadedFiles]),
+      tenantGlobalId,
+    });
     const load = useCallback(async () => {
       if (!tenantGlobalId) return;
       setMessages(
@@ -155,6 +152,18 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
       }),
       [attachmentsAreEnabled, body, files.length, send],
     );
+    const removeFile = async (index: number) => {
+      const file = files[index];
+      if (!file || !tenantGlobalId) {
+        return;
+      }
+
+      const removed = await fileDeletion.deleteFile(file.globalId);
+      if (removed) {
+        onFilesChange((currentFiles) => currentFiles.filter((_, fileIndex) => fileIndex !== index));
+      }
+    };
+    const isManagingFiles = fileDeletion.isDeleting || fileUpload.isUploading;
     const taskStep = taskApprovalRequestStepGlobalId
       ? steps.find((step) => step.globalId === taskApprovalRequestStepGlobalId)
       : undefined;
@@ -245,36 +254,27 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
             {attachmentsAreEnabled && (
               <ApprovalRequestFilesList
                 existingFiles={[]}
+                isActionsDisabled={isManagingFiles}
                 newFiles={files}
-                onRemoveNew={(index) => {
-                  const file = files[index];
-                  if (!file || !tenantGlobalId) return;
-                  void deleteUserFile(tenantGlobalId, file.globalId).then((removed) => {
-                    if (removed) {
-                      onFilesChange((files) => files.filter((_, fileIndex) => fileIndex !== index));
-                    }
-                  });
-                }}
+                onRemoveNew={(index) => void removeFile(index)}
               />
             )}
             {attachmentsAreEnabled && (
               <>
-                <Button startIcon={<AttachFile />} onClick={() => fileInput.current?.click()}>
+                <LoadingButton
+                  disabled={isManagingFiles}
+                  loading={fileUpload.isUploading}
+                  startIcon={<AttachFile />}
+                  onClick={fileUpload.openFileDialog}
+                >
                   Attach files
-                </Button>
+                </LoadingButton>
                 <input
                   multiple
-                  ref={fileInput}
+                  ref={fileUpload.fileInput}
                   style={Files.inputStyle}
                   type="file"
-                  onChange={async (event) => {
-                    const selectedFiles = Array.from(event.target.files ?? []);
-                    event.target.value = "";
-                    if (!tenantGlobalId || selectedFiles.length === 0) return;
-
-                    const uploadedFiles = await uploadUserFiles(tenantGlobalId, selectedFiles);
-                    onFilesChange((files) => [...files, ...uploadedFiles]);
-                  }}
+                  onChange={fileUpload.handleFilesChange}
                 />
               </>
             )}

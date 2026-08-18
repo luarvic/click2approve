@@ -16,6 +16,7 @@ export interface RevisionExistingFile {
 
 interface ApprovalRequestFilesListProps {
   existingFiles: RevisionExistingFile[];
+  isActionsDisabled?: boolean;
   newFiles: UserFile[];
   onRemoveExisting?: (index: number) => void;
   onRemoveNew: (index: number) => void;
@@ -49,6 +50,7 @@ const fileRowSx: SxProps<Theme> = {
 
 const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
   existingFiles,
+  isActionsDisabled = false,
   newFiles,
   onRemoveExisting,
   onRemoveNew,
@@ -106,7 +108,12 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
     const fileEntry = (
       <Stack direction="row" alignItems="center">
         {renderFileLink(file.name)}
-        <IconButton aria-label={`Remove ${file.name}`} onClick={() => onRemoveNew(index)} size="small">
+        <IconButton
+          aria-label={`Remove ${file.name}`}
+          disabled={isActionsDisabled}
+          onClick={() => onRemoveNew(index)}
+          size="small"
+        >
           <Close fontSize="small" />
         </IconButton>
       </Stack>
@@ -146,6 +153,7 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
                       <Chip color="error" label="Deleted" size="small" variant="outlined" />
                       <IconButton
                         aria-label={`Restore ${file.file.name}`}
+                        disabled={isActionsDisabled}
                         onClick={() => onRestoreExisting?.(index)}
                         size="small"
                       >
@@ -161,6 +169,7 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
                         <Chip color="warning" label="Replacement" size="small" variant="outlined" />
                         <IconButton
                           aria-label={`Remove ${file.replacement.name}`}
+                          disabled={isActionsDisabled}
                           onClick={() => onRemoveReplacement?.(index)}
                           size="small"
                         >
@@ -179,6 +188,7 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
                     {renderFileLink(file.file.name)}
                     <IconButton
                       aria-label={`Actions for ${file.file.name}`}
+                      disabled={isActionsDisabled}
                       onClick={(event) => openMenu(event.currentTarget, index)}
                       size="small"
                     >
@@ -197,6 +207,7 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
                 {onRemoveExisting && (
                   <IconButton
                     aria-label={`Remove ${file.file.name}`}
+                    disabled={isActionsDisabled}
                     onClick={() => onRemoveExisting(index)}
                     size="small"
                   >
@@ -210,8 +221,12 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
         {newFiles.map(renderNewFile)}
       </Stack>
       <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={closeMenu}>
-        <MenuItem onClick={removeMenuFile}>Delete</MenuItem>
-        <MenuItem onClick={replaceMenuFile}>Replace</MenuItem>
+        <MenuItem disabled={isActionsDisabled} onClick={removeMenuFile}>
+          Delete
+        </MenuItem>
+        <MenuItem disabled={isActionsDisabled} onClick={replaceMenuFile}>
+          Replace
+        </MenuItem>
       </Menu>
     </CommentPaper>
   );

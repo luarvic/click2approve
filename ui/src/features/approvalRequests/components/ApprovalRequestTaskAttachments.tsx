@@ -2,15 +2,20 @@ import {
   addApprovalRequestTaskAttachments,
   removeApprovalRequestTaskAttachment,
 } from "@/features/approvalRequests/api/approvalRequestTaskAttachmentsApi";
+import ApprovalRequestDetailLabel from "@/features/approvalRequests/components/ApprovalRequestDetailLabel";
 import ApprovalRequestFilesList from "@/features/approvalRequests/components/ApprovalRequestFilesList";
-import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
-import { deleteUserFile, uploadUserFiles } from "@/features/userFiles/api/userFilesApi";
+import { useUserFileDelete } from "@/features/userFiles/hooks/useUserFileDelete";
+import { useUserFileUpload } from "@/features/userFiles/hooks/useUserFileUpload";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import { downloadApprovalRequestTaskAttachment } from "@/features/userFiles/utils/downloaders";
 import { Files, StackSpacing } from "@/shared/constants/constants";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { AttachFile } from "@mui/icons-material";
-import { Button, Stack } from "@mui/material";
-import { Dispatch, forwardRef, SetStateAction, useCallback, useImperativeHandle, useRef, useState } from "react";
+import LoadingButton from "@mui/lab/LoadingButton";
+import { Stack } from "@mui/material";
+import type { Dispatch, SetStateAction } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react";
 
 interface ApprovalRequestTaskAttachmentsProps {
   canManageFiles: boolean;
@@ -44,77 +49,96 @@ const ApprovalRequestTaskAttachments = forwardRef<
     },
     ref,
   ) => {
-    const fileInput = useRef<HTMLInputElement>(null);
     const [files, setFiles] = useState<UserFile[]>(taskFiles);
+    const attachAction = useAsyncAction(ActionLoaders.approvalRequestTasks.attachFiles(taskGlobalId));
+    const fileDeletion = useUserFileDelete(tenantGlobalId);
+    const removeAttachmentAction = useAsyncAction();
+    const fileUpload = useUserFileUpload({
+      onUploaded: (uploadedFiles) => onNewFilesChange((currentFiles) => [...currentFiles, ...uploadedFiles]),
+      tenantGlobalId,
+    });
+
+    useEffect(() => {
+      setFiles(taskFiles);
+    }, [taskFiles]);
 
     const attach = useCallback(async (): Promise<boolean> => {
       if (newFiles.length === 0) return true;
-      if (
-        !(await addApprovalRequestTaskAttachments(
+      const attached = await attachAction.run(() =>
+        addApprovalRequestTaskAttachments(
           tenantGlobalId,
           taskGlobalId,
           newFiles.map((file) => file.globalId),
-        ))
-      )
+        ),
+      );
+      if (!attached) {
         return false;
+      }
 
       onNewFilesChange([]);
       setFiles((files) => [...files, ...newFiles]);
       return true;
-    }, [newFiles, onNewFilesChange, taskGlobalId, tenantGlobalId]);
+    }, [attachAction, newFiles, onNewFilesChange, taskGlobalId, tenantGlobalId]);
 
     useImperativeHandle(ref, () => ({ attach }), [attach]);
 
+    const removeAttachedFile = async (index: number) => {
+      const file = files[index];
+      if (!file) {
+        return;
+      }
+
+      const removed = await removeAttachmentAction.run(
+        () => removeApprovalRequestTaskAttachment(tenantGlobalId, taskGlobalId, file.globalId),
+        ActionLoaders.approvalRequestTasks.removeAttachment(taskGlobalId, file.globalId),
+      );
+      if (removed) {
+        setFiles((currentFiles) => currentFiles.filter((_, fileIndex) => fileIndex !== index));
+      }
+    };
+
+    const removeNewFile = async (index: number) => {
+      const file = newFiles[index];
+      if (!file) {
+        return;
+      }
+
+      const removed = await fileDeletion.deleteFile(file.globalId);
+      if (removed) {
+        onNewFilesChange((currentFiles) => currentFiles.filter((_, fileIndex) => fileIndex !== index));
+      }
+    };
+
+    const isManagingFiles =
+      attachAction.isRunning || fileDeletion.isDeleting || removeAttachmentAction.isRunning || fileUpload.isUploading;
+
     return (
       <Stack alignItems="flex-start" spacing={StackSpacing.default}>
-        {showLabel && <ApprovalRequestParticipantLabel>{label}</ApprovalRequestParticipantLabel>}
+        {showLabel && <ApprovalRequestDetailLabel>{label}</ApprovalRequestDetailLabel>}
         <ApprovalRequestFilesList
           existingFiles={files.map((file) => ({ file }))}
+          isActionsDisabled={isManagingFiles}
           newFiles={newFiles}
           onDownloadExisting={(file) => void downloadApprovalRequestTaskAttachment(tenantGlobalId, file, taskGlobalId)}
-          onRemoveExisting={
-            canManageFiles
-              ? (index) => {
-                  const file = files[index];
-                  if (!file) return;
-                  void removeApprovalRequestTaskAttachment(tenantGlobalId, taskGlobalId, file.globalId).then(
-                    (removed) => {
-                      if (removed) {
-                        setFiles((files) => files.filter((_, fileIndex) => fileIndex !== index));
-                      }
-                    },
-                  );
-                }
-              : undefined
-          }
-          onRemoveNew={(index) => {
-            const file = newFiles[index];
-            if (!file) return;
-            void deleteUserFile(tenantGlobalId, file.globalId).then((removed) => {
-              if (removed) {
-                onNewFilesChange((files) => files.filter((_, fileIndex) => fileIndex !== index));
-              }
-            });
-          }}
+          onRemoveExisting={canManageFiles ? (index) => void removeAttachedFile(index) : undefined}
+          onRemoveNew={(index) => void removeNewFile(index)}
         />
         {canManageFiles && (
           <>
-            <Button startIcon={<AttachFile />} onClick={() => fileInput.current?.click()}>
+            <LoadingButton
+              disabled={isManagingFiles}
+              loading={fileUpload.isUploading}
+              startIcon={<AttachFile />}
+              onClick={fileUpload.openFileDialog}
+            >
               Attach files
-            </Button>
+            </LoadingButton>
             <input
               multiple
-              ref={fileInput}
+              ref={fileUpload.fileInput}
               style={Files.inputStyle}
               type="file"
-              onChange={async (event) => {
-                const selectedFiles = Array.from(event.target.files ?? []);
-                event.target.value = "";
-                if (selectedFiles.length === 0) return;
-
-                const uploadedFiles = await uploadUserFiles(tenantGlobalId, selectedFiles);
-                onNewFilesChange((files) => [...files, ...uploadedFiles]);
-              }}
+              onChange={fileUpload.handleFilesChange}
             />
           </>
         )}

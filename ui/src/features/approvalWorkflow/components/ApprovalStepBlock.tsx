@@ -1,7 +1,6 @@
 import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
-import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
 import { getAssigneeIcon } from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
-import ApprovalRequestTaskAttachments from "@/features/approvalRequests/components/ApprovalRequestTaskAttachments";
+import ApprovalRequestTaskAttachmentList from "@/features/approvalRequests/components/ApprovalRequestTaskAttachmentList";
 import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestTaskSummaryBlock";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
@@ -334,12 +333,8 @@ const renderTaskDetails = (
     additionalMetadata={
       taskAttachmentsTenantGlobalId && task.taskFiles?.length ? (
         <>
-          <ApprovalRequestParticipantLabel>Files attached to this decision</ApprovalRequestParticipantLabel>
-          <ApprovalRequestTaskAttachments
-            canManageFiles={false}
-            newFiles={[]}
-            onNewFilesChange={() => undefined}
-            showLabel={false}
+          <ApprovalRequestTaskAttachmentList
+            label="Files attached to this decision"
             taskFiles={task.taskFiles ?? []}
             taskGlobalId={task.globalId}
             tenantGlobalId={taskAttachmentsTenantGlobalId}

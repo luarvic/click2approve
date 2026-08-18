@@ -11,6 +11,8 @@ export const ActionLoaders = {
       formatActionLoader("approvalRequestTasks", "attachFiles", taskGlobalId),
     complete: (taskGlobalId: string | undefined) =>
       formatActionLoader("approvalRequestTasks", "complete", taskGlobalId),
+    removeAttachment: (taskGlobalId: string | undefined, userFileGlobalId: string | undefined) =>
+      formatActionLoader("approvalRequestTasks", "removeAttachment", taskGlobalId, userFileGlobalId),
   },
   approvalStepTemplates: {
     save: (templateGlobalId: string | undefined) =>
@@ -22,6 +24,12 @@ export const ActionLoaders = {
   dialogs: {
     confirm: () => formatActionLoader("dialogs", "confirm"),
     delete: () => formatActionLoader("dialogs", "delete"),
+  },
+  discussions: {
+    sendForRequest: (approvalRequestGlobalId: string | undefined) =>
+      formatActionLoader("discussions", "sendForRequest", approvalRequestGlobalId),
+    sendForTask: (approvalRequestTaskGlobalId: string | undefined) =>
+      formatActionLoader("discussions", "sendForTask", approvalRequestTaskGlobalId),
   },
   employees: {
     save: (employeeGlobalId: string | undefined) => formatActionLoader("employees", "save", employeeGlobalId),
@@ -65,5 +73,9 @@ export const ActionLoaders = {
   userProfile: {
     removeAvatar: () => formatActionLoader("userProfile", "removeAvatar"),
     save: () => formatActionLoader("userProfile", "save"),
+  },
+  userFiles: {
+    delete: (userFileGlobalId: string | undefined) => formatActionLoader("userFiles", "delete", userFileGlobalId),
+    upload: (tenantGlobalId: string | undefined) => formatActionLoader("userFiles", "upload", tenantGlobalId),
   },
 } as const;
