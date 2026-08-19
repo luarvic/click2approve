@@ -6,6 +6,7 @@ import {
   SubmitApprovalRequestRequest,
 } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestListItem } from "@/features/approvalRequests/models/approvalRequestListItem";
+import { normalizeApprovalRequestDates } from "@/features/approvalRequests/utils/approvalRequestDateNormalizers";
 import { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
 import axios from "@/shared/api/axios";
 import { getApiErrorNotification, isResourceNotFoundOrForbiddenError } from "@/shared/utils/apiErrorNotifications";
@@ -83,6 +84,7 @@ export const listApprovalRequests = async (tenantGlobalId: string): Promise<Appr
     const { data } = await axios.get<ApprovalRequestListItem[]>(`api/v1/tenants/${tenantGlobalId}/requests`, {
       useWorkEmployeeContext: true,
     });
+    data.forEach(normalizeApprovalRequestDates);
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
@@ -95,6 +97,7 @@ export const getApprovalRequest = async (tenantGlobalId: string, globalId: strin
     const { data } = await axios.get<ApprovalRequest>(`api/v1/tenants/${tenantGlobalId}/requests/${globalId}`, {
       useWorkEmployeeContext: true,
     });
+    normalizeApprovalRequestDates(data);
     return data;
   } catch (e) {
     if (isResourceNotFoundOrForbiddenError(e)) {

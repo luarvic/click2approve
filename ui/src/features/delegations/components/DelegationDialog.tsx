@@ -54,13 +54,18 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
     : "Select a delegate.";
   const saveIsLoading = saveAction.isRunning || stores.commonStore.isActionLoading(saveLoader);
   const activeEmployees = employees.filter((employee) => employee.status === EmployeeStatus.Active);
+  const fieldsDisabled = !isNew && !canEdit;
   const delegationName = `${getEmployeeName(
     employees,
     delegatorEmployeeId,
   )} to ${getEmployeeName(employees, delegateEmployeeId)}`;
   const renderEmployeeValue = (employeeGlobalId: string) => {
     const employee = employees.find((item) => item.globalId === employeeGlobalId);
-    return employee ? <EmployeeDisplayName employee={employee} /> : getEmployeeName(employees, employeeGlobalId);
+    return employee ? (
+      <EmployeeDisplayName disabled={fieldsDisabled} employee={employee} />
+    ) : (
+      getEmployeeName(employees, employeeGlobalId)
+    );
   };
 
   useEffect(() => {
@@ -116,7 +121,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           helperText={delegatorHasError ? "Select an employee." : undefined}
           fullWidth
           required
-          disabled={!isNew && !canEdit}
+          disabled={fieldsDisabled}
         >
           <MenuItem value={employeeSelectionDefault}>Select employee</MenuItem>
           {activeEmployees.map((employee) => (
@@ -136,7 +141,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           helperText={delegateHasError ? delegateHelperText : undefined}
           fullWidth
           required
-          disabled={!isNew && !canEdit}
+          disabled={fieldsDisabled}
         >
           <MenuItem value={employeeSelectionDefault}>Select delegate</MenuItem>
           {activeEmployees.map((employee) => (

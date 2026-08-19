@@ -31,7 +31,7 @@ public class ApprovalWorkflowService(
             cancellationToken);
     }
 
-    public async Task CompleteAsync(
+    public virtual async Task CompleteAsync(
         ApprovalRequestTask approvalRequestTask,
         DateTime timestamp,
         CancellationToken cancellationToken)
@@ -61,7 +61,7 @@ public class ApprovalWorkflowService(
         await CreateRequesterReviewedEventAsync(approvalRequestTask, cancellationToken);
     }
 
-    public async Task CancelRequestAsync(
+    public virtual async Task CancelRequestAsync(
         ApprovalRequest approvalRequest,
         DateTime timestamp,
         CancellationToken cancellationToken)

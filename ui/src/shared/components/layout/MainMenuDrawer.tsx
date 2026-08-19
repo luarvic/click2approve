@@ -5,13 +5,15 @@ import {
   AddTwoTone,
   BusinessTwoTone,
   ChevronLeftTwoTone,
-  DescriptionTwoTone,
+  ContentCopyTwoTone,
   Diversity3TwoTone,
+  ForwardToInboxTwoTone,
   GroupsTwoTone,
   HelpOutlineTwoTone,
-  InboxTwoTone,
-  OutboxTwoTone,
+  MarkEmailReadTwoTone,
+  MarkEmailUnreadTwoTone,
   PersonTwoTone,
+  ReceiptLongTwoTone,
 } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
 import {
@@ -67,13 +69,13 @@ const MainMenuDrawer = () => {
     stores.applicationConfigurationStore.approvalStepTemplatesAreEnabled &&
     currentTenant?.type === TenantType.Business &&
     currentTenant?.currentEmployeeRole !== undefined;
-  const accessGroupIsVisible =
-    organizationsIsVisible || employeeManagerIsVisible || teamsManagerIsVisible || delegationsIsVisible;
+  const workspaceGroupIsVisible = employeeManagerIsVisible || teamsManagerIsVisible || delegationsIsVisible;
   const currentTenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const tenantScopeIsReady = stores.tenantStore.hasLoaded && currentTenantGlobalId !== null;
   const tenantPath = (path: string) => (currentTenantGlobalId ? Routes.tenantPath(currentTenantGlobalId, path) : "/");
   const inboxPath = tenantPath(Routes.inboxPath);
   const outboxPath = tenantPath("/outbox");
+  const receiptsPath = tenantPath("/receipts");
   const templatesPath = tenantPath("/approvalStepTemplates");
   const teamsPath = tenantPath("/teams");
   const employeesPath = tenantPath("/employees");
@@ -153,7 +155,7 @@ const MainMenuDrawer = () => {
                   closeTemporaryDrawer();
                 }}
               >
-                CREATE
+                NEW
               </Button>
             </Tooltip>
           </ListSubheader>
@@ -171,7 +173,7 @@ const MainMenuDrawer = () => {
             }}
           >
             <ListItemIcon sx={Lists.itemIconSx}>
-              <InboxTwoTone />
+              {numberOfUncompletedTasks > 0 ? <MarkEmailUnreadTwoTone /> : <MarkEmailReadTwoTone />}
             </ListItemIcon>
             <ListItemText
               primary={
@@ -195,9 +197,23 @@ const MainMenuDrawer = () => {
             }}
           >
             <ListItemIcon sx={Lists.itemIconSx}>
-              <OutboxTwoTone />
+              <ForwardToInboxTwoTone />
             </ListItemIcon>
             <ListItemText primary="Outbox" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem key="receipts" disablePadding>
+          <ListItemButton
+            selected={location.pathname.startsWith(receiptsPath)}
+            onClick={() => {
+              navigate(receiptsPath);
+              closeTemporaryDrawer();
+            }}
+          >
+            <ListItemIcon sx={Lists.itemIconSx}>
+              <ReceiptLongTwoTone />
+            </ListItemIcon>
+            <ListItemText primary="Receipts" />
           </ListItemButton>
         </ListItem>
         {templatesIsVisible && (
@@ -210,31 +226,33 @@ const MainMenuDrawer = () => {
               }}
             >
               <ListItemIcon sx={Lists.itemIconSx}>
-                <DescriptionTwoTone />
+                <ContentCopyTwoTone />
               </ListItemIcon>
               <ListItemText primary="Templates" />
             </ListItemButton>
           </ListItem>
         )}
       </List>
-      {accessGroupIsVisible && (
+      {organizationsIsVisible && (
         <List subheader={<ListSubheader component="div">Access</ListSubheader>}>
-          {organizationsIsVisible && (
-            <ListItem key="organizations" disablePadding>
-              <ListItemButton
-                selected={organizationsIsSelected}
-                onClick={() => {
-                  navigate("/tenants");
-                  closeTemporaryDrawer();
-                }}
-              >
-                <ListItemIcon sx={Lists.itemIconSx}>
-                  <BusinessTwoTone />
-                </ListItemIcon>
-                <ListItemText primary="Organizations" />
-              </ListItemButton>
-            </ListItem>
-          )}
+          <ListItem key="organizations" disablePadding>
+            <ListItemButton
+              selected={organizationsIsSelected}
+              onClick={() => {
+                navigate("/tenants");
+                closeTemporaryDrawer();
+              }}
+            >
+              <ListItemIcon sx={Lists.itemIconSx}>
+                <BusinessTwoTone />
+              </ListItemIcon>
+              <ListItemText primary="Organizations" />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      )}
+      {workspaceGroupIsVisible && (
+        <List subheader={<ListSubheader component="div">Workspace</ListSubheader>}>
           {employeeManagerIsVisible && (
             <ListItem key="employees" disablePadding>
               <ListItemButton
@@ -285,7 +303,7 @@ const MainMenuDrawer = () => {
           )}
         </List>
       )}
-      <List subheader={<ListSubheader component="div">Docs</ListSubheader>}>
+      <List subheader={<ListSubheader component="div">Support</ListSubheader>}>
         <ListItem key="help" disablePadding>
           <ListItemButton component="a" href={Api.uiBaseUri} onClick={closeTemporaryDrawer}>
             <ListItemIcon sx={Lists.itemIconSx}>

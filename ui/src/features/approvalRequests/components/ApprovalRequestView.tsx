@@ -3,7 +3,6 @@ import ApprovalRequestActionBar from "@/features/approvalRequests/components/App
 import ApprovalRequestDetails from "@/features/approvalRequests/components/ApprovalRequestDetails";
 import ApprovalRequestDiscussionSection from "@/features/approvalRequests/components/ApprovalRequestDiscussionSection";
 import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
-import ApprovalRequestSharedVerificationLinksSection from "@/features/approvalRequests/components/ApprovalRequestSharedVerificationLinksSection";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { getIncompleteParticipantNameWarning } from "@/features/approvalRequests/utils/incompleteParticipantNameWarning";
@@ -29,7 +28,7 @@ import { useNavigate } from "react-router-dom";
 interface ApprovalRequestViewProps {
   approvalRequestGlobalId: string;
   onClose: (currentApprovalRequestGlobalId?: string) => void;
-  tab: "request" | "chat" | "link";
+  tab: "request" | "chat";
 }
 
 const resubmittableApprovalRequestStatuses = [
@@ -59,12 +58,6 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
   );
   const canCancel = Boolean(
     approvalRequest && tenantGlobalId && cancelableApprovalRequestStatuses.includes(approvalRequest.status),
-  );
-  const canManageSharedVerificationLinks = Boolean(
-    approvalRequest &&
-    stores.applicationConfigurationStore.sharedVerificationLinksAreEnabled &&
-    approvalRequest.status === ApprovalRequestStatus.Completed &&
-    approvalRequest.result === true,
   );
   const canSendDiscussion =
     approvalRequest?.status !== ApprovalRequestStatus.Completed &&
@@ -119,10 +112,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
     return cancel();
   };
 
-  if (
-    (tab === "chat" && !discussionsAreEnabled) ||
-    (tab === "link" && approvalRequest && !canManageSharedVerificationLinks)
-  ) {
+  if (tab === "chat" && !discussionsAreEnabled) {
     return <NotFoundPage />;
   }
 
@@ -149,7 +139,6 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
       >
         <Tab label="Request" value="request" />
         {discussionsAreEnabled && <Tab label="Chat" value="chat" />}
-        {canManageSharedVerificationLinks && <Tab label="Link" value="link" />}
       </Tabs>
       {tab === "request" && (
         <>
@@ -185,13 +174,6 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
           approvalRequest={approvalRequest}
           canSend={canSendDiscussion}
           onClose={handleClose}
-          tenantGlobalId={tenantGlobalId}
-        />
-      )}
-      {tab === "link" && canManageSharedVerificationLinks && approvalRequest && tenantGlobalId && (
-        <ApprovalRequestSharedVerificationLinksSection
-          onClose={handleClose}
-          resource={{ globalId: approvalRequest.globalId, type: "request" }}
           tenantGlobalId={tenantGlobalId}
         />
       )}

@@ -1,5 +1,6 @@
-import axios from "@/shared/api/axios";
 import { DiscussionMessage } from "@/features/discussions/models/discussionMessage";
+import { normalizeDiscussionMessageDates } from "@/features/discussions/utils/discussionMessageNormalizers";
+import axios from "@/shared/api/axios";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
 
@@ -14,7 +15,7 @@ export const listRequestDiscussion = async (
       `api/v1/tenants/${tenantId}/discussions/requests/${requestId}`,
       config,
     );
-    return data;
+    return data.map(normalizeDiscussionMessageDates);
   } catch (error) {
     notification.error(getApiErrorNotification(error));
     return null;
@@ -27,7 +28,7 @@ export const listTaskDiscussion = async (tenantId: string, taskId: string): Prom
       `api/v1/tenants/${tenantId}/discussions/tasks/${taskId}`,
       config,
     );
-    return data;
+    return data.map(normalizeDiscussionMessageDates);
   } catch (error) {
     notification.error(getApiErrorNotification(error));
     return null;
@@ -46,7 +47,7 @@ export const sendRequestDiscussion = async (
       { body, userFileGlobalIds },
       config,
     );
-    return data;
+    return normalizeDiscussionMessageDates(data);
   } catch (error) {
     notification.error(getApiErrorNotification(error));
     return null;
@@ -65,7 +66,7 @@ export const sendTaskDiscussion = async (
       { body, userFileGlobalIds },
       config,
     );
-    return data;
+    return normalizeDiscussionMessageDates(data);
   } catch (error) {
     notification.error(getApiErrorNotification(error));
     return null;

@@ -11,7 +11,6 @@ import ApprovalRequestTaskAttachments, {
   ApprovalRequestTaskAttachmentsHandle,
 } from "@/features/approvalRequests/components/ApprovalRequestTaskAttachments";
 import ApprovalRequestTaskAttachmentList from "@/features/approvalRequests/components/ApprovalRequestTaskAttachmentList";
-import ApprovalRequestSharedVerificationLinksSection from "@/features/approvalRequests/components/ApprovalRequestSharedVerificationLinksSection";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
@@ -53,7 +52,7 @@ import { useNavigate } from "react-router-dom";
 
 interface ApprovalRequestTaskProps {
   onClose: (currentTaskGlobalId?: string) => void;
-  tab: "task" | "request" | "chat" | "link";
+  tab: "task" | "request" | "chat";
   taskGlobalId: string;
 }
 
@@ -112,12 +111,6 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
   const submitAction = useAsyncAction(completeTaskLoader);
   const requiresElectronicSignature = result === true && currentTask?.isElectronicSignatureRequired === true;
   const canEnterRepresentationDetails = !currentTask?.isAssigneeEmployee;
-  const canManageSharedVerificationLinks = Boolean(
-    currentTask &&
-    stores.applicationConfigurationStore.sharedVerificationLinksAreEnabled &&
-    approvalRequest?.status === ApprovalRequestStatus.Completed &&
-    approvalRequest.result === true,
-  );
   const taskIsSubmitting = submitAction.isRunning || stores.commonStore.isActionLoading(completeTaskLoader);
 
   useEffect(() => {
@@ -248,10 +241,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
     void submit();
   };
 
-  if (
-    (tab === "chat" && !discussionsAreEnabled) ||
-    (tab === "link" && currentTask && !canManageSharedVerificationLinks)
-  ) {
+  if (tab === "chat" && !discussionsAreEnabled) {
     return <NotFoundPage />;
   }
 
@@ -277,7 +267,6 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
         <Tab label="Task" value="task" />
         <Tab label={requestTabLabel} value="request" />
         {discussionsAreEnabled && <Tab label="Chat" value="chat" />}
-        {canManageSharedVerificationLinks && <Tab label="Link" value="link" />}
       </Tabs>
       {tab === "task" && (
         <Stack sx={Dialogs.tabContentSx}>
@@ -392,13 +381,6 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
           canSend={canSendDiscussion}
           onClose={handleClose}
           task={currentTask}
-          tenantGlobalId={tenantGlobalId}
-        />
-      )}
-      {tab === "link" && canManageSharedVerificationLinks && currentTask && tenantGlobalId && (
-        <ApprovalRequestSharedVerificationLinksSection
-          onClose={handleClose}
-          resource={{ globalId: currentTask.globalId, type: "task" }}
           tenantGlobalId={tenantGlobalId}
         />
       )}

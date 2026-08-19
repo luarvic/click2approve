@@ -126,7 +126,9 @@ export const Dialogs = {
   stepTitleSx: { flexGrow: 1 } as SxProps<Theme>,
   stepActionSpacing: 0.5,
   assigneeStackSpacing: 1,
-  assigneeTypeFieldSx: { minWidth: AssigneeTypeFieldMinWidth } as SxProps<Theme>,
+  assigneeTypeFieldSx: {
+    minWidth: AssigneeTypeFieldMinWidth,
+  } as SxProps<Theme>,
   removeAssigneeButtonSx: {
     alignSelf: { xs: "flex-end", sm: "center" },
     height: 40,

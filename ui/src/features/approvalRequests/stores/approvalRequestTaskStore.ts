@@ -1,10 +1,6 @@
 import * as approvalRequestTaskApi from "@/features/approvalRequests/api/approvalRequestTasksApi";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
-import {
-  normalizeApprovalRequestDates,
-  normalizeApprovalRequestTaskDates,
-} from "@/features/approvalRequests/utils/approvalRequestDateNormalizers";
 import { makeAutoObservable, runInAction } from "mobx";
 
 export class ApprovalRequestTaskStore {
@@ -49,7 +45,6 @@ export class ApprovalRequestTaskStore {
         if (requestVersion !== this.listRequestVersion) {
           return;
         }
-        tasks.forEach(normalizeApprovalRequestTaskDates);
         runInAction(() => {
           this.registry = new Map(tasks.map((task) => [task.globalId, task]));
         });
@@ -71,10 +66,6 @@ export class ApprovalRequestTaskStore {
       .getApprovalRequestTask(tenantGlobalId, globalId)
       .then((task) => {
         if (task) {
-          normalizeApprovalRequestTaskDates(task);
-          if (task.approvalRequest) {
-            normalizeApprovalRequestDates(task.approvalRequest);
-          }
           runInAction(() => {
             this.details.set(task.globalId, task);
             if (this.currentTask?.globalId === task.globalId) {

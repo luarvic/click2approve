@@ -8,6 +8,7 @@ import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
 
 interface ApprovalRequestParticipantLineProps {
+  disabled?: boolean;
   displayName?: string | null;
   email?: string | null;
   employeeStatus?: EmployeeStatus;
@@ -21,22 +22,25 @@ interface ApprovalRequestParticipantLineProps {
 export const disabledEmployeeMessage = "This employee is disabled and no longer has access to this organization.";
 const tooltipIconSx: SxProps<Theme> = { display: "flex" };
 
-export const getAssigneeIcon = (type: AssigneeType, employeeStatus?: EmployeeStatus) => {
+export const getAssigneeIcon = (type: AssigneeType, employeeStatus?: EmployeeStatus, disabled = false) => {
+  const color = disabled ? "disabled" : "action";
+
   switch (type) {
     case AssigneeType.Employee:
       return employeeStatus === EmployeeStatus.Disabled ? (
-        <PersonOff color="action" fontSize="small" />
+        <PersonOff color={color} fontSize="small" />
       ) : (
-        <Person color="action" fontSize="small" />
+        <Person color={color} fontSize="small" />
       );
     case AssigneeType.Team:
-      return <Groups color="action" fontSize="small" />;
+      return <Groups color={color} fontSize="small" />;
     default:
-      return <Email color="action" fontSize="small" />;
+      return <Email color={color} fontSize="small" />;
   }
 };
 
 const ApprovalRequestParticipantLine: React.FC<ApprovalRequestParticipantLineProps> = ({
+  disabled = false,
   displayName,
   email,
   employeeStatus,
@@ -51,7 +55,7 @@ const ApprovalRequestParticipantLine: React.FC<ApprovalRequestParticipantLinePro
     (type === AssigneeType.User
       ? email || displayName || "Unknown user"
       : displayName || email || (type === AssigneeType.Team ? "Unknown team" : "Unknown employee"));
-  const participantIcon = icon ?? getAssigneeIcon(type, employeeStatus);
+  const participantIcon = icon ?? getAssigneeIcon(type, employeeStatus, disabled);
   const displayedIcon =
     type === AssigneeType.Employee && employeeStatus === EmployeeStatus.Disabled ? (
       <Tooltip title={disabledEmployeeMessage}>

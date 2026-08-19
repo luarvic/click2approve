@@ -1,7 +1,6 @@
 import * as approvalRequestApi from "@/features/approvalRequests/api/approvalRequestsApi";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestListItem } from "@/features/approvalRequests/models/approvalRequestListItem";
-import { normalizeApprovalRequestDates } from "@/features/approvalRequests/utils/approvalRequestDateNormalizers";
 import { makeAutoObservable, runInAction } from "mobx";
 
 export class ApprovalRequestStore {
@@ -56,7 +55,6 @@ export class ApprovalRequestStore {
           return;
         }
 
-        approvalRequests.forEach(normalizeApprovalRequestDates);
         runInAction(() => {
           this.registry = new Map(
             approvalRequests.map((approvalRequest) => [approvalRequest.globalId, approvalRequest]),
@@ -80,7 +78,6 @@ export class ApprovalRequestStore {
       .getApprovalRequest(tenantGlobalId, globalId)
       .then((approvalRequest) => {
         if (approvalRequest) {
-          normalizeApprovalRequestDates(approvalRequest);
           runInAction(() => {
             this.details.set(approvalRequest.globalId, approvalRequest);
             this.registry.set(approvalRequest.globalId, approvalRequest);

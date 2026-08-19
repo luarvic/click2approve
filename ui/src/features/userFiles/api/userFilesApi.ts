@@ -1,4 +1,5 @@
 import { UserFile } from "@/features/userFiles/models/userFile";
+import { normalizeUserFileDates } from "@/features/userFiles/utils/userFileDateNormalizers";
 import axios from "@/shared/api/axios";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
@@ -12,7 +13,7 @@ export const uploadUserFiles = async (tenantGlobalId: string, files: FileList | 
     const { data } = await axios.post<UserFile[]>(`api/v1/tenants/${tenantGlobalId}/files/upload`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
-    return data;
+    return data.map(normalizeUserFileDates);
   } catch (e) {
     notification.error(getApiErrorNotification(e));
     return [];

@@ -10,7 +10,7 @@ import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 
-export type ApprovalRequestViewTab = "request" | "chat" | "link";
+export type ApprovalRequestViewTab = "request" | "chat";
 
 interface ApprovalRequestViewPageProps {
   tab?: ApprovalRequestViewTab;

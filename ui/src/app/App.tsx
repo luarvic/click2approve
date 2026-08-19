@@ -18,12 +18,14 @@ import ResetPasswordPage from "@/features/identity/pages/ResetPasswordPage";
 import SignInPage from "@/features/identity/pages/SignInPage";
 import SignUpPage from "@/features/identity/pages/SignUpPage";
 import NotificationsPage from "@/features/notifications/pages/NotificationsPage";
-import SharedVerificationReceiptPage from "@/features/sharedVerificationLinks/pages/SharedVerificationReceiptPage";
+import PublicReceiptPage from "@/features/receipts/pages/PublicReceiptPage";
+import ReceiptPage from "@/features/receipts/pages/ReceiptPage";
+import ReceiptsPage from "@/features/receipts/pages/ReceiptsPage";
 import TeamEditorPage from "@/features/teams/pages/TeamEditorPage";
 import TeamsPage from "@/features/teams/pages/TeamsPage";
-import { getTenantCapabilities } from "@/features/tenants/utils/tenantCapabilities";
 import TenantEditorPage from "@/features/tenants/pages/TenantEditorPage";
 import TenantsPage from "@/features/tenants/pages/TenantsPage";
+import { getTenantCapabilities } from "@/features/tenants/utils/tenantCapabilities";
 import MainLayout from "@/layouts/MainLayout";
 import PublicLayout from "@/layouts/PublicLayout";
 import TenantScopeLayout from "@/layouts/TenantScopeLayout";
@@ -73,7 +75,7 @@ const App = () => {
           }}
         >
           <Routes>
-            <Route path="/verification/:globalId" element={<SharedVerificationReceiptPage />} />
+            <Route path="/receipt/:globalId" element={<PublicReceiptPage />} />
             <Route element={<PublicLayout />}>
               <Route element={<WrapperLayout />}>
                 <Route element={<AnonymousRoute />}>
@@ -105,8 +107,10 @@ const App = () => {
                     <Route path="inbox/:taskGlobalId" element={<ApprovalRequestTaskPage />} />
                     <Route path="inbox/:taskGlobalId/request" element={<ApprovalRequestTaskPage tab="request" />} />
                     <Route path="inbox/:taskGlobalId/chat" element={<ApprovalRequestTaskPage tab="chat" />} />
-                    <Route path="inbox/:taskGlobalId/link" element={<ApprovalRequestTaskPage tab="link" />} />
                     <Route path="outbox" element={<OutboxPage />} />
+                    <Route path="receipts" element={<ReceiptsPage />} />
+                    <Route path="receipts/:receiptGlobalId" element={<ReceiptPage />} />
+                    <Route path="receipts/:receiptGlobalId/share" element={<ReceiptPage tab="share" />} />
                     <Route path="outbox/new" element={<ApprovalRequestStartPage />} />
                     <Route path="outbox/new/compose" element={<ApprovalRequestSubmitPage />} />
                     <Route path="outbox/new/compose/visibility" element={<ApprovalRequestSubmitPage />} />
@@ -119,10 +123,6 @@ const App = () => {
                     <Route
                       path="outbox/:approvalRequestGlobalId/chat"
                       element={<ApprovalRequestViewPage tab="chat" />}
-                    />
-                    <Route
-                      path="outbox/:approvalRequestGlobalId/link"
-                      element={<ApprovalRequestViewPage tab="link" />}
                     />
                     <Route element={<RouteGuard isAllowed={capabilities.canViewTemplates} />}>
                       <Route path="approvalStepTemplates" element={<ApprovalStepTemplatesPage />} />

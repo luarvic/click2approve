@@ -1,6 +1,10 @@
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskClientAuditContext } from "@/features/approvalRequests/models/approvalRequestTaskClientAuditContext";
 import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
+import {
+  normalizeApprovalRequestDates,
+  normalizeApprovalRequestTaskDates,
+} from "@/features/approvalRequests/utils/approvalRequestDateNormalizers";
 import axios from "@/shared/api/axios";
 import { getApiErrorNotification, isResourceNotFoundOrForbiddenError } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
@@ -41,6 +45,7 @@ export const listApprovalRequestTasks = async (tenantGlobalId: string): Promise<
     const { data } = await axios.get<ApprovalRequestTaskListItem[]>(`api/v1/tenants/${tenantGlobalId}/tasks`, {
       useWorkEmployeeContext: true,
     });
+    data.forEach(normalizeApprovalRequestTaskDates);
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
@@ -56,6 +61,10 @@ export const getApprovalRequestTask = async (
     const { data } = await axios.get<ApprovalRequestTask>(`api/v1/tenants/${tenantGlobalId}/tasks/${globalId}`, {
       useWorkEmployeeContext: true,
     });
+    normalizeApprovalRequestTaskDates(data);
+    if (data.approvalRequest) {
+      normalizeApprovalRequestDates(data.approvalRequest);
+    }
     return data;
   } catch (e) {
     if (isResourceNotFoundOrForbiddenError(e)) {

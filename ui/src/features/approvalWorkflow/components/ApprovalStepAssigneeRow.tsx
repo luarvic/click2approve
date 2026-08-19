@@ -115,7 +115,7 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
                       ...params.InputProps,
                       startAdornment: employee ? (
                         <InputAdornment position="start">
-                          {getAssigneeIcon(AssigneeType.Employee, employee.status)}
+                          {getAssigneeIcon(AssigneeType.Employee, employee.status, disabled)}
                         </InputAdornment>
                       ) : (
                         params.InputProps.startAdornment
@@ -155,7 +155,9 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
                     InputProps={{
                       ...params.InputProps,
                       startAdornment: team ? (
-                        <InputAdornment position="start">{getAssigneeIcon(AssigneeType.Team)}</InputAdornment>
+                        <InputAdornment position="start">
+                          {getAssigneeIcon(AssigneeType.Team, undefined, disabled)}
+                        </InputAdornment>
                       ) : (
                         params.InputProps.startAdornment
                       ),
