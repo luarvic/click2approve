@@ -1,4 +1,5 @@
 import axios from "@/shared/api/axios";
+import { ApiPaths } from "@/shared/api/apiPaths";
 
 export enum DomainEventType {
   ApprovalRequestTaskCreated = 0,
@@ -18,27 +19,25 @@ export interface Notification {
 }
 
 const config = { useWorkEmployeeContext: true };
-const route = (tenantId: string) => `api/v1/tenants/${tenantId}/notifications`;
-
 export const countUnreadNotifications = async (tenantId: string) =>
-  (await axios.get<number>(`${route(tenantId)}/unread/count`, config)).data;
+  (await axios.get<number>(ApiPaths.tenants.unreadNotificationCount(tenantId), config)).data;
 
 export const listNotifications = async (tenantId: string, unreadOnly = true, take = 50) =>
   (
-    await axios.get<Notification[]>(route(tenantId), {
+    await axios.get<Notification[]>(ApiPaths.tenants.notifications(tenantId), {
       ...config,
       params: { unreadOnly, take },
     })
   ).data;
 
 export const markNotificationRead = async (tenantId: string, deliveryId: string) =>
-  await axios.post(`${route(tenantId)}/${deliveryId}/read`, undefined, config);
+  await axios.post(ApiPaths.tenants.notificationMarkRead(tenantId, deliveryId), undefined, config);
 
 export const markNotificationsRead = async (tenantId: string, deliveryIds: string[]) =>
-  await axios.post(`${route(tenantId)}/readSelected`, { deliveryGlobalIds: deliveryIds }, config);
+  await axios.post(ApiPaths.tenants.notificationsReadSelected(tenantId), { deliveryGlobalIds: deliveryIds }, config);
 
 export const deleteNotifications = async (tenantId: string, deliveryIds: string[]) =>
-  await axios.delete(route(tenantId), {
+  await axios.delete(ApiPaths.tenants.notifications(tenantId), {
     ...config,
     data: { deliveryGlobalIds: deliveryIds },
   });

@@ -1,4 +1,5 @@
 import { refreshAuthSession } from "@/features/identity/api/authApi";
+import { ApiPaths } from "@/shared/api/apiPaths";
 import { getRequestContext } from "@/shared/api/requestContext";
 import { Api } from "@/shared/constants/constants";
 import { readTokens } from "@/shared/session/session";
@@ -10,15 +11,17 @@ const axiosInstance = axios.create({
 });
 
 const apiDelayMs = Number(import.meta.env.VITE_API_DELAY_MS ?? 0);
+const workEmployeeHeaderName = "X-Click2Approve-Work-Employee";
+const workEmployeeInvalidHeaderName = "X-Click2Approve-Work-Employee-Invalid";
 
-const anonymousUrls = [
-  "api/v1/account/forgotPassword",
-  "api/v1/account/login",
-  "api/v1/account/refresh",
-  "api/v1/account/register",
-  "api/v1/account/resendConfirmationEmail",
-  "api/v1/account/resetPassword",
-  "api/v1/products/info",
+const anonymousUrls: string[] = [
+  ApiPaths.account.forgotPassword,
+  ApiPaths.account.login,
+  ApiPaths.account.refresh,
+  ApiPaths.account.register,
+  ApiPaths.account.resendConfirmationEmail,
+  ApiPaths.account.resetPassword,
+  ApiPaths.products.info,
 ];
 
 const shouldSendAuthentication = (url: string | undefined): boolean => {
@@ -28,8 +31,8 @@ const shouldSendAuthentication = (url: string | undefined): boolean => {
 
   return (
     !anonymousUrls.includes(url) &&
-    !url.startsWith("api/v1/account/confirmEmail") &&
-    !url.startsWith("api/v1/sharedVerificationLinks/")
+    !url.startsWith(ApiPaths.account.confirmEmail) &&
+    !url.startsWith(ApiPaths.publicReceipts.root)
   );
 };
 
@@ -49,9 +52,9 @@ axiosInstance.interceptors.request.use(async (config) => {
   if (tokens && sendAuthentication) {
     config.headers.Authorization = `Bearer ${tokens.accessToken}`;
     const workEmployeeGlobalId = getRequestContext().getWorkEmployeeGlobalId();
-    delete config.headers["X-Click2Approve-Work-Employee"];
+    delete config.headers[workEmployeeHeaderName];
     if (workEmployeeGlobalId && config.useWorkEmployeeContext) {
-      config.headers["X-Click2Approve-Work-Employee"] = workEmployeeGlobalId;
+      config.headers[workEmployeeHeaderName] = workEmployeeGlobalId;
     }
   }
   return config;
@@ -62,8 +65,8 @@ axiosInstance.interceptors.response.use(
     const context = getRequestContext();
     const originalRequest = error.config;
     const workEmployeeIsInvalid =
-      error.response?.headers?.get?.("X-Click2Approve-Work-Employee-Invalid") === "true" ||
-      error.response?.headers?.["x-click2approve-work-employee-invalid"] === "true";
+      error.response?.headers?.get?.(workEmployeeInvalidHeaderName) === "true" ||
+      error.response?.headers?.[workEmployeeInvalidHeaderName.toLowerCase()] === "true";
     if (
       error.response?.status === 409 &&
       workEmployeeIsInvalid &&
@@ -79,9 +82,9 @@ axiosInstance.interceptors.response.use(
       error.response &&
       error.response.status &&
       error.response.status === 401 &&
-      originalRequest?.url !== "api/v1/account/refresh" &&
-      !originalRequest?.url.startsWith("api/v1/account/confirmEmail") &&
-      !originalRequest?.url.startsWith("api/v1/sharedVerificationLinks/")
+      originalRequest?.url !== ApiPaths.account.refresh &&
+      !originalRequest?.url.startsWith(ApiPaths.account.confirmEmail) &&
+      !originalRequest?.url.startsWith(ApiPaths.publicReceipts.root)
     ) {
       if (!originalRequest._retry) {
         originalRequest._retry = true;

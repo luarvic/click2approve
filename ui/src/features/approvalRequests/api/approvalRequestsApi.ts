@@ -9,6 +9,7 @@ import { ApprovalRequestListItem } from "@/features/approvalRequests/models/appr
 import { normalizeApprovalRequestDates } from "@/features/approvalRequests/utils/approvalRequestDateNormalizers";
 import { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
 import axios from "@/shared/api/axios";
+import { ApiPaths } from "@/shared/api/apiPaths";
 import { getApiErrorNotification, isResourceNotFoundOrForbiddenError } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
 
@@ -30,7 +31,7 @@ export const submitApprovalRequest = async (
       stepVisibility,
       description,
     };
-    const { data } = await axios.post<string>(`api/v1/tenants/${tenantGlobalId}/requests`, payload, {
+    const { data } = await axios.post<string>(ApiPaths.tenants.requests(tenantGlobalId), payload, {
       useWorkEmployeeContext: true,
     });
     return data;
@@ -55,11 +56,9 @@ export const resubmitApprovalRequest = async (
       stepVisibility,
       description,
     };
-    const { data } = await axios.post<string>(
-      `api/v1/tenants/${tenantGlobalId}/requests/${globalId}/resubmit`,
-      payload,
-      { useWorkEmployeeContext: true },
-    );
+    const { data } = await axios.post<string>(ApiPaths.tenants.requestResubmit(tenantGlobalId, globalId), payload, {
+      useWorkEmployeeContext: true,
+    });
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
@@ -69,7 +68,7 @@ export const resubmitApprovalRequest = async (
 
 export const cancelApprovalRequest = async (tenantGlobalId: string, globalId: string): Promise<boolean> => {
   try {
-    await axios.post(`api/v1/tenants/${tenantGlobalId}/requests/${globalId}/cancel`, undefined, {
+    await axios.post(ApiPaths.tenants.requestCancel(tenantGlobalId, globalId), undefined, {
       useWorkEmployeeContext: true,
     });
     return true;
@@ -81,7 +80,7 @@ export const cancelApprovalRequest = async (tenantGlobalId: string, globalId: st
 
 export const listApprovalRequests = async (tenantGlobalId: string): Promise<ApprovalRequestListItem[]> => {
   try {
-    const { data } = await axios.get<ApprovalRequestListItem[]>(`api/v1/tenants/${tenantGlobalId}/requests`, {
+    const { data } = await axios.get<ApprovalRequestListItem[]>(ApiPaths.tenants.requests(tenantGlobalId), {
       useWorkEmployeeContext: true,
     });
     data.forEach(normalizeApprovalRequestDates);
@@ -94,7 +93,7 @@ export const listApprovalRequests = async (tenantGlobalId: string): Promise<Appr
 
 export const getApprovalRequest = async (tenantGlobalId: string, globalId: string): Promise<ApprovalRequest | null> => {
   try {
-    const { data } = await axios.get<ApprovalRequest>(`api/v1/tenants/${tenantGlobalId}/requests/${globalId}`, {
+    const { data } = await axios.get<ApprovalRequest>(ApiPaths.tenants.request(tenantGlobalId, globalId), {
       useWorkEmployeeContext: true,
     });
     normalizeApprovalRequestDates(data);

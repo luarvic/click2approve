@@ -1,6 +1,7 @@
 import type { Receipt } from "@/features/receipts/models/receipt";
 import { normalizeReceiptDates } from "@/features/receipts/utils/receiptDateNormalizers";
 import axios from "@/shared/api/axios";
+import { ApiPaths } from "@/shared/api/apiPaths";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
 
@@ -8,7 +9,7 @@ const config = { useWorkEmployeeContext: true };
 
 export const listReceipts = async (tenantGlobalId: string): Promise<Receipt[]> => {
   try {
-    const { data } = await axios.get<Receipt[]>(`api/v1/tenants/${tenantGlobalId}/receipts`, config);
+    const { data } = await axios.get<Receipt[]>(ApiPaths.tenants.receipts(tenantGlobalId), config);
     return data.map(normalizeReceiptDates);
   } catch (error) {
     notification.error(getApiErrorNotification(error));
@@ -18,7 +19,7 @@ export const listReceipts = async (tenantGlobalId: string): Promise<Receipt[]> =
 
 export const getReceipt = async (tenantGlobalId: string, receiptGlobalId: string): Promise<Receipt | null> => {
   try {
-    const { data } = await axios.get<Receipt>(`api/v1/tenants/${tenantGlobalId}/receipts/${receiptGlobalId}`, config);
+    const { data } = await axios.get<Receipt>(ApiPaths.tenants.receipt(tenantGlobalId, receiptGlobalId), config);
     return normalizeReceiptDates(data);
   } catch (error) {
     notification.error(getApiErrorNotification(error));
@@ -29,7 +30,7 @@ export const getReceipt = async (tenantGlobalId: string, receiptGlobalId: string
 export const createReceiptLink = async (tenantGlobalId: string, receiptGlobalId: string): Promise<string | null> => {
   try {
     const { data } = await axios.post<string>(
-      `api/v1/tenants/${tenantGlobalId}/receipts/${receiptGlobalId}/sharedVerificationLinks`,
+      ApiPaths.tenants.receiptLinks(tenantGlobalId, receiptGlobalId),
       undefined,
       config,
     );
@@ -46,10 +47,7 @@ export const deleteReceiptLink = async (
   linkGlobalId: string,
 ): Promise<boolean> => {
   try {
-    await axios.delete(
-      `api/v1/tenants/${tenantGlobalId}/receipts/${receiptGlobalId}/sharedVerificationLinks/${linkGlobalId}`,
-      config,
-    );
+    await axios.delete(ApiPaths.tenants.receiptLink(tenantGlobalId, receiptGlobalId, linkGlobalId), config);
     return true;
   } catch (error) {
     notification.error(getApiErrorNotification(error));

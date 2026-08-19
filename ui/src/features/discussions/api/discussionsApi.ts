@@ -1,6 +1,7 @@
 import { DiscussionMessage } from "@/features/discussions/models/discussionMessage";
 import { normalizeDiscussionMessageDates } from "@/features/discussions/utils/discussionMessageNormalizers";
 import axios from "@/shared/api/axios";
+import { ApiPaths } from "@/shared/api/apiPaths";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
 
@@ -12,7 +13,7 @@ export const listRequestDiscussion = async (
 ): Promise<DiscussionMessage[] | null> => {
   try {
     const { data } = await axios.get<DiscussionMessage[]>(
-      `api/v1/tenants/${tenantId}/discussions/requests/${requestId}`,
+      ApiPaths.tenants.requestDiscussion(tenantId, requestId),
       config,
     );
     return data.map(normalizeDiscussionMessageDates);
@@ -24,10 +25,7 @@ export const listRequestDiscussion = async (
 
 export const listTaskDiscussion = async (tenantId: string, taskId: string): Promise<DiscussionMessage[] | null> => {
   try {
-    const { data } = await axios.get<DiscussionMessage[]>(
-      `api/v1/tenants/${tenantId}/discussions/tasks/${taskId}`,
-      config,
-    );
+    const { data } = await axios.get<DiscussionMessage[]>(ApiPaths.tenants.taskDiscussion(tenantId, taskId), config);
     return data.map(normalizeDiscussionMessageDates);
   } catch (error) {
     notification.error(getApiErrorNotification(error));
@@ -43,7 +41,7 @@ export const sendRequestDiscussion = async (
 ): Promise<DiscussionMessage | null> => {
   try {
     const { data } = await axios.post<DiscussionMessage>(
-      `api/v1/tenants/${tenantId}/discussions/requests/${requestId}`,
+      ApiPaths.tenants.requestDiscussion(tenantId, requestId),
       { body, userFileGlobalIds },
       config,
     );
@@ -62,7 +60,7 @@ export const sendTaskDiscussion = async (
 ): Promise<DiscussionMessage | null> => {
   try {
     const { data } = await axios.post<DiscussionMessage>(
-      `api/v1/tenants/${tenantId}/discussions/tasks/${taskId}`,
+      ApiPaths.tenants.taskDiscussion(tenantId, taskId),
       { body, userFileGlobalIds },
       config,
     );
@@ -79,10 +77,7 @@ export const downloadDiscussionMessageFileBase64 = async (
   globalId: string,
 ): Promise<string | null> => {
   try {
-    const { data } = await axios.get(
-      `api/v1/tenants/${tenantId}/discussions/messages/${messageId}/files/${globalId}/downloadBase64`,
-      config,
-    );
+    const { data } = await axios.get(ApiPaths.tenants.discussionMessageFile(tenantId, messageId, globalId), config);
     return data;
   } catch (error) {
     notification.error(getApiErrorNotification(error));

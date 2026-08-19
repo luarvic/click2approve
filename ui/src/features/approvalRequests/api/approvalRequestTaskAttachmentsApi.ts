@@ -1,9 +1,7 @@
 import axios from "@/shared/api/axios";
+import { ApiPaths } from "@/shared/api/apiPaths";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
-
-const getPath = (tenantGlobalId: string, taskGlobalId: string) =>
-  `api/v1/tenants/${tenantGlobalId}/tasks/${taskGlobalId}/attachments`;
 
 const config = { useWorkEmployeeContext: true };
 
@@ -13,7 +11,7 @@ export const addApprovalRequestTaskAttachments = async (
   userFileGlobalIds: string[],
 ): Promise<boolean> => {
   try {
-    await axios.post(getPath(tenantGlobalId, taskGlobalId), { userFileGlobalIds }, config);
+    await axios.post(ApiPaths.tenants.taskAttachments(tenantGlobalId, taskGlobalId), { userFileGlobalIds }, config);
     return true;
   } catch (error) {
     notification.error(getApiErrorNotification(error));
@@ -27,7 +25,10 @@ export const downloadApprovalRequestTaskAttachmentBase64 = async (
   globalId: string,
 ): Promise<string | null> => {
   try {
-    const { data } = await axios.get(`${getPath(tenantGlobalId, taskGlobalId)}/${globalId}/downloadBase64`, config);
+    const { data } = await axios.get(
+      ApiPaths.tenants.taskAttachmentDownload(tenantGlobalId, taskGlobalId, globalId),
+      config,
+    );
     return data;
   } catch (error) {
     notification.error(getApiErrorNotification(error));
@@ -41,7 +42,7 @@ export const removeApprovalRequestTaskAttachment = async (
   globalId: string,
 ): Promise<boolean> => {
   try {
-    await axios.delete(`${getPath(tenantGlobalId, taskGlobalId)}/${globalId}`, config);
+    await axios.delete(ApiPaths.tenants.taskAttachment(tenantGlobalId, taskGlobalId, globalId), config);
     return true;
   } catch (error) {
     notification.error(getApiErrorNotification(error));

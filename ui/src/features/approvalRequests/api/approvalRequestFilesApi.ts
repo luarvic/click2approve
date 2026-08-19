@@ -1,4 +1,5 @@
 import axios from "@/shared/api/axios";
+import { ApiPaths } from "@/shared/api/apiPaths";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
 
@@ -9,7 +10,7 @@ export const downloadApprovalRequestFileBase64 = async (
 ): Promise<string | null> => {
   try {
     const { data } = await axios.get(
-      `api/v1/tenants/${tenantGlobalId}/requests/${approvalRequestGlobalId}/attachments/${globalId}/downloadBase64`,
+      ApiPaths.tenants.requestAttachmentDownload(tenantGlobalId, approvalRequestGlobalId, globalId),
     );
     return data;
   } catch (e) {

@@ -26,8 +26,8 @@ interface FileMatch {
 const baseUrl = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const logoSrc = `${baseUrl}logo.svg`;
 const qrCodeSize = 192;
+const qrPanelVerticalPadding = 2;
 const receiptLogoSize = 48;
-const receiptBrandVerticalPadding = 1;
 
 const pageSx: SxProps<Theme> = {
   display: "flex",
@@ -59,6 +59,7 @@ const receiptContentSx: SxProps<Theme> = {
 
 const qrPanelSx: SxProps<Theme> = {
   alignItems: "center",
+  py: qrPanelVerticalPadding,
   textAlign: "center",
 };
 
@@ -77,7 +78,7 @@ const receiptLogoSx: SxProps<Theme> = {
 const receiptBrandSx: SxProps<Theme> = {
   alignItems: "center",
   justifyContent: "center",
-  py: receiptBrandVerticalPadding,
+  py: qrPanelVerticalPadding,
 };
 
 const receiptBrandTextSx: SxProps<Theme> = {
@@ -181,7 +182,7 @@ const PublicReceiptPage = () => {
         <Container disableGutters maxWidth="md" sx={contentContainerSx}>
           <Box sx={receiptContentSx}>
             <ReceiptCard
-              headerContent={
+              footerContent={
                 <Stack spacing={StackSpacing.tight} sx={qrPanelSx}>
                   <QRCodeSVG level="H" size={qrCodeSize} value={verificationUrl} />
                   <Typography sx={qrLabelSx}>Scan the QR code to verify this receipt</Typography>

@@ -1,11 +1,12 @@
 import { CreateEmployeeRequest, Employee, UpdateEmployeeRequest } from "@/features/employees/models/employee";
 import axios from "@/shared/api/axios";
+import { ApiPaths } from "@/shared/api/apiPaths";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
 
 export const listEmployees = async (tenantGlobalId: string): Promise<Employee[]> => {
   try {
-    const { data } = await axios.get<Employee[]>(`api/v1/tenants/${tenantGlobalId}/employees`);
+    const { data } = await axios.get<Employee[]>(ApiPaths.tenants.employees(tenantGlobalId));
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
@@ -18,7 +19,7 @@ export const createEmployee = async (
   payload: CreateEmployeeRequest,
 ): Promise<Employee | null> => {
   try {
-    const { data } = await axios.post<Employee>(`api/v1/tenants/${tenantGlobalId}/employees`, payload);
+    const { data } = await axios.post<Employee>(ApiPaths.tenants.employees(tenantGlobalId), payload);
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
@@ -32,10 +33,7 @@ export const updateEmployee = async (
   payload: UpdateEmployeeRequest,
 ): Promise<Employee | null> => {
   try {
-    const { data } = await axios.put<Employee>(
-      `api/v1/tenants/${tenantGlobalId}/employees/${employeeGlobalId}`,
-      payload,
-    );
+    const { data } = await axios.put<Employee>(ApiPaths.tenants.employee(tenantGlobalId, employeeGlobalId), payload);
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
@@ -45,7 +43,7 @@ export const updateEmployee = async (
 
 export const deleteEmployee = async (tenantGlobalId: string, employeeGlobalId: string): Promise<boolean> => {
   try {
-    await axios.delete(`api/v1/tenants/${tenantGlobalId}/employees/${employeeGlobalId}`);
+    await axios.delete(ApiPaths.tenants.employee(tenantGlobalId, employeeGlobalId));
     return true;
   } catch (e) {
     notification.error(getApiErrorNotification(e));

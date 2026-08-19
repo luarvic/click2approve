@@ -6,6 +6,7 @@ import {
   normalizeApprovalRequestTaskDates,
 } from "@/features/approvalRequests/utils/approvalRequestDateNormalizers";
 import axios from "@/shared/api/axios";
+import { ApiPaths } from "@/shared/api/apiPaths";
 import { getApiErrorNotification, isResourceNotFoundOrForbiddenError } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
 
@@ -23,7 +24,7 @@ export const completeApprovalRequestTask = async (
 ): Promise<boolean> => {
   try {
     await axios.post(
-      `api/v1/tenants/${tenantGlobalId}/tasks/complete`,
+      ApiPaths.tenants.taskComplete(tenantGlobalId),
       {
         globalId: globalId,
         result: result,
@@ -42,7 +43,7 @@ export const completeApprovalRequestTask = async (
 
 export const listApprovalRequestTasks = async (tenantGlobalId: string): Promise<ApprovalRequestTaskListItem[]> => {
   try {
-    const { data } = await axios.get<ApprovalRequestTaskListItem[]>(`api/v1/tenants/${tenantGlobalId}/tasks`, {
+    const { data } = await axios.get<ApprovalRequestTaskListItem[]>(ApiPaths.tenants.tasks(tenantGlobalId), {
       useWorkEmployeeContext: true,
     });
     data.forEach(normalizeApprovalRequestTaskDates);
@@ -58,7 +59,7 @@ export const getApprovalRequestTask = async (
   globalId: string,
 ): Promise<ApprovalRequestTask | null> => {
   try {
-    const { data } = await axios.get<ApprovalRequestTask>(`api/v1/tenants/${tenantGlobalId}/tasks/${globalId}`, {
+    const { data } = await axios.get<ApprovalRequestTask>(ApiPaths.tenants.task(tenantGlobalId, globalId), {
       useWorkEmployeeContext: true,
     });
     normalizeApprovalRequestTaskDates(data);
@@ -77,7 +78,7 @@ export const getApprovalRequestTask = async (
 
 export const countUncompletedApprovalRequestTasks = async (tenantGlobalId: string): Promise<number> => {
   try {
-    const { data } = await axios.get<number>(`api/v1/tenants/${tenantGlobalId}/tasks/uncompleted/count`, {
+    const { data } = await axios.get<number>(ApiPaths.tenants.uncompletedTaskCount(tenantGlobalId), {
       useWorkEmployeeContext: true,
     });
     return data;

@@ -3,12 +3,13 @@ import {
   UpsertApprovalStepTemplateRequest,
 } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
 import axios from "@/shared/api/axios";
+import { ApiPaths } from "@/shared/api/apiPaths";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
 
 export const listApprovalStepTemplates = async (tenantGlobalId: string): Promise<ApprovalStepTemplate[]> => {
   try {
-    const { data } = await axios.get<ApprovalStepTemplate[]>(`api/v1/tenants/${tenantGlobalId}/approvalStepTemplates`);
+    const { data } = await axios.get<ApprovalStepTemplate[]>(ApiPaths.tenants.approvalStepTemplates(tenantGlobalId));
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
@@ -22,7 +23,7 @@ export const createApprovalStepTemplate = async (
 ): Promise<ApprovalStepTemplate | null> => {
   try {
     const { data } = await axios.post<ApprovalStepTemplate>(
-      `api/v1/tenants/${tenantGlobalId}/approvalStepTemplates`,
+      ApiPaths.tenants.approvalStepTemplates(tenantGlobalId),
       payload,
     );
     return data;
@@ -39,7 +40,7 @@ export const updateApprovalStepTemplate = async (
 ): Promise<ApprovalStepTemplate | null> => {
   try {
     const { data } = await axios.put<ApprovalStepTemplate>(
-      `api/v1/tenants/${tenantGlobalId}/approvalStepTemplates/${templateGlobalId}`,
+      ApiPaths.tenants.approvalStepTemplate(tenantGlobalId, templateGlobalId),
       payload,
     );
     return data;
@@ -54,7 +55,7 @@ export const deleteApprovalStepTemplate = async (
   templateGlobalId: string,
 ): Promise<boolean> => {
   try {
-    await axios.delete(`api/v1/tenants/${tenantGlobalId}/approvalStepTemplates/${templateGlobalId}`);
+    await axios.delete(ApiPaths.tenants.approvalStepTemplate(tenantGlobalId, templateGlobalId));
     return true;
   } catch (e) {
     notification.error(getApiErrorNotification(e));

@@ -17,6 +17,7 @@ import type { SxProps, Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
 
 interface ReceiptCardProps {
+  footerContent?: ReactNode;
   headerContent?: ReactNode;
   receipt: Receipt | PublicReceipt;
   titleContent?: ReactNode;
@@ -123,7 +124,7 @@ const getReceiptTaskStatusColor = (taskStatus: ApprovalRequestTaskStatus | undef
 const getRequestCompletedAt = (receipt: Receipt | PublicReceipt): Date | undefined =>
   (receipt as Receipt).approvalRequestCompletedAt ?? (receipt as PublicReceipt).approvalRequestApprovedAt;
 
-const ReceiptCard: React.FC<ReceiptCardProps> = ({ headerContent, receipt, titleContent }) => {
+const ReceiptCard: React.FC<ReceiptCardProps> = ({ footerContent, headerContent, receipt, titleContent }) => {
   const tasks = receipt.participants.filter((participant) => participant.role === ReceiptParticipantRole.Assignee);
   const requestStatusColor = getApprovalRequestStatusLineColor(
     receipt.approvalRequestStatus,
@@ -307,6 +308,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({ headerContent, receipt, title
             ))}
           </Stack>
         </Stack>
+        {footerContent}
       </Stack>
     </ApprovalRequestDetailsCard>
   );
