@@ -75,7 +75,7 @@ const App = () => {
           }}
         >
           <Routes>
-            <Route path="/receipt-links/:linkGlobalId" element={<PublicReceiptPage />} />
+            <Route path="/receipt-verification/:linkGlobalId" element={<PublicReceiptPage />} />
             <Route element={<PublicLayout />}>
               <Route element={<WrapperLayout />}>
                 <Route element={<AnonymousRoute />}>

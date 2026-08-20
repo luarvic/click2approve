@@ -91,7 +91,7 @@ const ReceiptPage: React.FC<ReceiptPageProps> = ({ tab = "request" }) => {
                   }
                 >
                   <Link
-                    href={`${window.location.origin}/app/receipt-links/${link.globalId}`}
+                    href={`${window.location.origin}/app/receipt-verification/${link.globalId}`}
                     target="_blank"
                     rel="noreferrer"
                   >
