@@ -1,13 +1,13 @@
 import { stores } from "@/app/rootStore";
 import { CreateTenantRequest, Tenant, UpdateTenantRequest } from "@/features/tenants/models/tenant";
 import ImagePicker from "@/shared/components/images/ImagePicker";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Business } from "@mui/icons-material";
-import LoadingButton from "@mui/lab/LoadingButton";
 import { Button, Stack, TextField } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 
@@ -160,14 +160,9 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
           Cancel
         </Button>
         {(isNew || canEdit) && (
-          <LoadingButton
-            variant="outlined"
-            disabled={!businessName.trim()}
-            loading={saveIsLoading}
-            onClick={handleSubmit}
-          >
+          <MainActionButton disabled={!businessName.trim()} loading={saveIsLoading} onClick={handleSubmit}>
             Save
-          </LoadingButton>
+          </MainActionButton>
         )}
       </Stack>
     </CloseOnEscape>

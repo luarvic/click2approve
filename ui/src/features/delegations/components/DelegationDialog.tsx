@@ -3,12 +3,12 @@ import { ApprovalDelegation, ApprovalDelegationUpsert } from "@/features/delegat
 import EmployeeDisplayName from "@/features/employees/components/EmployeeDisplayName";
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
-import LoadingButton from "@mui/lab/LoadingButton";
 import { Button, MenuItem, Stack, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -161,9 +161,9 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           </Button>
         )}
         {(isNew || canEdit) && (
-          <LoadingButton loading={saveIsLoading} variant="outlined" onClick={handleSubmit}>
+          <MainActionButton loading={saveIsLoading} onClick={handleSubmit}>
             Save
-          </LoadingButton>
+          </MainActionButton>
         )}
       </Stack>
       {delegation && (

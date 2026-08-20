@@ -10,7 +10,7 @@ interface ApprovalRequestActionBarProps {
 
 const ApprovalRequestActionBar: React.FC<ApprovalRequestActionBarProps> = ({
   children,
-  closeLabel = "Close",
+  closeLabel = "Cancel",
   onClose,
 }) => (
   <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>

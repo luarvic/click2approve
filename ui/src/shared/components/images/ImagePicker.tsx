@@ -1,6 +1,6 @@
 import Cropper, { type Area } from "react-easy-crop";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { AddAPhoto } from "@mui/icons-material";
-import LoadingButton from "@mui/lab/LoadingButton";
 import type { SxProps } from "@mui/material";
 import {
   Avatar,
@@ -63,9 +63,13 @@ const pickerChangeButtonSx: SxProps<Theme> = {
 };
 
 const cropAreaSx: SxProps<Theme> = {
-  bgcolor: "grey.900",
+  bgcolor: "action.hover",
   height: CROP_AREA_HEIGHT,
   position: "relative",
+};
+
+const cropperStyle = {
+  cropAreaStyle: { color: "rgba(0, 0, 0, 0.04)" },
 };
 
 const zoomSliderSx: SxProps<Theme> = {
@@ -261,6 +265,7 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
                   onCropChange={setCrop}
                   onCropComplete={(_, areaPixels) => setCroppedAreaPixels(areaPixels)}
                   onZoomChange={setZoom}
+                  style={cropperStyle}
                   zoom={zoom}
                 />
               </Box>
@@ -279,18 +284,18 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
           )}
         </DialogContent>
         <DialogActions>
-          <Button disabled={isSaving} onClick={() => fileInput.current?.click()}>
-            Choose file
+          <Button disabled={isSaving} onClick={closeDialog}>
+            Close
           </Button>
           <Button color="error" disabled={isSaving || (!imageUrl && !selectedFile)} onClick={handleDelete}>
             Delete
           </Button>
-          <Button disabled={isSaving} onClick={closeDialog}>
-            Cancel
+          <Button disabled={isSaving} onClick={() => fileInput.current?.click()}>
+            Choose file
           </Button>
-          <LoadingButton disabled={!dialogImageSource || !croppedAreaPixels} loading={isSaving} onClick={handleSave}>
+          <MainActionButton disabled={!dialogImageSource || !croppedAreaPixels} loading={isSaving} onClick={handleSave}>
             Save
-          </LoadingButton>
+          </MainActionButton>
         </DialogActions>
         <input
           accept="image/*"

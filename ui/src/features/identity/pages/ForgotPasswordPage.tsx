@@ -1,9 +1,9 @@
 import { stores } from "@/app/rootStore";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { AuthForms, Information } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { validateEmail } from "@/shared/utils/validators";
-import LoadingButton from "@mui/lab/LoadingButton";
 import { Box, Container, Grid, Link, TextField } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
@@ -56,9 +56,9 @@ const ForgotPasswordPage = () => {
             helperText={emailError && "Invalid email address"}
             onChange={() => setEmailError(false)}
           />
-          <LoadingButton loading={isLoading} type="submit" fullWidth variant="contained" sx={AuthForms.submitButtonSx}>
+          <MainActionButton loading={isLoading} type="submit" fullWidth sx={AuthForms.submitButtonSx}>
             Send password reset link
-          </LoadingButton>
+          </MainActionButton>
           <Grid container>
             <Grid item xs>
               <Link component="button" type="button" variant="body2" onClick={() => navigate("/signIn")}>

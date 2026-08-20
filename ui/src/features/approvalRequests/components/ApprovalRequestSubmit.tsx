@@ -585,7 +585,6 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       )}
       {nameWarning && (
         <ConfirmationDialog
-          cancelFirst
           cancelLabel="Go back"
           confirmLabel="Proceed anyway"
           message={nameWarning.message}

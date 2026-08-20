@@ -1,12 +1,13 @@
 import { stores } from "@/app/rootStore";
 import { TenantType } from "@/features/tenants/models/tenant";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import type { SxProps } from "@mui/material";
-import { Button, FormControl, FormControlLabel, MenuItem, Radio, RadioGroup, Stack, TextField } from "@mui/material";
+import { FormControl, FormControlLabel, MenuItem, Radio, RadioGroup, Stack, TextField } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import { observer } from "mobx-react-lite";
 import { FormEvent, useEffect, useState } from "react";
@@ -90,14 +91,13 @@ const ApprovalRequestStartPage = () => {
               ))}
             </TextField>
           )}
-          <Button
+          <MainActionButton
             disabled={requestType === "template" && (!hasTemplates || templateGlobalId === "")}
             sx={continueButtonSx}
             type="submit"
-            variant="outlined"
           >
             Continue
-          </Button>
+          </MainActionButton>
         </Stack>
       </NarrowContent>
     </>

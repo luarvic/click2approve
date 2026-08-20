@@ -1,11 +1,11 @@
 import { stores } from "@/app/rootStore";
 import { Credentials } from "@/features/identity/models/credentials";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { AuthForms, Routes, Text } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { validateEmail } from "@/shared/utils/validators";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Box,
   Container,
@@ -104,9 +104,9 @@ const SignInPage = () => {
               {passwordError && "Password cannot be empty"}
             </FormHelperText>
           </FormControl>
-          <LoadingButton loading={isLoading} type="submit" fullWidth variant="contained" sx={AuthForms.submitButtonSx}>
+          <MainActionButton loading={isLoading} type="submit" fullWidth sx={AuthForms.submitButtonSx}>
             Sign in
-          </LoadingButton>
+          </MainActionButton>
           <Grid container>
             <Grid item xs={4}>
               <Link component="button" type="button" variant="body2" onClick={() => navigate("/forgotPassword")}>

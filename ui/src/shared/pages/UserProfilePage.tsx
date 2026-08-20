@@ -6,6 +6,7 @@ import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { AuthForms, Dialogs, Pages, StackSpacing } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
@@ -16,9 +17,9 @@ import {
   showPersistenceSuccessNotification,
 } from "@/shared/utils/persistenceNotifications";
 import { Person } from "@mui/icons-material";
-import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Box,
+  Button,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -34,6 +35,7 @@ import {
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const notificationLabels: Record<NotificationType, string> = {
   [NotificationType.ApprovalRequestTaskCreated]: "New  request task",
@@ -43,6 +45,7 @@ const notificationLabels: Record<NotificationType, string> = {
 
 const UserProfilePage = () => {
   usePageTitle("User profile");
+  const navigate = useNavigate();
   const profile = stores.userProfileStore.profile;
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -118,6 +121,10 @@ const UserProfilePage = () => {
         showPersistenceSuccessNotification(PersistenceSuccessMessages.profileSaved);
       }
     });
+  };
+
+  const handleCancel = () => {
+    navigate(-1);
   };
 
   return (
@@ -197,11 +204,18 @@ const UserProfilePage = () => {
               <ApprovalRequestSignatureField onChange={handleSignatureChange} value={defaultSignatureJson} />
             </Stack>
           )}
-          <Box>
-            <LoadingButton loading={saveAction.isRunning} variant="outlined" onClick={handleSave}>
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={Dialogs.stepHeaderSpacing}
+            sx={Dialogs.addStepButtonSx}
+          >
+            <Button type="button" variant="outlined" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <MainActionButton loading={saveAction.isRunning} onClick={handleSave}>
               Save
-            </LoadingButton>
-          </Box>
+            </MainActionButton>
+          </Stack>
         </Stack>
       </NarrowContent>
     </Box>

@@ -8,6 +8,7 @@ import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/ap
 import { getIncompleteParticipantNameWarning } from "@/features/approvalRequests/utils/incompleteParticipantNameWarning";
 import { hasIncompleteBusinessParticipantName } from "@/features/approvalRequests/utils/participantName";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Routes } from "@/shared/constants/constants";
@@ -20,7 +21,7 @@ import {
 } from "@/shared/utils/persistenceNotifications";
 import { BlockOutlined, Replay } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { Button, Tab, Tabs } from "@mui/material";
+import { Tab, Tabs } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -149,11 +150,6 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
             }
           />
           <ApprovalRequestActionBar onClose={handleClose}>
-            {canResubmit && (
-              <Button startIcon={<Replay />} variant="outlined" onClick={handleResubmit}>
-                Resubmit
-              </Button>
-            )}
             {canCancel && (
               <LoadingButton
                 color="warning"
@@ -162,8 +158,13 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
                 variant="outlined"
                 onClick={() => setCancelDialogIsOpen(true)}
               >
-                Cancel
+                Cancel request
               </LoadingButton>
+            )}
+            {canResubmit && (
+              <MainActionButton startIcon={<Replay />} onClick={handleResubmit}>
+                Resubmit
+              </MainActionButton>
             )}
           </ApprovalRequestActionBar>
         </>
@@ -179,7 +180,6 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
       )}
       {approvalRequest && (
         <ConfirmationDialog
-          cancelFirst
           cancelLabel="No"
           confirmColor="warning"
           confirmDisabled={approvalRequestIsCanceling}
@@ -193,7 +193,6 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
       )}
       {nameWarning && (
         <ConfirmationDialog
-          cancelFirst
           cancelLabel="Go back"
           confirmLabel="Proceed anyway"
           message={nameWarning.message}

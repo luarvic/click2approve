@@ -5,12 +5,12 @@ import ApprovalRequestParticipantChip from "@/features/approvalRequests/componen
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { Team, UpsertTeamRequest } from "@/features/teams/models/team";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
-import LoadingButton from "@mui/lab/LoadingButton";
 import { Autocomplete, Button, Stack, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -135,9 +135,9 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
           </Button>
         )}
         {canEdit && (
-          <LoadingButton loading={saveIsLoading} variant="outlined" onClick={handleSubmit}>
+          <MainActionButton loading={saveIsLoading} onClick={handleSubmit}>
             Save
-          </LoadingButton>
+          </MainActionButton>
         )}
       </Stack>
       {team && (

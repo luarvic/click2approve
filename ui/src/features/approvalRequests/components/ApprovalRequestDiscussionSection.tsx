@@ -2,10 +2,10 @@ import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequ
 import { ApprovalRequestTask as ApprovalRequestTaskModel } from "@/features/approvalRequests/models/approvalRequestTask";
 import { getApprovalRequestStepLabels } from "@/features/approvalRequests/utils/approvalRequestStepLabels";
 import ApprovalRequestActionBar from "@/features/approvalRequests/components/ApprovalRequestActionBar";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import DiscussionPanel, { DiscussionPanelHandle } from "@/features/discussions/components/DiscussionPanel";
 import { UserFile } from "@/features/userFiles/models/userFile";
-import LoadingButton from "@mui/lab/LoadingButton";
 import { useEffect, useRef, useState } from "react";
 
 interface ApprovalRequestDiscussionSectionProps {
@@ -59,9 +59,9 @@ const ApprovalRequestDiscussionSection: React.FC<ApprovalRequestDiscussionSectio
       />
       <ApprovalRequestActionBar onClose={onClose}>
         {canSend && (
-          <LoadingButton loading={isSending} variant="outlined" onClick={() => void discussionPanel.current?.send()}>
+          <MainActionButton loading={isSending} onClick={() => void discussionPanel.current?.send()}>
             Send
-          </LoadingButton>
+          </MainActionButton>
         )}
       </ApprovalRequestActionBar>
     </>

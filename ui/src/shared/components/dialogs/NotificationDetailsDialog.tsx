@@ -19,7 +19,7 @@ const NotificationDetailsDialog = ({ details, open, onClose }: NotificationDetai
         ))}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Close</Button>
+        <Button onClick={onClose}>Cancel</Button>
       </DialogActions>
     </Dialog>
   );

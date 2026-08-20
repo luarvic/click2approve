@@ -1,6 +1,6 @@
 import { Dialogs } from "@/shared/constants/constants";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { ArrowBack, ArrowForward } from "@mui/icons-material";
-import LoadingButton from "@mui/lab/LoadingButton";
 import { Button, Stack } from "@mui/material";
 
 interface ApprovalRequestSubmitActionsProps {
@@ -29,13 +29,13 @@ const ApprovalRequestSubmitActions: React.FC<ApprovalRequestSubmitActionsProps> 
       </Button>
     )}
     {canContinue ? (
-      <Button endIcon={<ArrowForward />} type="submit">
+      <MainActionButton endIcon={<ArrowForward />} type="submit">
         Next
-      </Button>
+      </MainActionButton>
     ) : (
-      <LoadingButton loading={isSubmitting} type="submit" variant="outlined" onClick={onSubmit}>
+      <MainActionButton loading={isSubmitting} type="submit" onClick={onSubmit}>
         Submit
-      </LoadingButton>
+      </MainActionButton>
     )}
   </Stack>
 );

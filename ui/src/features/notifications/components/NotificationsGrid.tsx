@@ -194,7 +194,6 @@ const NotificationsGrid = () => {
         sx={notificationGridSx}
       />
       <DeleteConfirmationDialog
-        cancelFirst
         cancelLabel="Cancel"
         entityName={
           selectedNotificationGlobalIds.length === 1

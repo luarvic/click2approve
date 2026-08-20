@@ -13,6 +13,7 @@ import {
   toApprovalStepSubmissions,
 } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
@@ -24,7 +25,6 @@ import {
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { ArrowBack, ArrowForward } from "@mui/icons-material";
-import LoadingButton from "@mui/lab/LoadingButton";
 import { Button, Stack, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 import { notification } from "@/shared/utils/notifications";
@@ -227,23 +227,22 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
             <Button startIcon={<ArrowBack />} onClick={() => setIsVisibilitySetup(false)}>
               Back
             </Button>
-            <LoadingButton loading={saveAction.isRunning} variant="outlined" onClick={handleSubmit}>
+            <MainActionButton loading={saveAction.isRunning} onClick={handleSubmit}>
               Save
-            </LoadingButton>
+            </MainActionButton>
           </>
         ) : steps.length > 1 ? (
-          <Button endIcon={<ArrowForward />} onClick={showVisibilitySetup}>
+          <MainActionButton endIcon={<ArrowForward />} onClick={showVisibilitySetup}>
             Next
-          </Button>
+          </MainActionButton>
         ) : (
-          <LoadingButton loading={saveAction.isRunning} variant="outlined" onClick={handleSubmit}>
+          <MainActionButton loading={saveAction.isRunning} onClick={handleSubmit}>
             Save
-          </LoadingButton>
+          </MainActionButton>
         )}
       </Stack>
       {template && (
         <DeleteConfirmationDialog
-          cancelFirst
           cancelLabel="Cancel"
           entityName={template.name}
           open={deleteDialogIsOpen}

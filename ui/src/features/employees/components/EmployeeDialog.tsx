@@ -11,12 +11,12 @@ import { Team } from "@/features/teams/models/team";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes, Validation } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
-import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Autocomplete,
   Button,
@@ -246,9 +246,9 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
           </Button>
         )}
         {canEdit && (
-          <LoadingButton loading={saveIsLoading} variant="outlined" onClick={handleSubmit}>
+          <MainActionButton loading={saveIsLoading} onClick={handleSubmit}>
             Save
-          </LoadingButton>
+          </MainActionButton>
         )}
       </Stack>
       {employee && (
@@ -276,7 +276,6 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
         onConfirm={saveEmployee}
       />
       <ConfirmationDialog
-        cancelFirst
         cancelLabel="Keep employee active"
         confirmColor="warning"
         confirmLabel="Disable employee"

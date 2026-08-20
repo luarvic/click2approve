@@ -23,6 +23,7 @@ import {
 } from "@/features/approvalRequests/utils/participantName";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
@@ -34,7 +35,6 @@ import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
 } from "@/shared/utils/persistenceNotifications";
-import LoadingButton from "@mui/lab/LoadingButton";
 import {
   FormControl,
   FormControlLabel,
@@ -353,11 +353,11 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
               </>
             )}
           </Stack>
-          <ApprovalRequestActionBar closeLabel={!isCompleted ? "Cancel" : "Close"} onClose={handleClose}>
+          <ApprovalRequestActionBar onClose={handleClose}>
             {!isCompleted && (
-              <LoadingButton loading={taskIsSubmitting} variant="outlined" onClick={handleSubmit}>
+              <MainActionButton loading={taskIsSubmitting} onClick={handleSubmit}>
                 Submit
-              </LoadingButton>
+              </MainActionButton>
             )}
           </ApprovalRequestActionBar>
         </Stack>
@@ -386,7 +386,6 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
       )}
       {nameWarning && (
         <ConfirmationDialog
-          cancelFirst
           cancelLabel="Go back"
           confirmLabel="Proceed anyway"
           message={nameWarning.message}

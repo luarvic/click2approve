@@ -1,10 +1,9 @@
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
-import LoadingButton from "@mui/lab/LoadingButton";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 
 interface DeleteConfirmationDialogProps {
-  cancelFirst?: boolean;
   cancelLabel?: string;
   entityName: string;
   open: boolean;
@@ -14,8 +13,7 @@ interface DeleteConfirmationDialogProps {
 }
 
 const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
-  cancelFirst = false,
-  cancelLabel = "Close",
+  cancelLabel = "Cancel",
   entityName,
   open,
   title,
@@ -39,19 +37,12 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
         <DialogContentText>Are you sure you want to delete {entityName}?</DialogContentText>
       </DialogContent>
       <DialogActions>
-        {cancelFirst && (
-          <Button disabled={deleteAction.isRunning} onClick={onClose}>
-            {cancelLabel}
-          </Button>
-        )}
-        <LoadingButton color="error" loading={deleteAction.isRunning} onClick={handleDelete}>
+        <Button disabled={deleteAction.isRunning} onClick={onClose}>
+          {cancelLabel}
+        </Button>
+        <MainActionButton color="error" loading={deleteAction.isRunning} onClick={handleDelete}>
           Delete
-        </LoadingButton>
-        {!cancelFirst && (
-          <Button disabled={deleteAction.isRunning} onClick={onClose}>
-            {cancelLabel}
-          </Button>
-        )}
+        </MainActionButton>
       </DialogActions>
     </Dialog>
   );
