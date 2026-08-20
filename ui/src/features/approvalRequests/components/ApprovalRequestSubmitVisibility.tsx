@@ -42,6 +42,7 @@ interface ApprovalRequestSubmitVisibilityProps {
   description: string;
   employees: Employee[];
   getDisplayStep: (step: EditableApprovalStep) => ApprovalStep;
+  isRevision: boolean;
   isSubmitting: boolean;
   requestFiles: ApprovalRequestFile[];
   showAttachmentRequirement: boolean;
@@ -77,6 +78,7 @@ const ApprovalRequestSubmitVisibility: React.FC<ApprovalRequestSubmitVisibilityP
   description,
   employees,
   getDisplayStep,
+  isRevision,
   isSubmitting,
   requestFiles,
   showAttachmentRequirement,
@@ -175,6 +177,7 @@ const ApprovalRequestSubmitVisibility: React.FC<ApprovalRequestSubmitVisibilityP
             <ApprovalRequestSummary
               description={description}
               requestFiles={requestFiles}
+              showFileStateIndicators={isRevision}
               showRevision={false}
               title={title}
             />

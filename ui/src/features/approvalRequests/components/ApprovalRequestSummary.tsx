@@ -28,6 +28,7 @@ interface ApprovalRequestSummaryProps {
   previousRevisionApprovalRequestGlobalId?: string;
   metadata?: ReactNode;
   showDescription?: boolean;
+  showFileStateIndicators?: boolean;
   showFiles?: boolean;
   showRevision?: boolean;
   showTitle?: boolean;
@@ -55,6 +56,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   previousRevisionApprovalRequestGlobalId,
   metadata,
   showDescription = true,
+  showFileStateIndicators,
   showFiles = true,
   showRevision = true,
   showTitle = true,
@@ -101,7 +103,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
             approvalRequestGlobalId={approvalRequestGlobalId}
             approvalRequestTaskGlobalId={approvalRequestTaskGlobalId}
             compareWithPrevious={detailsCardMode === "edit" && (revisionNumber ?? 1) > 1}
-            showFileStateIndicators={detailsCardMode === "edit"}
+            showFileStateIndicators={showFileStateIndicators ?? detailsCardMode === "edit"}
           />
         )}
         {additionalContent}

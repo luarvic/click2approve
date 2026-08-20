@@ -57,6 +57,7 @@ const MainMenuDrawer = () => {
   const currentTenant = stores.tenantStore.currentTenant;
   const currentUser = stores.userAccountStore.currentUser;
   const organizationsIsVisible = stores.applicationConfigurationStore.tenantsAreEnabled;
+  const receiptsIsVisible = stores.applicationConfigurationStore.receiptsAreEnabled;
   const employeeManagerIsVisible =
     stores.applicationConfigurationStore.tenantsAreEnabled &&
     currentTenant?.type === TenantType.Business &&
@@ -202,20 +203,22 @@ const MainMenuDrawer = () => {
             <ListItemText primary="Outbox" />
           </ListItemButton>
         </ListItem>
-        <ListItem key="receipts" disablePadding>
-          <ListItemButton
-            selected={location.pathname.startsWith(receiptsPath)}
-            onClick={() => {
-              navigate(receiptsPath);
-              closeTemporaryDrawer();
-            }}
-          >
-            <ListItemIcon sx={Lists.itemIconSx}>
-              <ReceiptLongTwoTone />
-            </ListItemIcon>
-            <ListItemText primary="Receipts" />
-          </ListItemButton>
-        </ListItem>
+        {receiptsIsVisible && (
+          <ListItem key="receipts" disablePadding>
+            <ListItemButton
+              selected={location.pathname.startsWith(receiptsPath)}
+              onClick={() => {
+                navigate(receiptsPath);
+                closeTemporaryDrawer();
+              }}
+            >
+              <ListItemIcon sx={Lists.itemIconSx}>
+                <ReceiptLongTwoTone />
+              </ListItemIcon>
+              <ListItemText primary="Receipts" />
+            </ListItemButton>
+          </ListItem>
+        )}
         {templatesIsVisible && (
           <ListItem key="approvalStepTemplates" disablePadding>
             <ListItemButton

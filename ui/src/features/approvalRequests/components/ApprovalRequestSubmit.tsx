@@ -568,6 +568,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
           description={description}
           employees={stores.employeeStore.employees}
           getDisplayStep={getDisplayStep}
+          isRevision={isRevision}
           isSubmitting={submitAction.isRunning}
           requestFiles={draftRequestFiles}
           showAttachmentRequirement={stores.applicationConfigurationStore.taskAttachmentsAreEnabled}
