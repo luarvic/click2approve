@@ -30,7 +30,11 @@ const receiptContentSx: SxProps<Theme> = {
   },
 };
 
-const headingSx: SxProps<Theme> = { fontFamily: "inherit", fontWeight: 700, textAlign: "center" };
+const headingSx: SxProps<Theme> = {
+  fontFamily: "inherit",
+  fontWeight: 700,
+  textAlign: "center",
+};
 
 const receiptHeaderStackSpacing = 1.5;
 
@@ -91,7 +95,11 @@ const getStatusValueSx = (statusColor: StatusLineColor) => (theme: Theme) => ({
   textUnderlineOffset: "0.2em",
 });
 
-const metadataSx: SxProps<Theme> = { color: "text.secondary", fontFamily: "inherit", textAlign: "center" };
+const metadataSx: SxProps<Theme> = {
+  color: "text.secondary",
+  fontFamily: "inherit",
+  textAlign: "center",
+};
 
 const formatDateTime = (date: Date | undefined): string | undefined =>
   date?.toLocaleString(undefined, {
@@ -222,7 +230,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({ footerContent, headerContent,
                 {[
                   ["Task ID", task.taskGlobalId],
                   ["Date", formatDateTime(task.assignedAt)],
-                  ["Organization", task.organizationDisplayName],
+                  ["Organization", task.isAssigneeEmployee ? task.organizationDisplayName : undefined],
                   ["Action", task.action],
                   ["Instructions", task.instructions],
                   ["Assigned to", task.displayName],

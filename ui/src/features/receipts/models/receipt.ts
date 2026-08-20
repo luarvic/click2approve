@@ -48,6 +48,7 @@ export interface ReceiptParticipant {
   delegateEmail?: string;
   electronicSignatureJson?: string;
   files: ReceiptParticipantFile[];
+  isAssigneeEmployee: boolean;
   instructions?: string;
   organizationDisplayName?: string;
   completedAt?: Date;
