@@ -28,6 +28,7 @@ export class RootStore {
   teamStore: TeamStore;
   approvalStepTemplateStore: ApprovalStepTemplateStore;
   notificationStore: NotificationStore;
+  private workEmployeeInvalidRecovery: Promise<void> | null = null;
 
   constructor(
     commonStore: CommonStore,
@@ -68,10 +69,7 @@ export class RootStore {
     }, this.clearSession);
     configureRequestContext({
       getWorkEmployeeGlobalId: () => this.tenantStore.currentWorkEmployeeGlobalId,
-      onWorkEmployeeInvalid: async () => {
-        await this.tenantStore.load();
-        await this.refreshTenantScope();
-      },
+      onWorkEmployeeInvalid: this.recoverInvalidWorkEmployee,
       onUnauthorized: this.userAccountStore.signOut,
     });
   }
@@ -96,6 +94,21 @@ export class RootStore {
       this.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId),
       loadIncomingTasks ? this.approvalRequestTaskStore.loadIncoming(tenantGlobalId) : Promise.resolve(),
     ]);
+  };
+
+  private recoverInvalidWorkEmployee = (): Promise<void> => {
+    if (this.workEmployeeInvalidRecovery) {
+      return this.workEmployeeInvalidRecovery;
+    }
+
+    const recovery = (async () => {
+      await this.tenantStore.load();
+      await this.refreshTenantScope();
+    })().finally(() => {
+      this.workEmployeeInvalidRecovery = null;
+    });
+    this.workEmployeeInvalidRecovery = recovery;
+    return recovery;
   };
 
   clearTenantScope = (): void => {

@@ -98,9 +98,11 @@ export class TenantStore {
     runInAction(() => {
       this.tenants = [...this.tenants, tenant];
       this.currentTenantGlobalId = tenant.globalId;
+      this.currentWorkEmployeeGlobalId = tenant.currentEmployeeGlobalId ?? null;
       this.hasLoaded = true;
     });
     writeCurrentTenantGlobalId(tenant.globalId);
+    writeCurrentWorkEmployeeGlobalId(this.currentWorkEmployeeGlobalId);
     return tenant;
   };
 
@@ -114,9 +116,11 @@ export class TenantStore {
     runInAction(() => {
       this.tenants = [...this.tenants, tenant];
       this.currentTenantGlobalId = tenant.globalId;
+      this.currentWorkEmployeeGlobalId = tenant.currentEmployeeGlobalId ?? null;
       this.hasLoaded = true;
     });
     writeCurrentTenantGlobalId(tenant.globalId);
+    writeCurrentWorkEmployeeGlobalId(this.currentWorkEmployeeGlobalId);
     return tenant;
   };
 

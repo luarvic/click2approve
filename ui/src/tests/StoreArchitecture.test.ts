@@ -13,7 +13,9 @@ import * as employeeApi from "@/features/employees/api/employeesApi";
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import { EmployeeStore } from "@/features/employees/stores/employeeStore";
 import { Team } from "@/features/teams/models/team";
+import * as tenantApi from "@/features/tenants/api/tenantsApi";
 import { EmployeeRole, Tenant, TenantType } from "@/features/tenants/models/tenant";
+import { TenantStore } from "@/features/tenants/stores/tenantStore";
 import { CommonStore } from "@/shared/stores/commonStore";
 import { autorun, runInAction } from "mobx";
 import { describe, expect, test, vi } from "vitest";
@@ -31,6 +33,11 @@ vi.mock("@/features/approvalRequests/api/approvalRequestTasksApi", () => ({
 
 vi.mock("@/features/employees/api/employeesApi", () => ({
   listEmployees: vi.fn(),
+}));
+
+vi.mock("@/features/tenants/api/tenantsApi", () => ({
+  createTenant: vi.fn(),
+  createTenantWithLogo: vi.fn(),
 }));
 
 const deferred = <T>() => {
@@ -90,6 +97,23 @@ const approvalRequestTask = (
 });
 
 describe("store architecture", () => {
+  test("creating a tenant selects its employee work context", async () => {
+    const tenant: Tenant = {
+      globalId: "11111111-1111-4111-8111-111111111111",
+      businessName: "Tenant",
+      currentEmployeeGlobalId: "22222222-2222-4222-8222-222222222222",
+      currentEmployeeRole: EmployeeRole.Owner,
+      type: TenantType.Business,
+    };
+    vi.mocked(tenantApi.createTenant).mockResolvedValueOnce(tenant);
+    const store = new TenantStore();
+
+    await store.create({ businessName: tenant.businessName });
+
+    expect(store.currentTenantGlobalId).toBe(tenant.globalId);
+    expect(store.currentWorkEmployeeGlobalId).toBe(tenant.currentEmployeeGlobalId);
+  });
+
   test("unrelated action loaders do not invalidate a feature loading subscription", () => {
     const store = new CommonStore();
     let reactions = 0;
