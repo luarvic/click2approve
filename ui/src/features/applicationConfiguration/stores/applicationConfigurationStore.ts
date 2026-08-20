@@ -38,8 +38,8 @@ export class ApplicationConfigurationStore {
     return this.applicationConfiguration?.capabilities.approvalRequestRevisions === true;
   }
 
-  get sharedVerificationLinksAreEnabled(): boolean {
-    return this.applicationConfiguration?.capabilities.sharedVerificationLinks === true;
+  get receiptsAreEnabled(): boolean {
+    return this.applicationConfiguration?.capabilities.receipts === true;
   }
 
   get taskAttachmentsAreEnabled(): boolean {

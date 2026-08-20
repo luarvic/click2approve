@@ -59,12 +59,12 @@ export const ActionLoaders = {
       formatActionLoader("grids", "teams", tenantGlobalId ?? undefined),
     tenants: () => formatActionLoader("grids", "tenants"),
   },
-  sharedVerificationLinks: {
+  receiptLinks: {
     createForRequest: (approvalRequestGlobalId: string | undefined) =>
-      formatActionLoader("sharedVerificationLinks", "createForRequest", approvalRequestGlobalId),
+      formatActionLoader("receiptLinks", "createForRequest", approvalRequestGlobalId),
     createForTask: (approvalRequestTaskGlobalId: string | undefined) =>
-      formatActionLoader("sharedVerificationLinks", "createForTask", approvalRequestTaskGlobalId),
-    delete: (linkGlobalId: string | undefined) => formatActionLoader("sharedVerificationLinks", "delete", linkGlobalId),
+      formatActionLoader("receiptLinks", "createForTask", approvalRequestTaskGlobalId),
+    delete: (linkGlobalId: string | undefined) => formatActionLoader("receiptLinks", "delete", linkGlobalId),
   },
   teams: {
     save: (teamGlobalId: string | undefined) => formatActionLoader("teams", "save", teamGlobalId),

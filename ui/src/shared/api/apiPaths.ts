@@ -12,9 +12,9 @@ export const ApiPaths = {
   products: {
     info: "api/v1/products/info",
   },
-  publicReceipts: {
-    byId: (receiptGlobalId: string) => `api/v1/publicReceipts/${receiptGlobalId}`,
-    root: "api/v1/publicReceipts/",
+  receiptLinks: {
+    byId: (linkGlobalId: string) => `api/v1/receiptLinks/${linkGlobalId}`,
+    root: "api/v1/receiptLinks/",
   },
   tenants: {
     approvalStepTemplates: (tenantGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/approvalStepTemplates`,

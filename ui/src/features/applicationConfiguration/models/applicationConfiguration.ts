@@ -14,6 +14,6 @@ export interface ProductCapabilities {
   teamAssignees: boolean;
   approvalStepTemplates: boolean;
   approvalRequestRevisions: boolean;
-  sharedVerificationLinks: boolean;
+  receipts: boolean;
   taskAttachments: boolean;
 }

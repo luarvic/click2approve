@@ -11,7 +11,7 @@ const applicationConfiguration: ApplicationConfiguration = {
     discussionAttachments: true,
     discussions: true,
     employeeAssignees: true,
-    sharedVerificationLinks: true,
+    receipts: true,
     taskAttachments: true,
     teamAssignees: true,
     tenants: true,

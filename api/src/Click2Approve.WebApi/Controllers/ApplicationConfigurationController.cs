@@ -36,7 +36,7 @@ public class ApplicationConfigurationController(IConfiguration configuration) : 
                 TeamAssignees = _configuration.GetValue<bool>("Product:Capabilities:TeamAssignees"),
                 ApprovalStepTemplates = _configuration.GetValue<bool>("Product:Capabilities:ApprovalStepTemplates"),
                 ApprovalRequestRevisions = _configuration.GetValue<bool>("Product:Capabilities:ApprovalRequestRevisions"),
-                SharedVerificationLinks = _configuration.GetValue<bool>("Product:Capabilities:SharedVerificationLinks"),
+                Receipts = _configuration.GetValue<bool>("Product:Capabilities:Receipts"),
                 TaskAttachments = _configuration.GetValue<bool>("Product:Capabilities:TaskAttachments")
             }
         });

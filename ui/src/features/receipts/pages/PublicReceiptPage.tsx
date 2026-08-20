@@ -1,4 +1,4 @@
-import { getPublicReceipt } from "@/features/receipts/api/publicReceiptsApi";
+import { getReceiptByLink } from "@/features/receipts/api/receiptLinksApi";
 import ReceiptCard from "@/features/receipts/components/ReceiptCard";
 import {
   PublicReceiptParticipantRole,
@@ -128,18 +128,18 @@ const computeSha256 = async (file: File): Promise<string> => {
 };
 
 const PublicReceiptPage = () => {
-  const { globalId } = useParams();
+  const { linkGlobalId } = useParams<{ linkGlobalId: string }>();
   const [receipt, setReceipt] = useState<PublicReceipt | null | undefined>(undefined);
   const [fileMatch, setFileMatch] = useState<FileMatch | null>(null);
   usePageTitle("Receipt");
 
   useEffect(() => {
     const load = async () => {
-      setReceipt(globalId ? await getPublicReceipt(globalId) : null);
+      setReceipt(linkGlobalId ? await getReceiptByLink(linkGlobalId) : null);
     };
 
     void load();
-  }, [globalId]);
+  }, [linkGlobalId]);
 
   const verificationUrl = useMemo(() => window.location.href, []);
 

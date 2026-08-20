@@ -32,7 +32,7 @@ const shouldSendAuthentication = (url: string | undefined): boolean => {
   return (
     !anonymousUrls.includes(url) &&
     !url.startsWith(ApiPaths.account.confirmEmail) &&
-    !url.startsWith(ApiPaths.publicReceipts.root)
+    !url.startsWith(ApiPaths.receiptLinks.root)
   );
 };
 
@@ -84,7 +84,7 @@ axiosInstance.interceptors.response.use(
       error.response.status === 401 &&
       originalRequest?.url !== ApiPaths.account.refresh &&
       !originalRequest?.url.startsWith(ApiPaths.account.confirmEmail) &&
-      !originalRequest?.url.startsWith(ApiPaths.publicReceipts.root)
+      !originalRequest?.url.startsWith(ApiPaths.receiptLinks.root)
     ) {
       if (!originalRequest._retry) {
         originalRequest._retry = true;

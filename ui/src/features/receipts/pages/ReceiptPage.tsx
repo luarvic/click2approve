@@ -91,7 +91,7 @@ const ReceiptPage: React.FC<ReceiptPageProps> = ({ tab = "request" }) => {
                   }
                 >
                   <Link
-                    href={`${window.location.origin}/app/receipt/${link.globalId}`}
+                    href={`${window.location.origin}/app/receipt-links/${link.globalId}`}
                     target="_blank"
                     rel="noreferrer"
                   >
@@ -99,7 +99,7 @@ const ReceiptPage: React.FC<ReceiptPageProps> = ({ tab = "request" }) => {
                   </Link>
                 </ListItem>
               ))}
-              {receipt.links.length === 0 && <Typography color="text.secondary">No verification links.</Typography>}
+              {receipt.links.length === 0 && <Typography color="text.secondary">No receipt links.</Typography>}
             </List>
             <ApprovalRequestActionBar onClose={handleClose} />
           </>

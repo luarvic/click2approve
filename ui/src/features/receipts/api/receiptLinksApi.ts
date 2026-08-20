@@ -5,9 +5,9 @@ import { ApiPaths } from "@/shared/api/apiPaths";
 import { getApiErrorNotification, isResourceNotFoundOrForbiddenError } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
 
-export const getPublicReceipt = async (globalId: string): Promise<PublicReceipt | null> => {
+export const getReceiptByLink = async (linkGlobalId: string): Promise<PublicReceipt | null> => {
   try {
-    const { data } = await axios.get<PublicReceipt>(ApiPaths.publicReceipts.byId(globalId));
+    const { data } = await axios.get<PublicReceipt>(ApiPaths.receiptLinks.byId(linkGlobalId));
     return normalizePublicReceiptDates(data);
   } catch (e) {
     if (isResourceNotFoundOrForbiddenError(e)) {
