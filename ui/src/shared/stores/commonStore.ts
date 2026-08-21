@@ -47,6 +47,11 @@ export class CommonStore {
     return (this.actionLoadingCounter[loader] ?? 0) > 0;
   };
 
+  isAnyActionLoading = (scopes: readonly string[]): boolean =>
+    Object.keys(this.actionLoadingCounter).some((loader) =>
+      scopes.some((scope) => loader === scope || loader.startsWith(`${scope}.`)),
+    );
+
   setApprovalRequestSubmitDialogIsOpen = (isOpen: boolean) => {
     runInAction(() => {
       this.approvalRequestSubmitDialogIsOpen = isOpen;

@@ -1,12 +1,11 @@
 import { stores } from "@/app/rootStore";
-import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { observer } from "mobx-react-lite";
 import { Navigate } from "react-router-dom";
 
 const TenantHomeRedirect = () => {
   if (!stores.tenantStore.hasLoaded) {
-    return <LoadingOverlay />;
+    return null;
   }
 
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;

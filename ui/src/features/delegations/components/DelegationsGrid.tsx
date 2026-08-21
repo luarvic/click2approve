@@ -4,13 +4,14 @@ import { ApprovalDelegation } from "@/features/delegations/models/approvalDelega
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
+import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add } from "@mui/icons-material";
-import { Box, Button, LinearProgress } from "@mui/material";
-import { DataGrid, GridColDef, GridSlots, GridToolbarContainer } from "@mui/x-data-grid";
+import { Box, Button } from "@mui/material";
+import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -102,9 +103,9 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({ currentDelegationGlob
         disableColumnFilter
         disableRowSelectionOnClick
         slots={{
+          loadingOverlay: NoLoadingOverlay,
           toolbar: canManageDelegations ? customToolbar : undefined,
           noRowsOverlay: NoRowsOverlay,
-          loadingOverlay: LinearProgress as GridSlots["loadingOverlay"],
         }}
         sx={DataGrids.sx}
         autoHeight

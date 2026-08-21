@@ -10,13 +10,14 @@ import {
 import { listReceipts } from "@/features/receipts/api/receiptsApi";
 import type { Receipt } from "@/features/receipts/models/receipt";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
+import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import { DataGrids, Routes, StackSpacing } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate } from "@/shared/utils/dateTime";
-import { Box, LinearProgress, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
-import { DataGrid, GridColDef, GridSlots } from "@mui/x-data-grid";
+import { Box, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -112,8 +113,8 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
         disableColumnFilter
         disableRowSelectionOnClick
         slots={{
+          loadingOverlay: NoLoadingOverlay,
           noRowsOverlay: NoRowsOverlay,
-          loadingOverlay: LinearProgress as GridSlots["loadingOverlay"],
         }}
         sx={DataGrids.sx}
         autoHeight

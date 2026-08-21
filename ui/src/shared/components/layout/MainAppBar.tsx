@@ -6,6 +6,7 @@ import ColorModeSwitch from "@/shared/components/layout/ColorModeSwitch";
 import PublicAppBar from "@/shared/components/layout/PublicAppBar";
 import { Routes, Shell } from "@/shared/constants/constants";
 import { AppBarOptions } from "@/shared/models/appBarOptions";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getEmailInitials } from "@/shared/utils/email";
 import { Menu } from "@mui/icons-material";
 import { Avatar, IconButton, MenuItem, Select } from "@mui/material";
@@ -106,8 +107,14 @@ const MainAppBar = ({
               );
               if (!option) return;
               const tenantGlobalId = option.tenant.globalId;
-              await stores.switchTenant(tenantGlobalId, option.employeeGlobalId, location.pathname === inboxPath);
-              navigate(Routes.tenantPath(tenantGlobalId, Routes.inboxPath));
+              const loader = ActionLoaders.pages.tenantScope();
+              stores.commonStore.updateActionLoadingCounter(loader, 1);
+              try {
+                await stores.switchTenant(tenantGlobalId, option.employeeGlobalId, location.pathname === inboxPath);
+                navigate(Routes.tenantPath(tenantGlobalId, Routes.inboxPath));
+              } finally {
+                stores.commonStore.updateActionLoadingCounter(loader, -1);
+              }
             }}
             sx={Shell.tenantPickerSx}
           >

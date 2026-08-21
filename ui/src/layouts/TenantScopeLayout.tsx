@@ -1,7 +1,7 @@
 import { stores } from "@/app/rootStore";
 import WrapperLayout from "@/layouts/WrapperLayout";
-import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { Outlet, useParams } from "react-router-dom";
@@ -21,12 +21,14 @@ const TenantScopeLayout = () => {
       tenantGlobalId !== undefined &&
       stores.tenantStore.currentTenantGlobalId !== tenantGlobalId
     ) {
-      void stores.switchTenant(tenantGlobalId);
+      const loader = ActionLoaders.pages.tenantScope();
+      stores.commonStore.updateActionLoadingCounter(loader, 1);
+      void stores.switchTenant(tenantGlobalId).finally(() => stores.commonStore.updateActionLoadingCounter(loader, -1));
     }
   }, [tenantGlobalId, tenantScopeIsAvailable]);
 
   if (!stores.tenantStore.hasLoaded) {
-    return <LoadingOverlay />;
+    return null;
   }
 
   if (!tenantScopeIsAvailable) {
@@ -38,7 +40,7 @@ const TenantScopeLayout = () => {
   }
 
   if (stores.tenantStore.currentTenantGlobalId !== tenantGlobalId) {
-    return <LoadingOverlay />;
+    return null;
   }
 
   return <Outlet />;

@@ -9,6 +9,7 @@ import {
 } from "@/features/notifications/api/notificationsApi";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
+import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
@@ -16,8 +17,8 @@ import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate, parseUtcDateTime } from "@/shared/utils/dateTime";
 import { Delete, Done } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
-import { Box, Button, LinearProgress, useMediaQuery, useTheme } from "@mui/material";
-import { DataGrid, GridColDef, GridRowSelectionModel, GridSlots, GridToolbarContainer } from "@mui/x-data-grid";
+import { Box, Button, useMediaQuery, useTheme } from "@mui/material";
+import { DataGrid, GridColDef, GridRowSelectionModel, GridToolbarContainer } from "@mui/x-data-grid";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -187,7 +188,7 @@ const NotificationsGrid = () => {
           baseCheckbox: { name: "notification-selection" },
         }}
         slots={{
-          loadingOverlay: LinearProgress as GridSlots["loadingOverlay"],
+          loadingOverlay: NoLoadingOverlay,
           noRowsOverlay: NoRowsOverlay,
           toolbar: customToolbar,
         }}

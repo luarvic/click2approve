@@ -11,7 +11,7 @@ export const useGridRefresh = (
 ): boolean => {
   const refreshRef = useRef(refresh);
   refreshRef.current = refresh;
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(true);
 
   useEffect(() => {
     const refreshGrid = async () => {

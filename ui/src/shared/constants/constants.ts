@@ -250,6 +250,7 @@ export const Shell = {
   mainContentSx: (drawerIsVisible: boolean): SxProps<Theme> => ({
     ml: drawerIsVisible ? { md: `${mainMenuDrawerWidth}px` } : 0,
     minWidth: 0,
+    position: "relative",
     transition: (theme) =>
       theme.transitions.create(["margin", "width"], {
         easing: theme.transitions.easing.sharp,
@@ -259,6 +260,13 @@ export const Shell = {
       md: drawerIsVisible ? `calc(100% - ${mainMenuDrawerWidth}px)` : "100%",
     },
   }),
+  loadingProgressSx: {
+    left: 0,
+    position: "absolute",
+    right: 0,
+    top: appBarHeight,
+    zIndex: 2,
+  } as SxProps<Theme>,
   appBarSx: (mainMenuDrawerIsVisible: boolean, profileDrawerIsOpen: boolean): SxProps<Theme> => ({
     bgcolor: "background.default",
     borderBottom: 1,

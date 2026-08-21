@@ -10,14 +10,15 @@ import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/
 import { ApprovalRequestListItem } from "@/features/approvalRequests/models/approvalRequestListItem";
 import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
+import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import { DataGrids, Routes, StackSpacing } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate } from "@/shared/utils/dateTime";
 import { Add } from "@mui/icons-material";
-import { Box, Button, LinearProgress, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
-import { DataGrid, GridColDef, GridSlots, GridToolbarContainer } from "@mui/x-data-grid";
+import { Box, Button, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 
@@ -141,9 +142,9 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestGlobalId 
         disableColumnFilter
         disableRowSelectionOnClick
         slots={{
+          loadingOverlay: NoLoadingOverlay,
           toolbar: customToolbar,
           noRowsOverlay: NoRowsOverlay,
-          loadingOverlay: LinearProgress as GridSlots["loadingOverlay"],
         }}
         sx={DataGrids.sx}
         autoHeight

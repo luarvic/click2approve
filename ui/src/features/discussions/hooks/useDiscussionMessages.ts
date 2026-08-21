@@ -8,6 +8,7 @@ import { DiscussionMessage } from "@/features/discussions/models/discussionMessa
 import { UserFile } from "@/features/userFiles/models/userFile";
 import { Refresh } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { stores } from "@/app/rootStore";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -24,6 +25,9 @@ export const useDiscussionMessages = ({
 }: UseDiscussionMessagesOptions) => {
   const [messages, setMessages] = useState<DiscussionMessage[] | null>(null);
   const requestVersion = useRef(0);
+  const loadLoader = taskGlobalId
+    ? ActionLoaders.discussions.loadForTask(taskGlobalId)
+    : ActionLoaders.discussions.loadForRequest(requestGlobalId);
   const sendAction = useAsyncAction(
     taskGlobalId
       ? ActionLoaders.discussions.sendForTask(taskGlobalId)
@@ -36,13 +40,18 @@ export const useDiscussionMessages = ({
     }
 
     const version = ++requestVersion.current;
-    const loadedMessages = taskGlobalId
-      ? await listTaskDiscussion(tenantGlobalId, taskGlobalId)
-      : await listRequestDiscussion(tenantGlobalId, requestGlobalId);
-    if (version === requestVersion.current && loadedMessages) {
-      setMessages(loadedMessages);
+    stores.commonStore.updateActionLoadingCounter(loadLoader, 1);
+    try {
+      const loadedMessages = taskGlobalId
+        ? await listTaskDiscussion(tenantGlobalId, taskGlobalId)
+        : await listRequestDiscussion(tenantGlobalId, requestGlobalId);
+      if (version === requestVersion.current && loadedMessages) {
+        setMessages(loadedMessages);
+      }
+    } finally {
+      stores.commonStore.updateActionLoadingCounter(loadLoader, -1);
     }
-  }, [requestGlobalId, taskGlobalId, tenantGlobalId]);
+  }, [loadLoader, requestGlobalId, taskGlobalId, tenantGlobalId]);
 
   useEffect(() => {
     void load();

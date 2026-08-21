@@ -3,10 +3,10 @@ import EmployeeEditor from "@/features/employees/components/EmployeeDialog";
 import { CreateEmployeeRequest, UpdateEmployeeRequest } from "@/features/employees/models/employee";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
-import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
@@ -35,15 +35,18 @@ const EmployeeEditorPage = () => {
 
   useEffect(() => {
     let active = true;
+    const loader = ActionLoaders.pages.employeeEditor(employeeGlobalId);
     setEmployeeDataHasLoaded(false);
     if (!tenantGlobalId) {
       return;
     }
 
+    stores.commonStore.updateActionLoadingCounter(loader, 1);
     void Promise.all([
       stores.employeeStore.load(tenantGlobalId, true),
       stores.teamStore.load(tenantGlobalId, true),
     ]).finally(() => {
+      stores.commonStore.updateActionLoadingCounter(loader, -1);
       if (active) {
         setEmployeeDataHasLoaded(true);
       }
@@ -51,10 +54,10 @@ const EmployeeEditorPage = () => {
     return () => {
       active = false;
     };
-  }, [tenantGlobalId]);
+  }, [employeeGlobalId, tenantGlobalId]);
 
   if (!tenantGlobalId) return <Navigate to={employeesPath} />;
-  if (!employeeDataHasLoaded) return <LoadingOverlay />;
+  if (!employeeDataHasLoaded) return null;
   if (isNewEmployee && !canEdit) return <Navigate replace to={employeesPath} />;
   if (!isNewEmployee && !employee) return <NotFoundPage />;
 

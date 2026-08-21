@@ -3,9 +3,9 @@ import { TenantType } from "@/features/tenants/models/tenant";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import type { SxProps } from "@mui/material";
 import { FormControl, FormControlLabel, MenuItem, Radio, RadioGroup, Stack, TextField } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
@@ -46,7 +46,11 @@ const ApprovalRequestStartPage = () => {
       return;
     }
 
-    void stores.approvalStepTemplateStore.load(tenantGlobalId);
+    const loader = ActionLoaders.pages.approvalRequestStart();
+    stores.commonStore.updateActionLoadingCounter(loader, 1);
+    void stores.approvalStepTemplateStore
+      .load(tenantGlobalId)
+      .finally(() => stores.commonStore.updateActionLoadingCounter(loader, -1));
   }, [canUseTemplates, composePath, navigate, tenantGlobalId, tenantScopeIsReady]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -57,7 +61,7 @@ const ApprovalRequestStartPage = () => {
   };
 
   if (!tenantScopeIsReady) {
-    return <LoadingOverlay />;
+    return null;
   }
 
   if (!canUseTemplates) {

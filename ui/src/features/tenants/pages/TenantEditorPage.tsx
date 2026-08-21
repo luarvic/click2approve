@@ -2,7 +2,6 @@ import { stores } from "@/app/rootStore";
 import TenantEditor from "@/features/tenants/components/TenantDialog";
 import { CreateTenantRequest, EmployeeRole, UpdateTenantRequest } from "@/features/tenants/models/tenant";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
-import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 import {
@@ -21,7 +20,7 @@ const TenantEditorPage = () => {
   const isNewTenant = tenantGlobalId === undefined;
   const tenant = stores.tenantStore.tenants.find((item) => item.globalId === tenantGlobalId);
 
-  if (!stores.tenantStore.hasLoaded) return <LoadingOverlay />;
+  if (!stores.tenantStore.hasLoaded) return null;
   if (!isNewTenant && !tenant) return <NotFoundPage />;
 
   const close = (currentTenantGlobalId?: string) =>

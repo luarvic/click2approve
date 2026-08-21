@@ -4,9 +4,8 @@ import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
 import ImagePicker from "@/shared/components/images/ImagePicker";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
-import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { AuthForms, Dialogs, Pages, StackSpacing } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
@@ -63,7 +62,9 @@ const UserProfilePage = () => {
 
   useEffect(() => {
     if (!stores.userProfileStore.hasLoaded) {
-      stores.userProfileStore.load();
+      const loader = ActionLoaders.pages.userProfile();
+      stores.commonStore.updateActionLoadingCounter(loader, 1);
+      void stores.userProfileStore.load().finally(() => stores.commonStore.updateActionLoadingCounter(loader, -1));
     }
   }, []);
 
@@ -76,7 +77,7 @@ const UserProfilePage = () => {
   }, [profile]);
 
   if (!stores.userProfileStore.hasLoaded || !profile) {
-    return <LoadingOverlay />;
+    return null;
   }
 
   const handleNotificationToggle = (type: NotificationType) => {

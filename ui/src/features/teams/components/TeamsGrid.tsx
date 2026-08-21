@@ -2,13 +2,14 @@ import { stores } from "@/app/rootStore";
 import { Team } from "@/features/teams/models/team";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
+import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add } from "@mui/icons-material";
-import { Box, Button, LinearProgress } from "@mui/material";
-import { DataGrid, GridColDef, GridSlots, GridToolbarContainer } from "@mui/x-data-grid";
+import { Box, Button } from "@mui/material";
+import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -77,9 +78,9 @@ const TeamsGrid: React.FC<TeamsGridProps> = ({ currentTeamGlobalId }) => {
         disableColumnFilter
         disableRowSelectionOnClick
         slots={{
+          loadingOverlay: NoLoadingOverlay,
           toolbar: canModifyTeams ? customToolbar : undefined,
           noRowsOverlay: NoRowsOverlay,
-          loadingOverlay: LinearProgress as GridSlots["loadingOverlay"],
         }}
         sx={DataGrids.sx}
         autoHeight

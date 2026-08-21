@@ -1,83 +1,182 @@
-const formatActionLoader = (...parts: Array<string | undefined>): string => parts.filter(Boolean).join(".");
+const createActionLoaderKey = (...parts: Array<string | undefined>): string => parts.filter(Boolean).join(".");
+
+export const ActionLoaderScopes = {
+  approvalRequestsCancel: "approvalRequests.cancel",
+  approvalRequestsLoad: "approvalRequests.load",
+  approvalRequestsSubmit: "approvalRequests.submit",
+  approvalRequestTasksAttachFiles: "approvalRequestTasks.attachFiles",
+  approvalRequestTasksComplete: "approvalRequestTasks.complete",
+  approvalRequestTasksLoad: "approvalRequestTasks.load",
+  approvalRequestTasksRemoveAttachment: "approvalRequestTasks.removeAttachment",
+  approvalStepTemplatesSave: "approvalStepTemplates.save",
+  delegationsSave: "delegations.save",
+  dialogsConfirm: "dialogs.confirm",
+  dialogsDelete: "dialogs.delete",
+  discussionsLoadForRequest: "discussions.loadForRequest",
+  discussionsLoadForTask: "discussions.loadForTask",
+  discussionsSendForRequest: "discussions.sendForRequest",
+  discussionsSendForTask: "discussions.sendForTask",
+  employeesSave: "employees.save",
+  gridsApprovalStepTemplates: "grids.approvalStepTemplates",
+  gridsDelegations: "grids.delegations",
+  gridsEmployees: "grids.employees",
+  gridsInbox: "grids.inbox",
+  gridsNotifications: "grids.notifications",
+  gridsOutbox: "grids.outbox",
+  gridsReceipts: "grids.receipts",
+  gridsTeams: "grids.teams",
+  gridsTenants: "grids.tenants",
+  notificationsDelete: "notifications.delete",
+  notificationsMarkRead: "notifications.markRead",
+  pagesApprovalRequestStart: "pages.approvalRequestStart",
+  pagesApprovalRequestSubmit: "pages.approvalRequestSubmit",
+  pagesApprovalStepTemplateEditor: "pages.approvalStepTemplateEditor",
+  pagesDelegationEditor: "pages.delegationEditor",
+  pagesEmployeeEditor: "pages.employeeEditor",
+  pagesTeamEditor: "pages.teamEditor",
+  pagesTenantScope: "pages.tenantScope",
+  pagesUserProfile: "pages.userProfile",
+  receiptLinksCreateForRequest: "receiptLinks.createForRequest",
+  receiptLinksCreateForTask: "receiptLinks.createForTask",
+  receiptLinksDelete: "receiptLinks.delete",
+  teamsSave: "teams.save",
+  tenantsSave: "tenants.save",
+  userFilesDelete: "userFiles.delete",
+  userFilesUpload: "userFiles.upload",
+  userProfileRemoveAvatar: "userProfile.removeAvatar",
+  userProfileSave: "userProfile.save",
+} as const;
+
+export const GlobalLoadingActionLoaderScopes = [
+  ActionLoaderScopes.gridsApprovalStepTemplates,
+  ActionLoaderScopes.gridsDelegations,
+  ActionLoaderScopes.gridsEmployees,
+  ActionLoaderScopes.gridsInbox,
+  ActionLoaderScopes.gridsNotifications,
+  ActionLoaderScopes.gridsOutbox,
+  ActionLoaderScopes.gridsReceipts,
+  ActionLoaderScopes.gridsTeams,
+  ActionLoaderScopes.gridsTenants,
+  ActionLoaderScopes.approvalRequestsLoad,
+  ActionLoaderScopes.approvalRequestTasksLoad,
+  ActionLoaderScopes.discussionsLoadForRequest,
+  ActionLoaderScopes.discussionsLoadForTask,
+  ActionLoaderScopes.pagesApprovalRequestStart,
+  ActionLoaderScopes.pagesApprovalRequestSubmit,
+  ActionLoaderScopes.pagesApprovalStepTemplateEditor,
+  ActionLoaderScopes.pagesDelegationEditor,
+  ActionLoaderScopes.pagesEmployeeEditor,
+  ActionLoaderScopes.pagesTeamEditor,
+  ActionLoaderScopes.pagesTenantScope,
+  ActionLoaderScopes.pagesUserProfile,
+] as const;
 
 export const ActionLoaders = {
   approvalRequests: {
     cancel: (approvalRequestGlobalId: string | undefined) =>
-      formatActionLoader("approvalRequests", "cancel", approvalRequestGlobalId),
-    submit: () => formatActionLoader("approvalRequests", "submit"),
+      createActionLoaderKey(ActionLoaderScopes.approvalRequestsCancel, approvalRequestGlobalId),
+    load: (approvalRequestGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.approvalRequestsLoad, approvalRequestGlobalId),
+    submit: () => ActionLoaderScopes.approvalRequestsSubmit,
   },
   approvalRequestTasks: {
     attachFiles: (taskGlobalId: string | undefined) =>
-      formatActionLoader("approvalRequestTasks", "attachFiles", taskGlobalId),
+      createActionLoaderKey(ActionLoaderScopes.approvalRequestTasksAttachFiles, taskGlobalId),
     complete: (taskGlobalId: string | undefined) =>
-      formatActionLoader("approvalRequestTasks", "complete", taskGlobalId),
+      createActionLoaderKey(ActionLoaderScopes.approvalRequestTasksComplete, taskGlobalId),
+    load: (taskGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.approvalRequestTasksLoad, taskGlobalId),
     removeAttachment: (taskGlobalId: string | undefined, userFileGlobalId: string | undefined) =>
-      formatActionLoader("approvalRequestTasks", "removeAttachment", taskGlobalId, userFileGlobalId),
+      createActionLoaderKey(ActionLoaderScopes.approvalRequestTasksRemoveAttachment, taskGlobalId, userFileGlobalId),
   },
   approvalStepTemplates: {
     save: (templateGlobalId: string | undefined) =>
-      formatActionLoader("approvalStepTemplates", "save", templateGlobalId),
+      createActionLoaderKey(ActionLoaderScopes.approvalStepTemplatesSave, templateGlobalId),
   },
   delegations: {
-    save: (delegationGlobalId: string | undefined) => formatActionLoader("delegations", "save", delegationGlobalId),
+    save: (delegationGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.delegationsSave, delegationGlobalId),
   },
   dialogs: {
-    confirm: () => formatActionLoader("dialogs", "confirm"),
-    delete: () => formatActionLoader("dialogs", "delete"),
+    confirm: () => ActionLoaderScopes.dialogsConfirm,
+    delete: () => ActionLoaderScopes.dialogsDelete,
   },
   discussions: {
+    loadForRequest: (approvalRequestGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.discussionsLoadForRequest, approvalRequestGlobalId),
+    loadForTask: (approvalRequestTaskGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.discussionsLoadForTask, approvalRequestTaskGlobalId),
     sendForRequest: (approvalRequestGlobalId: string | undefined) =>
-      formatActionLoader("discussions", "sendForRequest", approvalRequestGlobalId),
+      createActionLoaderKey(ActionLoaderScopes.discussionsSendForRequest, approvalRequestGlobalId),
     sendForTask: (approvalRequestTaskGlobalId: string | undefined) =>
-      formatActionLoader("discussions", "sendForTask", approvalRequestTaskGlobalId),
+      createActionLoaderKey(ActionLoaderScopes.discussionsSendForTask, approvalRequestTaskGlobalId),
   },
   employees: {
-    save: (employeeGlobalId: string | undefined) => formatActionLoader("employees", "save", employeeGlobalId),
+    save: (employeeGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.employeesSave, employeeGlobalId),
   },
   notifications: {
     delete: (tenantGlobalId: string | null | undefined) =>
-      formatActionLoader("notifications", "delete", tenantGlobalId ?? undefined),
+      createActionLoaderKey(ActionLoaderScopes.notificationsDelete, tenantGlobalId ?? undefined),
     markRead: (tenantGlobalId: string | null | undefined) =>
-      formatActionLoader("notifications", "markRead", tenantGlobalId ?? undefined),
+      createActionLoaderKey(ActionLoaderScopes.notificationsMarkRead, tenantGlobalId ?? undefined),
+  },
+  pages: {
+    approvalRequestStart: () => ActionLoaderScopes.pagesApprovalRequestStart,
+    approvalRequestSubmit: (approvalRequestGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.pagesApprovalRequestSubmit, approvalRequestGlobalId),
+    approvalStepTemplateEditor: (templateGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.pagesApprovalStepTemplateEditor, templateGlobalId),
+    delegationEditor: (delegationGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.pagesDelegationEditor, delegationGlobalId),
+    employeeEditor: (employeeGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.pagesEmployeeEditor, employeeGlobalId),
+    teamEditor: (teamGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.pagesTeamEditor, teamGlobalId),
+    tenantScope: () => ActionLoaderScopes.pagesTenantScope,
+    userProfile: () => ActionLoaderScopes.pagesUserProfile,
   },
   grids: {
     approvalStepTemplates: (tenantGlobalId: string | null | undefined) =>
-      formatActionLoader("grids", "approvalStepTemplates", tenantGlobalId ?? undefined),
+      createActionLoaderKey(ActionLoaderScopes.gridsApprovalStepTemplates, tenantGlobalId ?? undefined),
     delegations: (tenantGlobalId: string | null | undefined) =>
-      formatActionLoader("grids", "delegations", tenantGlobalId ?? undefined),
+      createActionLoaderKey(ActionLoaderScopes.gridsDelegations, tenantGlobalId ?? undefined),
     employees: (tenantGlobalId: string | null | undefined) =>
-      formatActionLoader("grids", "employees", tenantGlobalId ?? undefined),
+      createActionLoaderKey(ActionLoaderScopes.gridsEmployees, tenantGlobalId ?? undefined),
     inbox: (tenantGlobalId: string | null | undefined) =>
-      formatActionLoader("grids", "inbox", tenantGlobalId ?? undefined),
+      createActionLoaderKey(ActionLoaderScopes.gridsInbox, tenantGlobalId ?? undefined),
     outbox: (tenantGlobalId: string | null | undefined) =>
-      formatActionLoader("grids", "outbox", tenantGlobalId ?? undefined),
+      createActionLoaderKey(ActionLoaderScopes.gridsOutbox, tenantGlobalId ?? undefined),
     receipts: (tenantGlobalId: string | null | undefined) =>
-      formatActionLoader("grids", "receipts", tenantGlobalId ?? undefined),
+      createActionLoaderKey(ActionLoaderScopes.gridsReceipts, tenantGlobalId ?? undefined),
     notifications: (tenantGlobalId: string | null | undefined) =>
-      formatActionLoader("grids", "notifications", tenantGlobalId ?? undefined),
+      createActionLoaderKey(ActionLoaderScopes.gridsNotifications, tenantGlobalId ?? undefined),
     teams: (tenantGlobalId: string | null | undefined) =>
-      formatActionLoader("grids", "teams", tenantGlobalId ?? undefined),
-    tenants: () => formatActionLoader("grids", "tenants"),
+      createActionLoaderKey(ActionLoaderScopes.gridsTeams, tenantGlobalId ?? undefined),
+    tenants: () => ActionLoaderScopes.gridsTenants,
   },
   receiptLinks: {
     createForRequest: (approvalRequestGlobalId: string | undefined) =>
-      formatActionLoader("receiptLinks", "createForRequest", approvalRequestGlobalId),
+      createActionLoaderKey(ActionLoaderScopes.receiptLinksCreateForRequest, approvalRequestGlobalId),
     createForTask: (approvalRequestTaskGlobalId: string | undefined) =>
-      formatActionLoader("receiptLinks", "createForTask", approvalRequestTaskGlobalId),
-    delete: (linkGlobalId: string | undefined) => formatActionLoader("receiptLinks", "delete", linkGlobalId),
+      createActionLoaderKey(ActionLoaderScopes.receiptLinksCreateForTask, approvalRequestTaskGlobalId),
+    delete: (linkGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.receiptLinksDelete, linkGlobalId),
   },
   teams: {
-    save: (teamGlobalId: string | undefined) => formatActionLoader("teams", "save", teamGlobalId),
+    save: (teamGlobalId: string | undefined) => createActionLoaderKey(ActionLoaderScopes.teamsSave, teamGlobalId),
   },
   tenants: {
-    save: (tenantGlobalId: string | undefined) => formatActionLoader("tenants", "save", tenantGlobalId),
+    save: (tenantGlobalId: string | undefined) => createActionLoaderKey(ActionLoaderScopes.tenantsSave, tenantGlobalId),
   },
   userProfile: {
-    removeAvatar: () => formatActionLoader("userProfile", "removeAvatar"),
-    save: () => formatActionLoader("userProfile", "save"),
+    removeAvatar: () => ActionLoaderScopes.userProfileRemoveAvatar,
+    save: () => ActionLoaderScopes.userProfileSave,
   },
   userFiles: {
-    delete: (userFileGlobalId: string | undefined) => formatActionLoader("userFiles", "delete", userFileGlobalId),
-    upload: (tenantGlobalId: string | undefined) => formatActionLoader("userFiles", "upload", tenantGlobalId),
+    delete: (userFileGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.userFilesDelete, userFileGlobalId),
+    upload: (tenantGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.userFilesUpload, tenantGlobalId),
   },
 } as const;

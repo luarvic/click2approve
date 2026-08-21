@@ -9,10 +9,10 @@ import DelegationEditor from "@/features/delegations/components/DelegationDialog
 import { ApprovalDelegation, ApprovalDelegationUpsert } from "@/features/delegations/models/approvalDelegation";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
-import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
@@ -36,6 +36,7 @@ const DelegationEditorPage = () => {
     stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Owner;
 
   useEffect(() => {
+    const loader = ActionLoaders.pages.delegationEditor(delegationGlobalId);
     setDelegations([]);
     setDelegationsHaveLoaded(false);
     stores.employeeStore.clear();
@@ -43,15 +44,20 @@ const DelegationEditorPage = () => {
       return;
     }
 
+    stores.commonStore.updateActionLoadingCounter(loader, 1);
     void Promise.all([
       stores.employeeStore.load(tenantGlobalId, true),
       listApprovalDelegations(tenantGlobalId).then(setDelegations),
-    ]).finally(() => setDelegationsHaveLoaded(true));
-  }, [tenantGlobalId]);
+    ]).finally(() => {
+      stores.commonStore.updateActionLoadingCounter(loader, -1);
+      setDelegationsHaveLoaded(true);
+    });
+  }, [delegationGlobalId, tenantGlobalId]);
 
   if (!tenantGlobalId) return <Navigate to={delegationsPath} />;
+  if (!delegationsHaveLoaded) return null;
   if (!isNewDelegation && !delegation) {
-    return delegationsHaveLoaded ? <NotFoundPage /> : <LoadingOverlay />;
+    return <NotFoundPage />;
   }
 
   return (

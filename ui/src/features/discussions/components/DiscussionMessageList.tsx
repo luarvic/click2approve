@@ -90,6 +90,10 @@ const DiscussionMessageList: React.FC<DiscussionMessageListProps> = ({
     );
   };
 
+  if (messages === null) {
+    return null;
+  }
+
   return (
     <>
       {taskGlobalId && taskStep && (
@@ -116,12 +120,10 @@ const DiscussionMessageList: React.FC<DiscussionMessageListProps> = ({
               requesterEmail={requesterEmail}
               requesterType={requesterType}
             />
-            {(messages ?? [])
-              .filter((message) => message.approvalRequestStepGlobalId === step.globalId)
-              .map(renderMessage)}
+            {messages.filter((message) => message.approvalRequestStepGlobalId === step.globalId).map(renderMessage)}
           </Fragment>
         ))}
-      {taskGlobalId && (messages ?? []).map(renderMessage)}
+      {taskGlobalId && messages.map(renderMessage)}
     </>
   );
 };

@@ -4,9 +4,9 @@ import ApprovalRequestSubmit, {
   getCachedApprovalRequestSubmitDraft,
 } from "@/features/approvalRequests/components/ApprovalRequestSubmit";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
-import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
@@ -48,14 +48,19 @@ const ApprovalRequestSubmitPage = () => {
     }
 
     let active = true;
+    const loader = ActionLoaders.pages.approvalRequestSubmit(approvalRequestGlobalId);
     setLoadedApprovalRequestGlobalId(null);
     if (tenantGlobalId && approvalRequestGlobalId) {
-      void stores.approvalRequestStore.loadDetails(tenantGlobalId, approvalRequestGlobalId).then((approvalRequest) => {
-        if (active) {
-          stores.approvalRequestStore.setRequestToClone(approvalRequest);
-          setLoadedApprovalRequestGlobalId(approvalRequestGlobalId);
-        }
-      });
+      stores.commonStore.updateActionLoadingCounter(loader, 1);
+      void stores.approvalRequestStore
+        .loadDetails(tenantGlobalId, approvalRequestGlobalId)
+        .then((approvalRequest) => {
+          if (active) {
+            stores.approvalRequestStore.setRequestToClone(approvalRequest);
+            setLoadedApprovalRequestGlobalId(approvalRequestGlobalId);
+          }
+        })
+        .finally(() => stores.commonStore.updateActionLoadingCounter(loader, -1));
     }
 
     return () => {
@@ -72,7 +77,7 @@ const ApprovalRequestSubmitPage = () => {
   }
 
   if (isResubmit && loadedApprovalRequestGlobalId !== approvalRequestGlobalId) {
-    return <LoadingOverlay />;
+    return null;
   }
 
   return (

@@ -1,13 +1,14 @@
 import { stores } from "@/app/rootStore";
 import { EmployeeRole, Tenant, TenantType } from "@/features/tenants/models/tenant";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
+import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import { DataGrids } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add } from "@mui/icons-material";
-import { Box, Button, LinearProgress, useMediaQuery, useTheme } from "@mui/material";
-import { DataGrid, GridColDef, GridSlots, GridToolbarContainer } from "@mui/x-data-grid";
+import { Box, Button, useMediaQuery, useTheme } from "@mui/material";
+import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 
@@ -73,9 +74,9 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
         disableColumnFilter
         disableRowSelectionOnClick
         slots={{
+          loadingOverlay: NoLoadingOverlay,
           toolbar: customToolbar,
           noRowsOverlay: NoRowsOverlay,
-          loadingOverlay: LinearProgress as GridSlots["loadingOverlay"],
         }}
         sx={DataGrids.sx}
         autoHeight

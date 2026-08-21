@@ -2,10 +2,10 @@ import { stores } from "@/app/rootStore";
 import ApprovalStepTemplateEditor from "@/features/approvalStepTemplates/components/ApprovalStepTemplateDialog";
 import { TenantType } from "@/features/tenants/models/tenant";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
-import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
@@ -38,14 +38,17 @@ const ApprovalStepTemplateEditorPage = () => {
       return;
     }
 
+    const loader = ActionLoaders.pages.approvalStepTemplateEditor(templateGlobalId);
     setHasLoadedTemplates(false);
-    stores.approvalStepTemplateStore.load(tenantGlobalId).finally(() => {
+    stores.commonStore.updateActionLoadingCounter(loader, 1);
+    void stores.approvalStepTemplateStore.load(tenantGlobalId).finally(() => {
+      stores.commonStore.updateActionLoadingCounter(loader, -1);
       setHasLoadedTemplates(true);
     });
-  }, [isNewTemplate, tenantGlobalId]);
+  }, [isNewTemplate, templateGlobalId, tenantGlobalId]);
 
   if (!stores.tenantStore.hasLoaded) {
-    return <LoadingOverlay />;
+    return null;
   }
 
   if (!canViewTemplates || (!isNewTemplate && templateGlobalId === undefined)) {
@@ -53,7 +56,7 @@ const ApprovalStepTemplateEditorPage = () => {
   }
 
   if (!isNewTemplate && !hasLoadedTemplates) {
-    return <LoadingOverlay />;
+    return null;
   }
 
   if (!isNewTemplate && !template) {

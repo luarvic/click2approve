@@ -3,10 +3,10 @@ import TeamEditor from "@/features/teams/components/TeamDialog";
 import { UpsertTeamRequest } from "@/features/teams/models/team";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
-import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
@@ -30,15 +30,18 @@ const TeamEditorPage = () => {
 
   useEffect(() => {
     let active = true;
+    const loader = ActionLoaders.pages.teamEditor(teamGlobalId);
     setTeamDataHasLoaded(false);
     if (!tenantGlobalId) {
       return;
     }
 
+    stores.commonStore.updateActionLoadingCounter(loader, 1);
     void Promise.all([
       stores.teamStore.load(tenantGlobalId, true),
       stores.employeeStore.load(tenantGlobalId, true),
     ]).finally(() => {
+      stores.commonStore.updateActionLoadingCounter(loader, -1);
       if (active) {
         setTeamDataHasLoaded(true);
       }
@@ -46,10 +49,10 @@ const TeamEditorPage = () => {
     return () => {
       active = false;
     };
-  }, [tenantGlobalId]);
+  }, [teamGlobalId, tenantGlobalId]);
 
   if (!tenantGlobalId) return <Navigate to={teamsPath} />;
-  if (!teamDataHasLoaded) return <LoadingOverlay />;
+  if (!teamDataHasLoaded) return null;
   if (isNewTeam && !canEdit) return <Navigate replace to={teamsPath} />;
   if (!isNewTeam && !team) return <NotFoundPage />;
 

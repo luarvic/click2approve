@@ -2,10 +2,10 @@ import { stores } from "@/app/rootStore";
 import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestView from "@/features/approvalRequests/components/ApprovalRequestView";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
-import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
@@ -29,21 +29,26 @@ const ApprovalRequestViewPage: React.FC<ApprovalRequestViewPageProps> = ({ tab =
     : null;
   const [loadedApprovalRequestGlobalId, setLoadedApprovalRequestGlobalId] = useState<string | null>(null);
   const approvalRequestHasLoaded = loadedApprovalRequestGlobalId === approvalRequestGlobalId;
+  const detailLoader = ActionLoaders.approvalRequests.load(approvalRequestGlobalId);
 
   useEffect(() => {
     let active = true;
     setLoadedApprovalRequestGlobalId(null);
     if (tenantGlobalId && approvalRequestGlobalId) {
-      void stores.approvalRequestStore.loadDetails(tenantGlobalId, approvalRequestGlobalId).then(() => {
-        if (active) {
-          setLoadedApprovalRequestGlobalId(approvalRequestGlobalId);
-        }
-      });
+      stores.commonStore.updateActionLoadingCounter(detailLoader, 1);
+      void stores.approvalRequestStore
+        .loadDetails(tenantGlobalId, approvalRequestGlobalId)
+        .then(() => {
+          if (active) {
+            setLoadedApprovalRequestGlobalId(approvalRequestGlobalId);
+          }
+        })
+        .finally(() => stores.commonStore.updateActionLoadingCounter(detailLoader, -1));
     }
     return () => {
       active = false;
     };
-  }, [approvalRequestGlobalId, tenantGlobalId]);
+  }, [approvalRequestGlobalId, detailLoader, tenantGlobalId]);
 
   useEffect(() => {
     stores.approvalRequestStore.setCurrent(approvalRequest ?? null);
@@ -51,7 +56,7 @@ const ApprovalRequestViewPage: React.FC<ApprovalRequestViewPageProps> = ({ tab =
 
   if (!approvalRequestGlobalId) return <Navigate to={outboxPath} />;
   if (approvalRequestHasLoaded && !approvalRequest) return <NotFoundPage />;
-  if (!approvalRequest || !approvalRequestHasLoaded) return <LoadingOverlay />;
+  if (!approvalRequest || !approvalRequestHasLoaded) return null;
 
   return (
     <NarrowContent>
