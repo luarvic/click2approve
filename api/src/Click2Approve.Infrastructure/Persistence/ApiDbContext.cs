@@ -22,7 +22,6 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
     public DbSet<ApprovalRequestFile> ApprovalRequestFiles { get; set; }
     public DbSet<ApprovalRequestStep> ApprovalRequestSteps { get; set; }
     public DbSet<ApprovalRequestStepAssignee> ApprovalRequestStepAssignees { get; set; }
-    public DbSet<ApprovalRequestStepVisibility> ApprovalRequestStepVisibilities { get; set; }
     public DbSet<ApprovalRequestTask> ApprovalRequestTasks { get; set; }
     public DbSet<DomainEvent> DomainEvents { get; set; }
     public DbSet<EventDelivery> EventDeliveries { get; set; }
@@ -243,22 +242,6 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasOne(a => a.User)
             .WithMany()
             .HasForeignKey(a => a.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<ApprovalRequestStepVisibility>()
-            .HasIndex(visibility => new { visibility.ApprovalRequestStepId, visibility.ApprovalRequestStepAssigneeId })
-            .IsUnique();
-
-        modelBuilder.Entity<ApprovalRequestStepVisibility>()
-            .HasOne(visibility => visibility.ApprovalRequestStep)
-            .WithMany(step => step.StepVisibilities)
-            .HasForeignKey(visibility => visibility.ApprovalRequestStepId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<ApprovalRequestStepVisibility>()
-            .HasOne(visibility => visibility.ApprovalRequestStepAssignee)
-            .WithMany(assignee => assignee.StepVisibilities)
-            .HasForeignKey(visibility => visibility.ApprovalRequestStepAssigneeId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequestTask>()

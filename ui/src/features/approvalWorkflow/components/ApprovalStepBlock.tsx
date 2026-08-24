@@ -102,10 +102,8 @@ const getStepAction = (step: ApprovalStep) => step.action ?? ApprovalRequestTask
 
 const getStepVisibilityModeLabel = (step: ApprovalStep) => {
   switch (step.visibilityMode) {
-    case ApprovalStepVisibilityMode.AllParticipantsExceptSelected:
-      return "All participants except selected";
-    case ApprovalStepVisibilityMode.AssigneesAndSelectedParticipants:
-      return "Assignees and selected participants";
+    case ApprovalStepVisibilityMode.OrganizationEmployees:
+      return "Organization employees";
     case ApprovalStepVisibilityMode.AssigneesOnly:
       return "Assignees only";
     default:
@@ -115,10 +113,8 @@ const getStepVisibilityModeLabel = (step: ApprovalStep) => {
 
 const getStepVisibilityModeSummary = (step: ApprovalStep) => {
   switch (step.visibilityMode) {
-    case ApprovalStepVisibilityMode.AllParticipantsExceptSelected:
-      return "This step is visible to all participants except those selected.";
-    case ApprovalStepVisibilityMode.AssigneesAndSelectedParticipants:
-      return "This step is visible to its assignees and selected participants.";
+    case ApprovalStepVisibilityMode.OrganizationEmployees:
+      return "This step is visible to organization employees.";
     case ApprovalStepVisibilityMode.AssigneesOnly:
       return "This step is visible only to its assignees.";
     default:

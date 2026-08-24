@@ -101,7 +101,6 @@ internal static class ApprovalRequestResponseMapper
         Mode = result.Mode,
         Sequence = result.Sequence,
         Tasks = [.. result.Tasks.Select(MapTask)],
-        Visibility = [.. result.Visibility.Select(Map)],
         VisibilityMode = result.VisibilityMode
     };
 
@@ -113,17 +112,6 @@ internal static class ApprovalRequestResponseMapper
         GlobalId = result.GlobalId,
         TeamGlobalId = result.TeamGlobalId,
         Type = result.Type
-    };
-
-    private static ApprovalRequestStepVisibilityResponse Map(ApprovalRequestStepVisibilityResult result) => new()
-    {
-        AssigneeDisplayName = result.AssigneeDisplayName,
-        AssigneeEmail = result.AssigneeEmail,
-        AssigneeEmployeeGlobalId = result.AssigneeEmployeeGlobalId,
-        AssigneeGlobalId = result.AssigneeGlobalId,
-        AssigneeTeamGlobalId = result.AssigneeTeamGlobalId,
-        AssigneeType = result.AssigneeType,
-        IsVisible = result.IsVisible
     };
 
     private static ApprovalRequestTaskResponse MapTask(ApprovalRequestTaskResult result) => new()

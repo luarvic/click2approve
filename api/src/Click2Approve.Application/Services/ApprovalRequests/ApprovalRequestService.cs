@@ -111,7 +111,6 @@ public class ApprovalRequestService(
             ?? throw new NotFoundException("Tenant was not found.");
         var creator = await ResolveCreatorAsync(user, tenantId, cancellationToken);
         var steps = BuildSteps(payload.Steps);
-        ApplyStepVisibility(steps, payload.StepVisibility);
 
         var newApprovalRequest = await _approvalRequestRepository.AddAsync(new ApprovalRequest
         {
@@ -266,34 +265,4 @@ public class ApprovalRequestService(
         };
     }
 
-    private static void ApplyStepVisibility(
-        List<ApprovalRequestStep> steps,
-        List<ApprovalRequestStepVisibilityCommand> visibilityCommands)
-    {
-        if (visibilityCommands.Count == 0)
-        {
-            return;
-        }
-
-        var stepsBySequence = steps.ToDictionary(step => step.Sequence);
-        foreach (var visibilityCommand in visibilityCommands)
-        {
-            if (!stepsBySequence.TryGetValue(visibilityCommand.StepSequence, out var step)
-                || !stepsBySequence.TryGetValue(visibilityCommand.AssigneeStepSequence, out var assigneeStep)
-                || visibilityCommand.AssigneeIndex < 0
-                || visibilityCommand.AssigneeIndex >= assigneeStep.Assignees.Count)
-            {
-                throw new BusinessRuleException("Step visibility contains an invalid step or assignee.");
-            }
-
-            var assignee = assigneeStep.Assignees[visibilityCommand.AssigneeIndex];
-            var assigneeIsAssignedToStep = step.Assignees.Contains(assignee);
-            step.StepVisibilities.Add(new ApprovalRequestStepVisibility
-            {
-                ApprovalRequestStep = step,
-                ApprovalRequestStepAssignee = assignee,
-                IsVisible = assigneeIsAssignedToStep || visibilityCommand.IsVisible
-            });
-        }
-    }
 }

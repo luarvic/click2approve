@@ -44,25 +44,16 @@ export interface ApprovalRequestFileSubmission {
   previousApprovalRequestFileGlobalId?: string;
 }
 
-export interface ApprovalRequestStepVisibilitySubmission {
-  stepSequence: number;
-  assigneeStepSequence: number;
-  assigneeIndex: number;
-  isVisible: boolean;
-}
-
 export interface SubmitApprovalRequestRequest {
   title: string;
   previousRevisionApprovalRequestGlobalId?: string;
   requestFiles: ApprovalRequestFileSubmission[];
   steps: ApprovalStep[];
-  stepVisibility: ApprovalRequestStepVisibilitySubmission[];
   description?: string;
 }
 
 export interface ResubmitApprovalRequestRequest {
   requestFiles: ApprovalRequestFileSubmission[];
   steps: ApprovalStep[];
-  stepVisibility: ApprovalRequestStepVisibilitySubmission[];
   description?: string;
 }

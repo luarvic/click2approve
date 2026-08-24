@@ -36,27 +36,7 @@ const approvalRequest: ApprovalRequest = {
       ],
       globalId: "visible-step-id",
       sequence: 1,
-      visibilityMode: ApprovalStepVisibilityMode.AllParticipantsExceptSelected,
-      visibility: [
-        {
-          assigneeDisplayName: "Blocked Assignee",
-          assigneeGlobalId: "blocked-assignee-id",
-          assigneeType: AssigneeType.User,
-          isVisible: false,
-        },
-        {
-          assigneeDisplayName: "Second Blocked Assignee",
-          assigneeGlobalId: "second-blocked-assignee-id",
-          assigneeType: AssigneeType.User,
-          isVisible: false,
-        },
-        {
-          assigneeDisplayName: "Third Blocked Assignee",
-          assigneeGlobalId: "third-blocked-assignee-id",
-          assigneeType: AssigneeType.User,
-          isVisible: false,
-        },
-      ],
+      visibilityMode: ApprovalStepVisibilityMode.OrganizationEmployees,
     },
     {
       action: ApprovalRequestTaskAction.Approve,
@@ -92,14 +72,6 @@ const approvalRequest: ApprovalRequest = {
           title: "Hidden task",
         },
       ],
-      visibility: [
-        {
-          assigneeDisplayName: "Current Assignee",
-          assigneeGlobalId: "visible-assignee-id",
-          assigneeType: AssigneeType.User,
-          isVisible: false,
-        },
-      ],
     },
   ],
   title: "Request title",
@@ -112,12 +84,10 @@ describe("<ApprovalSteps />", () => {
     expect(screen.getByText("Step 1")).toBeTruthy();
     expect(screen.getByLabelText("Step 1 action Approve")).toBeTruthy();
     expect(screen.getByLabelText("Step 1 completion rule Any assignee")).toBeTruthy();
-    expect(screen.getByLabelText("Step 1 visibility Hidden from")).toBeTruthy();
+    expect(screen.getByLabelText("Step 1 visibility Organization employees")).toBeTruthy();
     expect(screen.getByText("visible@example.com")).toBeTruthy();
     expect(screen.getByLabelText("Upcoming task")).toBeTruthy();
     expect(screen.getByText("Waiting for previous step")).toBeTruthy();
-    expect(screen.getByText("Hidden from Blocked Assignee · Second Blocked Assignee")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "+1 more" })).toBeTruthy();
     expect(screen.getByText("Step 2")).toBeTruthy();
     expect(screen.getByTestId("hidden-step-icon")).toBeTruthy();
     expect(screen.queryByLabelText("Hidden")).toBeNull();

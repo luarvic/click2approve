@@ -103,6 +103,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                     Sequence = 2,
                     Mode = ApprovalStepMode.All,
                     Action = ApprovalRequestTaskAction.Approve,
+                    VisibilityMode = ApprovalStepVisibilityMode.AssigneesOnly,
                     Assignees =
                     [
                         new ApprovalRequestAssigneeRequest
@@ -111,16 +112,6 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                             Email = $"later-{Guid.NewGuid()}@example.com"
                         }
                     ]
-                }
-            ],
-            StepVisibility =
-            [
-                new ApprovalRequestStepVisibilityRequest
-                {
-                    StepSequence = 2,
-                    AssigneeStepSequence = 1,
-                    AssigneeIndex = 0,
-                    IsVisible = false
                 }
             ]
         });
@@ -141,7 +132,6 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
             CancellationToken.None);
         Assert.NotEqual(Guid.Empty, approvalRequest.CreatedByUserGlobalId);
         Assert.Null(approvalRequest.CreatedByEmployeeGlobalId);
-        Assert.Single(approvalRequest.Steps.Single(step => step.Sequence == 2).Visibility);
         var approvalRequestTask = Assert.Single(approvalRequest.Steps.Single(step => step.Sequence == 1).Tasks);
 
         var assigneeClient = _applicationFactory.CreateClient();
@@ -170,7 +160,6 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                 Assert.NotNull(step.Mode);
                 Assert.Single(step.Tasks);
                 Assert.Single(step.Assignees);
-                Assert.Empty(step.Visibility);
                 Assert.Null(step.VisibilityMode);
             },
             step =>
@@ -180,7 +169,6 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                 Assert.Null(step.Mode);
                 Assert.Empty(step.Tasks);
                 Assert.Empty(step.Assignees);
-                Assert.Empty(step.Visibility);
                 Assert.Null(step.VisibilityMode);
             });
         response = await assigneeClient.PostAsJsonAsync($"api/v1/tenants/{assigneeTenantId}/tasks/complete", new

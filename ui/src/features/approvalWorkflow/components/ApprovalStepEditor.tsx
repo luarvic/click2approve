@@ -2,20 +2,31 @@ import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/A
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import ApprovalStepAssigneeRow from "@/features/approvalWorkflow/components/ApprovalStepAssigneeRow";
 import ApprovalStepTitle from "@/features/approvalWorkflow/components/ApprovalStepTitle";
-import { ApprovalStepAssignee, ApprovalStepMode, AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
+import {
+  ApprovalStepAssignee,
+  ApprovalStepMode,
+  ApprovalStepVisibilityMode,
+  AssigneeType,
+} from "@/features/approvalWorkflow/models/approvalStep";
 import { EditableApprovalStep } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { Employee } from "@/features/employees/models/employee";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { Dialogs, Icons } from "@/shared/constants/constants";
-import { AccountTreeOutlined, Add, DeleteOutline, North, South } from "@mui/icons-material";
+import { AccountTreeOutlined, Add, DeleteOutline, ExpandMore, North, South } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
   Button,
   Chip,
+  FormControl,
   FormControlLabel,
   IconButton,
   MenuItem,
+  Radio,
+  RadioGroup,
   Stack,
   Step,
   StepContent,
@@ -24,6 +35,7 @@ import {
   Switch,
   TextField,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
@@ -69,6 +81,7 @@ interface ApprovalStepEditorProps {
   onUpdateStep: (stepIndex: number, updater: (step: EditableApprovalStep) => EditableApprovalStep) => void;
   renderStepFooter?: (step: EditableApprovalStep, stepIndex: number) => ReactNode;
   showAttachmentRequirement?: boolean;
+  showOrganizationEmployeesVisibility?: boolean;
 }
 
 const stepContentSx: SxProps<Theme> = { pr: 0 };
@@ -104,6 +117,8 @@ const actionOptions = [
   { value: ApprovalRequestTaskAction.Accept, label: "Accept" },
   { value: ApprovalRequestTaskAction.Complete, label: "Complete" },
 ];
+const accordionSummarySx: SxProps<Theme> = { px: 0 };
+const accordionDetailsSx: SxProps<Theme> = { px: 0 };
 const getStepContentSx = (sx?: SxProps<Theme>): SxProps<Theme> => (sx ? (Array.isArray(sx) ? sx : [sx]) : []);
 
 const EditableStepIcon = () => <AccountTreeOutlined color={Icons.secondaryColor} fontSize="small" />;
@@ -127,6 +142,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
   onUpdateStep,
   renderStepFooter,
   showAttachmentRequirement = false,
+  showOrganizationEmployeesVisibility = false,
 }) => (
   <>
     {steps.length > 0 && (
@@ -234,47 +250,6 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                         onUpdateStep(stepIndex, (current) => ({ ...current, instructions: event.target.value }))
                       }
                     />
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={step.isCommentRequired ?? false}
-                          disabled={disabled}
-                          onChange={(_, checked) =>
-                            onUpdateStep(stepIndex, (current) => ({ ...current, isCommentRequired: checked }))
-                          }
-                        />
-                      }
-                      label="Require a comment"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={step.isElectronicSignatureRequired ?? false}
-                          disabled={disabled}
-                          onChange={(_, checked) =>
-                            onUpdateStep(stepIndex, (current) => ({
-                              ...current,
-                              isElectronicSignatureRequired: checked,
-                            }))
-                          }
-                        />
-                      }
-                      label="Require an electronic signature"
-                    />
-                    {showAttachmentRequirement && (
-                      <FormControlLabel
-                        control={
-                          <Switch
-                            checked={step.isAttachmentRequired ?? false}
-                            disabled={disabled}
-                            onChange={(_, checked) =>
-                              onUpdateStep(stepIndex, (current) => ({ ...current, isAttachmentRequired: checked }))
-                            }
-                          />
-                        }
-                        label="Require an attachment"
-                      />
-                    )}
                     <Stack spacing={Dialogs.assigneeStackSpacing}>
                       {step.assignees.map((assignee, assigneeIndex) => {
                         const assigneeState = getAssigneeState?.(step, stepIndex, assignee, assigneeIndex) ?? {};
@@ -327,6 +302,95 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                     >
                       Add assignee
                     </Button>
+                    <Accordion disableGutters elevation={0}>
+                      <AccordionSummary expandIcon={<ExpandMore />} sx={accordionSummarySx}>
+                        <Typography color="text.secondary">Additional requirements</Typography>
+                      </AccordionSummary>
+                      <AccordionDetails sx={accordionDetailsSx}>
+                        <Stack>
+                          <FormControlLabel
+                            control={
+                              <Switch
+                                checked={step.isCommentRequired ?? false}
+                                disabled={disabled}
+                                onChange={(_, checked) =>
+                                  onUpdateStep(stepIndex, (current) => ({ ...current, isCommentRequired: checked }))
+                                }
+                              />
+                            }
+                            label="Require a comment"
+                          />
+                          <FormControlLabel
+                            control={
+                              <Switch
+                                checked={step.isElectronicSignatureRequired ?? false}
+                                disabled={disabled}
+                                onChange={(_, checked) =>
+                                  onUpdateStep(stepIndex, (current) => ({
+                                    ...current,
+                                    isElectronicSignatureRequired: checked,
+                                  }))
+                                }
+                              />
+                            }
+                            label="Require an electronic signature"
+                          />
+                          {showAttachmentRequirement && (
+                            <FormControlLabel
+                              control={
+                                <Switch
+                                  checked={step.isAttachmentRequired ?? false}
+                                  disabled={disabled}
+                                  onChange={(_, checked) =>
+                                    onUpdateStep(stepIndex, (current) => ({
+                                      ...current,
+                                      isAttachmentRequired: checked,
+                                    }))
+                                  }
+                                />
+                              }
+                              label="Require an attachment"
+                            />
+                          )}
+                        </Stack>
+                      </AccordionDetails>
+                    </Accordion>
+                    <Accordion disableGutters elevation={0}>
+                      <AccordionSummary expandIcon={<ExpandMore />} sx={accordionSummarySx}>
+                        <Typography color="text.secondary">Visibility</Typography>
+                      </AccordionSummary>
+                      <AccordionDetails sx={accordionDetailsSx}>
+                        <FormControl disabled={disabled}>
+                          <RadioGroup
+                            value={step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants}
+                            onChange={(event) =>
+                              onUpdateStep(stepIndex, (current) => ({
+                                ...current,
+                                visibilityMode: Number(event.target.value) as ApprovalStepVisibilityMode,
+                              }))
+                            }
+                          >
+                            <FormControlLabel
+                              control={<Radio />}
+                              label="All participants"
+                              value={ApprovalStepVisibilityMode.AllParticipants}
+                            />
+                            {showOrganizationEmployeesVisibility && (
+                              <FormControlLabel
+                                control={<Radio />}
+                                label="Organization employees"
+                                value={ApprovalStepVisibilityMode.OrganizationEmployees}
+                              />
+                            )}
+                            <FormControlLabel
+                              control={<Radio />}
+                              label="Assignees only"
+                              value={ApprovalStepVisibilityMode.AssigneesOnly}
+                            />
+                          </RadioGroup>
+                        </FormControl>
+                      </AccordionDetails>
+                    </Accordion>
                     {renderStepFooter?.(step, stepIndex)}
                   </Stack>
                 </ApprovalRequestDetailsCard>

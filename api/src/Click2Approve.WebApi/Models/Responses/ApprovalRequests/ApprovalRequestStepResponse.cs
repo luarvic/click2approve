@@ -21,5 +21,4 @@ public class ApprovalRequestStepResponse
     public bool IsVisible { get; init; } = true;
     public List<ApprovalRequestAssigneeResponse> Assignees { get; init; } = [];
     public List<ApprovalRequestTaskResponse> Tasks { get; init; } = [];
-    public List<ApprovalRequestStepVisibilityResponse> Visibility { get; init; } = [];
 }

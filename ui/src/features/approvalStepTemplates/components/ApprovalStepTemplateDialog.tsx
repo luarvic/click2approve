@@ -1,12 +1,9 @@
 import { stores } from "@/app/rootStore";
 import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
-import ApprovalStepTemplateVisibilityEditor from "@/features/approvalStepTemplates/components/ApprovalStepTemplateVisibilityEditor";
 import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
-import { ApprovalRequestStepVisibilitySubmission } from "@/features/approvalRequests/models/approvalRequest";
-import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
 import { useEditableApprovalSteps } from "@/features/approvalWorkflow/hooks/useEditableApprovalSteps";
-import { AssigneeType, ApprovalStepVisibilityMode } from "@/features/approvalWorkflow/models/approvalStep";
+import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import {
   createEditableSteps,
   createEmptyStep,
@@ -24,7 +21,6 @@ import {
 } from "@/shared/utils/persistenceNotifications";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
-import { ArrowBack, ArrowForward } from "@mui/icons-material";
 import { Button, Stack, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 import { notification } from "@/shared/utils/notifications";
@@ -38,7 +34,6 @@ interface ApprovalStepTemplateEditorProps {
 const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({ template, onClose, onDelete }) => {
   const [name, setName] = useState("");
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
-  const [isVisibilitySetup, setIsVisibilitySetup] = useState(false);
   const saveLoader = ActionLoaders.approvalStepTemplates.save(template?.globalId);
   const saveAction = useAsyncAction(saveLoader);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
@@ -64,7 +59,6 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
 
   useEffect(() => {
     setName(template?.name ?? "");
-    setIsVisibilitySetup(false);
     setSteps(template ? createEditableSteps(template.steps) : [createEmptyStep(1, true, defaultAssigneeType)]);
     if (tenantGlobalId && businessTenantIsSelected) {
       if (canUseEmployees) {
@@ -103,23 +97,6 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
     return true;
   };
 
-  const createStepVisibilitySubmissions = (): ApprovalRequestStepVisibilitySubmission[] =>
-    steps.flatMap((step) =>
-      steps.flatMap((assigneeStep) =>
-        assigneeStep.assignees.map((assignee, assigneeIndex) => ({
-          stepSequence: step.sequence,
-          assigneeStepSequence: assigneeStep.sequence,
-          assigneeIndex,
-          isVisible:
-            step.sequence === assigneeStep.sequence ||
-            (step.visibility?.find((visibility) => visibility.assigneeGlobalId === assignee.globalId)?.isVisible ??
-              ((step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants) ===
-                ApprovalStepVisibilityMode.AllParticipants ||
-                step.visibilityMode === ApprovalStepVisibilityMode.AllParticipantsExceptSelected)),
-        })),
-      ),
-    );
-
   const handleSubmit = async () => {
     if (!tenantGlobalId) {
       return;
@@ -132,12 +109,10 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
       const saved = template
         ? await stores.approvalStepTemplateStore.update(tenantGlobalId, template.globalId, {
             name: name.trim(),
-            stepVisibility: createStepVisibilitySubmissions(),
             steps: toApprovalStepSubmissions(steps),
           })
         : await stores.approvalStepTemplateStore.create(tenantGlobalId, {
             name: name.trim(),
-            stepVisibility: createStepVisibilitySubmissions(),
             steps: toApprovalStepSubmissions(steps),
           });
       if (saved) {
@@ -156,12 +131,6 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
     return validateSteps();
   };
 
-  const showVisibilitySetup = () => {
-    if (validateTemplate()) {
-      setIsVisibilitySetup(true);
-    }
-  };
-
   return (
     <CloseOnEscape onClose={() => onClose(template?.globalId)}>
       <PageBreadcrumbs
@@ -173,73 +142,42 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
           },
           {
             label: template ? "Template" : "New template",
-            onClick: isVisibilitySetup ? () => setIsVisibilitySetup(false) : undefined,
           },
-          ...(isVisibilitySetup ? [{ label: "Visibility" }] : []),
         ]}
       />
-      {!isVisibilitySetup && (
-        <Stack spacing={Dialogs.formStackSpacing}>
-          <ApprovalRequestDetailsCard ariaLabel="Template details" showStatusBorder={false}>
-            <TextField label="Name" value={name} onChange={(event) => setName(event.target.value)} fullWidth required />
-          </ApprovalRequestDetailsCard>
-          <ApprovalStepEditor
-            steps={steps}
-            canUseEmployees={canUseEmployees}
-            canUseTeams={canUseTeams}
-            employees={stores.employeeStore.employees}
-            teams={stores.teamStore.teams}
-            onAddAssignee={addAssignee}
-            onAddStep={addStep}
-            onMoveStep={moveStep}
-            onRemoveAssignee={removeAssignee}
-            onRemoveStep={removeStep}
-            onUpdateAssignee={updateAssignee}
-            onUpdateStep={updateStep}
-            showAttachmentRequirement={stores.applicationConfigurationStore.taskAttachmentsAreEnabled}
-          />
-        </Stack>
-      )}
-      {isVisibilitySetup && (
-        <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
-          <ApprovalRequestDetailsCard ariaLabel="Template summary" showStatusBorder={false}>
-            <ApprovalRequestSummary showDescription={false} showFiles={false} showRevision={false} title={name} />
-          </ApprovalRequestDetailsCard>
-          <ApprovalStepTemplateVisibilityEditor
-            steps={steps}
-            onUpdateStep={(stepIndex, step) => updateStep(stepIndex, () => step)}
-          />
-        </Stack>
-      )}
+      <Stack spacing={Dialogs.formStackSpacing}>
+        <ApprovalRequestDetailsCard ariaLabel="Template details" showStatusBorder={false}>
+          <TextField label="Name" value={name} onChange={(event) => setName(event.target.value)} fullWidth required />
+        </ApprovalRequestDetailsCard>
+        <ApprovalStepEditor
+          steps={steps}
+          canUseEmployees={canUseEmployees}
+          canUseTeams={canUseTeams}
+          employees={stores.employeeStore.employees}
+          teams={stores.teamStore.teams}
+          onAddAssignee={addAssignee}
+          onAddStep={addStep}
+          onMoveStep={moveStep}
+          onRemoveAssignee={removeAssignee}
+          onRemoveStep={removeStep}
+          onUpdateAssignee={updateAssignee}
+          onUpdateStep={updateStep}
+          showAttachmentRequirement={stores.applicationConfigurationStore.taskAttachmentsAreEnabled}
+          showOrganizationEmployeesVisibility={businessTenantIsSelected}
+        />
+      </Stack>
       <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
-        {!isVisibilitySetup && (
-          <Button variant="outlined" onClick={() => onClose(template?.globalId)}>
-            Cancel
-          </Button>
-        )}
-        {template && !isVisibilitySetup && (
+        <Button variant="outlined" onClick={() => onClose(template?.globalId)}>
+          Cancel
+        </Button>
+        {template && (
           <Button color="error" variant="outlined" onClick={() => setDeleteDialogIsOpen(true)}>
             Delete
           </Button>
         )}
-        {isVisibilitySetup ? (
-          <>
-            <Button startIcon={<ArrowBack />} onClick={() => setIsVisibilitySetup(false)}>
-              Back
-            </Button>
-            <MainActionButton loading={saveAction.isRunning} onClick={handleSubmit}>
-              Save
-            </MainActionButton>
-          </>
-        ) : steps.length > 1 ? (
-          <MainActionButton endIcon={<ArrowForward />} onClick={showVisibilitySetup}>
-            Next
-          </MainActionButton>
-        ) : (
-          <MainActionButton loading={saveAction.isRunning} onClick={handleSubmit}>
-            Save
-          </MainActionButton>
-        )}
+        <MainActionButton loading={saveAction.isRunning} onClick={handleSubmit}>
+          Save
+        </MainActionButton>
       </Stack>
       {template && (
         <DeleteConfirmationDialog

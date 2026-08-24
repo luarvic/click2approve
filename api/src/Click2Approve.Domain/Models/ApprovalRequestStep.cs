@@ -21,6 +21,5 @@ public class ApprovalRequestStep : DbEntity
     // Navigation properties
     public ApprovalRequest ApprovalRequest { get; set; } = null!;
     public List<ApprovalRequestStepAssignee> Assignees { get; set; } = [];
-    public List<ApprovalRequestStepVisibility> StepVisibilities { get; set; } = [];
     public List<ApprovalRequestTask> Tasks { get; set; } = [];
 }

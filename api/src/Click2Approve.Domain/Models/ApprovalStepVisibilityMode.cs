@@ -6,7 +6,6 @@ namespace Click2Approve.Domain.Models;
 public enum ApprovalStepVisibilityMode
 {
     AllParticipants = 0,
-    AllParticipantsExceptSelected = 1,
-    AssigneesAndSelectedParticipants = 2,
-    AssigneesOnly = 3
+    OrganizationEmployees = 1,
+    AssigneesOnly = 2
 }

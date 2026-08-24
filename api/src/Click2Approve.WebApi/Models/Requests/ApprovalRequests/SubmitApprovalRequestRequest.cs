@@ -9,6 +9,5 @@ public class SubmitApprovalRequestRequest
     public Guid? PreviousRevisionApprovalRequestGlobalId { get; set; }
     public List<ApprovalRequestFileRequest> RequestFiles { get; set; } = [];
     public List<ApprovalRequestStepRequest> Steps { get; set; } = [];
-    public List<ApprovalRequestStepVisibilityRequest> StepVisibility { get; set; } = [];
     public string? Description { get; set; }
 }

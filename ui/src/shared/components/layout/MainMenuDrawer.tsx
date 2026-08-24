@@ -3,15 +3,14 @@ import { TenantType } from "@/features/tenants/models/tenant";
 import { Api, Lists, Refresh, Routes, Shell } from "@/shared/constants/constants";
 import {
   AddTwoTone,
+  AssignmentTurnedInTwoTone,
+  BallotTwoTone,
   BusinessTwoTone,
   ChevronLeftTwoTone,
   ContentCopyTwoTone,
   Diversity3TwoTone,
-  ForwardToInboxTwoTone,
   GroupsTwoTone,
   HelpOutlineTwoTone,
-  MarkEmailReadTwoTone,
-  MarkEmailUnreadTwoTone,
   PersonTwoTone,
   ReceiptLongTwoTone,
 } from "@mui/icons-material";
@@ -144,7 +143,7 @@ const MainMenuDrawer = () => {
         sx={Shell.mainMenuDrawerFirstListSx}
         subheader={
           <ListSubheader component="div" sx={Lists.actionSubheaderSx}>
-            <span>Requests</span>
+            <span>Work</span>
             <Tooltip title="Compose request">
               <Button
                 aria-label="Compose request"
@@ -156,7 +155,7 @@ const MainMenuDrawer = () => {
                   closeTemporaryDrawer();
                 }}
               >
-                NEW
+                New request
               </Button>
             </Tooltip>
           </ListSubheader>
@@ -174,16 +173,16 @@ const MainMenuDrawer = () => {
             }}
           >
             <ListItemIcon sx={Lists.itemIconSx}>
-              {numberOfUncompletedTasks > 0 ? <MarkEmailUnreadTwoTone /> : <MarkEmailReadTwoTone />}
+              <AssignmentTurnedInTwoTone />
             </ListItemIcon>
             <ListItemText
               primary={
                 numberOfUncompletedTasks > 0 ? (
                   <Badge badgeContent={numberOfUncompletedTasks} color="error" sx={inboxTextBadgeSx}>
-                    <span>Inbox</span>
+                    <span>Tasks</span>
                   </Badge>
                 ) : (
-                  "Inbox"
+                  "Tasks"
                 )
               }
             />
@@ -198,9 +197,9 @@ const MainMenuDrawer = () => {
             }}
           >
             <ListItemIcon sx={Lists.itemIconSx}>
-              <ForwardToInboxTwoTone />
+              <BallotTwoTone />
             </ListItemIcon>
-            <ListItemText primary="Outbox" />
+            <ListItemText primary="Requests" />
           </ListItemButton>
         </ListItem>
         {receiptsIsVisible && (

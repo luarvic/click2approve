@@ -113,15 +113,17 @@ public static class ApprovalRequestMapper
             GlobalId = approvalRequest.GlobalId,
             Title = approvalRequest.Title,
             RequestFiles = [.. OrderRequestFiles(approvalRequest).Select(MapRequestFile)],
-            Steps = [.. approvalRequest.Steps.Select(step => MapStep(
-                step,
-                approvalRequest.GlobalId,
-                createdByDisplayName,
-                createdByEmail,
-                approvalRequest.OrganizationDisplayName,
-                assigneeGlobalIdsById,
-                assigneeGlobalIdMaps,
-                includeVisibility: false)), .. hiddenStepSequences.Select(MapHiddenStep)],
+            Steps = [.. approvalRequest.Steps
+                .Where(step => !hiddenStepSequences.Contains(step.Sequence))
+                .Select(step => MapStep(
+                    step,
+                    approvalRequest.GlobalId,
+                    createdByDisplayName,
+                    createdByEmail,
+                    approvalRequest.OrganizationDisplayName,
+                    assigneeGlobalIdsById,
+                    assigneeGlobalIdMaps,
+                    includeVisibility: false)), .. hiddenStepSequences.Select(MapHiddenStep)],
             Description = approvalRequest.Description,
             CreatedAt = approvalRequest.CreatedAt,
             CompletedAt = approvalRequest.CompletedAt,
@@ -181,9 +183,6 @@ public static class ApprovalRequestMapper
                 assigneeGlobalIdsById is not null
                     ? GetTaskAssigneeGlobalId(task, assigneeGlobalIdsById)
                     : null))],
-            Visibility = includeVisibility
-                ? [.. step.StepVisibilities.Select(visibility => MapStepVisibility(visibility, assigneeGlobalIdMaps))]
-                : []
         };
     }
 
@@ -207,19 +206,6 @@ public static class ApprovalRequestMapper
         Sequence = sequence,
         IsVisible = false
     };
-
-    private static ApprovalRequestStepVisibilityResult MapStepVisibility(
-        ApprovalRequestStepVisibility visibility,
-        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps) => new()
-        {
-            AssigneeGlobalId = visibility.ApprovalRequestStepAssignee.GlobalId,
-            AssigneeType = visibility.ApprovalRequestStepAssignee.Type,
-            AssigneeDisplayName = GetAssigneeDisplayName(visibility.ApprovalRequestStepAssignee),
-            AssigneeEmail = visibility.ApprovalRequestStepAssignee.User.NormalizedEmailOrEmpty(),
-            AssigneeEmployeeGlobalId = GetEmployeeGlobalId(visibility.ApprovalRequestStepAssignee, assigneeGlobalIdMaps),
-            AssigneeTeamGlobalId = GetTeamGlobalId(visibility.ApprovalRequestStepAssignee, assigneeGlobalIdMaps),
-            IsVisible = visibility.IsVisible
-        };
 
     private static ApprovalRequestTaskResult MapTask(
         ApprovalRequestTask task,

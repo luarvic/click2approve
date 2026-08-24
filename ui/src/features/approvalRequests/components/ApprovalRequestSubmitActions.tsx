@@ -1,10 +1,9 @@
 import { Dialogs } from "@/shared/constants/constants";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
-import { ArrowBack, ArrowForward } from "@mui/icons-material";
+import { ArrowBack } from "@mui/icons-material";
 import { Button, Stack } from "@mui/material";
 
 interface ApprovalRequestSubmitActionsProps {
-  canContinue: boolean;
   isSubmitting: boolean;
   onBack?: () => void;
   onCancel?: () => void;
@@ -12,7 +11,6 @@ interface ApprovalRequestSubmitActionsProps {
 }
 
 const ApprovalRequestSubmitActions: React.FC<ApprovalRequestSubmitActionsProps> = ({
-  canContinue,
   isSubmitting,
   onBack,
   onCancel,
@@ -28,15 +26,9 @@ const ApprovalRequestSubmitActions: React.FC<ApprovalRequestSubmitActionsProps> 
         Cancel
       </Button>
     )}
-    {canContinue ? (
-      <MainActionButton endIcon={<ArrowForward />} type="submit">
-        Next
-      </MainActionButton>
-    ) : (
-      <MainActionButton loading={isSubmitting} type="submit" onClick={onSubmit}>
-        Submit
-      </MainActionButton>
-    )}
+    <MainActionButton loading={isSubmitting} type="submit" onClick={onSubmit}>
+      Submit
+    </MainActionButton>
   </Stack>
 );
 

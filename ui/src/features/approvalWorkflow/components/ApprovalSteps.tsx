@@ -18,7 +18,6 @@ import type { ReactNode } from "react";
 import ApprovalStepTitle from "./ApprovalStepTitle";
 import ApprovalStepBlock, { ApprovalStepMetadata } from "./ApprovalStepBlock";
 import { getApprovalStepStatus } from "@/features/approvalWorkflow/utils/approvalStepStatus";
-import ApprovalStepVisibilitySummary from "./ApprovalStepVisibilitySummary";
 
 interface ApprovalStepsProps {
   approvalRequest: ApprovalRequest;
@@ -110,7 +109,6 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
               <StepContent sx={stepContentSx} TransitionProps={{ in: true, unmountOnExit: false }}>
                 <Stack spacing={Dialogs.stepHeaderSpacing}>
                   <ApprovalStepMetadata showVisibility={showVisibleStepVisibility} step={step} />
-                  {showVisibleStepVisibility && <ApprovalStepVisibilitySummary step={step} />}
                   <ApprovalStepBlock
                     highlightedTaskGlobalId={highlightedTaskGlobalId}
                     onHighlightedTaskClick={onHighlightedTaskClick}

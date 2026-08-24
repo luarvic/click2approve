@@ -41,7 +41,6 @@ export const createEditableSteps = (steps: ApprovalStep[]): EditableApprovalStep
     isElectronicSignatureRequired: step.isElectronicSignatureRequired ?? false,
     visibilityMode: step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants,
     assignees: step.assignees.map((assignee) => ({ ...assignee })),
-    visibility: step.visibility?.map((visibility) => ({ ...visibility })),
   }));
 
 const toApprovalStep = (step: EditableApprovalStep): ApprovalStep => ({

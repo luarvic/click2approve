@@ -10,7 +10,6 @@ public static class ApprovalRequestCommandMapper
         Description = request.Description,
         PreviousRevisionApprovalRequestGlobalId = request.PreviousRevisionApprovalRequestGlobalId,
         RequestFiles = [.. request.RequestFiles.Select(Map)],
-        StepVisibility = [.. request.StepVisibility.Select(Map)],
         Steps = [.. request.Steps.Select(Map)],
         Title = request.Title
     };
@@ -19,7 +18,6 @@ public static class ApprovalRequestCommandMapper
     {
         Description = request.Description,
         RequestFiles = [.. request.RequestFiles.Select(Map)],
-        StepVisibility = [.. request.StepVisibility.Select(Map)],
         Steps = [.. request.Steps.Select(Map)]
     };
 
@@ -47,14 +45,6 @@ public static class ApprovalRequestCommandMapper
         IsElectronicSignatureRequired = request.IsElectronicSignatureRequired,
         Sequence = request.Sequence,
         VisibilityMode = request.VisibilityMode
-    };
-
-    public static ApprovalRequestStepVisibilityCommand Map(ApprovalRequestStepVisibilityRequest request) => new()
-    {
-        AssigneeIndex = request.AssigneeIndex,
-        AssigneeStepSequence = request.AssigneeStepSequence,
-        IsVisible = request.IsVisible,
-        StepSequence = request.StepSequence
     };
 
     private static ApprovalRequestAssigneeCommand Map(ApprovalRequestAssigneeRequest request) => new()

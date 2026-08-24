@@ -89,10 +89,6 @@ public class ApprovalRequestTaskRepository(
                 .ThenInclude(s => s.Assignees)
                     .ThenInclude(assignee => assignee.User)
             .Include(t => t.ApprovalRequest.Steps)
-                .ThenInclude(s => s.StepVisibilities)
-                    .ThenInclude(visibility => visibility.ApprovalRequestStepAssignee)
-                        .ThenInclude(assignee => assignee!.User)
-            .Include(t => t.ApprovalRequest.Steps)
                 .ThenInclude(s => s.Tasks)
                     .ThenInclude(task => task.ApprovalRequestStepAssignee)
                         .ThenInclude(assignee => assignee!.User)
@@ -208,9 +204,8 @@ public class ApprovalRequestTaskRepository(
         return await Db.ApprovalRequestSteps
             .AsNoTracking()
             .Where(step => step.ApprovalRequestId == approvalRequestId
-                && step.StepVisibilities.Any(visibility =>
-                    visibility.ApprovalRequestStepAssigneeId == approvalRequestStepAssigneeId.Value
-                    && !visibility.IsVisible))
+                && step.VisibilityMode == ApprovalStepVisibilityMode.AssigneesOnly
+                && !step.Assignees.Any(assignee => assignee.Id == approvalRequestStepAssigneeId.Value))
             .Select(step => step.Sequence)
             .ToListAsync(cancellationToken);
     }

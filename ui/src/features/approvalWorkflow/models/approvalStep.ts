@@ -8,9 +8,8 @@ export enum ApprovalStepMode {
 
 export enum ApprovalStepVisibilityMode {
   AllParticipants = 0,
-  AllParticipantsExceptSelected = 1,
-  AssigneesAndSelectedParticipants = 2,
-  AssigneesOnly = 3,
+  OrganizationEmployees = 1,
+  AssigneesOnly = 2,
 }
 
 export enum AssigneeType {
@@ -42,15 +41,4 @@ export interface ApprovalStep {
   isVisible?: boolean;
   assignees: ApprovalStepAssignee[];
   tasks?: ApprovalRequestTask[];
-  visibility?: ApprovalStepVisibility[];
-}
-
-export interface ApprovalStepVisibility {
-  assigneeGlobalId: string;
-  assigneeType: AssigneeType;
-  assigneeDisplayName?: string;
-  assigneeEmail?: string;
-  assigneeEmployeeGlobalId?: string;
-  assigneeTeamGlobalId?: string;
-  isVisible: boolean;
 }

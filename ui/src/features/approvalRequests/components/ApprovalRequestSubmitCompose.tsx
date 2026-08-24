@@ -29,6 +29,7 @@ interface ApprovalRequestSubmitComposeProps {
   newFiles: UserFile[];
   replacementFileInput: RefObject<HTMLInputElement>;
   showAttachmentRequirement: boolean;
+  showOrganizationEmployeesVisibility: boolean;
   steps: EditableApprovalStep[];
   teams: Team[];
   title: string;
@@ -67,6 +68,7 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
   newFiles,
   replacementFileInput,
   showAttachmentRequirement,
+  showOrganizationEmployeesVisibility,
   steps,
   teams,
   title,
@@ -156,6 +158,7 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
           employees={employees}
           showAddStep={false}
           showAttachmentRequirement={showAttachmentRequirement}
+          showOrganizationEmployeesVisibility={showOrganizationEmployeesVisibility}
           stackAssigneeControlsOnSmallScreens
           steps={steps}
           teams={teams}
@@ -174,7 +177,7 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
         </Box>
       </Stack>
     </Stack>
-    <ApprovalRequestSubmitActions canContinue={steps.length >= 2} isSubmitting={isSubmitting} onCancel={onCancel} />
+    <ApprovalRequestSubmitActions isSubmitting={isSubmitting} onCancel={onCancel} />
   </Box>
 );
 
