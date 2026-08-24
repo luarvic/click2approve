@@ -21,7 +21,7 @@ const ApprovalRequestTaskPage: React.FC<ApprovalRequestTaskPageProps> = ({ tab =
   const { taskGlobalId } = useParams<{ taskGlobalId: string }>();
   usePageTitle(`Task ${getApprovalRequestNumber(taskGlobalId)}`);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const inboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/inbox") : "/";
+  const tasksPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/tasks") : "/";
   const task = taskGlobalId ? stores.approvalRequestTaskStore.getDetail(taskGlobalId) : null;
   const [loadedTaskGlobalId, setLoadedTaskGlobalId] = useState<string | null>(null);
   const taskHasLoaded = loadedTaskGlobalId === taskGlobalId;
@@ -50,7 +50,7 @@ const ApprovalRequestTaskPage: React.FC<ApprovalRequestTaskPageProps> = ({ tab =
     stores.approvalRequestTaskStore.setCurrent(task ?? null);
   }, [task]);
 
-  if (!taskGlobalId) return <Navigate to={inboxPath} />;
+  if (!taskGlobalId) return <Navigate to={tasksPath} />;
   if (taskHasLoaded && !task) return <NotFoundPage />;
   if (!task || !taskHasLoaded) return null;
 
@@ -58,7 +58,7 @@ const ApprovalRequestTaskPage: React.FC<ApprovalRequestTaskPageProps> = ({ tab =
     <NarrowContent>
       <ApprovalRequestTask
         onClose={(currentTaskGlobalId) =>
-          navigate(inboxPath, {
+          navigate(tasksPath, {
             state: currentTaskGlobalId ? { currentTaskGlobalId } : undefined,
           })
         }

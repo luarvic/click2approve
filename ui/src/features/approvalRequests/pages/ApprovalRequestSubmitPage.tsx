@@ -25,7 +25,7 @@ const ApprovalRequestSubmitPage = () => {
   }>();
   const isResubmit = approvalRequestGlobalId !== undefined;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
+  const requestsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/requests") : "/";
   const [loadedApprovalRequestGlobalId, setLoadedApprovalRequestGlobalId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -57,7 +57,7 @@ const ApprovalRequestSubmitPage = () => {
   }, [isResubmit, approvalRequestGlobalId, tenantGlobalId]);
 
   if (isResubmit && !approvalRequestGlobalId) {
-    return <Navigate to={outboxPath} />;
+    return <Navigate to={requestsPath} />;
   }
 
   if (isResubmit && loadedApprovalRequestGlobalId !== approvalRequestGlobalId) {
@@ -70,7 +70,7 @@ const ApprovalRequestSubmitPage = () => {
         initialDraft={initialDraft ?? undefined}
         initialTemplateGlobalId={initialTemplateGlobalId}
         onClose={(currentApprovalRequestGlobalId) =>
-          navigate(outboxPath, {
+          navigate(requestsPath, {
             state: currentApprovalRequestGlobalId ? { currentApprovalRequestGlobalId } : undefined,
           })
         }

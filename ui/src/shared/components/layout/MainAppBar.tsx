@@ -54,7 +54,7 @@ const MainAppBar = ({
         option.tenant.globalId === currentTenantGlobalId &&
         option.employeeGlobalId === stores.tenantStore.currentWorkEmployeeGlobalId,
     ) ?? tenantPickerOptions.find((option) => option.tenant.globalId === currentTenantGlobalId);
-  const inboxPath = currentTenantGlobalId ? Routes.tenantPath(currentTenantGlobalId, Routes.inboxPath) : "/";
+  const tasksPath = currentTenantGlobalId ? Routes.tenantPath(currentTenantGlobalId, Routes.tasksPath) : "/";
   return (
     <PublicAppBar
       brandTitleHideBelowWidth={
@@ -63,7 +63,7 @@ const MainAppBar = ({
           : Shell.appBarBrandTitleWithoutTenantPickerHideBelowWidth
       }
       collapseBrandAreaWhenTitleHidden={tenantPickerIsVisible}
-      homePath={currentUser ? inboxPath : Routes.defaultPath}
+      homePath={currentUser ? tasksPath : Routes.defaultPath}
       mainMenuDrawerIsVisible={mainMenuDrawerIsVisible}
       profileDrawerIsOpen={profileDrawerIsOpen}
       showBrandTitle
@@ -110,8 +110,8 @@ const MainAppBar = ({
               const loader = ActionLoaders.pages.tenantScope();
               stores.commonStore.updateActionLoadingCounter(loader, 1);
               try {
-                await stores.switchTenant(tenantGlobalId, option.employeeGlobalId, location.pathname === inboxPath);
-                navigate(Routes.tenantPath(tenantGlobalId, Routes.inboxPath));
+                await stores.switchTenant(tenantGlobalId, option.employeeGlobalId, location.pathname === tasksPath);
+                navigate(Routes.tenantPath(tenantGlobalId, Routes.tasksPath));
               } finally {
                 stores.commonStore.updateActionLoadingCounter(loader, -1);
               }

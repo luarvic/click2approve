@@ -119,7 +119,7 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
         hideFooterSelectedRowCount
         onRowClick={(params) => {
           const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-          const path = `/inbox/${(params.row as ApprovalRequestTaskListItem).globalId}`;
+          const path = `/tasks/${(params.row as ApprovalRequestTaskListItem).globalId}`;
           navigate(tenantGlobalId ? Routes.tenantPath(tenantGlobalId, path) : "/");
         }}
         columnVisibilityModel={{

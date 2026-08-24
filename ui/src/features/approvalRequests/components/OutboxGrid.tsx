@@ -59,7 +59,7 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestGlobalId 
           startIcon={<Add />}
           onClick={() => {
             const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-            navigate(tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox/new") : "/");
+            navigate(tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/requests/new") : "/");
           }}
         >
           New request
@@ -128,7 +128,7 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestGlobalId 
         hideFooterSelectedRowCount
         onRowClick={(params) => {
           const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-          const path = `/outbox/${(params.row as ApprovalRequestListItem).globalId}`;
+          const path = `/requests/${(params.row as ApprovalRequestListItem).globalId}`;
           navigate(tenantGlobalId ? Routes.tenantPath(tenantGlobalId, path) : "/");
         }}
         columnVisibilityModel={{

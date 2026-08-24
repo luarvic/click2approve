@@ -68,7 +68,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   const initialTemplateHasBeenApplied = useRef(false);
 
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
+  const requestsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/requests") : "/";
   const businessTenantIsSelected = stores.tenantStore.currentTenant?.type === TenantType.Business;
   const canUseEmployees = businessTenantIsSelected && stores.applicationConfigurationStore.employeeAssigneesAreEnabled;
   const canUseTeams = businessTenantIsSelected && stores.applicationConfigurationStore.teamAssigneesAreEnabled;
@@ -318,9 +318,9 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       <PageBreadcrumbs
         items={[
           {
-            label: "Outbox",
+            label: "Requests",
             state: requestToClone ? { currentApprovalRequestGlobalId: requestToClone.globalId } : undefined,
-            to: outboxPath,
+            to: requestsPath,
           },
           {
             label: isRevision ? "Resubmit request" : "New request",

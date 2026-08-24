@@ -10,7 +10,7 @@ const TenantHomeRedirect = () => {
 
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   return tenantGlobalId ? (
-    <Navigate to={Routes.tenantPath(tenantGlobalId, Routes.inboxPath)} replace />
+    <Navigate to={Routes.tenantPath(tenantGlobalId, Routes.tasksPath)} replace />
   ) : (
     <Navigate to="/signIn" replace />
   );

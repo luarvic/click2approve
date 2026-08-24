@@ -10,7 +10,7 @@ interface OutboxLocationState {
 }
 
 const OutboxPage = () => {
-  usePageTitle("Outbox");
+  usePageTitle("Requests");
   const location = useLocation();
   const { currentApprovalRequestGlobalId } = (location.state as OutboxLocationState | null) ?? {};
   return (
@@ -18,7 +18,7 @@ const OutboxPage = () => {
       <PageBreadcrumbs
         items={[
           {
-            label: "Outbox",
+            label: "Requests",
             titleAction: <HelpPopover helpText="Track requests you created and their progress." />,
           },
         ]}

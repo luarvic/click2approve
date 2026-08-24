@@ -45,7 +45,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
   const approvalRequest = stores.approvalRequestStore.currentApprovalRequest;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const nameWarning = getIncompleteParticipantNameWarning(stores.tenantStore.currentTenant?.type);
-  const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
+  const requestsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/requests") : "/";
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
   const [nameWarningDialogIsOpen, setNameWarningDialogIsOpen] = useState(false);
   const cancelLoader = ActionLoaders.approvalRequests.cancel(approvalRequest?.globalId);
@@ -72,7 +72,10 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
   const navigateToTab = (value: ApprovalRequestViewProps["tab"]) => {
     if (!tenantGlobalId) return;
     navigate(
-      Routes.tenantPath(tenantGlobalId, `/outbox/${approvalRequestGlobalId}${value === "request" ? "" : `/${value}`}`),
+      Routes.tenantPath(
+        tenantGlobalId,
+        `/requests/${approvalRequestGlobalId}${value === "request" ? "" : `/${value}`}`,
+      ),
     );
   };
 
@@ -85,7 +88,9 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
       return;
     }
 
-    navigate(tenantGlobalId ? Routes.tenantPath(tenantGlobalId, `/outbox/${approvalRequest.globalId}/resubmit`) : "/");
+    navigate(
+      tenantGlobalId ? Routes.tenantPath(tenantGlobalId, `/requests/${approvalRequest.globalId}/resubmit`) : "/",
+    );
   };
 
   const cancel = async (): Promise<boolean> => {
@@ -122,9 +127,9 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
       <PageBreadcrumbs
         items={[
           {
-            label: "Outbox",
+            label: "Requests",
             state: approvalRequest ? { currentApprovalRequestGlobalId: approvalRequest.globalId } : undefined,
-            to: outboxPath,
+            to: requestsPath,
           },
           {
             label: `Request ${getApprovalRequestNumber(approvalRequest?.globalId)}`,

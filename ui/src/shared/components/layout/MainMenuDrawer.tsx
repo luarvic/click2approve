@@ -73,15 +73,15 @@ const MainMenuDrawer = () => {
   const currentTenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const tenantScopeIsReady = stores.tenantStore.hasLoaded && currentTenantGlobalId !== null;
   const tenantPath = (path: string) => (currentTenantGlobalId ? Routes.tenantPath(currentTenantGlobalId, path) : "/");
-  const inboxPath = tenantPath(Routes.inboxPath);
-  const outboxPath = tenantPath("/outbox");
+  const tasksPath = tenantPath(Routes.tasksPath);
+  const requestsPath = tenantPath("/requests");
   const receiptsPath = tenantPath("/receipts");
   const templatesPath = tenantPath("/approvalStepTemplates");
   const teamsPath = tenantPath("/teams");
   const employeesPath = tenantPath("/employees");
   const delegationsPath = tenantPath("/delegations");
-  const inboxIsSelected = location.pathname === "/" || location.pathname.startsWith(inboxPath);
-  const outboxIsSelected = location.pathname.startsWith(outboxPath);
+  const tasksAreSelected = location.pathname === "/" || location.pathname.startsWith(tasksPath);
+  const requestsAreSelected = location.pathname.startsWith(requestsPath);
   const numberOfUncompletedTasks = stores.approvalRequestTaskStore.numberOfUncompletedTasks;
   const organizationsIsSelected = /^\/tenants(?:\/[^/]+)?$/.test(location.pathname);
 
@@ -151,7 +151,7 @@ const MainMenuDrawer = () => {
                 size="small"
                 startIcon={<AddTwoTone />}
                 onClick={() => {
-                  navigate(`${outboxPath}/new`);
+                  navigate(`${requestsPath}/new`);
                   closeTemporaryDrawer();
                 }}
               >
@@ -163,12 +163,12 @@ const MainMenuDrawer = () => {
       >
         <ListItem key="incoming" disablePadding>
           <ListItemButton
-            selected={inboxIsSelected}
+            selected={tasksAreSelected}
             onClick={() => {
               if (currentTenantGlobalId) {
                 stores.approvalRequestTaskStore.loadUncompletedCount(currentTenantGlobalId);
               }
-              navigate(inboxPath);
+              navigate(tasksPath);
               closeTemporaryDrawer();
             }}
           >
@@ -190,9 +190,9 @@ const MainMenuDrawer = () => {
         </ListItem>
         <ListItem key="outgoing" disablePadding>
           <ListItemButton
-            selected={outboxIsSelected}
+            selected={requestsAreSelected}
             onClick={() => {
-              navigate(outboxPath);
+              navigate(requestsPath);
               closeTemporaryDrawer();
             }}
           >

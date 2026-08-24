@@ -73,8 +73,8 @@ public class NotificationEmailDispatchJob(
         return delivery.DomainEvent.Type switch
         {
             DomainEventType.ApprovalRequestTaskCreated => await CreateTaskCreatedMessageAsync(delivery),
-            DomainEventType.ApprovalRequestCancelled => await CreateRequestMessageAsync(delivery, "ApprovalRequestCancelled", "inbox"),
-            DomainEventType.ApprovalRequestReviewed => await CreateRequestMessageAsync(delivery, "ApprovalRequestReviewed", "sent"),
+            DomainEventType.ApprovalRequestCancelled => await CreateRequestMessageAsync(delivery, "ApprovalRequestCancelled", "tasks"),
+            DomainEventType.ApprovalRequestReviewed => await CreateRequestMessageAsync(delivery, "ApprovalRequestReviewed", "requests"),
             _ => null
         };
     }
@@ -102,7 +102,7 @@ public class NotificationEmailDispatchJob(
                 .ThenInclude(request => request.RequestFiles)
                     .ThenInclude(file => file.UserFile)
             .FirstOrDefaultAsync(item => item.GlobalId == delivery.DomainEvent.EntityGlobalId);
-        return task is null ? null : CreateMessage(delivery.User, task.ApprovalRequest, "ApprovalRequestSent", "inbox");
+        return task is null ? null : CreateMessage(delivery.User, task.ApprovalRequest, "ApprovalRequestSent", "tasks");
     }
 
     private async Task<EmailMessage?> CreateRequestMessageAsync(EventDelivery delivery, string templateName, string route)

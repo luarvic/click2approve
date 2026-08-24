@@ -1,9 +1,9 @@
-const inboxPath = "/inbox";
+const tasksPath = "/tasks";
 
 const tenantPath = (tenantGlobalId: string, path: string): string => `/tenants/${tenantGlobalId}${path}`;
 
 export const Routes = {
   defaultPath: "/",
-  inboxPath,
+  tasksPath,
   tenantPath,
 } as const;

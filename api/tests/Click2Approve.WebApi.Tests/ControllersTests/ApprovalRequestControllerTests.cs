@@ -369,7 +369,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
                 ConnectionDownlink = 10,
                 ConnectionRoundTripTime = 50,
                 ConnectionSaveData = false,
-                Route = "/inbox/test-task",
+                Route = "/tasks/test-task",
                 BuildVersion = "test-build"
             }
         });

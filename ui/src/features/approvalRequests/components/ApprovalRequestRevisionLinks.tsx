@@ -18,7 +18,7 @@ const ApprovalRequestRevisionLinks: React.FC<ApprovalRequestRevisionLinksProps> 
     return null;
   }
 
-  const getRequestPath = (globalId: string) => Routes.tenantPath(tenantGlobalId, `/outbox/${globalId}`);
+  const getRequestPath = (globalId: string) => Routes.tenantPath(tenantGlobalId, `/requests/${globalId}`);
 
   return (
     <Typography color="text.secondary" variant="body2">

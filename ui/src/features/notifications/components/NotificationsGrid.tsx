@@ -47,7 +47,7 @@ const getPath = (item: Notification) => {
   const isDiscussionNotification =
     item.type === DomainEventType.DiscussionRequestMessageCreated ||
     item.type === DomainEventType.DiscussionTaskMessageCreated;
-  const resourcePath = isRequestNotification ? "outbox" : "inbox";
+  const resourcePath = isRequestNotification ? "requests" : "tasks";
   const chatPath = isDiscussionNotification ? "/chat" : "";
   return `/${resourcePath}/${item.entityGlobalId}${chatPath}`;
 };

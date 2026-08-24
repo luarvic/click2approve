@@ -21,8 +21,8 @@ const ApprovalRequestStartPage = () => {
   usePageTitle("Start a new request");
   const navigate = useNavigate();
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const composePath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox/new/compose") : "/";
-  const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
+  const composePath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/requests/new/compose") : "/";
+  const requestsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/requests") : "/";
   const tenantScopeIsReady = stores.tenantStore.hasLoaded;
   const canUseTemplates =
     stores.tenantStore.currentTenant?.type === TenantType.Business &&
@@ -70,7 +70,7 @@ const ApprovalRequestStartPage = () => {
 
   return (
     <>
-      <PageBreadcrumbs items={[{ label: "Outbox", to: outboxPath }, { label: "New request" }]} />
+      <PageBreadcrumbs items={[{ label: "Requests", to: requestsPath }, { label: "New request" }]} />
       <NarrowContent>
         <Stack component="form" onSubmit={handleSubmit} spacing={Dialogs.formStackSpacing}>
           <FormControl>

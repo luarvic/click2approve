@@ -90,7 +90,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
   const taskAttachments = useRef<ApprovalRequestTaskAttachmentsHandle>(null);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const nameWarning = getIncompleteParticipantNameWarning(stores.tenantStore.currentTenant?.type);
-  const inboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/inbox") : "/";
+  const tasksPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/tasks") : "/";
   const currentTask = stores.approvalRequestTaskStore.currentTask;
   const requestTabLabel = approvalRequest ? `Request ${getApprovalRequestNumber(approvalRequest.globalId)}` : "Request";
   const currentTaskAssigneeType = approvalRequest?.steps
@@ -131,7 +131,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
 
   const navigateToTab = (value: ApprovalRequestTaskProps["tab"]) => {
     if (!tenantGlobalId) return;
-    navigate(Routes.tenantPath(tenantGlobalId, `/inbox/${taskGlobalId}${value === "task" ? "" : `/${value}`}`));
+    navigate(Routes.tenantPath(tenantGlobalId, `/tasks/${taskGlobalId}${value === "task" ? "" : `/${value}`}`));
   };
 
   const cleanUp = () => {
@@ -250,9 +250,9 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
       <PageBreadcrumbs
         items={[
           {
-            label: "Inbox",
+            label: "Tasks",
             state: currentTask ? { currentTaskGlobalId: currentTask.globalId } : undefined,
-            to: inboxPath,
+            to: tasksPath,
           },
           { label: `Task ${getApprovalRequestNumber(currentTask?.globalId)}` },
         ]}

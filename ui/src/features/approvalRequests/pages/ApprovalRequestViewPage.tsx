@@ -23,7 +23,7 @@ const ApprovalRequestViewPage: React.FC<ApprovalRequestViewPageProps> = ({ tab =
   }>();
   usePageTitle(`Request ${getApprovalRequestNumber(approvalRequestGlobalId)}`);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const outboxPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/outbox") : "/";
+  const requestsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/requests") : "/";
   const approvalRequest = approvalRequestGlobalId
     ? stores.approvalRequestStore.getDetail(approvalRequestGlobalId)
     : null;
@@ -54,7 +54,7 @@ const ApprovalRequestViewPage: React.FC<ApprovalRequestViewPageProps> = ({ tab =
     stores.approvalRequestStore.setCurrent(approvalRequest ?? null);
   }, [approvalRequest]);
 
-  if (!approvalRequestGlobalId) return <Navigate to={outboxPath} />;
+  if (!approvalRequestGlobalId) return <Navigate to={requestsPath} />;
   if (approvalRequestHasLoaded && !approvalRequest) return <NotFoundPage />;
   if (!approvalRequest || !approvalRequestHasLoaded) return null;
 
@@ -62,7 +62,7 @@ const ApprovalRequestViewPage: React.FC<ApprovalRequestViewPageProps> = ({ tab =
     <NarrowContent>
       <ApprovalRequestView
         onClose={(currentApprovalRequestGlobalId) =>
-          navigate(outboxPath, {
+          navigate(requestsPath, {
             state: currentApprovalRequestGlobalId ? { currentApprovalRequestGlobalId } : undefined,
           })
         }

@@ -12,9 +12,9 @@ public class UriHelpersTests
     {
         var uiBaseUri = new Uri("http://localhost:3333");
 
-        var link = UriHelpers.GetUiUri(uiBaseUri, "/app", "inbox").ToUri();
+        var link = UriHelpers.GetUiUri(uiBaseUri, "/app", "tasks").ToUri();
 
-        Assert.Equal("http://localhost:3333/app/inbox", link.ToString());
+        Assert.Equal("http://localhost:3333/app/tasks", link.ToString());
     }
 
     [Fact]

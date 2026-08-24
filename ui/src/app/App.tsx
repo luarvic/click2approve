@@ -102,26 +102,21 @@ const App = () => {
                 <Route index element={<TenantHomeRedirect />} />
                 <Route path="/tenants/:tenantGlobalId" element={<TenantScopeLayout />}>
                   <Route element={<WrapperLayout />}>
-                    <Route path="inbox" element={<InboxPage />} />
+                    <Route path="tasks" element={<InboxPage />} />
                     <Route path="notifications" element={<NotificationsPage />} />
-                    <Route path="inbox/:taskGlobalId" element={<ApprovalRequestTaskPage />} />
-                    <Route path="inbox/:taskGlobalId/request" element={<ApprovalRequestTaskPage tab="request" />} />
-                    <Route path="inbox/:taskGlobalId/chat" element={<ApprovalRequestTaskPage tab="chat" />} />
-                    <Route path="outbox" element={<OutboxPage />} />
+                    <Route path="tasks/:taskGlobalId" element={<ApprovalRequestTaskPage />} />
+                    <Route path="tasks/:taskGlobalId/request" element={<ApprovalRequestTaskPage tab="request" />} />
+                    <Route path="tasks/:taskGlobalId/chat" element={<ApprovalRequestTaskPage tab="chat" />} />
+                    <Route path="requests" element={<OutboxPage />} />
                     <Route path="receipts" element={<ReceiptsPage />} />
                     <Route path="receipts/:receiptGlobalId" element={<ReceiptPage />} />
                     <Route path="receipts/:receiptGlobalId/share" element={<ReceiptPage tab="share" />} />
-                    <Route path="outbox/new" element={<ApprovalRequestStartPage />} />
-                    <Route path="outbox/new/compose" element={<ApprovalRequestSubmitPage />} />
-                    <Route path="outbox/new/compose/visibility" element={<ApprovalRequestSubmitPage />} />
-                    <Route path="outbox/:approvalRequestGlobalId/resubmit" element={<ApprovalRequestSubmitPage />} />
+                    <Route path="requests/new" element={<ApprovalRequestStartPage />} />
+                    <Route path="requests/new/compose" element={<ApprovalRequestSubmitPage />} />
+                    <Route path="requests/:approvalRequestGlobalId/resubmit" element={<ApprovalRequestSubmitPage />} />
+                    <Route path="requests/:approvalRequestGlobalId" element={<ApprovalRequestViewPage />} />
                     <Route
-                      path="outbox/:approvalRequestGlobalId/resubmit/visibility"
-                      element={<ApprovalRequestSubmitPage />}
-                    />
-                    <Route path="outbox/:approvalRequestGlobalId" element={<ApprovalRequestViewPage />} />
-                    <Route
-                      path="outbox/:approvalRequestGlobalId/chat"
+                      path="requests/:approvalRequestGlobalId/chat"
                       element={<ApprovalRequestViewPage tab="chat" />}
                     />
                     <Route element={<RouteGuard isAllowed={capabilities.canViewTemplates} />}>
