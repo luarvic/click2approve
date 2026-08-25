@@ -8,8 +8,8 @@ import {
   type Notification,
 } from "@/features/notifications/api/notificationsApi";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
-import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
+import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
@@ -55,8 +55,7 @@ const getPath = (item: Notification) => {
 const NotificationsGrid = () => {
   const navigate = useNavigate();
   const theme = useTheme();
-  const isMediumDisplay = useMediaQuery(theme.breakpoints.down("md"));
-  const isSmallDisplay = useMediaQuery(theme.breakpoints.down("sm"));
+  const allColumnsAreVisible = useMediaQuery(theme.breakpoints.up("md"));
   const tenantId = stores.tenantStore.currentTenantGlobalId;
   const [items, setItems] = useState<Notification[]>([]);
   const [selectedNotificationGlobalIds, setSelectedNotificationGlobalIds] = useState<GridRowSelectionModel>([]);
@@ -170,8 +169,8 @@ const NotificationsGrid = () => {
         checkboxSelection
         columns={columns}
         columnVisibilityModel={{
-          occurredAt: !isMediumDisplay,
-          summary: !isSmallDisplay,
+          occurredAt: allColumnsAreVisible,
+          summary: allColumnsAreVisible,
         }}
         disableColumnFilter
         disableRowSelectionOnClick

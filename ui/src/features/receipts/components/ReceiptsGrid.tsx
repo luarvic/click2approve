@@ -8,8 +8,8 @@ import {
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { listReceipts } from "@/features/receipts/api/receiptsApi";
 import type { Receipt } from "@/features/receipts/models/receipt";
-import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
+import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
@@ -28,8 +28,7 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
   const navigate = useNavigate();
   const theme = useTheme();
   const [receipts, setReceipts] = useState<Receipt[]>([]);
-  const createdColumnIsVisible = useMediaQuery(theme.breakpoints.up("md"));
-  const numberColumnIsVisible = useMediaQuery(theme.breakpoints.up(DataGrids.approvalNumberColumnMinDisplayWidth));
+  const allColumnsAreVisible = useMediaQuery(theme.breakpoints.up("md"));
   const tenantScopeIsReady =
     !stores.applicationConfigurationStore.tenantsAreEnabled ||
     (stores.tenantStore.hasLoaded && stores.tenantStore.currentTenantGlobalId !== null);
@@ -111,8 +110,8 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
         columnVisibilityModel={{
-          globalId: numberColumnIsVisible,
-          createdAt: createdColumnIsVisible,
+          globalId: allColumnsAreVisible,
+          createdAt: allColumnsAreVisible,
         }}
         pageSizeOptions={DataGrids.pageSizeOptions}
         disableColumnFilter

@@ -1,8 +1,8 @@
 import { stores } from "@/app/rootStore";
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
-import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
+import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { StatusLineLabel } from "@/shared/components/status/StatusLines";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
@@ -33,8 +33,7 @@ interface EmployeesGridProps {
 const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }) => {
   const navigate = useNavigate();
   const theme = useTheme();
-  const isMediumDisplay = useMediaQuery(theme.breakpoints.down("md"));
-  const isLargeDisplay = useMediaQuery(theme.breakpoints.down("lg"));
+  const allColumnsAreVisible = useMediaQuery(theme.breakpoints.up("md"));
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const gridLoader = ActionLoaders.grids.employees(tenantGlobalId);
   const canModifyEmployees =
@@ -130,10 +129,10 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
           navigate(Routes.tenantPath(tenantGlobalId!, `/employees/${(params.row as Employee).globalId}`))
         }
         columnVisibilityModel={{
-          firstName: !isMediumDisplay,
-          lastName: !isMediumDisplay,
-          position: !isLargeDisplay,
-          role: !isLargeDisplay,
+          firstName: allColumnsAreVisible,
+          lastName: allColumnsAreVisible,
+          position: allColumnsAreVisible,
+          role: allColumnsAreVisible,
         }}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}

@@ -439,6 +439,10 @@ export const DataGrids = {
     content: 5,
     metadata: 3,
   },
+  tasksColumnSizing: {
+    requestedBy: { flex: 4 },
+    status: { flex: 2 },
+  },
   approvalTitleCellSx: {
     height: "100%",
     justifyContent: "center",

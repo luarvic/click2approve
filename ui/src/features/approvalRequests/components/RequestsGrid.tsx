@@ -1,15 +1,15 @@
 import { stores } from "@/app/rootStore";
+import ApprovalRequestNumberText, {
+  getApprovalRequestNumber,
+} from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import {
   ApprovalRequestStatusLineLabel,
   getApprovalRequestStatusLabel,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
-import ApprovalRequestNumberText, {
-  getApprovalRequestNumber,
-} from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import { ApprovalRequestListItem } from "@/features/approvalRequests/models/approvalRequestListItem";
 import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
-import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
+import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
@@ -28,9 +28,7 @@ interface RequestsGridProps {
 const RequestsGrid: React.FC<RequestsGridProps> = ({ currentApprovalRequestGlobalId }) => {
   const navigate = useNavigate();
   const theme = useTheme();
-  const createdColumnIsVisible = useMediaQuery(theme.breakpoints.up("md"));
-  const createdByColumnIsVisible = useMediaQuery(theme.breakpoints.up("sm"));
-  const numberColumnIsVisible = useMediaQuery(theme.breakpoints.up(DataGrids.approvalNumberColumnMinDisplayWidth));
+  const allColumnsAreVisible = useMediaQuery(theme.breakpoints.up("md"));
   const tenantScopeIsReady =
     !stores.applicationConfigurationStore.tenantsAreEnabled ||
     (stores.tenantStore.hasLoaded && stores.tenantStore.currentTenantGlobalId !== null);
@@ -137,9 +135,9 @@ const RequestsGrid: React.FC<RequestsGridProps> = ({ currentApprovalRequestGloba
           navigate(tenantGlobalId ? Routes.tenantPath(tenantGlobalId, path) : "/");
         }}
         columnVisibilityModel={{
-          globalId: numberColumnIsVisible,
-          createdByDisplayName: createdByColumnIsVisible,
-          createdAtDate: createdColumnIsVisible,
+          globalId: allColumnsAreVisible,
+          createdByDisplayName: allColumnsAreVisible,
+          createdAtDate: allColumnsAreVisible,
         }}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}

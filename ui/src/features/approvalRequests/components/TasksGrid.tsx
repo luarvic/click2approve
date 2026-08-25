@@ -9,8 +9,8 @@ import {
 import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
 import { TenantType } from "@/features/tenants/models/tenant";
 import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
-import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
+import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
@@ -28,15 +28,14 @@ interface TasksGridProps {
 const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
   const navigate = useNavigate();
   const theme = useTheme();
-  const createdColumnIsVisible = useMediaQuery(theme.breakpoints.up("md"));
-  const requestedByColumnIsVisible = useMediaQuery(theme.breakpoints.up("sm"));
-  const numberColumnIsVisible = useMediaQuery(theme.breakpoints.up(DataGrids.approvalNumberColumnMinDisplayWidth));
+  const allColumnsAreVisible = useMediaQuery(theme.breakpoints.up("md"));
   const tenantScopeIsReady =
     !stores.applicationConfigurationStore.tenantsAreEnabled ||
     (stores.tenantStore.hasLoaded && stores.tenantStore.currentTenantGlobalId !== null);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const gridLoader = ActionLoaders.grids.tasks(tenantGlobalId);
-  const organizationColumnIsVisible = stores.tenantStore.currentTenant?.type === TenantType.Personal;
+  const organizationColumnIsVisible =
+    allColumnsAreVisible && stores.tenantStore.currentTenant?.type === TenantType.Personal;
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     stores.approvalRequestTaskStore.tasks,
     currentTaskGlobalId,
@@ -83,7 +82,7 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
     {
       field: "status",
       headerName: "Status",
-      flex: DataGrids.approvalColumnFlex.metadata,
+      ...DataGrids.tasksColumnSizing.status,
       renderCell: (params) => (
         <ApprovalRequestTaskStatusLineLabel
           action={params.row.action}
@@ -96,13 +95,13 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
     {
       field: "requestedByDisplayName",
       headerName: "Requested by",
-      flex: DataGrids.approvalColumnFlex.metadata,
+      ...DataGrids.tasksColumnSizing.requestedBy,
       renderCell: (params) => <OneLineDisplayName displayName={params.row.requestedByDisplayName} variant="body2" />,
       valueGetter: (_value, row) => row.requestedByDisplayName,
     },
     {
       field: "organizationDisplayName",
-      headerName: "Organization",
+      headerName: "From organization",
       flex: DataGrids.approvalColumnFlex.metadata,
       valueGetter: (_value, row) => row.organizationDisplayName,
     },
@@ -128,10 +127,10 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
           navigate(tenantGlobalId ? Routes.tenantPath(tenantGlobalId, path) : "/");
         }}
         columnVisibilityModel={{
-          globalId: numberColumnIsVisible,
-          requestedByDisplayName: requestedByColumnIsVisible,
+          globalId: allColumnsAreVisible,
+          requestedByDisplayName: allColumnsAreVisible,
           organizationDisplayName: organizationColumnIsVisible,
-          createdAtDate: createdColumnIsVisible,
+          createdAtDate: allColumnsAreVisible,
         }}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}

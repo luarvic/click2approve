@@ -25,7 +25,7 @@ interface TenantsGridProps {
 const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
   const navigate = useNavigate();
   const theme = useTheme();
-  const isSmallDisplay = useMediaQuery(theme.breakpoints.down("sm"));
+  const allColumnsAreVisible = useMediaQuery(theme.breakpoints.up("md"));
   const gridLoader = ActionLoaders.grids.tenants();
   const businessTenants = stores.tenantStore.tenants.filter((tenant) => tenant.type === TenantType.Business);
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(businessTenants, currentTenantGlobalId);
@@ -66,7 +66,7 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
         hideFooterSelectedRowCount
         onRowClick={(params) => navigate(`/tenants/${(params.row as Tenant).globalId}`)}
         columnVisibilityModel={{
-          currentEmployeeRole: !isSmallDisplay,
+          currentEmployeeRole: allColumnsAreVisible,
         }}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
