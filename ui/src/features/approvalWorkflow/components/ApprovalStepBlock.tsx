@@ -85,7 +85,7 @@ const getTaskAssigneeType = (step: ApprovalStep, task: ApprovalRequestTask) =>
 const getStepModeSummary = (mode: ApprovalStepMode) => {
   switch (mode) {
     case ApprovalStepMode.All:
-      return "Everyone assigned to this step must approve it before the request can move forward.";
+      return "Everyone assigned to this step must complete their task before the request can move forward.";
     default:
       return "The first approval from any assigned assignee completes this step.";
   }
@@ -299,6 +299,7 @@ const renderTaskDetails = (
 const renderAssigneeWithoutTasks = (
   assignee: ApprovalStepAssignee,
   index: number,
+  collapseCards: boolean,
   setupFutureTasks: boolean,
   instructions?: string,
 ) => (
@@ -306,6 +307,7 @@ const renderAssigneeWithoutTasks = (
     key={assignee.globalId ?? index}
     assignee={assignee}
     compact={setupFutureTasks}
+    defaultExpanded={!collapseCards}
     instructions={instructions}
     showStatusBorder={!setupFutureTasks}
     title={setupFutureTasks ? "Task setup" : undefined}
@@ -328,7 +330,7 @@ const renderTeamAssignee = (
 ) => {
   if (assigneeTasks.length === 0) {
     return showEmptyTeamTasksMessage
-      ? renderAssigneeWithoutTasks(assignee, index, setupFutureTasks, instructions)
+      ? renderAssigneeWithoutTasks(assignee, index, collapseCards, setupFutureTasks, instructions)
       : null;
   }
 
@@ -386,7 +388,13 @@ const renderAssignee = (
   }
 
   if (assigneeTasks.length === 0) {
-    return renderAssigneeWithoutTasks(assignee, index, setupFutureTasks ?? false, step.instructions);
+    return renderAssigneeWithoutTasks(
+      assignee,
+      index,
+      collapseCards ?? false,
+      setupFutureTasks ?? false,
+      step.instructions,
+    );
   }
 
   return assigneeTasks.map((task) =>
@@ -457,11 +465,11 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
           showTitle={showStepTitle}
         />
       )}
-      <Stack spacing={Dialogs.assigneeStackSpacing} sx={contentSx}>
+      <Stack spacing={StackSpacing.loose} sx={contentSx}>
         {teamAssignees.map((assignee) => renderAssigneeItem(assignee, assignees.indexOf(assignee)))}
         {hasMixedAssigneeTypes ? (
           <ApprovalStepIndividualAssignees>
-            <Stack spacing={Dialogs.assigneeStackSpacing}>
+            <Stack spacing={StackSpacing.loose}>
               {individualAssignees.map((assignee) => renderAssigneeItem(assignee, assignees.indexOf(assignee)))}
             </Stack>
           </ApprovalStepIndividualAssignees>

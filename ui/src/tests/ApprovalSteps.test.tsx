@@ -147,6 +147,21 @@ describe("<ApprovalSteps />", () => {
     expect(screen.getAllByLabelText("Upcoming task")).toHaveLength(2);
   });
 
+  test("can expand upcoming task cards", async () => {
+    const user = userEvent.setup();
+
+    render(<ApprovalSteps approvalRequest={approvalRequest} collapseCards limitWorkflowFields />);
+
+    expect(screen.queryByText("Assignee")).toBeNull();
+    const expandButton = screen.getByRole("button", { name: "Expand Upcoming task" });
+    expect(expandButton.getAttribute("aria-expanded")).toBe("false");
+
+    await user.click(expandButton);
+
+    expect(screen.getByText("Assignee")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Collapse Upcoming task" }).getAttribute("aria-expanded")).toBe("true");
+  });
+
   test("shows task numbers and makes the current task row clickable", async () => {
     const user = userEvent.setup();
     const onHighlightedTaskClick = vi.fn();

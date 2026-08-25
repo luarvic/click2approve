@@ -125,7 +125,7 @@ public class ApprovalRequestService(
             CreatedByUserId = user.Id,
             CreatedByUser = user,
             CreatedByDisplayName = creator.DisplayName,
-            OrganizationDisplayName = tenant.BusinessName
+            OrganizationDisplayName = tenant.Type == TenantType.Business ? tenant.BusinessName : string.Empty
         }, cancellationToken);
         foreach (var requestFile in newApprovalRequest.RequestFiles)
         {

@@ -9,12 +9,14 @@ import ApprovalRequestParticipant from "@/features/approvalRequests/components/A
 import { ApprovalStepAssignee } from "@/features/approvalWorkflow/models/approvalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
+import { Business } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 
 interface ApprovalUpcomingTaskBlockProps {
   assignee: ApprovalStepAssignee;
   compact?: boolean;
+  defaultExpanded?: boolean;
   instructions?: string;
   showStatusBorder?: boolean;
   title?: string;
@@ -30,18 +32,19 @@ const compactTaskCardContentSx: SxProps<Theme> = {
 const ApprovalUpcomingTaskBlock: React.FC<ApprovalUpcomingTaskBlockProps> = ({
   assignee,
   compact = false,
+  defaultExpanded,
   instructions,
   showStatusBorder = true,
   title = "Upcoming task",
 }) => {
   const organizationIsVisible = stores.tenantStore.currentTenant?.type === TenantType.Personal;
   const organizationDisplayName = stores.tenantStore.currentTenant?.businessName;
+  const visibleOrganizationDisplayName =
+    organizationIsVisible && organizationDisplayName ? organizationDisplayName : undefined;
   const assigneeParticipant = (
     <ApprovalRequestParticipant
       displayName={assignee.displayName}
       email={assignee.email}
-      organizationDisplayName={organizationDisplayName}
-      showOrganization={organizationIsVisible}
       type={assignee.type}
       variant="body2"
     />
@@ -59,9 +62,18 @@ const ApprovalUpcomingTaskBlock: React.FC<ApprovalUpcomingTaskBlockProps> = ({
       <ApprovalRequestCardLayout
         activity={
           <ApprovalRequestFieldGroup title="Activity">
+            {visibleOrganizationDisplayName && (
+              <ApprovalRequestField
+                label="From organization"
+                value={visibleOrganizationDisplayName}
+                valueIcon={<Business color="action" fontSize="small" />}
+                valueVariant="body2"
+              />
+            )}
             <ApprovalRequestField label="Assignee" value={assigneeParticipant} />
           </ApprovalRequestFieldGroup>
         }
+        defaultExpanded={defaultExpanded}
         details={
           <ApprovalRequestFieldGroup title="Details">
             <ApprovalRequestField label="Status" />
@@ -71,6 +83,7 @@ const ApprovalUpcomingTaskBlock: React.FC<ApprovalUpcomingTaskBlockProps> = ({
             />
           </ApprovalRequestFieldGroup>
         }
+        expandable
         title={title}
       />
     </ApprovalRequestDetailsCard>

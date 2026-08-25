@@ -11,8 +11,8 @@ import ApprovalRequestParticipantLabel from "@/features/approvalRequests/compone
 import ApprovalRequestParticipantPair from "@/features/approvalRequests/components/ApprovalRequestParticipantPair";
 import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
 import ApprovalRequestTimestamp from "@/features/approvalRequests/components/ApprovalRequestTimestamp";
-import ApprovalRequestTimestampRow from "@/features/approvalRequests/components/ApprovalRequestTimestampRow";
 import { getApprovalRequestTimestampIcon } from "@/features/approvalRequests/components/approvalRequestTimestampDisplay";
+import ApprovalRequestTimestampRow from "@/features/approvalRequests/components/ApprovalRequestTimestampRow";
 import {
   getApprovalRequestTaskStatusColor,
   getApprovalRequestTaskStatusLabel,
@@ -22,9 +22,10 @@ import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/ap
 import { getApprovalRequestTaskCompletedActionLabel } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
-import { getLocaleDateTimeString } from "@/shared/utils/dateTime";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
 import { StackSpacing } from "@/shared/constants/constants";
+import { getLocaleDateTimeString } from "@/shared/utils/dateTime";
+import { Business } from "@mui/icons-material";
 import type { TypographyProps } from "@mui/material";
 import { Stack } from "@mui/material";
 import type { ElementType, ReactNode } from "react";
@@ -110,6 +111,8 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
     : participant === "assignee"
       ? resolvedParticipantType
       : AssigneeType.User;
+  const organizationDisplayName =
+    organizationIsVisible && participantOrganizationDisplayName ? participantOrganizationDisplayName : undefined;
   const taskStatusColor = getApprovalRequestTaskStatusColor(task.status, task.result);
   const completedTimestamp = getTaskCompletedTimestamp(task);
   const completionLabel = getTaskCompletionLabel(task);
@@ -220,6 +223,14 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   void taskContent;
   const activity = (
     <ApprovalRequestFieldGroup title="Activity">
+      {organizationDisplayName && (
+        <ApprovalRequestField
+          label="From organization"
+          value={organizationDisplayName}
+          valueIcon={<Business color="action" fontSize="small" />}
+          valueVariant="body2"
+        />
+      )}
       {showRequester && (
         <ApprovalRequestField
           label="Requested by"
@@ -227,8 +238,6 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
             <ApprovalRequestParticipant
               displayName={task.requestedByDisplayName}
               email={requestedByEmail}
-              organizationDisplayName={participantOrganizationDisplayName}
-              showOrganization={organizationIsVisible}
               type={requesterParticipantType}
               variant="body2"
             />
@@ -243,8 +252,6 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
               icon={icon}
               displayName={participantDisplayName}
               email={participantEmail}
-              organizationDisplayName={participantOrganizationDisplayName}
-              showOrganization={organizationIsVisible}
               type={resolvedParticipantType}
               variant="body2"
             />
@@ -264,8 +271,6 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
               displayName={completionDisplayName}
               email={completionEmail}
               isSystemParticipant={completedBySystem}
-              organizationDisplayName={participantOrganizationDisplayName}
-              showOrganization={organizationIsVisible}
               type={completedBySystem ? AssigneeType.Employee : completionType}
               variant="body2"
             />

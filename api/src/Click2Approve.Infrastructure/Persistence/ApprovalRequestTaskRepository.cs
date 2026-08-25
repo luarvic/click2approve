@@ -144,10 +144,7 @@ public class ApprovalRequestTaskRepository(
         ApprovalRequestTask task,
         CancellationToken cancellationToken)
     {
-        var hiddenStepSequences = await ListHiddenStepSequencesAsync(
-            task.ApprovalRequestId,
-            task.ApprovalRequestStepAssigneeId,
-            cancellationToken);
+        var hiddenStepSequences = await ListHiddenStepSequencesAsync(task, cancellationToken);
         var approvalRequest = await GetRequestDetailsQuery(
                 Db.ApprovalRequests.AsNoTracking(),
                 hiddenStepSequences)
@@ -191,21 +188,20 @@ public class ApprovalRequestTaskRepository(
         IEnumerable<ApprovalRequestTask> tasks,
         CancellationToken cancellationToken) => Task.CompletedTask;
 
-    protected async Task<List<int>> ListHiddenStepSequencesAsync(
-        long approvalRequestId,
-        long? approvalRequestStepAssigneeId,
+    protected virtual async Task<List<int>> ListHiddenStepSequencesAsync(
+        ApprovalRequestTask task,
         CancellationToken cancellationToken)
     {
-        if (!approvalRequestStepAssigneeId.HasValue)
+        if (!task.ApprovalRequestStepAssigneeId.HasValue)
         {
             return [];
         }
 
         return await Db.ApprovalRequestSteps
             .AsNoTracking()
-            .Where(step => step.ApprovalRequestId == approvalRequestId
+            .Where(step => step.ApprovalRequestId == task.ApprovalRequestId
                 && step.VisibilityMode == ApprovalStepVisibilityMode.AssigneesOnly
-                && !step.Assignees.Any(assignee => assignee.Id == approvalRequestStepAssigneeId.Value))
+                && !step.Assignees.Any(assignee => assignee.Id == task.ApprovalRequestStepAssigneeId.Value))
             .Select(step => step.Sequence)
             .ToListAsync(cancellationToken);
     }

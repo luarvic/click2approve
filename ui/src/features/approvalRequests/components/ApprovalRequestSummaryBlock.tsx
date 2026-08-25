@@ -1,17 +1,17 @@
 import { stores } from "@/app/rootStore";
-import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
-import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
-import ApprovalRequestParticipantPair from "@/features/approvalRequests/components/ApprovalRequestParticipantPair";
-import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
+import { getRequestCompletedTimestamp } from "@/features/approvalRequests/components/approvalRequestCompletionTimestamps";
 import ApprovalRequestDetailsCard, {
   requestCardBackgroundSx,
 } from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
 import ApprovalRequestField from "@/features/approvalRequests/components/ApprovalRequestField";
 import ApprovalRequestFieldGroup from "@/features/approvalRequests/components/ApprovalRequestFieldGroup";
+import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
+import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
+import ApprovalRequestParticipantPair from "@/features/approvalRequests/components/ApprovalRequestParticipantPair";
+import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
 import ApprovalRequestTimestamp from "@/features/approvalRequests/components/ApprovalRequestTimestamp";
-import ApprovalRequestTimestampRow from "@/features/approvalRequests/components/ApprovalRequestTimestampRow";
 import { getApprovalRequestTimestampIcon } from "@/features/approvalRequests/components/approvalRequestTimestampDisplay";
-import { getRequestCompletedTimestamp } from "@/features/approvalRequests/components/approvalRequestCompletionTimestamps";
+import ApprovalRequestTimestampRow from "@/features/approvalRequests/components/ApprovalRequestTimestampRow";
 import {
   getApprovalRequestStatusColor,
   getApprovalRequestStatusLabel,
@@ -21,7 +21,7 @@ import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approv
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
 import { getLocaleDateTimeString } from "@/shared/utils/dateTime";
-import { PlayCircleOutline } from "@mui/icons-material";
+import { Business, PlayCircleOutline } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material/styles";
 
 interface ApprovalRequestSummaryBlockProps {
@@ -58,6 +58,10 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const requesterType = approvalRequest.createdByEmployeeGlobalId ? AssigneeType.Employee : AssigneeType.User;
   const completionType = approvalRequest.completedByEmployeeGlobalId ? AssigneeType.Employee : AssigneeType.User;
+  const organizationDisplayName =
+    organizationIsVisible && approvalRequest.organizationDisplayName
+      ? approvalRequest.organizationDisplayName
+      : undefined;
   const completionLabel = getRequestCompletionLabel(approvalRequest.status);
   const completedTimestamp = getRequestCompletedTimestamp(approvalRequest);
   const completedBySystem =
@@ -133,14 +137,20 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
   void participantTimeline;
   const activity = (
     <ApprovalRequestFieldGroup title="Activity">
+      {organizationDisplayName && (
+        <ApprovalRequestField
+          label="From organization"
+          value={organizationDisplayName}
+          valueIcon={<Business color="action" fontSize="small" />}
+          valueVariant="body2"
+        />
+      )}
       <ApprovalRequestField
         label="Requested by"
         value={
           <ApprovalRequestParticipant
             displayName={approvalRequest.createdByDisplayName}
             email={approvalRequest.createdByEmail}
-            organizationDisplayName={approvalRequest.organizationDisplayName}
-            showOrganization={organizationIsVisible}
             type={requesterType}
             variant="body2"
           />
@@ -159,8 +169,6 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
               displayName={completionDisplayName}
               email={completionEmail}
               isSystemParticipant={completedBySystem}
-              organizationDisplayName={approvalRequest.organizationDisplayName}
-              showOrganization={organizationIsVisible}
               type={completionType}
               variant="body2"
             />

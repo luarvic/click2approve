@@ -120,6 +120,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var approvalRequests = await client.ListApprovalRequestsAsync(requesterLogin.AccessToken, CancellationToken.None);
 
         var approvalRequestSummary = Assert.Single(approvalRequests);
+        Assert.Equal(string.Empty, approvalRequestSummary.OrganizationDisplayName);
         var approvalRequestResponse = await client.GetAsync($"api/v1/tenants/{requesterTenantId}/requests/{approvalRequestSummary.GlobalId}");
         Assert.True(approvalRequestResponse.IsSuccessStatusCode, await approvalRequestResponse.Content.ReadAsStringAsync());
         var approvalRequestJson = await approvalRequestResponse.Content.ReadAsStringAsync();
@@ -132,7 +133,9 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
             CancellationToken.None);
         Assert.NotEqual(Guid.Empty, approvalRequest.CreatedByUserGlobalId);
         Assert.Null(approvalRequest.CreatedByEmployeeGlobalId);
+        Assert.Equal(string.Empty, approvalRequest.OrganizationDisplayName);
         var approvalRequestTask = Assert.Single(approvalRequest.Steps.Single(step => step.Sequence == 1).Tasks);
+        Assert.Equal(string.Empty, approvalRequestTask.OrganizationDisplayName);
 
         var assigneeClient = _applicationFactory.CreateClient();
         var assigneeLogin = await assigneeClient.LogInAsync(assignee, CancellationToken.None);
@@ -150,6 +153,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailsResponse>();
         Assert.NotNull(task);
         Assert.Equal(requester.Email, task.RequestedByDisplayName);
+        Assert.Equal(string.Empty, task.OrganizationDisplayName);
         Assert.Equal(approvalRequest.RevisionNumber, task.RevisionNumber);
         Assert.NotNull(task.ApprovalRequest);
         Assert.Collection(task.ApprovalRequest.Steps.OrderBy(step => step.Sequence),
