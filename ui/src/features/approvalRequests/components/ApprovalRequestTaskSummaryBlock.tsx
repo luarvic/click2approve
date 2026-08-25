@@ -1,23 +1,28 @@
 import { stores } from "@/app/rootStore";
 import { getTaskCompletedTimestamp } from "@/features/approvalRequests/components/approvalRequestCompletionTimestamps";
-import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
+import ApprovalRequestDetailsCard, {
+  taskCardBackgroundSx,
+} from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
 import ApprovalRequestElectronicSignatureView from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureView";
+import ApprovalRequestField from "@/features/approvalRequests/components/ApprovalRequestField";
+import ApprovalRequestFieldGroup from "@/features/approvalRequests/components/ApprovalRequestFieldGroup";
 import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
 import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
 import ApprovalRequestParticipantPair from "@/features/approvalRequests/components/ApprovalRequestParticipantPair";
 import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
 import ApprovalRequestTimestamp from "@/features/approvalRequests/components/ApprovalRequestTimestamp";
 import ApprovalRequestTimestampRow from "@/features/approvalRequests/components/ApprovalRequestTimestampRow";
+import { getApprovalRequestTimestampIcon } from "@/features/approvalRequests/components/approvalRequestTimestampDisplay";
 import {
+  getApprovalRequestTaskStatusColor,
   getApprovalRequestTaskStatusLabel,
-  getApprovalRequestTaskStatusLineColor,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { getApprovalRequestTaskCompletedActionLabel } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
-import { StatusLineColors } from "@/shared/components/status/StatusLines";
+import { getLocaleDateTimeString } from "@/shared/utils/dateTime";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
 import { StackSpacing } from "@/shared/constants/constants";
 import type { TypographyProps } from "@mui/material";
@@ -26,6 +31,8 @@ import type { ElementType, ReactNode } from "react";
 
 interface ApprovalRequestTaskSummaryBlockProps {
   additionalMetadata?: ReactNode;
+  defaultExpanded?: boolean;
+  expandable?: boolean;
   icon?: ReactNode;
   onClick?: () => void;
   stepperBorderLeftColor?: string;
@@ -38,19 +45,15 @@ interface ApprovalRequestTaskSummaryBlockProps {
   showDescription?: boolean;
   showElectronicSignature?: boolean;
   showFiles?: boolean;
+  showInstructions?: boolean;
   showInstructionsLabel?: boolean;
   showRevision?: boolean;
+  showRequester?: boolean;
   showTimeline?: boolean;
   showTitle?: boolean;
   task: ApprovalRequestTask;
   taskNumberPrefix?: string;
 }
-
-const getTaskBorderLeftColor = (status: ApprovalRequestTaskStatus, result: boolean | undefined): string => {
-  const lineColor = getApprovalRequestTaskStatusLineColor(status, result);
-
-  return lineColor === "other" ? "text.disabled" : StatusLineColors[lineColor];
-};
 
 const taskElectronicSignatureIsVisible = (task: ApprovalRequestTask) =>
   task.hasAssigneeSignature === true && task.status !== ApprovalRequestTaskStatus.Pending;
@@ -70,6 +73,8 @@ const getTaskCompletionLabel = (task: ApprovalRequestTask): string | undefined =
 
 const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockProps> = ({
   additionalMetadata,
+  defaultExpanded,
+  expandable,
   icon,
   onClick,
   stepperBorderLeftColor,
@@ -82,12 +87,14 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   showDescription = true,
   showElectronicSignature = false,
   showFiles = true,
+  showInstructions = true,
   showInstructionsLabel = true,
   showRevision = true,
+  showRequester = false,
   showTimeline = true,
   showTitle = true,
   task,
-  taskNumberPrefix,
+  taskNumberPrefix: _taskNumberPrefix,
 }) => {
   const organizationIsVisible = stores.tenantStore.currentTenant?.type === TenantType.Personal;
   const requestedByEmail = task.requestedByEmail ?? task.approvalRequest?.createdByEmail;
@@ -96,7 +103,14 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   const participantOrganizationDisplayName = task.organizationDisplayName;
   const resolvedParticipantType =
     participantType ?? (participant === "assignee" ? AssigneeType.User : AssigneeType.Employee);
-  const taskBorderLeftColor = getTaskBorderLeftColor(task.status, task.result);
+  const requesterParticipantType = task.approvalRequest
+    ? task.approvalRequest.createdByEmployeeGlobalId
+      ? AssigneeType.Employee
+      : AssigneeType.User
+    : participant === "assignee"
+      ? resolvedParticipantType
+      : AssigneeType.User;
+  const taskStatusColor = getApprovalRequestTaskStatusColor(task.status, task.result);
   const completedTimestamp = getTaskCompletedTimestamp(task);
   const completionLabel = getTaskCompletionLabel(task);
   const completedBySystem =
@@ -180,17 +194,91 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
       )
     ) : undefined;
   const taskContent =
-    task.instructions?.trim() || participants ? (
+    (showInstructions && task.instructions?.trim()) || participants || showRequester ? (
       <>
-        {task.instructions?.trim() && (
+        {showInstructions && task.instructions?.trim() && (
           <>
             {showInstructionsLabel && <ApprovalRequestParticipantLabel>Instructions</ApprovalRequestParticipantLabel>}
             <UserProvidedText text={task.instructions} />
           </>
         )}
         {participants}
+        {showRequester && (
+          <Stack spacing={StackSpacing.tight}>
+            <ApprovalRequestParticipantLabel>Requested by</ApprovalRequestParticipantLabel>
+            <ApprovalRequestParticipant
+              displayName={task.requestedByDisplayName}
+              email={requestedByEmail}
+              organizationDisplayName={participantOrganizationDisplayName}
+              showOrganization={organizationIsVisible}
+              type={requesterParticipantType}
+            />
+          </Stack>
+        )}
       </>
     ) : undefined;
+  void taskContent;
+  const activity = (
+    <ApprovalRequestFieldGroup title="Activity">
+      {showRequester && (
+        <ApprovalRequestField
+          label="Requested by"
+          value={
+            <ApprovalRequestParticipant
+              displayName={task.requestedByDisplayName}
+              email={requestedByEmail}
+              organizationDisplayName={participantOrganizationDisplayName}
+              showOrganization={organizationIsVisible}
+              type={requesterParticipantType}
+              variant="body2"
+            />
+          }
+        />
+      )}
+      <ApprovalRequestField
+        label={participant === "assignee" ? "Assigned to" : "Requested by"}
+        value={
+          participant === "none" ? undefined : (
+            <ApprovalRequestParticipant
+              icon={icon}
+              displayName={participantDisplayName}
+              email={participantEmail}
+              organizationDisplayName={participantOrganizationDisplayName}
+              showOrganization={organizationIsVisible}
+              type={resolvedParticipantType}
+              variant="body2"
+            />
+          )
+        }
+      />
+      <ApprovalRequestField
+        label="Assigned at"
+        value={getLocaleDateTimeString(task.createdAtDate)}
+        valueVariant="body2"
+      />
+      <ApprovalRequestField
+        label="Completed by"
+        value={
+          completionLabel ? (
+            <ApprovalRequestParticipant
+              displayName={completionDisplayName}
+              email={completionEmail}
+              isSystemParticipant={completedBySystem}
+              organizationDisplayName={participantOrganizationDisplayName}
+              showOrganization={organizationIsVisible}
+              type={completedBySystem ? AssigneeType.Employee : completionType}
+              variant="body2"
+            />
+          ) : undefined
+        }
+      />
+      <ApprovalRequestField
+        label="Completed at"
+        value={completedTimestamp ? getLocaleDateTimeString(completedTimestamp.date) : undefined}
+        valueVariant="body2"
+      />
+    </ApprovalRequestFieldGroup>
+  );
   const hasMetadata =
     (showComment && Boolean(task.comment?.trim())) ||
     Boolean(additionalMetadata) ||
@@ -226,16 +314,23 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   return (
     <ApprovalRequestDetailsCard
       ariaLabel={getApprovalRequestTaskStatusLabel(task.status, task.action, task.result)}
-      borderLeftColor={stepperBorderLeftColor ?? taskBorderLeftColor}
+      borderLeftColor={stepperBorderLeftColor ?? taskStatusColor}
+      elevated
       onClick={onClick}
+      sx={taskCardBackgroundSx}
     >
       <ApprovalRequestSummary
-        additionalContent={taskContent}
+        activity={activity}
         title={task.title}
         description={task.description}
+        defaultExpanded={defaultExpanded}
+        expandable={expandable}
+        instructions={showInstructions ? task.instructions : undefined}
         approvalRequestTaskGlobalId={task.globalId}
-        metadata={metadata}
-        numberPrefix={taskNumberPrefix}
+        artifacts={
+          metadata ? <ApprovalRequestFieldGroup title="Artifacts">{metadata}</ApprovalRequestFieldGroup> : undefined
+        }
+        numberPrefix="Task"
         numberColor={numberColor}
         numberComponent={numberComponent}
         numberVariant={numberVariant}
@@ -243,8 +338,24 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
         revisionNumber={task.revisionNumber}
         showDescription={showDescription}
         showFiles={showFiles}
+        showInstructions={showInstructions}
         showRevision={showRevision}
         showTitle={showTitle}
+        statusLabel={getApprovalRequestTaskStatusLabel(task.status, task.action, task.result)}
+        statusColor={taskStatusColor}
+        statusIconSx={{ color: taskStatusColor }}
+        statusIcon={getApprovalRequestTimestampIcon(
+          task.status === ApprovalRequestTaskStatus.Skipped
+            ? "skipped"
+            : task.status === ApprovalRequestTaskStatus.Canceled
+              ? "canceled"
+              : task.status === ApprovalRequestTaskStatus.Pending
+                ? "pending"
+                : task.result === false
+                  ? "completedUnsuccessfully"
+                  : "completedSuccessfully",
+          "primary",
+        )}
       />
     </ApprovalRequestDetailsCard>
   );

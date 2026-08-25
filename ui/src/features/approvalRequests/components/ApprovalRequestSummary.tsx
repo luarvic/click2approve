@@ -1,116 +1,162 @@
-import ApprovalRequestContentGroups from "@/features/approvalRequests/components/ApprovalRequestContentGroups";
-import { useApprovalRequestDetailsCardMode } from "@/features/approvalRequests/components/ApprovalRequestDetailsCardContext";
+import ApprovalRequestCardLayout from "@/features/approvalRequests/components/ApprovalRequestCardLayout";
+import ApprovalRequestField from "@/features/approvalRequests/components/ApprovalRequestField";
+import ApprovalRequestFieldGroup from "@/features/approvalRequests/components/ApprovalRequestFieldGroup";
 import ApprovalRequestFilesBox from "@/features/approvalRequests/components/ApprovalRequestFilesBox";
-import ApprovalRequestNumberText from "@/features/approvalRequests/components/ApprovalRequestNumberText";
-import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
+import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestRevisionLinks from "@/features/approvalRequests/components/ApprovalRequestRevisionLinks";
 import { ApprovalRequestFile } from "@/features/approvalRequests/models/approvalRequest";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
-import { StackSpacing } from "@/shared/constants/constants";
-import type { SxProps, TypographyProps } from "@mui/material";
 import { Stack, Typography } from "@mui/material";
-import type { Theme } from "@mui/material/styles";
+import type { TypographyProps } from "@mui/material";
+import type { SxProps, Theme } from "@mui/material/styles";
+import { StackSpacing } from "@/shared/constants/constants";
 import type { ElementType, ReactNode } from "react";
 
 interface ApprovalRequestSummaryProps {
   additionalContent?: ReactNode;
+  activity?: ReactNode;
+  artifacts?: ReactNode;
   approvalRequestGlobalId?: string;
   approvalRequestTaskGlobalId?: string;
   description?: string;
-  title?: string;
+  defaultExpanded?: boolean;
+  expandable?: boolean;
+  instructions?: string;
+  nextRevisionApprovalRequestGlobalId?: string;
+  numberPrefix?: string;
+  previousRevisionApprovalRequestGlobalId?: string;
   requestFiles?: ApprovalRequestFile[];
   revisionNumber?: number;
-  numberPrefix?: string;
+  metadata?: ReactNode;
   numberColor?: TypographyProps["color"];
   numberComponent?: ElementType;
-  nextRevisionApprovalRequestGlobalId?: string;
-  numberVariant?: TypographyProps["variant"];
-  previousRevisionApprovalRequestGlobalId?: string;
-  metadata?: ReactNode;
-  showDescription?: boolean;
+  numberVariant?: string;
   showFileStateIndicators?: boolean;
+  showDescription?: boolean;
   showFiles?: boolean;
+  showInstructions?: boolean;
   showRevision?: boolean;
+  showStatus?: boolean;
   showTitle?: boolean;
+  statusLabel?: string;
+  statusColor?: TypographyProps["color"];
+  statusIcon?: ReactNode;
+  statusIconSx?: SxProps<Theme>;
   tenantGlobalId?: string | null;
-  titleVariant?: TypographyProps["variant"];
+  title?: string;
 }
 
-const summaryTitleSx: SxProps<Theme> = {
-  overflowWrap: "anywhere",
+const revisionValueSx: SxProps<Theme> = {
+  display: "inline-flex",
 };
 
 const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   additionalContent,
+  activity,
+  artifacts,
   approvalRequestGlobalId,
   approvalRequestTaskGlobalId,
   description,
-  title,
+  defaultExpanded,
+  expandable,
+  instructions,
+  nextRevisionApprovalRequestGlobalId,
+  metadata,
+  numberPrefix: _numberPrefix = "Request",
+  previousRevisionApprovalRequestGlobalId,
   requestFiles,
   revisionNumber,
-  numberPrefix,
-  numberColor,
-  numberComponent,
-  nextRevisionApprovalRequestGlobalId,
-  numberVariant = "h6",
-  previousRevisionApprovalRequestGlobalId,
-  metadata,
-  showDescription = true,
   showFileStateIndicators,
+  showDescription = true,
   showFiles = true,
+  showInstructions = false,
   showRevision = true,
-  showTitle = true,
+  showStatus = true,
+  statusLabel,
+  statusColor,
+  statusIcon,
+  statusIconSx,
   tenantGlobalId,
-  titleVariant = "h5",
 }) => {
-  const detailsCardMode = useApprovalRequestDetailsCardMode();
   const numberGlobalId = approvalRequestGlobalId ?? approvalRequestTaskGlobalId;
-  const hasDescription = showDescription && Boolean(description?.trim());
-  const hasFiles = showFiles && Boolean(requestFiles?.length);
-  const header = (
-    <Stack spacing={StackSpacing.tight}>
-      <Stack direction="row" spacing={StackSpacing.tight} alignItems="center">
-        {showTitle && title && (
-          <Typography component="h2" variant={titleVariant} sx={summaryTitleSx}>
-            {title}
-          </Typography>
-        )}
-        {showRevision && <ApprovalRequestRevisionChip revisionNumber={revisionNumber} />}
-        {!showTitle && (
-          <ApprovalRequestNumberText
-            color={numberColor}
-            component={numberComponent}
-            globalId={numberGlobalId}
-            prefix={numberPrefix}
-            variant={numberVariant}
-          />
-        )}
-      </Stack>
-      <ApprovalRequestRevisionLinks
-        nextRevisionApprovalRequestGlobalId={nextRevisionApprovalRequestGlobalId}
-        previousRevisionApprovalRequestGlobalId={previousRevisionApprovalRequestGlobalId}
-        tenantGlobalId={tenantGlobalId}
-      />
-    </Stack>
-  );
-  const content =
-    hasDescription || hasFiles || additionalContent ? (
-      <Stack spacing={StackSpacing.default}>
-        {hasDescription && <UserProvidedText text={description} />}
-        {hasFiles && (
-          <ApprovalRequestFilesBox
-            requestFiles={requestFiles}
-            approvalRequestGlobalId={approvalRequestGlobalId}
-            approvalRequestTaskGlobalId={approvalRequestTaskGlobalId}
-            compareWithPrevious={detailsCardMode === "edit" && (revisionNumber ?? 1) > 1}
-            showFileStateIndicators={showFileStateIndicators ?? detailsCardMode === "edit"}
-          />
-        )}
-        {additionalContent}
-      </Stack>
-    ) : undefined;
+  const hasFiles = Boolean(requestFiles?.length);
 
-  return <ApprovalRequestContentGroups content={content} header={header} metadata={metadata} />;
+  const details = (
+    <ApprovalRequestFieldGroup title="Details">
+      {showStatus && (
+        <ApprovalRequestField
+          label="Status"
+          value={statusLabel}
+          valueColor={statusColor}
+          valueIcon={statusIcon}
+          valueIconSx={statusIconSx}
+        />
+      )}
+      {showRevision && (
+        <ApprovalRequestField
+          label="Revision"
+          value={
+            <Stack
+              component="span"
+              direction="row"
+              spacing={StackSpacing.tight}
+              alignItems="center"
+              sx={revisionValueSx}
+            >
+              <Typography component="span" variant="body1">
+                {revisionNumber ?? 1}
+              </Typography>
+              <ApprovalRequestRevisionLinks
+                leadingDivider
+                nextRevisionApprovalRequestGlobalId={nextRevisionApprovalRequestGlobalId}
+                previousRevisionApprovalRequestGlobalId={previousRevisionApprovalRequestGlobalId}
+                tenantGlobalId={tenantGlobalId}
+              />
+            </Stack>
+          }
+        />
+      )}
+      {showDescription && (
+        <ApprovalRequestField
+          label="Description"
+          value={description?.trim() ? <UserProvidedText text={description} /> : undefined}
+        />
+      )}
+      {showInstructions && (
+        <ApprovalRequestField
+          label="Instructions"
+          value={instructions?.trim() ? <UserProvidedText text={instructions} /> : undefined}
+        />
+      )}
+      {showFiles && (
+        <ApprovalRequestField
+          label="Files to review"
+          value={
+            hasFiles ? (
+              <ApprovalRequestFilesBox
+                approvalRequestGlobalId={approvalRequestGlobalId}
+                approvalRequestTaskGlobalId={approvalRequestTaskGlobalId}
+                compareWithPrevious={(revisionNumber ?? 1) > 1}
+                requestFiles={requestFiles}
+                showFileStateIndicators={showFileStateIndicators ?? (revisionNumber ?? 1) > 1}
+              />
+            ) : undefined
+          }
+        />
+      )}
+    </ApprovalRequestFieldGroup>
+  );
+
+  return (
+    <ApprovalRequestCardLayout
+      activity={activity ?? additionalContent}
+      artifacts={artifacts ?? metadata}
+      defaultExpanded={defaultExpanded}
+      details={details}
+      expandable={expandable}
+      title={`${_numberPrefix} ${getApprovalRequestNumber(numberGlobalId)}`}
+    />
+  );
 };
 
 export default ApprovalRequestSummary;

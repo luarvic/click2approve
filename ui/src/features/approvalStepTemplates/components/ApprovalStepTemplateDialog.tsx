@@ -33,6 +33,7 @@ interface ApprovalStepTemplateEditorProps {
 
 const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({ template, onClose, onDelete }) => {
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const saveLoader = ActionLoaders.approvalStepTemplates.save(template?.globalId);
   const saveAction = useAsyncAction(saveLoader);
@@ -59,6 +60,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
 
   useEffect(() => {
     setName(template?.name ?? "");
+    setDescription(template?.description ?? "");
     setSteps(template ? createEditableSteps(template.steps) : [createEmptyStep(1, true, defaultAssigneeType)]);
     if (tenantGlobalId && businessTenantIsSelected) {
       if (canUseEmployees) {
@@ -108,10 +110,12 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
     await saveAction.run(async () => {
       const saved = template
         ? await stores.approvalStepTemplateStore.update(tenantGlobalId, template.globalId, {
+            description,
             name: name.trim(),
             steps: toApprovalStepSubmissions(steps),
           })
         : await stores.approvalStepTemplateStore.create(tenantGlobalId, {
+            description,
             name: name.trim(),
             steps: toApprovalStepSubmissions(steps),
           });
@@ -141,13 +145,20 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
             to: templatesPath,
           },
           {
-            label: template ? "Template" : "New template",
+            label: template?.name ?? "New template",
           },
         ]}
       />
       <Stack spacing={Dialogs.formStackSpacing}>
-        <ApprovalRequestDetailsCard ariaLabel="Template details" showStatusBorder={false}>
+        <ApprovalRequestDetailsCard ariaLabel="Template details" elevated showStatusBorder={false}>
           <TextField label="Name" value={name} onChange={(event) => setName(event.target.value)} fullWidth required />
+          <TextField
+            fullWidth
+            label="Description"
+            multiline
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+          />
         </ApprovalRequestDetailsCard>
         <ApprovalStepEditor
           steps={steps}

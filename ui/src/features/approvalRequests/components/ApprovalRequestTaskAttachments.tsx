@@ -114,15 +114,20 @@ const ApprovalRequestTaskAttachments = forwardRef<
 
     return (
       <Stack alignItems="flex-start" spacing={StackSpacing.default}>
-        {showLabel && <ApprovalRequestDetailLabel>{label}</ApprovalRequestDetailLabel>}
-        <ApprovalRequestFilesList
-          existingFiles={files.map((file) => ({ file }))}
-          isActionsDisabled={isManagingFiles}
-          newFiles={newFiles}
-          onDownloadExisting={(file) => void downloadApprovalRequestTaskAttachment(tenantGlobalId, file, taskGlobalId)}
-          onRemoveExisting={canManageFiles ? (index) => void removeAttachedFile(index) : undefined}
-          onRemoveNew={(index) => void removeNewFile(index)}
-        />
+        <Stack alignItems="flex-start" spacing={showLabel ? StackSpacing.tight : StackSpacing.none}>
+          {showLabel && <ApprovalRequestDetailLabel>{label}</ApprovalRequestDetailLabel>}
+          <ApprovalRequestFilesList
+            existingFiles={files.map((file) => ({ file }))}
+            isActionsDisabled={isManagingFiles}
+            linkVariant="body1"
+            newFiles={newFiles}
+            onDownloadExisting={(file) =>
+              void downloadApprovalRequestTaskAttachment(tenantGlobalId, file, taskGlobalId)
+            }
+            onRemoveExisting={canManageFiles ? (index) => void removeAttachedFile(index) : undefined}
+            onRemoveNew={(index) => void removeNewFile(index)}
+          />
+        </Stack>
         {canManageFiles && (
           <>
             <LoadingButton

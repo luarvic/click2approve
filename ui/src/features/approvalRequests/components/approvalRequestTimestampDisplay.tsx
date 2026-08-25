@@ -1,10 +1,11 @@
-import SuccessSnackbarIcon from "@/shared/components/icons/SuccessSnackbarIcon";
 import { Icons } from "@/shared/constants/constants";
+import type { SvgIconProps } from "@mui/material/SvgIcon";
 import {
   BlockOutlined,
   CancelOutlined,
+  Done,
   DoNotDisturbOnOutlined,
-  PendingOutlined,
+  HourglassTop,
   ReplayOutlined,
   TimerOutlined,
 } from "@mui/icons-material";
@@ -19,12 +20,15 @@ export type ApprovalRequestTimestampType =
   | "skipped"
   | "superseded";
 
-export const getApprovalRequestTimestampIcon = (type: ApprovalRequestTimestampType) => {
+export const getApprovalRequestTimestampIcon = (
+  type: ApprovalRequestTimestampType,
+  pendingColor: SvgIconProps["color"] = Icons.secondaryColor,
+) => {
   switch (type) {
     case "created":
       return <TimerOutlined color={Icons.secondaryColor} fontSize="inherit" />;
     case "pending":
-      return <PendingOutlined color={Icons.secondaryColor} fontSize="inherit" />;
+      return <HourglassTop color={pendingColor} fontSize="inherit" />;
     case "completedUnsuccessfully":
       return <CancelOutlined color="error" fontSize="inherit" />;
     case "canceled":
@@ -35,6 +39,6 @@ export const getApprovalRequestTimestampIcon = (type: ApprovalRequestTimestampTy
       return <ReplayOutlined color="warning" fontSize="inherit" />;
     case "completedSuccessfully":
     case "completed":
-      return <SuccessSnackbarIcon color="success" fontSize="inherit" />;
+      return <Done color="success" fontSize="inherit" />;
   }
 };

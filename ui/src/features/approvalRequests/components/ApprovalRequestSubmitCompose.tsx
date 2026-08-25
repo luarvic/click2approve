@@ -25,6 +25,7 @@ interface ApprovalRequestSubmitComposeProps {
   isFilesBusy: boolean;
   isFilesUploading: boolean;
   isRevision: boolean;
+  isSavingTemplate: boolean;
   isSubmitting: boolean;
   newFiles: UserFile[];
   replacementFileInput: RefObject<HTMLInputElement>;
@@ -36,6 +37,7 @@ interface ApprovalRequestSubmitComposeProps {
   onAddAssignee: (stepIndex: number) => void;
   onAddStep: () => void;
   onCancel: () => void;
+  onSaveTemplate?: () => void;
   onDescriptionChange: (description: string) => void;
   onFilesChange: ChangeEventHandler<HTMLInputElement>;
   onMoveStep: (stepIndex: number, direction: -1 | 1) => void;
@@ -64,6 +66,7 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
   isFilesBusy,
   isFilesUploading,
   isRevision,
+  isSavingTemplate,
   isSubmitting,
   newFiles,
   replacementFileInput,
@@ -75,6 +78,7 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
   onAddAssignee,
   onAddStep,
   onCancel,
+  onSaveTemplate,
   onDescriptionChange,
   onFilesChange,
   onMoveStep,
@@ -94,7 +98,7 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
 }) => (
   <Box component="form" onSubmit={onSubmit}>
     <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
-      <ApprovalRequestDetailsCard ariaLabel="Request details" mode="edit" showStatusBorder={false}>
+      <ApprovalRequestDetailsCard ariaLabel="Request details" elevated mode="edit" showStatusBorder={false}>
         <Stack spacing={Dialogs.formStackSpacing}>
           <TextField
             autoFocus
@@ -109,6 +113,7 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
           <ApprovalRequestFilesList
             existingFiles={existingFiles}
             isActionsDisabled={isFilesBusy}
+            linkVariant="body1"
             newFiles={newFiles}
             onRemoveExisting={onRemoveExisting}
             onRemoveNew={onRemoveNew}
@@ -177,7 +182,12 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
         </Box>
       </Stack>
     </Stack>
-    <ApprovalRequestSubmitActions isSubmitting={isSubmitting} onCancel={onCancel} />
+    <ApprovalRequestSubmitActions
+      isSavingTemplate={isSavingTemplate}
+      isSubmitting={isSubmitting}
+      onCancel={onCancel}
+      onSaveTemplate={onSaveTemplate}
+    />
   </Box>
 );
 

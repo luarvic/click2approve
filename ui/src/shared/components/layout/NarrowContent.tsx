@@ -8,8 +8,8 @@ interface NarrowContentProps {
   children: ReactNode;
 }
 
-const defaultNarrowContentWidth = 600;
-const minimumNarrowContentWidth = 600;
+const defaultNarrowContentWidth = 960;
+const minimumNarrowContentWidth = defaultNarrowContentWidth;
 const resizeStep = 20;
 const narrowContentWidthStorageKey = "click2approve.narrowContentWidth";
 

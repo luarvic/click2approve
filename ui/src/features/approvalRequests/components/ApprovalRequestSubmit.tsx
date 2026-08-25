@@ -65,6 +65,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   const [nameWarningDialogIsOpen, setNameWarningDialogIsOpen] = useState(false);
   const nameWarning = getIncompleteParticipantNameWarning(stores.tenantStore.currentTenant?.type);
   const submitAction = useAsyncAction(ActionLoaders.approvalRequests.submit());
+  const saveTemplateAction = useAsyncAction(ActionLoaders.approvalStepTemplates.save(undefined));
   const initialTemplateHasBeenApplied = useRef(false);
 
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
@@ -138,6 +139,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
           );
           if (template) {
             setTitle(template.name);
+            setDescription(template.description ?? "");
             setSteps(createEditableSteps(template.steps));
           }
           initialTemplateHasBeenApplied.current = true;
@@ -215,6 +217,39 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   };
 
   const getSubmittedSteps = () => toApprovalStepSubmissions(steps);
+
+  const saveTemplate = async () => {
+    if (!tenantGlobalId || !canUseTemplates) {
+      return;
+    }
+
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
+      notification.warning("A title is required to save a template.");
+      return;
+    }
+    if (!validateSteps()) {
+      return;
+    }
+
+    await saveTemplateAction.run(async () => {
+      await stores.approvalStepTemplateStore.load(tenantGlobalId);
+      const payload = {
+        description,
+        name: trimmedTitle,
+        steps: getSubmittedSteps(),
+      };
+      const existingTemplate = stores.approvalStepTemplateStore.templates.find(
+        (template) => template.name.localeCompare(trimmedTitle, undefined, { sensitivity: "base" }) === 0,
+      );
+      const template = existingTemplate
+        ? await stores.approvalStepTemplateStore.update(tenantGlobalId, existingTemplate.globalId, payload)
+        : await stores.approvalStepTemplateStore.create(tenantGlobalId, payload);
+      if (template) {
+        showPersistenceSuccessNotification(PersistenceSuccessMessages.templateSaved);
+      }
+    });
+  };
 
   const submit = async () => {
     const trimmedTitle = title.trim();
@@ -337,6 +372,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
         isFilesBusy={fileDeletion.isDeleting || addedFilesUpload.isUploading || replacementFilesUpload.isUploading}
         isFilesUploading={addedFilesUpload.isUploading}
         isRevision={isRevision}
+        isSavingTemplate={saveTemplateAction.isRunning}
         isSubmitting={submitAction.isRunning}
         newFiles={newFiles}
         replacementFileInput={replacementFilesUpload.fileInput}
@@ -359,6 +395,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
         onReplaceExisting={startReplacingExistingFile}
         onReplacementFilesChange={handleReplacementFilesChange}
         onRestoreExisting={restoreExistingFile}
+        onSaveTemplate={canUseTemplates ? () => void saveTemplate() : undefined}
         onSubmit={handleComposeSubmit}
         onTitleChange={setTitle}
         onUpdateAssignee={updateAssignee}

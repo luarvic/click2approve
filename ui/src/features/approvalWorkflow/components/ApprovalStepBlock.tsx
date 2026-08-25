@@ -38,10 +38,12 @@ import ApprovalStepTeamAccordion from "./ApprovalStepTeamAccordion";
 import ApprovalUpcomingTaskBlock from "./ApprovalUpcomingTaskBlock";
 
 interface ApprovalStepBlockProps {
+  collapseCards?: boolean;
   contentSx?: SxProps<Theme>;
   footerContent?: ReactNode;
   headerAccessory?: ReactNode;
   highlightedTaskGlobalId?: string;
+  limitWorkflowFields?: boolean;
   onHighlightedTaskClick?: () => void;
   showEmptyTeamTasksMessage?: boolean;
   showStepBox?: boolean;
@@ -250,6 +252,8 @@ const renderTaskDetails = (
   icon: React.ReactNode,
   participantType: AssigneeType | undefined,
   isCurrentTask: boolean,
+  collapseCards: boolean,
+  limitWorkflowFields: boolean,
   stepperBorderLeftColor: string,
   onCurrentTaskClick?: () => void,
   taskAttachmentsTenantGlobalId?: string,
@@ -266,6 +270,8 @@ const renderTaskDetails = (
       ) : undefined
     }
     key={task.globalId}
+    defaultExpanded={isCurrentTask || !collapseCards}
+    expandable
     icon={icon}
     onClick={isCurrentTask ? onCurrentTaskClick : undefined}
     numberColor={
@@ -278,11 +284,11 @@ const renderTaskDetails = (
     participant="assignee"
     participantType={participantType}
     showComment
-    showDescription={false}
-    showFiles={false}
+    showDescription={!limitWorkflowFields}
+    showFiles={!limitWorkflowFields}
     showInstructionsLabel={false}
     showElectronicSignature
-    showRevision={false}
+    showRevision={!limitWorkflowFields}
     stepperBorderLeftColor={task.status === ApprovalRequestTaskStatus.Pending ? stepperBorderLeftColor : undefined}
     showTitle={false}
     task={task}
@@ -301,10 +307,7 @@ const renderAssigneeWithoutTasks = (
     assignee={assignee}
     compact={setupFutureTasks}
     instructions={instructions}
-    showAssigneeLabel={!setupFutureTasks}
     showStatusBorder={!setupFutureTasks}
-    showTitle={!setupFutureTasks}
-    showTimeline={!setupFutureTasks}
     title={setupFutureTasks ? "Task setup" : undefined}
   />
 );
@@ -314,6 +317,8 @@ const renderTeamAssignee = (
   assigneeTasks: ApprovalRequestTask[],
   index: number,
   stepperBorderLeftColor: string,
+  collapseCards: boolean,
+  limitWorkflowFields: boolean,
   highlightedTaskGlobalId?: string,
   onHighlightedTaskClick?: () => void,
   showEmptyTeamTasksMessage: boolean = true,
@@ -336,6 +341,8 @@ const renderTeamAssignee = (
             <Person color="action" fontSize="small" />,
             AssigneeType.Employee,
             task.globalId === highlightedTaskGlobalId,
+            collapseCards,
+            limitWorkflowFields,
             stepperBorderLeftColor,
             onHighlightedTaskClick,
             taskAttachmentsTenantGlobalId,
@@ -354,6 +361,8 @@ const renderAssignee = (
   highlightedTaskGlobalId?: string,
   onHighlightedTaskClick?: () => void,
   showEmptyTeamTasksMessage?: boolean,
+  collapseCards?: boolean,
+  limitWorkflowFields?: boolean,
   stepperBorderLeftColor?: string,
   setupFutureTasks?: boolean,
   taskAttachmentsTenantGlobalId?: string,
@@ -365,6 +374,8 @@ const renderAssignee = (
       assigneeTasks,
       index,
       stepperBorderLeftColor ?? "text.disabled",
+      collapseCards ?? false,
+      limitWorkflowFields ?? false,
       highlightedTaskGlobalId,
       onHighlightedTaskClick,
       showEmptyTeamTasksMessage,
@@ -384,6 +395,8 @@ const renderAssignee = (
       getTaskAssigneeIcon(step, task),
       getTaskAssigneeType(step, task),
       task.globalId === highlightedTaskGlobalId,
+      collapseCards ?? false,
+      limitWorkflowFields ?? false,
       stepperBorderLeftColor ?? "text.disabled",
       onHighlightedTaskClick,
       taskAttachmentsTenantGlobalId,
@@ -392,10 +405,12 @@ const renderAssignee = (
 };
 
 const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
+  collapseCards = false,
   contentSx,
   footerContent,
   headerAccessory,
   highlightedTaskGlobalId,
+  limitWorkflowFields = false,
   onHighlightedTaskClick,
   showEmptyTeamTasksMessage = true,
   showStepBox = true,
@@ -424,6 +439,8 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
       highlightedTaskGlobalId,
       onHighlightedTaskClick,
       showEmptyTeamTasksMessage,
+      collapseCards,
+      limitWorkflowFields,
       stepperBorderLeftColor,
       setupFutureTasks,
       taskAttachmentsTenantGlobalId,
@@ -457,6 +474,8 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
             getTaskAssigneeIcon(step, task),
             getTaskAssigneeType(step, task),
             task.globalId === highlightedTaskGlobalId,
+            collapseCards,
+            limitWorkflowFields,
             stepperBorderLeftColor,
             onHighlightedTaskClick,
             taskAttachmentsTenantGlobalId,

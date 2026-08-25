@@ -1,5 +1,7 @@
 import {
+  getApprovalRequestStatusColor,
   getApprovalRequestStatusLineColor,
+  getApprovalRequestTaskStatusColor,
   getApprovalRequestTaskStatusLabel,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
@@ -9,6 +11,28 @@ import { getStatusBorderSx } from "@/shared/components/status/StatusLines";
 import { describe, expect, test } from "vitest";
 
 describe("approval status line styles", () => {
+  test.each([
+    [ApprovalRequestStatus.Draft, undefined, "text.disabled"],
+    [ApprovalRequestStatus.Pending, undefined, "primary.main"],
+    [ApprovalRequestStatus.Started, undefined, "success.main"],
+    [ApprovalRequestStatus.Completed, true, "success.main"],
+    [ApprovalRequestStatus.Completed, false, "error.main"],
+    [ApprovalRequestStatus.Canceled, undefined, "warning.main"],
+    [ApprovalRequestStatus.Superseded, undefined, "warning.main"],
+  ])("uses the request status color for %s", (status, result, expectedColor) => {
+    expect(getApprovalRequestStatusColor(status, result)).toBe(expectedColor);
+  });
+
+  test.each([
+    [ApprovalRequestTaskStatus.Pending, undefined, "primary.main"],
+    [ApprovalRequestTaskStatus.Completed, true, "success.main"],
+    [ApprovalRequestTaskStatus.Completed, false, "error.main"],
+    [ApprovalRequestTaskStatus.Skipped, undefined, "warning.main"],
+    [ApprovalRequestTaskStatus.Canceled, undefined, "warning.main"],
+  ])("uses the task status color for %s", (status, result, expectedColor) => {
+    expect(getApprovalRequestTaskStatusColor(status, result)).toBe(expectedColor);
+  });
+
   test("uses a dotted green border for started approval requests", () => {
     const sx = getStatusBorderSx(getApprovalRequestStatusLineColor(ApprovalRequestStatus.Started));
 

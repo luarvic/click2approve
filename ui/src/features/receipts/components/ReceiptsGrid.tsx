@@ -2,7 +2,6 @@ import { stores } from "@/app/rootStore";
 import ApprovalRequestNumberText, {
   getApprovalRequestNumber,
 } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
-import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
 import {
   ApprovalRequestStatusLineLabel,
   getApprovalRequestStatusLabel,
@@ -11,7 +10,7 @@ import { listReceipts } from "@/features/receipts/api/receiptsApi";
 import type { Receipt } from "@/features/receipts/models/receipt";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
-import { DataGrids, Routes, StackSpacing } from "@/shared/constants/constants";
+import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
@@ -53,7 +52,9 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
       field: "globalId",
       headerName: "Number",
       width: DataGrids.approvalNumberColumnWidth,
-      renderCell: (params) => <ApprovalRequestNumberText globalId={params.row.globalId} includeHash={false} />,
+      renderCell: (params) => (
+        <ApprovalRequestNumberText color="text.primary" globalId={params.row.globalId} includeHash={false} />
+      ),
       valueGetter: (_value, row) => getApprovalRequestNumber(row.globalId, false),
     },
     {
@@ -62,13 +63,17 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
       flex: DataGrids.approvalColumnFlex.content,
       renderCell: (params) => (
         <Stack sx={DataGrids.approvalTitleCellSx}>
-          <Stack direction="row" spacing={StackSpacing.tight} alignItems="center">
-            <Typography variant="body2">{params.row.approvalRequestTitle}</Typography>
-            <ApprovalRequestRevisionChip revisionNumber={params.row.revisionNumber} />
-          </Stack>
+          <Typography variant="body2">{params.row.approvalRequestTitle}</Typography>
         </Stack>
       ),
       valueGetter: (_value, row) => row.approvalRequestTitle,
+    },
+    {
+      field: "revisionNumber",
+      headerName: "Revision",
+      align: "center",
+      headerAlign: "center",
+      width: DataGrids.approvalRevisionColumnWidth,
     },
     {
       field: "approvalRequestStatus",

@@ -2,10 +2,10 @@ import {
   ApprovalRequestDetailsCardMode,
   ApprovalRequestDetailsCardModeContext,
 } from "@/features/approvalRequests/components/ApprovalRequestDetailsCardContext";
-import { Card, CardContent } from "@mui/material";
 import type { SxProps } from "@mui/material";
-import { alpha } from "@mui/material/styles";
+import { Card, CardContent } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
+import { alpha } from "@mui/material/styles";
 import type { SystemStyleObject } from "@mui/system";
 import type { ReactNode } from "react";
 
@@ -15,6 +15,7 @@ interface ApprovalRequestDetailsCardProps {
   borderLeftStyle?: "dotted" | "solid";
   children: ReactNode;
   contentSx?: SxProps<Theme>;
+  elevated?: boolean;
   mode?: ApprovalRequestDetailsCardMode;
   onClick?: () => void;
   showStatusBorder?: boolean;
@@ -47,12 +48,25 @@ const detailsCardContentSx: SxProps<Theme> = {
   },
 };
 
+const elevatedCardSx: SxProps<Theme> = {
+  boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.common.black, 0.12)}`,
+};
+
+export const taskCardBackgroundSx: SxProps<Theme> = {
+  backgroundColor: (theme) => alpha(theme.palette.grey[500], theme.palette.mode === "dark" ? 0.08 : 0.04),
+};
+
+export const requestCardBackgroundSx: SxProps<Theme> = {
+  backgroundColor: (theme) => alpha(theme.palette.grey[500], theme.palette.mode === "dark" ? 0.08 : 0.04),
+};
+
 const ApprovalRequestDetailsCard: React.FC<ApprovalRequestDetailsCardProps> = ({
   ariaLabel,
   borderLeftColor = "divider",
   borderLeftStyle = "solid",
   children,
   contentSx,
+  elevated = false,
   mode = "display",
   onClick,
   showStatusBorder = true,
@@ -65,6 +79,7 @@ const ApprovalRequestDetailsCard: React.FC<ApprovalRequestDetailsCardProps> = ({
   };
   const cardSx: SxProps<Theme> = [
     detailsCardSx as SystemStyleObject<Theme>,
+    ...(elevated ? [elevatedCardSx as SystemStyleObject<Theme>] : []),
     ...(isClickable ? [clickableCardSx as SystemStyleObject<Theme>] : []),
     ...(showStatusBorder ? [statusBorderSx] : []),
     ...(sx ? (Array.isArray(sx) ? sx : [sx]) : []),

@@ -1,11 +1,11 @@
 import { stores } from "@/app/rootStore";
 import { completeApprovalRequestTask } from "@/features/approvalRequests/api/approvalRequestTasksApi";
 import ApprovalRequestActionBar from "@/features/approvalRequests/components/ApprovalRequestActionBar";
+import ApprovalRequestDetailLabel from "@/features/approvalRequests/components/ApprovalRequestDetailLabel";
 import ApprovalRequestDetails from "@/features/approvalRequests/components/ApprovalRequestDetails";
 import ApprovalRequestDiscussionSection from "@/features/approvalRequests/components/ApprovalRequestDiscussionSection";
 import type { ElectronicSignatureErrors } from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureForm";
 import ApprovalRequestElectronicSignatureForm from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureForm";
-import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestTaskSummaryBlock";
 import ApprovalRequestTaskAttachments, {
   ApprovalRequestTaskAttachmentsHandle,
@@ -26,7 +26,7 @@ import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import { Dialogs, Routes } from "@/shared/constants/constants";
+import { Dialogs, Routes, StackSpacing } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
@@ -92,7 +92,6 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
   const nameWarning = getIncompleteParticipantNameWarning(stores.tenantStore.currentTenant?.type);
   const tasksPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/tasks") : "/";
   const currentTask = stores.approvalRequestTaskStore.currentTask;
-  const requestTabLabel = approvalRequest ? `Request ${getApprovalRequestNumber(approvalRequest.globalId)}` : "Request";
   const currentTaskAssigneeType = approvalRequest?.steps
     .find((step) => step.globalId === currentTask?.approvalRequestStepGlobalId)
     ?.assignees.find((assignee) => assignee.globalId === currentTask?.approvalRequestStepAssigneeGlobalId)?.type;
@@ -131,7 +130,8 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
 
   const navigateToTab = (value: ApprovalRequestTaskProps["tab"]) => {
     if (!tenantGlobalId) return;
-    navigate(Routes.tenantPath(tenantGlobalId, `/tasks/${taskGlobalId}${value === "task" ? "" : `/${value}`}`));
+    const pathSuffix = value === "task" ? "" : value === "request" ? "/workflow" : `/${value}`;
+    navigate(Routes.tenantPath(tenantGlobalId, `/tasks/${taskGlobalId}${pathSuffix}`));
   };
 
   const cleanUp = () => {
@@ -254,7 +254,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
             state: currentTask ? { currentTaskGlobalId: currentTask.globalId } : undefined,
             to: tasksPath,
           },
-          { label: `Task ${getApprovalRequestNumber(currentTask?.globalId)}` },
+          { label: currentTask?.title ?? "Task" },
         ]}
       />
       <Tabs
@@ -265,7 +265,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
         aria-label="Task sections"
       >
         <Tab label="Task" value="task" />
-        <Tab label={requestTabLabel} value="request" />
+        <Tab label="Workflow" value="request" />
         {discussionsAreEnabled && <Tab label="Chat" value="chat" />}
       </Tabs>
       {tab === "task" && (
@@ -283,28 +283,21 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
                     />
                   ) : undefined
                 }
+                expandable
                 participant="assignee"
                 participantType={currentTaskAssigneeType}
                 showComment
                 showElectronicSignature={requiresElectronicSignature || currentTask.hasAssigneeSignature}
+                showRequester
                 task={currentTask}
               />
             )}
-            {!isCompleted && taskAttachmentsAreEnabled && currentTask && tenantGlobalId && (
-              <ApprovalRequestTaskAttachments
-                canManageFiles={!isCompleted}
-                newFiles={taskAttachmentFiles}
-                onNewFilesChange={setTaskAttachmentFiles}
-                ref={taskAttachments}
-                taskFiles={currentTask.taskFiles ?? []}
-                taskGlobalId={currentTask.globalId}
-                tenantGlobalId={tenantGlobalId}
-              />
-            )}
             {!isCompleted && (
-              <>
+              <Stack spacing={StackSpacing.default}>
                 <FormControl key="decision" error={decisionError}>
+                  <ApprovalRequestDetailLabel id="decision-label">Your decision</ApprovalRequestDetailLabel>
                   <RadioGroup
+                    aria-labelledby="decision-label"
                     row
                     name="decision"
                     value={result === undefined ? "" : String(result)}
@@ -320,14 +313,24 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
                     <FormHelperText sx={Dialogs.fieldHelperTextSx}>{actionLabels.missing}</FormHelperText>
                   )}
                 </FormControl>
+                {taskAttachmentsAreEnabled && currentTask && tenantGlobalId && (
+                  <ApprovalRequestTaskAttachments
+                    canManageFiles={!isCompleted}
+                    label="Files attached to this decision"
+                    newFiles={taskAttachmentFiles}
+                    onNewFilesChange={setTaskAttachmentFiles}
+                    ref={taskAttachments}
+                    taskFiles={currentTask.taskFiles ?? []}
+                    taskGlobalId={currentTask.globalId}
+                    tenantGlobalId={tenantGlobalId}
+                  />
+                )}
                 <TextField
                   key="comment"
                   id="comment"
                   name="comment"
-                  margin="normal"
                   fullWidth
                   label="Comment"
-                  autoFocus
                   multiline
                   value={comment}
                   error={commentError}
@@ -350,7 +353,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
                     showRepresentationDetails={canEnterRepresentationDetails}
                   />
                 )}
-              </>
+              </Stack>
             )}
           </Stack>
           <ApprovalRequestActionBar onClose={handleClose}>
@@ -367,6 +370,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
           <ApprovalRequestDetails
             approvalRequest={approvalRequest}
             approvalRequestTaskGlobalId={currentTask?.globalId}
+            collapseCards
             highlightedTaskGlobalId={currentTask?.globalId}
             showVisibleStepVisibility={false}
             taskAttachmentsTenantGlobalId={taskAttachmentsAreEnabled ? (tenantGlobalId ?? undefined) : undefined}

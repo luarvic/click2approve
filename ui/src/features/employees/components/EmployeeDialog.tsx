@@ -152,7 +152,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
             state: employee ? { currentEmployeeGlobalId: employee.globalId } : undefined,
             to: employeesPath,
           },
-          { label: isNew ? "New employee" : "Employee" },
+          { label: employee?.displayName ?? "New employee" },
         ]}
       />
       <Stack spacing={Dialogs.formStackSpacing}>

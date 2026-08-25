@@ -2,7 +2,12 @@ import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approv
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { getApprovalRequestTaskCompletedActionLabel } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
-import { StatusLineColor, StatusLineLabel, StatusLineSection } from "@/shared/components/status/StatusLines";
+import {
+  StatusLineColor,
+  StatusLineColors,
+  StatusLineLabel,
+  StatusLineSection,
+} from "@/shared/components/status/StatusLines";
 import type { SxProps } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
@@ -25,6 +30,32 @@ interface ApprovalRequestTaskStatusLineLabelProps {
   status: ApprovalRequestTaskStatus;
 }
 
+export const ApprovalRequestStatusColors = {
+  [ApprovalRequestStatus.Canceled]: StatusLineColors.canceled,
+  [ApprovalRequestStatus.Completed]: StatusLineColors.completedSuccessfully,
+  [ApprovalRequestStatus.Draft]: StatusLineColors.other,
+  [ApprovalRequestStatus.Pending]: StatusLineColors.pending,
+  [ApprovalRequestStatus.Started]: StatusLineColors.started,
+  [ApprovalRequestStatus.Superseded]: StatusLineColors.canceled,
+} as const;
+
+export const ApprovalRequestTaskStatusColors = {
+  [ApprovalRequestTaskStatus.Canceled]: StatusLineColors.canceled,
+  [ApprovalRequestTaskStatus.Completed]: StatusLineColors.completedSuccessfully,
+  [ApprovalRequestTaskStatus.Pending]: StatusLineColors.pending,
+  [ApprovalRequestTaskStatus.Skipped]: StatusLineColors.canceled,
+} as const;
+
+export const getApprovalRequestStatusColor = (status: ApprovalRequestStatus, result?: boolean) =>
+  status === ApprovalRequestStatus.Completed && result === false
+    ? StatusLineColors.completedUnsuccessfully
+    : ApprovalRequestStatusColors[status];
+
+export const getApprovalRequestTaskStatusColor = (status: ApprovalRequestTaskStatus, result?: boolean) =>
+  status === ApprovalRequestTaskStatus.Completed && result === false
+    ? StatusLineColors.completedUnsuccessfully
+    : ApprovalRequestTaskStatusColors[status];
+
 export const getApprovalRequestStatusLineColor = (status: ApprovalRequestStatus, result?: boolean): StatusLineColor => {
   switch (status) {
     case ApprovalRequestStatus.Completed:
@@ -32,6 +63,8 @@ export const getApprovalRequestStatusLineColor = (status: ApprovalRequestStatus,
     case ApprovalRequestStatus.Canceled:
     case ApprovalRequestStatus.Superseded:
       return "canceled";
+    case ApprovalRequestStatus.Pending:
+      return "pending";
     case ApprovalRequestStatus.Started:
       return "started";
     default:
@@ -49,6 +82,8 @@ export const getApprovalRequestTaskStatusLineColor = (
     case ApprovalRequestTaskStatus.Skipped:
     case ApprovalRequestTaskStatus.Canceled:
       return "canceled";
+    case ApprovalRequestTaskStatus.Pending:
+      return "pending";
     default:
       return "other";
   }

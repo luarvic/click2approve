@@ -1,21 +1,21 @@
 import { stores } from "@/app/rootStore";
-import InboxGrid from "@/features/approvalRequests/components/InboxGrid";
+import TasksGrid from "@/features/approvalRequests/components/TasksGrid";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
 
-interface InboxLocationState {
+interface TasksLocationState {
   currentTaskGlobalId?: string;
 }
 
-const InboxPage = () => {
+const TasksPage = () => {
   const numberOfUncompletedTasks = stores.approvalRequestTaskStore.numberOfUncompletedTasks;
   const pageTitle = numberOfUncompletedTasks > 0 ? `Tasks (${numberOfUncompletedTasks})` : "Tasks";
   usePageTitle(pageTitle);
   const location = useLocation();
-  const { currentTaskGlobalId } = (location.state as InboxLocationState | null) ?? {};
+  const { currentTaskGlobalId } = (location.state as TasksLocationState | null) ?? {};
   return (
     <>
       <PageBreadcrumbs
@@ -26,9 +26,9 @@ const InboxPage = () => {
           },
         ]}
       />
-      <InboxGrid currentTaskGlobalId={currentTaskGlobalId} />
+      <TasksGrid currentTaskGlobalId={currentTaskGlobalId} />
     </>
   );
 };
 
-export default observer(InboxPage);
+export default observer(TasksPage);

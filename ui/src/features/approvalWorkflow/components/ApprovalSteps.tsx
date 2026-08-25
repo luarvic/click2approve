@@ -21,8 +21,10 @@ import { getApprovalStepStatus } from "@/features/approvalWorkflow/utils/approva
 
 interface ApprovalStepsProps {
   approvalRequest: ApprovalRequest;
+  collapseCards?: boolean;
   highlightedTaskGlobalId?: string;
   leadingItem?: ReactNode;
+  limitWorkflowFields?: boolean;
   onHighlightedTaskClick?: () => void;
   showVisibleStepVisibility?: boolean;
   sx?: SxProps<Theme>;
@@ -72,8 +74,10 @@ const HiddenStepIcon = () => <VisibilityOffOutlined color={Icons.secondaryColor}
 
 const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
   approvalRequest,
+  collapseCards = false,
   highlightedTaskGlobalId,
   leadingItem,
+  limitWorkflowFields = false,
   onHighlightedTaskClick,
   showVisibleStepVisibility = true,
   sx,
@@ -110,7 +114,9 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
                 <Stack spacing={Dialogs.stepHeaderSpacing}>
                   <ApprovalStepMetadata showVisibility={showVisibleStepVisibility} step={step} />
                   <ApprovalStepBlock
+                    collapseCards={collapseCards}
                     highlightedTaskGlobalId={highlightedTaskGlobalId}
+                    limitWorkflowFields={limitWorkflowFields}
                     onHighlightedTaskClick={onHighlightedTaskClick}
                     showMetadata={false}
                     showStepBox={false}

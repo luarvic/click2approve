@@ -108,7 +108,7 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
             state: tenant ? { currentTenantGlobalId: tenant.globalId } : undefined,
             to: "/tenants",
           },
-          { label: isNew ? "New organization" : "Organization" },
+          { label: tenant?.businessName ?? "New organization" },
         ]}
       />
       <Stack spacing={Dialogs.formStackSpacing}>

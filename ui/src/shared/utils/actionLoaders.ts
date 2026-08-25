@@ -20,9 +20,9 @@ export const ActionLoaderScopes = {
   gridsApprovalStepTemplates: "grids.approvalStepTemplates",
   gridsDelegations: "grids.delegations",
   gridsEmployees: "grids.employees",
-  gridsInbox: "grids.inbox",
+  gridsTasks: "grids.tasks",
   gridsNotifications: "grids.notifications",
-  gridsOutbox: "grids.outbox",
+  gridsRequests: "grids.requests",
   gridsReceipts: "grids.receipts",
   gridsTeams: "grids.teams",
   gridsTenants: "grids.tenants",
@@ -51,9 +51,9 @@ export const GlobalLoadingActionLoaderScopes = [
   ActionLoaderScopes.gridsApprovalStepTemplates,
   ActionLoaderScopes.gridsDelegations,
   ActionLoaderScopes.gridsEmployees,
-  ActionLoaderScopes.gridsInbox,
+  ActionLoaderScopes.gridsTasks,
   ActionLoaderScopes.gridsNotifications,
-  ActionLoaderScopes.gridsOutbox,
+  ActionLoaderScopes.gridsRequests,
   ActionLoaderScopes.gridsReceipts,
   ActionLoaderScopes.gridsTeams,
   ActionLoaderScopes.gridsTenants,
@@ -143,10 +143,10 @@ export const ActionLoaders = {
       createActionLoaderKey(ActionLoaderScopes.gridsDelegations, tenantGlobalId ?? undefined),
     employees: (tenantGlobalId: string | null | undefined) =>
       createActionLoaderKey(ActionLoaderScopes.gridsEmployees, tenantGlobalId ?? undefined),
-    inbox: (tenantGlobalId: string | null | undefined) =>
-      createActionLoaderKey(ActionLoaderScopes.gridsInbox, tenantGlobalId ?? undefined),
-    outbox: (tenantGlobalId: string | null | undefined) =>
-      createActionLoaderKey(ActionLoaderScopes.gridsOutbox, tenantGlobalId ?? undefined),
+    requests: (tenantGlobalId: string | null | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.gridsRequests, tenantGlobalId ?? undefined),
+    tasks: (tenantGlobalId: string | null | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.gridsTasks, tenantGlobalId ?? undefined),
     receipts: (tenantGlobalId: string | null | undefined) =>
       createActionLoaderKey(ActionLoaderScopes.gridsReceipts, tenantGlobalId ?? undefined),
     notifications: (tenantGlobalId: string | null | undefined) =>

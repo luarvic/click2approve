@@ -13,7 +13,7 @@ const ApprovalRequestActionBar: React.FC<ApprovalRequestActionBarProps> = ({
   closeLabel = "Cancel",
   onClose,
 }) => (
-  <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
+  <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.actionBarSx}>
     <Button variant="outlined" onClick={onClose}>
       {closeLabel}
     </Button>

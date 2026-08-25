@@ -57,7 +57,7 @@ public class ApprovalRequestController(
     }
 
     /// <summary>
-    /// Lists approval request summaries for the outbox.
+    /// Lists approval request summaries for the Requests list.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The list of approval request summaries.</returns>

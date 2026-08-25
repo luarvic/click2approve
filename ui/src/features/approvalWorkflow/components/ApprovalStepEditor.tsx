@@ -217,6 +217,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
               <StepContent sx={stepContentSx} TransitionProps={{ in: true, unmountOnExit: false }}>
                 <ApprovalRequestDetailsCard
                   ariaLabel={`Step ${step.sequence}`}
+                  elevated
                   showStatusBorder={false}
                   sx={getStepContentSx(state.sx)}
                 >

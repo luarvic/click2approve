@@ -2,7 +2,6 @@ import { stores } from "@/app/rootStore";
 import ApprovalRequestActionBar from "@/features/approvalRequests/components/ApprovalRequestActionBar";
 import ApprovalRequestDetails from "@/features/approvalRequests/components/ApprovalRequestDetails";
 import ApprovalRequestDiscussionSection from "@/features/approvalRequests/components/ApprovalRequestDiscussionSection";
-import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { getIncompleteParticipantNameWarning } from "@/features/approvalRequests/utils/incompleteParticipantNameWarning";
@@ -132,7 +131,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
             to: requestsPath,
           },
           {
-            label: `Request ${getApprovalRequestNumber(approvalRequest?.globalId)}`,
+            label: approvalRequest?.title ?? "Request",
           },
         ]}
       />

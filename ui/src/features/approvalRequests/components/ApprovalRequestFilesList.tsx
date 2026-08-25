@@ -5,6 +5,7 @@ import ReplacedFileGroup from "@/shared/components/files/ReplacedFileGroup";
 import CommentPaper from "@/shared/components/papers/CommentPaper";
 import { StackSpacing } from "@/shared/constants/constants";
 import { Close, MoreVert, Undo } from "@mui/icons-material";
+import type { TypographyProps } from "@mui/material";
 import { Chip, IconButton, Menu, MenuItem, Stack, Tooltip, type SxProps } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import { useState } from "react";
@@ -25,6 +26,7 @@ interface ApprovalRequestFilesListProps {
   onRemoveReplacement?: (index: number) => void;
   onDownloadExisting?: (file: UserFile) => void;
   linkSx?: SxProps<Theme>;
+  linkVariant?: TypographyProps["variant"];
   sx?: SxProps<Theme>;
   onRestoreExisting?: (index: number) => void;
   onReplaceExisting?: (index: number) => void;
@@ -32,6 +34,14 @@ interface ApprovalRequestFilesListProps {
 
 const replacedOriginalFileLinkSx: SxProps<Theme> = {
   opacity: 0.55,
+};
+
+const fileActionButtonSx: SxProps<Theme> = {
+  p: 0,
+};
+
+const fileActionRowSx: SxProps<Theme> = {
+  columnGap: StackSpacing.tight,
 };
 
 const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
@@ -43,6 +53,7 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
   onRemoveReplacement,
   onDownloadExisting,
   linkSx,
+  linkVariant,
   sx,
   onRestoreExisting,
   onReplaceExisting,
@@ -83,18 +94,20 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
       fileName={fileName}
       onClick={onClick}
       sx={[...(Array.isArray(linkSx) ? linkSx : [linkSx]), ...(Array.isArray(sx) ? sx : [sx])]}
+      variant={linkVariant}
     />
   );
 
   const renderNewFile = (file: UserFile, index: number) => {
     const fileEntry = (
-      <Stack direction="row" alignItems="center">
+      <Stack direction="row" alignItems="center" sx={fileActionRowSx}>
         {renderFileLink(file.name)}
         <IconButton
           aria-label={`Remove ${file.name}`}
           disabled={isActionsDisabled}
           onClick={() => onRemoveNew(index)}
           size="small"
+          sx={fileActionButtonSx}
         >
           <Close fontSize="small" />
         </IconButton>
@@ -177,7 +190,7 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
                 )}
               </>
             ) : (
-              <Stack direction="row" alignItems="center">
+              <Stack direction="row" alignItems="center" sx={fileActionRowSx}>
                 {renderFileLink(
                   file.file.name,
                   undefined,
@@ -189,6 +202,7 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
                     disabled={isActionsDisabled}
                     onClick={() => onRemoveExisting(index)}
                     size="small"
+                    sx={fileActionButtonSx}
                   >
                     <Close fontSize="small" />
                   </IconButton>

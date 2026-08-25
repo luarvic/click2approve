@@ -79,7 +79,7 @@ const approvalRequest: ApprovalRequest = {
 
 describe("<ApprovalSteps />", () => {
   test("shows hidden steps without leaking their details", () => {
-    render(<ApprovalSteps approvalRequest={approvalRequest} />);
+    render(<ApprovalSteps approvalRequest={approvalRequest} limitWorkflowFields />);
 
     expect(screen.getByText("Step 1")).toBeTruthy();
     expect(screen.getByLabelText("Step 1 action Approve")).toBeTruthy();
@@ -87,7 +87,13 @@ describe("<ApprovalSteps />", () => {
     expect(screen.getByLabelText("Step 1 visibility Organization employees")).toBeTruthy();
     expect(screen.getByText("visible@example.com")).toBeTruthy();
     expect(screen.getByLabelText("Upcoming task")).toBeTruthy();
-    expect(screen.getByText("Waiting for previous step")).toBeTruthy();
+    expect(screen.getByText("Details")).toBeTruthy();
+    expect(screen.getByText("Activity")).toBeTruthy();
+    expect(screen.getByText("Assignee")).toBeTruthy();
+    expect(screen.getByText("Status")).toBeTruthy();
+    const upcomingTaskCard = screen.getByLabelText("Upcoming task");
+    expect(screen.getAllByText("None")).toHaveLength(2);
+    expect(upcomingTaskCard.querySelector("[data-testid='PendingOutlinedIcon']")).toBeNull();
     expect(screen.getByText("Step 2")).toBeTruthy();
     expect(screen.getByTestId("hidden-step-icon")).toBeTruthy();
     expect(screen.queryByLabelText("Hidden")).toBeNull();
@@ -105,6 +111,7 @@ describe("<ApprovalSteps />", () => {
           ...approvalRequest,
           steps: approvalRequest.steps,
         }}
+        limitWorkflowFields
         showVisibleStepVisibility={false}
       />,
     );
@@ -132,6 +139,7 @@ describe("<ApprovalSteps />", () => {
             },
           ],
         }}
+        limitWorkflowFields
       />,
     );
 
@@ -174,13 +182,20 @@ describe("<ApprovalSteps />", () => {
             },
           ],
         }}
+        collapseCards
         highlightedTaskGlobalId="visible-task-id"
+        limitWorkflowFields
         onHighlightedTaskClick={onHighlightedTaskClick}
       />,
     );
 
     expect(screen.getByText("Task #visib")).toBeTruthy();
     expect(screen.queryByText("Visible task description")).toBeNull();
+    expect(screen.queryByText("Files")).toBeNull();
+    expect(screen.queryByText("Requested by")).toBeNull();
+    expect(screen.queryByText("Revision")).toBeNull();
+    expect(screen.getByText("visible@example.com")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Collapse Task #visib" })).toBeTruthy();
     const currentTaskRow = screen.getByText("Task #visib").closest("[role='button']");
     expect(currentTaskRow?.textContent).toContain("visible@example.com");
     expect(screen.queryByLabelText("Current step assignee")).toBeNull();

@@ -37,7 +37,7 @@ import { observer } from "mobx-react-lite";
 import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-const inboxTextBadgeSx: SxProps<Theme> = {
+const tasksTextBadgeSx: SxProps<Theme> = {
   display: "inline-flex",
   "& .MuiBadge-badge": {
     right: 0,
@@ -178,7 +178,7 @@ const MainMenuDrawer = () => {
             <ListItemText
               primary={
                 numberOfUncompletedTasks > 0 ? (
-                  <Badge badgeContent={numberOfUncompletedTasks} color="error" sx={inboxTextBadgeSx}>
+                  <Badge badgeContent={numberOfUncompletedTasks} color="error" sx={tasksTextBadgeSx}>
                     <span>Tasks</span>
                   </Badge>
                 ) : (

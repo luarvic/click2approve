@@ -2,7 +2,6 @@ import { stores } from "@/app/rootStore";
 import ApprovalRequestNumberText, {
   getApprovalRequestNumber,
 } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
-import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
 import {
   ApprovalRequestTaskStatusLineLabel,
   getApprovalRequestTaskStatusLabel,
@@ -12,7 +11,7 @@ import { TenantType } from "@/features/tenants/models/tenant";
 import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
-import { DataGrids, Routes, StackSpacing } from "@/shared/constants/constants";
+import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
@@ -22,11 +21,11 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 
-interface InboxGridProps {
+interface TasksGridProps {
   currentTaskGlobalId?: string;
 }
 
-const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
+const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const createdColumnIsVisible = useMediaQuery(theme.breakpoints.up("md"));
@@ -36,7 +35,7 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
     !stores.applicationConfigurationStore.tenantsAreEnabled ||
     (stores.tenantStore.hasLoaded && stores.tenantStore.currentTenantGlobalId !== null);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const gridLoader = ActionLoaders.grids.inbox(tenantGlobalId);
+  const gridLoader = ActionLoaders.grids.tasks(tenantGlobalId);
   const organizationColumnIsVisible = stores.tenantStore.currentTenant?.type === TenantType.Personal;
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     stores.approvalRequestTaskStore.tasks,
@@ -58,7 +57,9 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
       field: "globalId",
       headerName: "Number",
       width: DataGrids.approvalNumberColumnWidth,
-      renderCell: (params) => <ApprovalRequestNumberText globalId={params.row.globalId} includeHash={false} />,
+      renderCell: (params) => (
+        <ApprovalRequestNumberText color="text.primary" globalId={params.row.globalId} includeHash={false} />
+      ),
       valueGetter: (_value, row) => getApprovalRequestNumber(row.globalId, false),
     },
     {
@@ -67,13 +68,17 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
       flex: DataGrids.approvalColumnFlex.content,
       renderCell: (params) => (
         <Stack sx={DataGrids.approvalTitleCellSx}>
-          <Stack direction="row" spacing={StackSpacing.tight} alignItems="center">
-            <Typography variant="body2">{params.row.title}</Typography>
-            <ApprovalRequestRevisionChip revisionNumber={params.row.revisionNumber} />
-          </Stack>
+          <Typography variant="body2">{params.row.title}</Typography>
         </Stack>
       ),
       valueGetter: (_value, row) => row.title,
+    },
+    {
+      field: "revisionNumber",
+      headerName: "Revision",
+      align: "center",
+      headerAlign: "center",
+      width: DataGrids.approvalRevisionColumnWidth,
     },
     {
       field: "status",
@@ -145,4 +150,4 @@ const InboxGrid: React.FC<InboxGridProps> = ({ currentTaskGlobalId }) => {
   );
 };
 
-export default observer(InboxGrid);
+export default observer(TasksGrid);

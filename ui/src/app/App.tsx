@@ -3,8 +3,8 @@ import ApprovalRequestStartPage from "@/features/approvalRequests/pages/Approval
 import ApprovalRequestSubmitPage from "@/features/approvalRequests/pages/ApprovalRequestSubmitPage";
 import ApprovalRequestTaskPage from "@/features/approvalRequests/pages/ApprovalRequestTaskPage";
 import ApprovalRequestViewPage from "@/features/approvalRequests/pages/ApprovalRequestViewPage";
-import InboxPage from "@/features/approvalRequests/pages/InboxPage";
-import OutboxPage from "@/features/approvalRequests/pages/OutboxPage";
+import RequestsPage from "@/features/approvalRequests/pages/RequestsPage";
+import TasksPage from "@/features/approvalRequests/pages/TasksPage";
 import ApprovalStepTemplateEditorPage from "@/features/approvalStepTemplates/pages/ApprovalStepTemplateEditorPage";
 import ApprovalStepTemplatesPage from "@/features/approvalStepTemplates/pages/ApprovalStepTemplatesPage";
 import DelegationEditorPage from "@/features/delegations/pages/DelegationEditorPage";
@@ -102,12 +102,12 @@ const App = () => {
                 <Route index element={<TenantHomeRedirect />} />
                 <Route path="/tenants/:tenantGlobalId" element={<TenantScopeLayout />}>
                   <Route element={<WrapperLayout />}>
-                    <Route path="tasks" element={<InboxPage />} />
+                    <Route path="tasks" element={<TasksPage />} />
                     <Route path="notifications" element={<NotificationsPage />} />
                     <Route path="tasks/:taskGlobalId" element={<ApprovalRequestTaskPage />} />
-                    <Route path="tasks/:taskGlobalId/request" element={<ApprovalRequestTaskPage tab="request" />} />
+                    <Route path="tasks/:taskGlobalId/workflow" element={<ApprovalRequestTaskPage tab="request" />} />
                     <Route path="tasks/:taskGlobalId/chat" element={<ApprovalRequestTaskPage tab="chat" />} />
-                    <Route path="requests" element={<OutboxPage />} />
+                    <Route path="requests" element={<RequestsPage />} />
                     <Route path="receipts" element={<ReceiptsPage />} />
                     <Route path="receipts/:receiptGlobalId" element={<ReceiptPage />} />
                     <Route path="receipts/:receiptGlobalId/share" element={<ReceiptPage tab="share" />} />

@@ -1,4 +1,7 @@
-import { getApprovalRequestStatusLabel } from "@/features/approvalRequests/components/ApprovalStatusLines";
+import {
+  getApprovalRequestStatusColor,
+  getApprovalRequestStatusLabel,
+} from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { Icons } from "@/shared/constants/constants";
 import { Check, Close, Loop, QuestionMark, Replay } from "@mui/icons-material";
@@ -11,23 +14,25 @@ interface StatusIconProps {
 }
 
 const StatusIcon: React.FC<StatusIconProps> = ({ result, status }) => {
+  const statusColor = getApprovalRequestStatusColor(status, result);
+
   const renderStatus = () => {
     switch (status) {
       case ApprovalRequestStatus.Pending:
       case ApprovalRequestStatus.Started:
-        return <Loop sx={Icons.verticalAlignSx} color="disabled" />;
+        return <Loop sx={{ ...Icons.verticalAlignSx, color: statusColor }} />;
       case ApprovalRequestStatus.Completed:
         return result === false ? (
-          <Close sx={Icons.verticalAlignSx} color="error" />
+          <Close sx={{ ...Icons.verticalAlignSx, color: statusColor }} />
         ) : (
-          <Check sx={Icons.verticalAlignSx} color="success" />
+          <Check sx={{ ...Icons.verticalAlignSx, color: statusColor }} />
         );
       case ApprovalRequestStatus.Canceled:
-        return <Close sx={Icons.verticalAlignSx} color="warning" />;
+        return <Close sx={{ ...Icons.verticalAlignSx, color: statusColor }} />;
       case ApprovalRequestStatus.Superseded:
-        return <Replay sx={Icons.verticalAlignSx} color="warning" />;
+        return <Replay sx={{ ...Icons.verticalAlignSx, color: statusColor }} />;
       default:
-        return <QuestionMark sx={Icons.verticalAlignSx} color="disabled" />;
+        return <QuestionMark sx={{ ...Icons.verticalAlignSx, color: statusColor }} />;
     }
   };
 

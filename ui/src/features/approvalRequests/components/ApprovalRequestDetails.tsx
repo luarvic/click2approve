@@ -6,6 +6,7 @@ import { Dialogs } from "@/shared/constants/constants";
 interface ApprovalRequestDetailsProps {
   approvalRequest: ApprovalRequest | null;
   approvalRequestTaskGlobalId?: string;
+  collapseCards?: boolean;
   highlightedTaskGlobalId?: string;
   onHighlightedTaskClick?: () => void;
   showVisibleStepVisibility?: boolean;
@@ -15,6 +16,7 @@ interface ApprovalRequestDetailsProps {
 const ApprovalRequestDetails: React.FC<ApprovalRequestDetailsProps> = ({
   approvalRequest,
   approvalRequestTaskGlobalId,
+  collapseCards = false,
   highlightedTaskGlobalId,
   onHighlightedTaskClick,
   showVisibleStepVisibility = true,
@@ -23,14 +25,19 @@ const ApprovalRequestDetails: React.FC<ApprovalRequestDetailsProps> = ({
   approvalRequest ? (
     <ApprovalSteps
       approvalRequest={approvalRequest}
+      collapseCards={collapseCards}
       highlightedTaskGlobalId={highlightedTaskGlobalId}
       leadingItem={
         <ApprovalRequestSummaryBlock
           approvalRequest={approvalRequest}
           approvalRequestTaskGlobalId={approvalRequestTaskGlobalId}
+          defaultExpanded={!collapseCards}
+          expandable
+          limitWorkflowFields={Boolean(approvalRequestTaskGlobalId)}
         />
       }
       onHighlightedTaskClick={onHighlightedTaskClick}
+      limitWorkflowFields
       showVisibleStepVisibility={showVisibleStepVisibility}
       sx={Dialogs.tabContentSx}
       taskAttachmentsTenantGlobalId={taskAttachmentsTenantGlobalId}

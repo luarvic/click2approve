@@ -1,18 +1,18 @@
-import OutboxGrid from "@/features/approvalRequests/components/OutboxGrid";
+import RequestsGrid from "@/features/approvalRequests/components/RequestsGrid";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
 
-interface OutboxLocationState {
+interface RequestsLocationState {
   currentApprovalRequestGlobalId?: string;
 }
 
-const OutboxPage = () => {
+const RequestsPage = () => {
   usePageTitle("Requests");
   const location = useLocation();
-  const { currentApprovalRequestGlobalId } = (location.state as OutboxLocationState | null) ?? {};
+  const { currentApprovalRequestGlobalId } = (location.state as RequestsLocationState | null) ?? {};
   return (
     <>
       <PageBreadcrumbs
@@ -23,9 +23,9 @@ const OutboxPage = () => {
           },
         ]}
       />
-      <OutboxGrid currentApprovalRequestGlobalId={currentApprovalRequestGlobalId} />
+      <RequestsGrid currentApprovalRequestGlobalId={currentApprovalRequestGlobalId} />
     </>
   );
 };
 
-export default observer(OutboxPage);
+export default observer(RequestsPage);

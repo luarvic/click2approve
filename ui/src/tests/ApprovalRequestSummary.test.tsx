@@ -46,4 +46,49 @@ describe("<ApprovalRequestSummary />", () => {
 
     expect(screen.queryByText("Added")).toBeNull();
   });
+
+  test("does not label initial revision files as added", () => {
+    render(
+      <ApprovalRequestSummary
+        requestFiles={[
+          {
+            globalId: "request-file-id",
+            revisionAction: ApprovalRequestFileRevisionAction.Added,
+            sequence: 0,
+            userFile: {
+              checked: false,
+              createdAt: "2026-01-01T00:00:00Z",
+              createdAtDate: new Date("2026-01-01T00:00:00Z"),
+              globalId: "file-id",
+              name: "request.pdf",
+              size: 1,
+              type: "application/pdf",
+            },
+          },
+        ]}
+        revisionNumber={1}
+      />,
+    );
+
+    expect(screen.queryByText("Added")).toBeNull();
+  });
+
+  test("keeps regular task detail fields visible by default", () => {
+    render(
+      <ApprovalRequestSummary
+        description="Task description"
+        instructions="Task instructions"
+        requestFiles={[]}
+        revisionNumber={2}
+        showInstructions
+        statusLabel="Pending"
+      />,
+    );
+
+    expect(screen.getByText("Status")).toBeTruthy();
+    expect(screen.getByText("Description")).toBeTruthy();
+    expect(screen.getByText("Instructions")).toBeTruthy();
+    expect(screen.getByText("Revision")).toBeTruthy();
+    expect(screen.getByText("Files to review")).toBeTruthy();
+  });
 });

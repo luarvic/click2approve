@@ -3,24 +3,36 @@ import ApprovalRequestParticipant from "@/features/approvalRequests/components/A
 import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
 import ApprovalRequestParticipantPair from "@/features/approvalRequests/components/ApprovalRequestParticipantPair";
 import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
-import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
+import ApprovalRequestDetailsCard, {
+  requestCardBackgroundSx,
+} from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
+import ApprovalRequestField from "@/features/approvalRequests/components/ApprovalRequestField";
+import ApprovalRequestFieldGroup from "@/features/approvalRequests/components/ApprovalRequestFieldGroup";
 import ApprovalRequestTimestamp from "@/features/approvalRequests/components/ApprovalRequestTimestamp";
 import ApprovalRequestTimestampRow from "@/features/approvalRequests/components/ApprovalRequestTimestampRow";
+import { getApprovalRequestTimestampIcon } from "@/features/approvalRequests/components/approvalRequestTimestampDisplay";
 import { getRequestCompletedTimestamp } from "@/features/approvalRequests/components/approvalRequestCompletionTimestamps";
 import {
+  getApprovalRequestStatusColor,
   getApprovalRequestStatusLabel,
-  getApprovalRequestStatusLineColor,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
-import { StatusLineColors } from "@/shared/components/status/StatusLines";
+import { getLocaleDateTimeString } from "@/shared/utils/dateTime";
+import { PlayCircleOutline } from "@mui/icons-material";
+import type { SxProps, Theme } from "@mui/material/styles";
 
 interface ApprovalRequestSummaryBlockProps {
   approvalRequest: ApprovalRequest;
   approvalRequestTaskGlobalId?: string;
+  defaultExpanded?: boolean;
+  expandable?: boolean;
+  limitWorkflowFields?: boolean;
 }
+
+const getStatusIconSx = (color: string): SxProps<Theme> => ({ color });
 
 const getRequestCompletionLabel = (status: ApprovalRequestStatus): string | undefined => {
   switch (status) {
@@ -35,22 +47,12 @@ const getRequestCompletionLabel = (status: ApprovalRequestStatus): string | unde
   }
 };
 
-const getRequestBorder = (
-  status: ApprovalRequestStatus,
-  result: boolean | undefined,
-): { color: string; style: "dotted" | "solid" } => {
-  const statusColor = getApprovalRequestStatusLineColor(status, result);
-  const borderLeftStyle = statusColor === "started" ? "dotted" : "solid";
-
-  return {
-    color: statusColor === "other" ? "text.disabled" : StatusLineColors[statusColor],
-    style: borderLeftStyle,
-  };
-};
-
 const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = ({
   approvalRequest,
   approvalRequestTaskGlobalId,
+  defaultExpanded,
+  expandable,
+  limitWorkflowFields = false,
 }) => {
   const organizationIsVisible = stores.tenantStore.currentTenant?.type === TenantType.Personal;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
@@ -66,7 +68,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
   const completionEmail = completedBySystem
     ? undefined
     : (approvalRequest.completedByEmail ?? approvalRequest.createdByEmail);
-  const requestBorder = getRequestBorder(approvalRequest.status, approvalRequest.result);
+  const requestStatusColor = getApprovalRequestStatusColor(approvalRequest.status, approvalRequest.result);
   const participantTimeline =
     completionLabel && completedTimestamp ? (
       <ApprovalRequestParticipantPair
@@ -128,19 +130,67 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
         }
       />
     );
+  void participantTimeline;
+  const activity = (
+    <ApprovalRequestFieldGroup title="Activity">
+      <ApprovalRequestField
+        label="Requested by"
+        value={
+          <ApprovalRequestParticipant
+            displayName={approvalRequest.createdByDisplayName}
+            email={approvalRequest.createdByEmail}
+            organizationDisplayName={approvalRequest.organizationDisplayName}
+            showOrganization={organizationIsVisible}
+            type={requesterType}
+            variant="body2"
+          />
+        }
+      />
+      <ApprovalRequestField
+        label="Requested at"
+        value={getLocaleDateTimeString(approvalRequest.createdAtDate)}
+        valueVariant="body2"
+      />
+      <ApprovalRequestField
+        label="Completed by"
+        value={
+          completionLabel ? (
+            <ApprovalRequestParticipant
+              displayName={completionDisplayName}
+              email={completionEmail}
+              isSystemParticipant={completedBySystem}
+              organizationDisplayName={approvalRequest.organizationDisplayName}
+              showOrganization={organizationIsVisible}
+              type={completionType}
+              variant="body2"
+            />
+          ) : undefined
+        }
+      />
+      <ApprovalRequestField
+        label="Completed at"
+        value={completedTimestamp ? getLocaleDateTimeString(completedTimestamp.date) : undefined}
+        valueVariant="body2"
+      />
+    </ApprovalRequestFieldGroup>
+  );
 
   return (
     <ApprovalRequestDetailsCard
       ariaLabel={getApprovalRequestStatusLabel(approvalRequest.status, approvalRequest.result)}
-      borderLeftColor={requestBorder.color}
-      borderLeftStyle={requestBorder.style}
+      borderLeftColor={requestStatusColor}
+      borderLeftStyle={approvalRequest.status === ApprovalRequestStatus.Started ? "dotted" : "solid"}
+      elevated
+      sx={requestCardBackgroundSx}
     >
       <ApprovalRequestSummary
-        additionalContent={participantTimeline}
+        activity={activity}
         title={approvalRequest.title}
         description={approvalRequest.description}
         approvalRequestGlobalId={approvalRequest.globalId}
         approvalRequestTaskGlobalId={approvalRequestTaskGlobalId}
+        defaultExpanded={defaultExpanded}
+        expandable={expandable}
         nextRevisionApprovalRequestGlobalId={
           approvalRequestTaskGlobalId ? undefined : approvalRequest.nextRevisionApprovalRequestGlobalId
         }
@@ -149,6 +199,34 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
         }
         requestFiles={approvalRequest.requestFiles}
         revisionNumber={approvalRequest.revisionNumber}
+        numberPrefix="Request"
+        numberColor={approvalRequestTaskGlobalId ? "text.primary" : undefined}
+        numberVariant="h5"
+        showDescription={!limitWorkflowFields}
+        showFiles={!limitWorkflowFields}
+        showRevision={!limitWorkflowFields}
+        showTitle={!approvalRequestTaskGlobalId}
+        statusLabel={getApprovalRequestStatusLabel(approvalRequest.status, approvalRequest.result)}
+        statusColor={requestStatusColor}
+        statusIconSx={getStatusIconSx(requestStatusColor)}
+        statusIcon={
+          approvalRequest.status === ApprovalRequestStatus.Started ? (
+            <PlayCircleOutline fontSize="inherit" sx={getStatusIconSx(requestStatusColor)} />
+          ) : (
+            getApprovalRequestTimestampIcon(
+              approvalRequest.status === ApprovalRequestStatus.Canceled
+                ? "canceled"
+                : approvalRequest.status === ApprovalRequestStatus.Superseded
+                  ? "superseded"
+                  : approvalRequest.status === ApprovalRequestStatus.Pending
+                    ? "pending"
+                    : approvalRequest.result === false
+                      ? "completedUnsuccessfully"
+                      : "completedSuccessfully",
+              "primary",
+            )
+          )
+        }
         tenantGlobalId={tenantGlobalId}
       />
     </ApprovalRequestDetailsCard>

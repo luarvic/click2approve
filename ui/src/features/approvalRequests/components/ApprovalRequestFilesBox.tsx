@@ -66,7 +66,12 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
   ) => {
     const fileLink = (
       <FileRow key={key} sx={{ columnGap: StackSpacing.default }}>
-        <FileNameLink fileName={userFile.name} onClick={onDownload ? () => onDownload(userFile) : undefined} sx={sx} />
+        <FileNameLink
+          fileName={userFile.name}
+          onClick={onDownload ? () => onDownload(userFile) : undefined}
+          sx={sx}
+          variant="body1"
+        />
         {statusLabel && <Chip color={statusColor} label={statusLabel} size="small" variant="outlined" />}
       </FileRow>
     );

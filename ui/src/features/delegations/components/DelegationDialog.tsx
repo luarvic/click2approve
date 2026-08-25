@@ -106,7 +106,9 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
             state: delegation ? { currentDelegationGlobalId: delegation.globalId } : undefined,
             to: delegationsPath,
           },
-          { label: isNew ? "New delegation" : "Delegation" },
+          {
+            label: delegation ? getEmployeeName(employees, delegation.delegatorEmployeeGlobalId) : "New delegation",
+          },
         ]}
       />
       <Stack spacing={Dialogs.formStackSpacing}>

@@ -17,6 +17,7 @@ interface ApprovalRequestParticipantProps {
   showOrganization?: boolean;
   sx?: SxProps<Theme>;
   type?: AssigneeType;
+  variant?: "body1" | "body2";
 }
 
 const ApprovalRequestParticipant: React.FC<ApprovalRequestParticipantProps> = ({
@@ -29,6 +30,7 @@ const ApprovalRequestParticipant: React.FC<ApprovalRequestParticipantProps> = ({
   showOrganization = false,
   sx,
   type = AssigneeType.Employee,
+  variant = "body1",
 }) => {
   const organizationIsVisible =
     !isSystemParticipant && showOrganization && type === AssigneeType.Employee && Boolean(organizationDisplayName);
@@ -41,11 +43,13 @@ const ApprovalRequestParticipant: React.FC<ApprovalRequestParticipantProps> = ({
         email={email}
         label={isSystemParticipant ? displayName || email || fallback : undefined}
         type={type}
+        variant={variant}
       />
       {organizationIsVisible && (
         <ApprovalRequestParticipantLine
           icon={<Business color="action" fontSize="small" />}
           label={organizationDisplayName}
+          variant={variant}
         />
       )}
     </Stack>

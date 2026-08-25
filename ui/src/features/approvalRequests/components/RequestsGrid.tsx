@@ -6,12 +6,11 @@ import {
 import ApprovalRequestNumberText, {
   getApprovalRequestNumber,
 } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
-import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
 import { ApprovalRequestListItem } from "@/features/approvalRequests/models/approvalRequestListItem";
 import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
-import { DataGrids, Routes, StackSpacing } from "@/shared/constants/constants";
+import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
@@ -22,11 +21,11 @@ import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 
-interface OutboxGridProps {
+interface RequestsGridProps {
   currentApprovalRequestGlobalId?: string;
 }
 
-const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestGlobalId }) => {
+const RequestsGrid: React.FC<RequestsGridProps> = ({ currentApprovalRequestGlobalId }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const createdColumnIsVisible = useMediaQuery(theme.breakpoints.up("md"));
@@ -36,7 +35,7 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestGlobalId 
     !stores.applicationConfigurationStore.tenantsAreEnabled ||
     (stores.tenantStore.hasLoaded && stores.tenantStore.currentTenantGlobalId !== null);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const gridLoader = ActionLoaders.grids.outbox(tenantGlobalId);
+  const gridLoader = ActionLoaders.grids.requests(tenantGlobalId);
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(
     stores.approvalRequestStore.approvalRequests,
     currentApprovalRequestGlobalId,
@@ -73,7 +72,9 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestGlobalId 
       field: "globalId",
       headerName: "Number",
       width: DataGrids.approvalNumberColumnWidth,
-      renderCell: (params) => <ApprovalRequestNumberText globalId={params.row.globalId} includeHash={false} />,
+      renderCell: (params) => (
+        <ApprovalRequestNumberText color="text.primary" globalId={params.row.globalId} includeHash={false} />
+      ),
       valueGetter: (_value, row) => getApprovalRequestNumber(row.globalId, false),
     },
     {
@@ -82,13 +83,17 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestGlobalId 
       flex: DataGrids.approvalColumnFlex.content,
       renderCell: (params) => (
         <Stack sx={DataGrids.approvalTitleCellSx}>
-          <Stack direction="row" spacing={StackSpacing.tight} alignItems="center">
-            <Typography variant="body2">{params.row.title}</Typography>
-            <ApprovalRequestRevisionChip revisionNumber={params.row.revisionNumber} />
-          </Stack>
+          <Typography variant="body2">{params.row.title}</Typography>
         </Stack>
       ),
       valueGetter: (_value, row) => row.title,
+    },
+    {
+      field: "revisionNumber",
+      headerName: "Revision",
+      align: "center",
+      headerAlign: "center",
+      width: DataGrids.approvalRevisionColumnWidth,
     },
     {
       field: "status",
@@ -154,4 +159,4 @@ const OutboxGrid: React.FC<OutboxGridProps> = ({ currentApprovalRequestGlobalId 
   );
 };
 
-export default observer(OutboxGrid);
+export default observer(RequestsGrid);

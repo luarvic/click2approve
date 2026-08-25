@@ -81,7 +81,7 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
             state: team ? { currentTeamGlobalId: team.globalId } : undefined,
             to: teamsPath,
           },
-          { label: isNew ? "New team" : "Team" },
+          { label: team?.name ?? "New team" },
         ]}
       />
       <Stack spacing={Dialogs.formStackSpacing}>

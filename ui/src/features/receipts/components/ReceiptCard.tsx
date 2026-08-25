@@ -52,7 +52,7 @@ const sectionHeadingSx: SxProps<Theme> = {
 const fieldSx: SxProps<Theme> = {
   alignItems: "stretch",
   display: "grid",
-  gridTemplateColumns: "minmax(0, 1fr) minmax(0, 2fr)",
+  gridTemplateColumns: "minmax(0, 1fr) minmax(0, 3fr)",
 };
 
 const fieldLabelSx: SxProps<Theme> = {
@@ -81,6 +81,8 @@ const getStatusColor = (theme: Theme, statusColor: StatusLineColor): string => {
     case "completedSuccessfully":
     case "started":
       return theme.palette.success.main;
+    case "pending":
+      return theme.palette.primary.main;
     case "completedUnsuccessfully":
       return theme.palette.error.main;
     case "other":

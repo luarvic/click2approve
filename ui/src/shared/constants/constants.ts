@@ -119,6 +119,7 @@ export const Dialogs = {
   contentStackSx: { mt: 1 } as SxProps<Theme>,
   tabContentSx: { mt: 3 } as SxProps<Theme>,
   addStepButtonSx: { mt: 2 } as SxProps<Theme>,
+  actionBarSx: { mt: 3 } as SxProps<Theme>,
   formStackSpacing: 2,
   stepStackSpacing: 2,
   stepHeaderSpacing: 1,
@@ -421,7 +422,8 @@ export const DataGrids = {
   defaultPageSize: 10,
   pageSizeOptions: [10, 100],
   approvalNumberColumnWidth: 72,
-  approvalNumberColumnMinDisplayWidth: 420,
+  approvalNumberColumnMinDisplayWidth: 600,
+  approvalRevisionColumnWidth: 96,
   containerSx: Flex.fullWidthOverflowHiddenSx,
   sx: {
     border: "none",

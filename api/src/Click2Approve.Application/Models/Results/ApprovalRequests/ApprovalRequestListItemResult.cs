@@ -3,7 +3,7 @@ using Click2Approve.Domain.Models;
 namespace Click2Approve.Application.Models.Results.ApprovalRequests;
 
 /// <summary>
-/// Represents an approval request displayed in an outbox list.
+/// Represents an approval request displayed in the Requests list.
 /// </summary>
 public class ApprovalRequestListItemResult
 {

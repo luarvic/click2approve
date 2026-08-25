@@ -1,6 +1,7 @@
 import { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
 
 export interface ApprovalStepTemplate {
+  description?: string;
   globalId: string;
   tenantGlobalId: string;
   name: string;
@@ -8,6 +9,7 @@ export interface ApprovalStepTemplate {
 }
 
 export interface UpsertApprovalStepTemplateRequest {
+  description: string;
   name: string;
   steps: ApprovalStep[];
 }

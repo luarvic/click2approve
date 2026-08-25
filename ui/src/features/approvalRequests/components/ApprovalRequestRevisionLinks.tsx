@@ -1,15 +1,22 @@
 import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
-import { Routes } from "@/shared/constants/constants";
-import { Link, Typography } from "@mui/material";
+import { Routes, StackSpacing } from "@/shared/constants/constants";
+import { Divider, Link, Stack, Typography } from "@mui/material";
+import type { SxProps, Theme } from "@mui/material/styles";
 import { Link as RouterLink } from "react-router-dom";
 
 interface ApprovalRequestRevisionLinksProps {
+  leadingDivider?: boolean;
   nextRevisionApprovalRequestGlobalId?: string;
   previousRevisionApprovalRequestGlobalId?: string;
   tenantGlobalId?: string | null;
 }
 
+const revisionLinksSx: SxProps<Theme> = {
+  display: "inline-flex",
+};
+
 const ApprovalRequestRevisionLinks: React.FC<ApprovalRequestRevisionLinksProps> = ({
+  leadingDivider = false,
   nextRevisionApprovalRequestGlobalId,
   previousRevisionApprovalRequestGlobalId,
   tenantGlobalId,
@@ -21,25 +28,28 @@ const ApprovalRequestRevisionLinks: React.FC<ApprovalRequestRevisionLinksProps> 
   const getRequestPath = (globalId: string) => Routes.tenantPath(tenantGlobalId, `/requests/${globalId}`);
 
   return (
-    <Typography color="text.secondary" variant="body2">
+    <Stack component="span" direction="row" spacing={StackSpacing.tight} alignItems="center" sx={revisionLinksSx}>
+      {leadingDivider && <Divider flexItem orientation="vertical" />}
       {previousRevisionApprovalRequestGlobalId && (
-        <>
+        <Typography color="text.secondary" component="span" variant="body2">
           Supersedes{" "}
-          <Link color="inherit" component={RouterLink} to={getRequestPath(previousRevisionApprovalRequestGlobalId)}>
+          <Link component={RouterLink} to={getRequestPath(previousRevisionApprovalRequestGlobalId)}>
             {getApprovalRequestNumber(previousRevisionApprovalRequestGlobalId)}
           </Link>
-        </>
+        </Typography>
       )}
-      {previousRevisionApprovalRequestGlobalId && nextRevisionApprovalRequestGlobalId && " | "}
+      {previousRevisionApprovalRequestGlobalId && nextRevisionApprovalRequestGlobalId && (
+        <Divider flexItem orientation="vertical" />
+      )}
       {nextRevisionApprovalRequestGlobalId && (
-        <>
+        <Typography color="text.secondary" component="span" variant="body2">
           Superseded by{" "}
-          <Link color="inherit" component={RouterLink} to={getRequestPath(nextRevisionApprovalRequestGlobalId)}>
+          <Link component={RouterLink} to={getRequestPath(nextRevisionApprovalRequestGlobalId)}>
             {getApprovalRequestNumber(nextRevisionApprovalRequestGlobalId)}
           </Link>
-        </>
+        </Typography>
       )}
-    </Typography>
+    </Stack>
   );
 };
 

@@ -20,10 +20,11 @@ const ApprovalRequestTaskAttachmentList: React.FC<ApprovalRequestTaskAttachmentL
   taskGlobalId,
   tenantGlobalId,
 }) => (
-  <Stack alignItems="flex-start" spacing={StackSpacing.default}>
+  <Stack alignItems="flex-start" spacing={StackSpacing.tight}>
     {showLabel && <ApprovalRequestDetailLabel>{label}</ApprovalRequestDetailLabel>}
     <ApprovalRequestFilesList
       existingFiles={taskFiles.map((file) => ({ file }))}
+      linkVariant="body1"
       newFiles={[]}
       onDownloadExisting={(file) => void downloadApprovalRequestTaskAttachment(tenantGlobalId, file, taskGlobalId)}
       onRemoveNew={() => undefined}

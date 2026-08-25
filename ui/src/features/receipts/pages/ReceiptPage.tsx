@@ -45,7 +45,7 @@ const ReceiptPage: React.FC<ReceiptPageProps> = ({ tab = "request" }) => {
         <PageBreadcrumbs
           items={[
             { label: "Receipts", state: { currentReceiptGlobalId: receipt.globalId }, to: receiptsPath },
-            { label: `Receipt ${getApprovalRequestNumber(receipt.globalId)}` },
+            { label: receipt.approvalRequestTitle },
           ]}
         />
         <Tabs
