@@ -61,7 +61,7 @@ const ApprovalUpcomingTaskBlock: React.FC<ApprovalUpcomingTaskBlockProps> = ({
     >
       <ApprovalRequestCardLayout
         activity={
-          <ApprovalRequestFieldGroup title="Activity">
+          <ApprovalRequestFieldGroup title="Activity" valueVariant="body2">
             {visibleOrganizationDisplayName && (
               <ApprovalRequestField
                 label="From organization"

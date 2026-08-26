@@ -136,7 +136,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
     );
   void participantTimeline;
   const activity = (
-    <ApprovalRequestFieldGroup title="Activity">
+    <ApprovalRequestFieldGroup title="Activity" valueVariant="body2">
       {organizationDisplayName && (
         <ApprovalRequestField
           label="From organization"
