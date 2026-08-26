@@ -13,6 +13,7 @@ public class Tenant : DbEntity
     public required string BusinessName { get; set; }
     public string? Email { get; set; }
     public string? Phone { get; set; }
+    public DateTime? ScheduledForDeletionAt { get; set; }
     public required TenantType Type { get; set; }
     public string? WebsiteUrl { get; set; }
 

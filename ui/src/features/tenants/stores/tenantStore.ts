@@ -162,6 +162,16 @@ export class TenantStore {
     return true;
   };
 
+  scheduleDeletion = async (tenantGlobalId: string): Promise<boolean> => {
+    const requestVersion = this.requestVersion;
+    if (!(await tenantApi.scheduleTenantDeletion(tenantGlobalId)) || requestVersion !== this.requestVersion) {
+      return false;
+    }
+
+    await this.load();
+    return true;
+  };
+
   setCurrentGlobalId = (tenantGlobalId: string): void => {
     runInAction(() => {
       this.currentTenantGlobalId = tenantGlobalId;

@@ -22,7 +22,7 @@ public class TenantRepository(ApiDbContext db) : ITenantRepository
         return Db.Tenants
             .Include(t => t.Owner)
             .Include(t => t.LogoUserFile)
-            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(t => t.Id == id && t.ScheduledForDeletionAt == null, cancellationToken);
     }
 
     public virtual Task<Tenant?> GetAsync(Guid globalId, CancellationToken cancellationToken)
@@ -30,7 +30,7 @@ public class TenantRepository(ApiDbContext db) : ITenantRepository
         return Db.Tenants
             .Include(t => t.Owner)
             .Include(t => t.LogoUserFile)
-            .FirstOrDefaultAsync(t => t.GlobalId == globalId, cancellationToken);
+            .FirstOrDefaultAsync(t => t.GlobalId == globalId && t.ScheduledForDeletionAt == null, cancellationToken);
     }
 
     public virtual Task<Tenant?> GetPersonalAsync(AppUser user, CancellationToken cancellationToken)
@@ -38,7 +38,7 @@ public class TenantRepository(ApiDbContext db) : ITenantRepository
         return Db.Tenants
             .Include(t => t.Owner)
             .Include(t => t.LogoUserFile)
-            .Where(t => t.Owner == user && t.Type == TenantType.Personal)
+            .Where(t => t.Owner == user && t.Type == TenantType.Personal && t.ScheduledForDeletionAt == null)
             .OrderBy(t => t.Id)
             .FirstOrDefaultAsync(cancellationToken);
     }
@@ -48,7 +48,7 @@ public class TenantRepository(ApiDbContext db) : ITenantRepository
         return Db.Tenants
             .Include(t => t.Owner)
             .Include(t => t.LogoUserFile)
-            .Where(t => userIds.Contains(t.Owner.Id) && t.Type == TenantType.Personal)
+            .Where(t => userIds.Contains(t.Owner.Id) && t.Type == TenantType.Personal && t.ScheduledForDeletionAt == null)
             .OrderBy(t => t.Id)
             .ToListAsync(cancellationToken);
     }
@@ -58,7 +58,7 @@ public class TenantRepository(ApiDbContext db) : ITenantRepository
         return Db.Tenants
             .Include(t => t.Owner)
             .Include(t => t.LogoUserFile)
-            .Where(t => t.Owner == user)
+            .Where(t => t.Owner == user && t.ScheduledForDeletionAt == null)
             .OrderBy(t => t.BusinessName)
             .ToListAsync(cancellationToken);
     }

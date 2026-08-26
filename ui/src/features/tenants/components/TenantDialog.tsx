@@ -13,20 +13,24 @@ import { useCallback, useEffect, useState } from "react";
 
 interface TenantDialogProps {
   canEdit: boolean;
+  canScheduleDeletion: boolean;
   tenant?: Tenant | null;
   onClose: (currentTenantGlobalId?: string) => void;
   onSubmit: (payload: CreateTenantRequest | UpdateTenantRequest, tenantGlobalId?: string) => Promise<Tenant | null>;
   onLogoUpload: (tenantGlobalId: string, logo: File) => Promise<boolean>;
   onLogoDelete: (tenantGlobalId: string) => Promise<boolean>;
+  onScheduleDeletion: () => void;
 }
 
 const TenantDialog: React.FC<TenantDialogProps> = ({
   tenant,
   canEdit,
+  canScheduleDeletion,
   onClose,
   onSubmit,
   onLogoUpload,
   onLogoDelete,
+  onScheduleDeletion,
 }) => {
   const [businessName, setBusinessName] = useState("");
   const [email, setEmail] = useState("");
@@ -159,6 +163,11 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
         <Button variant="outlined" onClick={() => onClose(tenant?.globalId)}>
           Cancel
         </Button>
+        {!isNew && canScheduleDeletion && (
+          <Button color="error" disabled={saveIsLoading} variant="outlined" onClick={onScheduleDeletion}>
+            Schedule deletion
+          </Button>
+        )}
         {(isNew || canEdit) && (
           <MainActionButton disabled={!businessName.trim()} loading={saveIsLoading} onClick={handleSubmit}>
             Save

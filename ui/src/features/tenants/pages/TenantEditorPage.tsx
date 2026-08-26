@@ -1,6 +1,7 @@
 import { stores } from "@/app/rootStore";
 import TenantEditor from "@/features/tenants/components/TenantDialog";
 import { CreateTenantRequest, EmployeeRole, UpdateTenantRequest } from "@/features/tenants/models/tenant";
+import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
@@ -9,6 +10,7 @@ import {
   showPersistenceSuccessNotification,
 } from "@/shared/utils/persistenceNotifications";
 import { observer } from "mobx-react-lite";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 const tenantsPath = "/tenants";
@@ -18,6 +20,7 @@ const TenantEditorPage = () => {
   const { tenantGlobalId } = useParams<{ tenantGlobalId: string }>();
   usePageTitle(tenantGlobalId === undefined ? "New organization" : "Edit organization");
   const isNewTenant = tenantGlobalId === undefined;
+  const [scheduleDeletionIsOpen, setScheduleDeletionIsOpen] = useState(false);
   const tenant = stores.tenantStore.tenants.find((item) => item.globalId === tenantGlobalId);
 
   if (!stores.tenantStore.hasLoaded) return null;
@@ -38,6 +41,15 @@ const TenantEditorPage = () => {
     return saved;
   };
 
+  const scheduleDeletion = async () => {
+    if (!tenant || !(await stores.tenantStore.scheduleDeletion(tenant.globalId))) {
+      return false;
+    }
+
+    navigate(tenantsPath);
+    return true;
+  };
+
   return (
     <NarrowContent>
       <TenantEditor
@@ -51,6 +63,17 @@ const TenantEditorPage = () => {
         onSubmit={submit}
         onLogoUpload={stores.tenantStore.uploadLogo}
         onLogoDelete={stores.tenantStore.deleteLogo}
+        onScheduleDeletion={() => setScheduleDeletionIsOpen(true)}
+        canScheduleDeletion={tenant?.currentEmployeeRole === EmployeeRole.Owner}
+      />
+      <ConfirmationDialog
+        confirmColor="error"
+        confirmLabel="Schedule deletion"
+        message="This organization will be hidden immediately and deleted later by a scheduled cleanup job."
+        open={scheduleDeletionIsOpen}
+        title="Schedule organization deletion"
+        onClose={() => setScheduleDeletionIsOpen(false)}
+        onConfirm={scheduleDeletion}
       />
     </NarrowContent>
   );

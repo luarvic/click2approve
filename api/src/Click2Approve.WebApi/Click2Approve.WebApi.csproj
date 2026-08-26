@@ -16,6 +16,7 @@
   <ItemGroup>
     <PackageReference Include="Asp.Versioning.Mvc" Version="10.0.0" />
     <PackageReference Include="Azure.Communication.Email" Version="1.1.0" />
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="FluentEmail.Core" Version="3.0.2" />
     <PackageReference Include="FluentEmail.Smtp" Version="3.0.2" />
     <PackageReference Include="Flurl.Http" Version="4.0.2" />

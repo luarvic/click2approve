@@ -62,6 +62,7 @@ export const ApiPaths = {
       `api/v1/tenants/${tenantGlobalId}/requests/${requestGlobalId}/resubmit`,
     requests: (tenantGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/requests`,
     root: "api/v1/tenants",
+    scheduleDeletion: (tenantGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/scheduleDeletion`,
     task: (tenantGlobalId: string, taskGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/tasks/${taskGlobalId}`,
     taskAttachment: (tenantGlobalId: string, taskGlobalId: string, attachmentGlobalId: string) =>
       `api/v1/tenants/${tenantGlobalId}/tasks/${taskGlobalId}/attachments/${attachmentGlobalId}`,

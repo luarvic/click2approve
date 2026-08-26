@@ -82,3 +82,13 @@ export const deleteTenantLogo = async (tenantGlobalId: string): Promise<Tenant |
     return null;
   }
 };
+
+export const scheduleTenantDeletion = async (tenantGlobalId: string): Promise<boolean> => {
+  try {
+    await axios.post(ApiPaths.tenants.scheduleDeletion(tenantGlobalId));
+    return true;
+  } catch (e) {
+    notification.error(getApiErrorNotification(e));
+    return false;
+  }
+};

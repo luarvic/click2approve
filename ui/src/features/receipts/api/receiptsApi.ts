@@ -17,6 +17,16 @@ export const listReceipts = async (tenantGlobalId: string): Promise<Receipt[]> =
   }
 };
 
+export const deleteReceipt = async (tenantGlobalId: string, receiptGlobalId: string): Promise<boolean> => {
+  try {
+    await axios.delete(ApiPaths.tenants.receipt(tenantGlobalId, receiptGlobalId), config);
+    return true;
+  } catch (error) {
+    notification.error(getApiErrorNotification(error));
+    return false;
+  }
+};
+
 export const getReceipt = async (tenantGlobalId: string, receiptGlobalId: string): Promise<Receipt | null> => {
   try {
     const { data } = await axios.get<Receipt>(ApiPaths.tenants.receipt(tenantGlobalId, receiptGlobalId), config);
