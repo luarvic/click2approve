@@ -47,6 +47,7 @@ const DiscussionParticipants: React.FC<DiscussionParticipantsProps> = ({
             key={participant.key}
             displayName={participant.label}
             type={participant.type}
+            variant="body2"
           />
         ))}
       </Stack>

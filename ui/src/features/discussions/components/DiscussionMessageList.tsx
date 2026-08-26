@@ -82,7 +82,7 @@ const DiscussionMessageList: React.FC<DiscussionMessageListProps> = ({
       <Box key={message.globalId} sx={messageBubbleSx(isOutgoing)}>
         <Stack spacing={StackSpacing.default}>
           <Stack spacing={StackSpacing.tight}>
-            <ApprovalRequestParticipantLine displayName={sender} type={message.sentByType} />
+            <ApprovalRequestParticipantLine displayName={sender} type={message.sentByType} variant="body2" />
             {message.isDelegated && representedSender && (
               <Typography color="inherit" sx={delegatedSenderSx} variant="caption">
                 On behalf of {representedSender}
