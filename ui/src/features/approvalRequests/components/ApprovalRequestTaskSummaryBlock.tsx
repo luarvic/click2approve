@@ -228,7 +228,6 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
           label="From organization"
           value={organizationDisplayName}
           valueIcon={<Business color="action" fontSize="small" />}
-          valueVariant="body2"
         />
       )}
       {showRequester && (
@@ -258,11 +257,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
           )
         }
       />
-      <ApprovalRequestField
-        label="Assigned at"
-        value={getLocaleDateTimeString(task.createdAtDate)}
-        valueVariant="body2"
-      />
+      <ApprovalRequestField label="Assigned at" value={getLocaleDateTimeString(task.createdAtDate)} />
       <ApprovalRequestField
         label="Completed by"
         value={
@@ -280,7 +275,6 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
       <ApprovalRequestField
         label="Completed at"
         value={completedTimestamp ? getLocaleDateTimeString(completedTimestamp.date) : undefined}
-        valueVariant="body2"
       />
     </ApprovalRequestFieldGroup>
   );

@@ -20,7 +20,7 @@ const ApprovalRequestField: React.FC<ApprovalRequestFieldProps> = ({
   valueColor,
   valueIcon,
   valueIconSx,
-  valueVariant = "body1",
+  valueVariant = "body2",
 }) => {
   const isEmpty = value === undefined || value === null || value === "";
 

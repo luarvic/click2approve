@@ -67,7 +67,6 @@ const ApprovalUpcomingTaskBlock: React.FC<ApprovalUpcomingTaskBlockProps> = ({
                 label="From organization"
                 value={visibleOrganizationDisplayName}
                 valueIcon={<Business color="action" fontSize="small" />}
-                valueVariant="body2"
               />
             )}
             <ApprovalRequestField label="Assignee" value={assigneeParticipant} />

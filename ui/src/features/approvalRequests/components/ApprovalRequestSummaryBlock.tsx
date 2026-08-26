@@ -142,7 +142,6 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
           label="From organization"
           value={organizationDisplayName}
           valueIcon={<Business color="action" fontSize="small" />}
-          valueVariant="body2"
         />
       )}
       <ApprovalRequestField
@@ -156,11 +155,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
           />
         }
       />
-      <ApprovalRequestField
-        label="Requested at"
-        value={getLocaleDateTimeString(approvalRequest.createdAtDate)}
-        valueVariant="body2"
-      />
+      <ApprovalRequestField label="Requested at" value={getLocaleDateTimeString(approvalRequest.createdAtDate)} />
       <ApprovalRequestField
         label="Completed by"
         value={
@@ -178,7 +173,6 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
       <ApprovalRequestField
         label="Completed at"
         value={completedTimestamp ? getLocaleDateTimeString(completedTimestamp.date) : undefined}
-        valueVariant="body2"
       />
     </ApprovalRequestFieldGroup>
   );
