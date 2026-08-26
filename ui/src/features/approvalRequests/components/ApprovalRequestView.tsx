@@ -18,7 +18,7 @@ import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
 } from "@/shared/utils/persistenceNotifications";
-import { BlockOutlined, DeleteOutline, Replay } from "@mui/icons-material";
+import { Replay } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { Tab, Tabs } from "@mui/material";
 import { observer } from "mobx-react-lite";
@@ -177,17 +177,15 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
             <LoadingButton
               color="error"
               loading={deleteAction.isRunning}
-              startIcon={<DeleteOutline />}
               variant="outlined"
               onClick={() => setDeleteDialogIsOpen(true)}
             >
-              Delete request
+              Delete
             </LoadingButton>
             {canCancel && (
               <LoadingButton
                 color="warning"
                 loading={approvalRequestIsCanceling}
-                startIcon={<BlockOutlined />}
                 variant="outlined"
                 onClick={() => setCancelDialogIsOpen(true)}
               >

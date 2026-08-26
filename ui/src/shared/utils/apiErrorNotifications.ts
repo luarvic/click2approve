@@ -52,7 +52,7 @@ const getResponseDetails = (data: Record<string, unknown>, status?: number): Not
     if (key === "errors" && typeof value === "object" && !Array.isArray(value)) {
       Object.entries(value as Record<string, unknown>).forEach(([field, messages]) => {
         details.push({
-          label: `Validation error: ${field}`,
+          label: field ? `Validation error: ${field}` : "Validation error",
           value: Array.isArray(messages) ? messages.map(String).join(" ") : toDetailValue(messages),
         });
       });

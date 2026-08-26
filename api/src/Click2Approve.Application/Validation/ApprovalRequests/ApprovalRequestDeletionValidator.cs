@@ -12,6 +12,7 @@ public class ApprovalRequestDeletionValidator : AbstractValidator<ApprovalReques
     {
         RuleFor(request => request.NextRevisionApprovalRequest)
             .Null()
+            .OverridePropertyName(string.Empty)
             .WithMessage("The approval request cannot be deleted because a later revision references it.");
     }
 }

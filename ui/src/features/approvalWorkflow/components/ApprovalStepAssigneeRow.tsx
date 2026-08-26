@@ -99,11 +99,11 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
           )}
           {assignee.type === AssigneeType.Employee && (
             <Autocomplete
-              disableClearable
+              disableClearable={assignee.employeeGlobalId !== undefined}
               fullWidth
               options={activeEmployees}
               getOptionLabel={(option) => option.displayName}
-              value={employees.find((user) => user.globalId === assignee.employeeGlobalId)}
+              value={employees.find((user) => user.globalId === assignee.employeeGlobalId) ?? null}
               disabled={disabled}
               renderInput={(params) => {
                 const employee = employees.find((item) => item.globalId === assignee.employeeGlobalId);
@@ -140,11 +140,11 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
           )}
           {assignee.type === AssigneeType.Team && (
             <Autocomplete
-              disableClearable
+              disableClearable={assignee.teamGlobalId !== undefined}
               fullWidth
               options={teams}
               getOptionLabel={(option) => option.name}
-              value={teams.find((team) => team.globalId === assignee.teamGlobalId)}
+              value={teams.find((team) => team.globalId === assignee.teamGlobalId) ?? null}
               disabled={disabled}
               renderInput={(params) => {
                 const team = teams.find((item) => item.globalId === assignee.teamGlobalId);
