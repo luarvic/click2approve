@@ -12,6 +12,7 @@ public interface ITenantRepository
     Task<Tenant?> GetAsync(Guid globalId, CancellationToken cancellationToken);
     Task<Tenant?> GetPersonalAsync(AppUser user, CancellationToken cancellationToken);
     Task<List<Tenant>> ListPersonalAsync(IReadOnlyCollection<long> userIds, CancellationToken cancellationToken);
+    Task<List<AppUser>> ListUsersWithDefaultTenantAsync(long tenantId, CancellationToken cancellationToken);
     Task<List<Tenant>> ListAsync(AppUser user, CancellationToken cancellationToken);
     void Remove(Tenant tenant);
 }

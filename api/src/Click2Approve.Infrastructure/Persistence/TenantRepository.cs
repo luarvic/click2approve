@@ -63,6 +63,13 @@ public class TenantRepository(ApiDbContext db) : ITenantRepository
             .ToListAsync(cancellationToken);
     }
 
+    public Task<List<AppUser>> ListUsersWithDefaultTenantAsync(long tenantId, CancellationToken cancellationToken)
+    {
+        return Db.Users
+            .Where(user => user.DefaultTenantId == tenantId)
+            .ToListAsync(cancellationToken);
+    }
+
     public void Remove(Tenant tenant)
     {
         Db.Tenants.Remove(tenant);

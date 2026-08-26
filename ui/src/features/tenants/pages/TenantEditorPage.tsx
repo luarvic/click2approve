@@ -46,6 +46,7 @@ const TenantEditorPage = () => {
       return false;
     }
 
+    await stores.userProfileStore.load();
     navigate(tenantsPath);
     return true;
   };
