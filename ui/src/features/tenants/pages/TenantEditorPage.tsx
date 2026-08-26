@@ -1,7 +1,7 @@
 import { stores } from "@/app/rootStore";
 import TenantEditor from "@/features/tenants/components/TenantDialog";
 import { CreateTenantRequest, EmployeeRole, UpdateTenantRequest } from "@/features/tenants/models/tenant";
-import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
+import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
@@ -66,14 +66,13 @@ const TenantEditorPage = () => {
         onScheduleDeletion={() => setScheduleDeletionIsOpen(true)}
         canScheduleDeletion={tenant?.currentEmployeeRole === EmployeeRole.Owner}
       />
-      <ConfirmationDialog
-        confirmColor="error"
-        confirmLabel="Schedule deletion"
-        message="This organization will be hidden immediately and deleted later by a scheduled cleanup job."
+      <DeleteConfirmationDialog
+        entityName={tenant?.businessName ?? "this organization"}
         open={scheduleDeletionIsOpen}
-        title="Schedule organization deletion"
+        title="Delete organization"
+        warning="All organization data, including its requests, tasks, templates, employees, teams, and files, will be permanently deleted. This action cannot be undone."
         onClose={() => setScheduleDeletionIsOpen(false)}
-        onConfirm={scheduleDeletion}
+        onDelete={scheduleDeletion}
       />
     </NarrowContent>
   );

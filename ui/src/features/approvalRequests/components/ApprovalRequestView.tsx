@@ -18,7 +18,7 @@ import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
 } from "@/shared/utils/persistenceNotifications";
-import { BlockOutlined, Replay } from "@mui/icons-material";
+import { BlockOutlined, DeleteOutline, Replay } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { Tab, Tabs } from "@mui/material";
 import { observer } from "mobx-react-lite";
@@ -46,9 +46,11 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
   const nameWarning = getIncompleteParticipantNameWarning(stores.tenantStore.currentTenant?.type);
   const requestsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/requests") : "/";
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
+  const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const [nameWarningDialogIsOpen, setNameWarningDialogIsOpen] = useState(false);
   const cancelLoader = ActionLoaders.approvalRequests.cancel(approvalRequest?.globalId);
   const cancelAction = useAsyncAction(cancelLoader);
+  const deleteAction = useAsyncAction(ActionLoaders.dialogs.delete());
   const canResubmit = Boolean(
     approvalRequest &&
     stores.applicationConfigurationStore.approvalRequestRevisionsAreEnabled &&
@@ -117,6 +119,24 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
     return cancel();
   };
 
+  const deleteApprovalRequest = async (): Promise<boolean> => {
+    if (!approvalRequest || !tenantGlobalId) {
+      return false;
+    }
+
+    const deleted = await deleteAction.run(async () => {
+      const result = await stores.approvalRequestStore.delete(tenantGlobalId, approvalRequest.globalId);
+      if (result) {
+        showPersistenceSuccessNotification(PersistenceSuccessMessages.approvalRequestDeleted);
+      }
+      return result;
+    });
+    if (deleted === true) {
+      onClose();
+    }
+    return deleted === true;
+  };
+
   if (tab === "chat" && !discussionsAreEnabled) {
     return <NotFoundPage />;
   }
@@ -154,6 +174,15 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
             }
           />
           <ApprovalRequestActionBar onClose={handleClose}>
+            <LoadingButton
+              color="error"
+              loading={deleteAction.isRunning}
+              startIcon={<DeleteOutline />}
+              variant="outlined"
+              onClick={() => setDeleteDialogIsOpen(true)}
+            >
+              Delete request
+            </LoadingButton>
             {canCancel && (
               <LoadingButton
                 color="warning"
@@ -180,6 +209,18 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
           canSend={canSendDiscussion}
           onClose={handleClose}
           tenantGlobalId={tenantGlobalId}
+        />
+      )}
+      {approvalRequest && (
+        <ConfirmationDialog
+          confirmColor="error"
+          confirmDisabled={deleteAction.isRunning}
+          confirmLabel="Delete"
+          message={`Are you sure you want to delete ${approvalRequest.title}?`}
+          open={deleteDialogIsOpen}
+          title="Delete request"
+          onClose={() => setDeleteDialogIsOpen(false)}
+          onConfirm={deleteApprovalRequest}
         />
       )}
       {approvalRequest && (

@@ -24,6 +24,16 @@ export const listTenants = async (): Promise<Tenant[]> => {
   }
 };
 
+export const listTenantPicker = async (): Promise<Tenant[]> => {
+  try {
+    const { data } = await axios.get<Tenant[]>(ApiPaths.tenants.picker);
+    return data;
+  } catch (e) {
+    notification.error(getApiErrorNotification(e));
+    return [];
+  }
+};
+
 export const createTenant = async (payload: CreateTenantRequest): Promise<Tenant | null> => {
   try {
     const { data } = await axios.post<Tenant>(ApiPaths.tenants.root, payload);

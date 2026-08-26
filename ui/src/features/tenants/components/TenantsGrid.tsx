@@ -27,10 +27,10 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
   const theme = useTheme();
   const allColumnsAreVisible = useMediaQuery(theme.breakpoints.up("md"));
   const gridLoader = ActionLoaders.grids.tenants();
-  const businessTenants = stores.tenantStore.tenants.filter((tenant) => tenant.type === TenantType.Business);
+  const businessTenants = stores.tenantStore.businessTenants.filter((tenant) => tenant.type === TenantType.Business);
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(businessTenants, currentTenantGlobalId);
 
-  const gridIsLoading = useGridRefresh(() => stores.tenantStore.load(), "tenants", gridLoader);
+  const gridIsLoading = useGridRefresh(() => stores.tenantStore.loadBusinessTenants(), "tenants", gridLoader);
 
   const customToolbar = () => {
     return (

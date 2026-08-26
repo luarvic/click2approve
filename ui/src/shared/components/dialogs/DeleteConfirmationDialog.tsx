@@ -1,13 +1,16 @@
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
+import { Dialogs } from "@/shared/constants/constants";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
+import type { ReactNode } from "react";
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Stack } from "@mui/material";
 
 interface DeleteConfirmationDialogProps {
   cancelLabel?: string;
-  entityName: string;
+  entityName: ReactNode;
   open: boolean;
   title: string;
+  warning?: ReactNode;
   onClose: () => void;
   onDelete: () => Promise<boolean>;
 }
@@ -17,6 +20,7 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
   entityName,
   open,
   title,
+  warning,
   onClose,
   onDelete,
 }) => {
@@ -34,7 +38,10 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>{title}</DialogTitle>
       <DialogContent dividers>
-        <DialogContentText>Are you sure you want to delete {entityName}?</DialogContentText>
+        <Stack spacing={Dialogs.formStackSpacing}>
+          <DialogContentText>Are you sure you want to delete {entityName}?</DialogContentText>
+          {warning && <DialogContentText>{warning}</DialogContentText>}
+        </Stack>
       </DialogContent>
       <DialogActions>
         <Button disabled={deleteAction.isRunning} onClick={onClose}>

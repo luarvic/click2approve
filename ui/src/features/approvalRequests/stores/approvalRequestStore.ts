@@ -42,6 +42,20 @@ export class ApprovalRequestStore {
     return true;
   };
 
+  delete = async (tenantGlobalId: string, globalId: string): Promise<boolean> => {
+    if (!(await approvalRequestApi.deleteApprovalRequest(tenantGlobalId, globalId))) {
+      return false;
+    }
+
+    runInAction(() => {
+      this.registry.delete(globalId);
+      this.details.delete(globalId);
+      if (this.currentApprovalRequest?.globalId === globalId) this.currentApprovalRequest = null;
+      if (this.requestToClone?.globalId === globalId) this.requestToClone = null;
+    });
+    return true;
+  };
+
   load = (tenantGlobalId: string): Promise<void> => {
     if (this.listRequest) {
       return this.listRequest;

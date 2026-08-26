@@ -10,6 +10,7 @@ export const showPersistenceSuccessNotification = (message: string): void => {
 export const PersistenceSuccessMessages = {
   approvalDecisionSubmitted: "Decision submitted successfully.",
   approvalRequestCanceled: "Request canceled successfully.",
+  approvalRequestDeleted: "Request deleted successfully.",
   approvalRequestSubmitted: "Request submitted successfully.",
   delegationDeleted: "Delegation deleted successfully.",
   delegationSaved: "Delegation saved successfully.",

@@ -56,6 +56,14 @@ public class ApprovalRequestController(
         return Ok();
     }
 
+    [HttpDelete("{globalId:guid}")]
+    public async Task<IActionResult> DeleteAsync(Guid globalId, CancellationToken cancellationToken)
+    {
+        var user = await _userManager.GetAppUserAsync(User);
+        await _approvalRequestService.DeleteAsync(user, globalId, cancellationToken);
+        return Ok();
+    }
+
     /// <summary>
     /// Lists approval request summaries for the Requests list.
     /// </summary>

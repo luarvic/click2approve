@@ -1,4 +1,5 @@
 using Click2Approve.Application.Extensions;
+using FluentValidation;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 
@@ -17,7 +18,8 @@ public class ApprovalRequestService(
     IApprovalWorkflowService workflowService,
     ITenantContext tenantContext,
     IApprovalRequestCompletionAttributor completionAttributor,
-    IConfiguration configuration) : IApprovalRequestService
+    IConfiguration configuration,
+    IValidator<ApprovalRequest> approvalRequestDeletionValidator) : IApprovalRequestService
 {
     protected readonly IApprovalRequestRepository _approvalRequestRepository = approvalRequestRepository;
     protected readonly IApprovalRequestCompletionAttributor _completionAttributor = completionAttributor;
@@ -30,6 +32,7 @@ public class ApprovalRequestService(
     private readonly IApprovalRequestAssigneeGlobalIdResolver _assigneeGlobalIdResolver = assigneeGlobalIdResolver;
     private readonly ITenantContext _tenantContext = tenantContext;
     private readonly IConfiguration _configuration = configuration;
+    private readonly IValidator<ApprovalRequest> _approvalRequestDeletionValidator = approvalRequestDeletionValidator;
 
     /// <summary>
     /// Creates a new approval request.
@@ -57,6 +60,21 @@ public class ApprovalRequestService(
         approvalRequest.CompletedAt = now;
         await _completionAttributor.AttributeAsync(user, approvalRequest, cancellationToken);
         await _workflowService.CancelRequestAsync(approvalRequest, now, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DeleteAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    {
+        var approvalRequest = await _approvalRequestRepository.GetForUpdateAsync(user, globalId, cancellationToken)
+            ?? throw new NotFoundException("Approval request was not found.");
+        await _approvalRequestDeletionValidator.ValidateAndThrowAsync(approvalRequest, cancellationToken);
+
+        foreach (var requestFile in approvalRequest.RequestFiles)
+        {
+            requestFile.UserFile.ScheduledForDeletionAt = DateTime.UtcNow;
+        }
+
+        await _approvalRequestRepository.RemoveAsync(approvalRequest, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 

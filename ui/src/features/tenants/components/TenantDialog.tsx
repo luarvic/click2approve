@@ -165,7 +165,7 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
         </Button>
         {!isNew && canScheduleDeletion && (
           <Button color="error" disabled={saveIsLoading} variant="outlined" onClick={onScheduleDeletion}>
-            Schedule deletion
+            Delete
           </Button>
         )}
         {(isNew || canEdit) && (

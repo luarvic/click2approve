@@ -73,6 +73,16 @@ export const cancelApprovalRequest = async (tenantGlobalId: string, globalId: st
   }
 };
 
+export const deleteApprovalRequest = async (tenantGlobalId: string, globalId: string): Promise<boolean> => {
+  try {
+    await axios.delete(ApiPaths.tenants.request(tenantGlobalId, globalId), { useWorkEmployeeContext: true });
+    return true;
+  } catch (e) {
+    notification.error(getApiErrorNotification(e));
+    return false;
+  }
+};
+
 export const listApprovalRequests = async (tenantGlobalId: string): Promise<ApprovalRequestListItem[]> => {
   try {
     const { data } = await axios.get<ApprovalRequestListItem[]>(ApiPaths.tenants.requests(tenantGlobalId), {

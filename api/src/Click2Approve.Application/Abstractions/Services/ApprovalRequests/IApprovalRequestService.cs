@@ -9,6 +9,7 @@ public interface IApprovalRequestService
 {
     Task<Guid> SubmitAsync(AppUser user, SubmitApprovalRequestCommand payload, CancellationToken cancellationToken);
     Task CancelAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
+    Task DeleteAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task<List<ApprovalRequestListItemResult>> ListAsync(AppUser user, CancellationToken cancellationToken);
     Task<ApprovalRequestDetailsResult> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
 }

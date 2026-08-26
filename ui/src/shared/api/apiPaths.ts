@@ -40,6 +40,7 @@ export const ApiPaths = {
     fileUpload: (tenantGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/files/upload`,
     notificationMarkRead: (tenantGlobalId: string, notificationGlobalId: string) =>
       `api/v1/tenants/${tenantGlobalId}/notifications/${notificationGlobalId}/read`,
+    picker: "api/v1/tenants/picker",
     notifications: (tenantGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/notifications`,
     notificationsReadSelected: (tenantGlobalId: string) =>
       `api/v1/tenants/${tenantGlobalId}/notifications/readSelected`,

@@ -14,6 +14,7 @@ using Click2Approve.Application.Services.Notifications;
 using Click2Approve.Application.Services.Tenants;
 using Click2Approve.Application.Services.UserFiles;
 using Click2Approve.Application.Services.UserProfiles;
+using Click2Approve.Application.Validation.ApprovalRequests;
 using Click2Approve.Domain.Models;
 using Click2Approve.Infrastructure.Authorization;
 using Click2Approve.Infrastructure.Persistence;
@@ -21,6 +22,7 @@ using Click2Approve.WebApi.Extensions;
 using Click2Approve.WebApi.Middlewares;
 using Click2Approve.WebApi.TenantContext;
 using Microsoft.EntityFrameworkCore;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,6 +66,7 @@ builder.Services.AddScoped<IAssigneeResolver, UserOnlyAssigneeResolver>();
 builder.Services.AddScoped<IApprovalRequestAssigneeGlobalIdResolver, DefaultApprovalRequestAssigneeGlobalIdResolver>();
 builder.Services.AddScoped<IApprovalRequestCompletionAttributor, ApprovalRequestCompletionAttributor>();
 builder.Services.AddScoped<IApprovalRequestService, ApprovalRequestService>();
+builder.Services.AddScoped<IValidator<ApprovalRequest>, ApprovalRequestDeletionValidator>();
 builder.Services.AddScoped<IApprovalRequestTaskCompletionAttributor, ApprovalRequestTaskCompletionAttributor>();
 builder.Services.AddScoped<IApprovalRequestTaskService, ApprovalRequestTaskService>();
 builder.Services.AddScoped<IApprovalWorkflowService, ApprovalWorkflowService>();

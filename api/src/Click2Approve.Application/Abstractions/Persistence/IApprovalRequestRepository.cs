@@ -12,4 +12,5 @@ public interface IApprovalRequestRepository
     Task<ApprovalRequest?> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task<List<ApprovalRequest>> ListAsync(AppUser user, CancellationToken cancellationToken);
     Task<int> CountAsync(AppUser user, DateTime start, DateTime end, CancellationToken cancellationToken);
+    Task RemoveAsync(ApprovalRequest approvalRequest, CancellationToken cancellationToken);
 }

@@ -61,6 +61,16 @@ public class ApprovalRequestRepository(
             && r.CreatedAt < end, cancellationToken);
     }
 
+    public virtual Task RemoveAsync(ApprovalRequest approvalRequest, CancellationToken cancellationToken)
+    {
+        Db.ApprovalRequestFiles.RemoveRange(approvalRequest.RequestFiles);
+        Db.ApprovalRequestTasks.RemoveRange(approvalRequest.Steps.SelectMany(step => step.Tasks));
+        Db.ApprovalRequestStepAssignees.RemoveRange(approvalRequest.Steps.SelectMany(step => step.Assignees));
+        Db.ApprovalRequestSteps.RemoveRange(approvalRequest.Steps);
+        Db.ApprovalRequests.Remove(approvalRequest);
+        return Task.CompletedTask;
+    }
+
     protected static IQueryable<ApprovalRequest> IncludeDetails(IQueryable<ApprovalRequest> requests) => requests
         .AsSplitQuery()
         .Include(request => request.CreatedByUser)

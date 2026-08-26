@@ -11,10 +11,12 @@ import {
 import { makeAutoObservable, runInAction } from "mobx";
 
 export class TenantStore {
+  businessTenants: Tenant[] = [];
   tenants: Tenant[];
   currentTenantGlobalId: string | null;
   currentWorkEmployeeGlobalId: string | null;
   hasLoaded: boolean;
+  private businessTenantRequestVersion = 0;
   // Incremented to invalidate older async requests so only the latest response updates the store.
   private requestVersion = 0;
 
@@ -56,7 +58,7 @@ export class TenantStore {
 
   load = async (defaultTenantGlobalId?: string, preferredTenantGlobalId?: string): Promise<void> => {
     const requestVersion = ++this.requestVersion;
-    const tenants = await tenantApi.listTenants();
+    const tenants = await tenantApi.listTenantPicker();
     if (requestVersion !== this.requestVersion) {
       return;
     }
@@ -86,6 +88,18 @@ export class TenantStore {
     } else {
       deleteCurrentTenantGlobalId();
     }
+  };
+
+  loadBusinessTenants = async (): Promise<void> => {
+    const requestVersion = ++this.businessTenantRequestVersion;
+    const businessTenants = await tenantApi.listTenants();
+    if (requestVersion !== this.businessTenantRequestVersion) {
+      return;
+    }
+
+    runInAction(() => {
+      this.businessTenants = businessTenants;
+    });
   };
 
   create = async (payload: CreateTenantRequest): Promise<Tenant | null> => {
@@ -168,7 +182,7 @@ export class TenantStore {
       return false;
     }
 
-    await this.load();
+    await Promise.all([this.load(), this.loadBusinessTenants()]);
     return true;
   };
 
@@ -193,7 +207,9 @@ export class TenantStore {
     deleteCurrentWorkEmployeeGlobalId();
     runInAction(() => {
       this.requestVersion += 1;
+      this.businessTenantRequestVersion += 1;
       this.tenants = [];
+      this.businessTenants = [];
       this.currentTenantGlobalId = null;
       this.currentWorkEmployeeGlobalId = null;
       this.hasLoaded = false;
