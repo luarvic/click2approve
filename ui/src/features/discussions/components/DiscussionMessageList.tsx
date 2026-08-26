@@ -26,7 +26,21 @@ interface DiscussionMessageListProps {
 }
 
 const messageBubbleSx = (isOutgoing: boolean): SxProps<Theme> => ({
+  "@keyframes discussion-message-entrance": {
+    from: {
+      opacity: 0,
+      transform: "translateY(8px)",
+    },
+    to: {
+      opacity: 1,
+      transform: "translateY(0)",
+    },
+  },
+  "@media (prefers-reduced-motion: reduce)": {
+    animation: "none",
+  },
   alignSelf: isOutgoing ? "flex-end" : "flex-start",
+  animation: "discussion-message-entrance 220ms cubic-bezier(0.2, 0, 0, 1) both",
   backgroundColor: (theme) => (isOutgoing ? alpha(theme.palette.primary.main, 0.1) : theme.palette.action.selected),
   borderRadius: 2,
   color: "text.primary",
@@ -90,10 +104,6 @@ const DiscussionMessageList: React.FC<DiscussionMessageListProps> = ({
     );
   };
 
-  if (messages === null) {
-    return null;
-  }
-
   return (
     <>
       {taskGlobalId && taskStep && (
@@ -120,10 +130,10 @@ const DiscussionMessageList: React.FC<DiscussionMessageListProps> = ({
               requesterEmail={requesterEmail}
               requesterType={requesterType}
             />
-            {messages.filter((message) => message.approvalRequestStepGlobalId === step.globalId).map(renderMessage)}
+            {messages?.filter((message) => message.approvalRequestStepGlobalId === step.globalId).map(renderMessage)}
           </Fragment>
         ))}
-      {taskGlobalId && messages.map(renderMessage)}
+      {taskGlobalId && messages?.map(renderMessage)}
     </>
   );
 };
