@@ -6,17 +6,27 @@ export enum EmployeeStatus {
   Disabled = 2,
 }
 
-export interface Employee {
+export interface EmployeeListItem {
   globalId: string;
-  tenantGlobalId: string;
-  userGlobalId?: string;
   email: string;
-  displayName: string;
   firstName?: string;
   lastName?: string;
   position?: string;
-  role: EmployeeRole;
-  status: EmployeeStatus;
+  role?: EmployeeRole;
+  status?: EmployeeStatus;
+}
+
+export interface Employee extends EmployeeListItem {
+  tenantGlobalId?: string;
+  userGlobalId?: string;
+  displayName: string;
+  teamGlobalIds?: string[];
+}
+
+export interface EmployeePickerItem extends EmployeeListItem {
+  globalId: string;
+  displayName: string;
+  email: string;
 }
 
 export interface CreateEmployeeRequest {

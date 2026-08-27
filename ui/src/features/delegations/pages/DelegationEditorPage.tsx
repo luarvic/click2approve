@@ -2,7 +2,7 @@ import { stores } from "@/app/rootStore";
 import {
   createApprovalDelegation,
   deleteApprovalDelegation,
-  listApprovalDelegations,
+  getApprovalDelegation,
   updateApprovalDelegation,
 } from "@/features/delegations/api/approvalDelegationsApi";
 import DelegationEditor from "@/features/delegations/components/DelegationDialog";
@@ -28,17 +28,16 @@ const DelegationEditorPage = () => {
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const delegationsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/delegations") : "/";
   const isNewDelegation = delegationGlobalId === undefined;
-  const [delegations, setDelegations] = useState<ApprovalDelegation[]>([]);
-  const [delegationsHaveLoaded, setDelegationsHaveLoaded] = useState(false);
-  const delegation = delegations.find((item) => item.globalId === delegationGlobalId);
+  const [delegation, setDelegation] = useState<ApprovalDelegation | null>(null);
+  const [delegationHasLoaded, setDelegationHasLoaded] = useState(false);
   const canEdit =
     stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Admin ||
     stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Owner;
 
   useEffect(() => {
     const loader = ActionLoaders.pages.delegationEditor(delegationGlobalId);
-    setDelegations([]);
-    setDelegationsHaveLoaded(false);
+    setDelegation(null);
+    setDelegationHasLoaded(false);
     stores.employeeStore.clear();
     if (!tenantGlobalId) {
       return;
@@ -46,16 +45,22 @@ const DelegationEditorPage = () => {
 
     stores.commonStore.updateActionLoadingCounter(loader, 1);
     void Promise.all([
-      stores.employeeStore.load(tenantGlobalId, true),
-      listApprovalDelegations(tenantGlobalId).then(setDelegations),
-    ]).finally(() => {
-      stores.commonStore.updateActionLoadingCounter(loader, -1);
-      setDelegationsHaveLoaded(true);
-    });
-  }, [delegationGlobalId, tenantGlobalId]);
+      stores.employeeStore.loadPicker(tenantGlobalId),
+      isNewDelegation || !delegationGlobalId
+        ? Promise.resolve(null)
+        : getApprovalDelegation(tenantGlobalId, delegationGlobalId),
+    ])
+      .then(([, loadedDelegation]) => {
+        setDelegation(loadedDelegation);
+      })
+      .finally(() => {
+        stores.commonStore.updateActionLoadingCounter(loader, -1);
+        setDelegationHasLoaded(true);
+      });
+  }, [delegationGlobalId, isNewDelegation, tenantGlobalId]);
 
   if (!tenantGlobalId) return <Navigate to={delegationsPath} />;
-  if (!delegationsHaveLoaded) return null;
+  if (!delegationHasLoaded) return null;
   if (!isNewDelegation && !delegation) {
     return <NotFoundPage />;
   }
@@ -64,7 +69,7 @@ const DelegationEditorPage = () => {
     <NarrowContent>
       <DelegationEditor
         delegation={delegation ?? null}
-        employees={stores.employeeStore.employees}
+        employees={stores.employeeStore.pickerEmployees}
         canEdit={canEdit}
         onClose={(currentDelegationGlobalId) =>
           navigate(delegationsPath, {

@@ -53,7 +53,9 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
     ? "Delegator and delegate must be different employees."
     : "Select a delegate.";
   const saveIsLoading = saveAction.isRunning || stores.commonStore.isActionLoading(saveLoader);
-  const activeEmployees = employees.filter((employee) => employee.status === EmployeeStatus.Active);
+  const activeEmployees = employees.filter(
+    (employee) => employee.status === undefined || employee.status === EmployeeStatus.Active,
+  );
   const fieldsDisabled = !isNew && !canEdit;
   const delegationName = `${getEmployeeName(
     employees,

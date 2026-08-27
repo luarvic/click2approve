@@ -23,6 +23,15 @@ export interface Receipt {
   participants: ReceiptParticipant[];
 }
 
+export interface ReceiptListItem {
+  globalId: string;
+  approvalRequestTitle: string;
+  approvalRequestStatus: ApprovalRequestStatus;
+  approvalRequestResult?: boolean;
+  revisionNumber: number;
+  createdAt: Date;
+}
+
 export interface ReceiptFile {
   globalId: string;
   userFileGlobalId: string;

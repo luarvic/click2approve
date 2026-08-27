@@ -14,6 +14,21 @@ export const listApprovalDelegations = async (tenantGlobalId: string): Promise<A
   }
 };
 
+export const getApprovalDelegation = async (
+  tenantGlobalId: string,
+  delegationGlobalId: string,
+): Promise<ApprovalDelegation | null> => {
+  try {
+    const { data } = await axios.get<ApprovalDelegation>(
+      ApiPaths.tenants.delegation(tenantGlobalId, delegationGlobalId),
+    );
+    return data;
+  } catch (e) {
+    notification.error(getApiErrorNotification(e));
+    return null;
+  }
+};
+
 export const createApprovalDelegation = async (
   tenantGlobalId: string,
   payload: ApprovalDelegationUpsert,

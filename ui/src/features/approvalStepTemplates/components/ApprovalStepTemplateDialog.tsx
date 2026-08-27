@@ -64,10 +64,10 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
     setSteps(template ? createEditableSteps(template.steps) : [createEmptyStep(1, true, defaultAssigneeType)]);
     if (tenantGlobalId && businessTenantIsSelected) {
       if (canUseEmployees) {
-        stores.employeeStore.load(tenantGlobalId);
+        stores.employeeStore.loadPicker(tenantGlobalId);
       }
       if (canUseTeams) {
-        stores.teamStore.load(tenantGlobalId);
+        stores.teamStore.loadPicker(tenantGlobalId);
       }
     }
   }, [template, tenantGlobalId, businessTenantIsSelected, canUseEmployees, canUseTeams, defaultAssigneeType, setSteps]);
@@ -164,8 +164,8 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
           steps={steps}
           canUseEmployees={canUseEmployees}
           canUseTeams={canUseTeams}
-          employees={stores.employeeStore.employees}
-          teams={stores.teamStore.teams}
+          employees={stores.employeeStore.pickerEmployees}
+          teams={stores.teamStore.pickerTeams}
           onAddAssignee={addAssignee}
           onAddStep={addStep}
           onMoveStep={moveStep}

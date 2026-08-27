@@ -1,15 +1,22 @@
 import * as employeeApi from "@/features/employees/api/employeesApi";
-import { CreateEmployeeRequest, Employee, UpdateEmployeeRequest } from "@/features/employees/models/employee";
+import {
+  CreateEmployeeRequest,
+  Employee,
+  EmployeeListItem,
+  EmployeePickerItem,
+  UpdateEmployeeRequest,
+} from "@/features/employees/models/employee";
 import { makeAutoObservable, runInAction } from "mobx";
 
 export class EmployeeStore {
-  employees: Employee[];
+  employees: EmployeeListItem[];
+  pickerEmployees: EmployeePickerItem[] = [];
   private loadedTenantGlobalId: string | null = null;
   private loadRequest: Promise<void> | null = null;
   private loadingTenantGlobalId: string | null = null;
   private requestVersion = 0;
 
-  constructor(employees: Employee[] = []) {
+  constructor(employees: EmployeeListItem[] = []) {
     this.employees = employees;
     makeAutoObservable(this);
   }
@@ -45,6 +52,13 @@ export class EmployeeStore {
     return request;
   };
 
+  loadPicker = async (tenantGlobalId: string): Promise<void> => {
+    const employees = await employeeApi.listEmployeePicker(tenantGlobalId);
+    runInAction(() => {
+      this.pickerEmployees = employees;
+    });
+  };
+
   create = async (tenantGlobalId: string, payload: CreateEmployeeRequest): Promise<Employee | null> => {
     const requestVersion = this.requestVersion;
     const employee = await employeeApi.createEmployee(tenantGlobalId, payload);
@@ -52,9 +66,7 @@ export class EmployeeStore {
       return null;
     }
 
-    runInAction(() => {
-      this.employees = [...this.employees, employee];
-    });
+    await this.load(tenantGlobalId, true);
     return employee;
   };
 
@@ -69,9 +81,7 @@ export class EmployeeStore {
       return null;
     }
 
-    runInAction(() => {
-      this.employees = this.employees.map((item) => (item.globalId === employee.globalId ? employee : item));
-    });
+    await this.load(tenantGlobalId, true);
     return employee;
   };
 
@@ -94,6 +104,7 @@ export class EmployeeStore {
     runInAction(() => {
       this.requestVersion += 1;
       this.employees = [];
+      this.pickerEmployees = [];
       this.loadedTenantGlobalId = null;
       this.loadRequest = null;
       this.loadingTenantGlobalId = null;

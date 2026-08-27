@@ -1,5 +1,5 @@
 import { stores } from "@/app/rootStore";
-import { EmployeeRole, Tenant, TenantType } from "@/features/tenants/models/tenant";
+import { EmployeeRole, TenantListItem, TenantType } from "@/features/tenants/models/tenant";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import { DataGrids } from "@/shared/constants/constants";
@@ -64,7 +64,7 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
         columns={columns}
         rowSelectionModel={currentTenantGlobalId === undefined ? [] : [currentTenantGlobalId]}
         hideFooterSelectedRowCount
-        onRowClick={(params) => navigate(`/tenants/${(params.row as Tenant).globalId}`)}
+        onRowClick={(params) => navigate(`/tenants/${(params.row as TenantListItem).globalId}`)}
         columnVisibilityModel={{
           currentEmployeeRole: allColumnsAreVisible,
         }}

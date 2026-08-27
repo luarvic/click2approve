@@ -7,7 +7,7 @@ import {
   getApprovalRequestStatusLabel,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { listReceipts } from "@/features/receipts/api/receiptsApi";
-import type { Receipt } from "@/features/receipts/models/receipt";
+import type { ReceiptListItem } from "@/features/receipts/models/receipt";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
@@ -27,7 +27,7 @@ interface ReceiptsGridProps {
 const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) => {
   const navigate = useNavigate();
   const theme = useTheme();
-  const [receipts, setReceipts] = useState<Receipt[]>([]);
+  const [receipts, setReceipts] = useState<ReceiptListItem[]>([]);
   const allColumnsAreVisible = useMediaQuery(theme.breakpoints.up("md"));
   const tenantScopeIsReady =
     !stores.applicationConfigurationStore.tenantsAreEnabled ||
@@ -104,7 +104,7 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
         hideFooterSelectedRowCount
         onRowClick={(params) => {
           const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-          const path = `/receipts/${(params.row as Receipt).globalId}`;
+          const path = `/receipts/${(params.row as ReceiptListItem).globalId}`;
           navigate(tenantGlobalId ? Routes.tenantPath(tenantGlobalId, path) : "/");
         }}
         paginationModel={paginationModel}

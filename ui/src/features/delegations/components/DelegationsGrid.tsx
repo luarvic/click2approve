@@ -31,7 +31,7 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({ currentDelegationGlob
   const gridLoader = ActionLoaders.grids.delegations(tenantGlobalId);
   const [delegations, setDelegations] = useState<ApprovalDelegation[]>([]);
   const { paginationModel, setPaginationModel } = useGridPaginationForRow(delegations, currentDelegationGlobalId);
-  const employeesById = new Map(stores.employeeStore.employees.map((employee) => [employee.globalId, employee]));
+  const employeesById = new Map(stores.employeeStore.pickerEmployees.map((employee) => [employee.globalId, employee]));
 
   useEffect(() => {
     setDelegations([]);
@@ -42,7 +42,7 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({ currentDelegationGlob
     () => {
       if (tenantGlobalId) {
         return Promise.all([
-          stores.employeeStore.load(tenantGlobalId, true),
+          stores.employeeStore.loadPicker(tenantGlobalId),
           listApprovalDelegations(tenantGlobalId).then(setDelegations),
         ]).then(() => undefined);
       }

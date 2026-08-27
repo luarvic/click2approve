@@ -1,6 +1,7 @@
 using Click2Approve.Application.Abstractions.Authorization;
 using Click2Approve.Application.Abstractions.Persistence;
 using Click2Approve.Application.Abstractions.TenantContext;
+using Click2Approve.Application.Models.Results.ApprovalRequests;
 using Click2Approve.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -43,13 +44,24 @@ public class ApprovalRequestRepository(
             .FirstOrDefaultAsync(r => r.GlobalId == globalId, cancellationToken);
     }
 
-    public virtual async Task<List<ApprovalRequest>> ListAsync(AppUser user, CancellationToken cancellationToken)
+    public virtual async Task<List<ApprovalRequestListItemResult>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
         var scope = await AccessScopeProvider.GetAsync(user, cancellationToken);
         return await Db.ApprovalRequests
             .AsNoTracking()
-            .Include(r => r.CreatedByUser)
             .Where(AccessPolicy.CanManageRequest(scope))
+            .Select(request => new ApprovalRequestListItemResult
+            {
+                GlobalId = request.GlobalId,
+                Title = request.Title,
+                Status = request.Status,
+                Result = request.Result,
+                CreatedAt = request.CreatedAt,
+                CreatedByDisplayName = request.CreatedByEmployeeId.HasValue
+                    ? request.CreatedByDisplayName
+                    : request.CreatedByUser.NormalizedEmail ?? string.Empty,
+                RevisionNumber = request.RevisionNumber
+            })
             .ToListAsync(cancellationToken);
     }
 

@@ -1,10 +1,20 @@
 import { Employee } from "@/features/employees/models/employee";
 
-export interface Team {
+export interface TeamListItem {
   globalId: string;
-  tenantGlobalId: string;
+  tenantGlobalId?: string;
   name: string;
-  members: Employee[];
+  memberCount?: number;
+  members?: Employee[];
+}
+
+export interface Team extends TeamListItem {
+  tenantGlobalId?: string;
+}
+
+export interface TeamPickerItem extends TeamListItem {
+  globalId: string;
+  name: string;
 }
 
 export interface UpsertTeamRequest {

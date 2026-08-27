@@ -39,7 +39,9 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
   const teamsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/teams") : "/";
   const nameHasError = nameTouched && !name.trim();
   const saveIsLoading = saveAction.isRunning || stores.commonStore.isActionLoading(saveLoader);
-  const activeEmployees = employees.filter((employee) => employee.status === EmployeeStatus.Active);
+  const activeEmployees = employees.filter(
+    (employee) => employee.status === undefined || employee.status === EmployeeStatus.Active,
+  );
 
   useEffect(() => {
     setName(team?.name ?? "");

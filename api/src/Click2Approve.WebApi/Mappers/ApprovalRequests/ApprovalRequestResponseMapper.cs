@@ -12,12 +12,9 @@ internal static class ApprovalRequestResponseMapper
 
     public static ApprovalRequestListItemResponse Map(ApprovalRequestListItemResult result) => new()
     {
-        CompletedAt = result.CompletedAt,
         CreatedAt = result.CreatedAt,
         CreatedByDisplayName = result.CreatedByDisplayName,
-        CreatedByEmail = result.CreatedByEmail,
         GlobalId = result.GlobalId,
-        OrganizationDisplayName = result.OrganizationDisplayName,
         Result = result.Result,
         RevisionNumber = result.RevisionNumber,
         Status = result.Status,
@@ -56,12 +53,10 @@ internal static class ApprovalRequestResponseMapper
     public static ApprovalRequestTaskListItemResponse Map(ApprovalRequestTaskListItemResult result) => new()
     {
         Action = result.Action,
-        CompletedAt = result.CompletedAt,
         CreatedAt = result.CreatedAt,
         GlobalId = result.GlobalId,
         OrganizationDisplayName = result.OrganizationDisplayName,
         RequestedByDisplayName = result.RequestedByDisplayName,
-        RequestedByEmail = result.RequestedByEmail,
         Result = result.Result,
         RevisionNumber = result.RevisionNumber,
         Status = result.Status,

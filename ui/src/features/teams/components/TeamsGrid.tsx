@@ -1,5 +1,5 @@
 import { stores } from "@/app/rootStore";
-import { Team } from "@/features/teams/models/team";
+import { TeamListItem } from "@/features/teams/models/team";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
@@ -71,7 +71,9 @@ const TeamsGrid: React.FC<TeamsGridProps> = ({ currentTeamGlobalId }) => {
         columns={columns}
         rowSelectionModel={currentTeamGlobalId === undefined ? [] : [currentTeamGlobalId]}
         hideFooterSelectedRowCount
-        onRowClick={(params) => navigate(Routes.tenantPath(tenantGlobalId!, `/teams/${(params.row as Team).globalId}`))}
+        onRowClick={(params) =>
+          navigate(Routes.tenantPath(tenantGlobalId!, `/teams/${(params.row as TeamListItem).globalId}`))
+        }
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
         pageSizeOptions={DataGrids.pageSizeOptions}

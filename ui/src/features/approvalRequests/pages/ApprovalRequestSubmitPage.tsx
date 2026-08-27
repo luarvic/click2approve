@@ -49,8 +49,8 @@ const ApprovalRequestSubmitPage = () => {
       stores.commonStore.updateActionLoadingCounter(loader, 1);
       const approvalRequestLoad = stores.approvalRequestStore.loadDetails(tenantGlobalId, approvalRequestGlobalId);
       const assigneeOptionsLoad = Promise.all([
-        canUseEmployees ? stores.employeeStore.load(tenantGlobalId) : Promise.resolve(),
-        canUseTeams ? stores.teamStore.load(tenantGlobalId) : Promise.resolve(),
+        canUseEmployees ? stores.employeeStore.load(tenantGlobalId, true) : Promise.resolve(),
+        canUseTeams ? stores.teamStore.load(tenantGlobalId, true) : Promise.resolve(),
       ]);
 
       void Promise.all([approvalRequestLoad, assigneeOptionsLoad])
@@ -79,8 +79,8 @@ const ApprovalRequestSubmitPage = () => {
     setTemplateAssigneeOptionsAreLoaded(false);
     stores.commonStore.updateActionLoadingCounter(loader, 1);
     const assigneeOptionsLoad = Promise.all([
-      canUseEmployees && tenantGlobalId ? stores.employeeStore.load(tenantGlobalId) : Promise.resolve(),
-      canUseTeams && tenantGlobalId ? stores.teamStore.load(tenantGlobalId) : Promise.resolve(),
+      canUseEmployees && tenantGlobalId ? stores.employeeStore.load(tenantGlobalId, true) : Promise.resolve(),
+      canUseTeams && tenantGlobalId ? stores.teamStore.load(tenantGlobalId, true) : Promise.resolve(),
     ]);
 
     void assigneeOptionsLoad

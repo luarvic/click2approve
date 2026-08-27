@@ -47,16 +47,26 @@ public class ApprovalRequestTaskRepository(
         return tasks.Count;
     }
 
-    public virtual async Task<List<ApprovalRequestTask>> ListAsync(AppUser user, CancellationToken cancellationToken)
+    public virtual async Task<List<ApprovalRequestTaskListItemResult>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
         var scope = await AccessScopeProvider.GetAsync(user, cancellationToken);
         return await Db.ApprovalRequestTasks
             .AsNoTracking()
-            .Include(task => task.AssigneeUser)
-            .Include(task => task.CompletedByUser)
-            .Include(task => task.ApprovalRequest)
-                .ThenInclude(request => request.CreatedByUser)
             .Where(AccessPolicy.CanWorkTask(scope))
+            .Select(task => new ApprovalRequestTaskListItemResult
+            {
+                GlobalId = task.GlobalId,
+                Title = task.Title,
+                Action = task.Action,
+                Status = task.Status,
+                Result = task.Result,
+                CreatedAt = task.CreatedAt,
+                RequestedByDisplayName = task.ApprovalRequest.CreatedByEmployeeId.HasValue
+                    ? task.ApprovalRequest.CreatedByDisplayName
+                    : task.ApprovalRequest.CreatedByUser.NormalizedEmail ?? string.Empty,
+                OrganizationDisplayName = task.OrganizationDisplayName ?? task.ApprovalRequest.OrganizationDisplayName,
+                RevisionNumber = task.RevisionNumber
+            })
             .ToListAsync(cancellationToken);
     }
 

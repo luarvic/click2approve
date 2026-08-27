@@ -1,16 +1,42 @@
-import { CreateEmployeeRequest, Employee, UpdateEmployeeRequest } from "@/features/employees/models/employee";
+import {
+  CreateEmployeeRequest,
+  Employee,
+  EmployeeListItem,
+  EmployeePickerItem,
+  UpdateEmployeeRequest,
+} from "@/features/employees/models/employee";
 import axios from "@/shared/api/axios";
 import { ApiPaths } from "@/shared/api/apiPaths";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
 
-export const listEmployees = async (tenantGlobalId: string): Promise<Employee[]> => {
+export const listEmployees = async (tenantGlobalId: string): Promise<EmployeeListItem[]> => {
   try {
-    const { data } = await axios.get<Employee[]>(ApiPaths.tenants.employees(tenantGlobalId));
+    const { data } = await axios.get<EmployeeListItem[]>(ApiPaths.tenants.employees(tenantGlobalId));
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
     return [];
+  }
+};
+
+export const listEmployeePicker = async (tenantGlobalId: string): Promise<EmployeePickerItem[]> => {
+  try {
+    const { data } = await axios.get<EmployeePickerItem[]>(ApiPaths.tenants.employeesPicker(tenantGlobalId));
+    return data;
+  } catch (e) {
+    notification.error(getApiErrorNotification(e));
+    return [];
+  }
+};
+
+export const getEmployee = async (tenantGlobalId: string, employeeGlobalId: string): Promise<Employee | null> => {
+  try {
+    const { data } = await axios.get<Employee>(ApiPaths.tenants.employee(tenantGlobalId, employeeGlobalId));
+    return data;
+  } catch (e) {
+    notification.error(getApiErrorNotification(e));
+    return null;
   }
 };
 

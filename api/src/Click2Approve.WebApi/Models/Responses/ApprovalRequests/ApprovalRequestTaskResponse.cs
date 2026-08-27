@@ -55,6 +55,8 @@ public class ApprovalRequestTaskResponse : ApprovalRequestTaskListItemResponse
     public required string AssigneeDisplayName { get; init; }
     public string? CompletedByDisplayName { get; init; }
     public string? CompletedByEmail { get; init; }
+    public DateTime? CompletedAt { get; init; }
+    public required string RequestedByEmail { get; init; }
     public string? Description { get; init; }
     public string? Instructions { get; init; }
     public bool IsAttachmentRequired { get; init; }

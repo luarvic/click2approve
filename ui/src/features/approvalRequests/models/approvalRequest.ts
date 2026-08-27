@@ -6,6 +6,8 @@ export interface ApprovalRequest extends ApprovalRequestListItem {
   requestFiles: ApprovalRequestFile[];
   steps: ApprovalStep[];
   description?: string;
+  completedAt?: string;
+  completedAtDate?: Date;
   createdByUserGlobalId: string;
   createdByEmployeeGlobalId?: string;
   completedByUserGlobalId?: string;

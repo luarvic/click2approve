@@ -1,6 +1,7 @@
 import { stores } from "@/app/rootStore";
+import { getEmployee } from "@/features/employees/api/employeesApi";
 import EmployeeEditor from "@/features/employees/components/EmployeeDialog";
-import { CreateEmployeeRequest, UpdateEmployeeRequest } from "@/features/employees/models/employee";
+import { CreateEmployeeRequest, Employee, UpdateEmployeeRequest } from "@/features/employees/models/employee";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import { Routes } from "@/shared/constants/constants";
@@ -22,20 +23,17 @@ const EmployeeEditorPage = () => {
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const employeesPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/employees") : "/";
   const isNewEmployee = employeeGlobalId === undefined;
+  const [employee, setEmployee] = useState<Employee | null>(null);
   const [employeeDataHasLoaded, setEmployeeDataHasLoaded] = useState(isNewEmployee);
-  const employee = stores.employeeStore.employees.find((item) => item.globalId === employeeGlobalId);
   const currentEmployeeRole = stores.tenantStore.currentTenant?.currentEmployeeRole;
   const canEdit = currentEmployeeRole === EmployeeRole.Admin || currentEmployeeRole === EmployeeRole.Owner;
   const canTransferOwnership = currentEmployeeRole === EmployeeRole.Owner;
-  const selectedTeamGlobalIds = employee
-    ? stores.teamStore.teams
-        .filter((team) => team.members.some((member) => member.globalId === employee.globalId))
-        .map((team) => team.globalId)
-    : [];
+  const selectedTeamGlobalIds = employee?.teamGlobalIds ?? [];
 
   useEffect(() => {
     let active = true;
     const loader = ActionLoaders.pages.employeeEditor(employeeGlobalId);
+    setEmployee(null);
     setEmployeeDataHasLoaded(false);
     if (!tenantGlobalId) {
       return;
@@ -43,18 +41,24 @@ const EmployeeEditorPage = () => {
 
     stores.commonStore.updateActionLoadingCounter(loader, 1);
     void Promise.all([
-      stores.employeeStore.load(tenantGlobalId, true),
-      stores.teamStore.load(tenantGlobalId, true),
-    ]).finally(() => {
-      stores.commonStore.updateActionLoadingCounter(loader, -1);
-      if (active) {
-        setEmployeeDataHasLoaded(true);
-      }
-    });
+      isNewEmployee || !employeeGlobalId ? Promise.resolve(null) : getEmployee(tenantGlobalId, employeeGlobalId),
+      stores.teamStore.loadPicker(tenantGlobalId),
+    ])
+      .then(([loadedEmployee]) => {
+        if (active) {
+          setEmployee(loadedEmployee);
+        }
+      })
+      .finally(() => {
+        stores.commonStore.updateActionLoadingCounter(loader, -1);
+        if (active) {
+          setEmployeeDataHasLoaded(true);
+        }
+      });
     return () => {
       active = false;
     };
-  }, [employeeGlobalId, tenantGlobalId]);
+  }, [employeeGlobalId, isNewEmployee, tenantGlobalId]);
 
   if (!tenantGlobalId) return <Navigate to={employeesPath} />;
   if (!employeeDataHasLoaded) return null;
@@ -65,7 +69,7 @@ const EmployeeEditorPage = () => {
     <NarrowContent>
       <EmployeeEditor
         employee={employee ?? null}
-        teams={stores.teamStore.teams}
+        teams={stores.teamStore.pickerTeams}
         selectedTeamGlobalIds={selectedTeamGlobalIds}
         canEdit={canEdit}
         canTransferOwnership={canTransferOwnership}
@@ -89,11 +93,8 @@ const EmployeeEditorPage = () => {
           if (!saved) {
             return null;
           }
-          await Promise.all([
-            stores.employeeStore.load(tenantGlobalId, true),
-            stores.teamStore.load(tenantGlobalId, true),
-            stores.tenantStore.load(tenantGlobalId),
-          ]);
+          await Promise.all([stores.teamStore.loadPicker(tenantGlobalId), stores.tenantStore.load(tenantGlobalId)]);
+          setEmployee(saved);
           showPersistenceSuccessNotification(
             id ? PersistenceSuccessMessages.employeeSaved : PersistenceSuccessMessages.employeeSavedInvitationSent,
           );

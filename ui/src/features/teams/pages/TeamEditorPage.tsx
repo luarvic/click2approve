@@ -1,6 +1,7 @@
 import { stores } from "@/app/rootStore";
+import { getTeam } from "@/features/teams/api/teamsApi";
 import TeamEditor from "@/features/teams/components/TeamDialog";
-import { UpsertTeamRequest } from "@/features/teams/models/team";
+import { Team, UpsertTeamRequest } from "@/features/teams/models/team";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import { Routes } from "@/shared/constants/constants";
@@ -23,7 +24,7 @@ const TeamEditorPage = () => {
   const teamsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/teams") : "/";
   const isNewTeam = teamGlobalId === undefined;
   const [teamDataHasLoaded, setTeamDataHasLoaded] = useState(isNewTeam);
-  const team = stores.teamStore.teams.find((item) => item.globalId === teamGlobalId);
+  const [team, setTeam] = useState<Team | null>(null);
   const canEdit =
     stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Admin ||
     stores.tenantStore.currentTenant?.currentEmployeeRole === EmployeeRole.Owner;
@@ -32,24 +33,31 @@ const TeamEditorPage = () => {
     let active = true;
     const loader = ActionLoaders.pages.teamEditor(teamGlobalId);
     setTeamDataHasLoaded(false);
+    setTeam(null);
     if (!tenantGlobalId) {
       return;
     }
 
     stores.commonStore.updateActionLoadingCounter(loader, 1);
     void Promise.all([
-      stores.teamStore.load(tenantGlobalId, true),
-      stores.employeeStore.load(tenantGlobalId, true),
-    ]).finally(() => {
-      stores.commonStore.updateActionLoadingCounter(loader, -1);
-      if (active) {
-        setTeamDataHasLoaded(true);
-      }
-    });
+      isNewTeam || !teamGlobalId ? Promise.resolve(null) : getTeam(tenantGlobalId, teamGlobalId),
+      stores.employeeStore.loadPicker(tenantGlobalId),
+    ])
+      .then(([loadedTeam]) => {
+        if (active) {
+          setTeam(loadedTeam);
+        }
+      })
+      .finally(() => {
+        stores.commonStore.updateActionLoadingCounter(loader, -1);
+        if (active) {
+          setTeamDataHasLoaded(true);
+        }
+      });
     return () => {
       active = false;
     };
-  }, [teamGlobalId, tenantGlobalId]);
+  }, [isNewTeam, teamGlobalId, tenantGlobalId]);
 
   if (!tenantGlobalId) return <Navigate to={teamsPath} />;
   if (!teamDataHasLoaded) return null;
@@ -60,7 +68,7 @@ const TeamEditorPage = () => {
     <NarrowContent>
       <TeamEditor
         team={team ?? null}
-        employees={stores.employeeStore.employees}
+        employees={stores.employeeStore.pickerEmployees}
         canEdit={canEdit}
         onClose={(currentTeamGlobalId) =>
           navigate(teamsPath, {

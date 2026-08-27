@@ -22,8 +22,7 @@ public class ApprovalRequestTaskService(
     /// </summary>
     public async Task<List<ApprovalRequestTaskListItemResult>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
-        var tasks = await _approvalRequestTaskRepository.ListAsync(user, cancellationToken);
-        return [.. tasks.Select(ApprovalRequestMapper.MapTaskListItem)];
+        return await _approvalRequestTaskRepository.ListAsync(user, cancellationToken);
     }
 
     /// <summary>

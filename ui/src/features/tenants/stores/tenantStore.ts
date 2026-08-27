@@ -1,5 +1,5 @@
 import * as tenantApi from "@/features/tenants/api/tenantsApi";
-import { CreateTenantRequest, Tenant, UpdateTenantRequest } from "@/features/tenants/models/tenant";
+import { CreateTenantRequest, Tenant, TenantListItem, UpdateTenantRequest } from "@/features/tenants/models/tenant";
 import {
   deleteCurrentTenantGlobalId,
   deleteCurrentWorkEmployeeGlobalId,
@@ -11,7 +11,7 @@ import {
 import { makeAutoObservable, runInAction } from "mobx";
 
 export class TenantStore {
-  businessTenants: Tenant[] = [];
+  businessTenants: TenantListItem[] = [];
   tenants: Tenant[];
   currentTenantGlobalId: string | null;
   currentWorkEmployeeGlobalId: string | null;

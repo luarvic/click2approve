@@ -10,6 +10,8 @@ export interface ApprovalRequestTask extends ApprovalRequestTaskListItem {
   approvalRequestStepAssigneeGlobalId?: string;
   assigneeEmail: string;
   assigneeDisplayName: string;
+  completedAt?: string;
+  completedAtDate?: Date;
   completedByDisplayName?: string;
   completedByEmail?: string;
   requestedByEmail: string;

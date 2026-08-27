@@ -12,9 +12,6 @@ public class ApprovalRequestListItemResult
     public ApprovalRequestStatus Status { get; init; }
     public bool? Result { get; init; }
     public DateTime CreatedAt { get; init; }
-    public DateTime? CompletedAt { get; init; }
-    public required string CreatedByEmail { get; init; }
     public required string CreatedByDisplayName { get; init; }
-    public required string OrganizationDisplayName { get; init; }
     public int RevisionNumber { get; init; }
 }

@@ -1,5 +1,5 @@
 import { stores } from "@/app/rootStore";
-import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
+import { EmployeeListItem, EmployeeStatus } from "@/features/employees/models/employee";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
@@ -97,7 +97,7 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
       field: "role",
       headerName: "Role",
       ...DataGrids.tenantUsersColumnSizing.role,
-      valueFormatter: (value) => roleLabels[value as EmployeeRole],
+      valueFormatter: (value) => (value === undefined ? "" : roleLabels[value as EmployeeRole]),
     },
     {
       field: "status",
@@ -107,13 +107,13 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
         const status = params.row.status as EmployeeStatus;
         return (
           <StatusLineLabel
-            label={statusLabels[status]}
+            label={status === undefined ? "" : statusLabels[status]}
             color={status === EmployeeStatus.Active ? "started" : "other"}
             lineVariant="solid"
           />
         );
       },
-      valueGetter: (value) => statusLabels[value as EmployeeStatus],
+      valueGetter: (value) => (value === undefined ? "" : statusLabels[value as EmployeeStatus]),
     },
   ];
 
@@ -126,7 +126,7 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
         rowSelectionModel={currentEmployeeGlobalId === undefined ? [] : [currentEmployeeGlobalId]}
         hideFooterSelectedRowCount
         onRowClick={(params) =>
-          navigate(Routes.tenantPath(tenantGlobalId!, `/employees/${(params.row as Employee).globalId}`))
+          navigate(Routes.tenantPath(tenantGlobalId!, `/employees/${(params.row as EmployeeListItem).globalId}`))
         }
         columnVisibilityModel={{
           firstName: allColumnsAreVisible,

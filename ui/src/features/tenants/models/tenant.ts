@@ -26,6 +26,13 @@ export interface Tenant {
   delegators?: DelegatorEmployee[];
 }
 
+export interface TenantListItem {
+  globalId: string;
+  businessName: string;
+  type: TenantType;
+  currentEmployeeRole: EmployeeRole;
+}
+
 export interface DelegatorEmployee {
   employeeGlobalId: string;
   displayName: string;

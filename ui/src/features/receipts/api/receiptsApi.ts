@@ -1,4 +1,4 @@
-import type { Receipt } from "@/features/receipts/models/receipt";
+import type { Receipt, ReceiptListItem } from "@/features/receipts/models/receipt";
 import { normalizeReceiptDates } from "@/features/receipts/utils/receiptDateNormalizers";
 import axios from "@/shared/api/axios";
 import { ApiPaths } from "@/shared/api/apiPaths";
@@ -7,10 +7,10 @@ import { notification } from "@/shared/utils/notifications";
 
 const config = { useWorkEmployeeContext: true };
 
-export const listReceipts = async (tenantGlobalId: string): Promise<Receipt[]> => {
+export const listReceipts = async (tenantGlobalId: string): Promise<ReceiptListItem[]> => {
   try {
-    const { data } = await axios.get<Receipt[]>(ApiPaths.tenants.receipts(tenantGlobalId), config);
-    return data.map(normalizeReceiptDates);
+    const { data } = await axios.get<ReceiptListItem[]>(ApiPaths.tenants.receipts(tenantGlobalId), config);
+    return data.map((receipt) => ({ ...receipt, createdAt: new Date(receipt.createdAt) }));
   } catch (error) {
     notification.error(getApiErrorNotification(error));
     return [];

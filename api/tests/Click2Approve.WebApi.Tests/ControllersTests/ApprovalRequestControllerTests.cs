@@ -120,7 +120,13 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var approvalRequests = await client.ListApprovalRequestsAsync(requesterLogin.AccessToken, CancellationToken.None);
 
         var approvalRequestSummary = Assert.Single(approvalRequests);
-        Assert.Equal(string.Empty, approvalRequestSummary.OrganizationDisplayName);
+        var approvalRequestListResponse = await client.GetAsync($"api/v1/tenants/{requesterTenantId}/requests");
+        Assert.True(approvalRequestListResponse.IsSuccessStatusCode, await approvalRequestListResponse.Content.ReadAsStringAsync());
+        using var approvalRequestListDocument = JsonDocument.Parse(await approvalRequestListResponse.Content.ReadAsStringAsync());
+        var approvalRequestListItem = approvalRequestListDocument.RootElement[0];
+        Assert.False(approvalRequestListItem.TryGetProperty("completedAt", out _));
+        Assert.False(approvalRequestListItem.TryGetProperty("createdByEmail", out _));
+        Assert.False(approvalRequestListItem.TryGetProperty("organizationDisplayName", out _));
         var approvalRequestResponse = await client.GetAsync($"api/v1/tenants/{requesterTenantId}/requests/{approvalRequestSummary.GlobalId}");
         Assert.True(approvalRequestResponse.IsSuccessStatusCode, await approvalRequestResponse.Content.ReadAsStringAsync());
         var approvalRequestJson = await approvalRequestResponse.Content.ReadAsStringAsync();
@@ -141,6 +147,12 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var assigneeLogin = await assigneeClient.LogInAsync(assignee, CancellationToken.None);
         assigneeClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", assigneeLogin.AccessToken);
         var assigneeTenantId = await assigneeClient.GetCurrentTenantIdAsync(assigneeLogin.AccessToken, CancellationToken.None);
+        var taskListResponse = await assigneeClient.GetAsync($"api/v1/tenants/{assigneeTenantId}/tasks");
+        Assert.True(taskListResponse.IsSuccessStatusCode, await taskListResponse.Content.ReadAsStringAsync());
+        using var taskListDocument = JsonDocument.Parse(await taskListResponse.Content.ReadAsStringAsync());
+        var taskListItem = taskListDocument.RootElement[0];
+        Assert.False(taskListItem.TryGetProperty("completedAt", out _));
+        Assert.False(taskListItem.TryGetProperty("requestedByEmail", out _));
         var taskResponse = await assigneeClient.GetAsync($"api/v1/tenants/{assigneeTenantId}/tasks/{approvalRequestTask.GlobalId}");
         Assert.True(taskResponse.IsSuccessStatusCode, await taskResponse.Content.ReadAsStringAsync());
         var taskJson = await taskResponse.Content.ReadAsStringAsync();

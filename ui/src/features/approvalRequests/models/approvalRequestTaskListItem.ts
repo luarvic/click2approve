@@ -9,9 +9,6 @@ export interface ApprovalRequestTaskListItem {
   result?: boolean;
   createdAt: string;
   createdAtDate: Date;
-  completedAt?: string;
-  completedAtDate?: Date;
-  requestedByEmail: string;
   requestedByDisplayName: string;
   organizationDisplayName: string;
   revisionNumber: number;

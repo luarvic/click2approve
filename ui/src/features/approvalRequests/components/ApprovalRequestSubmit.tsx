@@ -123,10 +123,10 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
 
     if (tenantGlobalId && businessTenantIsSelected) {
       if (canUseEmployees) {
-        stores.employeeStore.load(tenantGlobalId);
+        stores.employeeStore.loadPicker(tenantGlobalId);
       }
       if (canUseTeams) {
-        stores.teamStore.load(tenantGlobalId);
+        stores.teamStore.loadPicker(tenantGlobalId);
       }
       if (canUseTemplates) {
         void stores.approvalStepTemplateStore.load(tenantGlobalId).then(() => {
@@ -366,7 +366,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
         canUseEmployees={canUseEmployees}
         canUseTeams={canUseTeams}
         description={description}
-        employees={stores.employeeStore.employees}
+        employees={stores.employeeStore.pickerEmployees}
         existingFiles={existingFiles}
         fileInput={addedFilesUpload.fileInput}
         isFilesBusy={fileDeletion.isDeleting || addedFilesUpload.isUploading || replacementFilesUpload.isUploading}
@@ -379,7 +379,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
         showAttachmentRequirement={stores.applicationConfigurationStore.taskAttachmentsAreEnabled}
         showOrganizationEmployeesVisibility={businessTenantIsSelected}
         steps={steps}
-        teams={stores.teamStore.teams}
+        teams={stores.teamStore.pickerTeams}
         title={title}
         onAddAssignee={addAssignee}
         onAddStep={addStep}

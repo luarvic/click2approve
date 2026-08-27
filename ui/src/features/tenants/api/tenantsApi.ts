@@ -1,4 +1,4 @@
-import { CreateTenantRequest, Tenant, UpdateTenantRequest } from "@/features/tenants/models/tenant";
+import { CreateTenantRequest, Tenant, TenantListItem, UpdateTenantRequest } from "@/features/tenants/models/tenant";
 import axios from "@/shared/api/axios";
 import { ApiPaths } from "@/shared/api/apiPaths";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
@@ -14,13 +14,23 @@ export const getCurrentTenantId = async (): Promise<string | null> => {
   }
 };
 
-export const listTenants = async (): Promise<Tenant[]> => {
+export const listTenants = async (): Promise<TenantListItem[]> => {
   try {
-    const { data } = await axios.get<Tenant[]>(ApiPaths.tenants.root);
+    const { data } = await axios.get<TenantListItem[]>(ApiPaths.tenants.root);
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
     return [];
+  }
+};
+
+export const getTenant = async (tenantGlobalId: string): Promise<Tenant | null> => {
+  try {
+    const { data } = await axios.get<Tenant>(ApiPaths.tenants.byId(tenantGlobalId));
+    return data;
+  } catch (e) {
+    notification.error(getApiErrorNotification(e));
+    return null;
   }
 };
 

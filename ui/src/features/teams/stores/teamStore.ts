@@ -1,15 +1,16 @@
 import * as teamApi from "@/features/teams/api/teamsApi";
-import { Team, UpsertTeamRequest } from "@/features/teams/models/team";
+import { Team, TeamListItem, TeamPickerItem, UpsertTeamRequest } from "@/features/teams/models/team";
 import { makeAutoObservable, runInAction } from "mobx";
 
 export class TeamStore {
-  teams: Team[];
+  teams: TeamListItem[];
+  pickerTeams: TeamPickerItem[] = [];
   private loadedTenantGlobalId: string | null = null;
   private loadRequest: Promise<void> | null = null;
   private loadingTenantGlobalId: string | null = null;
   private requestVersion = 0;
 
-  constructor(teams: Team[] = []) {
+  constructor(teams: TeamListItem[] = []) {
     this.teams = teams;
     makeAutoObservable(this);
   }
@@ -45,6 +46,13 @@ export class TeamStore {
     return request;
   };
 
+  loadPicker = async (tenantGlobalId: string): Promise<void> => {
+    const teams = await teamApi.listTeamPicker(tenantGlobalId);
+    runInAction(() => {
+      this.pickerTeams = teams;
+    });
+  };
+
   create = async (tenantGlobalId: string, payload: UpsertTeamRequest): Promise<Team | null> => {
     const requestVersion = this.requestVersion;
     const team = await teamApi.createTeam(tenantGlobalId, payload);
@@ -52,9 +60,7 @@ export class TeamStore {
       return null;
     }
 
-    runInAction(() => {
-      this.teams = [...this.teams, team];
-    });
+    await this.load(tenantGlobalId, true);
     return team;
   };
 
@@ -65,9 +71,7 @@ export class TeamStore {
       return null;
     }
 
-    runInAction(() => {
-      this.teams = this.teams.map((item) => (item.globalId === team.globalId ? team : item));
-    });
+    await this.load(tenantGlobalId, true);
     return team;
   };
 
@@ -90,6 +94,7 @@ export class TeamStore {
     runInAction(() => {
       this.requestVersion += 1;
       this.teams = [];
+      this.pickerTeams = [];
       this.loadedTenantGlobalId = null;
       this.loadRequest = null;
       this.loadingTenantGlobalId = null;

@@ -1,5 +1,7 @@
 import { stores } from "@/app/rootStore";
+import { getApprovalStepTemplate } from "@/features/approvalStepTemplates/api/approvalStepTemplatesApi";
 import ApprovalStepTemplateEditor from "@/features/approvalStepTemplates/components/ApprovalStepTemplateDialog";
+import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
 import { TenantType } from "@/features/tenants/models/tenant";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import { Routes } from "@/shared/constants/constants";
@@ -18,7 +20,8 @@ const ApprovalStepTemplateEditorPage = () => {
   const navigate = useNavigate();
   const { templateGlobalId } = useParams<{ templateGlobalId: string }>();
   usePageTitle(templateGlobalId === undefined ? "New template" : "Edit template");
-  const [hasLoadedTemplates, setHasLoadedTemplates] = useState(false);
+  const [hasLoadedTemplate, setHasLoadedTemplate] = useState(false);
+  const [template, setTemplate] = useState<ApprovalStepTemplate | null>(null);
   const currentTenant = stores.tenantStore.currentTenant;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const templatesPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/approvalStepTemplates") : "/";
@@ -27,11 +30,11 @@ const ApprovalStepTemplateEditorPage = () => {
     currentTenant?.type === TenantType.Business &&
     currentTenant.currentEmployeeRole !== undefined;
   const isNewTemplate = templateGlobalId === undefined;
-  const template = stores.approvalStepTemplateStore.templates.find((item) => item.globalId === templateGlobalId);
 
   useEffect(() => {
     if (isNewTemplate) {
-      setHasLoadedTemplates(true);
+      setHasLoadedTemplate(true);
+      setTemplate(null);
       return;
     }
     if (!tenantGlobalId) {
@@ -39,12 +42,17 @@ const ApprovalStepTemplateEditorPage = () => {
     }
 
     const loader = ActionLoaders.pages.approvalStepTemplateEditor(templateGlobalId);
-    setHasLoadedTemplates(false);
+    setHasLoadedTemplate(false);
+    setTemplate(null);
     stores.commonStore.updateActionLoadingCounter(loader, 1);
-    void stores.approvalStepTemplateStore.load(tenantGlobalId).finally(() => {
-      stores.commonStore.updateActionLoadingCounter(loader, -1);
-      setHasLoadedTemplates(true);
-    });
+    void getApprovalStepTemplate(tenantGlobalId, templateGlobalId)
+      .then((loadedTemplate) => {
+        setTemplate(loadedTemplate);
+      })
+      .finally(() => {
+        stores.commonStore.updateActionLoadingCounter(loader, -1);
+        setHasLoadedTemplate(true);
+      });
   }, [isNewTemplate, templateGlobalId, tenantGlobalId]);
 
   if (!stores.tenantStore.hasLoaded) {
@@ -55,7 +63,7 @@ const ApprovalStepTemplateEditorPage = () => {
     return <Navigate to={templatesPath} />;
   }
 
-  if (!isNewTemplate && !hasLoadedTemplates) {
+  if (!isNewTemplate && !hasLoadedTemplate) {
     return null;
   }
 

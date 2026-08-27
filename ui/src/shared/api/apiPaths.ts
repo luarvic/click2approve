@@ -34,6 +34,7 @@ export const ApiPaths = {
     employee: (tenantGlobalId: string, employeeGlobalId: string) =>
       `api/v1/tenants/${tenantGlobalId}/employees/${employeeGlobalId}`,
     employees: (tenantGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/employees`,
+    employeesPicker: (tenantGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/employees/picker`,
     file: (tenantGlobalId: string, fileGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/files/${fileGlobalId}`,
     fileDownload: (tenantGlobalId: string, fileGlobalId: string) =>
       `api/v1/tenants/${tenantGlobalId}/files/${fileGlobalId}/downloadBase64`,
@@ -78,6 +79,7 @@ export const ApiPaths = {
     uncompletedTaskCount: (tenantGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/tasks/uncompleted/count`,
     team: (tenantGlobalId: string, teamGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/teams/${teamGlobalId}`,
     teams: (tenantGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/teams`,
+    teamsPicker: (tenantGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/teams/picker`,
     withLogo: "api/v1/tenants/withLogo",
   },
   userProfiles: {

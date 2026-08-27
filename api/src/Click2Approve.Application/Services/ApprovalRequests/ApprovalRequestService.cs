@@ -1,7 +1,7 @@
 using Click2Approve.Application.Extensions;
-using FluentValidation;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
+using FluentValidation;
 
 namespace Click2Approve.Application.Services.ApprovalRequests;
 
@@ -83,8 +83,7 @@ public class ApprovalRequestService(
     /// </summary>
     public async Task<List<ApprovalRequestListItemResult>> ListAsync(AppUser user, CancellationToken cancellationToken)
     {
-        var approvalRequests = await _approvalRequestRepository.ListAsync(user, cancellationToken);
-        return [.. approvalRequests.Select(ApprovalRequestMapper.MapApprovalRequestListItem)];
+        return await _approvalRequestRepository.ListAsync(user, cancellationToken);
     }
 
     /// <summary>

@@ -17,6 +17,21 @@ export const listApprovalStepTemplates = async (tenantGlobalId: string): Promise
   }
 };
 
+export const getApprovalStepTemplate = async (
+  tenantGlobalId: string,
+  templateGlobalId: string,
+): Promise<ApprovalStepTemplate | null> => {
+  try {
+    const { data } = await axios.get<ApprovalStepTemplate>(
+      ApiPaths.tenants.approvalStepTemplate(tenantGlobalId, templateGlobalId),
+    );
+    return data;
+  } catch (e) {
+    notification.error(getApiErrorNotification(e));
+    return null;
+  }
+};
+
 export const createApprovalStepTemplate = async (
   tenantGlobalId: string,
   payload: UpsertApprovalStepTemplateRequest,

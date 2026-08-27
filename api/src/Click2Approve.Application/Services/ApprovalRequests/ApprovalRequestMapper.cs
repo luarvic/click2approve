@@ -9,35 +9,6 @@ namespace Click2Approve.Application.Services.ApprovalRequests;
 /// </summary>
 public static class ApprovalRequestMapper
 {
-    public static ApprovalRequestListItemResult MapApprovalRequestListItem(ApprovalRequest approvalRequest) => new()
-    {
-        GlobalId = approvalRequest.GlobalId,
-        Title = approvalRequest.Title,
-        Status = approvalRequest.Status,
-        Result = approvalRequest.Result,
-        CreatedAt = approvalRequest.CreatedAt,
-        CompletedAt = approvalRequest.CompletedAt,
-        CreatedByEmail = approvalRequest.CreatedByUser.NormalizedEmailOrEmpty(),
-        CreatedByDisplayName = GetRequesterDisplayName(approvalRequest),
-        OrganizationDisplayName = approvalRequest.OrganizationDisplayName,
-        RevisionNumber = approvalRequest.RevisionNumber
-    };
-
-    public static ApprovalRequestTaskListItemResult MapTaskListItem(ApprovalRequestTask task) => new()
-    {
-        GlobalId = task.GlobalId,
-        Title = task.Title,
-        Action = task.Action,
-        Status = task.Status,
-        Result = task.Result,
-        CreatedAt = task.CreatedAt,
-        CompletedAt = task.CompletedAt,
-        RequestedByEmail = task.ApprovalRequest.CreatedByUser.NormalizedEmailOrEmpty(),
-        RequestedByDisplayName = GetRequesterDisplayName(task.ApprovalRequest),
-        OrganizationDisplayName = task.ApprovalRequest.OrganizationDisplayName,
-        RevisionNumber = GetTaskRevisionNumber(task)
-    };
-
     public static ApprovalRequestDetailsResult MapApprovalRequest(
         ApprovalRequest approvalRequest,
         ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps)

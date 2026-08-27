@@ -13,8 +13,6 @@ public class ApprovalRequestTaskListItemResponse
     public ApprovalRequestTaskStatus Status { get; init; }
     public bool? Result { get; init; }
     public DateTime CreatedAt { get; init; }
-    public DateTime? CompletedAt { get; init; }
-    public required string RequestedByEmail { get; init; }
     public required string RequestedByDisplayName { get; init; }
     public required string OrganizationDisplayName { get; init; }
     public int RevisionNumber { get; init; }

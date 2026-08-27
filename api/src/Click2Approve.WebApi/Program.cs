@@ -21,8 +21,8 @@ using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.WebApi.Extensions;
 using Click2Approve.WebApi.Middlewares;
 using Click2Approve.WebApi.TenantContext;
-using Microsoft.EntityFrameworkCore;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 

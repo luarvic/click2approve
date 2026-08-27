@@ -1,6 +1,7 @@
 import { stores } from "@/app/rootStore";
+import { getTenant } from "@/features/tenants/api/tenantsApi";
 import TenantEditor from "@/features/tenants/components/TenantDialog";
-import { CreateTenantRequest, EmployeeRole, UpdateTenantRequest } from "@/features/tenants/models/tenant";
+import { CreateTenantRequest, EmployeeRole, Tenant, UpdateTenantRequest } from "@/features/tenants/models/tenant";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
@@ -10,7 +11,7 @@ import {
   showPersistenceSuccessNotification,
 } from "@/shared/utils/persistenceNotifications";
 import { observer } from "mobx-react-lite";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 const tenantsPath = "/tenants";
@@ -20,10 +21,31 @@ const TenantEditorPage = () => {
   const { tenantGlobalId } = useParams<{ tenantGlobalId: string }>();
   usePageTitle(tenantGlobalId === undefined ? "New organization" : "Edit organization");
   const isNewTenant = tenantGlobalId === undefined;
+  const [tenant, setTenant] = useState<Tenant | null>(null);
+  const [tenantHasLoaded, setTenantHasLoaded] = useState(isNewTenant);
   const [scheduleDeletionIsOpen, setScheduleDeletionIsOpen] = useState(false);
-  const tenant = stores.tenantStore.tenants.find((item) => item.globalId === tenantGlobalId);
+
+  useEffect(() => {
+    if (isNewTenant) {
+      setTenant(null);
+      setTenantHasLoaded(true);
+      return;
+    }
+
+    if (!tenantGlobalId) {
+      return;
+    }
+
+    setTenant(null);
+    setTenantHasLoaded(false);
+    void getTenant(tenantGlobalId).then((loadedTenant) => {
+      setTenant(loadedTenant);
+      setTenantHasLoaded(true);
+    });
+  }, [isNewTenant, tenantGlobalId]);
 
   if (!stores.tenantStore.hasLoaded) return null;
+  if (!tenantHasLoaded) return null;
   if (!isNewTenant && !tenant) return <NotFoundPage />;
 
   const close = (currentTenantGlobalId?: string) =>
@@ -36,6 +58,7 @@ const TenantEditorPage = () => {
       : await stores.tenantStore.create(payload as CreateTenantRequest);
     if (saved && !globalId) await stores.refreshTenantScope();
     if (saved) {
+      setTenant(saved);
       showPersistenceSuccessNotification(PersistenceSuccessMessages.organizationSaved);
     }
     return saved;
