@@ -1,5 +1,4 @@
 import { stores } from "@/app/rootStore";
-import { getApprovalStepTemplate } from "@/features/approvalStepTemplates/api/approvalStepTemplatesApi";
 import ApprovalStepTemplateEditor from "@/features/approvalStepTemplates/components/ApprovalStepTemplateDialog";
 import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
 import { TenantType } from "@/features/tenants/models/tenant";
@@ -45,7 +44,8 @@ const ApprovalStepTemplateEditorPage = () => {
     setHasLoadedTemplate(false);
     setTemplate(null);
     stores.commonStore.updateActionLoadingCounter(loader, 1);
-    void getApprovalStepTemplate(tenantGlobalId, templateGlobalId)
+    void stores.approvalStepTemplateStore
+      .loadDetail(tenantGlobalId, templateGlobalId)
       .then((loadedTemplate) => {
         setTemplate(loadedTemplate);
       })

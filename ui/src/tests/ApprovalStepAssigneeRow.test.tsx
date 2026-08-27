@@ -6,9 +6,10 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 
 const employee: Employee = {
-  displayName: "Ada Lovelace",
   email: "ada@example.com",
+  firstName: "Ada",
   globalId: "employee-id",
+  lastName: "Lovelace",
   role: EmployeeRole.User,
   status: EmployeeStatus.Active,
   tenantGlobalId: "tenant-id",

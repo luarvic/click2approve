@@ -9,6 +9,8 @@ import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/ap
 import { ApprovalRequestStore } from "@/features/approvalRequests/stores/approvalRequestStore";
 import { ApprovalRequestTaskStore } from "@/features/approvalRequests/stores/approvalRequestTaskStore";
 import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
+import * as approvalStepTemplateApi from "@/features/approvalStepTemplates/api/approvalStepTemplatesApi";
+import { ApprovalStepTemplateStore } from "@/features/approvalStepTemplates/stores/approvalStepTemplateStore";
 import * as employeeApi from "@/features/employees/api/employeesApi";
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import { EmployeeStore } from "@/features/employees/stores/employeeStore";
@@ -29,6 +31,10 @@ vi.mock("@/features/approvalRequests/api/approvalRequestTasksApi", () => ({
   countUncompletedApprovalRequestTasks: vi.fn(),
   getApprovalRequestTask: vi.fn(),
   listApprovalRequestTasks: vi.fn(),
+}));
+
+vi.mock("@/features/approvalStepTemplates/api/approvalStepTemplatesApi", () => ({
+  getApprovalStepTemplate: vi.fn(),
 }));
 
 vi.mock("@/features/employees/api/employeesApi", () => ({
@@ -52,7 +58,6 @@ const employee = (globalId: string, tenantGlobalId: string): Employee => ({
   globalId,
   tenantGlobalId,
   email: `employee-@example.com`,
-  displayName: "Employee",
   role: EmployeeRole.User,
   status: EmployeeStatus.Active,
 });
@@ -97,6 +102,23 @@ const approvalRequestTask = (
 });
 
 describe("store architecture", () => {
+  test("loads template details through the template store", async () => {
+    const template: ApprovalStepTemplate = {
+      globalId: "11111111-1111-4111-8111-111111111111",
+      tenantGlobalId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      name: "Template",
+      steps: [],
+    };
+    vi.mocked(approvalStepTemplateApi.getApprovalStepTemplate).mockResolvedValueOnce(template);
+    const store = new ApprovalStepTemplateStore();
+
+    await expect(store.loadDetail(template.tenantGlobalId, template.globalId)).resolves.toEqual(template);
+    expect(approvalStepTemplateApi.getApprovalStepTemplate).toHaveBeenCalledWith(
+      template.tenantGlobalId,
+      template.globalId,
+    );
+  });
+
   test("creating a tenant selects its employee work context", async () => {
     const tenant: Tenant = {
       globalId: "11111111-1111-4111-8111-111111111111",

@@ -1,17 +1,25 @@
 import { stores } from "@/app/rootStore";
 import NotificationBell from "@/features/notifications/components/NotificationBell";
 import TenantPickerOption from "@/features/tenants/components/TenantPickerOption";
+import { Tenant } from "@/features/tenants/models/tenant";
 import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
 import ColorModeSwitch from "@/shared/components/layout/ColorModeSwitch";
 import PublicAppBar from "@/shared/components/layout/PublicAppBar";
 import { Routes, Shell } from "@/shared/constants/constants";
 import { AppBarOptions } from "@/shared/models/appBarOptions";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
 import { getEmailInitials } from "@/shared/utils/email";
 import { Menu } from "@mui/icons-material";
 import { Avatar, IconButton, MenuItem, Select } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useLocation, useNavigate } from "react-router-dom";
+
+const createTenantPickerOption = (tenant: Tenant, employeeGlobalId: string | null, employeeDisplayName?: string) => ({
+  employeeDisplayName,
+  employeeGlobalId,
+  tenant,
+});
 
 const MainAppBar = ({
   showMainMenuButton = true,
@@ -33,19 +41,22 @@ const MainAppBar = ({
   const currentTenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const tenantPickerOptions = stores.tenantStore.tenants.flatMap((tenant) => {
     if (!tenant.delegators?.length) {
-      return [{ employeeDisplayName: undefined, employeeGlobalId: null, tenant }];
+      return [createTenantPickerOption(tenant, null)];
     }
     return [
-      {
-        employeeDisplayName: tenant.currentEmployeeDisplayName,
-        employeeGlobalId: tenant.currentEmployeeGlobalId ?? null,
+      createTenantPickerOption(
         tenant,
-      },
-      ...tenant.delegators.map((delegator) => ({
-        employeeDisplayName: delegator.displayName,
-        employeeGlobalId: delegator.employeeGlobalId,
-        tenant,
-      })),
+        tenant.currentEmployeeGlobalId ?? null,
+        getEmployeeDisplayName({
+          email: tenant.currentEmployeeEmail,
+          firstName: tenant.currentEmployeeFirstName,
+          lastName: tenant.currentEmployeeLastName,
+          position: tenant.currentEmployeePosition,
+        }),
+      ),
+      ...tenant.delegators.map((delegator) =>
+        createTenantPickerOption(tenant, delegator.employeeGlobalId, delegator.displayName),
+      ),
     ];
   });
   const selectedTenantPickerOption =

@@ -2,13 +2,14 @@ import { stores } from "@/app/rootStore";
 import { ApprovalDelegation, ApprovalDelegationUpsert } from "@/features/delegations/models/approvalDelegation";
 import EmployeeDisplayName from "@/features/employees/components/EmployeeDisplayName";
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
-import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
+import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
 import { Button, MenuItem, Stack, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -183,7 +184,9 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
   );
 };
 
-const getEmployeeName = (employees: Employee[], employeeGlobalId: string) =>
-  employees.find((employee) => employee.globalId === employeeGlobalId)?.displayName ?? "unknown employee";
+const getEmployeeName = (employees: Employee[], employeeGlobalId: string) => {
+  const employee = employees.find((item) => item.globalId === employeeGlobalId);
+  return getEmployeeDisplayName(employee);
+};
 
 export default DelegationDialog;

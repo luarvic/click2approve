@@ -17,6 +17,7 @@ import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes, Validation } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
 import {
   Autocomplete,
   Button,
@@ -152,7 +153,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
             state: employee ? { currentEmployeeGlobalId: employee.globalId } : undefined,
             to: employeesPath,
           },
-          { label: employee?.displayName ?? "New employee" },
+          { label: employee ? getEmployeeDisplayName(employee) : "New employee" },
         ]}
       />
       <Stack spacing={Dialogs.formStackSpacing}>

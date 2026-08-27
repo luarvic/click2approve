@@ -26,6 +26,9 @@ export class ApprovalStepTemplateStore {
     });
   };
 
+  loadDetail = (tenantGlobalId: string, templateGlobalId: string): Promise<ApprovalStepTemplate | null> =>
+    approvalStepTemplateApi.getApprovalStepTemplate(tenantGlobalId, templateGlobalId);
+
   create = async (
     tenantGlobalId: string,
     payload: UpsertApprovalStepTemplateRequest,

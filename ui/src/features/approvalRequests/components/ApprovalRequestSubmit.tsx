@@ -128,15 +128,12 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       if (canUseTeams) {
         stores.teamStore.loadPicker(tenantGlobalId);
       }
-      if (canUseTemplates) {
-        void stores.approvalStepTemplateStore.load(tenantGlobalId).then(() => {
-          if (initialTemplateHasBeenApplied.current || !initialTemplateGlobalId) {
+      if (canUseTemplates && initialTemplateGlobalId) {
+        void stores.approvalStepTemplateStore.loadDetail(tenantGlobalId, initialTemplateGlobalId).then((template) => {
+          if (initialTemplateHasBeenApplied.current) {
             return;
           }
 
-          const template = stores.approvalStepTemplateStore.templates.find(
-            (item) => item.globalId === initialTemplateGlobalId,
-          );
           if (template) {
             setTitle(template.name);
             setDescription(template.description ?? "");

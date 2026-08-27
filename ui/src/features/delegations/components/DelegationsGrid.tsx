@@ -9,6 +9,7 @@ import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
 import { Add } from "@mui/icons-material";
 import { Box, Button } from "@mui/material";
 import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
@@ -19,8 +20,6 @@ import { useNavigate } from "react-router-dom";
 interface DelegationsGridProps {
   currentDelegationGlobalId?: string;
 }
-
-const unknownEmployeeLabel = "Unknown employee";
 
 const DelegationsGrid: React.FC<DelegationsGridProps> = ({ currentDelegationGlobalId }) => {
   const navigate = useNavigate();
@@ -51,12 +50,14 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({ currentDelegationGlob
     gridLoader,
   );
 
-  const getEmployeeName = (employeeGlobalId: string) =>
-    employeesById.get(employeeGlobalId)?.displayName ?? unknownEmployeeLabel;
+  const getEmployeeName = (employeeGlobalId: string) => {
+    const employee = employeesById.get(employeeGlobalId);
+    return getEmployeeDisplayName(employee);
+  };
 
   const renderEmployee = (employeeGlobalId: string) => {
     const employee = employeesById.get(employeeGlobalId);
-    return employee ? <OneLineDisplayName displayName={employee.displayName} variant="body2" /> : unknownEmployeeLabel;
+    return <OneLineDisplayName displayName={getEmployeeDisplayName(employee)} variant="body2" />;
   };
 
   const customToolbar = () => {

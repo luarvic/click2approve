@@ -20,9 +20,10 @@ export interface Tenant {
   logo?: string;
   currentEmployeeRole: EmployeeRole;
   currentEmployeeGlobalId?: string;
-  currentEmployeeDisplayName?: string;
+  currentEmployeeEmail?: string;
   currentEmployeeFirstName?: string;
   currentEmployeeLastName?: string;
+  currentEmployeePosition?: string;
   delegators?: DelegatorEmployee[];
 }
 

@@ -11,6 +11,7 @@ import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
 import { Autocomplete, Button, Stack, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -23,9 +24,7 @@ interface TeamDialogProps {
   onSubmit: (payload: UpsertTeamRequest, teamGlobalId?: string) => Promise<Team | null>;
 }
 
-const getEmployeeLabel = (employee: Employee) => {
-  return employee.displayName;
-};
+const getEmployeeLabel = (employee: Employee) => getEmployeeDisplayName(employee);
 
 const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClose, onDelete, onSubmit }) => {
   const [name, setName] = useState("");
@@ -110,7 +109,7 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
             value.map((option, index) => (
               <ApprovalRequestParticipantChip
                 {...getTagProps({ index })}
-                displayName={option.displayName}
+                displayName={getEmployeeDisplayName(option)}
                 email={option.email}
                 employeeStatus={option.status}
                 type={AssigneeType.Employee}

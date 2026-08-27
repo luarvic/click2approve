@@ -19,15 +19,10 @@ export interface EmployeeListItem {
 export interface Employee extends EmployeeListItem {
   tenantGlobalId?: string;
   userGlobalId?: string;
-  displayName: string;
   teamGlobalIds?: string[];
 }
 
-export interface EmployeePickerItem extends EmployeeListItem {
-  globalId: string;
-  displayName: string;
-  email: string;
-}
+export interface EmployeePickerItem extends EmployeeListItem {}
 
 export interface CreateEmployeeRequest {
   email: string;

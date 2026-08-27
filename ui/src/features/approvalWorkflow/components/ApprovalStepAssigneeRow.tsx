@@ -5,6 +5,7 @@ import { ApprovalStepAssignee, AssigneeType } from "@/features/approvalWorkflow/
 import EmployeeDisplayName from "@/features/employees/components/EmployeeDisplayName";
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import { AssigneeTypeFieldMinWidth, Dialogs } from "@/shared/constants/constants";
+import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
 import { Close } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import { Autocomplete, IconButton, InputAdornment, MenuItem, Stack, TextField, Tooltip } from "@mui/material";
@@ -52,7 +53,9 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
   onRemove,
   stackControlsOnSmallScreens = false,
 }) => {
-  const activeEmployees = employees.filter((employee) => employee.status === EmployeeStatus.Active);
+  const activeEmployees = employees.filter(
+    (employee) => employee.status === undefined || employee.status === EmployeeStatus.Active,
+  );
   const recipientTypes = [
     { value: AssigneeType.User, label: "User" },
     ...(canUseEmployees ? [{ value: AssigneeType.Employee, label: "Employee" }] : []),
@@ -102,7 +105,7 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
               disableClearable={assignee.employeeGlobalId !== undefined}
               fullWidth
               options={activeEmployees}
-              getOptionLabel={(option) => option.displayName}
+              getOptionLabel={getEmployeeDisplayName}
               value={employees.find((user) => user.globalId === assignee.employeeGlobalId) ?? null}
               disabled={disabled}
               renderInput={(params) => {
