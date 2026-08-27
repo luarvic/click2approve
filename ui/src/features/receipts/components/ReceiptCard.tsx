@@ -20,6 +20,7 @@ interface ReceiptCardProps {
   footerContent?: ReactNode;
   headerContent?: ReactNode;
   receipt: Receipt | PublicReceipt;
+  sx?: SxProps<Theme>;
   titleContent?: ReactNode;
 }
 
@@ -103,6 +104,13 @@ const metadataSx: SxProps<Theme> = {
   textAlign: "center",
 };
 
+const printSectionSx: SxProps<Theme> = {
+  "@media print": {
+    breakInside: "avoid",
+    pageBreakInside: "avoid",
+  },
+};
+
 const formatDateTime = (date: Date | undefined): string | undefined =>
   date?.toLocaleString(undefined, {
     day: "2-digit",
@@ -134,7 +142,7 @@ const getReceiptTaskStatusColor = (taskStatus: ApprovalRequestTaskStatus | undef
 const getRequestCompletedAt = (receipt: Receipt | PublicReceipt): Date | undefined =>
   (receipt as Receipt).approvalRequestCompletedAt ?? (receipt as PublicReceipt).approvalRequestApprovedAt;
 
-const ReceiptCard: React.FC<ReceiptCardProps> = ({ footerContent, headerContent, receipt, titleContent }) => {
+const ReceiptCard: React.FC<ReceiptCardProps> = ({ footerContent, headerContent, receipt, sx, titleContent }) => {
   const tasks = receipt.participants.filter((participant) => participant.role === ReceiptParticipantRole.Assignee);
   const requestStatusColor = getApprovalRequestStatusLineColor(
     receipt.approvalRequestStatus,
@@ -154,9 +162,9 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({ footerContent, headerContent,
   ];
 
   return (
-    <ApprovalRequestDetailsCard ariaLabel="Receipt" contentSx={receiptContentSx} showStatusBorder={false}>
+    <ApprovalRequestDetailsCard ariaLabel="Receipt" contentSx={receiptContentSx} showStatusBorder={false} sx={sx}>
       <Stack spacing={receiptSectionSpacing}>
-        <Stack spacing={receiptHeaderStackSpacing}>
+        <Stack spacing={receiptHeaderStackSpacing} sx={printSectionSx}>
           {headerContent}
           <Stack spacing={0.5}>
             {titleContent && (
@@ -182,7 +190,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({ footerContent, headerContent,
             </Box>
           </Stack>
         </Stack>
-        <Stack>
+        <Stack sx={printSectionSx}>
           <Stack spacing={0.5}>
             <Typography sx={sectionHeadingSx}>Request</Typography>
             {requestFields
@@ -227,7 +235,11 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({ footerContent, headerContent,
           {tasks.length === 0 && <Typography sx={metadataSx}>No completed tasks were recorded.</Typography>}
           <Stack spacing={receiptSectionSpacing}>
             {tasks.map((task, index) => (
-              <Stack key={`${task.email}-${task.completedAt?.toISOString() ?? index}`} spacing={0.5}>
+              <Stack
+                key={`${task.email}-${task.completedAt?.toISOString() ?? index}`}
+                spacing={0.5}
+                sx={printSectionSx}
+              >
                 <Typography sx={sectionHeadingSx}>Task</Typography>
                 {[
                   ["Task ID", task.taskGlobalId],
@@ -318,7 +330,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({ footerContent, headerContent,
             ))}
           </Stack>
         </Stack>
-        {footerContent}
+        {footerContent && <Box sx={printSectionSx}>{footerContent}</Box>}
       </Stack>
     </ApprovalRequestDetailsCard>
   );

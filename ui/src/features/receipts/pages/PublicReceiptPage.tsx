@@ -1,5 +1,6 @@
+import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import { getReceiptByLink } from "@/features/receipts/api/receiptLinksApi";
-import ReceiptCard from "@/features/receipts/components/ReceiptCard";
+import ReceiptView from "@/features/receipts/components/ReceiptView";
 import {
   PublicReceiptParticipantRole,
   type PublicReceipt,
@@ -51,7 +52,22 @@ const contentContainerSx: SxProps<Theme> = {
   },
 };
 
-const receiptContentSx: SxProps<Theme> = {
+const receiptViewSx: SxProps<Theme> = {
+  maxWidth: "100%",
+  width: { sm: 960 },
+  "@media print": {
+    maxWidth: "none",
+    width: "100%",
+  },
+};
+
+const receiptCardSx: SxProps<Theme> = {
+  "@media print": {
+    boxShadow: "none",
+  },
+};
+
+const verificationContentSx: SxProps<Theme> = {
   maxWidth: 600,
   mx: "auto",
   width: "100%",
@@ -131,7 +147,7 @@ const PublicReceiptPage = () => {
   const { linkGlobalId } = useParams<{ linkGlobalId: string }>();
   const [receipt, setReceipt] = useState<PublicReceipt | null | undefined>(undefined);
   const [fileMatch, setFileMatch] = useState<FileMatch | null>(null);
-  usePageTitle("Receipt");
+  usePageTitle(`Receipt Verification ${getApprovalRequestNumber(linkGlobalId)}`);
 
   useEffect(() => {
     const load = async () => {
@@ -179,9 +195,10 @@ const PublicReceiptPage = () => {
     <>
       {printStyles}
       <Box component="main" sx={pageSx}>
-        <Container disableGutters maxWidth="md" sx={contentContainerSx}>
-          <Box sx={receiptContentSx}>
-            <ReceiptCard
+        <Box sx={contentContainerSx}>
+          <Box sx={receiptViewSx}>
+            <ReceiptView
+              cardSx={receiptCardSx}
               footerContent={
                 <Stack spacing={StackSpacing.tight} sx={qrPanelSx}>
                   <QRCodeSVG level="H" size={qrCodeSize} value={verificationUrl} />
@@ -199,9 +216,9 @@ const PublicReceiptPage = () => {
               }
             />
           </Box>
-        </Container>
+        </Box>
         <Container disableGutters maxWidth="md" sx={verificationFooterSx}>
-          <Stack spacing={StackSpacing.default} sx={receiptContentSx}>
+          <Stack spacing={StackSpacing.default} sx={verificationContentSx}>
             <Button component="label" startIcon={<UploadFileOutlined />} sx={verifyFileButtonSx} variant="outlined">
               Verify file
               <Box component="input" type="file" sx={Files.inputStyle} onChange={handleFileChange} />

@@ -19,6 +19,7 @@ export const PersistenceSuccessMessages = {
   employeeSavedInvitationSent: "Employee saved successfully. Invitation sent.",
   organizationSaved: "Organization saved successfully.",
   profileSaved: "Profile saved successfully.",
+  receiptDeleted: "Receipt deleted successfully.",
   receiptLinkCopied: "Receipt link copied successfully.",
   receiptLinkCreated: "Receipt link created and copied successfully.",
   receiptLinkDeleted: "Receipt link deleted successfully.",
