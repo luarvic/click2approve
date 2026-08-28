@@ -2,10 +2,12 @@ using System.Net;
 using System.Net.Mail;
 using Azure.Core;
 using Click2Approve.Application.Abstractions.Email;
+using Click2Approve.Application.Abstractions.Events;
 using Click2Approve.Application.Abstractions.FileStorage;
 using Click2Approve.Application.Abstractions.Identity;
 using Click2Approve.Domain.Models;
 using Click2Approve.Infrastructure.Email;
+using Click2Approve.Infrastructure.Events;
 using Click2Approve.Infrastructure.FileStorage;
 using Click2Approve.Infrastructure.Identity;
 using Click2Approve.Infrastructure.Notifications;
@@ -167,6 +169,15 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddAzureFileStorageServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<IUserFileStorage, AzureUserFileStorage>();
+        return services;
+    }
+
+    /// <summary>
+    /// Adds Azure Queue Storage event transport services.
+    /// </summary>
+    public static IServiceCollection AddEventQueueServices(this IServiceCollection services)
+    {
+        services.AddSingleton<IEventQueue, AzureEventQueue>();
         return services;
     }
 

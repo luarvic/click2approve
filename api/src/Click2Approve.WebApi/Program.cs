@@ -48,6 +48,7 @@ builder.Services.AddHttpContextAccessor();
 // Use AddEmailServices() instead of AddAzureEmailServices() to switch to the SmtpEmailService implementation.
 builder.Services.AddAzureEmailServices(builder.Configuration);
 builder.Services.AddAzureFileStorageServices(builder.Configuration);
+builder.Services.AddEventQueueServices();
 builder.Services.AddEndpointsApiExplorer();
 // Background jobs use the production SQL Server storage and are not part of the HTTP test host.
 if (!builder.Environment.IsEnvironment("Test"))
