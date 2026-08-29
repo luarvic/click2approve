@@ -9,7 +9,14 @@ import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { AuthForms, Dialogs, Pages, StackSpacing } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
-import { NotificationChannel, NotificationType, UserNotificationPreference } from "@/shared/models/userProfile";
+import {
+  NotificationChannel,
+  NotificationPreferenceType,
+  notificationChannelLabels,
+  notificationPreferenceTypeLabels,
+  notificationPreferenceTypeToNotificationTypes,
+} from "@/shared/models/notifications";
+import { UserNotificationPreference } from "@/shared/models/userProfile";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   PersistenceSuccessMessages,
@@ -20,14 +27,17 @@ import {
   Box,
   Button,
   FormControl,
-  FormControlLabel,
-  FormGroup,
   InputLabel,
   MenuItem,
   Select,
   Stack,
   Switch,
   Tab,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
   Tabs,
   TextField,
   Typography,
@@ -36,11 +46,13 @@ import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const notificationLabels: Record<NotificationType, string> = {
-  [NotificationType.ApprovalRequestTaskCreated]: "New  request task",
-  [NotificationType.ApprovalRequestCancelled]: "Request cancelled",
-  [NotificationType.ApprovalRequestReviewed]: "Request reviewed",
-};
+const notificationChannels = [NotificationChannel.InApp, NotificationChannel.Email];
+
+const notificationPreferenceTypes = [
+  NotificationPreferenceType.Requests,
+  NotificationPreferenceType.Tasks,
+  NotificationPreferenceType.Chat,
+];
 
 const UserProfilePage = () => {
   usePageTitle("User profile");
@@ -80,11 +92,22 @@ const UserProfilePage = () => {
     return null;
   }
 
-  const handleNotificationToggle = (type: NotificationType) => {
+  const isNotificationCategoryEnabled = (type: NotificationPreferenceType, channel: NotificationChannel) => {
+    const notificationTypes = notificationPreferenceTypeToNotificationTypes[type];
+    return notificationTypes.every(
+      (type) =>
+        notificationPreferences.find((preference) => preference.type === type && preference.channel === channel)
+          ?.isEnabled ?? true,
+    );
+  };
+
+  const handleNotificationToggle = (type: NotificationPreferenceType, channel: NotificationChannel) => {
+    const notificationTypes = notificationPreferenceTypeToNotificationTypes[type];
+    const isEnabled = isNotificationCategoryEnabled(type, channel);
     setNotificationPreferences((current) =>
       current.map((preference) =>
-        preference.type === type && preference.channel === NotificationChannel.Email
-          ? { ...preference, isEnabled: !preference.isEnabled }
+        notificationTypes.includes(preference.type) && preference.channel === channel
+          ? { ...preference, isEnabled: !isEnabled }
           : preference,
       ),
     );
@@ -181,20 +204,38 @@ const UserProfilePage = () => {
           )}
           {selectedTab === "notifications" && (
             <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
-              <FormGroup>
-                {notificationPreferences.map((preference) => (
-                  <FormControlLabel
-                    key={`${preference.channel}-${preference.type}`}
-                    control={
-                      <Switch
-                        checked={preference.isEnabled}
-                        onChange={() => handleNotificationToggle(preference.type)}
-                      />
-                    }
-                    label={notificationLabels[preference.type]}
-                  />
-                ))}
-              </FormGroup>
+              <Table aria-label="Notification preferences">
+                <TableHead>
+                  <TableRow>
+                    <TableCell />
+                    {notificationChannels.map((channel) => (
+                      <TableCell key={channel} align="center">
+                        {notificationChannelLabels[channel]}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {notificationPreferenceTypes.map((type) => (
+                    <TableRow key={type}>
+                      <TableCell component="th" scope="row">
+                        {notificationPreferenceTypeLabels[type]}
+                      </TableCell>
+                      {notificationChannels.map((channel) => (
+                        <TableCell key={channel} align="center">
+                          <Switch
+                            checked={isNotificationCategoryEnabled(type, channel)}
+                            inputProps={{
+                              "aria-label": `${notificationPreferenceTypeLabels[type]} ${notificationChannelLabels[channel]}`,
+                            }}
+                            onChange={() => handleNotificationToggle(type, channel)}
+                          />
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </Stack>
           )}
           {selectedTab === "signature" && (

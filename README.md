@@ -83,7 +83,7 @@ docker compose down
 ```
 
 The Compose file does not define a database volume, so `docker compose down`
-removes the local SQL Server container and its data, including Hangfire jobs.
+removes the local SQL Server container and its data, including the event outbox and notification inbox.
 
 ## Local Development
 
@@ -116,6 +116,13 @@ Then run the Web API project:
 
 ```bash
 dotnet run --project api/src/Click2Approve.WebApi/Click2Approve.WebApi.csproj
+```
+
+Run the event dispatcher in a second terminal. It publishes committed outbox
+messages and processes Azure Queue deliveries, including email and in-app notifications:
+
+```bash
+dotnet run --project api/src/Click2Approve.EventDispatcher/Click2Approve.EventDispatcher.csproj
 ```
 
 The development profile listens on
@@ -196,7 +203,6 @@ uses:
 - [ASP.NET Core](https://dotnet.microsoft.com/en-us/apps/aspnet)
 - [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 - [ASP.NET Core Identity](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity)
-- [Hangfire](https://www.hangfire.io/)
 
 The API stores relational data in SQL Server and uses filesystem storage for uploaded
 files.

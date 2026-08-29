@@ -10,11 +10,11 @@ namespace Click2Approve.Application.Services.ApprovalRequests;
 public class ApprovalWorkflowService(
     IApprovalRequestTaskRepository approvalRequestTaskRepository,
     IAssigneeResolver assigneeResolver,
-    IDomainEventService domainEventService) : IApprovalWorkflowService
+    INotificationService notificationService) : IApprovalWorkflowService
 {
     private readonly IApprovalRequestTaskRepository _approvalRequestTaskRepository = approvalRequestTaskRepository;
     private readonly IAssigneeResolver _assigneeResolver = assigneeResolver;
-    private readonly IDomainEventService _domainEventService = domainEventService;
+    private readonly INotificationService _notificationService = notificationService;
 
     public async Task CreateInitialTasksAsync(
         ApprovalRequest approvalRequest,
@@ -31,12 +31,13 @@ public class ApprovalWorkflowService(
             cancellationToken);
     }
 
-    public virtual async Task CompleteAsync(
+    public virtual async Task CompleteTaskAsync(
         ApprovalRequestTask approvalRequestTask,
         DateTime timestamp,
         CancellationToken cancellationToken)
     {
         var approvalRequest = approvalRequestTask.ApprovalRequest;
+        var stepCompleted = false;
         if (approvalRequest.Status is ApprovalRequestStatus.Pending or ApprovalRequestStatus.Started)
         {
             switch (approvalRequestTask.Result)
@@ -50,7 +51,7 @@ public class ApprovalWorkflowService(
                         timestamp);
                     break;
                 case true:
-                    await AdvanceAsync(approvalRequestTask, timestamp, cancellationToken);
+                    stepCompleted = await AdvanceAsync(approvalRequestTask, timestamp, cancellationToken);
                     StartRequestIfNeeded(approvalRequest);
                     break;
                 default:
@@ -58,7 +59,14 @@ public class ApprovalWorkflowService(
             }
         }
 
-        await CreateRequesterReviewedEventAsync(approvalRequestTask, cancellationToken);
+        if (approvalRequest.Status == ApprovalRequestStatus.Completed)
+        {
+            await SendRequestCompletedNotificationAsync(approvalRequest, cancellationToken);
+        }
+        else if (stepCompleted)
+        {
+            await SendStepCompletedNotificationAsync(approvalRequestTask, cancellationToken);
+        }
     }
 
     public virtual async Task CancelRequestAsync(
@@ -70,7 +78,7 @@ public class ApprovalWorkflowService(
             .Where(task => task.Status == ApprovalRequestTaskStatus.Pending)
             .ToList();
         CancelPendingTasks(cancelledTasks, timestamp);
-        await CreateRequestCancelledEventsAsync(cancelledTasks, approvalRequest, cancellationToken);
+        await SendSystemCompletedTaskNotificationsAsync(cancelledTasks, approvalRequest, cancellationToken);
     }
 
     public void CancelPendingTasks(IEnumerable<ApprovalRequestTask> tasks, DateTime timestamp)
@@ -142,7 +150,7 @@ public class ApprovalWorkflowService(
         return tasks;
     }
 
-    private async Task AdvanceAsync(
+    private async Task<bool> AdvanceAsync(
         ApprovalRequestTask approvalRequestTask,
         DateTime timestamp,
         CancellationToken cancellationToken)
@@ -161,7 +169,7 @@ public class ApprovalWorkflowService(
         };
         if (!stepIsCompletedSuccessfully)
         {
-            return;
+            return false;
         }
 
         if (currentStep.Mode == ApprovalStepMode.Any)
@@ -180,7 +188,7 @@ public class ApprovalWorkflowService(
             approvalRequest.Result = true;
             approvalRequest.CompletedAt = timestamp;
             SkipPendingTasks(GetTasks(approvalRequest), timestamp);
-            return;
+            return true;
         }
 
         await CreateTasksForStepAsync(
@@ -189,6 +197,7 @@ public class ApprovalWorkflowService(
             assigneeResolutions: null,
             timestamp,
             cancellationToken);
+        return true;
     }
 
     private static void StartRequestIfNeeded(ApprovalRequest approvalRequest)
@@ -219,46 +228,58 @@ public class ApprovalWorkflowService(
         IEnumerable<ApprovalRequestTask> tasks,
         CancellationToken cancellationToken)
     {
-        await CreateEventsAsync(
-            tasks.Select(task => new CreateDomainEventCommand(
-                DomainEventType.ApprovalRequestTaskCreated,
+        await _notificationService.SendAsync(
+            [.. tasks.Select(task => new NotificationCommand(
+                NotificationType.ApprovalRequestTaskCreated,
                 task.TenantId,
                 task.GlobalId,
                 CreateSummary(task.GlobalId, task.Title),
-                CreateDeliveryRecipients(task.AssigneeUserId))),
+                [new NotificationRecipient(task.AssigneeUserId)]))],
             cancellationToken);
     }
 
-    private async Task CreateRequestCancelledEventsAsync(
+    private async Task SendSystemCompletedTaskNotificationsAsync(
         IEnumerable<ApprovalRequestTask> tasks,
         ApprovalRequest approvalRequest,
         CancellationToken cancellationToken)
     {
-        await CreateEventsAsync(
-            tasks.GroupBy(task => new { task.AssigneeUserId, task.TenantId })
-                .Select(group => new CreateDomainEventCommand(
-                    DomainEventType.ApprovalRequestCancelled,
+        await _notificationService.SendAsync(
+            [.. tasks.GroupBy(task => new { task.AssigneeUserId, task.TenantId })
+                .Select(group => new NotificationCommand(
+                    NotificationType.ApprovalRequestTaskCompleted,
                     group.Key.TenantId,
                     approvalRequest.GlobalId,
                     CreateSummary(approvalRequest.GlobalId, approvalRequest.Title),
-                    CreateDeliveryRecipients(group.Key.AssigneeUserId))),
+                    [new NotificationRecipient(group.Key.AssigneeUserId)]))],
             cancellationToken);
     }
 
-    private Task CreateRequesterReviewedEventAsync(
+    private Task SendStepCompletedNotificationAsync(
         ApprovalRequestTask approvalRequestTask,
         CancellationToken cancellationToken)
     {
         var approvalRequest = approvalRequestTask.ApprovalRequest;
-        return CreateEventsAsync(
-            [new CreateDomainEventCommand(
-                DomainEventType.ApprovalRequestReviewed,
+        return _notificationService.SendAsync(
+            [new NotificationCommand(
+                NotificationType.ApprovalRequestStepCompleted,
                 approvalRequest.TenantId,
                 approvalRequest.GlobalId,
                 CreateSummary(approvalRequest.GlobalId, approvalRequest.Title),
-                CreateDeliveryRecipients(approvalRequest.CreatedByUserId))],
+                [new NotificationRecipient(approvalRequest.CreatedByUserId)])],
             cancellationToken);
     }
+
+    private Task SendRequestCompletedNotificationAsync(
+        ApprovalRequest approvalRequest,
+        CancellationToken cancellationToken) =>
+        _notificationService.SendAsync(
+            [new NotificationCommand(
+                NotificationType.ApprovalRequestCompleted,
+                approvalRequest.TenantId,
+                approvalRequest.GlobalId,
+                CreateSummary(approvalRequest.GlobalId, approvalRequest.Title),
+                [new NotificationRecipient(approvalRequest.CreatedByUserId)])],
+            cancellationToken);
 
     private async Task<List<ApprovalRequestTask>> CreateTasksForAssigneeAsync(
         ApprovalRequest approvalRequest,
@@ -305,17 +326,6 @@ public class ApprovalWorkflowService(
 
         return tasks;
     }
-
-    private Task CreateEventsAsync(
-        IEnumerable<CreateDomainEventCommand> events,
-        CancellationToken cancellationToken) =>
-        _domainEventService.CreateEventsAsync([.. events], cancellationToken);
-
-    private static DomainEventRecipient[] CreateDeliveryRecipients(long userId) =>
-    [
-        new DomainEventRecipient(userId, EventDeliveryChannel.InApp),
-        new DomainEventRecipient(userId, EventDeliveryChannel.Email)
-    ];
 
     private static string CreateSummary(Guid globalId, string title) =>
         $"#{globalId.ToString()[..5]} {title}";

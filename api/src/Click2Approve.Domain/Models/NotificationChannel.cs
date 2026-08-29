@@ -1,9 +1,10 @@
 namespace Click2Approve.Domain.Models;
 
 /// <summary>
-/// Represents a notification delivery channel.
+/// Identifies a channel through which a notification can be sent.
 /// </summary>
 public enum NotificationChannel
 {
-    Email = 0
+    InApp = 0,
+    Email = 1
 }

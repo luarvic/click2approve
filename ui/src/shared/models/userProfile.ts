@@ -1,12 +1,4 @@
-export enum NotificationChannel {
-  Email = 0,
-}
-
-export enum NotificationType {
-  ApprovalRequestTaskCreated = 0,
-  ApprovalRequestCancelled = 2,
-  ApprovalRequestReviewed = 4,
-}
+import { NotificationChannel, NotificationType } from "@/shared/models/notifications";
 
 export interface UserNotificationPreference {
   type: NotificationType;

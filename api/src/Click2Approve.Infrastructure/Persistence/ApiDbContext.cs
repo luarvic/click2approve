@@ -23,8 +23,8 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
     public DbSet<ApprovalRequestStep> ApprovalRequestSteps { get; set; }
     public DbSet<ApprovalRequestStepAssignee> ApprovalRequestStepAssignees { get; set; }
     public DbSet<ApprovalRequestTask> ApprovalRequestTasks { get; set; }
-    public DbSet<DomainEvent> DomainEvents { get; set; }
-    public DbSet<EventDelivery> EventDeliveries { get; set; }
+    public DbSet<EventOutboxMessage> EventOutboxMessages { get; set; }
+    public DbSet<InAppNotification> InAppNotifications { get; set; }
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<UserFile> UserFiles { get; set; }
     public DbSet<UserNotificationPreference> UserNotificationPreferences { get; set; }
@@ -373,42 +373,31 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
             .HasIndex(preference => new { preference.UserId, preference.Type, preference.Channel })
             .IsUnique();
 
-        modelBuilder.Entity<DomainEvent>()
-            .Property(domainEvent => domainEvent.Type)
-            .HasConversion<int>();
+        modelBuilder.Entity<EventOutboxMessage>()
+            .Property(message => message.EventType)
+            .HasMaxLength(128);
+        modelBuilder.Entity<EventOutboxMessage>()
+            .HasIndex(message => message.EventId)
+            .IsUnique();
+        modelBuilder.Entity<EventOutboxMessage>()
+            .HasIndex(message => new { message.PublishedAt, message.OccurredAt });
 
-        modelBuilder.Entity<DomainEvent>()
-            .Property(domainEvent => domainEvent.Summary)
+        modelBuilder.Entity<InAppNotification>()
+            .Property(notification => notification.Type)
+            .HasConversion<int>();
+        modelBuilder.Entity<InAppNotification>()
+            .Property(notification => notification.Summary)
             .HasMaxLength(512);
-
-        modelBuilder.Entity<DomainEvent>()
-            .HasIndex(domainEvent => new { domainEvent.TenantId, domainEvent.OccurredAt });
-
-        modelBuilder.Entity<EventDelivery>()
-            .Property(delivery => delivery.Channel)
-            .HasConversion<int>();
-
-        modelBuilder.Entity<EventDelivery>()
-            .HasOne(delivery => delivery.DomainEvent)
+        modelBuilder.Entity<InAppNotification>()
+            .HasOne(notification => notification.User)
             .WithMany()
-            .HasForeignKey(delivery => delivery.DomainEventId)
+            .HasForeignKey(notification => notification.UserId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<EventDelivery>()
-            .HasOne(delivery => delivery.User)
-            .WithMany()
-            .HasForeignKey(delivery => delivery.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<EventDelivery>()
-            .HasIndex(delivery => new { delivery.UserId, delivery.TenantId, delivery.Channel, delivery.ReadAt });
-
-        modelBuilder.Entity<EventDelivery>()
-            .Property(delivery => delivery.LastError)
-            .HasMaxLength(2048);
-
-        modelBuilder.Entity<EventDelivery>()
-            .HasIndex(delivery => new { delivery.Channel, delivery.SentAt, delivery.QueuedAt });
+        modelBuilder.Entity<InAppNotification>()
+            .HasIndex(notification => new { notification.EventId, notification.UserId })
+            .IsUnique();
+        modelBuilder.Entity<InAppNotification>()
+            .HasIndex(notification => new { notification.UserId, notification.TenantId, notification.ReadAt });
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

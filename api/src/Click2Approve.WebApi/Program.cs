@@ -45,16 +45,9 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseAzureSql(connectionString);
 });
 builder.Services.AddHttpContextAccessor();
-// Use AddEmailServices() instead of AddAzureEmailServices() to switch to the SmtpEmailService implementation.
-builder.Services.AddAzureEmailServices(builder.Configuration);
 builder.Services.AddAzureFileStorageServices(builder.Configuration);
 builder.Services.AddEventQueueServices();
 builder.Services.AddEndpointsApiExplorer();
-// Background jobs use the production SQL Server storage and are not part of the HTTP test host.
-if (!builder.Environment.IsEnvironment("Test"))
-{
-    builder.Services.AddHangfireServices(builder.Configuration);
-}
 builder.Services.AddHttpClient();
 builder.Services.AddIdentityServices(builder.Configuration);
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -63,26 +56,27 @@ builder.Services.AddSwagger();
 
 // Application services
 builder.Services.AddScoped<IAccessPolicy, DefaultAccessPolicy>();
-builder.Services.AddScoped<IAssigneeResolver, UserOnlyAssigneeResolver>();
 builder.Services.AddScoped<IApprovalRequestAssigneeGlobalIdResolver, DefaultApprovalRequestAssigneeGlobalIdResolver>();
 builder.Services.AddScoped<IApprovalRequestCompletionAttributor, ApprovalRequestCompletionAttributor>();
 builder.Services.AddScoped<IApprovalRequestService, ApprovalRequestService>();
-builder.Services.AddScoped<IValidator<ApprovalRequest>, ApprovalRequestDeletionValidator>();
 builder.Services.AddScoped<IApprovalRequestTaskCompletionAttributor, ApprovalRequestTaskCompletionAttributor>();
 builder.Services.AddScoped<IApprovalRequestTaskService, ApprovalRequestTaskService>();
 builder.Services.AddScoped<IApprovalWorkflowService, ApprovalWorkflowService>();
-builder.Services.AddScoped<IDomainEventService, DomainEventService>();
+builder.Services.AddScoped<IAssigneeResolver, UserOnlyAssigneeResolver>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<IUserFileService, UserFileService>();
 builder.Services.AddScoped<IUserNotificationPreferenceService, UserNotificationPreferenceService>();
 builder.Services.AddScoped<IUserProfileAccessService, DefaultUserProfileAccessService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+builder.Services.AddScoped<IValidator<ApprovalRequest>, ApprovalRequestDeletionValidator>();
 
 // Infrastructure services
 builder.Services.AddScoped<IAccessScopeProvider, AccessScopeProvider>();
 builder.Services.AddScoped<IApprovalRequestRepository, ApprovalRequestRepository>();
 builder.Services.AddScoped<IApprovalRequestTaskRepository, ApprovalRequestTaskRepository>();
-builder.Services.AddScoped<IEventDeliveryRepository, EventDeliveryRepository>();
+builder.Services.AddScoped<IEventOutboxRepository, EventOutboxRepository>();
+builder.Services.AddScoped<IInAppNotificationRepository, InAppNotificationRepository>();
 builder.Services.AddScoped<ITenantContext, RequestTenantContext>();
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 builder.Services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApiDbContext>());
@@ -92,7 +86,6 @@ builder.Services.AddScoped<IUserNotificationPreferenceRepository, UserNotificati
 var app = builder.Build();
 
 app.InitializeDatabase<ApiDbContext>();
-app.AddNotificationEmailDispatchJob();
 app.UseConfiguredCors();
 app.UseDevelopmentTooling();
 

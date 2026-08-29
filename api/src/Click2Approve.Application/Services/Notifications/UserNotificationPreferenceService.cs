@@ -14,22 +14,22 @@ public class UserNotificationPreferenceService(IUserNotificationPreferenceReposi
     {
         var savedPreferences = await _notificationPreferenceRepository.ListAsync(user.Id, cancellationToken);
 
-        return [.. AllEmailTypes().Select(type =>
+        return [.. AllTypes().SelectMany(type => AllChannels().Select(channel =>
         {
-            var preference = savedPreferences.FirstOrDefault(p => p.Type == type && p.Channel == NotificationChannel.Email);
+            var preference = savedPreferences.FirstOrDefault(p => p.Type == type && p.Channel == channel);
             return new UserNotificationPreferenceResult
             {
                 Type = type,
-                Channel = NotificationChannel.Email,
+                Channel = channel,
                 IsEnabled = preference?.IsEnabled ?? true
             };
-        })];
+        }))];
     }
 
     public async Task ReplaceAsync(AppUser user, List<UserNotificationPreferenceCommand> preferences, CancellationToken cancellationToken)
     {
         var requestedPreferences = preferences
-            .Where(preference => preference.Channel == NotificationChannel.Email && AllEmailTypes().Contains(preference.Type))
+            .Where(preference => AllChannels().Contains(preference.Channel) && AllTypes().Contains(preference.Type))
             .GroupBy(preference => new { preference.Type, preference.Channel })
             .Select(group => group.Last())
             .ToList();
@@ -63,13 +63,7 @@ public class UserNotificationPreferenceService(IUserNotificationPreferenceReposi
         return preference?.IsEnabled ?? true;
     }
 
-    private static NotificationType[] AllEmailTypes()
-    {
-        return
-        [
-            NotificationType.ApprovalRequestTaskCreated,
-            NotificationType.ApprovalRequestCancelled,
-            NotificationType.ApprovalRequestReviewed
-        ];
-    }
+    private static NotificationChannel[] AllChannels() => [NotificationChannel.InApp, NotificationChannel.Email];
+
+    private static NotificationType[] AllTypes() => Enum.GetValues<NotificationType>();
 }

@@ -5,5 +5,5 @@ namespace Click2Approve.Application.Models.Commands.Notifications;
 /// </summary>
 public class ReadInAppNotificationsCommand
 {
-    public required List<Guid> DeliveryGlobalIds { get; set; }
+    public required List<Guid> NotificationGlobalIds { get; set; }
 }

@@ -12,8 +12,6 @@ namespace Click2Approve.Infrastructure.Events;
 /// </summary>
 public sealed class AzureEventQueue(IConfiguration configuration) : IEventQueue
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
-
     private readonly Lazy<Task<QueueClient>> _queue = new(() => CreateAsync(configuration));
     private readonly Lazy<Task<QueueClient>> _poisonQueue = new(() => CreateAsync(configuration, "PoisonName"));
 
@@ -21,7 +19,9 @@ public sealed class AzureEventQueue(IConfiguration configuration) : IEventQueue
     public async Task EnqueueAsync(EventEnvelope envelope, CancellationToken cancellationToken)
     {
         var queue = await _queue.Value.WaitAsync(cancellationToken);
-        await queue.SendMessageAsync(JsonSerializer.Serialize(envelope, JsonOptions), cancellationToken: cancellationToken);
+        await queue.SendMessageAsync(
+            JsonSerializer.Serialize(envelope, EventJson.Options),
+            cancellationToken: cancellationToken);
     }
 
     /// <inheritdoc />
@@ -58,13 +58,15 @@ public sealed class AzureEventQueue(IConfiguration configuration) : IEventQueue
     {
         var poisonQueue = await _poisonQueue.Value.WaitAsync(cancellationToken);
         var poison = new PoisonEvent(receivedEvent.Envelope, receivedEvent.DequeueCount, error, DateTime.UtcNow);
-        await poisonQueue.SendMessageAsync(JsonSerializer.Serialize(poison, JsonOptions), cancellationToken: cancellationToken);
+        await poisonQueue.SendMessageAsync(
+            JsonSerializer.Serialize(poison, EventJson.Options),
+            cancellationToken: cancellationToken);
         await CompleteAsync(receivedEvent, cancellationToken);
     }
 
     private static ReceivedEvent Map(QueueMessage message)
     {
-        var envelope = JsonSerializer.Deserialize<EventEnvelope>(message.MessageText, JsonOptions)
+        var envelope = JsonSerializer.Deserialize<EventEnvelope>(message.MessageText, EventJson.Options)
             ?? throw new InfrastructureException("The event queue contains an invalid event envelope.");
         return new ReceivedEvent(envelope, message.MessageId, message.PopReceipt, checked((int)message.DequeueCount));
     }
@@ -75,7 +77,13 @@ public sealed class AzureEventQueue(IConfiguration configuration) : IEventQueue
             ?? throw new InfrastructureException("EventQueue configuration is invalid.");
         var queueName = configuration[$"EventQueue:{nameKey}"]
             ?? throw new InfrastructureException("EventQueue configuration is invalid.");
-        var queue = new QueueClient(connectionString, queueName);
+        var queue = new QueueClient(
+            connectionString,
+            queueName,
+            new QueueClientOptions
+            {
+                MessageEncoding = QueueMessageEncoding.Base64
+            });
         await queue.CreateIfNotExistsAsync();
         return queue;
     }

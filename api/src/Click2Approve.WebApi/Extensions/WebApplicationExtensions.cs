@@ -1,5 +1,3 @@
-using Click2Approve.Infrastructure.Notifications;
-using Hangfire;
 using Microsoft.EntityFrameworkCore;
 
 namespace Click2Approve.WebApi.Extensions;
@@ -18,23 +16,6 @@ public static class WebApplicationExtensions
         using var scope = app.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<TDbContext>();
         db.Database.EnsureCreated();
-        return app;
-    }
-
-    /// <summary>
-    /// Registers the recurring job that dispatches pending notification emails.
-    /// </summary>
-    public static WebApplication AddNotificationEmailDispatchJob(this WebApplication app)
-    {
-        if (app.Environment.IsEnvironment("Test")) return app;
-
-        var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
-        recurringJobManager.AddOrUpdate<NotificationEmailDispatchJob>(
-            nameof(NotificationEmailDispatchJob),
-            app.Configuration["Hangfire:Queues:Default:Name"]
-                ?? throw new InvalidOperationException("The Hangfire default queue is required."),
-            job => job.DispatchAsync(),
-            app.Configuration["Notifications:Channels:Email:Dispatch:Cron"] ?? "*/1 * * * *");
         return app;
     }
 
@@ -61,7 +42,7 @@ public static class WebApplicationExtensions
     }
 
     /// <summary>
-    /// Enables development-only API and background-job tooling.
+    /// Enables development-only API tooling.
     /// </summary>
     public static WebApplication UseDevelopmentTooling(this WebApplication app)
     {
@@ -69,7 +50,6 @@ public static class WebApplicationExtensions
 
         app.UseSwagger();
         app.UseSwaggerUI();
-        app.UseHangfireDashboard();
         return app;
     }
 }

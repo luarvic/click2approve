@@ -6,6 +6,5 @@ namespace Click2Approve.Application.Models.Events;
 public sealed record EventEnvelope(
     Guid EventId,
     string EventType,
-    int Version,
     DateTime OccurredAt,
     string Payload);

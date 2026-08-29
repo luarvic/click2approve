@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Click2Approve.WebApi.Controllers;
 
 /// <summary>
-/// API endpoints that expose in-app domain event deliveries.
+/// API endpoints that expose in-app notifications.
 /// </summary>
 [Tags("Click2Approve.WebApi.InAppNotification")]
 [ApiController]
@@ -19,7 +19,7 @@ namespace Click2Approve.WebApi.Controllers;
 [Route("api/v{version:apiVersion}/tenants/{tenantGlobalId:guid}/notifications")]
 [Authorize]
 public class InAppNotificationController(
-    IDomainEventService domainEventService,
+    INotificationService notificationService,
     ITenantContext tenantContext,
     UserManager<AppUser> userManager) : ControllerBase
 {
@@ -28,7 +28,7 @@ public class InAppNotificationController(
     {
         var user = await userManager.GetAppUserAsync(User);
         var tenantId = await tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return Ok(await domainEventService.CountInAppUnreadAsync(user, tenantId, cancellationToken));
+        return Ok(await notificationService.CountInAppUnreadAsync(user, tenantId, cancellationToken));
     }
 
     [HttpGet]
@@ -40,7 +40,7 @@ public class InAppNotificationController(
     {
         var user = await userManager.GetAppUserAsync(User);
         var tenantId = await tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return Ok(InAppNotificationResponseMapper.Map(await domainEventService.ListInAppAsync(
+        return Ok(InAppNotificationResponseMapper.Map(await notificationService.ListInAppAsync(
             user,
             tenantId,
             unreadOnly,
@@ -49,12 +49,12 @@ public class InAppNotificationController(
             cancellationToken)));
     }
 
-    [HttpPost("{deliveryGlobalId:guid}/read")]
-    public async Task<IActionResult> MarkInAppReadAsync(Guid deliveryGlobalId, CancellationToken cancellationToken)
+    [HttpPost("{notificationGlobalId:guid}/read")]
+    public async Task<IActionResult> MarkInAppReadAsync(Guid notificationGlobalId, CancellationToken cancellationToken)
     {
         var user = await userManager.GetAppUserAsync(User);
         var tenantId = await tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        await domainEventService.MarkInAppReadAsync(user, tenantId, deliveryGlobalId, cancellationToken);
+        await notificationService.MarkInAppReadAsync(user, tenantId, notificationGlobalId, cancellationToken);
         return Ok();
     }
 
@@ -63,17 +63,17 @@ public class InAppNotificationController(
         [FromBody] ReadInAppNotificationsRequest payload,
         CancellationToken cancellationToken)
     {
-        if (payload.DeliveryGlobalIds.Count is < 1 or > 100)
+        if (payload.NotificationGlobalIds.Count is < 1 or > 100)
         {
             return BadRequest("Between one and 100 notification deliveries must be selected.");
         }
 
         var user = await userManager.GetAppUserAsync(User);
         var tenantId = await tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        await domainEventService.MarkInAppReadAsync(
+        await notificationService.MarkInAppReadAsync(
             user,
             tenantId,
-            payload.DeliveryGlobalIds,
+            payload.NotificationGlobalIds,
             cancellationToken);
         return Ok();
     }
@@ -83,17 +83,17 @@ public class InAppNotificationController(
         [FromBody] DeleteInAppNotificationsRequest payload,
         CancellationToken cancellationToken)
     {
-        if (payload.DeliveryGlobalIds.Count is < 1 or > 100)
+        if (payload.NotificationGlobalIds.Count is < 1 or > 100)
         {
             return BadRequest("Between one and 100 notification deliveries must be selected.");
         }
 
         var user = await userManager.GetAppUserAsync(User);
         var tenantId = await tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        await domainEventService.DeleteInAppAsync(
+        await notificationService.DeleteInAppAsync(
             user,
             tenantId,
-            payload.DeliveryGlobalIds,
+            payload.NotificationGlobalIds,
             cancellationToken);
         return Ok();
     }
@@ -103,7 +103,7 @@ public class InAppNotificationController(
     {
         var user = await userManager.GetAppUserAsync(User);
         var tenantId = await tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        await domainEventService.MarkAllInAppReadAsync(user, tenantId, cancellationToken);
+        await notificationService.MarkAllInAppReadAsync(user, tenantId, cancellationToken);
         return Ok();
     }
 }

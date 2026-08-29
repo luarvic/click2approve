@@ -1,18 +1,18 @@
 import { stores } from "@/app/rootStore";
 import {
-  DomainEventType,
   deleteNotifications,
   listNotifications,
   markNotificationRead,
   markNotificationsRead,
-  type Notification,
 } from "@/features/notifications/api/notificationsApi";
+import type { Notification } from "@/features/notifications/models/notification";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
+import { NotificationType } from "@/shared/models/notifications";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate, parseUtcDateTime } from "@/shared/utils/dateTime";
 import { Delete, Done } from "@mui/icons-material";
@@ -23,7 +23,7 @@ import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const notificationText = (type: number) =>
-  ["New task", "Request cancelled", "Request reviewed", "New message", "New message"][type] ?? "Notification";
+  ["New task", "Task completed", "Step completed", "Request completed", "New message"][type] ?? "Notification";
 
 const notificationColumnFlex = 15;
 const notificationColumnMinWidth = 150;
@@ -41,12 +41,10 @@ const notificationGridSx: SxProps<Theme> = {
 
 const getPath = (item: Notification) => {
   const isRequestNotification =
-    item.type === DomainEventType.ApprovalRequestCancelled ||
-    item.type === DomainEventType.ApprovalRequestReviewed ||
-    item.type === DomainEventType.DiscussionRequestMessageCreated;
-  const isDiscussionNotification =
-    item.type === DomainEventType.DiscussionRequestMessageCreated ||
-    item.type === DomainEventType.DiscussionTaskMessageCreated;
+    item.type === NotificationType.ApprovalRequestStepCompleted ||
+    item.type === NotificationType.ApprovalRequestCompleted ||
+    item.type === NotificationType.DiscussionMessageCreated;
+  const isDiscussionNotification = item.type === NotificationType.DiscussionMessageCreated;
   const resourcePath = isRequestNotification ? "requests" : "tasks";
   const chatPath = isDiscussionNotification ? "/chat" : "";
   return `/${resourcePath}/${item.entityGlobalId}${chatPath}`;

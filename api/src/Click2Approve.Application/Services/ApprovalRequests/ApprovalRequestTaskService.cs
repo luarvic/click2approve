@@ -64,7 +64,7 @@ public class ApprovalRequestTaskService(
         approvalRequestTask.Comment = payload.Comment;
         await _completionAttributor.AttributeAsync(user, approvalRequestTask, cancellationToken);
 
-        await _workflowService.CompleteAsync(approvalRequestTask, now, cancellationToken);
+        await _workflowService.CompleteTaskAsync(approvalRequestTask, now, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 

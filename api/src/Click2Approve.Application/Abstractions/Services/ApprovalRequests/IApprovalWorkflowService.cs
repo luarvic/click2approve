@@ -13,7 +13,7 @@ public interface IApprovalWorkflowService
         DateTime timestamp,
         CancellationToken cancellationToken);
 
-    Task CompleteAsync(
+    Task CompleteTaskAsync(
         ApprovalRequestTask approvalRequestTask,
         DateTime timestamp,
         CancellationToken cancellationToken);
