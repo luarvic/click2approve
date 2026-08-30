@@ -72,7 +72,9 @@ The Docker Compose setup starts:
 | --- | --- | --- | --- |
 | `ui` | `click2approve-ui-1` | `3333` | React single-page application served by Nginx |
 | `api` | `click2approve-api-1` | `5555` | ASP.NET Core Web API |
+| `dispatcher` | `click2approve-dispatcher-1` | — | Publishes outbox events and delivers queue messages |
 | `db` | `click2approve-db-1` | `1433` | SQL Server database |
+| `azurite` | `click2approve-azurite-1` | `10000` | Azure Storage emulator for files and event queues |
 
 ### Useful Docker Commands
 
@@ -88,7 +90,7 @@ removes the local SQL Server container and its data, including the event outbox 
 ## Local Development
 
 The Docker setup is the fastest way to run the complete application. For code
-changes, you can also run and validate the UI and API directly.
+changes, you can also run and validate the UI, API, and dispatcher directly.
 
 ### API
 

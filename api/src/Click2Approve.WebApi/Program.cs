@@ -46,7 +46,6 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
 });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAzureFileStorageServices(builder.Configuration);
-builder.Services.AddEventQueueServices();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpClient();
 builder.Services.AddIdentityServices(builder.Configuration);

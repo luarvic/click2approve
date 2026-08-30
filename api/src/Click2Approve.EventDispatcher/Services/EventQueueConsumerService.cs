@@ -52,7 +52,7 @@ public sealed class EventQueueConsumerService(
 
                 foreach (var receivedEvent in receivedEvents)
                 {
-                    await HandleAsync(receivedEvent, stoppingToken);
+                    await HandleAsync(receivedEvent, visibilityTimeout, stoppingToken);
                 }
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
@@ -67,8 +67,15 @@ public sealed class EventQueueConsumerService(
         }
     }
 
-    private async Task HandleAsync(ReceivedEvent receivedEvent, CancellationToken stoppingToken)
+    private async Task HandleAsync(
+        ReceivedEvent receivedEvent,
+        TimeSpan visibilityTimeout,
+        CancellationToken stoppingToken)
     {
+        using var visibilityCancellationSource = new CancellationTokenSource(visibilityTimeout);
+        using var processingCancellationSource = CancellationTokenSource.CreateLinkedTokenSource(
+            stoppingToken,
+            visibilityCancellationSource.Token);
         try
         {
             using var scope = _scopeFactory.CreateScope();
@@ -76,12 +83,19 @@ public sealed class EventQueueConsumerService(
                 .GetServices<IEventHandler>()
                 .SingleOrDefault(item => item.EventType == receivedEvent.Envelope.EventType)
                 ?? throw new InvalidOperationException($"No handler is registered for '{receivedEvent.Envelope.EventType}'.");
-            await handler.HandleAsync(receivedEvent.Envelope, stoppingToken);
+            await handler.HandleAsync(receivedEvent.Envelope, processingCancellationSource.Token);
+            if (visibilityCancellationSource.IsCancellationRequested) return;
             await _eventQueue.CompleteAsync(receivedEvent, stoppingToken);
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {
             throw;
+        }
+        catch (OperationCanceledException) when (visibilityCancellationSource.IsCancellationRequested)
+        {
+            _logger.LogWarning(
+                "Stopped processing event {EventId} after its visibility timeout; leaving it for queue redelivery.",
+                receivedEvent.Envelope.EventId);
         }
         catch (Exception exception)
         {
