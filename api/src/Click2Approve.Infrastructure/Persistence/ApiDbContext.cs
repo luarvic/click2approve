@@ -1,5 +1,5 @@
-using System.Security.Claims;
 using System.Text.Json;
+using Click2Approve.Application.Abstractions.Auditing;
 using Click2Approve.Application.Abstractions.Persistence;
 using Click2Approve.Domain.Models;
 using Microsoft.AspNetCore.Identity;
@@ -12,7 +12,7 @@ namespace Click2Approve.Infrastructure.Persistence;
 /// <summary>
 /// Represents an entity framework database context.
 /// </summary>
-public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpContextAccessor)
+public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
     : IdentityDbContext<AppUser, IdentityRole<long>, long>(options), IUnitOfWork
 {
     private static readonly JsonSerializerOptions AuditJsonOptions = new(JsonSerializerDefaults.Web);
@@ -404,6 +404,11 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
     {
         ChangeTracker.DetectChanges();
 
+        if (!auditContext.IsEnabled)
+        {
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
         var pendingAuditLogs = CreatePendingAuditLogs();
         if (pendingAuditLogs.Count == 0)
         {
@@ -452,14 +457,11 @@ public class ApiDbContext(DbContextOptions options, IHttpContextAccessor httpCon
 
     private List<PendingAuditLog> CreatePendingAuditLogs()
     {
-        var userIdClaim = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        long? userId = long.TryParse(userIdClaim, out var parsedUserId) ? parsedUserId : null;
-
         return [.. ChangeTracker
             .Entries()
             .Where(entry => entry.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
             .Where(entry => entry.Entity is DbEntity and not AuditLog)
-            .Select(entry => CreatePendingAuditLog(entry, userId))];
+            .Select(entry => CreatePendingAuditLog(entry, auditContext.UserId))];
     }
 
     private static PendingAuditLog CreatePendingAuditLog(EntityEntry entry, long? userId)

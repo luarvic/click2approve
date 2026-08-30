@@ -1,8 +1,7 @@
-using System.Security.Claims;
 using System.Text.Json;
+using Click2Approve.Application.Abstractions.Auditing;
 using Click2Approve.Domain.Models;
 using Click2Approve.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,17 +22,7 @@ public class AuditLogTests
             .UseSqlite(connection)
             .Options;
         const long userId = 1;
-        var httpContextAccessor = new HttpContextAccessor
-        {
-            HttpContext = new DefaultHttpContext
-            {
-                User = new ClaimsPrincipal(new ClaimsIdentity(
-                    [new Claim(ClaimTypes.NameIdentifier, userId.ToString())],
-                    authenticationType: "Test"))
-            }
-        };
-
-        await using var db = new ApiDbContext(options, httpContextAccessor);
+        await using var db = new ApiDbContext(options, new TestAuditContext(userId));
         await db.Database.EnsureCreatedAsync();
 
         var owner = new AppUser
@@ -89,17 +78,7 @@ public class AuditLogTests
             .UseSqlite(connection)
             .Options;
         const long userId = 2;
-        var httpContextAccessor = new HttpContextAccessor
-        {
-            HttpContext = new DefaultHttpContext
-            {
-                User = new ClaimsPrincipal(new ClaimsIdentity(
-                    [new Claim(ClaimTypes.NameIdentifier, userId.ToString())],
-                    authenticationType: "Test"))
-            }
-        };
-
-        await using var db = new ApiDbContext(options, httpContextAccessor);
+        await using var db = new ApiDbContext(options, new TestAuditContext(userId));
         await db.Database.EnsureCreatedAsync();
 
         var owner = new AppUser
@@ -171,17 +150,7 @@ public class AuditLogTests
             .UseSqlite(connection)
             .Options;
         const long userId = 3;
-        var httpContextAccessor = new HttpContextAccessor
-        {
-            HttpContext = new DefaultHttpContext
-            {
-                User = new ClaimsPrincipal(new ClaimsIdentity(
-                    [new Claim(ClaimTypes.NameIdentifier, userId.ToString())],
-                    authenticationType: "Test"))
-            }
-        };
-
-        await using var db = new ApiDbContext(options, httpContextAccessor);
+        await using var db = new ApiDbContext(options, new TestAuditContext(userId));
         await db.Database.EnsureCreatedAsync();
 
         var owner = new AppUser
@@ -222,5 +191,36 @@ public class AuditLogTests
         Assert.False(changes.RootElement.TryGetProperty(nameof(UserFile.GlobalId), out _));
         Assert.Equal("contract.txt", changes.RootElement.GetProperty(nameof(UserFile.Name)).GetProperty("oldValue").GetString());
         Assert.Equal("updated-contract.txt", changes.RootElement.GetProperty(nameof(UserFile.Name)).GetProperty("newValue").GetString());
+    }
+
+    [Fact]
+    public async Task SaveChangesAsync_WhenAuditingIsDisabled_DoesNotAddAuditLog()
+    {
+        await using var connection = new SqliteConnection("DataSource=:memory:");
+        await connection.OpenAsync();
+
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseSqlite(connection)
+            .Options;
+        await using var db = new ApiDbContext(options, new DisabledAuditContext());
+        await db.Database.EnsureCreatedAsync();
+
+        db.EventOutboxMessages.Add(new EventOutboxMessage
+        {
+            EventId = Guid.NewGuid(),
+            EventType = "test.event.v1",
+            OccurredAt = DateTime.UtcNow,
+            Payload = "{}"
+        });
+        await db.SaveChangesAsync();
+
+        Assert.Empty(await db.AuditLogs.ToListAsync());
+    }
+
+    private sealed class TestAuditContext(long? userId) : IAuditContext
+    {
+        public bool IsEnabled => true;
+
+        public long? UserId => userId;
     }
 }

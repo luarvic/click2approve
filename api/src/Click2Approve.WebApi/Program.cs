@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Asp.Versioning;
+using Click2Approve.Application.Abstractions.Auditing;
 using Click2Approve.Application.Abstractions.Authorization;
 using Click2Approve.Application.Abstractions.Persistence;
 using Click2Approve.Application.Abstractions.Services.ApprovalRequests;
@@ -18,6 +19,7 @@ using Click2Approve.Application.Validation.ApprovalRequests;
 using Click2Approve.Domain.Models;
 using Click2Approve.Infrastructure.Authorization;
 using Click2Approve.Infrastructure.Persistence;
+using Click2Approve.WebApi.Auditing;
 using Click2Approve.WebApi.Extensions;
 using Click2Approve.WebApi.Middlewares;
 using Click2Approve.WebApi.TenantContext;
@@ -55,6 +57,8 @@ builder.Services.AddSwagger();
 
 // Application services
 builder.Services.AddScoped<IAccessPolicy, DefaultAccessPolicy>();
+builder.Services.AddScoped<IAccessScopeProvider, AccessScopeProvider>();
+builder.Services.AddScoped<IAuditContext, HttpAuditContext>();
 builder.Services.AddScoped<IApprovalRequestAssigneeGlobalIdResolver, DefaultApprovalRequestAssigneeGlobalIdResolver>();
 builder.Services.AddScoped<IApprovalRequestCompletionAttributor, ApprovalRequestCompletionAttributor>();
 builder.Services.AddScoped<IApprovalRequestService, ApprovalRequestService>();
@@ -64,6 +68,7 @@ builder.Services.AddScoped<IApprovalWorkflowService, ApprovalWorkflowService>();
 builder.Services.AddScoped<IAssigneeResolver, UserOnlyAssigneeResolver>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ITenantService, TenantService>();
+builder.Services.AddScoped<ITenantContext, RequestTenantContext>();
 builder.Services.AddScoped<IUserFileService, UserFileService>();
 builder.Services.AddScoped<IUserNotificationPreferenceService, UserNotificationPreferenceService>();
 builder.Services.AddScoped<IUserProfileAccessService, DefaultUserProfileAccessService>();
@@ -71,12 +76,10 @@ builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<IValidator<ApprovalRequest>, ApprovalRequestDeletionValidator>();
 
 // Infrastructure services
-builder.Services.AddScoped<IAccessScopeProvider, AccessScopeProvider>();
 builder.Services.AddScoped<IApprovalRequestRepository, ApprovalRequestRepository>();
 builder.Services.AddScoped<IApprovalRequestTaskRepository, ApprovalRequestTaskRepository>();
 builder.Services.AddScoped<IEventOutboxRepository, EventOutboxRepository>();
 builder.Services.AddScoped<IInAppNotificationRepository, InAppNotificationRepository>();
-builder.Services.AddScoped<ITenantContext, RequestTenantContext>();
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 builder.Services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApiDbContext>());
 builder.Services.AddScoped<IUserFileRepository, UserFileRepository>();

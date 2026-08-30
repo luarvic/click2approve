@@ -1,3 +1,4 @@
+using Click2Approve.Application.Abstractions.Auditing;
 using Click2Approve.Application.Abstractions.Events;
 using Click2Approve.Application.Abstractions.Persistence;
 using Click2Approve.Application.Abstractions.Services.Notifications;
@@ -11,13 +12,13 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.AddHttpContextAccessor();
 builder.Services.AddDbContext<ApiDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("Default")));
 builder.Services.AddAzureEmailDeliveryServices(builder.Configuration);
 
 // Application services
 builder.Services.AddScoped<AccountEmailService>();
+builder.Services.AddSingleton<IAuditContext, DisabledAuditContext>();
 builder.Services.AddScoped<IEventHandler, AccountEmailRequestedEventHandler>();
 builder.Services.AddScoped<IEventHandler, NotificationRequestedEventHandler>();
 builder.Services.AddScoped<IUserNotificationPreferenceService, UserNotificationPreferenceService>();

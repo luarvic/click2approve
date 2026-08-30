@@ -1,9 +1,9 @@
 using Click2Approve.Application.Abstractions.Events;
+using Click2Approve.Application.Abstractions.Auditing;
 using Click2Approve.Application.Models.Events;
 using Click2Approve.Domain.Models;
 using Click2Approve.EventPublisher.Services;
 using Click2Approve.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -37,7 +37,7 @@ public sealed class EventQueuePublisherServiceTests
                 })
             .Build();
         var services = new ServiceCollection();
-        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        services.AddSingleton<IAuditContext, DisabledAuditContext>();
         services.AddDbContext<ApiDbContext>(options => options.UseSqlite(connection));
         await using var serviceProvider = services.BuildServiceProvider();
 
