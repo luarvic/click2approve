@@ -33,6 +33,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Click2Approve.Application\Click2Approve.Application.csproj" />
+    <ProjectReference Include="..\..\src\Click2Approve.Domain\Click2Approve.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Click2Approve.EventConsumer\Click2Approve.EventConsumer.csproj" />
+    <ProjectReference Include="..\..\src\Click2Approve.EventPublisher\Click2Approve.EventPublisher.csproj" />
     <ProjectReference Include="..\..\src\Click2Approve.Infrastructure\Click2Approve.Infrastructure.csproj" />
   </ItemGroup>
 

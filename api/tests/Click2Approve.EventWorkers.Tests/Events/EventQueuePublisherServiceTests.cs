@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace Click2Approve.Infrastructure.Tests.Events;
+namespace Click2Approve.EventWorkers.Tests.Events;
 
 /// <summary>
 /// Tests event outbox publication behavior.
