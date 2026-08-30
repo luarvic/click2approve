@@ -18,7 +18,6 @@ public class NotificationService(
     private readonly IEventOutboxRepository _eventOutboxRepository = eventOutboxRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    /// <inheritdoc />
     public async Task SendAsync(IReadOnlyCollection<NotificationCommand> notifications, CancellationToken cancellationToken)
     {
         foreach (var notification in notifications)
@@ -44,11 +43,9 @@ public class NotificationService(
         }
     }
 
-    /// <inheritdoc />
     public Task<long> CountInAppUnreadAsync(AppUser user, long tenantId, CancellationToken cancellationToken) =>
         _inAppNotificationRepository.CountUnreadAsync(user.Id, tenantId, cancellationToken);
 
-    /// <inheritdoc />
     public async Task<List<InAppNotificationResult>> ListInAppAsync(
         AppUser user,
         long tenantId,
@@ -67,7 +64,6 @@ public class NotificationService(
         return [.. notifications.Select(Map)];
     }
 
-    /// <inheritdoc />
     public async Task MarkInAppReadAsync(
         AppUser user,
         long tenantId,
@@ -83,7 +79,6 @@ public class NotificationService(
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task MarkAllInAppReadAsync(AppUser user, long tenantId, CancellationToken cancellationToken)
     {
         var notifications = await _inAppNotificationRepository.ListUnreadForReadAsync(user.Id, tenantId, cancellationToken);
@@ -91,7 +86,6 @@ public class NotificationService(
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task MarkInAppReadAsync(
         AppUser user,
         long tenantId,
@@ -107,7 +101,6 @@ public class NotificationService(
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task DeleteInAppAsync(
         AppUser user,
         long tenantId,

@@ -8,4 +8,4 @@ COPY configure-cors.mjs .
 
 ENTRYPOINT []
 
-CMD ["sh", "-c", "azurite-blob --blobHost 0.0.0.0 --skipApiVersionCheck & node configure-cors.mjs && wait"]
+CMD ["sh", "-c", "azurite-blob --blobHost 0.0.0.0 --skipApiVersionCheck & azurite-queue --queueHost 0.0.0.0 --skipApiVersionCheck & node configure-cors.mjs && wait"]

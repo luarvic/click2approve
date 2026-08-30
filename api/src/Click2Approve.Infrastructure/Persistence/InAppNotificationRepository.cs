@@ -11,23 +11,19 @@ public class InAppNotificationRepository(ApiDbContext db) : IInAppNotificationRe
 {
     private readonly ApiDbContext _db = db;
 
-    /// <inheritdoc />
     public async Task AddAsync(InAppNotification notification, CancellationToken cancellationToken) =>
         await _db.InAppNotifications.AddAsync(notification, cancellationToken);
 
-    /// <inheritdoc />
     public Task<long> CountUnreadAsync(long userId, long tenantId, CancellationToken cancellationToken) =>
         _db.InAppNotifications.LongCountAsync(
             notification => notification.UserId == userId && notification.TenantId == tenantId && notification.ReadAt == null,
             cancellationToken);
 
-    /// <inheritdoc />
     public Task<bool> ExistsAsync(Guid eventId, long userId, CancellationToken cancellationToken) =>
         _db.InAppNotifications.AnyAsync(
             notification => notification.EventId == eventId && notification.UserId == userId,
             cancellationToken);
 
-    /// <inheritdoc />
     public Task<InAppNotification?> GetForReadAsync(
         long userId,
         long tenantId,
@@ -39,7 +35,6 @@ public class InAppNotificationRepository(ApiDbContext db) : IInAppNotificationRe
                             notification.TenantId == tenantId,
             cancellationToken);
 
-    /// <inheritdoc />
     public Task<List<InAppNotification>> ListAsync(
         long userId,
         long tenantId,
@@ -59,7 +54,6 @@ public class InAppNotificationRepository(ApiDbContext db) : IInAppNotificationRe
             .ToListAsync(cancellationToken);
     }
 
-    /// <inheritdoc />
     public Task<List<InAppNotification>> ListForReadAsync(
         long userId,
         long tenantId,
@@ -71,7 +65,6 @@ public class InAppNotificationRepository(ApiDbContext db) : IInAppNotificationRe
                                    notification.TenantId == tenantId)
             .ToListAsync(cancellationToken);
 
-    /// <inheritdoc />
     public Task<List<InAppNotification>> ListUnreadForReadAsync(long userId, long tenantId, CancellationToken cancellationToken) =>
         _db.InAppNotifications
             .Where(notification => notification.UserId == userId &&
@@ -79,7 +72,6 @@ public class InAppNotificationRepository(ApiDbContext db) : IInAppNotificationRe
                                    notification.ReadAt == null)
             .ToListAsync(cancellationToken);
 
-    /// <inheritdoc />
     public void RemoveRange(IReadOnlyCollection<InAppNotification> notifications) =>
         _db.InAppNotifications.RemoveRange(notifications);
 }

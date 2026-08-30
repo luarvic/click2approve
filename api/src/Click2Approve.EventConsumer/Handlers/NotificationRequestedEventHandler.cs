@@ -3,11 +3,11 @@ using Click2Approve.Application.Abstractions.Events;
 using Click2Approve.Application.Abstractions.Services.Notifications;
 using Click2Approve.Application.Models.Events;
 using Click2Approve.Domain.Models;
-using Click2Approve.EventDispatcher.Services;
+using Click2Approve.EventConsumer.Services;
 using Click2Approve.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Click2Approve.EventDispatcher.Handlers;
+namespace Click2Approve.EventConsumer.Handlers;
 
 /// <summary>
 /// Delivers a notification to the in-app inbox and its enabled delivery channels.
@@ -23,10 +23,8 @@ public sealed class NotificationRequestedEventHandler(
     private readonly NotificationEmailService _notificationEmailService = notificationEmailService;
     private readonly NotificationInAppService _notificationInAppService = notificationInAppService;
 
-    /// <inheritdoc />
     public string EventType => EventTypes.NotificationRequestedV1;
 
-    /// <inheritdoc />
     public async Task HandleAsync(EventEnvelope envelope, CancellationToken cancellationToken)
     {
         var payload = JsonSerializer.Deserialize<NotificationEventPayload>(envelope.Payload, EventJson.Options)
@@ -35,20 +33,18 @@ public sealed class NotificationRequestedEventHandler(
         var recipient = await _db.Users.FirstOrDefaultAsync(user => user.Id == payload.UserId, cancellationToken);
         if (recipient is null) return;
 
-        if (await _notificationPreferenceService.IsEnabledAsync(
-                recipient,
-                payload.Type,
-                NotificationChannel.InApp,
-                cancellationToken))
+        var preferences = await _notificationPreferenceService.ListAsync(recipient, cancellationToken);
+        var isInAppEnabled = preferences.Single(preference =>
+            preference.Type == payload.Type && preference.Channel == NotificationChannel.InApp).IsEnabled;
+        var isEmailEnabled = preferences.Single(preference =>
+            preference.Type == payload.Type && preference.Channel == NotificationChannel.Email).IsEnabled;
+
+        if (isInAppEnabled)
         {
             await _notificationInAppService.SendAsync(envelope, payload, cancellationToken);
         }
 
-        if (await _notificationPreferenceService.IsEnabledAsync(
-                recipient,
-                payload.Type,
-                NotificationChannel.Email,
-                cancellationToken))
+        if (isEmailEnabled)
         {
             await _notificationEmailService.SendAsync(recipient, payload, cancellationToken);
         }

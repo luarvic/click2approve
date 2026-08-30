@@ -10,7 +10,6 @@ public class EventOutboxRepository(ApiDbContext db) : IEventOutboxRepository
 {
     private readonly ApiDbContext _db = db;
 
-    /// <inheritdoc />
     public async Task AddAsync(EventOutboxMessage message, CancellationToken cancellationToken) =>
         await _db.Set<EventOutboxMessage>().AddAsync(message, cancellationToken);
 }

@@ -2,7 +2,7 @@ using Click2Approve.Application.Abstractions.Persistence;
 using Click2Approve.Application.Models.Events;
 using Click2Approve.Domain.Models;
 
-namespace Click2Approve.EventDispatcher.Services;
+namespace Click2Approve.EventConsumer.Services;
 
 /// <summary>
 /// Creates durable in-app notifications for selected recipients.

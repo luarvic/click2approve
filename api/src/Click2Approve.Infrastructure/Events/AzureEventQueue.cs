@@ -15,7 +15,6 @@ public sealed class AzureEventQueue(IConfiguration configuration) : IEventQueue
     private readonly Lazy<Task<QueueClient>> _queue = new(() => CreateAsync(configuration));
     private readonly Lazy<Task<QueueClient>> _poisonQueue = new(() => CreateAsync(configuration, "PoisonName"));
 
-    /// <inheritdoc />
     public async Task EnqueueAsync(EventEnvelope envelope, CancellationToken cancellationToken)
     {
         var queue = await _queue.Value.WaitAsync(cancellationToken);
@@ -24,7 +23,6 @@ public sealed class AzureEventQueue(IConfiguration configuration) : IEventQueue
             cancellationToken: cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task<IReadOnlyCollection<ReceivedEvent>> ReceiveAsync(
         int maximumCount,
         TimeSpan visibilityTimeout,
@@ -35,14 +33,12 @@ public sealed class AzureEventQueue(IConfiguration configuration) : IEventQueue
         return [.. response.Value.Select(Map)];
     }
 
-    /// <inheritdoc />
     public async Task CompleteAsync(ReceivedEvent receivedEvent, CancellationToken cancellationToken)
     {
         var queue = await _queue.Value.WaitAsync(cancellationToken);
         await queue.DeleteMessageAsync(receivedEvent.MessageId, receivedEvent.PopReceipt, cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task RetryAsync(ReceivedEvent receivedEvent, TimeSpan delay, CancellationToken cancellationToken)
     {
         var queue = await _queue.Value.WaitAsync(cancellationToken);
@@ -53,7 +49,6 @@ public sealed class AzureEventQueue(IConfiguration configuration) : IEventQueue
             cancellationToken: cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task MoveToPoisonAsync(ReceivedEvent receivedEvent, string error, CancellationToken cancellationToken)
     {
         var poisonQueue = await _poisonQueue.Value.WaitAsync(cancellationToken);

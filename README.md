@@ -72,9 +72,10 @@ The Docker Compose setup starts:
 | --- | --- | --- | --- |
 | `ui` | `click2approve-ui-1` | `3333` | React single-page application served by Nginx |
 | `api` | `click2approve-api-1` | `5555` | ASP.NET Core Web API |
-| `dispatcher` | `click2approve-dispatcher-1` | — | Publishes outbox events and delivers queue messages |
+| `event-publisher` | `click2approve-event-publisher-1` | — | Publishes committed outbox events to the queue |
+| `event-consumer` | `click2approve-event-consumer-1` | — | Delivers queue messages, including notifications |
 | `db` | `click2approve-db-1` | `1433` | SQL Server database |
-| `azurite` | `click2approve-azurite-1` | `10000` | Azure Storage emulator for files and event queues |
+| `azurite` | `click2approve-azurite-1` | `10000`, `10001` | Azure Storage emulator for files and event queues |
 
 ### Useful Docker Commands
 
@@ -90,7 +91,7 @@ removes the local SQL Server container and its data, including the event outbox 
 ## Local Development
 
 The Docker setup is the fastest way to run the complete application. For code
-changes, you can also run and validate the UI, API, and dispatcher directly.
+changes, you can also run and validate the UI, API, event publisher, and event consumer directly.
 
 ### API
 
@@ -120,11 +121,13 @@ Then run the Web API project:
 dotnet run --project api/src/Click2Approve.WebApi/Click2Approve.WebApi.csproj
 ```
 
-Run the event dispatcher in a second terminal. It publishes committed outbox
-messages and processes Azure Queue deliveries, including email and in-app notifications:
+Run the event publisher and event consumer in separate terminals. The publisher
+publishes committed outbox messages; the consumer processes Azure Queue deliveries,
+including email and in-app notifications:
 
 ```bash
-dotnet run --project api/src/Click2Approve.EventDispatcher/Click2Approve.EventDispatcher.csproj
+dotnet run --project api/src/Click2Approve.EventPublisher/Click2Approve.EventPublisher.csproj
+dotnet run --project api/src/Click2Approve.EventConsumer/Click2Approve.EventConsumer.csproj
 ```
 
 The development profile listens on
@@ -173,10 +176,12 @@ using the sample credentials in `docker-compose.yaml`. At minimum, review:
 
 ## Architecture
 
-The application consists of three containerized services:
+The application consists of five containerized services:
 
 - Client-side UI: React TypeScript 18.2.
 - Server-side API: ASP.NET Core 10.
+- Event publisher: ASP.NET Core worker that publishes committed outbox messages.
+- Event consumer: ASP.NET Core worker that processes queued event deliveries.
 - Relational database: SQL Server, with Azure SQL Database supported for managed hosting.
 
 ### Client-Side UI

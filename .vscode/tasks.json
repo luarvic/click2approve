@@ -2,103 +2,93 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "format-webapi",
+      "label": "format-api",
       "type": "shell",
       "command": "dotnet",
-      "args": [
-        "format",
-        "api/Click2Approve.Api.sln",
-        "--diagnostics",
-        "IDE0005",
-        "IDE0001",
-        "IDE0002"
-      ],
-      "problemMatcher": [
-        "$msCompile"
-      ]
+      "args": ["format", "api/Click2Approve.Api.sln", "--diagnostics", "IDE0005", "IDE0001", "IDE0002"],
+      "problemMatcher": ["$msCompile"]
+    },
+    {
+      "label": "build-api",
+      "type": "shell",
+      "command": "dotnet",
+      "args": ["build", "api/Click2Approve.Api.sln"],
+      "problemMatcher": ["$msCompile"],
+      "group": "build"
+    },
+    {
+      "label": "test-api",
+      "type": "shell",
+      "command": "dotnet",
+      "args": ["test", "api/Click2Approve.Api.sln"],
+      "problemMatcher": ["$msCompile"],
+      "group": "test"
+    },
+    {
+      "label": "run-api",
+      "dependsOn": ["run-event-publisher", "run-event-consumer"]
     },
     {
       "label": "format-ui",
       "type": "shell",
       "command": "npx prettier --write --print-width 120 --tab-width 2 \"**/*.{ts,tsx}\"",
-      "options": {
-        "cwd": "${workspaceFolder}/ui"
-      },
+      "options": {"cwd": "${workspaceFolder}/ui"},
       "problemMatcher": []
     },
     {
-      "label": "build-webapi",
+      "label": "test-ui",
       "type": "shell",
-      "command": "dotnet",
-      "args": [
-        "build",
-        "api/src/Click2Approve.WebApi/Click2Approve.WebApi.csproj"
-      ],
-      "problemMatcher": [
-        "$msCompile"
-      ],
-      "group": "build"
-    },
-    {
-      "label": "test-webapi",
-      "type": "shell",
-      "command": "dotnet",
-      "args": [
-        "test",
-        "api/tests/Click2Approve.WebApi.Tests/Click2Approve.WebApi.Tests.csproj"
-      ],
-      "problemMatcher": [
-        "$msCompile"
-      ],
-      "group": "test"
-    },
-    {
-      "label": "run-webapi",
-      "type": "shell",
-      "command": "dotnet",
-      "args": [
-        "run",
-        "--project",
-        "api/src/Click2Approve.WebApi/Click2Approve.WebApi.csproj"
-      ],
-      "options": {
-        "env": {
-          "ASPNETCORE_ENVIRONMENT": "Development"
-        }
-      },
-      "isBackground": true,
-      "problemMatcher": [
-        "$msCompile"
-      ],
+      "command": "npm",
+      "args": ["test", "--", "--run"],
+      "options": {"cwd": "${workspaceFolder}/ui"},
       "group": "test"
     },
     {
       "label": "run-ui",
       "type": "shell",
       "command": "npm",
-      "args": [
-        "run",
-        "dev"
-      ],
-      "options": {
-        "cwd": "${workspaceFolder}/ui"
-      },
-      "isBackground": true,
-      "group": "test"
+      "args": ["run", "dev"],
+      "options": {"cwd": "${workspaceFolder}/ui"},
+      "isBackground": true
     },
     {
-      "label": "test-ui",
+      "label": "run-webapi",
+      "hide": true,
       "type": "shell",
-      "command": "npm",
-      "args": [
-        "test",
-        "--",
-        "--run"
-      ],
-      "options": {
-        "cwd": "${workspaceFolder}/ui"
-      },
-      "group": "test"
+      "command": "dotnet",
+      "args": ["run", "--project", "api/src/Click2Approve.WebApi/Click2Approve.WebApi.csproj"],
+      "options": {"env": {"ASPNETCORE_ENVIRONMENT": "Development"}},
+      "isBackground": true,
+      "problemMatcher": {
+        "base": "$msCompile",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*",
+          "endsPattern": "Now listening on:"
+        }
+      }
+    },
+    {
+      "label": "run-event-publisher",
+      "hide": true,
+      "dependsOn": "run-webapi",
+      "type": "shell",
+      "command": "dotnet",
+      "args": ["run", "--project", "api/src/Click2Approve.EventPublisher/Click2Approve.EventPublisher.csproj"],
+      "options": {"env": {"DOTNET_ENVIRONMENT": "Development"}},
+      "isBackground": true,
+      "problemMatcher": ["$msCompile"]
+    },
+    {
+      "label": "run-event-consumer",
+      "hide": true,
+      "dependsOn": "run-webapi",
+      "type": "shell",
+      "command": "dotnet",
+      "args": ["run", "--project", "api/src/Click2Approve.EventConsumer/Click2Approve.EventConsumer.csproj"],
+      "options": {"env": {"DOTNET_ENVIRONMENT": "Development"}},
+      "isBackground": true,
+      "problemMatcher": ["$msCompile"]
     }
   ]
 }

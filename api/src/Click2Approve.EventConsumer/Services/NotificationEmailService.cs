@@ -7,7 +7,7 @@ using Click2Approve.Domain.Models;
 using Click2Approve.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Click2Approve.EventDispatcher.Services;
+namespace Click2Approve.EventConsumer.Services;
 
 /// <summary>
 /// Renders and sends notification email after applying the recipient's current preferences.

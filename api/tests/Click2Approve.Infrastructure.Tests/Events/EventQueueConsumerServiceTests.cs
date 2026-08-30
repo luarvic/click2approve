@@ -1,6 +1,6 @@
 using Click2Approve.Application.Abstractions.Events;
 using Click2Approve.Application.Models.Events;
-using Click2Approve.EventDispatcher.Services;
+using Click2Approve.EventConsumer.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -23,7 +23,6 @@ public sealed class EventQueueConsumerServiceTests
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["EventQueue:Consumer:BatchSize"] = "1",
                     ["EventQueue:Consumer:IdleDelaySeconds"] = "1",
                     ["EventQueue:Consumer:MaximumAttempts"] = "5",
                     ["EventQueue:Consumer:MaximumRetryDelaySeconds"] = "300",
@@ -47,6 +46,7 @@ public sealed class EventQueueConsumerServiceTests
         await consumer.StopAsync(CancellationToken.None);
 
         Assert.Equal(0, queue.CompletionCount);
+        Assert.Equal(1, queue.MaximumRequestedMessageCount);
         Assert.Equal(0, queue.PoisonCount);
         Assert.Equal(0, queue.RetryCount);
     }
@@ -86,6 +86,7 @@ public sealed class EventQueueConsumerServiceTests
         private int _receiveCount;
 
         public int CompletionCount { get; private set; }
+        public int MaximumRequestedMessageCount { get; private set; }
         public int PoisonCount { get; private set; }
         public int RetryCount { get; private set; }
 
@@ -106,9 +107,12 @@ public sealed class EventQueueConsumerServiceTests
         public Task<IReadOnlyCollection<ReceivedEvent>> ReceiveAsync(
             int maximumCount,
             TimeSpan visibilityTimeout,
-            CancellationToken cancellationToken) =>
-            Task.FromResult<IReadOnlyCollection<ReceivedEvent>>(
+            CancellationToken cancellationToken)
+        {
+            MaximumRequestedMessageCount = Math.Max(MaximumRequestedMessageCount, maximumCount);
+            return Task.FromResult<IReadOnlyCollection<ReceivedEvent>>(
                 Interlocked.Increment(ref _receiveCount) == 1 ? [_receivedEvent] : []);
+        }
 
         public Task RetryAsync(ReceivedEvent receivedEvent, TimeSpan delay, CancellationToken cancellationToken)
         {

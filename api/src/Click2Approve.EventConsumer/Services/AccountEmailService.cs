@@ -4,7 +4,7 @@ using Click2Approve.Application.Helpers;
 using Click2Approve.Application.Models.Emails;
 using Click2Approve.Application.Models.Events;
 
-namespace Click2Approve.EventDispatcher.Services;
+namespace Click2Approve.EventConsumer.Services;
 
 /// <summary>
 /// Composes and sends account lifecycle emails.

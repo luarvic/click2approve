@@ -1,7 +1,7 @@
 using Click2Approve.Application.Abstractions.Events;
 using Click2Approve.Application.Models.Events;
 
-namespace Click2Approve.EventDispatcher.Services;
+namespace Click2Approve.EventConsumer.Services;
 
 /// <summary>
 /// Runs the configured number of Azure Queue event consumers.
@@ -12,26 +12,20 @@ public sealed class EventQueueConsumerService(
     IConfiguration configuration,
     ILogger<EventQueueConsumerService> logger) : BackgroundService
 {
-    private const int MaximumMessagesPerReceive = 32;
-
     private readonly IEventQueue _eventQueue = eventQueue;
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
     private readonly IConfiguration _configuration = configuration;
     private readonly ILogger<EventQueueConsumerService> _logger = logger;
 
-    /// <inheritdoc />
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var batchSize = Math.Clamp(
-            _configuration.GetValue<int>("EventQueue:Consumer:BatchSize"), 1, MaximumMessagesPerReceive);
         var workerCount = Math.Max(1, _configuration.GetValue<int>("EventQueue:Consumer:WorkerCount"));
         var idleDelay = TimeSpan.FromSeconds(Math.Max(1, _configuration.GetValue<int>("EventQueue:Consumer:IdleDelaySeconds")));
         var visibilityTimeout = TimeSpan.FromSeconds(Math.Max(1, _configuration.GetValue<int>("EventQueue:Consumer:VisibilityTimeoutSeconds")));
-        return Task.WhenAll(Enumerable.Range(0, workerCount).Select(_ => ConsumeAsync(batchSize, idleDelay, visibilityTimeout, stoppingToken)));
+        return Task.WhenAll(Enumerable.Range(0, workerCount).Select(_ => ConsumeAsync(idleDelay, visibilityTimeout, stoppingToken)));
     }
 
     private async Task ConsumeAsync(
-        int batchSize,
         TimeSpan idleDelay,
         TimeSpan visibilityTimeout,
         CancellationToken stoppingToken)
@@ -41,7 +35,9 @@ public sealed class EventQueueConsumerService(
             try
             {
                 var receivedEvents = await _eventQueue.ReceiveAsync(
-                    maximumCount: batchSize,
+                    // Azure starts each received message's visibility timeout immediately, but this worker handles messages serially.
+                    // Raising maximumCount requires concurrent batch processing to prevent later messages from being redelivered.
+                    maximumCount: 1,
                     visibilityTimeout: visibilityTimeout,
                     cancellationToken: stoppingToken);
                 if (receivedEvents.Count == 0)

@@ -2,8 +2,8 @@ using Click2Approve.Application.Abstractions.Events;
 using Click2Approve.Application.Abstractions.Persistence;
 using Click2Approve.Application.Abstractions.Services.Notifications;
 using Click2Approve.Application.Services.Notifications;
-using Click2Approve.EventDispatcher.Handlers;
-using Click2Approve.EventDispatcher.Services;
+using Click2Approve.EventConsumer.Handlers;
+using Click2Approve.EventConsumer.Services;
 using Click2Approve.Infrastructure.Events;
 using Click2Approve.Infrastructure.Extensions;
 using Click2Approve.Infrastructure.Persistence;
@@ -32,6 +32,5 @@ builder.Services.AddScoped<IUserNotificationPreferenceRepository, UserNotificati
 
 // Worker services
 builder.Services.AddHostedService<EventQueueConsumerService>();
-builder.Services.AddHostedService<EventQueuePublisherService>();
 
 await builder.Build().RunAsync();

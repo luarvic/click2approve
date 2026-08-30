@@ -1,7 +1,7 @@
 namespace Click2Approve.Application.Models.Events;
 
 /// <summary>
-/// Represents an account email that the dispatcher must compose and send.
+/// Represents an account email that the event consumer must compose and send.
 /// </summary>
 public sealed record AccountEmailRequestedPayload(
     AccountEmailType Type,
