@@ -63,7 +63,7 @@ public class ApprovalRequestService(
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task DeleteAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    public virtual async Task DeleteAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
         var approvalRequest = await _approvalRequestRepository.GetForUpdateAsync(user, globalId, cancellationToken)
             ?? throw new NotFoundException("Approval request was not found.");
