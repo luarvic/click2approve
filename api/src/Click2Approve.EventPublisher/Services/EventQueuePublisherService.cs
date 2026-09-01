@@ -12,11 +12,13 @@ namespace Click2Approve.EventPublisher.Services;
 /// </summary>
 public sealed class EventQueuePublisherService(
     IEventQueue eventQueue,
+    IEventPriorityResolver eventPriorityResolver,
     IServiceScopeFactory scopeFactory,
     IConfiguration configuration,
     ILogger<EventQueuePublisherService> logger) : BackgroundService
 {
     private readonly IEventQueue _eventQueue = eventQueue;
+    private readonly IEventPriorityResolver _eventPriorityResolver = eventPriorityResolver;
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
     private readonly IConfiguration _configuration = configuration;
     private readonly ILogger<EventQueuePublisherService> _logger = logger;
@@ -53,6 +55,7 @@ public sealed class EventQueuePublisherService(
                         try
                         {
                             await _eventQueue.EnqueueAsync(
+                                _eventPriorityResolver.Resolve(message.EventType),
                                 new EventEnvelope(message.EventId, message.EventType, message.OccurredAt, message.Payload),
                                 cancellationToken);
                             publishedMessages.Enqueue(message);

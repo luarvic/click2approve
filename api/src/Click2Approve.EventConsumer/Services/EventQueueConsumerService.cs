@@ -19,13 +19,16 @@ public sealed class EventQueueConsumerService(
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var workerCount = Math.Max(1, _configuration.GetValue<int>("EventQueue:Consumer:WorkerCount"));
         var idleDelay = TimeSpan.FromSeconds(Math.Max(1, _configuration.GetValue<int>("EventQueue:Consumer:IdleDelaySeconds")));
         var visibilityTimeout = TimeSpan.FromSeconds(Math.Max(1, _configuration.GetValue<int>("EventQueue:Consumer:VisibilityTimeoutSeconds")));
-        return Task.WhenAll(Enumerable.Range(0, workerCount).Select(_ => ConsumeAsync(idleDelay, visibilityTimeout, stoppingToken)));
+        return Task.WhenAll(Enum.GetValues<EventPriority>().SelectMany(priority => Enumerable.Range(
+            0,
+            Math.Max(0, _configuration.GetValue<int>($"EventQueue:Consumer:Workers:{priority}")))
+            .Select(_ => ConsumeAsync(priority, idleDelay, visibilityTimeout, stoppingToken))));
     }
 
     private async Task ConsumeAsync(
+        EventPriority priority,
         TimeSpan idleDelay,
         TimeSpan visibilityTimeout,
         CancellationToken stoppingToken)
@@ -35,6 +38,7 @@ public sealed class EventQueueConsumerService(
             try
             {
                 var receivedEvents = await _eventQueue.ReceiveAsync(
+                    priority,
                     // Azure starts each received message's visibility timeout immediately, but this worker handles messages serially.
                     // Raising maximumCount requires concurrent batch processing to prevent later messages from being redelivered.
                     maximumCount: 1,

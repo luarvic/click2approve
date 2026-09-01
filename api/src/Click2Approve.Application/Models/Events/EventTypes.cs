@@ -14,4 +14,9 @@ public static class EventTypes
     /// Identifies a rendered account or security email that must be sent.
     /// </summary>
     public const string AccountEmailRequestedV1 = "account-email.requested.v1";
+
+    /// <summary>
+    /// Identifies a request to permanently remove a scheduled domain object.
+    /// </summary>
+    public const string DeletionRequestedV1 = "deletion.requested.v1";
 }

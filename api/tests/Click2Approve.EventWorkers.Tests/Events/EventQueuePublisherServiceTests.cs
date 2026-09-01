@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Click2Approve.Application.Abstractions.Events;
 using Click2Approve.Application.Abstractions.Auditing;
 using Click2Approve.Application.Models.Events;
@@ -44,6 +45,7 @@ public sealed class EventQueuePublisherServiceTests
         await SeedMessagesAsync(serviceProvider);
         var publisher = new EventQueuePublisherService(
             queue,
+            new TestEventPriorityResolver(),
             serviceProvider.GetRequiredService<IServiceScopeFactory>(),
             configuration,
             NullLogger<EventQueuePublisherService>.Instance);
@@ -55,6 +57,7 @@ public sealed class EventQueuePublisherServiceTests
             await WaitForPublishedMessagesAsync(serviceProvider, expectedMessageCount: 4);
 
             Assert.Equal(2, queue.MaximumConcurrentPublishes);
+            Assert.All(queue.Priorities, priority => Assert.Equal(EventPriority.Medium, priority));
         }
         finally
         {
@@ -100,13 +103,15 @@ public sealed class EventQueuePublisherServiceTests
         private int _publishedCount;
 
         public TaskCompletionSource Published { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public ConcurrentBag<EventPriority> Priorities { get; } = [];
 
         public int MaximumConcurrentPublishes => _maximumConcurrentPublishes;
 
         public Task CompleteAsync(ReceivedEvent receivedEvent, CancellationToken cancellationToken) => Task.CompletedTask;
 
-        public async Task EnqueueAsync(EventEnvelope envelope, CancellationToken cancellationToken)
+        public async Task EnqueueAsync(EventPriority priority, EventEnvelope envelope, CancellationToken cancellationToken)
         {
+            Priorities.Add(priority);
             var activePublishes = Interlocked.Increment(ref _activePublishes);
             UpdateMaximum(activePublishes);
             await Task.Delay(TimeSpan.FromMilliseconds(50), cancellationToken);
@@ -118,6 +123,7 @@ public sealed class EventQueuePublisherServiceTests
             Task.CompletedTask;
 
         public Task<IReadOnlyCollection<ReceivedEvent>> ReceiveAsync(
+            EventPriority priority,
             int maximumCount,
             TimeSpan visibilityTimeout,
             CancellationToken cancellationToken) => Task.FromResult<IReadOnlyCollection<ReceivedEvent>>([]);
@@ -136,5 +142,10 @@ public sealed class EventQueuePublisherServiceTests
                         maximumConcurrentPublishes) == maximumConcurrentPublishes) return;
             }
         }
+    }
+
+    private sealed class TestEventPriorityResolver : IEventPriorityResolver
+    {
+        public EventPriority Resolve(string eventType) => EventPriority.Medium;
     }
 }

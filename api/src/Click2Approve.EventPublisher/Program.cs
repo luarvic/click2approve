@@ -15,6 +15,7 @@ builder.Services.AddSingleton<IAuditContext, DisabledAuditContext>();
 
 // Infrastructure services
 builder.Services.AddSingleton<IEventQueue, AzureEventQueue>();
+builder.Services.AddSingleton<IEventPriorityResolver, ConfigurationEventPriorityResolver>();
 
 // Worker services
 builder.Services.AddHostedService<EventQueuePublisherService>();

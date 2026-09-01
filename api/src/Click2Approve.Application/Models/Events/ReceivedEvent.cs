@@ -5,6 +5,7 @@ namespace Click2Approve.Application.Models.Events;
 /// </summary>
 public sealed record ReceivedEvent(
     EventEnvelope Envelope,
+    EventPriority Priority,
     string MessageId,
     string PopReceipt,
     int DequeueCount);

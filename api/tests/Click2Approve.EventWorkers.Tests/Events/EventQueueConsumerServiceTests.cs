@@ -27,7 +27,7 @@ public sealed class EventQueueConsumerServiceTests
                     ["EventQueue:Consumer:MaximumAttempts"] = "5",
                     ["EventQueue:Consumer:MaximumRetryDelaySeconds"] = "300",
                     ["EventQueue:Consumer:VisibilityTimeoutSeconds"] = "1",
-                    ["EventQueue:Consumer:WorkerCount"] = "1"
+                    ["EventQueue:Consumer:Workers:High"] = "1"
                 })
             .Build();
         var services = new ServiceCollection();
@@ -80,6 +80,7 @@ public sealed class EventQueueConsumerServiceTests
     {
         private readonly ReceivedEvent _receivedEvent = new(
             new EventEnvelope(Guid.NewGuid(), "test.event.v1", DateTime.UtcNow, "{}"),
+            EventPriority.High,
             "message-id",
             "initial-pop-receipt",
             1);
@@ -96,7 +97,7 @@ public sealed class EventQueueConsumerServiceTests
             return Task.CompletedTask;
         }
 
-        public Task EnqueueAsync(EventEnvelope envelope, CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task EnqueueAsync(EventPriority priority, EventEnvelope envelope, CancellationToken cancellationToken) => Task.CompletedTask;
 
         public Task MoveToPoisonAsync(ReceivedEvent receivedEvent, string error, CancellationToken cancellationToken)
         {
@@ -105,6 +106,7 @@ public sealed class EventQueueConsumerServiceTests
         }
 
         public Task<IReadOnlyCollection<ReceivedEvent>> ReceiveAsync(
+            EventPriority priority,
             int maximumCount,
             TimeSpan visibilityTimeout,
             CancellationToken cancellationToken)

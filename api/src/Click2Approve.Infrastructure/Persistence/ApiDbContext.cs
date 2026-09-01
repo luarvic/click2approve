@@ -123,6 +123,9 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
         modelBuilder.Entity<Tenant>()
             .HasIndex(t => t.BusinessName);
 
+        modelBuilder.Entity<Tenant>()
+            .HasIndex(t => new { t.ScheduledForDeletionAt, t.DeletionPublishedAt });
+
         modelBuilder.Entity<ApprovalRequest>()
             .Property(r => r.Status)
             .HasConversion<int>();
@@ -333,6 +336,9 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
 
         modelBuilder.Entity<UserFile>()
             .HasIndex(f => new { f.TenantId, f.OwnerId });
+
+        modelBuilder.Entity<UserFile>()
+            .HasIndex(f => new { f.ScheduledForDeletionAt, f.DeletionPublishedAt });
 
         modelBuilder.Entity<UserFile>()
             .Property(file => file.StorageType)

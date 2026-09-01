@@ -7,8 +7,9 @@ namespace Click2Approve.Application.Abstractions.Events;
 /// </summary>
 public interface IEventQueue
 {
-    Task EnqueueAsync(EventEnvelope envelope, CancellationToken cancellationToken);
+    Task EnqueueAsync(EventPriority priority, EventEnvelope envelope, CancellationToken cancellationToken);
     Task<IReadOnlyCollection<ReceivedEvent>> ReceiveAsync(
+        EventPriority priority,
         int maximumCount,
         TimeSpan visibilityTimeout,
         CancellationToken cancellationToken);
