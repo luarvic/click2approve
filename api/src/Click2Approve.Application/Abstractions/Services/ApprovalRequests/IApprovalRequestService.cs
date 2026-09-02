@@ -1,5 +1,4 @@
 using Click2Approve.Domain.Models;
-using Click2Approve.Application.Models.Commands.ApprovalRequests;
 
 namespace Click2Approve.Application.Abstractions.Services.ApprovalRequests;
 

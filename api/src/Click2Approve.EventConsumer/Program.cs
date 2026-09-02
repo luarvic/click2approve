@@ -7,8 +7,8 @@ using Click2Approve.Application.Services.Notifications;
 using Click2Approve.EventConsumer.Handlers;
 using Click2Approve.EventConsumer.Services;
 using Click2Approve.Infrastructure.Events;
-using Click2Approve.Infrastructure.FileStorage;
 using Click2Approve.Infrastructure.Extensions;
+using Click2Approve.Infrastructure.FileStorage;
 using Click2Approve.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 

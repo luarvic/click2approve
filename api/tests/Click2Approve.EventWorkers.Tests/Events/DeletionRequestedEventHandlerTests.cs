@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Click2Approve.Application.Abstractions.Auditing;
 using Click2Approve.Application.Abstractions.FileStorage;
 using Click2Approve.Application.Models.Events;
 using Click2Approve.Domain.Models;

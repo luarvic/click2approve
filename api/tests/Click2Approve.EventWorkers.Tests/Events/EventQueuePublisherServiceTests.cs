@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
-using Click2Approve.Application.Abstractions.Events;
 using Click2Approve.Application.Abstractions.Auditing;
+using Click2Approve.Application.Abstractions.Events;
 using Click2Approve.Application.Models.Events;
 using Click2Approve.Domain.Models;
 using Click2Approve.EventPublisher.Services;

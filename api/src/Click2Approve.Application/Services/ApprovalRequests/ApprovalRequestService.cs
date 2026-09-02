@@ -1,5 +1,4 @@
 using Click2Approve.Application.Extensions;
-using Click2Approve.Application.Models.Commands.ApprovalRequests;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 using FluentValidation;
