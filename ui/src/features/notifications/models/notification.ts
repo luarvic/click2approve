@@ -8,3 +8,10 @@ export interface Notification {
   summary: string;
   readAt?: string;
 }
+
+export const notificationTypes = Object.values(NotificationType).filter(
+  (type): type is NotificationType => typeof type === "number",
+);
+
+export const getNotificationTypeLabel = (type: NotificationType) =>
+  ["New task", "Task completed", "Step completed", "Request completed", "New message"][type] ?? "Notification";

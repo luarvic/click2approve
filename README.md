@@ -36,6 +36,8 @@ decisions and discussion, and tracking request history.
   and email notification preferences.
 - Notify requesters and assignees by email when email delivery is enabled,
   including account, task, cancellation, deletion, and review notifications.
+- Review in-app notifications with Received-date sorting, pagination, and filters for notification type, read status,
+  details, and Received date range.
 
 ## Demo
 

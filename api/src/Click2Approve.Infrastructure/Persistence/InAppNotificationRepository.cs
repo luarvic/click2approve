@@ -1,4 +1,6 @@
 using Click2Approve.Application.Abstractions.Persistence;
+using Click2Approve.Application.Models.Commands.Notifications;
+using Click2Approve.Application.Models.Results.Grids;
 using Click2Approve.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,23 +37,53 @@ public class InAppNotificationRepository(ApiDbContext db) : IInAppNotificationRe
                             notification.TenantId == tenantId,
             cancellationToken);
 
-    public Task<List<InAppNotification>> ListAsync(
+    public async Task<GridPageResult<InAppNotification>> ListAsync(
         long userId,
         long tenantId,
-        bool unreadOnly,
-        int skip,
-        int take,
+        InAppNotificationListQueryCommand query,
         CancellationToken cancellationToken)
     {
         var notifications = _db.InAppNotifications.AsNoTracking()
             .Where(notification => notification.UserId == userId && notification.TenantId == tenantId);
-        if (unreadOnly) notifications = notifications.Where(notification => notification.ReadAt == null);
-        return notifications
-            .OrderByDescending(notification => notification.OccurredAt)
-            .ThenByDescending(notification => notification.Id)
-            .Skip(skip)
-            .Take(take)
+        if (query.Type.Count > 0) notifications = notifications.Where(notification => query.Type.Contains(notification.Type));
+        if (query.Status.Count == 1)
+        {
+            notifications = query.Status[0] == InAppNotificationReadStatus.Read
+                ? notifications.Where(notification => notification.ReadAt != null)
+                : notifications.Where(notification => notification.ReadAt == null);
+        }
+        if (!string.IsNullOrWhiteSpace(query.Details))
+        {
+            notifications = notifications.Where(notification => notification.Summary.Contains(query.Details));
+        }
+        if (query.ReceivedFrom.HasValue)
+        {
+            var receivedFromUtc = DateTime.SpecifyKind(
+                query.ReceivedFrom.Value.ToDateTime(TimeOnly.MinValue),
+                DateTimeKind.Utc);
+            notifications = notifications.Where(notification => notification.OccurredAt >= receivedFromUtc);
+        }
+        if (query.ReceivedTo.HasValue)
+        {
+            var exclusiveReceivedToUtc = DateTime.SpecifyKind(
+                query.ReceivedTo.Value.AddDays(1).ToDateTime(TimeOnly.MinValue),
+                DateTimeKind.Utc);
+            notifications = notifications.Where(notification => notification.OccurredAt < exclusiveReceivedToUtc);
+        }
+
+        var totalCount = await notifications.CountAsync(cancellationToken);
+        var ordered = query.SortDirection switch
+        {
+            InAppNotificationListSortDirection.Asc => notifications.OrderBy(notification => notification.OccurredAt)
+                .ThenBy(notification => notification.GlobalId),
+            _ => notifications.OrderByDescending(notification => notification.OccurredAt)
+                .ThenBy(notification => notification.GlobalId)
+        };
+        var items = await ordered
+            .Skip(query.Page * query.PageSize)
+            .Take(query.PageSize)
             .ToListAsync(cancellationToken);
+        return new GridPageResult<InAppNotification> { Items = items, TotalCount = totalCount };
     }
 
     public Task<List<InAppNotification>> ListForReadAsync(

@@ -1,17 +1,25 @@
 import type { Notification } from "@/features/notifications/models/notification";
+import {
+  serializeNotificationGridQuery,
+  type NotificationGridQuery,
+} from "@/features/notifications/models/notificationGridQuery";
 import { ApiPaths } from "@/shared/api/apiPaths";
 import axios from "@/shared/api/axios";
+import type { GridPage } from "@/shared/grids/gridPage";
 
 const config = { useWorkEmployeeContext: true };
 export const countUnreadNotifications = async (tenantId: string) =>
   (await axios.get<number>(ApiPaths.tenants.unreadNotificationCount(tenantId), config)).data;
 
-export const listNotifications = async (tenantId: string, unreadOnly = true, take = 50) =>
+export const listNotifications = async (
+  tenantId: string,
+  query: NotificationGridQuery,
+): Promise<GridPage<Notification>> =>
   (
-    await axios.get<Notification[]>(ApiPaths.tenants.notifications(tenantId), {
-      ...config,
-      params: { unreadOnly, take },
-    })
+    await axios.get<GridPage<Notification>>(
+      `${ApiPaths.tenants.notifications(tenantId)}?${serializeNotificationGridQuery(query)}`,
+      config,
+    )
   ).data;
 
 export const markNotificationRead = async (tenantId: string, deliveryId: string) =>

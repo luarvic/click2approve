@@ -10,12 +10,10 @@ public interface INotificationService
 {
     Task SendAsync(IReadOnlyCollection<NotificationCommand> notifications, CancellationToken cancellationToken);
     Task<long> CountInAppUnreadAsync(AppUser user, long tenantId, CancellationToken cancellationToken);
-    Task<List<InAppNotificationResult>> ListInAppAsync(
+    Task<GridPageResult<InAppNotificationResult>> ListInAppAsync(
         AppUser user,
         long tenantId,
-        bool unreadOnly,
-        int skip,
-        int take,
+        InAppNotificationListQueryCommand query,
         CancellationToken cancellationToken);
     Task MarkInAppReadAsync(AppUser user, long tenantId, Guid notificationGlobalId, CancellationToken cancellationToken);
     Task MarkInAppReadAsync(

@@ -4,6 +4,8 @@ using Click2Approve.Application.Abstractions.TenantContext;
 using Click2Approve.Domain.Models;
 using Click2Approve.WebApi.Extensions;
 using Click2Approve.WebApi.Mappers.Notifications;
+using Click2Approve.WebApi.Mappers.Grids;
+using Click2Approve.WebApi.Models.Responses.Grids;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -32,21 +34,18 @@ public class InAppNotificationController(
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<InAppNotificationResponse>>> ListInAppAsync(
-        [FromQuery] bool unreadOnly = true,
-        [FromQuery] int skip = 0,
-        [FromQuery] int take = 50,
-        CancellationToken cancellationToken = default)
+    public async Task<ActionResult<GridPageResponse<InAppNotificationResponse>>> ListInAppAsync(
+        [FromQuery] InAppNotificationListQueryRequest query,
+        CancellationToken cancellationToken)
     {
         var user = await userManager.GetAppUserAsync(User);
         var tenantId = await tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return Ok(InAppNotificationResponseMapper.Map(await notificationService.ListInAppAsync(
+        var page = await notificationService.ListInAppAsync(
             user,
             tenantId,
-            unreadOnly,
-            Math.Max(skip, 0),
-            Math.Clamp(take, 1, 100),
-            cancellationToken)));
+            InAppNotificationListQueryContractMapper.Map(query),
+            cancellationToken);
+        return Ok(GridPageResponseMapper.Map(page, InAppNotificationResponseMapper.Map));
     }
 
     [HttpPost("{notificationGlobalId:guid}/read")]

@@ -46,22 +46,18 @@ public class NotificationService(
     public Task<long> CountInAppUnreadAsync(AppUser user, long tenantId, CancellationToken cancellationToken) =>
         _inAppNotificationRepository.CountUnreadAsync(user.Id, tenantId, cancellationToken);
 
-    public async Task<List<InAppNotificationResult>> ListInAppAsync(
+    public async Task<GridPageResult<InAppNotificationResult>> ListInAppAsync(
         AppUser user,
         long tenantId,
-        bool unreadOnly,
-        int skip,
-        int take,
+        InAppNotificationListQueryCommand query,
         CancellationToken cancellationToken)
     {
-        var notifications = await _inAppNotificationRepository.ListAsync(
-            user.Id,
-            tenantId,
-            unreadOnly,
-            skip,
-            take,
-            cancellationToken);
-        return [.. notifications.Select(Map)];
+        var page = await _inAppNotificationRepository.ListAsync(user.Id, tenantId, query, cancellationToken);
+        return new GridPageResult<InAppNotificationResult>
+        {
+            Items = [.. page.Items.Select(Map)],
+            TotalCount = page.TotalCount
+        };
     }
 
     public async Task MarkInAppReadAsync(

@@ -1,3 +1,4 @@
+using Click2Approve.Application.Models.Commands.Notifications;
 using Click2Approve.Domain.Models;
 
 namespace Click2Approve.Application.Abstractions.Persistence;
@@ -11,12 +12,10 @@ public interface IInAppNotificationRepository
     Task<long> CountUnreadAsync(long userId, long tenantId, CancellationToken cancellationToken);
     Task<bool> ExistsAsync(Guid eventId, long userId, CancellationToken cancellationToken);
     Task<InAppNotification?> GetForReadAsync(long userId, long tenantId, Guid globalId, CancellationToken cancellationToken);
-    Task<List<InAppNotification>> ListAsync(
+    Task<GridPageResult<InAppNotification>> ListAsync(
         long userId,
         long tenantId,
-        bool unreadOnly,
-        int skip,
-        int take,
+        InAppNotificationListQueryCommand query,
         CancellationToken cancellationToken);
     Task<List<InAppNotification>> ListForReadAsync(
         long userId,
