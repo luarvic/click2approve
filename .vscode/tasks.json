@@ -26,7 +26,7 @@
     },
     {
       "label": "run-api",
-      "dependsOn": ["run-event-publisher", "run-event-consumer"]
+      "dependsOn": ["run-webapi", "run-event-publisher", "run-event-consumer"]
     },
     {
       "label": "format-ui",
@@ -53,7 +53,6 @@
     },
     {
       "label": "run-webapi",
-      "hide": true,
       "type": "shell",
       "command": "dotnet",
       "args": ["run", "--project", "api/src/Click2Approve.WebApi/Click2Approve.WebApi.csproj"],
@@ -70,8 +69,6 @@
     },
     {
       "label": "run-event-publisher",
-      "hide": true,
-      "dependsOn": "run-webapi",
       "type": "shell",
       "command": "dotnet",
       "args": ["run", "--project", "api/src/Click2Approve.EventPublisher/Click2Approve.EventPublisher.csproj"],
@@ -81,8 +78,6 @@
     },
     {
       "label": "run-event-consumer",
-      "hide": true,
-      "dependsOn": "run-webapi",
       "type": "shell",
       "command": "dotnet",
       "args": ["run", "--project", "api/src/Click2Approve.EventConsumer/Click2Approve.EventConsumer.csproj"],
