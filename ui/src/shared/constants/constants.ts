@@ -2,7 +2,7 @@ import type { PopoverOrigin, SxProps } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import passwordValidator from "password-validator";
 import type { CSSProperties } from "react";
-export { Api, Discussions, Notifications, Refresh } from "@/shared/config/application";
+export { Api, Discussions, Filters, Notifications, Refresh } from "@/shared/config/application";
 export { Routes } from "@/shared/routing/routes";
 
 const appBarHeight = 64;

@@ -1,7 +1,11 @@
 import type { SnackbarOrigin } from "@mui/material";
 
 const refreshSecondsDefault = 30;
+const filterTextInputDebounceMsDefault = 500;
 const gridRefreshSeconds = Number(import.meta.env.VITE_GRID_REFRESH_SECONDS ?? String(refreshSecondsDefault));
+const filterTextInputDebounceMs = Number(
+  import.meta.env.VITE_FILTER_TEXT_INPUT_DEBOUNCE_MS ?? String(filterTextInputDebounceMsDefault),
+);
 const uncompletedTasksRefreshSeconds = Number(
   import.meta.env.VITE_UNCOMPLETED_TASKS_REFRESH_SECONDS ?? String(refreshSecondsDefault),
 );
@@ -17,6 +21,8 @@ const showPersistenceSuccessNotifications = import.meta.env.VITE_SHOW_PERSISTENC
 
 const toRefreshSeconds = (value: number): number =>
   Number.isFinite(value) && value >= 0 ? value : refreshSecondsDefault;
+const toDelayMs = (value: number): number =>
+  Number.isFinite(value) && value >= 0 ? Math.floor(value) : filterTextInputDebounceMsDefault;
 
 export const Api = {
   baseUri: import.meta.env.VITE_API_BASE_URI,
@@ -48,6 +54,10 @@ export const Discussions = {
     Number.isFinite(discussionNotificationLimit) && discussionNotificationLimit > 0
       ? Math.floor(discussionNotificationLimit)
       : 10,
+} as const;
+
+export const Filters = {
+  textInputDebounceMs: toDelayMs(filterTextInputDebounceMs),
 } as const;
 
 export const Notifications = {

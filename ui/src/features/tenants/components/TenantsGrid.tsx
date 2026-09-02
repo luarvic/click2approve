@@ -46,11 +46,14 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
     {
       field: "businessName",
       headerName: "Name",
+      sortable: true,
       ...DataGrids.tenantsColumnSizing.businessName,
     },
     {
       field: "currentEmployeeRole",
       headerName: "Role",
+      sortable: false,
+      disableColumnMenu: true,
       ...DataGrids.tenantsColumnSizing.currentEmployeeRole,
       valueFormatter: (value) => roleLabels[value as EmployeeRole],
     },
@@ -72,6 +75,7 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
         onPaginationModelChange={setPaginationModel}
         pageSizeOptions={DataGrids.pageSizeOptions}
         disableColumnFilter
+        disableColumnSelector
         disableRowSelectionOnClick
         slots={{
           loadingOverlay: NoLoadingOverlay,

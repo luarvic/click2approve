@@ -74,6 +74,7 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({ currentDelegationGlob
     {
       field: "delegatorEmployeeGlobalId",
       headerName: "Employee",
+      sortable: true,
       ...DataGrids.delegationsColumnSizing.employee,
       valueGetter: (value) => getEmployeeName(value as string),
       renderCell: (params) => renderEmployee(params.row.delegatorEmployeeGlobalId),
@@ -81,6 +82,7 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({ currentDelegationGlob
     {
       field: "delegateEmployeeGlobalId",
       headerName: "Delegate",
+      sortable: true,
       ...DataGrids.delegationsColumnSizing.delegate,
       valueGetter: (value) => getEmployeeName(value as string),
       renderCell: (params) => renderEmployee(params.row.delegateEmployeeGlobalId),
@@ -102,6 +104,7 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({ currentDelegationGlob
         onPaginationModelChange={setPaginationModel}
         pageSizeOptions={DataGrids.pageSizeOptions}
         disableColumnFilter
+        disableColumnSelector
         disableRowSelectionOnClick
         slots={{
           loadingOverlay: NoLoadingOverlay,

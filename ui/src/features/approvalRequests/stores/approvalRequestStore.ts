@@ -25,9 +25,7 @@ export class ApprovalRequestStore {
   }
 
   get approvalRequests(): ApprovalRequestListItem[] {
-    return Array.from(this.registry.values()).sort(
-      (a, b) => Date.parse(b.createdAt.toString()) - Date.parse(a.createdAt.toString()),
-    );
+    return Array.from(this.registry.values()).sort((a, b) => b.createdAtDate.getTime() - a.createdAtDate.getTime());
   }
 
   getDetail = (globalId: string): ApprovalRequest | null => this.details.get(globalId) ?? null;

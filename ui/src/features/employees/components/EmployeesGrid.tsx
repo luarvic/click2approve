@@ -76,32 +76,39 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
     {
       field: "email",
       headerName: "Email",
+      sortable: true,
       ...DataGrids.tenantUsersColumnSizing.email,
     },
     {
       field: "firstName",
       headerName: "First name",
+      sortable: true,
       ...DataGrids.tenantUsersColumnSizing.firstName,
     },
     {
       field: "lastName",
       headerName: "Last name",
+      sortable: true,
       ...DataGrids.tenantUsersColumnSizing.lastName,
     },
     {
       field: "position",
       headerName: "Position",
+      sortable: true,
       ...DataGrids.tenantUsersColumnSizing.position,
     },
     {
       field: "role",
       headerName: "Role",
+      sortable: true,
       ...DataGrids.tenantUsersColumnSizing.role,
       valueFormatter: (value) => (value === undefined ? "" : roleLabels[value as EmployeeRole]),
     },
     {
       field: "status",
       headerName: "Status",
+      sortable: false,
+      disableColumnMenu: true,
       ...DataGrids.tenantUsersColumnSizing.status,
       renderCell: (params) => {
         const status = params.row.status as EmployeeStatus;
@@ -138,6 +145,7 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
         onPaginationModelChange={setPaginationModel}
         pageSizeOptions={DataGrids.pageSizeOptions}
         disableColumnFilter
+        disableColumnSelector
         disableRowSelectionOnClick
         slots={{
           loadingOverlay: NoLoadingOverlay,

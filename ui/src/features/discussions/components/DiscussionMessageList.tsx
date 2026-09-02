@@ -8,6 +8,7 @@ import { downloadDiscussionMessageFile } from "@/features/userFiles/utils/downlo
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
 import TimelineTimestamp from "@/shared/components/timeline/TimelineTimestamp";
 import { StackSpacing } from "@/shared/constants/constants";
+import { parseUtcDateTime } from "@/shared/utils/dateTime";
 import { Box, Divider, Stack, Typography } from "@mui/material";
 import { alpha, type SxProps, type Theme } from "@mui/material/styles";
 import { Fragment } from "react";
@@ -98,7 +99,7 @@ const DiscussionMessageList: React.FC<DiscussionMessageListProps> = ({
               onRemoveNew={() => undefined}
             />
           )}
-          <TimelineTimestamp color="text.secondary" date={new Date(message.createdAt)} />
+          <TimelineTimestamp color="text.secondary" date={parseUtcDateTime(message.createdAt)} />
         </Stack>
       </Box>
     );

@@ -42,6 +42,8 @@ import "@fontsource/sora/400.css";
 import "@fontsource/sora/500.css";
 import "@fontsource/sora/600.css";
 import { CssBaseline, ThemeProvider } from "@mui/material";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -65,99 +67,104 @@ const App = () => {
     stores.applicationConfigurationStore.applicationConfiguration === null ? (
     <LoadingOverlay />
   ) : (
-    <ThemeProvider theme={stores.userPreferencesStore.theme}>
-      <CssBaseline>
-        <BrowserRouter
-          basename="app"
-          future={{
-            v7_relativeSplatPath: true,
-            v7_startTransition: true,
-          }}
-        >
-          <Routes>
-            <Route path="/receipt-verification/:linkGlobalId" element={<PublicReceiptPage />} />
-            <Route element={<PublicLayout />}>
-              <Route element={<WrapperLayout />}>
-                <Route element={<AnonymousRoute />}>
-                  <Route path="/signIn" element={<SignInPage />} />
-                  <Route path="/signUp" element={<SignUpPage />} />
-                  <Route path="/forgotPassword" element={<ForgotPasswordPage />} />
-                  <Route path="/resendConfirmationEmail" element={<ResendConfirmationEmailPage />} />
-                  <Route path="/resetPassword" element={<ResetPasswordPage />} />
-                </Route>
-                <Route path="/confirmEmail" element={<ConfirmEmailPage />} />
-                <Route path="/information" element={<InformationPage />} />
-              </Route>
-            </Route>
-            <Route element={<RouteGuard />}>
-              <Route element={<MainLayout />}>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <ThemeProvider theme={stores.userPreferencesStore.theme}>
+        <CssBaseline>
+          <BrowserRouter
+            basename="app"
+            future={{
+              v7_relativeSplatPath: true,
+              v7_startTransition: true,
+            }}
+          >
+            <Routes>
+              <Route path="/receipt-verification/:linkGlobalId" element={<PublicReceiptPage />} />
+              <Route element={<PublicLayout />}>
                 <Route element={<WrapperLayout />}>
-                  <Route path="/userProfile" element={<UserProfilePage />} />
-                  <Route element={<RouteGuard isAllowed={stores.applicationConfigurationStore.tenantsAreEnabled} />}>
-                    <Route path="/tenants" element={<TenantsPage />} />
-                    <Route path="/tenants/new" element={<TenantEditorPage />} />
-                    <Route path="/tenants/:tenantGlobalId" element={<TenantEditorPage />} />
+                  <Route element={<AnonymousRoute />}>
+                    <Route path="/signIn" element={<SignInPage />} />
+                    <Route path="/signUp" element={<SignUpPage />} />
+                    <Route path="/forgotPassword" element={<ForgotPasswordPage />} />
+                    <Route path="/resendConfirmationEmail" element={<ResendConfirmationEmailPage />} />
+                    <Route path="/resetPassword" element={<ResetPasswordPage />} />
                   </Route>
+                  <Route path="/confirmEmail" element={<ConfirmEmailPage />} />
+                  <Route path="/information" element={<InformationPage />} />
                 </Route>
-                <Route index element={<TenantHomeRedirect />} />
-                <Route path="/tenants/:tenantGlobalId" element={<TenantScopeLayout />}>
+              </Route>
+              <Route element={<RouteGuard />}>
+                <Route element={<MainLayout />}>
                   <Route element={<WrapperLayout />}>
-                    <Route path="tasks" element={<TasksPage />} />
-                    <Route path="notifications" element={<NotificationsPage />} />
-                    <Route path="tasks/:taskGlobalId" element={<ApprovalRequestTaskPage />} />
-                    <Route path="tasks/:taskGlobalId/workflow" element={<ApprovalRequestTaskPage tab="request" />} />
-                    <Route path="tasks/:taskGlobalId/chat" element={<ApprovalRequestTaskPage tab="chat" />} />
-                    <Route path="requests" element={<RequestsPage />} />
-                    <Route path="receipts" element={<ReceiptsPage />} />
-                    <Route path="receipts/:receiptGlobalId" element={<ReceiptPage />} />
-                    <Route path="receipts/:receiptGlobalId/share" element={<ReceiptPage tab="share" />} />
-                    <Route path="requests/new" element={<ApprovalRequestStartPage />} />
-                    <Route path="requests/new/compose" element={<ApprovalRequestSubmitPage />} />
-                    <Route path="requests/:approvalRequestGlobalId/resubmit" element={<ApprovalRequestSubmitPage />} />
-                    <Route path="requests/:approvalRequestGlobalId" element={<ApprovalRequestViewPage />} />
-                    <Route
-                      path="requests/:approvalRequestGlobalId/chat"
-                      element={<ApprovalRequestViewPage tab="chat" />}
-                    />
-                    <Route element={<RouteGuard isAllowed={capabilities.canViewTemplates} />}>
-                      <Route path="approvalStepTemplates" element={<ApprovalStepTemplatesPage />} />
+                    <Route path="/userProfile" element={<UserProfilePage />} />
+                    <Route element={<RouteGuard isAllowed={stores.applicationConfigurationStore.tenantsAreEnabled} />}>
+                      <Route path="/tenants" element={<TenantsPage />} />
+                      <Route path="/tenants/new" element={<TenantEditorPage />} />
+                      <Route path="/tenants/:tenantGlobalId" element={<TenantEditorPage />} />
                     </Route>
-                    <Route element={<RouteGuard isAllowed={capabilities.canViewTeams} />}>
-                      <Route path="teams" element={<TeamsPage />} />
-                      <Route path="teams/:teamGlobalId" element={<TeamEditorPage />} />
+                  </Route>
+                  <Route index element={<TenantHomeRedirect />} />
+                  <Route path="/tenants/:tenantGlobalId" element={<TenantScopeLayout />}>
+                    <Route element={<WrapperLayout />}>
+                      <Route path="tasks" element={<TasksPage />} />
+                      <Route path="notifications" element={<NotificationsPage />} />
+                      <Route path="tasks/:taskGlobalId" element={<ApprovalRequestTaskPage />} />
+                      <Route path="tasks/:taskGlobalId/workflow" element={<ApprovalRequestTaskPage tab="request" />} />
+                      <Route path="tasks/:taskGlobalId/chat" element={<ApprovalRequestTaskPage tab="chat" />} />
+                      <Route path="requests" element={<RequestsPage />} />
+                      <Route path="receipts" element={<ReceiptsPage />} />
+                      <Route path="receipts/:receiptGlobalId" element={<ReceiptPage />} />
+                      <Route path="receipts/:receiptGlobalId/share" element={<ReceiptPage tab="share" />} />
+                      <Route path="requests/new" element={<ApprovalRequestStartPage />} />
+                      <Route path="requests/new/compose" element={<ApprovalRequestSubmitPage />} />
+                      <Route
+                        path="requests/:approvalRequestGlobalId/resubmit"
+                        element={<ApprovalRequestSubmitPage />}
+                      />
+                      <Route path="requests/:approvalRequestGlobalId" element={<ApprovalRequestViewPage />} />
+                      <Route
+                        path="requests/:approvalRequestGlobalId/chat"
+                        element={<ApprovalRequestViewPage tab="chat" />}
+                      />
+                      <Route element={<RouteGuard isAllowed={capabilities.canViewTemplates} />}>
+                        <Route path="approvalStepTemplates" element={<ApprovalStepTemplatesPage />} />
+                      </Route>
+                      <Route element={<RouteGuard isAllowed={capabilities.canViewTeams} />}>
+                        <Route path="teams" element={<TeamsPage />} />
+                        <Route path="teams/:teamGlobalId" element={<TeamEditorPage />} />
+                      </Route>
+                      <Route element={<RouteGuard isAllowed={capabilities.canManageTeams} />}>
+                        <Route path="teams/new" element={<TeamEditorPage />} />
+                      </Route>
+                      <Route element={<RouteGuard isAllowed={capabilities.canViewEmployees} />}>
+                        <Route path="employees" element={<EmployeesPage />} />
+                        <Route path="employees/:employeeGlobalId" element={<EmployeeEditorPage />} />
+                      </Route>
+                      <Route element={<RouteGuard isAllowed={capabilities.canManageEmployees} />}>
+                        <Route path="employees/new" element={<EmployeeEditorPage />} />
+                      </Route>
+                      <Route element={<RouteGuard isAllowed={capabilities.canViewDelegations} />}>
+                        <Route path="delegations" element={<DelegationsPage />} />
+                        <Route path="delegations/:delegationGlobalId" element={<DelegationEditorPage />} />
+                      </Route>
+                      <Route element={<RouteGuard isAllowed={capabilities.canManageDelegations} />}>
+                        <Route path="delegations/new" element={<DelegationEditorPage />} />
+                      </Route>
+                      <Route path="approvalStepTemplates/new" element={<ApprovalStepTemplateEditorPage />} />
+                      <Route
+                        path="approvalStepTemplates/:templateGlobalId"
+                        element={<ApprovalStepTemplateEditorPage />}
+                      />
                     </Route>
-                    <Route element={<RouteGuard isAllowed={capabilities.canManageTeams} />}>
-                      <Route path="teams/new" element={<TeamEditorPage />} />
-                    </Route>
-                    <Route element={<RouteGuard isAllowed={capabilities.canViewEmployees} />}>
-                      <Route path="employees" element={<EmployeesPage />} />
-                      <Route path="employees/:employeeGlobalId" element={<EmployeeEditorPage />} />
-                    </Route>
-                    <Route element={<RouteGuard isAllowed={capabilities.canManageEmployees} />}>
-                      <Route path="employees/new" element={<EmployeeEditorPage />} />
-                    </Route>
-                    <Route element={<RouteGuard isAllowed={capabilities.canViewDelegations} />}>
-                      <Route path="delegations" element={<DelegationsPage />} />
-                      <Route path="delegations/:delegationGlobalId" element={<DelegationEditorPage />} />
-                    </Route>
-                    <Route element={<RouteGuard isAllowed={capabilities.canManageDelegations} />}>
-                      <Route path="delegations/new" element={<DelegationEditorPage />} />
-                    </Route>
-                    <Route path="approvalStepTemplates/new" element={<ApprovalStepTemplateEditorPage />} />
-                    <Route
-                      path="approvalStepTemplates/:templateGlobalId"
-                      element={<ApprovalStepTemplateEditorPage />}
-                    />
                   </Route>
                 </Route>
               </Route>
-            </Route>
-            <Route path="*" element={<NotFoundRoute />} />
-          </Routes>
-        </BrowserRouter>
-        <Notifications />
-      </CssBaseline>
-    </ThemeProvider>
+              <Route path="*" element={<NotFoundRoute />} />
+            </Routes>
+          </BrowserRouter>
+          <Notifications />
+        </CssBaseline>
+      </ThemeProvider>
+    </LocalizationProvider>
   );
 };
 

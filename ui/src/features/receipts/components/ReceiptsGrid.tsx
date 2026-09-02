@@ -50,6 +50,8 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
     {
       field: "globalId",
       headerName: "Number",
+      sortable: false,
+      disableColumnMenu: true,
       width: DataGrids.approvalNumberColumnWidth,
       renderCell: (params) => (
         <ApprovalRequestNumberText color="text.primary" globalId={params.row.globalId} includeHash={false} />
@@ -59,6 +61,8 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
     {
       field: "approvalRequestTitle",
       headerName: "Title",
+      sortable: false,
+      disableColumnMenu: true,
       flex: DataGrids.approvalColumnFlex.content,
       renderCell: (params) => (
         <Stack sx={DataGrids.approvalTitleCellSx}>
@@ -70,6 +74,8 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
     {
       field: "revisionNumber",
       headerName: "Revision",
+      sortable: false,
+      disableColumnMenu: true,
       align: "center",
       headerAlign: "center",
       width: DataGrids.approvalRevisionColumnWidth,
@@ -77,6 +83,8 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
     {
       field: "approvalRequestStatus",
       headerName: "Status",
+      sortable: false,
+      disableColumnMenu: true,
       flex: DataGrids.approvalColumnFlex.metadata,
       renderCell: (params) => (
         <ApprovalRequestStatusLineLabel
@@ -89,6 +97,7 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
     {
       field: "createdAt",
       headerName: "Created",
+      sortable: true,
       flex: DataGrids.approvalColumnFlex.metadata,
       valueFormatter: (value) => getHumanReadableRelativeDate(value),
     },
@@ -115,6 +124,7 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
         }}
         pageSizeOptions={DataGrids.pageSizeOptions}
         disableColumnFilter
+        disableColumnSelector
         disableRowSelectionOnClick
         slots={{
           loadingOverlay: NoLoadingOverlay,

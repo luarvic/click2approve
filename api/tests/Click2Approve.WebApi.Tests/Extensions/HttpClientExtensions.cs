@@ -2,7 +2,7 @@ using System.Net.Http.Json;
 using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
-
+using Click2Approve.WebApi.Models.Responses.Grids;
 using Click2Approve.WebApi.Tests.Helpers;
 using Click2Approve.WebApi.Tests.Models;
 
@@ -282,7 +282,7 @@ public static class HttpClientExtensions
         CancellationToken cancellationToken)
     {
         var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
-        return await httpClient.SendAsync<List<ApprovalRequestListItemResponse>>(HttpMethod.Get,
+        var page = await httpClient.SendAsync<GridPageResponse<ApprovalRequestListItemResponse>>(HttpMethod.Get,
             $"api/v1/tenants/{tenantId}/requests",
             new Dictionary<string, string> {
                 {"Authorization", $"Bearer {accessToken}"}
@@ -290,6 +290,7 @@ public static class HttpClientExtensions
             null,
             null,
             cancellationToken);
+        return page.Items;
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 using Click2Approve.Domain.Models;
+using Click2Approve.Application.Models.Commands.ApprovalRequests;
 
 namespace Click2Approve.Application.Abstractions.Services.ApprovalRequests;
 
@@ -10,6 +11,9 @@ public interface IApprovalRequestService
     Task<Guid> SubmitAsync(AppUser user, SubmitApprovalRequestCommand payload, CancellationToken cancellationToken);
     Task CancelAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task DeleteAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
-    Task<List<ApprovalRequestListItemResult>> ListAsync(AppUser user, CancellationToken cancellationToken);
+    Task<GridPageResult<ApprovalRequestListItemResult>> ListAsync(
+        AppUser user,
+        ApprovalRequestListQueryCommand query,
+        CancellationToken cancellationToken);
     Task<ApprovalRequestDetailsResult> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
 }

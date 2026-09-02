@@ -123,7 +123,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var approvalRequestListResponse = await client.GetAsync($"api/v1/tenants/{requesterTenantId}/requests");
         Assert.True(approvalRequestListResponse.IsSuccessStatusCode, await approvalRequestListResponse.Content.ReadAsStringAsync());
         using var approvalRequestListDocument = JsonDocument.Parse(await approvalRequestListResponse.Content.ReadAsStringAsync());
-        var approvalRequestListItem = approvalRequestListDocument.RootElement[0];
+        var approvalRequestListItem = approvalRequestListDocument.RootElement.GetProperty("items")[0];
         Assert.False(approvalRequestListItem.TryGetProperty("completedAt", out _));
         Assert.False(approvalRequestListItem.TryGetProperty("createdByEmail", out _));
         Assert.False(approvalRequestListItem.TryGetProperty("organizationDisplayName", out _));

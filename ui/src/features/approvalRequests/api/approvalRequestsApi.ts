@@ -4,11 +4,17 @@ import {
   ResubmitApprovalRequestRequest,
   SubmitApprovalRequestRequest,
 } from "@/features/approvalRequests/models/approvalRequest";
+import {
+  ApprovalRequestGridQuery,
+  defaultApprovalRequestGridQuery,
+  serializeApprovalRequestGridQuery,
+} from "@/features/approvalRequests/models/approvalRequestGridQuery";
 import { ApprovalRequestListItem } from "@/features/approvalRequests/models/approvalRequestListItem";
 import { normalizeApprovalRequestDates } from "@/features/approvalRequests/utils/approvalRequestDateNormalizers";
 import { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
-import axios from "@/shared/api/axios";
 import { ApiPaths } from "@/shared/api/apiPaths";
+import axios from "@/shared/api/axios";
+import type { GridPage } from "@/shared/grids/gridPage";
 import { getApiErrorNotification, isResourceNotFoundOrForbiddenError } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
 
@@ -83,18 +89,27 @@ export const deleteApprovalRequest = async (tenantGlobalId: string, globalId: st
   }
 };
 
-export const listApprovalRequests = async (tenantGlobalId: string): Promise<ApprovalRequestListItem[]> => {
+export const listApprovalRequestGrid = async (
+  tenantGlobalId: string,
+  query: ApprovalRequestGridQuery,
+): Promise<GridPage<ApprovalRequestListItem>> => {
   try {
-    const { data } = await axios.get<ApprovalRequestListItem[]>(ApiPaths.tenants.requests(tenantGlobalId), {
-      useWorkEmployeeContext: true,
-    });
-    data.forEach(normalizeApprovalRequestDates);
+    const { data } = await axios.get<GridPage<ApprovalRequestListItem>>(
+      `${ApiPaths.tenants.requests(tenantGlobalId)}?${serializeApprovalRequestGridQuery(query)}`,
+      {
+        useWorkEmployeeContext: true,
+      },
+    );
+    data.items.forEach(normalizeApprovalRequestDates);
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
-    return [];
+    return { items: [], totalCount: 0 };
   }
 };
+
+export const listApprovalRequests = async (tenantGlobalId: string): Promise<ApprovalRequestListItem[]> =>
+  (await listApprovalRequestGrid(tenantGlobalId, { ...defaultApprovalRequestGridQuery, pageSize: 100 })).items;
 
 export const getApprovalRequest = async (tenantGlobalId: string, globalId: string): Promise<ApprovalRequest | null> => {
   try {

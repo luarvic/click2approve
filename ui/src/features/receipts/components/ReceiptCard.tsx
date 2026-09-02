@@ -12,6 +12,7 @@ import type { PublicReceipt } from "@/features/receipts/models/publicReceipt";
 import { ReceiptParticipantRole, type Receipt } from "@/features/receipts/models/receipt";
 import type { StatusLineColor } from "@/shared/components/status/StatusLines";
 import { StackSpacing } from "@/shared/constants/constants";
+import { getLocaleDateTimeWithSecondsString } from "@/shared/utils/dateTime";
 import { Box, Stack, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
@@ -111,16 +112,6 @@ const printSectionSx: SxProps<Theme> = {
   },
 };
 
-const formatDateTime = (date: Date | undefined): string | undefined =>
-  date?.toLocaleString(undefined, {
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    month: "2-digit",
-    second: "2-digit",
-    year: "numeric",
-  });
-
 const formatBytes = (size: number): string => `${new Intl.NumberFormat().format(size)} bytes`;
 
 const formatSha256 = (hashValue: string): string => hashValue.match(/.{1,8}/g)?.join(" ") ?? hashValue;
@@ -150,13 +141,13 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({ footerContent, headerContent,
   );
   const requestFields = [
     ["Request ID", receipt.approvalRequestGlobalId],
-    ["Date", formatDateTime(receipt.approvalRequestCreatedAt)],
+    ["Date", getLocaleDateTimeWithSecondsString(receipt.approvalRequestCreatedAt)],
     ["Organization", receipt.organizationDisplayName || receipt.tenantDisplayName],
     ["Title", receipt.approvalRequestTitle],
     ["Revision", String(receipt.revisionNumber)],
     ["Description", receipt.approvalRequestDescription],
     ["Submitted by", receipt.createdByDisplayName],
-    ["Completed at", formatDateTime(getRequestCompletedAt(receipt))],
+    ["Completed at", getLocaleDateTimeWithSecondsString(getRequestCompletedAt(receipt))],
     ["Completed by", receipt.approvalRequestCompletedByDisplayName],
     ["Status", getApprovalRequestStatusLabel(receipt.approvalRequestStatus, receipt.approvalRequestResult)],
   ];
@@ -185,7 +176,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({ footerContent, headerContent,
                 Date:
               </Typography>
               <Typography component="span" sx={fieldValueSx}>
-                {formatDateTime(receipt.createdAt)}
+                {getLocaleDateTimeWithSecondsString(receipt.createdAt)}
               </Typography>
             </Box>
           </Stack>
@@ -243,12 +234,12 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({ footerContent, headerContent,
                 <Typography sx={sectionHeadingSx}>Task</Typography>
                 {[
                   ["Task ID", task.taskGlobalId],
-                  ["Date", formatDateTime(task.assignedAt)],
+                  ["Date", getLocaleDateTimeWithSecondsString(task.assignedAt)],
                   ["Organization", task.isAssigneeEmployee ? task.organizationDisplayName : undefined],
                   ["Action", task.action],
                   ["Instructions", task.instructions],
                   ["Assigned to", task.displayName],
-                  ["Completed at", formatDateTime(task.completedAt)],
+                  ["Completed at", getLocaleDateTimeWithSecondsString(task.completedAt)],
                   ["Completed by", task.completedByDisplayName],
                   [
                     "Status",

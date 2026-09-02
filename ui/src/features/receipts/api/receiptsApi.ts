@@ -3,6 +3,7 @@ import { normalizeReceiptDates } from "@/features/receipts/utils/receiptDateNorm
 import axios from "@/shared/api/axios";
 import { ApiPaths } from "@/shared/api/apiPaths";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
+import { parseUtcDateTime } from "@/shared/utils/dateTime";
 import { notification } from "@/shared/utils/notifications";
 
 const config = { useWorkEmployeeContext: true };
@@ -10,7 +11,7 @@ const config = { useWorkEmployeeContext: true };
 export const listReceipts = async (tenantGlobalId: string): Promise<ReceiptListItem[]> => {
   try {
     const { data } = await axios.get<ReceiptListItem[]>(ApiPaths.tenants.receipts(tenantGlobalId), config);
-    return data.map((receipt) => ({ ...receipt, createdAt: new Date(receipt.createdAt) }));
+    return data.map((receipt) => ({ ...receipt, createdAt: parseUtcDateTime(receipt.createdAt as unknown as string) }));
   } catch (error) {
     notification.error(getApiErrorNotification(error));
     return [];

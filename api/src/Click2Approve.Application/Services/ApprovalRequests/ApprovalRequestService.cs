@@ -1,4 +1,5 @@
 using Click2Approve.Application.Extensions;
+using Click2Approve.Application.Models.Commands.ApprovalRequests;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 using FluentValidation;
@@ -81,9 +82,12 @@ public class ApprovalRequestService(
     /// <summary>
     /// Lists approval requests of the user.
     /// </summary>
-    public async Task<List<ApprovalRequestListItemResult>> ListAsync(AppUser user, CancellationToken cancellationToken)
+    public async Task<GridPageResult<ApprovalRequestListItemResult>> ListAsync(
+        AppUser user,
+        ApprovalRequestListQueryCommand query,
+        CancellationToken cancellationToken)
     {
-        return await _approvalRequestRepository.ListAsync(user, cancellationToken);
+        return await _approvalRequestRepository.ListAsync(user, query, cancellationToken);
     }
 
     /// <summary>

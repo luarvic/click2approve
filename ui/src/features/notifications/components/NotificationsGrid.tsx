@@ -136,6 +136,8 @@ const NotificationsGrid = () => {
     {
       field: "type",
       headerName: "Notification",
+      sortable: false,
+      disableColumnMenu: true,
       flex: notificationColumnFlex,
       minWidth: notificationColumnMinWidth,
       valueGetter: (_value, row) => notificationText(row.type),
@@ -143,6 +145,8 @@ const NotificationsGrid = () => {
     {
       field: "readAt",
       headerName: "Status",
+      sortable: false,
+      disableColumnMenu: true,
       flex: statusColumnFlex,
       minWidth: statusColumnMinWidth,
       valueGetter: (_value, row) => (row.readAt ? "Read" : "Unread"),
@@ -150,11 +154,14 @@ const NotificationsGrid = () => {
     {
       field: "summary",
       headerName: "Details",
+      sortable: false,
+      disableColumnMenu: true,
       flex: detailsColumnFlex,
     },
     {
       field: "occurredAt",
       headerName: "Received",
+      sortable: true,
       flex: receivedColumnFlex,
       valueFormatter: (value) => getHumanReadableRelativeDate(parseUtcDateTime(value)),
     },
@@ -170,6 +177,7 @@ const NotificationsGrid = () => {
           occurredAt: allColumnsAreVisible,
           summary: allColumnsAreVisible,
         }}
+        disableColumnSelector
         disableColumnFilter
         disableRowSelectionOnClick
         getRowId={(row) => row.globalId}

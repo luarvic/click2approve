@@ -55,6 +55,8 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
     {
       field: "globalId",
       headerName: "Number",
+      sortable: false,
+      disableColumnMenu: true,
       width: DataGrids.approvalNumberColumnWidth,
       renderCell: (params) => (
         <ApprovalRequestNumberText color="text.primary" globalId={params.row.globalId} includeHash={false} />
@@ -64,6 +66,8 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
     {
       field: "title",
       headerName: "Title",
+      sortable: false,
+      disableColumnMenu: true,
       flex: DataGrids.approvalColumnFlex.content,
       renderCell: (params) => (
         <Stack sx={DataGrids.approvalTitleCellSx}>
@@ -75,6 +79,8 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
     {
       field: "revisionNumber",
       headerName: "Revision",
+      sortable: false,
+      disableColumnMenu: true,
       align: "center",
       headerAlign: "center",
       width: DataGrids.approvalRevisionColumnWidth,
@@ -82,6 +88,8 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
     {
       field: "status",
       headerName: "Status",
+      sortable: false,
+      disableColumnMenu: true,
       ...DataGrids.tasksColumnSizing.status,
       renderCell: (params) => (
         <ApprovalRequestTaskStatusLineLabel
@@ -95,6 +103,8 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
     {
       field: "requestedByDisplayName",
       headerName: "Requested by",
+      sortable: false,
+      disableColumnMenu: true,
       ...DataGrids.tasksColumnSizing.requestedBy,
       renderCell: (params) => <OneLineDisplayName displayName={params.row.requestedByDisplayName} variant="body2" />,
       valueGetter: (_value, row) => row.requestedByDisplayName,
@@ -102,12 +112,15 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
     {
       field: "organizationDisplayName",
       headerName: "From organization",
+      sortable: false,
+      disableColumnMenu: true,
       flex: DataGrids.approvalColumnFlex.metadata,
       valueGetter: (_value, row) => row.organizationDisplayName,
     },
     {
       field: "createdAtDate",
       headerName: "Created",
+      sortable: true,
       flex: DataGrids.approvalColumnFlex.metadata,
       valueFormatter: (value) => getHumanReadableRelativeDate(value),
     },
@@ -136,6 +149,7 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
         onPaginationModelChange={setPaginationModel}
         pageSizeOptions={DataGrids.pageSizeOptions}
         disableColumnFilter
+        disableColumnSelector
         disableRowSelectionOnClick
         slots={{
           loadingOverlay: NoLoadingOverlay,
