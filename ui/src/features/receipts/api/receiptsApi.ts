@@ -1,20 +1,31 @@
 import type { Receipt, ReceiptListItem } from "@/features/receipts/models/receipt";
+import { type ReceiptGridQuery, serializeReceiptGridQuery } from "@/features/receipts/models/receiptGridQuery";
 import { normalizeReceiptDates } from "@/features/receipts/utils/receiptDateNormalizers";
 import axios from "@/shared/api/axios";
 import { ApiPaths } from "@/shared/api/apiPaths";
+import type { GridPage } from "@/shared/grids/gridPage";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { parseUtcDateTime } from "@/shared/utils/dateTime";
 import { notification } from "@/shared/utils/notifications";
 
 const config = { useWorkEmployeeContext: true };
 
-export const listReceipts = async (tenantGlobalId: string): Promise<ReceiptListItem[]> => {
+export const listReceiptGrid = async (
+  tenantGlobalId: string,
+  query: ReceiptGridQuery,
+): Promise<GridPage<ReceiptListItem>> => {
   try {
-    const { data } = await axios.get<ReceiptListItem[]>(ApiPaths.tenants.receipts(tenantGlobalId), config);
-    return data.map((receipt) => ({ ...receipt, createdAt: parseUtcDateTime(receipt.createdAt as unknown as string) }));
+    const { data } = await axios.get<GridPage<ReceiptListItem>>(
+      `${ApiPaths.tenants.receipts(tenantGlobalId)}?${serializeReceiptGridQuery(query)}`,
+      config,
+    );
+    data.items.forEach((receipt) => {
+      receipt.createdAt = parseUtcDateTime(receipt.createdAt as unknown as string);
+    });
+    return data;
   } catch (error) {
     notification.error(getApiErrorNotification(error));
-    return [];
+    return { items: [], totalCount: 0 };
   }
 };
 

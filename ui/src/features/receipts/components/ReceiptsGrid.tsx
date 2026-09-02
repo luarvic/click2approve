@@ -2,54 +2,128 @@ import { stores } from "@/app/rootStore";
 import ApprovalRequestNumberText, {
   getApprovalRequestNumber,
 } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
+import ApprovalRequestsFilter from "@/features/approvalRequests/components/ApprovalRequestsFilter";
 import {
   ApprovalRequestStatusLineLabel,
   getApprovalRequestStatusLabel,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
-import { listReceipts } from "@/features/receipts/api/receiptsApi";
+import { listReceiptGrid } from "@/features/receipts/api/receiptsApi";
 import type { ReceiptListItem } from "@/features/receipts/models/receipt";
+import {
+  type ReceiptGridQuery,
+  parseReceiptGridQuery,
+  serializeReceiptGridQuery,
+} from "@/features/receipts/models/receiptGridQuery";
+import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
-import { DataGrids, Routes } from "@/shared/constants/constants";
-import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
+import { DataGrids, Filters, Routes } from "@/shared/constants/constants";
+import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate } from "@/shared/utils/dateTime";
-import { Box, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { FilterList } from "@mui/icons-material";
+import type { SxProps, Theme } from "@mui/material";
+import { Box, Button, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
+import type { GridSortModel } from "@mui/x-data-grid";
+import dayjs from "dayjs";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 interface ReceiptsGridProps {
   currentReceiptGlobalId?: string;
 }
 
+const filterContainerSx: SxProps<Theme> = { mb: 2 };
+
 const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const theme = useTheme();
-  const [receipts, setReceipts] = useState<ReceiptListItem[]>([]);
   const allColumnsAreVisible = useMediaQuery(theme.breakpoints.up("md"));
   const tenantScopeIsReady =
     !stores.applicationConfigurationStore.tenantsAreEnabled ||
     (stores.tenantStore.hasLoaded && stores.tenantStore.currentTenantGlobalId !== null);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const gridLoader = ActionLoaders.grids.receipts(tenantGlobalId);
-  const { paginationModel, setPaginationModel } = useGridPaginationForRow(receipts, currentReceiptGlobalId);
+  const query = useMemo(() => parseReceiptGridQuery(searchParams), [searchParams]);
+  const [receipts, setReceipts] = useState<ReceiptListItem[]>([]);
+  const [filtersAreVisible, setFiltersAreVisible] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+  const [requestedByFilter, setRequestedByFilter] = useState(query.requestedBy);
+  const [titleFilter, setTitleFilter] = useState(query.title);
+  const debouncedRequestedByFilter = useDebouncedValue(requestedByFilter, Filters.textInputDebounceMs);
+  const debouncedTitleFilter = useDebouncedValue(titleFilter, Filters.textInputDebounceMs);
+
+  const updateQuery = useCallback(
+    (updates: Partial<ReceiptGridQuery>) => {
+      setSearchParams(serializeReceiptGridQuery({ ...query, ...updates }), { replace: true });
+    },
+    [query, setSearchParams],
+  );
+
+  useEffect(() => {
+    setRequestedByFilter(query.requestedBy);
+  }, [query.requestedBy]);
+
+  useEffect(() => {
+    setTitleFilter(query.title);
+  }, [query.title]);
+
+  useEffect(() => {
+    if (query.title !== debouncedTitleFilter || query.requestedBy !== debouncedRequestedByFilter) {
+      updateQuery({
+        page: 0,
+        requestedBy: debouncedRequestedByFilter,
+        title: debouncedTitleFilter,
+      });
+    }
+  }, [debouncedRequestedByFilter, debouncedTitleFilter, query.requestedBy, query.title, updateQuery]);
+
+  const paginationModel = useMemo(() => ({ page: query.page, pageSize: query.pageSize }), [query.page, query.pageSize]);
+  const sortModel = useMemo<GridSortModel>(
+    () => [{ field: "createdAt", sort: query.sortDirection }],
+    [query.sortDirection],
+  );
+  const appliedFilterCount =
+    Number(Boolean(query.title)) +
+    Number(Boolean(query.requestedBy)) +
+    Number(Boolean(query.createdFrom)) +
+    Number(Boolean(query.createdTo)) +
+    query.status.length;
+  const createdFromFilter = query.createdFrom ? dayjs(query.createdFrom) : null;
+  const createdToFilter = query.createdTo ? dayjs(query.createdTo) : null;
 
   const gridIsLoading = useGridRefresh(
-    async () => {
+    () => {
       if (tenantScopeIsReady && tenantGlobalId) {
-        setReceipts(await listReceipts(tenantGlobalId));
+        return listReceiptGrid(tenantGlobalId, query).then((page) => {
+          setReceipts(page.items);
+          setTotalCount(page.totalCount);
+        });
       }
     },
     tenantScopeIsReady && tenantGlobalId !== null,
-    gridLoader,
+    `${gridLoader}:${serializeReceiptGridQuery(query)}`,
+  );
+
+  const customToolbar = () => (
+    <GridToolbarContainer>
+      <Button
+        aria-pressed={filtersAreVisible}
+        startIcon={<FilterList />}
+        onClick={() => setFiltersAreVisible((current) => !current)}
+      >
+        {filtersAreVisible ? "Hide filters" : `Show filters${appliedFilterCount > 0 ? ` (${appliedFilterCount})` : ""}`}
+      </Button>
+    </GridToolbarContainer>
   );
 
   const columns: GridColDef[] = [
     {
       field: "globalId",
-      headerName: "Number",
+      headerName: "#",
       sortable: false,
       disableColumnMenu: true,
       width: DataGrids.approvalNumberColumnWidth,
@@ -95,6 +169,15 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
       valueGetter: (_value, row) => getApprovalRequestStatusLabel(row.approvalRequestStatus, row.approvalRequestResult),
     },
     {
+      field: "createdByDisplayName",
+      headerName: "Requested by",
+      sortable: false,
+      disableColumnMenu: true,
+      flex: DataGrids.approvalColumnFlex.metadata,
+      renderCell: (params) => <OneLineDisplayName displayName={params.row.createdByDisplayName} variant="body2" />,
+      valueGetter: (_value, row) => row.createdByDisplayName,
+    },
+    {
       field: "createdAt",
       headerName: "Created",
       sortable: true,
@@ -104,37 +187,62 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
   ];
 
   return (
-    <Box sx={DataGrids.containerSx}>
-      <DataGrid
-        rows={receipts}
-        getRowId={(row) => row.globalId}
-        columns={columns}
-        rowSelectionModel={currentReceiptGlobalId === undefined ? [] : [currentReceiptGlobalId]}
-        hideFooterSelectedRowCount
-        onRowClick={(params) => {
-          const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-          const path = `/receipts/${(params.row as ReceiptListItem).globalId}`;
-          navigate(tenantGlobalId ? Routes.tenantPath(tenantGlobalId, path) : "/");
-        }}
-        paginationModel={paginationModel}
-        onPaginationModelChange={setPaginationModel}
-        columnVisibilityModel={{
-          globalId: allColumnsAreVisible,
-          createdAt: allColumnsAreVisible,
-        }}
-        pageSizeOptions={DataGrids.pageSizeOptions}
-        disableColumnFilter
-        disableColumnSelector
-        disableRowSelectionOnClick
-        slots={{
-          loadingOverlay: NoLoadingOverlay,
-          noRowsOverlay: NoRowsOverlay,
-        }}
-        sx={DataGrids.sx}
-        autoHeight
-        loading={gridIsLoading}
-      />
-    </Box>
+    <>
+      {filtersAreVisible && (
+        <Box sx={filterContainerSx}>
+          <ApprovalRequestsFilter
+            createdFrom={createdFromFilter}
+            createdTo={createdToFilter}
+            requestedBy={requestedByFilter}
+            statuses={query.status}
+            title={titleFilter}
+            onCreatedFromChange={(value) => updateQuery({ createdFrom: value?.format("YYYY-MM-DD") ?? null, page: 0 })}
+            onCreatedToChange={(value) => updateQuery({ createdTo: value?.format("YYYY-MM-DD") ?? null, page: 0 })}
+            onRequestedByChange={setRequestedByFilter}
+            onStatusesChange={(status) => updateQuery({ page: 0, status })}
+            onTitleChange={setTitleFilter}
+          />
+        </Box>
+      )}
+      <Box sx={DataGrids.containerSx}>
+        <DataGrid
+          rows={receipts}
+          getRowId={(row) => row.globalId}
+          columns={columns}
+          rowSelectionModel={currentReceiptGlobalId === undefined ? [] : [currentReceiptGlobalId]}
+          hideFooterSelectedRowCount
+          onRowClick={(params) => {
+            const currentTenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+            const path = `/receipts/${(params.row as ReceiptListItem).globalId}`;
+            navigate(currentTenantGlobalId ? Routes.tenantPath(currentTenantGlobalId, path) : "/");
+          }}
+          paginationModel={paginationModel}
+          paginationMode="server"
+          rowCount={totalCount}
+          onPaginationModelChange={(model) => updateQuery({ page: model.page, pageSize: model.pageSize })}
+          columnVisibilityModel={{
+            globalId: allColumnsAreVisible,
+            createdByDisplayName: allColumnsAreVisible,
+            createdAt: allColumnsAreVisible,
+          }}
+          pageSizeOptions={DataGrids.pageSizeOptions}
+          disableColumnFilter
+          sortingMode="server"
+          sortModel={sortModel}
+          onSortModelChange={(model) => updateQuery({ page: 0, sortDirection: model[0]?.sort ?? "desc" })}
+          disableColumnSelector
+          disableRowSelectionOnClick
+          slots={{
+            loadingOverlay: NoLoadingOverlay,
+            toolbar: customToolbar,
+            noRowsOverlay: NoRowsOverlay,
+          }}
+          sx={DataGrids.sx}
+          autoHeight
+          loading={gridIsLoading}
+        />
+      </Box>
+    </>
   );
 };
 

@@ -26,6 +26,7 @@ export interface Receipt {
 export interface ReceiptListItem {
   globalId: string;
   approvalRequestTitle: string;
+  createdByDisplayName: string;
   approvalRequestStatus: ApprovalRequestStatus;
   approvalRequestResult?: boolean;
   revisionNumber: number;
