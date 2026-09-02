@@ -20,9 +20,12 @@ public class ApprovalRequestTaskService(
     /// <summary>
     /// Lists approval request tasks.
     /// </summary>
-    public async Task<List<ApprovalRequestTaskListItemResult>> ListAsync(AppUser user, CancellationToken cancellationToken)
+    public async Task<GridPageResult<ApprovalRequestTaskListItemResult>> ListAsync(
+        AppUser user,
+        ApprovalRequestTaskListQueryCommand query,
+        CancellationToken cancellationToken)
     {
-        return await _approvalRequestTaskRepository.ListAsync(user, cancellationToken);
+        return await _approvalRequestTaskRepository.ListAsync(user, query, cancellationToken);
     }
 
     /// <summary>

@@ -7,7 +7,10 @@ namespace Click2Approve.Application.Abstractions.Services.ApprovalRequests;
 /// </summary>
 public interface IApprovalRequestTaskService
 {
-    Task<List<ApprovalRequestTaskListItemResult>> ListAsync(AppUser user, CancellationToken cancellationToken);
+    Task<GridPageResult<ApprovalRequestTaskListItemResult>> ListAsync(
+        AppUser user,
+        ApprovalRequestTaskListQueryCommand query,
+        CancellationToken cancellationToken);
     Task<ApprovalRequestTaskDetailsResult> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task CompleteAsync(AppUser user, CompleteApprovalRequestTaskCommand payload, CancellationToken cancellationToken);
     Task<long> CountUncompletedAsync(AppUser user, CancellationToken cancellationToken);

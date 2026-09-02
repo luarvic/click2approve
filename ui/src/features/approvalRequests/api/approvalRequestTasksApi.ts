@@ -2,6 +2,11 @@ import { ApprovalRequestTask } from "@/features/approvalRequests/models/approval
 import { ApprovalRequestTaskClientAuditContext } from "@/features/approvalRequests/models/approvalRequestTaskClientAuditContext";
 import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
 import {
+  ApprovalRequestTaskGridQuery,
+  defaultApprovalRequestTaskGridQuery,
+  serializeApprovalRequestTaskGridQuery,
+} from "@/features/approvalRequests/models/approvalRequestTaskGridQuery";
+import {
   normalizeApprovalRequestDates,
   normalizeApprovalRequestTaskDates,
 } from "@/features/approvalRequests/utils/approvalRequestDateNormalizers";
@@ -9,6 +14,7 @@ import axios from "@/shared/api/axios";
 import { ApiPaths } from "@/shared/api/apiPaths";
 import { getApiErrorNotification, isResourceNotFoundOrForbiddenError } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
+import type { GridPage } from "@/shared/grids/gridPage";
 
 export const completeApprovalRequestTask = async (
   tenantGlobalId: string,
@@ -41,18 +47,25 @@ export const completeApprovalRequestTask = async (
   }
 };
 
-export const listApprovalRequestTasks = async (tenantGlobalId: string): Promise<ApprovalRequestTaskListItem[]> => {
+export const listApprovalRequestTaskGrid = async (
+  tenantGlobalId: string,
+  query: ApprovalRequestTaskGridQuery,
+): Promise<GridPage<ApprovalRequestTaskListItem>> => {
   try {
-    const { data } = await axios.get<ApprovalRequestTaskListItem[]>(ApiPaths.tenants.tasks(tenantGlobalId), {
-      useWorkEmployeeContext: true,
-    });
-    data.forEach(normalizeApprovalRequestTaskDates);
+    const { data } = await axios.get<GridPage<ApprovalRequestTaskListItem>>(
+      `${ApiPaths.tenants.tasks(tenantGlobalId)}?${serializeApprovalRequestTaskGridQuery(query)}`,
+      { useWorkEmployeeContext: true },
+    );
+    data.items.forEach(normalizeApprovalRequestTaskDates);
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
-    return [];
+    return { items: [], totalCount: 0 };
   }
 };
+
+export const listApprovalRequestTasks = async (tenantGlobalId: string): Promise<ApprovalRequestTaskListItem[]> =>
+  (await listApprovalRequestTaskGrid(tenantGlobalId, { ...defaultApprovalRequestTaskGridQuery, pageSize: 100 })).items;
 
 export const getApprovalRequestTask = async (
   tenantGlobalId: string,

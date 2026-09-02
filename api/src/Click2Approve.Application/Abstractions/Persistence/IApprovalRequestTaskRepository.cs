@@ -9,7 +9,10 @@ public interface IApprovalRequestTaskRepository
 {
     Task<ApprovalRequestTask> AddAsync(ApprovalRequestTask approvalRequestTask, CancellationToken cancellationToken);
     Task<int> ClaimEmailTasksAsync(AppUser user, long personalTenantId, CancellationToken cancellationToken);
-    Task<List<ApprovalRequestTaskListItemResult>> ListAsync(AppUser user, CancellationToken cancellationToken);
+    Task<GridPageResult<ApprovalRequestTaskListItemResult>> ListAsync(
+        AppUser user,
+        ApprovalRequestTaskListQueryCommand query,
+        CancellationToken cancellationToken);
     Task<ApprovalRequestTaskDetailsResult?> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task<ApprovalRequestTask?> GetForCompletionAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task<bool> HasAttachmentsAsync(ApprovalRequestTask task, CancellationToken cancellationToken);

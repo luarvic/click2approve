@@ -27,9 +27,9 @@ decisions and discussion, and tracking request history.
   positive-result comment or electronic-signature requirements.
 - Track sent workflow requests in Requests, inspect request details, see
   in-progress request state, cancel pending requests, and delete requests.
-- Review incoming tasks in Tasks, open task details, preview attached
-  files, record decisions with comments, and see the uncompleted task
-  count.
+- Review incoming tasks in Tasks, filter, sort, and paginate the list; open
+  task details, preview attached files, record decisions with comments, and
+  see the uncompleted task count.
 - Capture electronic-signature evidence when required by a task, including legal name,
   signature strokes, IP address, and browser data on completed tasks.
 - Maintain a user profile with display name, avatar, reusable signature,

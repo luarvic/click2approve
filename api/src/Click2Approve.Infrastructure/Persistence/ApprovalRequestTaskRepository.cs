@@ -2,7 +2,9 @@ using Click2Approve.Application.Abstractions.Authorization;
 using Click2Approve.Application.Abstractions.Persistence;
 using Click2Approve.Application.Abstractions.Services.ApprovalRequests;
 using Click2Approve.Application.Abstractions.TenantContext;
+using Click2Approve.Application.Models.Commands.ApprovalRequests;
 using Click2Approve.Application.Models.Results.ApprovalRequests;
+using Click2Approve.Application.Models.Results.Grids;
 using Click2Approve.Application.Services.ApprovalRequests;
 using Click2Approve.Domain.Models;
 using Microsoft.EntityFrameworkCore;
@@ -47,12 +49,58 @@ public class ApprovalRequestTaskRepository(
         return tasks.Count;
     }
 
-    public virtual async Task<List<ApprovalRequestTaskListItemResult>> ListAsync(AppUser user, CancellationToken cancellationToken)
+    public virtual async Task<GridPageResult<ApprovalRequestTaskListItemResult>> ListAsync(
+        AppUser user,
+        ApprovalRequestTaskListQueryCommand query,
+        CancellationToken cancellationToken)
     {
         var scope = await AccessScopeProvider.GetAsync(user, cancellationToken);
-        return await Db.ApprovalRequestTasks
+        var tasks = Db.ApprovalRequestTasks
             .AsNoTracking()
             .Where(AccessPolicy.CanWorkTask(scope))
+            .AsQueryable();
+
+        if (query.Status.Count > 0)
+        {
+            tasks = tasks.Where(task => query.Status.Contains(task.Status));
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.Title))
+        {
+            tasks = tasks.Where(task => task.Title.Contains(query.Title));
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.RequestedBy))
+        {
+            tasks = tasks.Where(task => task.ApprovalRequest.CreatedByDisplayName.Contains(query.RequestedBy)
+                || task.ApprovalRequest.CreatedByUser.NormalizedEmail!.Contains(query.RequestedBy));
+        }
+
+        if (query.CreatedFrom.HasValue)
+        {
+            var createdFromUtc = DateTime.SpecifyKind(
+                query.CreatedFrom.Value.ToDateTime(TimeOnly.MinValue),
+                DateTimeKind.Utc);
+            tasks = tasks.Where(task => task.CreatedAt >= createdFromUtc);
+        }
+
+        if (query.CreatedTo.HasValue)
+        {
+            var exclusiveCreatedToUtc = DateTime.SpecifyKind(
+                query.CreatedTo.Value.AddDays(1).ToDateTime(TimeOnly.MinValue),
+                DateTimeKind.Utc);
+            tasks = tasks.Where(task => task.CreatedAt < exclusiveCreatedToUtc);
+        }
+
+        var totalCount = await tasks.CountAsync(cancellationToken);
+        var ordered = query.SortDirection switch
+        {
+            ApprovalRequestTaskListSortDirection.Asc => tasks.OrderBy(task => task.CreatedAt).ThenBy(task => task.GlobalId),
+            _ => tasks.OrderByDescending(task => task.CreatedAt).ThenBy(task => task.GlobalId)
+        };
+        var items = await ordered
+            .Skip(query.Page * query.PageSize)
+            .Take(query.PageSize)
             .Select(task => new ApprovalRequestTaskListItemResult
             {
                 GlobalId = task.GlobalId,
@@ -68,6 +116,8 @@ public class ApprovalRequestTaskRepository(
                 RevisionNumber = task.RevisionNumber
             })
             .ToListAsync(cancellationToken);
+
+        return new GridPageResult<ApprovalRequestTaskListItemResult> { Items = items, TotalCount = totalCount };
     }
 
     public virtual async Task<ApprovalRequestTaskDetailsResult?> GetAsync(

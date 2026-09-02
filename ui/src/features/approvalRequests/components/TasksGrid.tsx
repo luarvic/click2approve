@@ -2,31 +2,46 @@ import { stores } from "@/app/rootStore";
 import ApprovalRequestNumberText, {
   getApprovalRequestNumber,
 } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
+import ApprovalRequestTasksFilter from "@/features/approvalRequests/components/ApprovalRequestTasksFilter";
 import {
   ApprovalRequestTaskStatusLineLabel,
   getApprovalRequestTaskStatusLabel,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
+import { listApprovalRequestTaskGrid } from "@/features/approvalRequests/api/approvalRequestTasksApi";
+import {
+  ApprovalRequestTaskGridQuery,
+  parseApprovalRequestTaskGridQuery,
+  serializeApprovalRequestTaskGridQuery,
+} from "@/features/approvalRequests/models/approvalRequestTaskGridQuery";
 import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
 import { TenantType } from "@/features/tenants/models/tenant";
 import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
-import { DataGrids, Routes } from "@/shared/constants/constants";
-import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
+import { DataGrids, Filters, Routes } from "@/shared/constants/constants";
+import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate } from "@/shared/utils/dateTime";
-import { Box, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { FilterList } from "@mui/icons-material";
+import type { SxProps, Theme } from "@mui/material";
+import { Box, Button, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
+import type { GridSortModel } from "@mui/x-data-grid";
+import dayjs from "dayjs";
 import { observer } from "mobx-react-lite";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 interface TasksGridProps {
   currentTaskGlobalId?: string;
 }
 
+const filterContainerSx: SxProps<Theme> = { mb: 2 };
+
 const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const theme = useTheme();
   const allColumnsAreVisible = useMediaQuery(theme.breakpoints.up("md"));
   const tenantScopeIsReady =
@@ -36,25 +51,79 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
   const gridLoader = ActionLoaders.grids.tasks(tenantGlobalId);
   const organizationColumnIsVisible =
     allColumnsAreVisible && stores.tenantStore.currentTenant?.type === TenantType.Personal;
-  const { paginationModel, setPaginationModel } = useGridPaginationForRow(
-    stores.approvalRequestTaskStore.tasks,
-    currentTaskGlobalId,
+  const query = useMemo(() => parseApprovalRequestTaskGridQuery(searchParams), [searchParams]);
+  const [tasks, setTasks] = useState<ApprovalRequestTaskListItem[]>([]);
+  const [filtersAreVisible, setFiltersAreVisible] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+  const [requestedByFilter, setRequestedByFilter] = useState(query.requestedBy);
+  const [titleFilter, setTitleFilter] = useState(query.title);
+  const debouncedRequestedByFilter = useDebouncedValue(requestedByFilter, Filters.textInputDebounceMs);
+  const debouncedTitleFilter = useDebouncedValue(titleFilter, Filters.textInputDebounceMs);
+
+  const updateQuery = useCallback(
+    (updates: Partial<ApprovalRequestTaskGridQuery>) => {
+      setSearchParams(serializeApprovalRequestTaskGridQuery({ ...query, ...updates }), { replace: true });
+    },
+    [query, setSearchParams],
   );
+
+  useEffect(() => {
+    setRequestedByFilter(query.requestedBy);
+  }, [query.requestedBy]);
+
+  useEffect(() => {
+    setTitleFilter(query.title);
+  }, [query.title]);
+
+  useEffect(() => {
+    if (query.title !== debouncedTitleFilter || query.requestedBy !== debouncedRequestedByFilter) {
+      updateQuery({ page: 0, requestedBy: debouncedRequestedByFilter, title: debouncedTitleFilter });
+    }
+  }, [debouncedRequestedByFilter, debouncedTitleFilter, query.requestedBy, query.title, updateQuery]);
+
+  const paginationModel = useMemo(() => ({ page: query.page, pageSize: query.pageSize }), [query.page, query.pageSize]);
+  const sortModel = useMemo<GridSortModel>(
+    () => [{ field: "createdAtDate", sort: query.sortDirection }],
+    [query.sortDirection],
+  );
+  const appliedFilterCount =
+    Number(Boolean(query.title)) +
+    Number(Boolean(query.requestedBy)) +
+    Number(Boolean(query.createdFrom)) +
+    Number(Boolean(query.createdTo)) +
+    query.status.length;
+  const createdFromFilter = query.createdFrom ? dayjs(query.createdFrom) : null;
+  const createdToFilter = query.createdTo ? dayjs(query.createdTo) : null;
 
   const gridIsLoading = useGridRefresh(
     () => {
       if (tenantScopeIsReady && tenantGlobalId) {
-        return stores.approvalRequestTaskStore.loadIncoming(tenantGlobalId);
+        return listApprovalRequestTaskGrid(tenantGlobalId, query).then((page) => {
+          setTasks(page.items);
+          setTotalCount(page.totalCount);
+        });
       }
     },
     tenantScopeIsReady && tenantGlobalId !== null,
-    gridLoader,
+    `${gridLoader}:${serializeApprovalRequestTaskGridQuery(query)}`,
+  );
+
+  const customToolbar = () => (
+    <GridToolbarContainer>
+      <Button
+        aria-pressed={filtersAreVisible}
+        startIcon={<FilterList />}
+        onClick={() => setFiltersAreVisible((current) => !current)}
+      >
+        {filtersAreVisible ? "Hide filters" : `Show filters${appliedFilterCount > 0 ? ` (${appliedFilterCount})` : ""}`}
+      </Button>
+    </GridToolbarContainer>
   );
 
   const columns: GridColDef[] = [
     {
       field: "globalId",
-      headerName: "Number",
+      headerName: "#",
       sortable: false,
       disableColumnMenu: true,
       width: DataGrids.approvalNumberColumnWidth,
@@ -127,39 +196,59 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
   ];
 
   return (
-    <Box sx={DataGrids.containerSx}>
-      <DataGrid
-        rows={stores.approvalRequestTaskStore.tasks}
-        getRowId={(row) => row.globalId}
-        columns={columns}
-        rowSelectionModel={currentTaskGlobalId === undefined ? [] : [currentTaskGlobalId]}
-        hideFooterSelectedRowCount
-        onRowClick={(params) => {
-          const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-          const path = `/tasks/${(params.row as ApprovalRequestTaskListItem).globalId}`;
-          navigate(tenantGlobalId ? Routes.tenantPath(tenantGlobalId, path) : "/");
-        }}
-        columnVisibilityModel={{
-          globalId: allColumnsAreVisible,
-          requestedByDisplayName: allColumnsAreVisible,
-          organizationDisplayName: organizationColumnIsVisible,
-          createdAtDate: allColumnsAreVisible,
-        }}
-        paginationModel={paginationModel}
-        onPaginationModelChange={setPaginationModel}
-        pageSizeOptions={DataGrids.pageSizeOptions}
-        disableColumnFilter
-        disableColumnSelector
-        disableRowSelectionOnClick
-        slots={{
-          loadingOverlay: NoLoadingOverlay,
-          noRowsOverlay: NoRowsOverlay,
-        }}
-        sx={DataGrids.sx}
-        autoHeight
-        loading={gridIsLoading}
-      />
-    </Box>
+    <>
+      {filtersAreVisible && (
+        <Box sx={filterContainerSx}>
+          <ApprovalRequestTasksFilter
+            createdFrom={createdFromFilter}
+            createdTo={createdToFilter}
+            requestedBy={requestedByFilter}
+            statuses={query.status}
+            title={titleFilter}
+            onCreatedFromChange={(value) => updateQuery({ createdFrom: value?.format("YYYY-MM-DD") ?? null, page: 0 })}
+            onCreatedToChange={(value) => updateQuery({ createdTo: value?.format("YYYY-MM-DD") ?? null, page: 0 })}
+            onRequestedByChange={setRequestedByFilter}
+            onStatusesChange={(status) => updateQuery({ page: 0, status })}
+            onTitleChange={setTitleFilter}
+          />
+        </Box>
+      )}
+      <Box sx={DataGrids.containerSx}>
+        <DataGrid
+          rows={tasks}
+          getRowId={(row) => row.globalId}
+          columns={columns}
+          rowSelectionModel={currentTaskGlobalId === undefined ? [] : [currentTaskGlobalId]}
+          hideFooterSelectedRowCount
+          onRowClick={(params) => {
+            const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+            const path = `/tasks/${(params.row as ApprovalRequestTaskListItem).globalId}`;
+            navigate(tenantGlobalId ? Routes.tenantPath(tenantGlobalId, path) : "/");
+          }}
+          columnVisibilityModel={{
+            globalId: allColumnsAreVisible,
+            requestedByDisplayName: allColumnsAreVisible,
+            organizationDisplayName: organizationColumnIsVisible,
+            createdAtDate: allColumnsAreVisible,
+          }}
+          paginationModel={paginationModel}
+          paginationMode="server"
+          rowCount={totalCount}
+          onPaginationModelChange={(model) => updateQuery({ page: model.page, pageSize: model.pageSize })}
+          disableColumnFilter
+          sortingMode="server"
+          sortModel={sortModel}
+          onSortModelChange={(model) => updateQuery({ page: 0, sortDirection: model[0]?.sort ?? "desc" })}
+          pageSizeOptions={DataGrids.pageSizeOptions}
+          disableColumnSelector
+          disableRowSelectionOnClick
+          slots={{ loadingOverlay: NoLoadingOverlay, toolbar: customToolbar, noRowsOverlay: NoRowsOverlay }}
+          sx={DataGrids.sx}
+          autoHeight
+          loading={gridIsLoading}
+        />
+      </Box>
+    </>
   );
 };
 

@@ -150,7 +150,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var taskListResponse = await assigneeClient.GetAsync($"api/v1/tenants/{assigneeTenantId}/tasks");
         Assert.True(taskListResponse.IsSuccessStatusCode, await taskListResponse.Content.ReadAsStringAsync());
         using var taskListDocument = JsonDocument.Parse(await taskListResponse.Content.ReadAsStringAsync());
-        var taskListItem = taskListDocument.RootElement[0];
+        var taskListItem = taskListDocument.RootElement.GetProperty("items")[0];
         Assert.False(taskListItem.TryGetProperty("completedAt", out _));
         Assert.False(taskListItem.TryGetProperty("requestedByEmail", out _));
         var taskResponse = await assigneeClient.GetAsync($"api/v1/tenants/{assigneeTenantId}/tasks/{approvalRequestTask.GlobalId}");

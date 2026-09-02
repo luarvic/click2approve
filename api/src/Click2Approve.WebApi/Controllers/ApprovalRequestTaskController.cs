@@ -6,6 +6,8 @@ using Click2Approve.Application.Abstractions.Services.UserFiles;
 using Click2Approve.Domain.Models;
 using Click2Approve.WebApi.Extensions;
 using Click2Approve.WebApi.Mappers.ApprovalRequests;
+using Click2Approve.WebApi.Mappers.Grids;
+using Click2Approve.WebApi.Models.Responses.Grids;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -66,14 +68,20 @@ public class ApprovalRequestTaskController(
     /// <summary>
     /// Lists incoming approval request task summaries.
     /// </summary>
+    /// <param name="query">The Tasks list page, sort, and filter query.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The list of approval request task summaries.</returns>
+    /// <returns>The page of approval request task summaries.</returns>
     [HttpGet]
-    public async Task<ActionResult<List<ApprovalRequestTaskListItemResponse>>> ListAsync(CancellationToken cancellationToken)
+    public async Task<ActionResult<GridPageResponse<ApprovalRequestTaskListItemResponse>>> ListAsync(
+        [FromQuery] ApprovalRequestTaskListQueryRequest query,
+        CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        var tasks = await _approvalRequestTaskService.ListAsync(user, cancellationToken);
-        return Ok(ApprovalRequestResponseMapper.Map(tasks));
+        var page = await _approvalRequestTaskService.ListAsync(
+            user,
+            ApprovalRequestTaskListQueryContractMapper.Map(query),
+            cancellationToken);
+        return Ok(GridPageResponseMapper.Map(page, ApprovalRequestResponseMapper.Map));
     }
 
     /// <summary>
