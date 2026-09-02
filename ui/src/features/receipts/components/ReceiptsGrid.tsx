@@ -17,8 +17,7 @@ import {
 import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
-import { DataGrids, Filters, Routes } from "@/shared/constants/constants";
-import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
+import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate } from "@/shared/utils/dateTime";
@@ -28,7 +27,7 @@ import { Box, Button, Stack, Typography, useMediaQuery, useTheme } from "@mui/ma
 import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import type { GridSortModel } from "@mui/x-data-grid";
 import dayjs from "dayjs";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 interface ReceiptsGridProps {
@@ -51,10 +50,6 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
   const [receipts, setReceipts] = useState<ReceiptListItem[]>([]);
   const [filtersAreVisible, setFiltersAreVisible] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
-  const [requestedByFilter, setRequestedByFilter] = useState(query.requestedBy);
-  const [titleFilter, setTitleFilter] = useState(query.title);
-  const debouncedRequestedByFilter = useDebouncedValue(requestedByFilter, Filters.textInputDebounceMs);
-  const debouncedTitleFilter = useDebouncedValue(titleFilter, Filters.textInputDebounceMs);
 
   const updateQuery = useCallback(
     (updates: Partial<ReceiptGridQuery>) => {
@@ -62,24 +57,6 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
     },
     [query, setSearchParams],
   );
-
-  useEffect(() => {
-    setRequestedByFilter(query.requestedBy);
-  }, [query.requestedBy]);
-
-  useEffect(() => {
-    setTitleFilter(query.title);
-  }, [query.title]);
-
-  useEffect(() => {
-    if (query.title !== debouncedTitleFilter || query.requestedBy !== debouncedRequestedByFilter) {
-      updateQuery({
-        page: 0,
-        requestedBy: debouncedRequestedByFilter,
-        title: debouncedTitleFilter,
-      });
-    }
-  }, [debouncedRequestedByFilter, debouncedTitleFilter, query.requestedBy, query.title, updateQuery]);
 
   const paginationModel = useMemo(() => ({ page: query.page, pageSize: query.pageSize }), [query.page, query.pageSize]);
   const sortModel = useMemo<GridSortModel>(
@@ -193,14 +170,14 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
           <ApprovalRequestsFilter
             createdFrom={createdFromFilter}
             createdTo={createdToFilter}
-            requestedBy={requestedByFilter}
+            requestedBy={query.requestedBy}
             statuses={query.status}
-            title={titleFilter}
+            title={query.title}
             onCreatedFromChange={(value) => updateQuery({ createdFrom: value?.format("YYYY-MM-DD") ?? null, page: 0 })}
             onCreatedToChange={(value) => updateQuery({ createdTo: value?.format("YYYY-MM-DD") ?? null, page: 0 })}
-            onRequestedByChange={setRequestedByFilter}
+            onRequestedByChange={(requestedBy) => updateQuery({ page: 0, requestedBy })}
             onStatusesChange={(status) => updateQuery({ page: 0, status })}
-            onTitleChange={setTitleFilter}
+            onTitleChange={(title) => updateQuery({ page: 0, title })}
           />
         </Box>
       )}

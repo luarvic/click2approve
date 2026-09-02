@@ -1,8 +1,7 @@
 import type { NotificationStatus } from "@/features/notifications/models/notificationGridQuery";
 import { getNotificationTypeLabel, notificationTypes } from "@/features/notifications/models/notification";
+import GridFilterBar from "@/shared/components/grids/GridFilterBar";
 import { NotificationType } from "@/shared/models/notifications";
-import { Autocomplete, Stack, TextField } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import type { Dayjs } from "dayjs";
 
 interface NotificationsFilterProps {
@@ -18,8 +17,6 @@ interface NotificationsFilterProps {
   onTypesChange: (types: NotificationType[]) => void;
 }
 
-const filterStackSpacing = 2;
-const filterFieldVariant = "outlined";
 const notificationStatusOptions: NotificationStatus[] = ["read", "unread"];
 const getNotificationStatusLabel = (status: NotificationStatus) => (status === "read" ? "Read" : "Unread");
 
@@ -35,45 +32,27 @@ const NotificationsFilter: React.FC<NotificationsFilterProps> = ({
   onStatusesChange,
   onTypesChange,
 }) => (
-  <Stack direction={{ xs: "column", md: "row" }} spacing={filterStackSpacing}>
-    <Autocomplete
-      multiple
-      fullWidth
-      getOptionLabel={getNotificationTypeLabel}
-      options={notificationTypes}
-      renderInput={(params) => <TextField {...params} label="Notification" variant={filterFieldVariant} />}
-      value={types}
-      onChange={(_event, nextTypes) => onTypesChange(nextTypes)}
-    />
-    <Autocomplete
-      multiple
-      fullWidth
-      getOptionLabel={getNotificationStatusLabel}
-      options={notificationStatusOptions}
-      renderInput={(params) => <TextField {...params} label="Status" variant={filterFieldVariant} />}
-      value={statuses}
-      onChange={(_event, nextStatuses) => onStatusesChange(nextStatuses)}
-    />
-    <TextField
-      fullWidth
-      label="Details"
-      value={details}
-      variant={filterFieldVariant}
-      onChange={(event) => onDetailsChange(event.target.value)}
-    />
-    <DatePicker
-      label="Received from"
-      slotProps={{ field: { clearable: true }, textField: { fullWidth: true, variant: filterFieldVariant } }}
-      value={receivedFrom}
-      onChange={onReceivedFromChange}
-    />
-    <DatePicker
-      label="Received to"
-      slotProps={{ field: { clearable: true }, textField: { fullWidth: true, variant: filterFieldVariant } }}
-      value={receivedTo}
-      onChange={onReceivedToChange}
-    />
-  </Stack>
+  <GridFilterBar
+    items={[
+      {
+        label: "Notification",
+        onChange: (values) => onTypesChange(values.map((value) => Number(value) as NotificationType)),
+        options: notificationTypes.map((value) => ({ label: getNotificationTypeLabel(value), value: String(value) })),
+        type: "multiSelect",
+        value: types.map(String),
+      },
+      {
+        label: "Status",
+        onChange: (values) => onStatusesChange(values as NotificationStatus[]),
+        options: notificationStatusOptions.map((value) => ({ label: getNotificationStatusLabel(value), value })),
+        type: "multiSelect",
+        value: statuses,
+      },
+      { label: "Details", onChange: onDetailsChange, type: "text", value: details },
+      { label: "Received from", onChange: onReceivedFromChange, type: "date", value: receivedFrom },
+      { label: "Received to", onChange: onReceivedToChange, type: "date", value: receivedTo },
+    ]}
+  />
 );
 
 export default NotificationsFilter;

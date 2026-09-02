@@ -9,15 +9,35 @@ import axios from "@/shared/api/axios";
 import { ApiPaths } from "@/shared/api/apiPaths";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
+import { serializeSimpleGridQuery } from "@/shared/grids/simpleGridQuery";
+import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
+import type { GridPage } from "@/shared/grids/gridPage";
 
-export const listEmployees = async (tenantGlobalId: string): Promise<EmployeeListItem[]> => {
+export const listEmployeeGrid = async (
+  tenantGlobalId: string,
+  query: SimpleGridQuery,
+): Promise<GridPage<EmployeeListItem>> => {
   try {
-    const { data } = await axios.get<EmployeeListItem[]>(ApiPaths.tenants.employees(tenantGlobalId));
+    const { data } = await axios.get<GridPage<EmployeeListItem>>(
+      `${ApiPaths.tenants.employees(tenantGlobalId)}?${serializeSimpleGridQuery(query)}`,
+    );
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
-    return [];
+    return { items: [], totalCount: 0 };
   }
+};
+
+export const listEmployees = async (tenantGlobalId: string): Promise<EmployeeListItem[]> => {
+  return (
+    await listEmployeeGrid(tenantGlobalId, {
+      filters: {},
+      page: 0,
+      pageSize: 100,
+      sortBy: "email",
+      sortDirection: "asc",
+    })
+  ).items;
 };
 
 export const listEmployeePicker = async (tenantGlobalId: string): Promise<EmployeePickerItem[]> => {

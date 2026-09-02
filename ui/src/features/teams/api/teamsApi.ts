@@ -3,15 +3,31 @@ import axios from "@/shared/api/axios";
 import { ApiPaths } from "@/shared/api/apiPaths";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
+import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
+import type { GridPage } from "@/shared/grids/gridPage";
 
-export const listTeams = async (tenantGlobalId: string): Promise<TeamListItem[]> => {
+export const listTeamGrid = async (tenantGlobalId: string, query: SimpleGridQuery): Promise<GridPage<TeamListItem>> => {
   try {
-    const { data } = await axios.get<TeamListItem[]>(ApiPaths.tenants.teams(tenantGlobalId));
+    const { data } = await axios.get<GridPage<TeamListItem>>(
+      `${ApiPaths.tenants.teams(tenantGlobalId)}?${new URLSearchParams({
+        ...Object.fromEntries(Object.entries(query.filters).filter(([, value]) => value)),
+        page: String(query.page),
+        pageSize: String(query.pageSize),
+        sortBy: query.sortBy,
+        sortDirection: query.sortDirection,
+      })}`,
+    );
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
-    return [];
+    return { items: [], totalCount: 0 };
   }
+};
+
+export const listTeams = async (tenantGlobalId: string): Promise<TeamListItem[]> => {
+  return (
+    await listTeamGrid(tenantGlobalId, { filters: {}, page: 0, pageSize: 100, sortBy: "name", sortDirection: "asc" })
+  ).items;
 };
 
 export const listTeamPicker = async (tenantGlobalId: string): Promise<TeamPickerItem[]> => {

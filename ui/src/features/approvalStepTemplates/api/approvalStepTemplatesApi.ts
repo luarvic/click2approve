@@ -6,15 +6,40 @@ import axios from "@/shared/api/axios";
 import { ApiPaths } from "@/shared/api/apiPaths";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
+import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
+import type { GridPage } from "@/shared/grids/gridPage";
 
-export const listApprovalStepTemplates = async (tenantGlobalId: string): Promise<ApprovalStepTemplate[]> => {
+export const listApprovalStepTemplateGrid = async (
+  tenantGlobalId: string,
+  query: SimpleGridQuery,
+): Promise<GridPage<ApprovalStepTemplate>> => {
   try {
-    const { data } = await axios.get<ApprovalStepTemplate[]>(ApiPaths.tenants.approvalStepTemplates(tenantGlobalId));
+    const { data } = await axios.get<GridPage<ApprovalStepTemplate>>(
+      `${ApiPaths.tenants.approvalStepTemplates(tenantGlobalId)}?${new URLSearchParams({
+        ...Object.fromEntries(Object.entries(query.filters).filter(([, value]) => value)),
+        page: String(query.page),
+        pageSize: String(query.pageSize),
+        sortBy: query.sortBy,
+        sortDirection: query.sortDirection,
+      })}`,
+    );
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
-    return [];
+    return { items: [], totalCount: 0 };
   }
+};
+
+export const listApprovalStepTemplates = async (tenantGlobalId: string): Promise<ApprovalStepTemplate[]> => {
+  return (
+    await listApprovalStepTemplateGrid(tenantGlobalId, {
+      filters: {},
+      page: 0,
+      pageSize: 100,
+      sortBy: "name",
+      sortDirection: "asc",
+    })
+  ).items;
 };
 
 export const getApprovalStepTemplate = async (

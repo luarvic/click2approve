@@ -3,15 +3,40 @@ import axios from "@/shared/api/axios";
 import { ApiPaths } from "@/shared/api/apiPaths";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
+import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
+import type { GridPage } from "@/shared/grids/gridPage";
 
-export const listApprovalDelegations = async (tenantGlobalId: string): Promise<ApprovalDelegation[]> => {
+export const listApprovalDelegationGrid = async (
+  tenantGlobalId: string,
+  query: SimpleGridQuery,
+): Promise<GridPage<ApprovalDelegation>> => {
   try {
-    const { data } = await axios.get<ApprovalDelegation[]>(ApiPaths.tenants.delegations(tenantGlobalId));
+    const { data } = await axios.get<GridPage<ApprovalDelegation>>(
+      `${ApiPaths.tenants.delegations(tenantGlobalId)}?${new URLSearchParams({
+        ...Object.fromEntries(Object.entries(query.filters).filter(([, value]) => value)),
+        page: String(query.page),
+        pageSize: String(query.pageSize),
+        sortBy: query.sortBy,
+        sortDirection: query.sortDirection,
+      })}`,
+    );
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
-    return [];
+    return { items: [], totalCount: 0 };
   }
+};
+
+export const listApprovalDelegations = async (tenantGlobalId: string): Promise<ApprovalDelegation[]> => {
+  return (
+    await listApprovalDelegationGrid(tenantGlobalId, {
+      filters: {},
+      page: 0,
+      pageSize: 100,
+      sortBy: "employee",
+      sortDirection: "asc",
+    })
+  ).items;
 };
 
 export const getApprovalDelegation = async (

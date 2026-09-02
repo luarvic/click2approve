@@ -3,6 +3,21 @@ import axios from "@/shared/api/axios";
 import { ApiPaths } from "@/shared/api/apiPaths";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
+import { serializeSimpleGridQuery } from "@/shared/grids/simpleGridQuery";
+import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
+import type { GridPage } from "@/shared/grids/gridPage";
+
+export const listTenantGrid = async (query: SimpleGridQuery): Promise<GridPage<TenantListItem>> => {
+  try {
+    const { data } = await axios.get<GridPage<TenantListItem>>(
+      `${ApiPaths.tenants.root}?${serializeSimpleGridQuery(query)}`,
+    );
+    return data;
+  } catch (e) {
+    notification.error(getApiErrorNotification(e));
+    return { items: [], totalCount: 0 };
+  }
+};
 
 export const getCurrentTenantId = async (): Promise<string | null> => {
   try {
@@ -15,13 +30,7 @@ export const getCurrentTenantId = async (): Promise<string | null> => {
 };
 
 export const listTenants = async (): Promise<TenantListItem[]> => {
-  try {
-    const { data } = await axios.get<TenantListItem[]>(ApiPaths.tenants.root);
-    return data;
-  } catch (e) {
-    notification.error(getApiErrorNotification(e));
-    return [];
-  }
+  return (await listTenantGrid({ filters: {}, page: 0, pageSize: 100, sortBy: "name", sortDirection: "asc" })).items;
 };
 
 export const getTenant = async (tenantGlobalId: string): Promise<Tenant | null> => {

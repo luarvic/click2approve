@@ -15,9 +15,8 @@ import {
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
-import { DataGrids, Filters, Routes } from "@/shared/constants/constants";
+import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
-import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { NotificationType } from "@/shared/models/notifications";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
@@ -28,7 +27,7 @@ import { Box, Button, useMediaQuery, useTheme } from "@mui/material";
 import { DataGrid, GridColDef, GridRowSelectionModel, GridToolbarContainer } from "@mui/x-data-grid";
 import type { GridSortModel } from "@mui/x-data-grid";
 import dayjs from "dayjs";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 const notificationColumnFlex = 15;
@@ -67,7 +66,6 @@ const NotificationsGrid = () => {
   const [items, setItems] = useState<Notification[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [filtersAreVisible, setFiltersAreVisible] = useState(false);
-  const [detailsFilter, setDetailsFilter] = useState(query.details);
   const [selectedNotificationGlobalIds, setSelectedNotificationGlobalIds] = useState<GridRowSelectionModel>([]);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const gridLoader = ActionLoaders.grids.notifications(tenantId);
@@ -82,17 +80,6 @@ const NotificationsGrid = () => {
     },
     [query, setSearchParams],
   );
-
-  useEffect(() => {
-    setDetailsFilter(query.details);
-  }, [query.details]);
-
-  const debouncedDetailsFilter = useDebouncedValue(detailsFilter, Filters.textInputDebounceMs);
-  useEffect(() => {
-    if (query.details !== debouncedDetailsFilter) {
-      updateQuery({ details: debouncedDetailsFilter, page: 0 });
-    }
-  }, [debouncedDetailsFilter, query.details, updateQuery]);
 
   const paginationModel = useMemo(() => ({ page: query.page, pageSize: query.pageSize }), [query.page, query.pageSize]);
   const sortModel = useMemo<GridSortModel>(
@@ -230,12 +217,12 @@ const NotificationsGrid = () => {
       {filtersAreVisible && (
         <Box sx={filterContainerSx}>
           <NotificationsFilter
-            details={detailsFilter}
+            details={query.details}
             receivedFrom={receivedFromFilter}
             receivedTo={receivedToFilter}
             statuses={query.status}
             types={query.type}
-            onDetailsChange={setDetailsFilter}
+            onDetailsChange={(details) => updateQuery({ details, page: 0 })}
             onReceivedFromChange={(value) =>
               updateQuery({ page: 0, receivedFrom: value?.format("YYYY-MM-DD") ?? null })
             }

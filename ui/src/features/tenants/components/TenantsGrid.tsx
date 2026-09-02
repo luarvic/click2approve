@@ -1,93 +1,145 @@
-import { stores } from "@/app/rootStore";
-import { EmployeeRole, TenantListItem, TenantType } from "@/features/tenants/models/tenant";
-import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
+import { listTenantGrid } from "@/features/tenants/api/tenantsApi";
+import { EmployeeRole, TenantListItem } from "@/features/tenants/models/tenant";
+import GridFilters from "@/shared/components/grids/GridFilters";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
+import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { DataGrids } from "@/shared/constants/constants";
-import { useGridPaginationForRow } from "@/shared/hooks/useGridPaginationForRow";
+import { parseSimpleGridQuery, serializeSimpleGridQuery } from "@/shared/grids/simpleGridQuery";
+import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
-import { Add } from "@mui/icons-material";
+import { Add, FilterList } from "@mui/icons-material";
+import type { SxProps, Theme } from "@mui/material";
 import { Box, Button, useMediaQuery, useTheme } from "@mui/material";
 import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
+import type { GridSortModel } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const roleLabels: Record<EmployeeRole, string> = {
   [EmployeeRole.User]: "User",
   [EmployeeRole.Admin]: "Admin",
   [EmployeeRole.Owner]: "Owner",
 };
-
+const roleOptions = [
+  { label: "All roles", value: "" },
+  ...Object.entries(roleLabels).map(([value, label]) => ({ label, value })),
+];
+const filterContainerSx: SxProps<Theme> = { mb: 2 };
+const filterKeys = ["name", "role"];
 interface TenantsGridProps {
   currentTenantGlobalId?: string;
 }
 
 const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const theme = useTheme();
   const allColumnsAreVisible = useMediaQuery(theme.breakpoints.up("md"));
   const gridLoader = ActionLoaders.grids.tenants();
-  const businessTenants = stores.tenantStore.businessTenants.filter((tenant) => tenant.type === TenantType.Business);
-  const { paginationModel, setPaginationModel } = useGridPaginationForRow(businessTenants, currentTenantGlobalId);
-
-  const gridIsLoading = useGridRefresh(() => stores.tenantStore.loadBusinessTenants(), "tenants", gridLoader);
-
-  const customToolbar = () => {
-    return (
-      <GridToolbarContainer>
-        <Button startIcon={<Add />} onClick={() => navigate("/tenants/new")}>
-          New organization
-        </Button>
-      </GridToolbarContainer>
-    );
-  };
-
+  const query = useMemo(
+    () => parseSimpleGridQuery(searchParams, "name", ["name"], filterKeys, ["role"]),
+    [searchParams],
+  );
+  const [tenants, setTenants] = useState<TenantListItem[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [filtersAreVisible, setFiltersAreVisible] = useState(false);
+  const appliedFilterCount = Number(Boolean(query.filters.name)) + (query.filters.role as string[]).length;
+  const updateQuery = useCallback(
+    (updates: Partial<SimpleGridQuery>) =>
+      setSearchParams(
+        serializeSimpleGridQuery({ ...query, ...updates, filters: { ...query.filters, ...updates.filters } }),
+        { replace: true },
+      ),
+    [query, setSearchParams],
+  );
+  const gridIsLoading = useGridRefresh(
+    () =>
+      listTenantGrid(query).then((page) => {
+        setTenants(page.items);
+        setTotalCount(page.totalCount);
+      }),
+    serializeSimpleGridQuery(query).toString(),
+    gridLoader,
+  );
+  const sortModel = useMemo<GridSortModel>(
+    () => [{ field: "businessName", sort: query.sortDirection }],
+    [query.sortDirection],
+  );
+  const customToolbar = () => (
+    <GridToolbarContainer>
+      <Button startIcon={<Add />} onClick={() => navigate("/tenants/new")}>
+        New organization
+      </Button>
+      <Button
+        aria-pressed={filtersAreVisible}
+        startIcon={<FilterList />}
+        onClick={() => setFiltersAreVisible((value) => !value)}
+      >
+        {filtersAreVisible ? "Hide filters" : `Show filters${appliedFilterCount > 0 ? ` (${appliedFilterCount})` : ""}`}
+      </Button>
+    </GridToolbarContainer>
+  );
   const columns: GridColDef[] = [
-    {
-      field: "businessName",
-      headerName: "Name",
-      sortable: true,
-      ...DataGrids.tenantsColumnSizing.businessName,
-    },
+    { field: "businessName", headerName: "Name", sortable: true, ...DataGrids.tenantsColumnSizing.businessName },
     {
       field: "currentEmployeeRole",
       headerName: "Role",
       sortable: false,
-      disableColumnMenu: true,
       ...DataGrids.tenantsColumnSizing.currentEmployeeRole,
       valueFormatter: (value) => roleLabels[value as EmployeeRole],
     },
   ];
-
   return (
-    <Box sx={DataGrids.containerSx}>
-      <DataGrid
-        rows={businessTenants}
-        getRowId={(row) => row.globalId}
-        columns={columns}
-        rowSelectionModel={currentTenantGlobalId === undefined ? [] : [currentTenantGlobalId]}
-        hideFooterSelectedRowCount
-        onRowClick={(params) => navigate(`/tenants/${(params.row as TenantListItem).globalId}`)}
-        columnVisibilityModel={{
-          currentEmployeeRole: allColumnsAreVisible,
-        }}
-        paginationModel={paginationModel}
-        onPaginationModelChange={setPaginationModel}
-        pageSizeOptions={DataGrids.pageSizeOptions}
-        disableColumnFilter
-        disableColumnSelector
-        disableRowSelectionOnClick
-        slots={{
-          loadingOverlay: NoLoadingOverlay,
-          toolbar: customToolbar,
-          noRowsOverlay: NoRowsOverlay,
-        }}
-        sx={DataGrids.sx}
-        autoHeight
-        loading={gridIsLoading}
-      />
-    </Box>
+    <>
+      {filtersAreVisible && (
+        <Box sx={filterContainerSx}>
+          <GridFilters
+            fields={[
+              {
+                label: "Name",
+                onChange: (name) => updateQuery({ page: 0, filters: { name } }),
+                value: query.filters.name,
+              },
+              {
+                label: "Role",
+                onChange: (role) => updateQuery({ page: 0, filters: { role } }),
+                multiple: true,
+                options: roleOptions.slice(1),
+                value: query.filters.role as string[],
+              },
+            ]}
+          />
+        </Box>
+      )}
+      <Box sx={DataGrids.containerSx}>
+        <DataGrid
+          rows={tenants}
+          getRowId={(row) => row.globalId}
+          columns={columns}
+          rowSelectionModel={currentTenantGlobalId === undefined ? [] : [currentTenantGlobalId]}
+          hideFooterSelectedRowCount
+          onRowClick={(params) => navigate(`/tenants/${(params.row as TenantListItem).globalId}`)}
+          columnVisibilityModel={{ currentEmployeeRole: allColumnsAreVisible }}
+          paginationModel={{ page: query.page, pageSize: query.pageSize }}
+          paginationMode="server"
+          rowCount={totalCount}
+          onPaginationModelChange={(model) => updateQuery({ page: model.page, pageSize: model.pageSize })}
+          sortingMode="server"
+          sortModel={sortModel}
+          onSortModelChange={(model) => updateQuery({ page: 0, sortDirection: model[0]?.sort ?? "asc" })}
+          pageSizeOptions={DataGrids.pageSizeOptions}
+          disableColumnFilter
+          disableColumnSelector
+          disableRowSelectionOnClick
+          slots={{ loadingOverlay: NoLoadingOverlay, toolbar: customToolbar, noRowsOverlay: NoRowsOverlay }}
+          sx={DataGrids.sx}
+          autoHeight
+          loading={gridIsLoading}
+        />
+      </Box>
+    </>
   );
 };
-
 export default observer(TenantsGrid);
