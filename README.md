@@ -18,8 +18,9 @@ decisions and discussion, and tracking request history.
 
 ## Features
 
-- Sign up, sign in, confirm email addresses, reset passwords, and use
-  authenticated browser sessions through the built-in account API.
+- Sign up, sign in with a password or passkey, confirm email addresses, reset
+  passwords, and use authenticated browser sessions through the built-in
+  account API.
 - Compose workflow requests with one or more files, a title, description, and
   email-based assignees.
 - Build multi-step workflows with serial or parallel assignee steps, choosing approval, signature, confirmation,

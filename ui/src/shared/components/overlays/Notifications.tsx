@@ -8,7 +8,12 @@ import type { Theme } from "@mui/material/styles";
 import { useEffect, useState } from "react";
 
 const notificationAlertSx: SxProps<Theme> = { width: "100%" };
-const snackbarSx: SxProps<Theme> = { opacity: 0.9 };
+const snackbarSx: SxProps<Theme> = {
+  left: "auto",
+  maxWidth: { xs: "calc(100vw - 16px)", sm: "calc(100vw - 48px)" },
+  opacity: 0.9,
+  right: { xs: "8px", sm: "24px" },
+};
 const closeButtonAriaLabel = "Close";
 const SlideTransition = (props: SlideProps) => <Slide {...props} direction="up" />;
 

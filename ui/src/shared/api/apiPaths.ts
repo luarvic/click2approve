@@ -3,6 +3,13 @@ export const ApiPaths = {
     confirmEmail: "api/v1/account/confirmEmail",
     forgotPassword: "api/v1/account/forgotPassword",
     login: "api/v1/account/login",
+    passkeys: {
+      authentication: "api/v1/account/passkeys/authentication",
+      authenticationOptions: "api/v1/account/passkeys/authentication/options",
+      registration: "api/v1/account/passkeys/registration",
+      registrationOptions: "api/v1/account/passkeys/registration/options",
+      root: "api/v1/account/passkeys",
+    },
     manageInfo: "api/v1/account/manage/info",
     refresh: "api/v1/account/refresh",
     register: "api/v1/account/register",

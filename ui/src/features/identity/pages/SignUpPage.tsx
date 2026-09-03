@@ -2,7 +2,7 @@ import { stores } from "@/app/rootStore";
 import { Credentials } from "@/features/identity/models/credentials";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import { AuthForms, Information, Routes, Validation } from "@/shared/constants/constants";
+import { AuthForms, Information, Routes, StackSpacing, Validation } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { validateEmail, validatePassword } from "@/shared/utils/validators";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
@@ -17,6 +17,7 @@ import {
   InputLabel,
   Link,
   OutlinedInput,
+  Stack,
   TextField,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
@@ -86,7 +87,7 @@ const SignUpPage = () => {
     <Container component="main" maxWidth={AuthForms.maxWidth}>
       <Box sx={AuthForms.containerSx}>
         <PageBreadcrumbs items={[{ label: "Sign up" }]} />
-        <Box component="form" onSubmit={handleSubmit} noValidate>
+        <Box component="form" onSubmit={handleSubmit} noValidate sx={AuthForms.authFormSx}>
           <TextField
             margin="normal"
             variant={AuthForms.inputVariant}
@@ -150,16 +151,20 @@ const SignUpPage = () => {
               {!passwordError && passwordConfirmationError && "Does not match password"}
             </FormHelperText>
           </FormControl>
-          <MainActionButton loading={isLoading} type="submit" fullWidth sx={AuthForms.submitButtonSx}>
-            Sign up
-          </MainActionButton>
-          <Grid container>
-            <Grid item>
-              <Link component="button" type="button" variant="body2" onClick={() => navigate("/signIn")}>
-                Already have an account? Sign in
-              </Link>
-            </Grid>
-          </Grid>
+          <Box sx={AuthForms.authActionsSx}>
+            <Stack spacing={StackSpacing.loose}>
+              <MainActionButton loading={isLoading} type="submit" fullWidth>
+                Sign up
+              </MainActionButton>
+              <Grid container>
+                <Grid item>
+                  <Link component="button" type="button" variant="body2" onClick={() => navigate("/signIn")}>
+                    Already have an account? Sign in
+                  </Link>
+                </Grid>
+              </Grid>
+            </Stack>
+          </Box>
         </Box>
       </Box>
     </Container>

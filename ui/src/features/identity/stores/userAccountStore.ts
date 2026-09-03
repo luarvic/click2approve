@@ -6,6 +6,7 @@ import {
   resendUserConfirmationEmail,
   resetUserPassword,
 } from "@/features/identity/api/authApi";
+import { signInWithPasskey } from "@/features/identity/api/passkeysApi";
 import { CredentialsData } from "@/features/identity/models/credentials";
 import { UserAccount } from "@/features/identity/models/userAccount";
 import { deleteTokens, readTokens } from "@/shared/session/session";
@@ -35,6 +36,16 @@ export class UserAccountStore {
       this.signOut();
     }
     if (await loginUser(credentials)) {
+      return await this.signInWithCachedToken();
+    }
+    return false;
+  };
+
+  signInWithPasskey = async (): Promise<boolean> => {
+    if (this.currentUser) {
+      this.signOut();
+    }
+    if (await signInWithPasskey()) {
       return await this.signInWithCachedToken();
     }
     return false;

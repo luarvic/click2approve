@@ -1,14 +1,17 @@
 import { stores } from "@/app/rootStore";
+import { browserSupportsPasskeys } from "@/features/identity/api/passkeysApi";
 import { Credentials } from "@/features/identity/models/credentials";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import { AuthForms, Routes, Text } from "@/shared/constants/constants";
+import { AuthForms, Routes, StackSpacing, Text } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { validateEmail } from "@/shared/utils/validators";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Box,
+  Button,
   Container,
+  Divider,
   FormControl,
   FormHelperText,
   Grid,
@@ -17,7 +20,9 @@ import {
   InputLabel,
   Link,
   OutlinedInput,
+  Stack,
   TextField,
+  Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
@@ -60,11 +65,19 @@ const SignInPage = () => {
     }
   };
 
+  const handlePasskeySignIn = async () => {
+    setIsLoading(true);
+    if (await stores.userAccountStore.signInWithPasskey()) {
+      navigate(Routes.defaultPath);
+    }
+    setIsLoading(false);
+  };
+
   return (
     <Container component="main" maxWidth={AuthForms.maxWidth}>
       <Box sx={AuthForms.containerSx}>
         <PageBreadcrumbs items={[{ label: "Sign in" }]} />
-        <Box component="form" onSubmit={handleSubmit} noValidate>
+        <Box component="form" onSubmit={handleSubmit} noValidate sx={AuthForms.authFormSx}>
           <TextField
             margin="normal"
             variant={AuthForms.inputVariant}
@@ -104,31 +117,45 @@ const SignInPage = () => {
               {passwordError && "Password cannot be empty"}
             </FormHelperText>
           </FormControl>
-          <MainActionButton loading={isLoading} type="submit" fullWidth sx={AuthForms.submitButtonSx}>
-            Sign in
-          </MainActionButton>
-          <Grid container>
-            <Grid item xs={4}>
-              <Link component="button" type="button" variant="body2" onClick={() => navigate("/forgotPassword")}>
-                Forgot password
-              </Link>
-            </Grid>
-            <Grid item xs={4} sx={Text.alignCenterSx}>
-              <Link
-                component="button"
-                type="button"
-                variant="body2"
-                onClick={() => navigate("/resendConfirmationEmail")}
-              >
-                Resend confirmation
-              </Link>
-            </Grid>
-            <Grid item xs={4} sx={Text.alignRightSx}>
-              <Link component="button" type="button" variant="body2" onClick={() => navigate("/signUp")}>
-                New to us? Sign up
-              </Link>
-            </Grid>
-          </Grid>
+          <Box sx={AuthForms.authActionsSx}>
+            <Stack spacing={StackSpacing.loose}>
+              <MainActionButton loading={isLoading} type="submit" fullWidth>
+                Sign in
+              </MainActionButton>
+              <Grid container>
+                <Grid item xs={4}>
+                  <Link component="button" type="button" variant="body2" onClick={() => navigate("/forgotPassword")}>
+                    Forgot password
+                  </Link>
+                </Grid>
+                <Grid item xs={4} sx={Text.alignCenterSx}>
+                  <Link
+                    component="button"
+                    type="button"
+                    variant="body2"
+                    onClick={() => navigate("/resendConfirmationEmail")}
+                  >
+                    Resend confirmation
+                  </Link>
+                </Grid>
+                <Grid item xs={4} sx={Text.alignRightSx}>
+                  <Link component="button" type="button" variant="body2" onClick={() => navigate("/signUp")}>
+                    New to us? Sign up
+                  </Link>
+                </Grid>
+              </Grid>
+              {browserSupportsPasskeys() && (
+                <>
+                  <Typography color="text.secondary" component="div" variant="body2">
+                    <Divider>OR</Divider>
+                  </Typography>
+                  <Button disabled={isLoading} fullWidth onClick={handlePasskeySignIn} type="button" variant="outlined">
+                    Sign in with a passkey
+                  </Button>
+                </>
+              )}
+            </Stack>
+          </Box>
         </Box>
       </Box>
     </Container>

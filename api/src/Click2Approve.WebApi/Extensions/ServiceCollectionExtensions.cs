@@ -23,6 +23,12 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddFido2(options =>
+        {
+            options.ServerDomain = configuration["Passkeys:RelyingPartyId"];
+            options.ServerName = configuration["Passkeys:RelyingPartyName"];
+            options.Origins = configuration.GetSection("Passkeys:Origins").Get<HashSet<string>>();
+        });
         services.AddAuthentication();
         services.Configure<BearerTokenOptions>(IdentityConstants.BearerScheme, options =>
         {

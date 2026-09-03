@@ -2,7 +2,7 @@ import { stores } from "@/app/rootStore";
 import { Credentials } from "@/features/identity/models/credentials";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import { AuthForms, Routes, Validation } from "@/shared/constants/constants";
+import { AuthForms, Routes, StackSpacing, Validation } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { validatePassword } from "@/shared/utils/validators";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
@@ -17,6 +17,7 @@ import {
   InputLabel,
   Link,
   OutlinedInput,
+  Stack,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
@@ -86,7 +87,7 @@ const ResetPasswordPage = () => {
     <Container component="main" maxWidth={AuthForms.maxWidth}>
       <Box sx={AuthForms.containerSx}>
         <PageBreadcrumbs items={[{ label: "Reset password" }]} />
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={AuthForms.formSx}>
+        <Box component="form" onSubmit={handleSubmit} noValidate sx={AuthForms.authFormSx}>
           <FormControl margin="normal" fullWidth variant={AuthForms.inputVariant} required>
             <InputLabel error={passwordError}>Password</InputLabel>
             <OutlinedInput
@@ -137,21 +138,25 @@ const ResetPasswordPage = () => {
               {!passwordError && passwordConfirmationError && "Does not match password"}
             </FormHelperText>
           </FormControl>
-          <MainActionButton loading={isLoading} type="submit" fullWidth sx={AuthForms.submitButtonSx}>
-            Reset
-          </MainActionButton>
-          <Grid container>
-            <Grid item xs>
-              <Link component="button" type="button" variant="body2" onClick={() => navigate("/signIn")}>
-                Sign in
-              </Link>
-            </Grid>
-            <Grid item>
-              <Link component="button" type="button" variant="body2" onClick={() => navigate("/signUp")}>
-                New to us? Sign up
-              </Link>
-            </Grid>
-          </Grid>
+          <Box sx={AuthForms.authActionsSx}>
+            <Stack spacing={StackSpacing.loose}>
+              <MainActionButton loading={isLoading} type="submit" fullWidth>
+                Reset
+              </MainActionButton>
+              <Grid container>
+                <Grid item xs>
+                  <Link component="button" type="button" variant="body2" onClick={() => navigate("/signIn")}>
+                    Sign in
+                  </Link>
+                </Grid>
+                <Grid item>
+                  <Link component="button" type="button" variant="body2" onClick={() => navigate("/signUp")}>
+                    New to us? Sign up
+                  </Link>
+                </Grid>
+              </Grid>
+            </Stack>
+          </Box>
         </Box>
       </Box>
     </Container>

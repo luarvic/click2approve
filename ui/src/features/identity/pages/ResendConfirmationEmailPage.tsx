@@ -1,10 +1,10 @@
 import { stores } from "@/app/rootStore";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
-import { AuthForms, Information } from "@/shared/constants/constants";
+import { AuthForms, Information, StackSpacing } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { validateEmail } from "@/shared/utils/validators";
-import { Box, Container, Grid, Link, TextField } from "@mui/material";
+import { Box, Container, Grid, Link, Stack, TextField } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -41,7 +41,7 @@ const ResendConfirmationEmailPage = () => {
     <Container component="main" maxWidth={AuthForms.maxWidth}>
       <Box sx={AuthForms.containerSx}>
         <PageBreadcrumbs items={[{ label: "Email confirmation" }]} />
-        <Box component="form" onSubmit={handleSubmit} noValidate>
+        <Box component="form" onSubmit={handleSubmit} noValidate sx={AuthForms.authFormSx}>
           <TextField
             margin="normal"
             variant={AuthForms.inputVariant}
@@ -56,21 +56,25 @@ const ResendConfirmationEmailPage = () => {
             helperText={emailError && "Invalid email address"}
             onChange={() => setEmailError(false)}
           />
-          <MainActionButton loading={isLoading} type="submit" fullWidth sx={AuthForms.submitButtonSx}>
-            Send email confirmation link
-          </MainActionButton>
-          <Grid container>
-            <Grid item xs>
-              <Link component="button" type="button" variant="body2" onClick={() => navigate("/signIn")}>
-                Sign in
-              </Link>
-            </Grid>
-            <Grid item>
-              <Link component="button" type="button" variant="body2" onClick={() => navigate("/signUp")}>
-                New to us? Sign up
-              </Link>
-            </Grid>
-          </Grid>
+          <Box sx={AuthForms.authActionsSx}>
+            <Stack spacing={StackSpacing.loose}>
+              <MainActionButton loading={isLoading} type="submit" fullWidth>
+                Send email confirmation link
+              </MainActionButton>
+              <Grid container>
+                <Grid item xs>
+                  <Link component="button" type="button" variant="body2" onClick={() => navigate("/signIn")}>
+                    Sign in
+                  </Link>
+                </Grid>
+                <Grid item>
+                  <Link component="button" type="button" variant="body2" onClick={() => navigate("/signUp")}>
+                    New to us? Sign up
+                  </Link>
+                </Grid>
+              </Grid>
+            </Stack>
+          </Box>
         </Box>
       </Box>
     </Container>

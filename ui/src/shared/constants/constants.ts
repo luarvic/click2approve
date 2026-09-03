@@ -77,9 +77,10 @@ export const AuthForms = {
     alignItems: "center",
   } as SxProps<Theme>,
   maxWidth: "xs",
+  authFormSx: { width: "100%" } as SxProps<Theme>,
+  authActionsSx: { mt: 2 } as SxProps<Theme>,
   formSx: { mt: 1 } as SxProps<Theme>,
   inputVariant: "outlined",
-  submitButtonSx: { mt: 2, mb: 2 } as SxProps<Theme>,
 } as const;
 
 export const Information = {

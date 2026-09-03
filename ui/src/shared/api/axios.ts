@@ -8,6 +8,7 @@ import axios from "axios";
 const axiosInstance = axios.create({
   baseURL: Api.baseUri,
   timeout: Api.timeoutMs,
+  withCredentials: true,
 });
 
 const apiDelayMs = Number(import.meta.env.VITE_API_DELAY_MS ?? 0);
@@ -17,6 +18,8 @@ const workEmployeeInvalidHeaderName = "X-Click2Approve-Work-Employee-Invalid";
 const anonymousUrls: string[] = [
   ApiPaths.account.forgotPassword,
   ApiPaths.account.login,
+  ApiPaths.account.passkeys.authentication,
+  ApiPaths.account.passkeys.authenticationOptions,
   ApiPaths.account.refresh,
   ApiPaths.account.register,
   ApiPaths.account.resendConfirmationEmail,

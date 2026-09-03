@@ -30,7 +30,8 @@ public static class WebApplicationExtensions
         app.UseCors(policy =>
         {
             policy.AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowCredentials();
             if (exposedHeaders.Length > 0)
             {
                 policy.WithExposedHeaders(exposedHeaders);
