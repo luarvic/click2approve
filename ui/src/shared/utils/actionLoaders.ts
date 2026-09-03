@@ -22,6 +22,7 @@ export const ActionLoaderScopes = {
   gridsEmployees: "grids.employees",
   gridsTasks: "grids.tasks",
   gridsNotifications: "grids.notifications",
+  gridsPasskeys: "grids.passkeys",
   gridsRequests: "grids.requests",
   gridsReceipts: "grids.receipts",
   gridsTeams: "grids.teams",
@@ -36,6 +37,8 @@ export const ActionLoaderScopes = {
   pagesTeamEditor: "pages.teamEditor",
   pagesTenantScope: "pages.tenantScope",
   pagesUserProfile: "pages.userProfile",
+  passkeysAdd: "passkeys.add",
+  passkeysRemove: "passkeys.remove",
   receiptLinksCreateForRequest: "receiptLinks.createForRequest",
   receiptLinksCreateForTask: "receiptLinks.createForTask",
   receiptLinksDelete: "receiptLinks.delete",
@@ -53,6 +56,7 @@ export const GlobalLoadingActionLoaderScopes = [
   ActionLoaderScopes.gridsEmployees,
   ActionLoaderScopes.gridsTasks,
   ActionLoaderScopes.gridsNotifications,
+  ActionLoaderScopes.gridsPasskeys,
   ActionLoaderScopes.gridsRequests,
   ActionLoaderScopes.gridsReceipts,
   ActionLoaderScopes.gridsTeams,
@@ -121,6 +125,11 @@ export const ActionLoaders = {
     markRead: (tenantGlobalId: string | null | undefined) =>
       createActionLoaderKey(ActionLoaderScopes.notificationsMarkRead, tenantGlobalId ?? undefined),
   },
+  passkeys: {
+    add: () => ActionLoaderScopes.passkeysAdd,
+    remove: (credentialId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.passkeysRemove, credentialId),
+  },
   pages: {
     approvalRequestStart: () => ActionLoaderScopes.pagesApprovalRequestStart,
     approvalRequestSubmit: (approvalRequestGlobalId: string | undefined) =>
@@ -151,6 +160,7 @@ export const ActionLoaders = {
       createActionLoaderKey(ActionLoaderScopes.gridsReceipts, tenantGlobalId ?? undefined),
     notifications: (tenantGlobalId: string | null | undefined) =>
       createActionLoaderKey(ActionLoaderScopes.gridsNotifications, tenantGlobalId ?? undefined),
+    passkeys: () => ActionLoaderScopes.gridsPasskeys,
     teams: (tenantGlobalId: string | null | undefined) =>
       createActionLoaderKey(ActionLoaderScopes.gridsTeams, tenantGlobalId ?? undefined),
     tenants: () => ActionLoaderScopes.gridsTenants,

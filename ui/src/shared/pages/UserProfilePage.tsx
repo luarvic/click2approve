@@ -1,5 +1,6 @@
 import { stores } from "@/app/rootStore";
 import ApprovalRequestSignatureField from "@/features/approvalRequests/components/ApprovalRequestSignatureField";
+import PasskeySettings from "@/features/identity/components/PasskeySettings";
 import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
 import ImagePicker from "@/shared/components/images/ImagePicker";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
@@ -165,6 +166,7 @@ const UserProfilePage = () => {
         <Stack component="form" noValidate spacing={StackSpacing.loose} sx={AuthForms.formSx}>
           <Tabs value={selectedTab} onChange={(_, value: string) => setSelectedTab(value)} variant="scrollable">
             <Tab label="Profile" value="profile" />
+            <Tab label="Passkeys" value="passkeys" />
             <Tab label="Signature" value="signature" />
             <Tab label="Notifications" value="notifications" />
           </Tabs>
@@ -238,6 +240,7 @@ const UserProfilePage = () => {
               </Table>
             </Stack>
           )}
+          {selectedTab === "passkeys" && <PasskeySettings />}
           {selectedTab === "signature" && (
             <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
               <Typography color="text.secondary">
