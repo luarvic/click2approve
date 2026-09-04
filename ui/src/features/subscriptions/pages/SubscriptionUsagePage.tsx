@@ -8,7 +8,7 @@ import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { parseUtcDateTime } from "@/shared/utils/dateTime";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import type { SxProps, Theme } from "@mui/material";
-import { Box, Card, CardContent, Grid, Stack, Typography } from "@mui/material";
+import { Box, Card, CardContent, Grid, Stack, Typography, useTheme } from "@mui/material";
 import type { SystemStyleObject } from "@mui/system";
 import { PieChart } from "@mui/x-charts/PieChart";
 import prettyBytes from "pretty-bytes";
@@ -20,10 +20,6 @@ const usageChartMargin = { bottom: 5, left: 5, right: 5, top: 5 };
 const bytesPerGigabyte = 1000 * 1000 * 1000;
 const usageLegendMarkerSize = 16;
 const usageLegendSpacing = 1;
-const usageChartColors = {
-  available: "#D5DEE2",
-  used: "#22c55e",
-} as const;
 const usageLegendSx: SxProps<Theme> = { mt: 0 };
 const usageSummarySx: SxProps<Theme> = { mt: 1 };
 const usageCardSx: SxProps<Theme> = [
@@ -55,6 +51,7 @@ const getBillingPeriodSubtitle = (startsAt: string, endsAt: string) => {
 
 const SubscriptionUsagePage = () => {
   const { tenantGlobalId } = useParams<{ tenantGlobalId: string }>();
+  const theme = useTheme();
   const [usage, setUsage] = useState<SubscriptionUsage | null>(null);
   const [usageHasLoaded, setUsageHasLoaded] = useState(false);
   const usageLoader = ActionLoaders.subscriptionUsage.load(tenantGlobalId);
@@ -87,6 +84,10 @@ const SubscriptionUsagePage = () => {
   }, [tenantGlobalId, usageLoader]);
 
   if (!usage || !usageHasLoaded) return null;
+  const usageChartColors = {
+    available: theme.palette.mode === "dark" ? theme.palette.grey[800] : "#D5DEE2",
+    used: "#22c55e",
+  };
   const items = [
     {
       label: "Requests",
