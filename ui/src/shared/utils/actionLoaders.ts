@@ -37,6 +37,8 @@ export const ActionLoaderScopes = {
   pagesTeamEditor: "pages.teamEditor",
   pagesTenantScope: "pages.tenantScope",
   pagesUserProfile: "pages.userProfile",
+  subscriptionPlanChange: "subscriptionPlan.change",
+  subscriptionPlanLoad: "subscriptionPlan.load",
   subscriptionUsageLoad: "subscriptionUsage.load",
   passkeysAdd: "passkeys.add",
   passkeysRemove: "passkeys.remove",
@@ -74,6 +76,8 @@ export const GlobalLoadingActionLoaderScopes = [
   ActionLoaderScopes.pagesTeamEditor,
   ActionLoaderScopes.pagesTenantScope,
   ActionLoaderScopes.pagesUserProfile,
+  ActionLoaderScopes.subscriptionPlanChange,
+  ActionLoaderScopes.subscriptionPlanLoad,
   ActionLoaderScopes.subscriptionUsageLoad,
 ] as const;
 
@@ -178,6 +182,11 @@ export const ActionLoaders = {
   subscriptionUsage: {
     load: (tenantGlobalId: string | undefined) =>
       createActionLoaderKey(ActionLoaderScopes.subscriptionUsageLoad, tenantGlobalId),
+  },
+  subscriptionPlan: {
+    change: (tenantGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.subscriptionPlanChange, tenantGlobalId),
+    load: () => ActionLoaderScopes.subscriptionPlanLoad,
   },
   teams: {
     save: (teamGlobalId: string | undefined) => createActionLoaderKey(ActionLoaderScopes.teamsSave, teamGlobalId),

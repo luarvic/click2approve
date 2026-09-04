@@ -37,6 +37,7 @@ public class ApplicationConfigurationController(IConfiguration configuration) : 
                 ApprovalStepTemplates = _configuration.GetValue<bool>("Product:Capabilities:ApprovalStepTemplates"),
                 ApprovalRequestRevisions = _configuration.GetValue<bool>("Product:Capabilities:ApprovalRequestRevisions"),
                 Receipts = _configuration.GetValue<bool>("Product:Capabilities:Receipts"),
+                Subscriptions = _configuration.GetValue<bool>("Product:Capabilities:Subscriptions"),
                 TaskAttachments = _configuration.GetValue<bool>("Product:Capabilities:TaskAttachments")
             }
         });

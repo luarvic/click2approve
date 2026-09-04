@@ -59,6 +59,7 @@ const MainMenuDrawer = () => {
   const currentUser = stores.userAccountStore.currentUser;
   const organizationsIsVisible = stores.applicationConfigurationStore.tenantsAreEnabled;
   const receiptsIsVisible = stores.applicationConfigurationStore.receiptsAreEnabled;
+  const subscriptionsIsVisible = stores.applicationConfigurationStore.subscriptionsAreEnabled;
   const employeeManagerIsVisible =
     stores.applicationConfigurationStore.tenantsAreEnabled &&
     currentTenant?.type === TenantType.Business &&
@@ -309,36 +310,38 @@ const MainMenuDrawer = () => {
           )}
         </List>
       )}
-      <List subheader={<ListSubheader component="div">Subscription</ListSubheader>}>
-        <ListItem key="subscriptionPlan" disablePadding>
-          <ListItemButton
-            selected={location.pathname.startsWith(subscriptionPlanPath)}
-            onClick={() => {
-              navigate(subscriptionPlanPath);
-              closeTemporaryDrawer();
-            }}
-          >
-            <ListItemIcon sx={Lists.itemIconSx}>
-              <StyleTwoTone />
-            </ListItemIcon>
-            <ListItemText primary="Plan" />
-          </ListItemButton>
-        </ListItem>
-        <ListItem key="subscriptionUsage" disablePadding>
-          <ListItemButton
-            selected={location.pathname.startsWith(subscriptionUsagePath)}
-            onClick={() => {
-              navigate(subscriptionUsagePath);
-              closeTemporaryDrawer();
-            }}
-          >
-            <ListItemIcon sx={Lists.itemIconSx}>
-              <ShowChartTwoTone />
-            </ListItemIcon>
-            <ListItemText primary="Usage" />
-          </ListItemButton>
-        </ListItem>
-      </List>
+      {subscriptionsIsVisible && (
+        <List subheader={<ListSubheader component="div">Subscription</ListSubheader>}>
+          <ListItem key="subscriptionPlan" disablePadding>
+            <ListItemButton
+              selected={location.pathname.startsWith(subscriptionPlanPath)}
+              onClick={() => {
+                navigate(subscriptionPlanPath);
+                closeTemporaryDrawer();
+              }}
+            >
+              <ListItemIcon sx={Lists.itemIconSx}>
+                <StyleTwoTone />
+              </ListItemIcon>
+              <ListItemText primary="Plan" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem key="subscriptionUsage" disablePadding>
+            <ListItemButton
+              selected={location.pathname.startsWith(subscriptionUsagePath)}
+              onClick={() => {
+                navigate(subscriptionUsagePath);
+                closeTemporaryDrawer();
+              }}
+            >
+              <ListItemIcon sx={Lists.itemIconSx}>
+                <ShowChartTwoTone />
+              </ListItemIcon>
+              <ListItemText primary="Usage" />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      )}
       <List subheader={<ListSubheader component="div">Support</ListSubheader>}>
         <ListItem key="help" disablePadding>
           <ListItemButton component="a" href={Api.uiBaseUri} onClick={closeTemporaryDrawer}>

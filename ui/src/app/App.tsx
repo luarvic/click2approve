@@ -117,9 +117,15 @@ const App = () => {
                       <Route path="receipts" element={<ReceiptsPage />} />
                       <Route path="receipts/:receiptGlobalId" element={<ReceiptPage />} />
                       <Route path="receipts/:receiptGlobalId/share" element={<ReceiptPage tab="share" />} />
-                      <Route path="subscription/plan" element={<SubscriptionPlanPage />} />
-                      <Route path="subscription/usage" element={<SubscriptionUsagePage />} />
-                      <Route path="subscription/billing" element={<SubscriptionBillingPage />} />
+                      <Route
+                        element={
+                          <RouteGuard isAllowed={stores.applicationConfigurationStore.subscriptionsAreEnabled} />
+                        }
+                      >
+                        <Route path="subscription/plan" element={<SubscriptionPlanPage />} />
+                        <Route path="subscription/usage" element={<SubscriptionUsagePage />} />
+                        <Route path="subscription/billing" element={<SubscriptionBillingPage />} />
+                      </Route>
                       <Route path="requests/new" element={<ApprovalRequestStartPage />} />
                       <Route path="requests/new/compose" element={<ApprovalRequestSubmitPage />} />
                       <Route

@@ -42,6 +42,10 @@ export class ApplicationConfigurationStore {
     return this.applicationConfiguration?.capabilities.receipts === true;
   }
 
+  get subscriptionsAreEnabled(): boolean {
+    return this.applicationConfiguration?.capabilities.subscriptions === true;
+  }
+
   get taskAttachmentsAreEnabled(): boolean {
     return this.applicationConfiguration?.capabilities.taskAttachments === true;
   }

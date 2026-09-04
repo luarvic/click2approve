@@ -13,5 +13,6 @@ public class ProductCapabilitiesResponse
     public bool ApprovalStepTemplates { get; set; }
     public bool ApprovalRequestRevisions { get; set; }
     public bool Receipts { get; set; }
+    public bool Subscriptions { get; set; }
     public bool TaskAttachments { get; set; }
 }

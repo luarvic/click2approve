@@ -15,5 +15,6 @@ export interface ProductCapabilities {
   approvalStepTemplates: boolean;
   approvalRequestRevisions: boolean;
   receipts: boolean;
+  subscriptions: boolean;
   taskAttachments: boolean;
 }

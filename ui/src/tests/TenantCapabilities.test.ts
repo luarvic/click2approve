@@ -12,6 +12,7 @@ const applicationConfiguration: ApplicationConfiguration = {
     discussions: true,
     employeeAssignees: true,
     receipts: true,
+    subscriptions: true,
     taskAttachments: true,
     teamAssignees: true,
     tenants: true,

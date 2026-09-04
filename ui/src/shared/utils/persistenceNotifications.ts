@@ -23,6 +23,7 @@ export const PersistenceSuccessMessages = {
   receiptLinkCopied: "Receipt link copied successfully.",
   receiptLinkCreated: "Receipt link created and copied successfully.",
   receiptLinkDeleted: "Receipt link deleted successfully.",
+  subscriptionPlanChanged: "Plan changed successfully.",
   teamDeleted: "Team deleted successfully.",
   teamSaved: "Team saved successfully.",
   templateDeleted: "Template deleted successfully.",
