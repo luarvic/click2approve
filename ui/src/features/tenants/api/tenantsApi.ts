@@ -1,11 +1,11 @@
 import { CreateTenantRequest, Tenant, TenantListItem, UpdateTenantRequest } from "@/features/tenants/models/tenant";
-import axios from "@/shared/api/axios";
 import { ApiPaths } from "@/shared/api/apiPaths";
+import axios from "@/shared/api/axios";
+import type { GridPage } from "@/shared/grids/gridPage";
+import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
+import { serializeSimpleGridQuery } from "@/shared/grids/simpleGridQuery";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
-import { serializeSimpleGridQuery } from "@/shared/grids/simpleGridQuery";
-import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
-import type { GridPage } from "@/shared/grids/gridPage";
 
 export const listTenantGrid = async (query: SimpleGridQuery): Promise<GridPage<TenantListItem>> => {
   try {
@@ -30,7 +30,15 @@ export const getCurrentTenantId = async (): Promise<string | null> => {
 };
 
 export const listTenants = async (): Promise<TenantListItem[]> => {
-  return (await listTenantGrid({ filters: {}, page: 0, pageSize: 100, sortBy: "name", sortDirection: "asc" })).items;
+  return (
+    await listTenantGrid({
+      filters: {},
+      page: 0,
+      pageSize: 100,
+      sortBy: "name",
+      sortDirection: "asc",
+    })
+  ).items;
 };
 
 export const getTenant = async (tenantGlobalId: string): Promise<Tenant | null> => {
@@ -71,6 +79,7 @@ export const createTenantWithLogo = async (payload: CreateTenantRequest, logo: F
     formData.append("phone", payload.phone ?? "");
     formData.append("address", payload.address ?? "");
     formData.append("websiteUrl", payload.websiteUrl ?? "");
+    formData.append("subscriptionPlan", payload.subscriptionPlan?.toString() ?? "");
     formData.append("logo", logo);
     const { data } = await axios.post<Tenant>(ApiPaths.tenants.withLogo, formData);
     return data;

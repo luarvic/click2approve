@@ -37,6 +37,7 @@ export const ActionLoaderScopes = {
   pagesTeamEditor: "pages.teamEditor",
   pagesTenantScope: "pages.tenantScope",
   pagesUserProfile: "pages.userProfile",
+  subscriptionUsageLoad: "subscriptionUsage.load",
   passkeysAdd: "passkeys.add",
   passkeysRemove: "passkeys.remove",
   receiptLinksCreateForRequest: "receiptLinks.createForRequest",
@@ -73,6 +74,7 @@ export const GlobalLoadingActionLoaderScopes = [
   ActionLoaderScopes.pagesTeamEditor,
   ActionLoaderScopes.pagesTenantScope,
   ActionLoaderScopes.pagesUserProfile,
+  ActionLoaderScopes.subscriptionUsageLoad,
 ] as const;
 
 export const ActionLoaders = {
@@ -172,6 +174,10 @@ export const ActionLoaders = {
       createActionLoaderKey(ActionLoaderScopes.receiptLinksCreateForTask, approvalRequestTaskGlobalId),
     delete: (linkGlobalId: string | undefined) =>
       createActionLoaderKey(ActionLoaderScopes.receiptLinksDelete, linkGlobalId),
+  },
+  subscriptionUsage: {
+    load: (tenantGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.subscriptionUsageLoad, tenantGlobalId),
   },
   teams: {
     save: (teamGlobalId: string | undefined) => createActionLoaderKey(ActionLoaderScopes.teamsSave, teamGlobalId),

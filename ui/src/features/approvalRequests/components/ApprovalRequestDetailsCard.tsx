@@ -2,10 +2,14 @@ import {
   ApprovalRequestDetailsCardMode,
   ApprovalRequestDetailsCardModeContext,
 } from "@/features/approvalRequests/components/ApprovalRequestDetailsCardContext";
+import {
+  elevatedStandardCardSx,
+  standardCardContentSx,
+  standardCardSx,
+} from "@/shared/components/papers/StandardCardStyles";
 import type { SxProps } from "@mui/material";
 import { Card, CardContent } from "@mui/material";
-import type { Theme } from "@mui/material/styles";
-import { alpha } from "@mui/material/styles";
+import { alpha, type Theme } from "@mui/material/styles";
 import type { SystemStyleObject } from "@mui/system";
 import type { ReactNode } from "react";
 
@@ -30,26 +34,6 @@ const clickableCardSx: SxProps<Theme> = {
     outlineColor: "success.main",
     outlineOffset: 2,
   },
-};
-
-const detailsCardSx: SxProps<Theme> = {
-  alignSelf: "stretch",
-  border: "1px solid",
-  borderColor: "divider",
-  borderRadius: 1,
-  boxShadow: (theme) => `0 2px 4px ${alpha(theme.palette.common.black, 0.08)}`,
-  p: 0,
-};
-
-const detailsCardContentSx: SxProps<Theme> = {
-  p: 2,
-  "&:last-child": {
-    pb: 2,
-  },
-};
-
-const elevatedCardSx: SxProps<Theme> = {
-  boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.common.black, 0.12)}`,
 };
 
 export const taskCardBackgroundSx: SxProps<Theme> = {
@@ -78,14 +62,14 @@ const ApprovalRequestDetailsCard: React.FC<ApprovalRequestDetailsCardProps> = ({
     borderLeftColor,
   };
   const cardSx: SxProps<Theme> = [
-    detailsCardSx as SystemStyleObject<Theme>,
-    ...(elevated ? [elevatedCardSx as SystemStyleObject<Theme>] : []),
+    standardCardSx as SystemStyleObject<Theme>,
+    ...(elevated ? [elevatedStandardCardSx as SystemStyleObject<Theme>] : []),
     ...(isClickable ? [clickableCardSx as SystemStyleObject<Theme>] : []),
     ...(showStatusBorder ? [statusBorderSx] : []),
     ...(sx ? (Array.isArray(sx) ? sx : [sx]) : []),
   ];
   const cardContentSx: SxProps<Theme> = [
-    detailsCardContentSx as SystemStyleObject<Theme>,
+    standardCardContentSx as SystemStyleObject<Theme>,
     ...(contentSx ? (Array.isArray(contentSx) ? contentSx : [contentSx]) : []),
   ];
 

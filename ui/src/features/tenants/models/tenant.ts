@@ -9,10 +9,20 @@ export enum TenantType {
   Business = 1,
 }
 
+export enum SubscriptionPlan {
+  PersonalFree = 0,
+  PersonalPro = 1,
+  BusinessTrial = 2,
+  BusinessStarter = 3,
+  BusinessStandard = 4,
+  BusinessUltimate = 5,
+}
+
 export interface Tenant {
   globalId: string;
   businessName: string;
   type: TenantType;
+  subscriptionPlan?: SubscriptionPlan;
   email?: string;
   phone?: string;
   address?: string;
@@ -45,6 +55,7 @@ export interface CreateTenantRequest {
   phone?: string;
   address?: string;
   websiteUrl?: string;
+  subscriptionPlan?: SubscriptionPlan;
 }
 
 export interface UpdateTenantRequest {

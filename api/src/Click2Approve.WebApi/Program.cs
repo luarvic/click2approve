@@ -4,6 +4,7 @@ using Click2Approve.Application.Abstractions.Auditing;
 using Click2Approve.Application.Abstractions.Authorization;
 using Click2Approve.Application.Abstractions.Persistence;
 using Click2Approve.Application.Abstractions.Services.ApprovalRequests;
+using Click2Approve.Application.Models.ApprovalRequests;
 using Click2Approve.Application.Abstractions.Services.Notifications;
 using Click2Approve.Application.Abstractions.Services.Tenants;
 using Click2Approve.Application.Abstractions.Services.UserFiles;
@@ -74,6 +75,7 @@ builder.Services.AddScoped<IUserNotificationPreferenceService, UserNotificationP
 builder.Services.AddScoped<IUserProfileAccessService, DefaultUserProfileAccessService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<IValidator<ApprovalRequest>, ApprovalRequestDeletionValidator>();
+builder.Services.AddScoped<IValidator<ApprovalRequestTaskCreationContext>, ApprovalRequestTaskCreationValidator>();
 
 // Infrastructure services
 builder.Services.AddScoped<IApprovalRequestRepository, ApprovalRequestRepository>();

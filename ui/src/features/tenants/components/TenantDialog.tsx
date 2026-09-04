@@ -1,14 +1,14 @@
 import { stores } from "@/app/rootStore";
-import { CreateTenantRequest, Tenant, UpdateTenantRequest } from "@/features/tenants/models/tenant";
-import ImagePicker from "@/shared/components/images/ImagePicker";
+import { CreateTenantRequest, SubscriptionPlan, Tenant, UpdateTenantRequest } from "@/features/tenants/models/tenant";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
+import ImagePicker from "@/shared/components/images/ImagePicker";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Dialogs } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Business } from "@mui/icons-material";
-import { Button, Stack, TextField } from "@mui/material";
+import { Button, MenuItem, Stack, TextField } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 
 interface TenantDialogProps {
@@ -37,6 +37,7 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
+  const [subscriptionPlan, setSubscriptionPlan] = useState(SubscriptionPlan.BusinessTrial);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoWasRemoved, setLogoWasRemoved] = useState(false);
   const saveLoader = ActionLoaders.tenants.save(tenant?.globalId);
@@ -50,6 +51,7 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
     setPhone(tenant?.phone ?? "");
     setAddress(tenant?.address ?? "");
     setWebsiteUrl(tenant?.websiteUrl ?? "");
+    setSubscriptionPlan(tenant?.subscriptionPlan ?? SubscriptionPlan.BusinessTrial);
     setLogoFile(null);
     setLogoWasRemoved(false);
   }, [tenant]);
@@ -67,6 +69,7 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
           phone: phone.trim() || undefined,
           address: address.trim() || undefined,
           websiteUrl: websiteUrl.trim() || undefined,
+          ...(isNew ? { subscriptionPlan } : {}),
         },
         tenant?.globalId,
       );
@@ -134,6 +137,20 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
           onChange={(event) => setBusinessName(event.target.value)}
           disabled={!isNew && !canEdit}
         />
+        {isNew && (
+          <TextField
+            select
+            label="Plan"
+            required
+            value={subscriptionPlan}
+            onChange={(event) => setSubscriptionPlan(Number(event.target.value) as SubscriptionPlan)}
+          >
+            <MenuItem value={SubscriptionPlan.BusinessTrial}>Business Trial</MenuItem>
+            <MenuItem value={SubscriptionPlan.BusinessStarter}>Business Starter</MenuItem>
+            <MenuItem value={SubscriptionPlan.BusinessStandard}>Business Standard</MenuItem>
+            <MenuItem value={SubscriptionPlan.BusinessUltimate}>Business Ultimate</MenuItem>
+          </TextField>
+        )}
         <TextField
           label="Email"
           value={email}

@@ -18,7 +18,6 @@ public class ApprovalRequestService(
     IApprovalWorkflowService workflowService,
     ITenantContext tenantContext,
     IApprovalRequestCompletionAttributor completionAttributor,
-    IConfiguration configuration,
     IValidator<ApprovalRequest> approvalRequestDeletionValidator) : IApprovalRequestService
 {
     protected readonly IApprovalRequestRepository _approvalRequestRepository = approvalRequestRepository;
@@ -31,13 +30,12 @@ public class ApprovalRequestService(
     private readonly ITenantRepository _tenantRepository = tenantRepository;
     private readonly IApprovalRequestAssigneeGlobalIdResolver _assigneeGlobalIdResolver = assigneeGlobalIdResolver;
     private readonly ITenantContext _tenantContext = tenantContext;
-    private readonly IConfiguration _configuration = configuration;
     private readonly IValidator<ApprovalRequest> _approvalRequestDeletionValidator = approvalRequestDeletionValidator;
 
     /// <summary>
     /// Creates a new approval request.
     /// </summary>
-    public async Task<Guid> SubmitAsync(AppUser user, SubmitApprovalRequestCommand payload, CancellationToken cancellationToken)
+    public virtual async Task<Guid> SubmitAsync(AppUser user, SubmitApprovalRequestCommand payload, CancellationToken cancellationToken)
     {
         await AttachFilesAsync(user, payload.RequestFiles.Select(file => file.UserFileGlobalId), cancellationToken);
         return await CreateAsync(user, payload, cancellationToken);
@@ -111,8 +109,6 @@ public class ApprovalRequestService(
             throw new BusinessRuleException("Title is required.");
         }
 
-        await CheckLimitationsAsync(user, payload, cancellationToken);
-
         var userFileGlobalIds = payload.RequestFiles.Select(file => file.UserFileGlobalId).Distinct().ToList();
         if (userFileGlobalIds.Count == 0)
         {
@@ -181,37 +177,6 @@ public class ApprovalRequestService(
     /// Contains resolved creator information for an approval request.
     /// </summary>
     protected sealed record ApprovalRequestCreator(long? EmployeeId, string DisplayName);
-
-    private async Task CheckLimitationsAsync(AppUser user, SubmitApprovalRequestCommand payload, CancellationToken cancellationToken)
-    {
-        var maxApprovalRequestsPerDay = _configuration.GetValue<int>("Limitations:MaxApprovalRequestsPerDay");
-        if (maxApprovalRequestsPerDay > 0)
-        {
-            var todayStart = DateTime.UtcNow.Date;
-            var tomorrowStart = todayStart.AddDays(1);
-            var approvalRequestCount = await _approvalRequestRepository.CountAsync(
-                user,
-                todayStart,
-                tomorrowStart,
-                cancellationToken);
-            if (approvalRequestCount >= maxApprovalRequestsPerDay)
-            {
-                throw new LimitExceededException(
-                    $"The maximum number of approval requests per day ({maxApprovalRequestsPerDay}) has been exceeded.");
-            }
-        }
-
-        var maxAssigneesPerRequest = _configuration.GetValue<int>("Limitations:MaxAssigneesPerRequest");
-        if (maxAssigneesPerRequest > 0)
-        {
-            var assigneeCount = payload.Steps.Sum(step => step.Assignees.Count);
-            if (assigneeCount > maxAssigneesPerRequest)
-            {
-                throw new LimitExceededException(
-                $"The maximum number of assignees ({maxAssigneesPerRequest}) has been exceeded.");
-            }
-        }
-    }
 
     private static IEnumerable<ApprovalRequestFile> BuildRequestFiles(
         IEnumerable<ApprovalRequestFileCommand> submittedFiles,

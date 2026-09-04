@@ -1,6 +1,7 @@
 using Click2Approve.Application.Models.ApprovalRequests;
 using Click2Approve.Application.Models.Commands.Notifications;
 using Click2Approve.Domain.Models;
+using FluentValidation;
 
 namespace Click2Approve.Application.Services.ApprovalRequests;
 
@@ -10,13 +11,15 @@ namespace Click2Approve.Application.Services.ApprovalRequests;
 public class ApprovalWorkflowService(
     IApprovalRequestTaskRepository approvalRequestTaskRepository,
     IAssigneeResolver assigneeResolver,
-    INotificationService notificationService) : IApprovalWorkflowService
+    INotificationService notificationService,
+    IValidator<ApprovalRequestTaskCreationContext> taskCreationValidator) : IApprovalWorkflowService
 {
     private readonly IApprovalRequestTaskRepository _approvalRequestTaskRepository = approvalRequestTaskRepository;
     private readonly IAssigneeResolver _assigneeResolver = assigneeResolver;
     private readonly INotificationService _notificationService = notificationService;
+    private readonly IValidator<ApprovalRequestTaskCreationContext> _taskCreationValidator = taskCreationValidator;
 
-    public async Task CreateInitialTasksAsync(
+    public virtual async Task CreateInitialTasksAsync(
         ApprovalRequest approvalRequest,
         List<ApprovalRequestStepCommand> submittedSteps,
         DateTime timestamp,
@@ -146,6 +149,8 @@ public class ApprovalWorkflowService(
             tasks.AddRange(createdTasks);
         }
 
+        await _taskCreationValidator.ValidateAndThrowAsync(
+            new ApprovalRequestTaskCreationContext(approvalRequest, tasks), cancellationToken);
         await CreateTaskCreatedEventsAsync(tasks, cancellationToken);
         return tasks;
     }

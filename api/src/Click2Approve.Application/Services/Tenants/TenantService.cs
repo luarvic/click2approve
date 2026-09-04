@@ -28,6 +28,7 @@ public class TenantService(
         var tenant = await _tenantRepository.AddAsync(new Tenant
         {
             BusinessName = GetDefaultBusinessName(user),
+            SubscriptionPlan = SubscriptionPlan.PersonalFree,
             Type = TenantType.Personal,
             Email = EmailHelpers.NormalizeEmailAddress(user.NormalizedEmail),
             Owner = user

@@ -13,6 +13,8 @@ import {
   HelpOutlineTwoTone,
   PersonTwoTone,
   ReceiptLongTwoTone,
+  ShowChartTwoTone,
+  StyleTwoTone,
 } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
 import {
@@ -80,6 +82,8 @@ const MainMenuDrawer = () => {
   const teamsPath = tenantPath("/teams");
   const employeesPath = tenantPath("/employees");
   const delegationsPath = tenantPath("/delegations");
+  const subscriptionPlanPath = tenantPath("/subscription/plan");
+  const subscriptionUsagePath = tenantPath("/subscription/usage");
   const tasksAreSelected = location.pathname === "/" || location.pathname.startsWith(tasksPath);
   const requestsAreSelected = location.pathname.startsWith(requestsPath);
   const numberOfUncompletedTasks = stores.approvalRequestTaskStore.numberOfUncompletedTasks;
@@ -305,6 +309,36 @@ const MainMenuDrawer = () => {
           )}
         </List>
       )}
+      <List subheader={<ListSubheader component="div">Subscription</ListSubheader>}>
+        <ListItem key="subscriptionPlan" disablePadding>
+          <ListItemButton
+            selected={location.pathname.startsWith(subscriptionPlanPath)}
+            onClick={() => {
+              navigate(subscriptionPlanPath);
+              closeTemporaryDrawer();
+            }}
+          >
+            <ListItemIcon sx={Lists.itemIconSx}>
+              <StyleTwoTone />
+            </ListItemIcon>
+            <ListItemText primary="Plan" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem key="subscriptionUsage" disablePadding>
+          <ListItemButton
+            selected={location.pathname.startsWith(subscriptionUsagePath)}
+            onClick={() => {
+              navigate(subscriptionUsagePath);
+              closeTemporaryDrawer();
+            }}
+          >
+            <ListItemIcon sx={Lists.itemIconSx}>
+              <ShowChartTwoTone />
+            </ListItemIcon>
+            <ListItemText primary="Usage" />
+          </ListItemButton>
+        </ListItem>
+      </List>
       <List subheader={<ListSubheader component="div">Support</ListSubheader>}>
         <ListItem key="help" disablePadding>
           <ListItemButton component="a" href={Api.uiBaseUri} onClick={closeTemporaryDrawer}>

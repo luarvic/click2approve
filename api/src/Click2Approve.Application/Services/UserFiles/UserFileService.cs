@@ -25,7 +25,7 @@ public class UserFileService(
     /// <summary>
     /// Uploads a user file.
     /// </summary>
-    public async Task<IList<UserFileResult>> UploadAsync(AppUser user, IReadOnlyCollection<UploadedFile> files, CancellationToken cancellationToken)
+    public virtual async Task<IList<UserFileResult>> UploadAsync(AppUser user, IReadOnlyCollection<UploadedFile> files, CancellationToken cancellationToken)
     {
         await CheckLimitations(user, files, cancellationToken);
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
@@ -219,16 +219,6 @@ public class UserFileService(
     /// </summary>
     private async Task CheckLimitations(AppUser user, IReadOnlyCollection<UploadedFile> files, CancellationToken cancellationToken)
     {
-        var maxFiles = _configuration.GetValue<int>("Limitations:MaxFiles");
-        if (maxFiles > 0)
-        {
-            var fileCount = await _userFileRepository.CountAsync(user, cancellationToken);
-            if (fileCount + files.Count > maxFiles)
-            {
-                throw new LimitExceededException($"The maximum number of files ({maxFiles}) has been exceeded.");
-            }
-        }
-
         var maxFileSizeBytes = _configuration.GetValue<int>("Limitations:MaxFileSizeBytes");
         if (files.Any(file => file.Length > maxFileSizeBytes))
         {

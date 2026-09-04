@@ -21,6 +21,9 @@ import NotificationsPage from "@/features/notifications/pages/NotificationsPage"
 import PublicReceiptPage from "@/features/receipts/pages/PublicReceiptPage";
 import ReceiptPage from "@/features/receipts/pages/ReceiptPage";
 import ReceiptsPage from "@/features/receipts/pages/ReceiptsPage";
+import SubscriptionBillingPage from "@/features/subscriptions/pages/SubscriptionBillingPage";
+import SubscriptionPlanPage from "@/features/subscriptions/pages/SubscriptionPlanPage";
+import SubscriptionUsagePage from "@/features/subscriptions/pages/SubscriptionUsagePage";
 import TeamEditorPage from "@/features/teams/pages/TeamEditorPage";
 import TeamsPage from "@/features/teams/pages/TeamsPage";
 import TenantEditorPage from "@/features/tenants/pages/TenantEditorPage";
@@ -114,6 +117,9 @@ const App = () => {
                       <Route path="receipts" element={<ReceiptsPage />} />
                       <Route path="receipts/:receiptGlobalId" element={<ReceiptPage />} />
                       <Route path="receipts/:receiptGlobalId/share" element={<ReceiptPage tab="share" />} />
+                      <Route path="subscription/plan" element={<SubscriptionPlanPage />} />
+                      <Route path="subscription/usage" element={<SubscriptionUsagePage />} />
+                      <Route path="subscription/billing" element={<SubscriptionBillingPage />} />
                       <Route path="requests/new" element={<ApprovalRequestStartPage />} />
                       <Route path="requests/new/compose" element={<ApprovalRequestSubmitPage />} />
                       <Route

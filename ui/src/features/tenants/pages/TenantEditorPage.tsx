@@ -24,6 +24,7 @@ const TenantEditorPage = () => {
   const [tenant, setTenant] = useState<Tenant | null>(null);
   const [tenantHasLoaded, setTenantHasLoaded] = useState(isNewTenant);
   const [scheduleDeletionIsOpen, setScheduleDeletionIsOpen] = useState(false);
+  const [createdTenant, setCreatedTenant] = useState(false);
 
   useEffect(() => {
     if (isNewTenant) {
@@ -48,15 +49,24 @@ const TenantEditorPage = () => {
   if (!tenantHasLoaded) return null;
   if (!isNewTenant && !tenant) return <NotFoundPage />;
 
-  const close = (currentTenantGlobalId?: string) =>
+  const close = (currentTenantGlobalId?: string) => {
+    if (createdTenant && currentTenantGlobalId) {
+      navigate(`/tenants/${currentTenantGlobalId}/subscription/billing`);
+      return;
+    }
+
     navigate(tenantsPath, {
       state: currentTenantGlobalId ? { currentTenantGlobalId } : undefined,
     });
+  };
   const submit = async (payload: CreateTenantRequest | UpdateTenantRequest, globalId?: string) => {
     const saved = globalId
       ? await stores.tenantStore.update(globalId, payload as UpdateTenantRequest)
       : await stores.tenantStore.create(payload as CreateTenantRequest);
-    if (saved && !globalId) await stores.refreshTenantScope();
+    if (saved && !globalId) {
+      await stores.refreshTenantScope();
+      setCreatedTenant(true);
+    }
     if (saved) {
       setTenant(saved);
       showPersistenceSuccessNotification(PersistenceSuccessMessages.organizationSaved);
