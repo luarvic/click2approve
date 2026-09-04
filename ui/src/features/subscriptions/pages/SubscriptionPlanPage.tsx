@@ -169,7 +169,7 @@ const SubscriptionPlanPage = () => {
             Business plans include employees, teams, templates, and higher limits.
           </Typography>
           <Typography sx={planUpgradeTextSx}>
-            <Link component={RouterLink} sx={calloutActionLinkSx} to="/tenants/new">
+            <Link component={RouterLink} sx={calloutActionLinkSx} to="/tenants">
               Create an organization
               <ArrowForwardIcon aria-hidden fontSize="inherit" />
             </Link>
