@@ -21,7 +21,7 @@ const bytesPerGigabyte = 1000 * 1000 * 1000;
 const usageLegendMarkerSize = 16;
 const usageLegendSpacing = 1;
 const usageChartColors = {
-  available: "#b0bec5",
+  available: "#D5DEE2",
   used: "#22c55e",
 } as const;
 const usageLegendSx: SxProps<Theme> = { mt: 0 };
