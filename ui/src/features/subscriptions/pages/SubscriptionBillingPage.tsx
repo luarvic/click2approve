@@ -7,12 +7,8 @@ const SubscriptionBillingPage = () => {
   usePageTitle("Subscription billing");
   return (
     <NarrowContent>
-      <PageBreadcrumbs
-        items={[{ label: "Subscription" }, { label: "Billing" }]}
-      />
-      <Alert severity="info">
-        Billing will open here when Stripe is connected.
-      </Alert>
+      <PageBreadcrumbs items={[{ label: "Subscription" }, { label: "Billing" }]} />
+      <Alert severity="info">Billing will open here when Stripe is connected.</Alert>
     </NarrowContent>
   );
 };
