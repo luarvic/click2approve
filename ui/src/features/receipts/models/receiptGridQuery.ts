@@ -1,5 +1,5 @@
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
-import { DataGrids } from "@/shared/constants/constants";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 
 export interface ReceiptGridQuery {
   page: number;

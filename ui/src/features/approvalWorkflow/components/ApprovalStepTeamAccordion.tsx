@@ -1,6 +1,8 @@
 import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
+import { ApprovalStepStyles } from "@/features/approvalWorkflow/components/approvalStepStyles";
 import type { ApprovalStepAssignee } from "@/features/approvalWorkflow/models/approvalStep";
-import { Dialogs, Flex, StackSpacing } from "@/shared/constants/constants";
+import { Flex } from "@/shared/components/layout/flexStyles";
+import { StackSpacing } from "@/shared/theme/tokens";
 import { ExpandMore } from "@mui/icons-material";
 import { Accordion, AccordionDetails, AccordionSummary, Stack } from "@mui/material";
 import type { ReactNode } from "react";
@@ -13,7 +15,7 @@ interface ApprovalStepTeamAccordionProps {
 
 const accordionSx = { bgcolor: "transparent", boxShadow: "none", "&::before": { display: "none" } };
 const summarySx = { minHeight: 0, px: 0, py: 0, "& .MuiAccordionSummary-content": { my: 0 } };
-const detailsSx = { px: 0, pb: 0, pt: Dialogs.stepHeaderSpacing };
+const detailsSx = { px: 0, pb: 0, pt: ApprovalStepStyles.stepHeaderSpacing };
 
 const ApprovalStepTeamAccordion: React.FC<ApprovalStepTeamAccordionProps> = ({ assignee, children, index }) => (
   <Accordion defaultExpanded disableGutters key={assignee.globalId ?? index} sx={accordionSx}>

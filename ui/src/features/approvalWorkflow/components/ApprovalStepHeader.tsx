@@ -1,4 +1,6 @@
-import { Dialogs, Flex, StackSpacing } from "@/shared/constants/constants";
+import { ApprovalStepStyles } from "@/features/approvalWorkflow/components/approvalStepStyles";
+import { Flex } from "@/shared/components/layout/flexStyles";
+import { StackSpacing } from "@/shared/theme/tokens";
 import type { SxProps } from "@mui/material";
 import { Stack } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
@@ -13,7 +15,7 @@ interface ApprovalStepHeaderProps {
   showTitle?: boolean;
 }
 
-const headerSx: SxProps<Theme> = { mb: Dialogs.stepHeaderSpacing };
+const headerSx: SxProps<Theme> = { mb: ApprovalStepStyles.stepHeaderSpacing };
 const titleRowSx: SxProps<Theme> = {
   alignItems: "center",
   display: "flex",
@@ -30,7 +32,7 @@ const ApprovalStepHeader: React.FC<ApprovalStepHeaderProps> = ({
 }) => (
   <Stack
     direction="row"
-    spacing={Dialogs.stepHeaderSpacing}
+    spacing={ApprovalStepStyles.stepHeaderSpacing}
     alignItems="center"
     sx={hasBottomMargin ? headerSx : undefined}
   >

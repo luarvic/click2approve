@@ -1,4 +1,4 @@
-import { StackSpacing } from "@/shared/constants/constants";
+import { StackSpacing } from "@/shared/theme/tokens";
 import { Stack } from "@mui/material";
 import { Children, type ReactNode } from "react";
 

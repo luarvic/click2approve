@@ -1,9 +1,9 @@
 import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
-import { StackSpacing } from "@/shared/constants/constants";
+import { StackSpacing } from "@/shared/theme/tokens";
 import { Business, Terminal } from "@mui/icons-material";
-import { Stack } from "@mui/material";
 import type { SxProps } from "@mui/material";
+import { Stack } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
 

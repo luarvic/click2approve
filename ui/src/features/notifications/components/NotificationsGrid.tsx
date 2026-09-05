@@ -8,24 +8,25 @@ import {
 import NotificationsFilter from "@/features/notifications/components/NotificationsFilter";
 import { getNotificationTypeLabel, type Notification } from "@/features/notifications/models/notification";
 import {
-  type NotificationGridQuery,
   parseNotificationGridQuery,
   serializeNotificationGridQuery,
+  type NotificationGridQuery,
 } from "@/features/notifications/models/notificationGridQuery";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
-import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { NotificationType } from "@/shared/models/notifications";
+import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate, parseUtcDateTime } from "@/shared/utils/dateTime";
 import { Delete, Done, FilterList } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
 import { Box, Button, useMediaQuery, useTheme } from "@mui/material";
-import { DataGrid, GridColDef, GridRowSelectionModel, GridToolbarContainer } from "@mui/x-data-grid";
 import type { GridSortModel } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridRowSelectionModel, GridToolbarContainer } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";

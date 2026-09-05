@@ -1,7 +1,8 @@
 import { stores } from "@/app/rootStore";
+import { Pages } from "@/shared/components/layout/pageStyles";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import { Pages, Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import { Routes } from "@/shared/routing/routes";
 import { Box, Container, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { useLayoutEffect } from "react";

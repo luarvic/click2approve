@@ -1,15 +1,16 @@
 import { stores } from "@/app/rootStore";
-import EmployeeDisplayName from "@/features/employees/components/EmployeeDisplayName";
-import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import ApprovalRequestParticipantChip from "@/features/approvalRequests/components/ApprovalRequestParticipantChip";
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
+import EmployeeDisplayName from "@/features/employees/components/EmployeeDisplayName";
+import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import { Team, UpsertTeamRequest } from "@/features/teams/models/team";
-import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
+import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
+import { Forms } from "@/shared/components/dialogs/formStyles";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import { Dialogs, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
 import { Autocomplete, Button, Stack, TextField } from "@mui/material";
@@ -85,7 +86,7 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
           { label: team?.name ?? "New team" },
         ]}
       />
-      <Stack spacing={Dialogs.formStackSpacing}>
+      <Stack spacing={Forms.formStackSpacing}>
         <TextField
           label="Name"
           value={name}
@@ -126,7 +127,7 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
           )}
         />
       </Stack>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
         <Button variant="outlined" onClick={() => onClose(team?.globalId)}>
           Cancel
         </Button>

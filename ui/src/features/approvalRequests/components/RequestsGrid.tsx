@@ -1,4 +1,5 @@
 import { stores } from "@/app/rootStore";
+import { listApprovalRequestGrid } from "@/features/approvalRequests/api/approvalRequestsApi";
 import ApprovalRequestNumberText, {
   getApprovalRequestNumber,
 } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
@@ -7,25 +8,26 @@ import {
   ApprovalRequestStatusLineLabel,
   getApprovalRequestStatusLabel,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
-import { listApprovalRequestGrid } from "@/features/approvalRequests/api/approvalRequestsApi";
+import { ApprovalGrids } from "@/features/approvalRequests/components/approvalGridSettings";
 import {
   ApprovalRequestGridQuery,
   parseApprovalRequestGridQuery,
   serializeApprovalRequestGridQuery,
 } from "@/features/approvalRequests/models/approvalRequestGridQuery";
 import { ApprovalRequestListItem } from "@/features/approvalRequests/models/approvalRequestListItem";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
-import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
+import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate } from "@/shared/utils/dateTime";
 import { Add, FilterList } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
 import { Box, Button, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
-import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import type { GridSortModel } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { observer } from "mobx-react-lite";
 import { useCallback, useMemo, useState } from "react";
@@ -117,7 +119,7 @@ const RequestsGrid: React.FC<RequestsGridProps> = ({ currentApprovalRequestGloba
       headerName: "#",
       sortable: false,
       disableColumnMenu: true,
-      width: DataGrids.approvalNumberColumnWidth,
+      width: ApprovalGrids.approvalNumberColumnWidth,
       renderCell: (params) => (
         <ApprovalRequestNumberText color="text.primary" globalId={params.row.globalId} includeHash={false} />
       ),
@@ -128,9 +130,9 @@ const RequestsGrid: React.FC<RequestsGridProps> = ({ currentApprovalRequestGloba
       headerName: "Title",
       sortable: false,
       disableColumnMenu: true,
-      flex: DataGrids.approvalColumnFlex.content,
+      flex: ApprovalGrids.approvalColumnFlex.content,
       renderCell: (params) => (
-        <Stack sx={DataGrids.approvalTitleCellSx}>
+        <Stack sx={ApprovalGrids.approvalTitleCellSx}>
           <Typography variant="body2">{params.row.title}</Typography>
         </Stack>
       ),
@@ -143,14 +145,14 @@ const RequestsGrid: React.FC<RequestsGridProps> = ({ currentApprovalRequestGloba
       disableColumnMenu: true,
       align: "center",
       headerAlign: "center",
-      width: DataGrids.approvalRevisionColumnWidth,
+      width: ApprovalGrids.approvalRevisionColumnWidth,
     },
     {
       field: "status",
       headerName: "Status",
       sortable: false,
       disableColumnMenu: true,
-      flex: DataGrids.approvalColumnFlex.metadata,
+      flex: ApprovalGrids.approvalColumnFlex.metadata,
       renderCell: (params) => <ApprovalRequestStatusLineLabel result={params.row.result} status={params.row.status} />,
       valueGetter: (_value, row) => getApprovalRequestStatusLabel(row.status, row.result),
     },
@@ -159,7 +161,7 @@ const RequestsGrid: React.FC<RequestsGridProps> = ({ currentApprovalRequestGloba
       headerName: "Requested by",
       sortable: false,
       disableColumnMenu: true,
-      flex: DataGrids.approvalColumnFlex.metadata,
+      flex: ApprovalGrids.approvalColumnFlex.metadata,
       renderCell: (params) => <OneLineDisplayName displayName={params.row.createdByDisplayName} variant="body2" />,
       valueGetter: (_value, row) => row.createdByDisplayName,
     },
@@ -167,7 +169,7 @@ const RequestsGrid: React.FC<RequestsGridProps> = ({ currentApprovalRequestGloba
       field: "createdAtDate",
       headerName: "Created",
       sortable: true,
-      flex: DataGrids.approvalColumnFlex.metadata,
+      flex: ApprovalGrids.approvalColumnFlex.metadata,
       valueFormatter: (value) => getHumanReadableRelativeDate(value),
     },
   ];

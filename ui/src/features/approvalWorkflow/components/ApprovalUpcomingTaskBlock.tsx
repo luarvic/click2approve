@@ -1,8 +1,6 @@
 import { stores } from "@/app/rootStore";
 import ApprovalRequestCardLayout from "@/features/approvalRequests/components/ApprovalRequestCardLayout";
-import ApprovalRequestDetailsCard, {
-  taskCardBackgroundSx,
-} from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
+import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
 import ApprovalRequestField from "@/features/approvalRequests/components/ApprovalRequestField";
 import ApprovalRequestFieldGroup from "@/features/approvalRequests/components/ApprovalRequestFieldGroup";
 import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
@@ -57,7 +55,6 @@ const ApprovalUpcomingTaskBlock: React.FC<ApprovalUpcomingTaskBlockProps> = ({
       contentSx={compact ? compactTaskCardContentSx : undefined}
       elevated
       showStatusBorder={showStatusBorder}
-      sx={taskCardBackgroundSx}
     >
       <ApprovalRequestCardLayout
         activity={

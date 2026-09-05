@@ -1,6 +1,7 @@
 import NotificationDetailsDialog from "@/shared/components/dialogs/NotificationDetailsDialog";
-import { Notifications } from "@/shared/constants/constants";
-import { dismissNotification, type Notification, subscribeToNotifications } from "@/shared/utils/notifications";
+import { NotificationSettings } from "@/shared/components/overlays/notificationSettings";
+import { Notifications } from "@/shared/config/application";
+import { dismissNotification, subscribeToNotifications, type Notification } from "@/shared/utils/notifications";
 import CloseIcon from "@mui/icons-material/Close";
 import type { SlideProps, SxProps } from "@mui/material";
 import { Alert, Button, IconButton, Slide, Snackbar } from "@mui/material";
@@ -29,7 +30,7 @@ const NotificationHost = () => {
     <>
       {currentNotification !== undefined && (
         <Snackbar
-          anchorOrigin={Notifications.successAnchorOrigin}
+          anchorOrigin={NotificationSettings.successAnchorOrigin}
           autoHideDuration={
             currentNotification.severity === "success"
               ? Notifications.successAutoHideDuration

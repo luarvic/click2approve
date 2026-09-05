@@ -1,18 +1,19 @@
 import { listTenantGrid } from "@/features/tenants/api/tenantsApi";
+import { TenantGridSettings } from "@/features/tenants/components/gridSettings";
 import { EmployeeRole, TenantListItem } from "@/features/tenants/models/tenant";
 import GridFilters from "@/shared/components/grids/GridFilters";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
-import { DataGrids } from "@/shared/constants/constants";
-import { parseSimpleGridQuery, serializeSimpleGridQuery } from "@/shared/grids/simpleGridQuery";
 import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
+import { parseSimpleGridQuery, serializeSimpleGridQuery } from "@/shared/grids/simpleGridQuery";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add, FilterList } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
 import { Box, Button, useMediaQuery, useTheme } from "@mui/material";
-import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import type { GridSortModel } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -82,12 +83,17 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
     </GridToolbarContainer>
   );
   const columns: GridColDef[] = [
-    { field: "businessName", headerName: "Name", sortable: true, ...DataGrids.tenantsColumnSizing.businessName },
+    {
+      field: "businessName",
+      headerName: "Name",
+      sortable: true,
+      ...TenantGridSettings.tenantsColumnSizing.businessName,
+    },
     {
       field: "currentEmployeeRole",
       headerName: "Role",
       sortable: false,
-      ...DataGrids.tenantsColumnSizing.currentEmployeeRole,
+      ...TenantGridSettings.tenantsColumnSizing.currentEmployeeRole,
       valueFormatter: (value) => roleLabels[value as EmployeeRole],
     },
   ];

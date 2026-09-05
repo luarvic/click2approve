@@ -1,11 +1,12 @@
 import { deletePasskey, listPasskeys, Passkey, registerPasskey } from "@/features/identity/api/passkeysApi";
 import NewPasskeyDialog from "@/features/identity/components/NewPasskeyDialog";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
-import { DataGrids, StackSpacing } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
+import { StackSpacing } from "@/shared/theme/tokens";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate, parseUtcDateTime } from "@/shared/utils/dateTime";
 import { notification } from "@/shared/utils/notifications";

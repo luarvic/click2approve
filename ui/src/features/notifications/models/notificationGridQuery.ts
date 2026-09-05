@@ -1,5 +1,5 @@
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import { NotificationType } from "@/shared/models/notifications";
-import { DataGrids } from "@/shared/constants/constants";
 
 export type NotificationStatus = "read" | "unread";
 

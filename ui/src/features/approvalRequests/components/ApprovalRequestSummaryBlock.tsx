@@ -1,8 +1,6 @@
 import { stores } from "@/app/rootStore";
 import { getRequestCompletedTimestamp } from "@/features/approvalRequests/components/approvalRequestCompletionTimestamps";
-import ApprovalRequestDetailsCard, {
-  requestCardBackgroundSx,
-} from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
+import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
 import ApprovalRequestField from "@/features/approvalRequests/components/ApprovalRequestField";
 import ApprovalRequestFieldGroup from "@/features/approvalRequests/components/ApprovalRequestFieldGroup";
 import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
@@ -183,7 +181,6 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
       borderLeftColor={requestStatusColor}
       borderLeftStyle={approvalRequest.status === ApprovalRequestStatus.Started ? "dotted" : "solid"}
       elevated
-      sx={requestCardBackgroundSx}
     >
       <ApprovalRequestSummary
         activity={activity}

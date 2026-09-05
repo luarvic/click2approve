@@ -8,8 +8,9 @@ import { useUserFileDelete } from "@/features/userFiles/hooks/useUserFileDelete"
 import { useUserFileUpload } from "@/features/userFiles/hooks/useUserFileUpload";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import { downloadApprovalRequestTaskAttachment } from "@/features/userFiles/utils/downloaders";
-import { Files, StackSpacing } from "@/shared/constants/constants";
+import { Files } from "@/shared/components/files/fileInputStyles";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { StackSpacing } from "@/shared/theme/tokens";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { AttachFile } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";

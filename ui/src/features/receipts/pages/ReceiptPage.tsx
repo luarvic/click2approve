@@ -5,12 +5,13 @@ import { createReceiptLink, deleteReceipt, deleteReceiptLink, getReceipt } from 
 import ReceiptView from "@/features/receipts/components/ReceiptView";
 import type { Receipt } from "@/features/receipts/models/receipt";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
+import { Forms } from "@/shared/components/dialogs/formStyles";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import { Dialogs, Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
+import { Routes } from "@/shared/routing/routes";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
@@ -82,7 +83,7 @@ const ReceiptPage: React.FC<ReceiptPageProps> = ({ tab = "request" }) => {
           <Tab label="Share" value="share" />
         </Tabs>
         {tab === "request" && (
-          <Stack sx={Dialogs.tabContentSx}>
+          <Stack sx={Forms.tabContentSx}>
             <ReceiptView receipt={receipt} />
             <ApprovalRequestActionBar onClose={handleClose}>
               <Button color="error" variant="outlined" onClick={() => setDeleteDialogIsOpen(true)}>

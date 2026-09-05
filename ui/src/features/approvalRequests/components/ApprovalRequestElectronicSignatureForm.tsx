@@ -1,10 +1,10 @@
 import ApprovalRequestSignatureField from "@/features/approvalRequests/components/ApprovalRequestSignatureField";
+import { Forms } from "@/shared/components/dialogs/formStyles";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
-import { Dialogs } from "@/shared/constants/constants";
 import DrawOutlinedIcon from "@mui/icons-material/DrawOutlined";
 import { Box, InputAdornment, Stack, TextField, Typography } from "@mui/material";
-import { alpha } from "@mui/material/styles";
 import type { SxProps, Theme } from "@mui/material/styles";
+import { alpha } from "@mui/material/styles";
 
 export interface ElectronicSignatureErrors {
   legalName: string;
@@ -26,7 +26,7 @@ interface ApprovalRequestElectronicSignatureFormProps {
 const electronicSignatureFormSx: SxProps<Theme> = (theme) => ({
   backgroundColor: alpha(theme.palette.secondary.main, theme.palette.mode === "dark" ? 0.12 : 0.04),
   borderRadius: 1,
-  p: Dialogs.formStackSpacing,
+  p: Forms.formStackSpacing,
 });
 
 const ApprovalRequestElectronicSignatureForm: React.FC<ApprovalRequestElectronicSignatureFormProps> = ({
@@ -41,14 +41,14 @@ const ApprovalRequestElectronicSignatureForm: React.FC<ApprovalRequestElectronic
   signatureJson,
 }) => (
   <Box sx={electronicSignatureFormSx}>
-    <Stack spacing={Dialogs.formStackSpacing}>
-      <Stack alignItems="center" direction="row" spacing={Dialogs.stepHeaderSpacing}>
+    <Stack spacing={Forms.formStackSpacing}>
+      <Stack alignItems="center" direction="row" spacing={Forms.actionSpacing}>
         <DrawOutlinedIcon color="secondary" />
         <Typography color="secondary" variant="subtitle1">
           Electronic signature
         </Typography>
       </Stack>
-      <Stack direction="row" spacing={Dialogs.formStackSpacing}>
+      <Stack direction="row" spacing={Forms.formStackSpacing}>
         <TextField
           error={Boolean(errors.legalName)}
           fullWidth

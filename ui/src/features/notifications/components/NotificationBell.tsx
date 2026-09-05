@@ -1,5 +1,6 @@
 import { stores } from "@/app/rootStore";
-import { Refresh, Routes } from "@/shared/constants/constants";
+import { Refresh } from "@/shared/config/application";
+import { Routes } from "@/shared/routing/routes";
 import { NotificationsNoneOutlined } from "@mui/icons-material";
 import { Badge, IconButton } from "@mui/material";
 import { observer } from "mobx-react-lite";

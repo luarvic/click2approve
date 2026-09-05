@@ -1,14 +1,16 @@
 import { stores } from "@/app/rootStore";
-import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { AuthForms } from "@/features/identity/components/authFormStyles";
+import { Information } from "@/features/identity/identityMessages";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
-import { AuthForms, Information, StackSpacing } from "@/shared/constants/constants";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import { StackSpacing } from "@/shared/theme/tokens";
+import { notification } from "@/shared/utils/notifications";
 import { validateEmail } from "@/shared/utils/validators";
 import { Box, Container, Grid, Link, Stack, TextField } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { notification } from "@/shared/utils/notifications";
 
 const ResendConfirmationEmailPage = () => {
   usePageTitle("Resend confirmation email");

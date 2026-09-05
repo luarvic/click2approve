@@ -1,6 +1,9 @@
-import { AuthForms, Icons, NoRowsOverlay } from "@/shared/constants/constants";
+import { Icons } from "@/shared/components/icons/iconStyles";
+import { NoRowsOverlay } from "@/shared/components/overlays/noRowsOverlayStyles";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
+
+const noRowsLabelSx = { mt: 1 };
 
 const NoRowsOverlayComponent = () => {
   const StyledGridOverlay = styled("div")(({ theme }) => ({
@@ -65,7 +68,7 @@ const NoRowsOverlayComponent = () => {
           </g>
         </g>
       </svg>
-      <Box sx={AuthForms.formSx}>No Rows</Box>
+      <Box sx={noRowsLabelSx}>No Rows</Box>
     </StyledGridOverlay>
   );
 };

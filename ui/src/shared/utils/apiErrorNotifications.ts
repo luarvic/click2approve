@@ -1,4 +1,6 @@
-import { AccountSecurity, Errors, Notifications } from "@/shared/constants/constants";
+import { Errors } from "@/shared/api/errorMessages";
+import { AccountSecurity } from "@/shared/config/accountSecurity";
+import { Notifications } from "@/shared/config/application";
 import type { ErrorNotification, NotificationDetail } from "@/shared/utils/notifications";
 import { isAxiosError } from "axios";
 

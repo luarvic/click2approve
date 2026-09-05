@@ -9,7 +9,7 @@ import FileNameLink from "@/shared/components/files/FileNameLink";
 import FileRow from "@/shared/components/files/FileRow";
 import ReplacedFileGroup from "@/shared/components/files/ReplacedFileGroup";
 import CommentPaper from "@/shared/components/papers/CommentPaper";
-import { StackSpacing } from "@/shared/constants/constants";
+import { StackSpacing } from "@/shared/theme/tokens";
 import { Chip, Stack, Tooltip, type SxProps } from "@mui/material";
 import type { ChipProps } from "@mui/material/Chip";
 import type { Theme } from "@mui/material/styles";

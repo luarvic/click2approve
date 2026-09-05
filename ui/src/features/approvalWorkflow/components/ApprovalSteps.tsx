@@ -1,8 +1,10 @@
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
+import { ApprovalStepStyles } from "@/features/approvalWorkflow/components/approvalStepStyles";
 import { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
+import { getApprovalStepStatus } from "@/features/approvalWorkflow/utils/approvalStepStatus";
 import SuccessSnackbarIcon from "@/shared/components/icons/SuccessSnackbarIcon";
-import { Dialogs, Icons } from "@/shared/constants/constants";
+import { Icons } from "@/shared/components/icons/iconStyles";
 import {
   BlockOutlined,
   CancelOutlined,
@@ -15,9 +17,8 @@ import type { SxProps } from "@mui/material";
 import { Stack, Step, StepContent, StepLabel, Stepper } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
-import ApprovalStepTitle from "./ApprovalStepTitle";
 import ApprovalStepBlock, { ApprovalStepMetadata } from "./ApprovalStepBlock";
-import { getApprovalStepStatus } from "@/features/approvalWorkflow/utils/approvalStepStatus";
+import ApprovalStepTitle from "./ApprovalStepTitle";
 
 interface ApprovalStepsProps {
   approvalRequest: ApprovalRequest;
@@ -87,7 +88,7 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
   const activeStepIndex = getActiveStepIndex(steps);
 
   return (
-    <Stack spacing={Dialogs.stepStackSpacing} sx={sx}>
+    <Stack spacing={ApprovalStepStyles.stepStackSpacing} sx={sx}>
       {leadingItem}
       <Stepper activeStep={activeStepIndex} nonLinear orientation="vertical">
         {steps.map((step) => {
@@ -111,7 +112,7 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
                 <ApprovalStepTitle sequence={step.sequence} />
               </StepLabel>
               <StepContent sx={stepContentSx} TransitionProps={{ in: true, unmountOnExit: false }}>
-                <Stack spacing={Dialogs.stepHeaderSpacing}>
+                <Stack spacing={ApprovalStepStyles.stepHeaderSpacing}>
                   <ApprovalStepMetadata showVisibility={showVisibleStepVisibility} step={step} />
                   <ApprovalStepBlock
                     collapseCards={collapseCards}

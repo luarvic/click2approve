@@ -1,8 +1,6 @@
 import { stores } from "@/app/rootStore";
 import { getTaskCompletedTimestamp } from "@/features/approvalRequests/components/approvalRequestCompletionTimestamps";
-import ApprovalRequestDetailsCard, {
-  taskCardBackgroundSx,
-} from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
+import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
 import ApprovalRequestElectronicSignatureView from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureView";
 import ApprovalRequestField from "@/features/approvalRequests/components/ApprovalRequestField";
 import ApprovalRequestFieldGroup from "@/features/approvalRequests/components/ApprovalRequestFieldGroup";
@@ -23,7 +21,7 @@ import { getApprovalRequestTaskCompletedActionLabel } from "@/features/approvalR
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
-import { StackSpacing } from "@/shared/constants/constants";
+import { StackSpacing } from "@/shared/theme/tokens";
 import { getLocaleDateTimeString } from "@/shared/utils/dateTime";
 import { Business } from "@mui/icons-material";
 import type { TypographyProps } from "@mui/material";
@@ -95,7 +93,6 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   showTimeline = true,
   showTitle = true,
   task,
-  taskNumberPrefix: _taskNumberPrefix,
 }) => {
   const organizationIsVisible = stores.tenantStore.currentTenant?.type === TenantType.Personal;
   const requestedByEmail = task.requestedByEmail ?? task.approvalRequest?.createdByEmail;
@@ -316,7 +313,6 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
       borderLeftColor={stepperBorderLeftColor ?? taskStatusColor}
       elevated
       onClick={onClick}
-      sx={taskCardBackgroundSx}
     >
       <ApprovalRequestSummary
         activity={activity}

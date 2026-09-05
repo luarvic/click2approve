@@ -6,13 +6,13 @@ import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approv
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { getIncompleteParticipantNameWarning } from "@/features/approvalRequests/utils/incompleteParticipantNameWarning";
 import { hasIncompleteBusinessParticipantName } from "@/features/approvalRequests/utils/participantName";
-import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
+import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import { Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
+import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   PersistenceSuccessMessages,

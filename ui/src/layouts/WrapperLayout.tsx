@@ -1,4 +1,4 @@
-import { Pages } from "@/shared/constants/constants";
+import { Pages } from "@/shared/components/layout/pageStyles";
 import { Box } from "@mui/material";
 import { ReactNode } from "react";
 import { Outlet } from "react-router-dom";

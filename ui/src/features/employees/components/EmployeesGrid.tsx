@@ -1,21 +1,23 @@
 import { stores } from "@/app/rootStore";
 import { listEmployeeGrid } from "@/features/employees/api/employeesApi";
+import { EmployeeGridSettings } from "@/features/employees/components/gridSettings";
 import { EmployeeListItem, EmployeeStatus } from "@/features/employees/models/employee";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import GridFilters from "@/shared/components/grids/GridFilters";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { StatusLineLabel } from "@/shared/components/status/StatusLines";
-import { DataGrids, Routes } from "@/shared/constants/constants";
-import { parseSimpleGridQuery, serializeSimpleGridQuery } from "@/shared/grids/simpleGridQuery";
 import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
+import { parseSimpleGridQuery, serializeSimpleGridQuery } from "@/shared/grids/simpleGridQuery";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
+import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add, FilterList } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
 import { Box, Button, useMediaQuery, useTheme } from "@mui/material";
-import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import type { GridSortModel } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -110,22 +112,37 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
   );
   const filter = (key: string) => (value: string | string[]) => updateQuery({ page: 0, filters: { [key]: value } });
   const columns: GridColDef[] = [
-    { field: "email", headerName: "Email", sortable: true, ...DataGrids.tenantUsersColumnSizing.email },
-    { field: "firstName", headerName: "First name", sortable: true, ...DataGrids.tenantUsersColumnSizing.firstName },
-    { field: "lastName", headerName: "Last name", sortable: true, ...DataGrids.tenantUsersColumnSizing.lastName },
-    { field: "position", headerName: "Position", sortable: false, ...DataGrids.tenantUsersColumnSizing.position },
+    { field: "email", headerName: "Email", sortable: true, ...EmployeeGridSettings.tenantUsersColumnSizing.email },
+    {
+      field: "firstName",
+      headerName: "First name",
+      sortable: true,
+      ...EmployeeGridSettings.tenantUsersColumnSizing.firstName,
+    },
+    {
+      field: "lastName",
+      headerName: "Last name",
+      sortable: true,
+      ...EmployeeGridSettings.tenantUsersColumnSizing.lastName,
+    },
+    {
+      field: "position",
+      headerName: "Position",
+      sortable: false,
+      ...EmployeeGridSettings.tenantUsersColumnSizing.position,
+    },
     {
       field: "role",
       headerName: "Role",
       sortable: false,
-      ...DataGrids.tenantUsersColumnSizing.role,
+      ...EmployeeGridSettings.tenantUsersColumnSizing.role,
       valueFormatter: (value) => roleLabels[value as EmployeeRole],
     },
     {
       field: "status",
       headerName: "Status",
       sortable: false,
-      ...DataGrids.tenantUsersColumnSizing.status,
+      ...EmployeeGridSettings.tenantUsersColumnSizing.status,
       renderCell: (params) => (
         <StatusLineLabel
           label={statusLabels[params.row.status as EmployeeStatus]}

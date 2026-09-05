@@ -1,6 +1,6 @@
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { EmployeeStatus } from "@/features/employees/models/employee";
-import { StackSpacing } from "@/shared/constants/constants";
+import { StackSpacing } from "@/shared/theme/tokens";
 import { Email, Groups, Person, PersonOff } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import { Box, Stack, Tooltip, Typography } from "@mui/material";

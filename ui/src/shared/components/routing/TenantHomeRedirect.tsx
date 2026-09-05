@@ -1,5 +1,5 @@
 import { stores } from "@/app/rootStore";
-import { Routes } from "@/shared/constants/constants";
+import { Routes } from "@/shared/routing/routes";
 import { observer } from "mobx-react-lite";
 import { Navigate } from "react-router-dom";
 

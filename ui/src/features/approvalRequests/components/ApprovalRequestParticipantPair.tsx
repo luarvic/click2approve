@@ -1,4 +1,4 @@
-import { StackSpacing } from "@/shared/constants/constants";
+import { StackSpacing } from "@/shared/theme/tokens";
 import type { SxProps } from "@mui/material";
 import { Box, Stack } from "@mui/material";
 import type { Theme } from "@mui/material/styles";

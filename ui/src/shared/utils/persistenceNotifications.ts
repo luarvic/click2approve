@@ -1,4 +1,4 @@
-import { Notifications } from "@/shared/constants/constants";
+import { Notifications } from "@/shared/config/application";
 import { notification } from "@/shared/utils/notifications";
 
 export const showPersistenceSuccessNotification = (message: string): void => {

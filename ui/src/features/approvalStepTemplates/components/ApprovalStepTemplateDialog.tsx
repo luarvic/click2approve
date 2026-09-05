@@ -1,6 +1,6 @@
 import { stores } from "@/app/rootStore";
-import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
 import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
+import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
 import { useEditableApprovalSteps } from "@/features/approvalWorkflow/hooks/useEditableApprovalSteps";
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
@@ -12,18 +12,19 @@ import {
 import { TenantType } from "@/features/tenants/models/tenant";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
+import { Forms } from "@/shared/components/dialogs/formStyles";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import { Dialogs, Routes } from "@/shared/constants/constants";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { Routes } from "@/shared/routing/routes";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { notification } from "@/shared/utils/notifications";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
 } from "@/shared/utils/persistenceNotifications";
-import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
-import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Button, Stack, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
-import { notification } from "@/shared/utils/notifications";
 
 interface ApprovalStepTemplateEditorProps {
   template: ApprovalStepTemplate | null;
@@ -149,7 +150,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
           },
         ]}
       />
-      <Stack spacing={Dialogs.formStackSpacing}>
+      <Stack spacing={Forms.formStackSpacing}>
         <ApprovalRequestDetailsCard ariaLabel="Template details" elevated showStatusBorder={false}>
           <TextField label="Name" value={name} onChange={(event) => setName(event.target.value)} fullWidth required />
           <TextField
@@ -177,7 +178,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
           showOrganizationEmployeesVisibility={businessTenantIsSelected}
         />
       </Stack>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
         <Button variant="outlined" onClick={() => onClose(template?.globalId)}>
           Cancel
         </Button>

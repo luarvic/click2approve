@@ -1,6 +1,6 @@
-import GridFilterField from "@/shared/components/grids/GridFilterField";
+import { FilterStyles } from "@/shared/components/grids/filterStyles";
 import type { GridFilterOption } from "@/shared/components/grids/GridFilterField";
-import { Filters } from "@/shared/constants/constants";
+import GridFilterField from "@/shared/components/grids/GridFilterField";
 import { Stack } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import type { Dayjs } from "dayjs";
@@ -44,7 +44,7 @@ const GridFilterBar: React.FC<GridFilterBarProps> = ({ items }) => (
               label={item.label}
               slotProps={{
                 field: { clearable: true },
-                textField: { size: "small", sx: Filters.multiSelectSx, variant: "outlined" },
+                textField: { size: "small", sx: FilterStyles.multiSelectSx, variant: "outlined" },
               }}
               value={item.value}
               onChange={item.onChange}

@@ -1,9 +1,14 @@
 import { stores } from "@/app/rootStore";
+import { AuthForms } from "@/features/identity/components/authFormStyles";
+import { Information } from "@/features/identity/identityMessages";
 import { Credentials } from "@/features/identity/models/credentials";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import { AuthForms, Information, Routes, StackSpacing, Validation } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import { Routes } from "@/shared/routing/routes";
+import { StackSpacing } from "@/shared/theme/tokens";
+import { notification } from "@/shared/utils/notifications";
+import { Validation } from "@/shared/utils/validationRules";
 import { validateEmail, validatePassword } from "@/shared/utils/validators";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
@@ -23,7 +28,6 @@ import {
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { notification } from "@/shared/utils/notifications";
 
 const SignUpPage = () => {
   usePageTitle("Sign up");

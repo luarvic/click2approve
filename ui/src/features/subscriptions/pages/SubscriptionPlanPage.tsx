@@ -5,7 +5,7 @@ import { SubscriptionPlan, TenantType } from "@/features/tenants/models/tenant";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
-import { elevatedStandardCardSx, standardCardSx } from "@/shared/components/papers/StandardCardStyles";
+import AppCard from "@/shared/components/papers/AppCard";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
@@ -15,7 +15,7 @@ import {
 } from "@/shared/utils/persistenceNotifications";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import type { SxProps, Theme } from "@mui/material";
-import { Card, CardActionArea, CardContent, Chip, Divider, Grid, Link, Stack, Typography } from "@mui/material";
+import { CardActionArea, CardContent, Chip, Divider, Grid, Link, Stack, Typography } from "@mui/material";
 import type { SystemStyleObject } from "@mui/system";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
@@ -61,8 +61,6 @@ const getMonthlyLimitLabel = (limit: number, label: string) =>
 const getStorageLimitLabel = (storageGigabytes: number) =>
   storageGigabytes ? `${storageGigabytes.toLocaleString()} GB storage` : "Unlimited storage";
 const getPlanCardSx = (isCurrentPlan: boolean): SxProps<Theme> => [
-  standardCardSx as SystemStyleObject<Theme>,
-  elevatedStandardCardSx as SystemStyleObject<Theme>,
   ...(isCurrentPlan ? [currentPlanCardSx as SystemStyleObject<Theme>] : []),
 ];
 
@@ -134,7 +132,7 @@ const SubscriptionPlanPage = () => {
       <Grid container spacing={2}>
         {planCards.map(({ isCurrentPlan, limits, plan }) => (
           <Grid item key={plan} md={4} xs={12}>
-            <Card sx={getPlanCardSx(isCurrentPlan)}>
+            <AppCard elevated sx={getPlanCardSx(isCurrentPlan)}>
               <CardActionArea
                 disabled={changePlanAction.isRunning || isCurrentPlan}
                 onClick={() => void changePlan(plan)}
@@ -142,7 +140,7 @@ const SubscriptionPlanPage = () => {
                 <CardContent>
                   <Stack alignItems="center" direction="row" spacing={planHeaderSpacing}>
                     <Typography variant="h6">{planNames[plan]}</Typography>
-                    {isCurrentPlan && <Chip color="primary" label="Current" size="small" />}
+                    {isCurrentPlan && <Chip color="primary" label="Active" size="small" />}
                   </Stack>
                   {limits && (
                     <Stack spacing={planLimitsSpacing} sx={planLimitsSx}>
@@ -157,7 +155,7 @@ const SubscriptionPlanPage = () => {
                   )}
                 </CardContent>
               </CardActionArea>
-            </Card>
+            </AppCard>
           </Grid>
         ))}
       </Grid>

@@ -1,9 +1,9 @@
 import ApprovalRequestDetailLabel from "@/features/approvalRequests/components/ApprovalRequestDetailLabel";
 import { ApprovalRequestFieldValueVariantContext } from "@/features/approvalRequests/components/ApprovalRequestFieldContext";
-import { Stack, Typography } from "@mui/material";
+import { StackSpacing } from "@/shared/theme/tokens";
 import type { TypographyProps } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
-import { StackSpacing } from "@/shared/constants/constants";
 import { useContext, type ReactNode } from "react";
 
 interface ApprovalRequestFieldProps {

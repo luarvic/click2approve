@@ -1,6 +1,6 @@
 import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
+import { ApprovalStepStyles } from "@/features/approvalWorkflow/components/approvalStepStyles";
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
-import { Dialogs } from "@/shared/constants/constants";
 import { ExpandMore } from "@mui/icons-material";
 import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
@@ -29,7 +29,7 @@ const accordionSummarySx: SxProps<Theme> = {
 
 const accordionDetailsSx: SxProps<Theme> = {
   pb: 0,
-  pt: Dialogs.stepHeaderSpacing,
+  pt: ApprovalStepStyles.stepHeaderSpacing,
   px: 0,
 };
 

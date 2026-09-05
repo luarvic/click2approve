@@ -1,5 +1,6 @@
 import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
-import { Routes, StackSpacing } from "@/shared/constants/constants";
+import { Routes } from "@/shared/routing/routes";
+import { StackSpacing } from "@/shared/theme/tokens";
 import { Divider, Link, Stack, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { Link as RouterLink } from "react-router-dom";

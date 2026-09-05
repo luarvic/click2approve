@@ -1,7 +1,7 @@
 import { refreshAuthSession } from "@/features/identity/api/authApi";
 import { ApiPaths } from "@/shared/api/apiPaths";
 import { getRequestContext } from "@/shared/api/requestContext";
-import { Api } from "@/shared/constants/constants";
+import { Api } from "@/shared/config/application";
 import { readTokens } from "@/shared/session/session";
 import axios from "axios";
 

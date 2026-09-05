@@ -1,5 +1,5 @@
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
-import { DataGrids } from "@/shared/constants/constants";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 
 export interface ApprovalRequestTaskGridQuery {
   page: number;

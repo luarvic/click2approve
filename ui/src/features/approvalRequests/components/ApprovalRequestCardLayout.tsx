@@ -1,6 +1,6 @@
+import { StackSpacing } from "@/shared/theme/tokens";
 import { ExpandMore } from "@mui/icons-material";
 import { Collapse, IconButton, Stack, Typography } from "@mui/material";
-import { StackSpacing } from "@/shared/constants/constants";
 import { useState, type ReactNode } from "react";
 
 const cardColumnSpacing = 2;

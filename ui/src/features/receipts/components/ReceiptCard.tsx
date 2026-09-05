@@ -11,7 +11,7 @@ import ReceiptSignature from "@/features/receipts/components/ReceiptSignature";
 import type { PublicReceipt } from "@/features/receipts/models/publicReceipt";
 import { ReceiptParticipantRole, type Receipt } from "@/features/receipts/models/receipt";
 import type { StatusLineColor } from "@/shared/components/status/StatusLines";
-import { StackSpacing } from "@/shared/constants/constants";
+import { StackSpacing } from "@/shared/theme/tokens";
 import { getLocaleDateTimeWithSecondsString } from "@/shared/utils/dateTime";
 import { Box, Stack, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";

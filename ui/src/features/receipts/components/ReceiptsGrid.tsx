@@ -7,25 +7,27 @@ import {
   ApprovalRequestStatusLineLabel,
   getApprovalRequestStatusLabel,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
+import { ApprovalGrids } from "@/features/approvalRequests/components/approvalGridSettings";
 import { listReceiptGrid } from "@/features/receipts/api/receiptsApi";
 import type { ReceiptListItem } from "@/features/receipts/models/receipt";
 import {
-  type ReceiptGridQuery,
   parseReceiptGridQuery,
   serializeReceiptGridQuery,
+  type ReceiptGridQuery,
 } from "@/features/receipts/models/receiptGridQuery";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
-import { DataGrids, Routes } from "@/shared/constants/constants";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
+import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate } from "@/shared/utils/dateTime";
 import { FilterList } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
 import { Box, Button, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
-import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import type { GridSortModel } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -103,7 +105,7 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
       headerName: "#",
       sortable: false,
       disableColumnMenu: true,
-      width: DataGrids.approvalNumberColumnWidth,
+      width: ApprovalGrids.approvalNumberColumnWidth,
       renderCell: (params) => (
         <ApprovalRequestNumberText color="text.primary" globalId={params.row.globalId} includeHash={false} />
       ),
@@ -114,9 +116,9 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
       headerName: "Title",
       sortable: false,
       disableColumnMenu: true,
-      flex: DataGrids.approvalColumnFlex.content,
+      flex: ApprovalGrids.approvalColumnFlex.content,
       renderCell: (params) => (
-        <Stack sx={DataGrids.approvalTitleCellSx}>
+        <Stack sx={ApprovalGrids.approvalTitleCellSx}>
           <Typography variant="body2">{params.row.approvalRequestTitle}</Typography>
         </Stack>
       ),
@@ -129,14 +131,14 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
       disableColumnMenu: true,
       align: "center",
       headerAlign: "center",
-      width: DataGrids.approvalRevisionColumnWidth,
+      width: ApprovalGrids.approvalRevisionColumnWidth,
     },
     {
       field: "approvalRequestStatus",
       headerName: "Status",
       sortable: false,
       disableColumnMenu: true,
-      flex: DataGrids.approvalColumnFlex.metadata,
+      flex: ApprovalGrids.approvalColumnFlex.metadata,
       renderCell: (params) => (
         <ApprovalRequestStatusLineLabel
           result={params.row.approvalRequestResult}
@@ -150,7 +152,7 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
       headerName: "Requested by",
       sortable: false,
       disableColumnMenu: true,
-      flex: DataGrids.approvalColumnFlex.metadata,
+      flex: ApprovalGrids.approvalColumnFlex.metadata,
       renderCell: (params) => <OneLineDisplayName displayName={params.row.createdByDisplayName} variant="body2" />,
       valueGetter: (_value, row) => row.createdByDisplayName,
     },
@@ -158,7 +160,7 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
       field: "createdAt",
       headerName: "Created",
       sortable: true,
-      flex: DataGrids.approvalColumnFlex.metadata,
+      flex: ApprovalGrids.approvalColumnFlex.metadata,
       valueFormatter: (value) => getHumanReadableRelativeDate(value),
     },
   ];

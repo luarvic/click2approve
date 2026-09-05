@@ -1,7 +1,7 @@
-import { AssigneeType, type ApprovalStepAssignee } from "@/features/approvalWorkflow/models/approvalStep";
 import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
 import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
-import { StackSpacing } from "@/shared/constants/constants";
+import { AssigneeType, type ApprovalStepAssignee } from "@/features/approvalWorkflow/models/approvalStep";
+import { StackSpacing } from "@/shared/theme/tokens";
 import { stripInlineEmail } from "@/shared/utils/displayNameHelpers";
 import { Stack } from "@mui/material";
 

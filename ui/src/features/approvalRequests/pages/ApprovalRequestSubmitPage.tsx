@@ -4,8 +4,8 @@ import ApprovalRequestSubmit, {
 } from "@/features/approvalRequests/components/ApprovalRequestSubmit";
 import { TenantType } from "@/features/tenants/models/tenant";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
-import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";

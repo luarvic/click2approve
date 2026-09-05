@@ -2,6 +2,7 @@ import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/A
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import ApprovalStepAssigneeRow from "@/features/approvalWorkflow/components/ApprovalStepAssigneeRow";
 import ApprovalStepTitle from "@/features/approvalWorkflow/components/ApprovalStepTitle";
+import { ApprovalStepStyles } from "@/features/approvalWorkflow/components/approvalStepStyles";
 import {
   ApprovalStepAssignee,
   ApprovalStepMode,
@@ -10,8 +11,8 @@ import {
 } from "@/features/approvalWorkflow/models/approvalStep";
 import { EditableApprovalStep } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { Employee } from "@/features/employees/models/employee";
+import { Icons } from "@/shared/components/icons/iconStyles";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
-import { Dialogs, Icons } from "@/shared/constants/constants";
 import { AccountTreeOutlined, Add, DeleteOutline, ExpandMore, North, South } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import {
@@ -95,16 +96,16 @@ const stepLabelContentSx: SxProps<Theme> = {
   display: "flex",
   flex: 1,
   flexWrap: "wrap",
-  gap: Dialogs.stepHeaderSpacing,
+  gap: ApprovalStepStyles.stepHeaderSpacing,
 };
 const stepLabelActionsSx: SxProps<Theme> = {
   display: "flex",
-  gap: Dialogs.stepActionSpacing,
+  gap: ApprovalStepStyles.stepActionSpacing,
   marginLeft: "auto",
 };
 const addButtonSx: SxProps<Theme> = { alignSelf: "flex-start" };
 const stepAddButtonSx: SxProps<Theme> = {
-  ...Dialogs.addStepButtonSx,
+  ...ApprovalStepStyles.addStepButtonSx,
   alignSelf: "flex-start",
 };
 const actionOptions = [
@@ -117,6 +118,7 @@ const actionOptions = [
   { value: ApprovalRequestTaskAction.Accept, label: "Accept" },
   { value: ApprovalRequestTaskAction.Complete, label: "Complete" },
 ];
+const accordionSx: SxProps<Theme> = { backgroundColor: "inherit" };
 const accordionSummarySx: SxProps<Theme> = { px: 0 };
 const accordionDetailsSx: SxProps<Theme> = { px: 0 };
 const getStepContentSx = (sx?: SxProps<Theme>): SxProps<Theme> => (sx ? (Array.isArray(sx) ? sx : [sx]) : []);
@@ -221,7 +223,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                   showStatusBorder={false}
                   sx={getStepContentSx(state.sx)}
                 >
-                  <Stack spacing={Dialogs.stepStackSpacing}>
+                  <Stack spacing={ApprovalStepStyles.stepStackSpacing}>
                     <TextField
                       select
                       fullWidth
@@ -251,7 +253,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                         onUpdateStep(stepIndex, (current) => ({ ...current, instructions: event.target.value }))
                       }
                     />
-                    <Stack spacing={Dialogs.assigneeStackSpacing}>
+                    <Stack spacing={ApprovalStepStyles.assigneeStackSpacing}>
                       {step.assignees.map((assignee, assigneeIndex) => {
                         const assigneeState = getAssigneeState?.(step, stepIndex, assignee, assigneeIndex) ?? {};
 
@@ -303,7 +305,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                     >
                       Add assignee
                     </Button>
-                    <Accordion disableGutters elevation={0}>
+                    <Accordion disableGutters elevation={0} sx={accordionSx}>
                       <AccordionSummary expandIcon={<ExpandMore />} sx={accordionSummarySx}>
                         <Typography color="text.secondary">Additional requirements</Typography>
                       </AccordionSummary>
@@ -356,7 +358,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                         </Stack>
                       </AccordionDetails>
                     </Accordion>
-                    <Accordion disableGutters elevation={0}>
+                    <Accordion disableGutters elevation={0} sx={accordionSx}>
                       <AccordionSummary expandIcon={<ExpandMore />} sx={accordionSummarySx}>
                         <Typography color="text.secondary">Visibility</Typography>
                       </AccordionSummary>

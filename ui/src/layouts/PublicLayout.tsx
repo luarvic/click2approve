@@ -1,7 +1,7 @@
 import { stores } from "@/app/rootStore";
 import ColorModeSwitch from "@/shared/components/layout/ColorModeSwitch";
 import PublicAppBar from "@/shared/components/layout/PublicAppBar";
-import { Shell } from "@/shared/constants/constants";
+import { Shell } from "@/shared/components/layout/shellStyles";
 import { Box, Container, Toolbar } from "@mui/material";
 import { ReactNode } from "react";
 import { Outlet } from "react-router-dom";

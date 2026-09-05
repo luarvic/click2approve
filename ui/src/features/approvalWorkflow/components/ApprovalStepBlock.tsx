@@ -5,6 +5,7 @@ import { ApprovalRequestTask } from "@/features/approvalRequests/models/approval
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
+import { ApprovalStepStyles } from "@/features/approvalWorkflow/components/approvalStepStyles";
 import {
   ApprovalStep,
   ApprovalStepAssignee,
@@ -16,7 +17,8 @@ import {
   getApprovalStepBorderLeftColor,
   getApprovalStepStatus,
 } from "@/features/approvalWorkflow/utils/approvalStepStatus";
-import { Dialogs, Icons, StackSpacing } from "@/shared/constants/constants";
+import { Icons } from "@/shared/components/icons/iconStyles";
+import { StackSpacing } from "@/shared/theme/tokens";
 import {
   AssignmentOutlined,
   AttachFile,
@@ -455,7 +457,7 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
     );
 
   const stepContent = (
-    <Stack spacing={Dialogs.stepStackSpacing}>
+    <Stack spacing={ApprovalStepStyles.stepStackSpacing}>
       {(showStepTitle || showMetadata || headerAccessory) && (
         <ApprovalStepHeader
           accessory={headerAccessory}
@@ -495,7 +497,7 @@ const ApprovalStepBlock: React.FC<ApprovalStepBlockProps> = ({
   );
 
   return showStepBox ? (
-    <Box aria-label={stepStatus} sx={Dialogs.approvalBoxSx}>
+    <Box aria-label={stepStatus} sx={ApprovalStepStyles.approvalBoxSx}>
       {stepContent}
     </Box>
   ) : (

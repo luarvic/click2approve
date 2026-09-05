@@ -4,9 +4,9 @@ import TeamEditor from "@/features/teams/components/TeamDialog";
 import { Team, UpsertTeamRequest } from "@/features/teams/models/team";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
-import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
+import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   PersistenceSuccessMessages,

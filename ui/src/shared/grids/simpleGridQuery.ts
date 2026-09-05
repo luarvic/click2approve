@@ -1,4 +1,4 @@
-import { DataGrids } from "@/shared/constants/constants";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 
 export type GridSortDirection = "asc" | "desc";
 

@@ -1,5 +1,5 @@
 import { stores } from "@/app/rootStore";
-import { Refresh } from "@/shared/constants/constants";
+import { Refresh } from "@/shared/config/application";
 import { useEffect, useRef, useState } from "react";
 
 type GridRefreshKey = boolean | number | string | null | undefined;

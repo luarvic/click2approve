@@ -1,4 +1,5 @@
-import { Filters } from "@/shared/constants/constants";
+import { FilterStyles } from "@/shared/components/grids/filterStyles";
+import { Filters } from "@/shared/config/application";
 import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
 import { Autocomplete, MenuItem, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -42,7 +43,7 @@ const GridFilterField: React.FC<GridFilterFieldProps> = (props) => {
         onChange={(_event, selected) => onChange(selected.map((option) => option.value))}
         renderInput={(params) => <TextField {...params} label={label} size="small" variant="outlined" />}
         size="small"
-        sx={Filters.multiSelectSx}
+        sx={FilterStyles.multiSelectSx}
         value={(options ?? []).filter((option) => (value as string[]).includes(option.value))}
       />
     );
@@ -54,7 +55,7 @@ const GridFilterField: React.FC<GridFilterFieldProps> = (props) => {
       onChange={(event) => (options ? onChange(event.target.value) : setTextValue(event.target.value))}
       select={Boolean(options)}
       size="small"
-      sx={Filters.multiSelectSx}
+      sx={FilterStyles.multiSelectSx}
       value={options ? value : textValue}
       variant="outlined"
     >

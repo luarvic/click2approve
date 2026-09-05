@@ -1,6 +1,9 @@
 import { stores } from "@/app/rootStore";
 import { TenantType } from "@/features/tenants/models/tenant";
-import { Api, Lists, Refresh, Routes, Shell } from "@/shared/constants/constants";
+import { Shell } from "@/shared/components/layout/shellStyles";
+import { Lists } from "@/shared/components/lists/listStyles";
+import { Api, Refresh } from "@/shared/config/application";
+import { Routes } from "@/shared/routing/routes";
 import {
   AddTwoTone,
   AssignmentTurnedInTwoTone,

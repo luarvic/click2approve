@@ -1,9 +1,9 @@
 import { useSignatureCanvas } from "@/features/approvalRequests/hooks/useSignatureCanvas";
-import { StackSpacing } from "@/shared/constants/constants";
+import { StackSpacing } from "@/shared/theme/tokens";
 import ClearIcon from "@mui/icons-material/Clear";
 import { FormHelperText, IconButton, Stack, Tooltip } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
 import type { SxProps, Theme } from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import type { CSSProperties } from "react";
 
 interface ApprovalRequestSignatureFieldProps {

@@ -1,4 +1,4 @@
-import { StackSpacing } from "@/shared/constants/constants";
+import { StackSpacing } from "@/shared/theme/tokens";
 import { getLocaleDateTimeString } from "@/shared/utils/dateTime";
 import type { SxProps } from "@mui/material";
 import { Box, Stack, Tooltip, Typography } from "@mui/material";

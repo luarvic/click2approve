@@ -1,4 +1,4 @@
-import { DataGrids } from "@/shared/constants/constants";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import { GridPaginationModel } from "@mui/x-data-grid";
 import { useEffect, useRef, useState } from "react";
 

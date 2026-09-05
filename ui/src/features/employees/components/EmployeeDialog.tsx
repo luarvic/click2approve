@@ -1,23 +1,25 @@
 import { stores } from "@/app/rootStore";
+import ApprovalRequestParticipantChip from "@/features/approvalRequests/components/ApprovalRequestParticipantChip";
+import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import {
   CreateEmployeeRequest,
   Employee,
   EmployeeStatus,
   UpdateEmployeeRequest,
 } from "@/features/employees/models/employee";
-import ApprovalRequestParticipantChip from "@/features/approvalRequests/components/ApprovalRequestParticipantChip";
-import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { Team } from "@/features/teams/models/team";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
-import MainActionButton from "@/shared/components/buttons/MainActionButton";
+import { Forms } from "@/shared/components/dialogs/formStyles";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import { Dialogs, Routes, Validation } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
+import { Validation } from "@/shared/utils/validationRules";
 import {
   Autocomplete,
   Button,
@@ -156,7 +158,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
           { label: employee ? getEmployeeDisplayName(employee) : "New employee" },
         ]}
       />
-      <Stack spacing={Dialogs.formStackSpacing}>
+      <Stack spacing={Forms.formStackSpacing}>
         <TextField
           label="Email"
           value={email}
@@ -237,7 +239,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
           />
         )}
       </Stack>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
         <Button variant="outlined" onClick={() => onClose(employee?.globalId)}>
           Cancel
         </Button>

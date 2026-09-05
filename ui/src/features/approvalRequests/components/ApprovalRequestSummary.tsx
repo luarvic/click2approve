@@ -6,10 +6,10 @@ import { getApprovalRequestNumber } from "@/features/approvalRequests/components
 import ApprovalRequestRevisionLinks from "@/features/approvalRequests/components/ApprovalRequestRevisionLinks";
 import { ApprovalRequestFile } from "@/features/approvalRequests/models/approvalRequest";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
-import { Stack, Typography } from "@mui/material";
+import { StackSpacing } from "@/shared/theme/tokens";
 import type { TypographyProps } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
-import { StackSpacing } from "@/shared/constants/constants";
 import type { ElementType, ReactNode } from "react";
 
 interface ApprovalRequestSummaryProps {

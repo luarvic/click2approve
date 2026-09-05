@@ -1,4 +1,4 @@
-import { Validation } from "@/shared/constants/constants";
+import { Validation } from "@/shared/utils/validationRules";
 
 export const validateEmails = (emails: string[]): boolean => {
   const invalidEmails = emails.filter((email) => !validateEmail(email));

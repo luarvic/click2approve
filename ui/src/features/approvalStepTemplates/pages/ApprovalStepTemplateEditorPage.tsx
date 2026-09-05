@@ -3,9 +3,9 @@ import ApprovalStepTemplateEditor from "@/features/approvalStepTemplates/compone
 import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
 import { TenantType } from "@/features/tenants/models/tenant";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
-import { Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
+import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   PersistenceSuccessMessages,

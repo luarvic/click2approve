@@ -3,7 +3,7 @@ import {
   getApprovalRequestStatusLabel,
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
-import { Icons } from "@/shared/constants/constants";
+import { Icons } from "@/shared/components/icons/iconStyles";
 import { Check, Close, Loop, QuestionMark, Replay } from "@mui/icons-material";
 import { Tooltip } from "@mui/material";
 import React from "react";

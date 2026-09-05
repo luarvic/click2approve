@@ -1,22 +1,24 @@
 import { stores } from "@/app/rootStore";
 import { listApprovalDelegationGrid } from "@/features/delegations/api/approvalDelegationsApi";
+import { DelegationGridSettings } from "@/features/delegations/components/gridSettings";
 import { ApprovalDelegation } from "@/features/delegations/models/approvalDelegation";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import GridFilters from "@/shared/components/grids/GridFilters";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
-import { DataGrids, Routes } from "@/shared/constants/constants";
-import { parseSimpleGridQuery, serializeSimpleGridQuery } from "@/shared/grids/simpleGridQuery";
 import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
+import { parseSimpleGridQuery, serializeSimpleGridQuery } from "@/shared/grids/simpleGridQuery";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
+import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
 import { Add, FilterList } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
 import { Box, Button } from "@mui/material";
-import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import type { GridSortModel } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -97,7 +99,7 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({ currentDelegationGlob
       field: "delegatorEmployeeGlobalId",
       headerName: "Employee",
       sortable: true,
-      ...DataGrids.delegationsColumnSizing.employee,
+      ...DelegationGridSettings.delegationsColumnSizing.employee,
       valueGetter: (value) => getName(value as string),
       renderCell: (params) => (
         <OneLineDisplayName displayName={getName(params.row.delegatorEmployeeGlobalId)} variant="body2" />
@@ -107,7 +109,7 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({ currentDelegationGlob
       field: "delegateEmployeeGlobalId",
       headerName: "Delegate",
       sortable: true,
-      ...DataGrids.delegationsColumnSizing.delegate,
+      ...DelegationGridSettings.delegationsColumnSizing.delegate,
       valueGetter: (value) => getName(value as string),
       renderCell: (params) => (
         <OneLineDisplayName displayName={getName(params.row.delegateEmployeeGlobalId)} variant="body2" />

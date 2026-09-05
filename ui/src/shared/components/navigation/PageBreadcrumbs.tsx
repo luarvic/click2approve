@@ -1,4 +1,4 @@
-import { Pages } from "@/shared/constants/constants";
+import { Pages } from "@/shared/components/layout/pageStyles";
 import { Breadcrumbs, Link, Stack, Typography } from "@mui/material";
 import type { ReactNode } from "react";
 import { Link as RouterLink } from "react-router-dom";

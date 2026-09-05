@@ -1,10 +1,11 @@
 import { confirmUserEmail } from "@/features/identity/api/authApi";
-import { Information, Pages } from "@/shared/constants/constants";
+import { Information } from "@/features/identity/identityMessages";
+import { Pages } from "@/shared/components/layout/pageStyles";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import InformationPage from "@/shared/pages/InformationPage";
 import { Backdrop, CircularProgress, Link } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { type ReactNode, useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-dom";
 
 const renderMessageWithLink = (message: string, link: ReactNode) => {

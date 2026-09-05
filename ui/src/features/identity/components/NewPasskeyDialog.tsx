@@ -1,5 +1,5 @@
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
-import { Dialogs } from "@/shared/constants/constants";
+import { Forms } from "@/shared/components/dialogs/formStyles";
 import {
   Button,
   Dialog,
@@ -32,7 +32,7 @@ const NewPasskeyDialog: React.FC<NewPasskeyDialogProps> = ({ loading, open, onCl
     <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
       <DialogTitle>New passkey</DialogTitle>
       <DialogContent dividers>
-        <Stack spacing={Dialogs.formStackSpacing}>
+        <Stack spacing={Forms.formStackSpacing}>
           <DialogContentText>Name this passkey so you can recognize it later.</DialogContentText>
           <TextField
             autoFocus

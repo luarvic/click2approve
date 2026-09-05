@@ -1,6 +1,6 @@
-import { ColorModeSwitchTokens } from "@/shared/theme/tokens";
+import { ColorModeSwitchTokens } from "@/shared/components/layout/colorModeSwitchTokens";
 import { DarkMode, LightMode } from "@mui/icons-material";
-import { styled, Switch, type SwitchProps } from "@mui/material";
+import { Switch, styled, type SwitchProps } from "@mui/material";
 
 const switchWidth = 62;
 const switchHeight = 34;

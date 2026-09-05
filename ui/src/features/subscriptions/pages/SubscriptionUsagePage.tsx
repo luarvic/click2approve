@@ -3,13 +3,12 @@ import { getSubscriptionUsage, SubscriptionUsage } from "@/features/subscription
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
-import { elevatedStandardCardSx, standardCardSx } from "@/shared/components/papers/StandardCardStyles";
+import AppCard from "@/shared/components/papers/AppCard";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
-import { parseUtcDateTime } from "@/shared/utils/dateTime";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { parseUtcDateTime } from "@/shared/utils/dateTime";
 import type { SxProps, Theme } from "@mui/material";
-import { Box, Card, CardContent, Grid, Stack, Typography, useTheme } from "@mui/material";
-import type { SystemStyleObject } from "@mui/system";
+import { Box, CardContent, Grid, Stack, Typography, useTheme } from "@mui/material";
 import { PieChart } from "@mui/x-charts/PieChart";
 import prettyBytes from "pretty-bytes";
 import { useEffect, useState } from "react";
@@ -22,10 +21,6 @@ const usageLegendMarkerSize = 16;
 const usageLegendSpacing = 1;
 const usageLegendSx: SxProps<Theme> = { mt: 0 };
 const usageSummarySx: SxProps<Theme> = { mt: 1 };
-const usageCardSx: SxProps<Theme> = [
-  standardCardSx as SystemStyleObject<Theme>,
-  elevatedStandardCardSx as SystemStyleObject<Theme>,
-];
 const usageLegendMarkerSx = (color: string): SxProps<Theme> => ({
   backgroundColor: color,
   borderRadius: "50%",
@@ -128,7 +123,7 @@ const SubscriptionUsagePage = () => {
           const format = (value: number) => (item.suffix ? prettyBytes(value) : value.toLocaleString());
           return (
             <Grid item key={item.label} md={4} xs={12}>
-              <Card sx={usageCardSx}>
+              <AppCard elevated>
                 <CardContent>
                   <Typography color="text.primary" component="h2" variant="h6">
                     {item.label}
@@ -166,7 +161,7 @@ const SubscriptionUsagePage = () => {
                     {item.limit ? `${format(item.used)} of ${format(item.limit)}` : `${format(item.used)} used`}
                   </Typography>
                 </CardContent>
-              </Card>
+              </AppCard>
             </Grid>
           );
         })}

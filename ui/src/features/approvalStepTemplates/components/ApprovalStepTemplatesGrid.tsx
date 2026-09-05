@@ -1,19 +1,21 @@
 import { stores } from "@/app/rootStore";
 import { listApprovalStepTemplateGrid } from "@/features/approvalStepTemplates/api/approvalStepTemplatesApi";
 import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
+import { TeamGridSettings } from "@/features/teams/components/gridSettings";
 import GridFilters from "@/shared/components/grids/GridFilters";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
-import { DataGrids, Routes } from "@/shared/constants/constants";
-import { parseSimpleGridQuery, serializeSimpleGridQuery } from "@/shared/grids/simpleGridQuery";
 import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
+import { parseSimpleGridQuery, serializeSimpleGridQuery } from "@/shared/grids/simpleGridQuery";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
+import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add, FilterList } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
 import { Box, Button } from "@mui/material";
-import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import type { GridSortModel } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -73,7 +75,7 @@ const ApprovalStepTemplatesGrid: React.FC<ApprovalStepTemplatesGridProps> = ({ c
     </GridToolbarContainer>
   );
   const columns: GridColDef[] = [
-    { field: "name", headerName: "Name", sortable: true, ...DataGrids.teamsColumnSizing.name },
+    { field: "name", headerName: "Name", sortable: true, ...TeamGridSettings.teamsColumnSizing.name },
   ];
   return (
     <>

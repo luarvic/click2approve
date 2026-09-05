@@ -2,7 +2,8 @@ import ApprovalRequestFilesList from "@/features/approvalRequests/components/App
 import { useUserFileDelete } from "@/features/userFiles/hooks/useUserFileDelete";
 import { useUserFileUpload } from "@/features/userFiles/hooks/useUserFileUpload";
 import type { UserFile } from "@/features/userFiles/models/userFile";
-import { Files, StackSpacing } from "@/shared/constants/constants";
+import { Files } from "@/shared/components/files/fileInputStyles";
+import { StackSpacing } from "@/shared/theme/tokens";
 import { AttachFile } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { Stack, TextField } from "@mui/material";

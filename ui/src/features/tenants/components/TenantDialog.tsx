@@ -1,10 +1,10 @@
 import { stores } from "@/app/rootStore";
 import { CreateTenantRequest, SubscriptionPlan, Tenant, UpdateTenantRequest } from "@/features/tenants/models/tenant";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
+import { Forms } from "@/shared/components/dialogs/formStyles";
 import ImagePicker from "@/shared/components/images/ImagePicker";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import { Dialogs } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Business } from "@mui/icons-material";
@@ -118,7 +118,7 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
           { label: tenant?.businessName ?? "New organization" },
         ]}
       />
-      <Stack spacing={Dialogs.formStackSpacing}>
+      <Stack spacing={Forms.formStackSpacing}>
         <ImagePicker
           alt="Organization logo"
           fallback={<Business fontSize="large" />}
@@ -176,7 +176,7 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
           disabled={!isNew && !canEdit}
         />
       </Stack>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
         <Button variant="outlined" onClick={() => onClose(tenant?.globalId)}>
           Cancel
         </Button>

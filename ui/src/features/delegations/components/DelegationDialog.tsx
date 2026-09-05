@@ -4,10 +4,11 @@ import EmployeeDisplayName from "@/features/employees/components/EmployeeDisplay
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
+import { Forms } from "@/shared/components/dialogs/formStyles";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import { Dialogs, Routes } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
 import { Button, MenuItem, Stack, TextField } from "@mui/material";
@@ -114,7 +115,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           },
         ]}
       />
-      <Stack spacing={Dialogs.formStackSpacing}>
+      <Stack spacing={Forms.formStackSpacing}>
         <TextField
           select
           label="Employee"
@@ -156,7 +157,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           ))}
         </TextField>
       </Stack>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
         <Button variant="outlined" onClick={() => onClose(delegation?.globalId)}>
           Cancel
         </Button>

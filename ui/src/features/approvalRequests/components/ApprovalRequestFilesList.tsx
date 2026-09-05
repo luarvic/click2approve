@@ -3,7 +3,7 @@ import FileNameLink from "@/shared/components/files/FileNameLink";
 import FileRow from "@/shared/components/files/FileRow";
 import ReplacedFileGroup from "@/shared/components/files/ReplacedFileGroup";
 import CommentPaper from "@/shared/components/papers/CommentPaper";
-import { StackSpacing } from "@/shared/constants/constants";
+import { StackSpacing } from "@/shared/theme/tokens";
 import { Close, MoreVert, Undo } from "@mui/icons-material";
 import type { TypographyProps } from "@mui/material";
 import { Chip, IconButton, Menu, MenuItem, Stack, Tooltip, type SxProps } from "@mui/material";

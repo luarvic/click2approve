@@ -1,4 +1,4 @@
-import { Lists } from "@/shared/constants/constants";
+import { Lists } from "@/shared/components/lists/listStyles";
 import type { SxProps } from "@mui/material";
 import { Box, Stack } from "@mui/material";
 import type { Theme } from "@mui/material/styles";

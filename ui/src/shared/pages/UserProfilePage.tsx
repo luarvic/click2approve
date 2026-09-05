@@ -2,12 +2,12 @@ import { stores } from "@/app/rootStore";
 import ApprovalRequestSignatureField from "@/features/approvalRequests/components/ApprovalRequestSignatureField";
 import PasskeySettings from "@/features/identity/components/PasskeySettings";
 import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
+import { Forms } from "@/shared/components/dialogs/formStyles";
 import ImagePicker from "@/shared/components/images/ImagePicker";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
-import { AuthForms, Dialogs, Pages, StackSpacing } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import {
@@ -18,6 +18,7 @@ import {
   notificationPreferenceTypeToNotificationTypes,
 } from "@/shared/models/notifications";
 import { UserNotificationPreference } from "@/shared/models/userProfile";
+import { StackSpacing } from "@/shared/theme/tokens";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   PersistenceSuccessMessages,
@@ -46,6 +47,9 @@ import {
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+const profileFormSx = { mt: 1 };
+const profileContainerSx = { display: "flex", flexDirection: "column" } as const;
 
 const notificationChannels = [NotificationChannel.InApp, NotificationChannel.Email];
 
@@ -153,7 +157,7 @@ const UserProfilePage = () => {
   };
 
   return (
-    <Box sx={Pages.userProfileContainerSx}>
+    <Box sx={profileContainerSx}>
       <PageBreadcrumbs
         items={[
           {
@@ -163,7 +167,7 @@ const UserProfilePage = () => {
         ]}
       />
       <NarrowContent>
-        <Stack component="form" noValidate spacing={StackSpacing.loose} sx={AuthForms.formSx}>
+        <Stack component="form" noValidate spacing={StackSpacing.loose} sx={profileFormSx}>
           <Tabs value={selectedTab} onChange={(_, value: string) => setSelectedTab(value)} variant="scrollable">
             <Tab label="Profile" value="profile" />
             <Tab label="Passkeys" value="passkeys" />
@@ -171,7 +175,7 @@ const UserProfilePage = () => {
             <Tab label="Notifications" value="notifications" />
           </Tabs>
           {selectedTab === "profile" && (
-            <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
+            <Stack spacing={Forms.formStackSpacing} sx={Forms.tabContentSx}>
               <ImagePicker
                 alt="User avatar"
                 fallback={<Person fontSize="large" />}
@@ -205,7 +209,7 @@ const UserProfilePage = () => {
             </Stack>
           )}
           {selectedTab === "notifications" && (
-            <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
+            <Stack spacing={Forms.formStackSpacing} sx={Forms.tabContentSx}>
               <Table aria-label="Notification preferences">
                 <TableHead>
                   <TableRow>
@@ -242,18 +246,14 @@ const UserProfilePage = () => {
           )}
           {selectedTab === "passkeys" && <PasskeySettings />}
           {selectedTab === "signature" && (
-            <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
+            <Stack spacing={Forms.formStackSpacing} sx={Forms.tabContentSx}>
               <Typography color="text.secondary">
                 Your saved signature will be prefilled when you sign an approval request.
               </Typography>
               <ApprovalRequestSignatureField onChange={handleSignatureChange} value={defaultSignatureJson} />
             </Stack>
           )}
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={Dialogs.stepHeaderSpacing}
-            sx={Dialogs.addStepButtonSx}
-          >
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
             <Button type="button" variant="outlined" onClick={handleCancel}>
               Cancel
             </Button>

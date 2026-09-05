@@ -1,6 +1,6 @@
-import axios from "@/shared/api/axios";
 import { ApiPaths } from "@/shared/api/apiPaths";
-import { Api } from "@/shared/constants/constants";
+import axios from "@/shared/api/axios";
+import { Api } from "@/shared/config/application";
 import { UserProfile, UserProfileUpdateRequest } from "@/shared/models/userProfile";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";

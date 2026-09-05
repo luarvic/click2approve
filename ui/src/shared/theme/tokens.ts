@@ -1,8 +1,10 @@
-export const ColorModeSwitchTokens = {
-  darkThumb: "#003892",
-  darkTrack: "#8796a5",
-  lightThumb: "#f5f5f5",
-  lightTrack: "#aab4be",
-  moonIcon: "#fff8dc",
-  sunIcon: "#d4a72c",
+export const SurfaceTokens = {
+  borderRadius: "12px",
+} as const;
+export const StackSpacing = {
+  none: 0,
+  tight: 0.5,
+  default: 1,
+  relaxed: 1.5,
+  loose: 2,
 } as const;

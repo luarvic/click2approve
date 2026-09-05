@@ -1,8 +1,6 @@
-import type { SnackbarOrigin, SxProps, Theme } from "@mui/material";
-
 const refreshSecondsDefault = 30;
 const filterTextInputDebounceMsDefault = 500;
-const filterMultiSelectMinWidth = 180;
+
 const gridRefreshSeconds = Number(import.meta.env.VITE_GRID_REFRESH_SECONDS ?? String(refreshSecondsDefault));
 const filterTextInputDebounceMs = Number(
   import.meta.env.VITE_FILTER_TEXT_INPUT_DEBOUNCE_MS ?? String(filterTextInputDebounceMsDefault),
@@ -58,8 +56,6 @@ export const Discussions = {
 } as const;
 
 export const Filters = {
-  multiSelectMinWidth: filterMultiSelectMinWidth,
-  multiSelectSx: { minWidth: filterMultiSelectMinWidth } as SxProps<Theme>,
   textInputDebounceMs: toDelayMs(filterTextInputDebounceMs),
 } as const;
 
@@ -69,9 +65,5 @@ export const Notifications = {
   errorAutoHideDuration: 6000,
   errorMessageMaxLength: 160,
   showPersistenceSuccess: showPersistenceSuccessNotifications,
-  successAnchorOrigin: {
-    horizontal: "right",
-    vertical: "bottom",
-  } as SnackbarOrigin,
   successAutoHideDuration: 3000,
 } as const;

@@ -2,14 +2,10 @@ import {
   ApprovalRequestDetailsCardMode,
   ApprovalRequestDetailsCardModeContext,
 } from "@/features/approvalRequests/components/ApprovalRequestDetailsCardContext";
-import {
-  elevatedStandardCardSx,
-  standardCardContentSx,
-  standardCardSx,
-} from "@/shared/components/papers/StandardCardStyles";
+import AppCard from "@/shared/components/papers/AppCard";
+import AppCardContent from "@/shared/components/papers/AppCardContent";
 import type { SxProps } from "@mui/material";
-import { Card, CardContent } from "@mui/material";
-import { alpha, type Theme } from "@mui/material/styles";
+import type { Theme } from "@mui/material/styles";
 import type { SystemStyleObject } from "@mui/system";
 import type { ReactNode } from "react";
 
@@ -29,19 +25,10 @@ interface ApprovalRequestDetailsCardProps {
 const clickableCardSx: SxProps<Theme> = {
   cursor: "pointer",
   "&:focus-visible": {
-    borderRadius: 1,
     outline: "2px solid",
     outlineColor: "success.main",
     outlineOffset: 2,
   },
-};
-
-export const taskCardBackgroundSx: SxProps<Theme> = {
-  backgroundColor: (theme) => alpha(theme.palette.grey[500], theme.palette.mode === "dark" ? 0.08 : 0.04),
-};
-
-export const requestCardBackgroundSx: SxProps<Theme> = {
-  backgroundColor: (theme) => alpha(theme.palette.grey[500], theme.palette.mode === "dark" ? 0.08 : 0.04),
 };
 
 const ApprovalRequestDetailsCard: React.FC<ApprovalRequestDetailsCardProps> = ({
@@ -62,20 +49,15 @@ const ApprovalRequestDetailsCard: React.FC<ApprovalRequestDetailsCardProps> = ({
     borderLeftColor,
   };
   const cardSx: SxProps<Theme> = [
-    standardCardSx as SystemStyleObject<Theme>,
-    ...(elevated ? [elevatedStandardCardSx as SystemStyleObject<Theme>] : []),
     ...(isClickable ? [clickableCardSx as SystemStyleObject<Theme>] : []),
     ...(showStatusBorder ? [statusBorderSx] : []),
     ...(sx ? (Array.isArray(sx) ? sx : [sx]) : []),
   ];
-  const cardContentSx: SxProps<Theme> = [
-    standardCardContentSx as SystemStyleObject<Theme>,
-    ...(contentSx ? (Array.isArray(contentSx) ? contentSx : [contentSx]) : []),
-  ];
 
   return (
     <ApprovalRequestDetailsCardModeContext.Provider value={mode}>
-      <Card
+      <AppCard
+        elevated={elevated}
         aria-label={ariaLabel}
         onClick={onClick}
         onKeyDown={
@@ -92,8 +74,8 @@ const ApprovalRequestDetailsCard: React.FC<ApprovalRequestDetailsCardProps> = ({
         sx={cardSx}
         tabIndex={isClickable ? 0 : undefined}
       >
-        <CardContent sx={cardContentSx}>{children}</CardContent>
-      </Card>
+        <AppCardContent sx={contentSx}>{children}</AppCardContent>
+      </AppCard>
     </ApprovalRequestDetailsCardModeContext.Provider>
   );
 };

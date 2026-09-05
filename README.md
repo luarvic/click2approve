@@ -202,6 +202,9 @@ It is written in [TypeScript](https://www.typescriptlang.org/) and uses:
 The production container builds the TypeScript source into a single-page
 application and serves it with [Nginx](https://www.nginx.com/).
 
+UI contribution conventions, including ownership of theme, styles, and settings,
+are documented in [ui/README.md](ui/README.md).
+
 ### Server-Side API
 
 The API exposes the HTTP endpoints used by the UI and implements workflow,

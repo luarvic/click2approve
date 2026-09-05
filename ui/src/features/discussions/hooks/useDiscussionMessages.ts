@@ -1,3 +1,4 @@
+import { stores } from "@/app/rootStore";
 import {
   listRequestDiscussion,
   listTaskDiscussion,
@@ -6,9 +7,8 @@ import {
 } from "@/features/discussions/api/discussionsApi";
 import { DiscussionMessage } from "@/features/discussions/models/discussionMessage";
 import { UserFile } from "@/features/userFiles/models/userFile";
-import { Refresh } from "@/shared/constants/constants";
+import { Refresh } from "@/shared/config/application";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
-import { stores } from "@/app/rootStore";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { useCallback, useEffect, useRef, useState } from "react";
 

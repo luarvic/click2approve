@@ -6,9 +6,10 @@ import {
   type PublicReceipt,
   type PublicReceiptFile,
 } from "@/features/receipts/models/publicReceipt";
-import { Files, StackSpacing } from "@/shared/constants/constants";
+import { Files } from "@/shared/components/files/fileInputStyles";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
+import { StackSpacing } from "@/shared/theme/tokens";
 import { CheckCircleOutline, ErrorOutline, UploadFileOutlined } from "@mui/icons-material";
 import { Box, Button, Container, GlobalStyles, Stack, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";

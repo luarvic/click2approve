@@ -1,5 +1,5 @@
-import { Dialogs } from "@/shared/constants/constants";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
+import { Forms } from "@/shared/components/dialogs/formStyles";
 import { ArrowBack } from "@mui/icons-material";
 import { Button, Stack } from "@mui/material";
 
@@ -20,7 +20,7 @@ const ApprovalRequestSubmitActions: React.FC<ApprovalRequestSubmitActionsProps> 
   onSaveTemplate,
   onSubmit,
 }) => (
-  <Stack direction={{ xs: "column", sm: "row" }} spacing={Dialogs.stepHeaderSpacing} sx={Dialogs.addStepButtonSx}>
+  <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
     {onBack ? (
       <Button startIcon={<ArrowBack />} onClick={onBack}>
         Back

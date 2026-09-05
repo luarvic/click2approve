@@ -1,5 +1,4 @@
-import { Icons } from "@/shared/constants/constants";
-import type { SvgIconProps } from "@mui/material/SvgIcon";
+import { Icons } from "@/shared/components/icons/iconStyles";
 import {
   BlockOutlined,
   CancelOutlined,
@@ -9,6 +8,7 @@ import {
   ReplayOutlined,
   TimerOutlined,
 } from "@mui/icons-material";
+import type { SvgIconProps } from "@mui/material/SvgIcon";
 
 export type ApprovalRequestTimestampType =
   | "canceled"

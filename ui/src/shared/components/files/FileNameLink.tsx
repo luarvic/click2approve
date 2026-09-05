@@ -1,7 +1,7 @@
 import FileTypeIcon from "@/shared/components/icons/FileTypeIcon";
-import { StackSpacing } from "@/shared/constants/constants";
-import { Link } from "@mui/material";
+import { StackSpacing } from "@/shared/theme/tokens";
 import type { TypographyProps } from "@mui/material";
+import { Link } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 
 interface FileNameLinkProps {

@@ -2,7 +2,7 @@ import ApprovalRequestDetailLabel from "@/features/approvalRequests/components/A
 import ApprovalRequestFilesList from "@/features/approvalRequests/components/ApprovalRequestFilesList";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import { downloadApprovalRequestTaskAttachment } from "@/features/userFiles/utils/downloaders";
-import { StackSpacing } from "@/shared/constants/constants";
+import { StackSpacing } from "@/shared/theme/tokens";
 import { Stack } from "@mui/material";
 
 interface ApprovalRequestTaskAttachmentListProps {

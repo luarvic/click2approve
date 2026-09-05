@@ -1,10 +1,13 @@
 import ApprovalRequestParticipantLine, {
   getAssigneeIcon,
 } from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
+import {
+  ApprovalStepStyles,
+  AssigneeTypeFieldMinWidth,
+} from "@/features/approvalWorkflow/components/approvalStepStyles";
 import { ApprovalStepAssignee, AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import EmployeeDisplayName from "@/features/employees/components/EmployeeDisplayName";
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
-import { AssigneeTypeFieldMinWidth, Dialogs } from "@/shared/constants/constants";
 import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
 import { Close } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
@@ -63,10 +66,10 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
   ];
 
   return (
-    <Stack spacing={Dialogs.assigneeStackSpacing} sx={getAssigneeRowSx(muted)}>
+    <Stack spacing={ApprovalStepStyles.assigneeStackSpacing} sx={getAssigneeRowSx(muted)}>
       <Stack
         direction={stackControlsOnSmallScreens ? { xs: "column", sm: "row" } : "row"}
-        spacing={Dialogs.assigneeStackSpacing}
+        spacing={ApprovalStepStyles.assigneeStackSpacing}
         alignItems={stackControlsOnSmallScreens ? { xs: "stretch", sm: "center" } : "center"}
         sx={assigneeControlsSx}
       >
@@ -81,7 +84,7 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
               type: Number(event.target.value) as AssigneeType,
             })
           }
-          sx={stackControlsOnSmallScreens ? responsiveAssigneeTypeFieldSx : Dialogs.assigneeTypeFieldSx}
+          sx={stackControlsOnSmallScreens ? responsiveAssigneeTypeFieldSx : ApprovalStepStyles.assigneeTypeFieldSx}
         >
           {recipientTypes.map((type) => (
             <MenuItem key={type.value} value={type.value}>
@@ -89,7 +92,7 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
             </MenuItem>
           ))}
         </TextField>
-        <Stack direction="row" spacing={Dialogs.assigneeStackSpacing} sx={assigneeFieldControlsSx}>
+        <Stack direction="row" spacing={ApprovalStepStyles.assigneeStackSpacing} sx={assigneeFieldControlsSx}>
           {assignee.type === AssigneeType.User && (
             <TextField
               fullWidth
@@ -188,7 +191,7 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
                 aria-label="Remove assignee"
                 disabled={removeDisabled}
                 onClick={onRemove}
-                sx={Dialogs.removeAssigneeButtonSx}
+                sx={ApprovalStepStyles.removeAssigneeButtonSx}
               >
                 <Close />
               </IconButton>

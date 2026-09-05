@@ -1,10 +1,11 @@
 import { stores } from "@/app/rootStore";
 import { TenantType } from "@/features/tenants/models/tenant";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
+import { Forms } from "@/shared/components/dialogs/formStyles";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import { Dialogs, Routes } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import type { SxProps } from "@mui/material";
 import { FormControl, FormControlLabel, MenuItem, Radio, RadioGroup, Stack, TextField } from "@mui/material";
@@ -72,7 +73,7 @@ const ApprovalRequestStartPage = () => {
     <>
       <PageBreadcrumbs items={[{ label: "Requests", to: requestsPath }, { label: "New request" }]} />
       <NarrowContent>
-        <Stack component="form" onSubmit={handleSubmit} spacing={Dialogs.formStackSpacing}>
+        <Stack component="form" onSubmit={handleSubmit} spacing={Forms.formStackSpacing}>
           <FormControl>
             <RadioGroup value={requestType} onChange={(event) => setRequestType(event.target.value as RequestType)}>
               <FormControlLabel control={<Radio />} label="Custom" value="custom" />

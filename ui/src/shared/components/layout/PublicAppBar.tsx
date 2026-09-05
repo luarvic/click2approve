@@ -1,4 +1,5 @@
-import { Routes, Shell } from "@/shared/constants/constants";
+import { Shell } from "@/shared/components/layout/shellStyles";
+import { Routes } from "@/shared/routing/routes";
 import { AppBar, Box, Container, Link, Toolbar, Typography } from "@mui/material";
 import { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";

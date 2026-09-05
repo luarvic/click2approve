@@ -1,9 +1,9 @@
-import { ExpandMore } from "@mui/icons-material";
 import { ApprovalRequestFieldValueVariantContext } from "@/features/approvalRequests/components/ApprovalRequestFieldContext";
-import { Accordion, AccordionDetails, AccordionSummary, Stack, Typography } from "@mui/material";
+import { StackSpacing } from "@/shared/theme/tokens";
+import { ExpandMore } from "@mui/icons-material";
 import type { TypographyProps } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Stack, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
-import { StackSpacing } from "@/shared/constants/constants";
 import type { ReactNode } from "react";
 
 interface ApprovalRequestFieldGroupProps {
@@ -17,7 +17,6 @@ const fieldGroupSx: SxProps<Theme> = {
   backgroundImage: "none",
   border: 1,
   borderColor: "divider",
-  borderRadius: 1,
   boxShadow: "none",
   overflow: "hidden",
   "&::before": {

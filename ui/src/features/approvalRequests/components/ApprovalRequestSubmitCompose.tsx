@@ -9,7 +9,8 @@ import { EditableApprovalStep } from "@/features/approvalWorkflow/models/editabl
 import { Employee } from "@/features/employees/models/employee";
 import { Team } from "@/features/teams/models/team";
 import { UserFile } from "@/features/userFiles/models/userFile";
-import { Dialogs, Files } from "@/shared/constants/constants";
+import { Forms } from "@/shared/components/dialogs/formStyles";
+import { Files } from "@/shared/components/files/fileInputStyles";
 import { Add, AttachFile } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { Box, Button, Stack, TextField } from "@mui/material";
@@ -97,9 +98,9 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
   onUploadClick,
 }) => (
   <Box component="form" onSubmit={onSubmit}>
-    <Stack spacing={Dialogs.formStackSpacing} sx={Dialogs.tabContentSx}>
+    <Stack spacing={Forms.formStackSpacing} sx={Forms.tabContentSx}>
       <ApprovalRequestDetailsCard ariaLabel="Request details" elevated mode="edit" showStatusBorder={false}>
-        <Stack spacing={Dialogs.formStackSpacing}>
+        <Stack spacing={Forms.formStackSpacing}>
           <TextField
             autoFocus
             disabled={isRevision}
@@ -121,7 +122,7 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
             onReplaceExisting={isRevision ? onReplaceExisting : undefined}
             onRestoreExisting={onRestoreExisting}
           />
-          <Box sx={Dialogs.bottomSpacingSx}>
+          <Box sx={Forms.bottomSpacingSx}>
             <LoadingButton
               disabled={isFilesBusy}
               loading={isFilesUploading}
@@ -156,7 +157,7 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
           />
         </Stack>
       </ApprovalRequestDetailsCard>
-      <Stack spacing={Dialogs.formStackSpacing}>
+      <Stack spacing={Forms.formStackSpacing}>
         <ApprovalStepEditor
           canUseEmployees={canUseEmployees}
           canUseTeams={canUseTeams}
@@ -175,7 +176,7 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
           onUpdateAssignee={onUpdateAssignee}
           onUpdateStep={onUpdateStep}
         />
-        <Box sx={Dialogs.textBottomSpacingSx}>
+        <Box sx={Forms.textBottomSpacingSx}>
           <Button startIcon={<Add />} onClick={onAddStep}>
             Add step
           </Button>

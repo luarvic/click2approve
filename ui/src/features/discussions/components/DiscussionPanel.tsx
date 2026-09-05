@@ -3,7 +3,7 @@ import DiscussionComposer from "@/features/discussions/components/DiscussionComp
 import DiscussionMessageList from "@/features/discussions/components/DiscussionMessageList";
 import { useDiscussionMessages } from "@/features/discussions/hooks/useDiscussionMessages";
 import type { UserFile } from "@/features/userFiles/models/userFile";
-import { StackSpacing } from "@/shared/constants/constants";
+import { StackSpacing } from "@/shared/theme/tokens";
 import { Stack } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import type { Dispatch, SetStateAction } from "react";

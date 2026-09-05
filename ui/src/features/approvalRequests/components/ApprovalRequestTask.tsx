@@ -6,11 +6,11 @@ import ApprovalRequestDetails from "@/features/approvalRequests/components/Appro
 import ApprovalRequestDiscussionSection from "@/features/approvalRequests/components/ApprovalRequestDiscussionSection";
 import type { ElectronicSignatureErrors } from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureForm";
 import ApprovalRequestElectronicSignatureForm from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureForm";
-import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestTaskSummaryBlock";
+import ApprovalRequestTaskAttachmentList from "@/features/approvalRequests/components/ApprovalRequestTaskAttachmentList";
 import ApprovalRequestTaskAttachments, {
   ApprovalRequestTaskAttachmentsHandle,
 } from "@/features/approvalRequests/components/ApprovalRequestTaskAttachments";
-import ApprovalRequestTaskAttachmentList from "@/features/approvalRequests/components/ApprovalRequestTaskAttachmentList";
+import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestTaskSummaryBlock";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
@@ -22,13 +22,15 @@ import {
   hasIncompleteBusinessParticipantName,
 } from "@/features/approvalRequests/utils/participantName";
 import { UserFile } from "@/features/userFiles/models/userFile";
-import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
+import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
+import { Forms } from "@/shared/components/dialogs/formStyles";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import { Dialogs, Routes, StackSpacing } from "@/shared/constants/constants";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
+import { Routes } from "@/shared/routing/routes";
+import { StackSpacing } from "@/shared/theme/tokens";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { notification } from "@/shared/utils/notifications";
 import {
@@ -269,8 +271,8 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
         {discussionsAreEnabled && <Tab label="Chat" value="chat" />}
       </Tabs>
       {tab === "task" && (
-        <Stack sx={Dialogs.tabContentSx}>
-          <Stack spacing={Dialogs.formStackSpacing}>
+        <Stack sx={Forms.tabContentSx}>
+          <Stack spacing={Forms.formStackSpacing}>
             {currentTask && (
               <ApprovalRequestTaskSummaryBlock
                 additionalMetadata={
@@ -310,7 +312,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
                     <FormControlLabel value="false" control={<Radio />} label={actionLabels.negative} />
                   </RadioGroup>
                   {decisionError && (
-                    <FormHelperText sx={Dialogs.fieldHelperTextSx}>{actionLabels.missing}</FormHelperText>
+                    <FormHelperText sx={Forms.fieldHelperTextSx}>{actionLabels.missing}</FormHelperText>
                   )}
                 </FormControl>
                 {taskAttachmentsAreEnabled && currentTask && tenantGlobalId && (

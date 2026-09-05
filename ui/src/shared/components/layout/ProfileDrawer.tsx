@@ -1,7 +1,8 @@
 import { stores } from "@/app/rootStore";
 import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
 import DisplayName from "@/shared/components/identity/DisplayName";
-import { Lists, Shell } from "@/shared/constants/constants";
+import { Shell } from "@/shared/components/layout/shellStyles";
+import { Lists } from "@/shared/components/lists/listStyles";
 import { getUserProfileName } from "@/shared/utils/displayNameHelpers";
 import { Logout, Settings } from "@mui/icons-material";
 import {

@@ -1,13 +1,13 @@
-import type { ApprovalStep, AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import ApprovalRequestFilesList from "@/features/approvalRequests/components/ApprovalRequestFilesList";
 import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
 import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
+import type { ApprovalStep, AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import DiscussionParticipants from "@/features/discussions/components/DiscussionParticipants";
 import type { DiscussionMessage } from "@/features/discussions/models/discussionMessage";
 import { downloadDiscussionMessageFile } from "@/features/userFiles/utils/downloaders";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
 import TimelineTimestamp from "@/shared/components/timeline/TimelineTimestamp";
-import { StackSpacing } from "@/shared/constants/constants";
+import { StackSpacing, SurfaceTokens } from "@/shared/theme/tokens";
 import { parseUtcDateTime } from "@/shared/utils/dateTime";
 import { Box, Divider, Stack, Typography } from "@mui/material";
 import { alpha, type SxProps, type Theme } from "@mui/material/styles";
@@ -43,7 +43,7 @@ const messageBubbleSx = (isOutgoing: boolean): SxProps<Theme> => ({
   alignSelf: isOutgoing ? "flex-end" : "flex-start",
   animation: "discussion-message-entrance 220ms cubic-bezier(0.2, 0, 0, 1) both",
   backgroundColor: (theme) => (isOutgoing ? alpha(theme.palette.primary.main, 0.1) : theme.palette.action.selected),
-  borderRadius: 2,
+  borderRadius: SurfaceTokens.borderRadius,
   color: "text.primary",
   maxWidth: "80%",
   px: 1.5,

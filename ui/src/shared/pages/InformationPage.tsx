@@ -1,5 +1,5 @@
+import { Pages } from "@/shared/components/layout/pageStyles";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import { Pages } from "@/shared/constants/constants";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { Box, Container, Typography } from "@mui/material";
 import type { ReactNode } from "react";

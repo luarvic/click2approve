@@ -1,5 +1,5 @@
 import { stores } from "@/app/rootStore";
-import { Information } from "@/shared/constants/constants";
+import { Information } from "@/features/identity/identityMessages";
 import { observer } from "mobx-react-lite";
 import { Navigate, Outlet } from "react-router-dom";
 

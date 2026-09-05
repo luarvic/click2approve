@@ -1,7 +1,7 @@
 import ApprovalRequestSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestSummaryBlock";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import ApprovalSteps from "@/features/approvalWorkflow/components/ApprovalSteps";
-import { Dialogs } from "@/shared/constants/constants";
+import { Forms } from "@/shared/components/dialogs/formStyles";
 
 interface ApprovalRequestDetailsProps {
   approvalRequest: ApprovalRequest | null;
@@ -39,7 +39,7 @@ const ApprovalRequestDetails: React.FC<ApprovalRequestDetailsProps> = ({
       onHighlightedTaskClick={onHighlightedTaskClick}
       limitWorkflowFields
       showVisibleStepVisibility={showVisibleStepVisibility}
-      sx={Dialogs.tabContentSx}
+      sx={Forms.tabContentSx}
       taskAttachmentsTenantGlobalId={taskAttachmentsTenantGlobalId}
     />
   ) : null;

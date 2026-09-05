@@ -1,6 +1,6 @@
 import ApprovalRequestTimestamp from "@/features/approvalRequests/components/ApprovalRequestTimestamp";
 import { ApprovalRequestTimestampType } from "@/features/approvalRequests/components/approvalRequestTimestampDisplay";
-import { StackSpacing } from "@/shared/constants/constants";
+import { StackSpacing } from "@/shared/theme/tokens";
 import { Divider, Stack } from "@mui/material";
 
 export interface ApprovalRequestTimestampRowItem {
