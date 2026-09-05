@@ -65,6 +65,7 @@ export const Shell = {
     pr: 2,
   } as SxProps<Theme>,
   appBarSpacerSx: {
+    height: appBarHeight,
     minHeight: appBarHeight,
   } as SxProps<Theme>,
   mainMenuButtonSx: (mainMenuDrawerIsOpen: boolean): SxProps<Theme> => ({
@@ -149,6 +150,7 @@ export const Shell = {
       }),
   }),
   mainMenuDrawerToolbarSx: {
+    height: appBarHeight,
     justifyContent: "flex-end",
     minHeight: appBarHeight,
     px: 1,
