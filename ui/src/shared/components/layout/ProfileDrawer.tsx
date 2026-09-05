@@ -3,6 +3,7 @@ import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
 import DisplayName from "@/shared/components/identity/DisplayName";
 import { Shell } from "@/shared/components/layout/shellStyles";
 import { Lists } from "@/shared/components/lists/listStyles";
+import { confirmUnsavedChanges } from "@/shared/routing/unsavedChanges";
 import { getUserProfileName } from "@/shared/utils/displayNameHelpers";
 import { Logout, Settings } from "@mui/icons-material";
 import {
@@ -48,6 +49,7 @@ const ProfileDrawer = () => {
           <ListItem key="signOut" disablePadding>
             <ListItemButton
               onClick={() => {
+                if (!confirmUnsavedChanges()) return;
                 stores.userAccountStore.signOut();
                 navigate("/");
               }}

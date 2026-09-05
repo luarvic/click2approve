@@ -25,13 +25,13 @@ import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate } from "@/shared/utils/dateTime";
 import { Add, FilterList } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
-import { Box, Button, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Button, Link, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
 import type { GridSortModel } from "@mui/x-data-grid";
 import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { observer } from "mobx-react-lite";
 import { useCallback, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-dom";
 
 interface RequestsGridProps {
   currentApprovalRequestGlobalId?: string;
@@ -133,7 +133,27 @@ const RequestsGrid: React.FC<RequestsGridProps> = ({ currentApprovalRequestGloba
       flex: ApprovalGrids.approvalColumnFlex.content,
       renderCell: (params) => (
         <Stack sx={ApprovalGrids.approvalTitleCellSx}>
-          <Typography variant="body2">{params.row.title}</Typography>
+          <Link
+            component={RouterLink}
+            to={Routes.tenantPath(tenantGlobalId!, `/requests/${params.row.globalId}`)}
+            tabIndex={params.hasFocus ? 0 : -1}
+            onClick={(event) => event.stopPropagation()}
+            variant="body2"
+            sx={ApprovalGrids.titleLinkSx}
+          >
+            {params.row.title}
+          </Link>
+          {!allColumnsAreVisible && (
+            <>
+              <Typography variant="caption" color="text.secondary" sx={ApprovalGrids.mobileMetadataSx}>
+                {params.row.createdByDisplayName}
+              </Typography>
+              {<ApprovalRequestStatusLineLabel result={params.row.result} status={params.row.status} />}
+              <Typography variant="caption" color="text.secondary">
+                {getHumanReadableRelativeDate(params.row.createdAtDate)}
+              </Typography>
+            </>
+          )}
         </Stack>
       ),
       valueGetter: (_value, row) => row.title,
@@ -195,6 +215,7 @@ const RequestsGrid: React.FC<RequestsGridProps> = ({ currentApprovalRequestGloba
       <Box sx={DataGrids.containerSx}>
         <DataGrid
           rows={approvalRequests}
+          getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
           getRowId={(row) => row.globalId}
           columns={columns}
           rowSelectionModel={
@@ -212,6 +233,8 @@ const RequestsGrid: React.FC<RequestsGridProps> = ({ currentApprovalRequestGloba
           }}
           columnVisibilityModel={{
             globalId: allColumnsAreVisible,
+            revisionNumber: allColumnsAreVisible,
+            status: allColumnsAreVisible,
             createdByDisplayName: allColumnsAreVisible,
             createdAtDate: allColumnsAreVisible,
           }}

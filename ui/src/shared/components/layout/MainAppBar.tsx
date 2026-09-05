@@ -8,11 +8,12 @@ import PublicAppBar from "@/shared/components/layout/PublicAppBar";
 import { Shell } from "@/shared/components/layout/shellStyles";
 import { AppBarOptions } from "@/shared/models/appBarOptions";
 import { Routes } from "@/shared/routing/routes";
+import { confirmUnsavedChanges } from "@/shared/routing/unsavedChanges";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
 import { getEmailInitials } from "@/shared/utils/email";
 import { Menu } from "@mui/icons-material";
-import { Avatar, IconButton, MenuItem, Select } from "@mui/material";
+import { Avatar, FormControl, IconButton, InputLabel, MenuItem, Select } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -96,49 +97,54 @@ const MainAppBar = ({
     >
       <>
         {tenantPickerIsVisible && (
-          <Select
-            name="tenant-picker"
-            size="small"
-            value={
-              selectedTenantPickerOption
-                ? `${selectedTenantPickerOption.tenant.globalId}:${selectedTenantPickerOption.employeeGlobalId ?? ""}`
-                : ""
-            }
-            renderValue={() =>
-              selectedTenantPickerOption && (
-                <TenantPickerOption
-                  employeeDisplayName={selectedTenantPickerOption.employeeDisplayName}
-                  tenant={selectedTenantPickerOption.tenant}
-                />
-              )
-            }
-            onChange={async (event) => {
-              const option = tenantPickerOptions.find(
-                (candidate) =>
-                  `${candidate.tenant.globalId}:${candidate.employeeGlobalId ?? ""}` === event.target.value,
-              );
-              if (!option) return;
-              const tenantGlobalId = option.tenant.globalId;
-              const loader = ActionLoaders.pages.tenantScope();
-              stores.commonStore.updateActionLoadingCounter(loader, 1);
-              try {
-                await stores.switchTenant(tenantGlobalId, option.employeeGlobalId, location.pathname === tasksPath);
-                navigate(Routes.tenantPath(tenantGlobalId, Routes.tasksPath));
-              } finally {
-                stores.commonStore.updateActionLoadingCounter(loader, -1);
+          <FormControl size="small" sx={Shell.tenantPickerSx} variant="outlined">
+            <InputLabel id="tenant-picker-label">Workspace</InputLabel>
+            <Select
+              label="Workspace"
+              labelId="tenant-picker-label"
+              name="tenant-picker"
+              variant="outlined"
+              value={
+                selectedTenantPickerOption
+                  ? `${selectedTenantPickerOption.tenant.globalId}:${selectedTenantPickerOption.employeeGlobalId ?? ""}`
+                  : ""
               }
-            }}
-            sx={Shell.tenantPickerSx}
-          >
-            {tenantPickerOptions.map((option) => (
-              <MenuItem
-                key={`${option.tenant.globalId}:${option.employeeGlobalId ?? ""}`}
-                value={`${option.tenant.globalId}:${option.employeeGlobalId ?? ""}`}
-              >
-                <TenantPickerOption employeeDisplayName={option.employeeDisplayName} tenant={option.tenant} />
-              </MenuItem>
-            ))}
-          </Select>
+              renderValue={() =>
+                selectedTenantPickerOption && (
+                  <TenantPickerOption
+                    employeeDisplayName={selectedTenantPickerOption.employeeDisplayName}
+                    tenant={selectedTenantPickerOption.tenant}
+                  />
+                )
+              }
+              onChange={async (event) => {
+                const option = tenantPickerOptions.find(
+                  (candidate) =>
+                    `${candidate.tenant.globalId}:${candidate.employeeGlobalId ?? ""}` === event.target.value,
+                );
+                if (!option) return;
+                if (!confirmUnsavedChanges()) return;
+                const tenantGlobalId = option.tenant.globalId;
+                const loader = ActionLoaders.pages.tenantScope();
+                stores.commonStore.updateActionLoadingCounter(loader, 1);
+                try {
+                  await stores.switchTenant(tenantGlobalId, option.employeeGlobalId, location.pathname === tasksPath);
+                  navigate(Routes.tenantPath(tenantGlobalId, Routes.tasksPath));
+                } finally {
+                  stores.commonStore.updateActionLoadingCounter(loader, -1);
+                }
+              }}
+            >
+              {tenantPickerOptions.map((option) => (
+                <MenuItem
+                  key={`${option.tenant.globalId}:${option.employeeGlobalId ?? ""}`}
+                  value={`${option.tenant.globalId}:${option.employeeGlobalId ?? ""}`}
+                >
+                  <TenantPickerOption employeeDisplayName={option.employeeDisplayName} tenant={option.tenant} />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         )}
         <ColorModeSwitch
           checked={stores.userPreferencesStore.theme.palette.mode === "dark"}

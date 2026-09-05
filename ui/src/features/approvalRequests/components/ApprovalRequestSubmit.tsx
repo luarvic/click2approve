@@ -1,6 +1,5 @@
 import { stores } from "@/app/rootStore";
 import { resubmitApprovalRequest, submitApprovalRequest } from "@/features/approvalRequests/api/approvalRequestsApi";
-import { RevisionExistingFile } from "@/features/approvalRequests/components/ApprovalRequestFilesList";
 import ApprovalRequestSubmitCompose from "@/features/approvalRequests/components/ApprovalRequestSubmitCompose";
 import { useApprovalRequestSubmitFiles } from "@/features/approvalRequests/hooks/useApprovalRequestSubmitFiles";
 import {
@@ -9,20 +8,20 @@ import {
 } from "@/features/approvalRequests/models/approvalRequest";
 import { getIncompleteParticipantNameWarning } from "@/features/approvalRequests/utils/incompleteParticipantNameWarning";
 import { hasIncompleteBusinessParticipantName } from "@/features/approvalRequests/utils/participantName";
+import { getStepErrors } from "@/features/approvalRequests/utils/submitValidation";
 import { useEditableApprovalSteps } from "@/features/approvalWorkflow/hooks/useEditableApprovalSteps";
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import {
-  EditableApprovalStep,
   createEditableSteps,
   createEmptyStep,
   toApprovalStepSubmissions,
 } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
-import { UserFile } from "@/features/userFiles/models/userFile";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { useUnsavedChanges } from "@/shared/hooks/useUnsavedChanges";
 import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { notification } from "@/shared/utils/notifications";
@@ -30,38 +29,21 @@ import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
 } from "@/shared/utils/persistenceNotifications";
+import { Box } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef, useState } from "react";
 
 interface ApprovalRequestSubmitProps {
-  initialDraft?: ApprovalRequestSubmitDraft;
   initialTemplateGlobalId?: string;
   onClose: (currentApprovalRequestGlobalId?: string) => void;
 }
 
-export interface ApprovalRequestSubmitDraft {
-  description: string;
-  existingFiles: RevisionExistingFile[];
-  newFiles: UserFile[];
-  steps: EditableApprovalStep[];
-  title: string;
-}
-
-let cachedDraft: ApprovalRequestSubmitDraft | null = null;
-
-export const cacheApprovalRequestSubmitDraft = (draft: ApprovalRequestSubmitDraft) => {
-  cachedDraft = draft;
-};
-
-export const getCachedApprovalRequestSubmitDraft = () => cachedDraft;
-
-const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
-  initialDraft,
-  initialTemplateGlobalId,
-  onClose,
-}) => {
-  const [title, setTitle] = useState(initialDraft?.title ?? "");
-  const [description, setDescription] = useState(initialDraft?.description ?? "");
+const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTemplateGlobalId, onClose }) => {
+  const [validationAttempted, setValidationAttempted] = useState(false);
+  const [templateValidationAttempted, setTemplateValidationAttempted] = useState(false);
+  const formContainer = useRef<HTMLDivElement>(null);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [nameWarningDialogIsOpen, setNameWarningDialogIsOpen] = useState(false);
   const nameWarning = getIncompleteParticipantNameWarning(stores.tenantStore.currentTenant?.type);
   const submitAction = useAsyncAction(ActionLoaders.approvalRequests.submit());
@@ -83,11 +65,10 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
   const { addAssignee, addStep, moveStep, removeAssignee, removeStep, setSteps, steps, updateAssignee, updateStep } =
     useEditableApprovalSteps({
       defaultAssigneeType,
-      initialSteps: initialDraft?.steps ?? [createEmptyStep(1, true, defaultAssigneeType)],
+      initialSteps: [createEmptyStep(1, true, defaultAssigneeType)],
     });
   const {
     addedFilesUpload,
-    clear: clearFiles,
     existingFiles,
     fileDeletion,
     handleReplacementFilesChange,
@@ -100,14 +81,23 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     setExistingFiles,
     startReplacingExistingFile,
   } = useApprovalRequestSubmitFiles({
-    initialExistingFiles: initialDraft?.existingFiles ?? [],
-    initialNewFiles: initialDraft?.newFiles ?? [],
+    initialExistingFiles: [],
+    initialNewFiles: [],
     isRevision,
     tenantGlobalId,
   });
 
   useEffect(() => {
-    if (requestToClone && !initialDraft) {
+    if (requestToClone) {
+      initialSnapshot.current = JSON.stringify({
+        title: requestToClone.title,
+        description: requestToClone.description ?? "",
+        steps: createEditableSteps(requestToClone.steps),
+        existingFiles: requestToClone.requestFiles
+          .filter((file) => file.revisionAction !== ApprovalRequestFileRevisionAction.Removed)
+          .map((file) => ({ file: file.userFile, requestFileGlobalId: file.globalId })),
+        newFiles: [],
+      });
       setTitle(requestToClone.title);
       setExistingFiles(
         (requestToClone.requestFiles?.length ? requestToClone.requestFiles : [])
@@ -135,6 +125,13 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
           }
 
           if (template) {
+            initialSnapshot.current = JSON.stringify({
+              title: template.name,
+              description: template.description ?? "",
+              steps: createEditableSteps(template.steps),
+              existingFiles: [],
+              newFiles: [],
+            });
             setTitle(template.name);
             setDescription(template.description ?? "");
             setSteps(createEditableSteps(template.steps));
@@ -145,7 +142,6 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     }
   }, [
     requestToClone,
-    initialDraft,
     tenantGlobalId,
     businessTenantIsSelected,
     canUseEmployees,
@@ -156,61 +152,67 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
     setSteps,
   ]);
 
+  const formValues = { title, description, steps, existingFiles, newFiles };
+  const initialSnapshot = useRef(JSON.stringify(formValues));
+  const hasChanges = JSON.stringify(formValues) !== initialSnapshot.current;
+  const filesAreBusy = fileDeletion.isDeleting || addedFilesUpload.isUploading || replacementFilesUpload.isUploading;
+  const stepErrors = getStepErrors(steps);
+  const titleError =
+    (validationAttempted || templateValidationAttempted) && !title.trim() ? "Title is required." : undefined;
+  const filesError =
+    validationAttempted && !newFiles.length && !existingFiles.some((file) => !file.removed)
+      ? "Attach at least one file for approval."
+      : undefined;
+  const stepsError =
+    (validationAttempted || templateValidationAttempted) && !steps.length
+      ? "Add at least one approval step."
+      : undefined;
+
+  const unsavedChanges = useUnsavedChanges(
+    hasChanges,
+    filesAreBusy || submitAction.isRunning || saveTemplateAction.isRunning,
+  );
+
+  const focusFirstError = () => {
+    requestAnimationFrame(() => {
+      const field = formContainer.current?.querySelector<HTMLElement>('[aria-invalid="true"], [data-validation-error]');
+      field?.focus();
+      field?.scrollIntoView?.({ block: "center", behavior: "smooth" });
+    });
+  };
+
   const handleUploadClick = () => {
     addedFilesUpload.openFileDialog();
   };
 
-  const cleanUp = () => {
-    setTitle("");
-    clearFiles();
-    setSteps([]);
-    setDescription("");
-    stores.approvalRequestStore.setRequestToClone(null);
-  };
-
   const handleClose = () => {
-    cleanUp();
+    if (!unsavedChanges.confirmDiscard()) return;
+    unsavedChanges.markSaved();
     onClose();
   };
 
   const validateSteps = () => {
-    if (steps.length === 0) {
-      notification.warning("Add one or more approval steps.");
-      return false;
+    setTemplateValidationAttempted(true);
+    const valid = steps.length > 0 && !stepErrors.some(Boolean);
+    if (!valid) {
+      notification.warning("Complete the highlighted approval steps.");
+      focusFirstError();
     }
-
-    const hasMissingRecipient = steps.some(
-      (step) =>
-        step.assignees.length === 0 ||
-        step.assignees.some((assignee) => {
-          if (assignee.type === AssigneeType.User) {
-            return !assignee.email?.trim();
-          }
-          if (assignee.type === AssigneeType.Employee) {
-            return !assignee.employeeGlobalId;
-          }
-          return !assignee.teamGlobalId;
-        }),
-    );
-
-    if (hasMissingRecipient) {
-      notification.warning("Specify valid assignees for every step.");
-      return false;
-    }
-    return true;
+    return valid;
   };
 
   const validateDraft = () => {
-    const trimmedTitle = title.trim();
-    if (!trimmedTitle) {
-      notification.warning("Title is required.");
-      return false;
+    setValidationAttempted(true);
+    const valid =
+      Boolean(title.trim()) &&
+      (newFiles.length > 0 || existingFiles.some((file) => !file.removed)) &&
+      steps.length > 0 &&
+      !stepErrors.some(Boolean);
+    if (!valid) {
+      notification.warning("Complete the highlighted fields before submitting.");
+      focusFirstError();
     }
-    if (newFiles.length === 0 && existingFiles.length === 0) {
-      notification.warning("Add one or more files.");
-      return false;
-    }
-    return validateSteps();
+    return valid;
   };
 
   const getSubmittedSteps = () => toApprovalStepSubmissions(steps);
@@ -220,8 +222,10 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
       return;
     }
 
+    setTemplateValidationAttempted(true);
     const trimmedTitle = title.trim();
     if (!trimmedTitle) {
+      focusFirstError();
       notification.warning("A title is required to save a template.");
       return;
     }
@@ -318,20 +322,24 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
             );
       if (approvalRequestGlobalId) {
         showPersistenceSuccessNotification(PersistenceSuccessMessages.approvalRequestSubmitted);
-        cleanUp();
+        unsavedChanges.markSaved();
+        onClose(approvalRequestGlobalId);
         stores.approvalRequestStore.clear();
-        const [, createdRequest] = await Promise.all([
+        void Promise.all([
           stores.approvalRequestStore.load(tenantGlobalId),
           stores.approvalRequestStore.loadDetails(tenantGlobalId, approvalRequestGlobalId),
-        ]);
-        stores.approvalRequestStore.setCurrent(createdRequest ?? null);
+        ]).then(([, createdRequest]) => stores.approvalRequestStore.setCurrent(createdRequest ?? null));
         stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
-        onClose(createdRequest?.globalId);
       }
     });
   };
 
   const handleSubmit = () => {
+    if (!validateDraft()) return;
+    if (filesAreBusy) {
+      notification.warning("Wait for file uploads to finish before submitting.");
+      return;
+    }
     if (hasIncompleteBusinessParticipantName(stores.tenantStore.currentTenant, stores.userProfileStore.profile)) {
       setNameWarningDialogIsOpen(true);
       return;
@@ -359,46 +367,53 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({
           },
         ]}
       />
-      <ApprovalRequestSubmitCompose
-        canUseEmployees={canUseEmployees}
-        canUseTeams={canUseTeams}
-        description={description}
-        employees={stores.employeeStore.pickerEmployees}
-        existingFiles={existingFiles}
-        fileInput={addedFilesUpload.fileInput}
-        isFilesBusy={fileDeletion.isDeleting || addedFilesUpload.isUploading || replacementFilesUpload.isUploading}
-        isFilesUploading={addedFilesUpload.isUploading}
-        isRevision={isRevision}
-        isSavingTemplate={saveTemplateAction.isRunning}
-        isSubmitting={submitAction.isRunning}
-        newFiles={newFiles}
-        replacementFileInput={replacementFilesUpload.fileInput}
-        showAttachmentRequirement={stores.applicationConfigurationStore.taskAttachmentsAreEnabled}
-        showOrganizationEmployeesVisibility={businessTenantIsSelected}
-        steps={steps}
-        teams={stores.teamStore.pickerTeams}
-        title={title}
-        onAddAssignee={addAssignee}
-        onAddStep={addStep}
-        onCancel={handleClose}
-        onDescriptionChange={setDescription}
-        onFilesChange={addedFilesUpload.handleFilesChange}
-        onMoveStep={moveStep}
-        onRemoveAssignee={removeAssignee}
-        onRemoveExisting={removeExistingFile}
-        onRemoveNew={(index) => void removeNewFile(index)}
-        onRemoveReplacement={(index) => void removeReplacementFile(index)}
-        onRemoveStep={removeStep}
-        onReplaceExisting={startReplacingExistingFile}
-        onReplacementFilesChange={handleReplacementFilesChange}
-        onRestoreExisting={restoreExistingFile}
-        onSaveTemplate={canUseTemplates ? () => void saveTemplate() : undefined}
-        onSubmit={handleComposeSubmit}
-        onTitleChange={setTitle}
-        onUpdateAssignee={updateAssignee}
-        onUpdateStep={updateStep}
-        onUploadClick={handleUploadClick}
-      />
+      <Box ref={formContainer}>
+        <ApprovalRequestSubmitCompose
+          titleError={titleError}
+          filesError={filesError}
+          stepsError={stepsError}
+          stepErrors={validationAttempted || templateValidationAttempted ? stepErrors : undefined}
+          showAssigneeErrors={validationAttempted || templateValidationAttempted}
+          canUseEmployees={canUseEmployees}
+          canUseTeams={canUseTeams}
+          description={description}
+          employees={stores.employeeStore.pickerEmployees}
+          existingFiles={existingFiles}
+          fileInput={addedFilesUpload.fileInput}
+          isFilesBusy={fileDeletion.isDeleting || addedFilesUpload.isUploading || replacementFilesUpload.isUploading}
+          isFilesUploading={addedFilesUpload.isUploading}
+          isRevision={isRevision}
+          isSavingTemplate={saveTemplateAction.isRunning}
+          isSubmitting={submitAction.isRunning}
+          newFiles={newFiles}
+          replacementFileInput={replacementFilesUpload.fileInput}
+          showAttachmentRequirement={stores.applicationConfigurationStore.taskAttachmentsAreEnabled}
+          showOrganizationEmployeesVisibility={businessTenantIsSelected}
+          steps={steps}
+          teams={stores.teamStore.pickerTeams}
+          title={title}
+          onAddAssignee={addAssignee}
+          onAddStep={addStep}
+          onCancel={handleClose}
+          onDescriptionChange={setDescription}
+          onFilesChange={addedFilesUpload.handleFilesChange}
+          onMoveStep={moveStep}
+          onRemoveAssignee={removeAssignee}
+          onRemoveExisting={removeExistingFile}
+          onRemoveNew={(index) => void removeNewFile(index)}
+          onRemoveReplacement={(index) => void removeReplacementFile(index)}
+          onRemoveStep={removeStep}
+          onReplaceExisting={startReplacingExistingFile}
+          onReplacementFilesChange={handleReplacementFilesChange}
+          onRestoreExisting={restoreExistingFile}
+          onSaveTemplate={canUseTemplates ? () => void saveTemplate() : undefined}
+          onSubmit={handleComposeSubmit}
+          onTitleChange={setTitle}
+          onUpdateAssignee={updateAssignee}
+          onUpdateStep={updateStep}
+          onUploadClick={handleUploadClick}
+        />
+      </Box>
       {nameWarning && (
         <ConfirmationDialog
           cancelLabel="Go back"

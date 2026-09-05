@@ -24,6 +24,7 @@ import {
   Chip,
   FormControl,
   FormControlLabel,
+  FormHelperText,
   IconButton,
   MenuItem,
   Radio,
@@ -59,6 +60,8 @@ interface ApprovalStepEditorAssigneeState {
 }
 
 interface ApprovalStepEditorProps {
+  stepErrors?: (string | undefined)[];
+  getAssigneeError?: (assignee: ApprovalStepAssignee) => string | undefined;
   steps: EditableApprovalStep[];
   canUseEmployees: boolean;
   canUseTeams: boolean;
@@ -127,6 +130,8 @@ const EditableStepIcon = () => <AccountTreeOutlined color={Icons.secondaryColor}
 
 const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
   steps,
+  stepErrors,
+  getAssigneeError,
   canUseEmployees,
   canUseTeams,
   employees,
@@ -254,12 +259,23 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                       }
                     />
                     <Stack spacing={ApprovalStepStyles.assigneeStackSpacing}>
+                      {stepErrors?.[stepIndex] && (
+                        <FormHelperText
+                          error
+                          role="alert"
+                          tabIndex={-1}
+                          data-validation-error={step.assignees.length === 0 ? true : undefined}
+                        >
+                          {stepErrors[stepIndex]}
+                        </FormHelperText>
+                      )}
                       {step.assignees.map((assignee, assigneeIndex) => {
                         const assigneeState = getAssigneeState?.(step, stepIndex, assignee, assigneeIndex) ?? {};
 
                         return (
                           <ApprovalStepAssigneeRow
                             assignee={assignee}
+                            error={getAssigneeError?.(assignee)}
                             canUseEmployees={canUseEmployees}
                             canUseTeams={canUseTeams}
                             disabled={assigneeState.disabled ?? disabled}

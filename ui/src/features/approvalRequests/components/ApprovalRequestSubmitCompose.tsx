@@ -3,6 +3,7 @@ import ApprovalRequestFilesList, {
   RevisionExistingFile,
 } from "@/features/approvalRequests/components/ApprovalRequestFilesList";
 import ApprovalRequestSubmitActions from "@/features/approvalRequests/components/ApprovalRequestSubmitActions";
+import { getAssigneeError } from "@/features/approvalRequests/utils/submitValidation";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
 import { ApprovalStepAssignee } from "@/features/approvalWorkflow/models/approvalStep";
 import { EditableApprovalStep } from "@/features/approvalWorkflow/models/editableApprovalStep";
@@ -13,7 +14,7 @@ import { Forms } from "@/shared/components/dialogs/formStyles";
 import { Files } from "@/shared/components/files/fileInputStyles";
 import { Add, AttachFile } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { Box, Button, Stack, TextField } from "@mui/material";
+import { Box, Button, FormHelperText, Stack, TextField } from "@mui/material";
 import type { ChangeEventHandler, FormEventHandler, RefObject } from "react";
 
 interface ApprovalRequestSubmitComposeProps {
@@ -35,6 +36,11 @@ interface ApprovalRequestSubmitComposeProps {
   steps: EditableApprovalStep[];
   teams: Team[];
   title: string;
+  titleError?: string;
+  filesError?: string;
+  stepsError?: string;
+  stepErrors?: (string | undefined)[];
+  showAssigneeErrors?: boolean;
   onAddAssignee: (stepIndex: number) => void;
   onAddStep: () => void;
   onCancel: () => void;
@@ -76,6 +82,11 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
   steps,
   teams,
   title,
+  titleError,
+  filesError,
+  stepsError,
+  stepErrors,
+  showAssigneeErrors,
   onAddAssignee,
   onAddStep,
   onCancel,
@@ -97,7 +108,7 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
   onUpdateStep,
   onUploadClick,
 }) => (
-  <Box component="form" onSubmit={onSubmit}>
+  <Box component="form" noValidate onSubmit={onSubmit}>
     <Stack spacing={Forms.formStackSpacing} sx={Forms.tabContentSx}>
       <ApprovalRequestDetailsCard ariaLabel="Request details" elevated mode="edit" showStatusBorder={false}>
         <Stack spacing={Forms.formStackSpacing}>
@@ -106,6 +117,8 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
             disabled={isRevision}
             fullWidth
             label="Title"
+            error={Boolean(titleError)}
+            helperText={titleError}
             margin="normal"
             required
             value={title}
@@ -123,6 +136,14 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
             onRestoreExisting={onRestoreExisting}
           />
           <Box sx={Forms.bottomSpacingSx}>
+            <FormHelperText
+              error={Boolean(filesError)}
+              role={filesError ? "alert" : undefined}
+              tabIndex={-1}
+              data-validation-error={filesError ? true : undefined}
+            >
+              {filesError ?? "Attach at least one file for approval."}
+            </FormHelperText>
             <LoadingButton
               disabled={isFilesBusy}
               loading={isFilesUploading}
@@ -158,7 +179,14 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
         </Stack>
       </ApprovalRequestDetailsCard>
       <Stack spacing={Forms.formStackSpacing}>
+        {stepsError && (
+          <FormHelperText error role="alert" tabIndex={-1} data-validation-error>
+            {stepsError}
+          </FormHelperText>
+        )}
         <ApprovalStepEditor
+          stepErrors={stepErrors}
+          getAssigneeError={showAssigneeErrors ? getAssigneeError : undefined}
           canUseEmployees={canUseEmployees}
           canUseTeams={canUseTeams}
           employees={employees}

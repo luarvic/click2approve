@@ -3,6 +3,7 @@ import { listApprovalRequestTaskGrid } from "@/features/approvalRequests/api/app
 import ApprovalRequestNumberText, {
   getApprovalRequestNumber,
 } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
+import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
 import ApprovalRequestTasksFilter from "@/features/approvalRequests/components/ApprovalRequestTasksFilter";
 import {
   ApprovalRequestTaskStatusLineLabel,
@@ -26,13 +27,13 @@ import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate } from "@/shared/utils/dateTime";
 import { FilterList } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
-import { Box, Button, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Button, Link, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
 import type { GridSortModel } from "@mui/x-data-grid";
 import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { observer } from "mobx-react-lite";
 import { useCallback, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-dom";
 
 interface TasksGridProps {
   currentTaskGlobalId?: string;
@@ -123,7 +124,36 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
       flex: ApprovalGrids.approvalColumnFlex.content,
       renderCell: (params) => (
         <Stack sx={ApprovalGrids.approvalTitleCellSx}>
-          <Typography variant="body2">{params.row.title}</Typography>
+          <Stack direction="row" spacing={ApprovalGrids.mobileTaskTitleSpacing} sx={ApprovalGrids.mobileTaskTitleRowSx}>
+            <Link
+              component={RouterLink}
+              to={Routes.tenantPath(tenantGlobalId!, `/tasks/${params.row.globalId}`)}
+              tabIndex={params.hasFocus ? 0 : -1}
+              onClick={(event) => event.stopPropagation()}
+              variant="body2"
+              sx={allColumnsAreVisible ? ApprovalGrids.titleLinkSx : ApprovalGrids.mobileTaskTitleLinkSx}
+            >
+              {params.row.title}
+            </Link>
+            {!allColumnsAreVisible && <ApprovalRequestRevisionChip revisionNumber={params.row.revisionNumber} />}
+          </Stack>
+          {!allColumnsAreVisible && (
+            <>
+              <Typography variant="caption" color="text.secondary" sx={ApprovalGrids.mobileMetadataSx}>
+                {params.row.requestedByDisplayName}
+              </Typography>
+              {
+                <ApprovalRequestTaskStatusLineLabel
+                  action={params.row.action}
+                  result={params.row.result}
+                  status={params.row.status}
+                />
+              }
+              <Typography variant="caption" color="text.secondary">
+                {getHumanReadableRelativeDate(params.row.createdAtDate)}
+              </Typography>
+            </>
+          )}
         </Stack>
       ),
       valueGetter: (_value, row) => row.title,
@@ -199,6 +229,9 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
       <Box sx={DataGrids.containerSx}>
         <DataGrid
           rows={tasks}
+          getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
+          getEstimatedRowHeight={() => (allColumnsAreVisible ? null : ApprovalGrids.mobileTaskRowHeightEstimate)}
+          rowPositionsDebounceMs={0}
           getRowId={(row) => row.globalId}
           columns={columns}
           rowSelectionModel={currentTaskGlobalId === undefined ? [] : [currentTaskGlobalId]}
@@ -210,6 +243,8 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
           }}
           columnVisibilityModel={{
             globalId: allColumnsAreVisible,
+            revisionNumber: allColumnsAreVisible,
+            status: allColumnsAreVisible,
             requestedByDisplayName: allColumnsAreVisible,
             organizationDisplayName: organizationColumnIsVisible,
             createdAtDate: allColumnsAreVisible,

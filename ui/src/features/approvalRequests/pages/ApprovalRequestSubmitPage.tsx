@@ -1,7 +1,5 @@
 import { stores } from "@/app/rootStore";
-import ApprovalRequestSubmit, {
-  getCachedApprovalRequestSubmitDraft,
-} from "@/features/approvalRequests/components/ApprovalRequestSubmit";
+import ApprovalRequestSubmit from "@/features/approvalRequests/components/ApprovalRequestSubmit";
 import { TenantType } from "@/features/tenants/models/tenant";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
@@ -15,11 +13,9 @@ const ApprovalRequestSubmitPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const navigationState = location.state as {
-    hasDraft?: boolean;
     templateGlobalId?: string;
   } | null;
   const initialTemplateGlobalId = navigationState?.templateGlobalId;
-  const initialDraft = navigationState?.hasDraft ? getCachedApprovalRequestSubmitDraft() : undefined;
   usePageTitle("Compose request");
   const { approvalRequestGlobalId } = useParams<{
     approvalRequestGlobalId: string;
@@ -111,7 +107,7 @@ const ApprovalRequestSubmitPage = () => {
   return (
     <NarrowContent>
       <ApprovalRequestSubmit
-        initialDraft={initialDraft ?? undefined}
+        key={JSON.stringify([stores.tenantStore.currentWorkEmployeeGlobalId, approvalRequestGlobalId ?? "new"])}
         initialTemplateGlobalId={initialTemplateGlobalId}
         onClose={(currentApprovalRequestGlobalId) =>
           navigate(requestsPath, {

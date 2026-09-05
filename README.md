@@ -71,14 +71,14 @@ Open [http://localhost:3333/](http://localhost:3333/) in a browser.
 
 The Docker Compose setup starts:
 
-| Service | Container | Port | Purpose |
-| --- | --- | --- | --- |
-| `ui` | `click2approve-ui-1` | `3333` | React single-page application served by Nginx |
-| `api` | `click2approve-api-1` | `5555` | ASP.NET Core Web API |
-| `event-publisher` | `click2approve-event-publisher-1` | — | Publishes committed outbox events to the queue |
-| `event-consumer` | `click2approve-event-consumer-1` | — | Delivers queue messages, including notifications |
-| `db` | `click2approve-db-1` | `1433` | SQL Server database |
-| `azurite` | `click2approve-azurite-1` | `10000`, `10001` | Azure Storage emulator for files and event queues |
+| Service           | Container                         | Port             | Purpose                                           |
+| ----------------- | --------------------------------- | ---------------- | ------------------------------------------------- |
+| `ui`              | `click2approve-ui-1`              | `3333`           | React single-page application served by Nginx     |
+| `api`             | `click2approve-api-1`             | `5555`           | ASP.NET Core Web API                              |
+| `event-publisher` | `click2approve-event-publisher-1` | —                | Publishes committed outbox events to the queue    |
+| `event-consumer`  | `click2approve-event-consumer-1`  | —                | Delivers queue messages, including notifications  |
+| `db`              | `click2approve-db-1`              | `1433`           | SQL Server database                               |
+| `azurite`         | `click2approve-azurite-1`         | `10000`, `10001` | Azure Storage emulator for files and event queues |
 
 ### Useful Docker Commands
 

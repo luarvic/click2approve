@@ -20,6 +20,7 @@ interface ApprovalStepAssigneeRowProps {
   canUseTeams: boolean;
   employees: Employee[];
   teams: { globalId: string; name: string }[];
+  error?: string;
   disabled?: boolean;
   removeDisabled?: boolean;
   muted?: boolean;
@@ -49,6 +50,7 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
   canUseTeams,
   employees,
   teams,
+  error,
   disabled = false,
   removeDisabled = false,
   muted = false,
@@ -97,6 +99,8 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
             <TextField
               fullWidth
               label="Email"
+              error={Boolean(error)}
+              helperText={error}
               value={assignee.email ?? ""}
               disabled={disabled}
               onChange={(event) => onChange({ ...assignee, email: event.target.value })}
@@ -117,6 +121,8 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
                   <TextField
                     {...params}
                     label="Employee"
+                    error={Boolean(error)}
+                    helperText={error}
                     InputProps={{
                       ...params.InputProps,
                       startAdornment: employee ? (
@@ -158,6 +164,8 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
                   <TextField
                     {...params}
                     label="Team"
+                    error={Boolean(error)}
+                    helperText={error}
                     InputProps={{
                       ...params.InputProps,
                       startAdornment: team ? (

@@ -57,6 +57,7 @@ const ApprovalRequestTaskPage: React.FC<ApprovalRequestTaskPageProps> = ({ tab =
   return (
     <NarrowContent>
       <ApprovalRequestTask
+        key={JSON.stringify([stores.tenantStore.currentWorkEmployeeGlobalId, taskGlobalId])}
         onClose={(currentTaskGlobalId) =>
           navigate(tasksPath, {
             state: currentTaskGlobalId ? { currentTaskGlobalId } : undefined,

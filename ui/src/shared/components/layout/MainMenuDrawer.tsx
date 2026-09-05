@@ -262,7 +262,7 @@ const MainMenuDrawer = () => {
         </List>
       )}
       {workspaceGroupIsVisible && (
-        <List subheader={<ListSubheader component="div">Workspace</ListSubheader>}>
+        <List subheader={<ListSubheader component="div">People</ListSubheader>}>
           {employeeManagerIsVisible && (
             <ListItem key="employees" disablePadding>
               <ListItemButton

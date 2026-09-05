@@ -1,5 +1,5 @@
 import type { SxProps, Theme } from "@mui/material";
-const appBarHeight = 64;
+const appBarHeight = 72;
 const appBarBrandTitleWithoutTenantPickerHideBelowWidth = 400;
 const appBarBrandTitleWithTenantPickerHideBelowWidth = 800;
 const mainMenuDrawerWidth = 240;
@@ -38,6 +38,7 @@ export const Shell = {
     bgcolor: "background.default",
     borderBottom: 1,
     borderColor: "divider",
+    height: appBarHeight,
     ml: {
       md: (theme) =>
         mainMenuDrawerIsVisible
@@ -58,6 +59,7 @@ export const Shell = {
       }),
   }),
   appBarToolbarSx: {
+    height: appBarHeight,
     minHeight: appBarHeight,
     pl: 2,
     pr: 2,
@@ -152,10 +154,11 @@ export const Shell = {
     px: 1,
   } as SxProps<Theme>,
   mainMenuDrawerFirstListSx: {
-    pt: 0,
+    pt: 1,
   } as SxProps<Theme>,
   drawerPaperSx: {
     "& .MuiDrawer-paper": {
+      backgroundImage: "none",
       boxSizing: "border-box",
       width: mainMenuDrawerWidth,
     },

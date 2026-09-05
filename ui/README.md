@@ -5,14 +5,14 @@ backend capabilities; styling has the same owners in both editions.
 
 ## Style and settings ownership
 
-| Responsibility | Location | Examples |
-| --- | --- | --- |
-| Environment configuration and application behavior | `src/shared/config/application.ts` | API URLs, timeouts, polling, debounce, notification durations |
-| Shared visual values | `src/shared/theme/tokens.ts` | Surface radius, named stack spacing |
-| Global MUI appearance and defaults | `src/shared/theme/createAppTheme.ts` | Card borders and default shadows, input variants, typography |
-| Reusable component presentation | Beside the component in `src/shared/components/<area>/` | Shell layout, page styles, filter widths, notification placement |
-| Feature-specific settings | `src/features/<feature>/` | Grid column sizes, approval-step layout, identity messages |
-| A single component's details | Named constants in that component | A local gap, illustration colors, one-off positioning |
+| Responsibility                                     | Location                                                | Examples                                                         |
+| -------------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------- |
+| Environment configuration and application behavior | `src/shared/config/application.ts`                      | API URLs, timeouts, polling, debounce, notification durations    |
+| Shared visual values                               | `src/shared/theme/tokens.ts`                            | Surface radius, named stack spacing                              |
+| Global MUI appearance and defaults                 | `src/shared/theme/createAppTheme.ts`                    | Card borders and default shadows, input variants, typography     |
+| Reusable component presentation                    | Beside the component in `src/shared/components/<area>/` | Shell layout, page styles, filter widths, notification placement |
+| Feature-specific settings                          | `src/features/<feature>/`                               | Grid column sizes, approval-step layout, identity messages       |
+| A single component's details                       | Named constants in that component                       | A local gap, illustration colors, one-off positioning            |
 
 Import values directly from their owner. Do not add a catch-all constants module
 or re-export configuration and routing from a style file. Keep application

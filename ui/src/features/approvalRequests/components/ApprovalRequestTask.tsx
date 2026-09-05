@@ -28,6 +28,7 @@ import { Forms } from "@/shared/components/dialogs/formStyles";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { useUnsavedChanges } from "@/shared/hooks/useUnsavedChanges";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { Routes } from "@/shared/routing/routes";
 import { StackSpacing } from "@/shared/theme/tokens";
@@ -77,6 +78,7 @@ const getDefaultLegalName = (isAssigneeEmployee: boolean | undefined): string =>
 
 const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab, taskGlobalId }) => {
   const navigate = useNavigate();
+  const initialSnapshot = useRef<string>();
   const [decisionError, setDecisionError] = useState(false);
   const [commentError, setCommentError] = useState(false);
   const [result, setResult] = useState<boolean | undefined>(undefined);
@@ -113,22 +115,35 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
   const requiresElectronicSignature = result === true && currentTask?.isElectronicSignatureRequired === true;
   const canEnterRepresentationDetails = !currentTask?.isAssigneeEmployee;
   const taskIsSubmitting = submitAction.isRunning || stores.commonStore.isActionLoading(completeTaskLoader);
+  const filesAreUploading = stores.commonStore.isActionLoading(
+    ActionLoaders.userFiles.upload(tenantGlobalId ?? undefined),
+  );
 
   useEffect(() => {
-    setResult(currentTask?.result);
-    setComment(currentTask?.comment ?? "");
-    setLegalName(currentTask?.assigneeLegalName?.trim() || getDefaultLegalName(currentTask?.isAssigneeEmployee));
-    setRepresentationDetails(currentTask?.assigneeRepresentationDetails ?? "");
-    setSignatureJson(
-      currentTask?.assigneeSignatureJson?.trim() || stores.userProfileStore.profile?.defaultSignatureJson || "",
-    );
+    const values = {
+      result: currentTask?.result,
+      comment: currentTask?.comment ?? "",
+      legalName: currentTask?.assigneeLegalName?.trim() || getDefaultLegalName(currentTask?.isAssigneeEmployee),
+      representationDetails: currentTask?.assigneeRepresentationDetails ?? "",
+      signatureJson:
+        currentTask?.assigneeSignatureJson?.trim() || stores.userProfileStore.profile?.defaultSignatureJson || "",
+      taskAttachmentFiles: [],
+    };
+    initialSnapshot.current = JSON.stringify(values);
+    setResult(values.result);
+    setComment(values.comment);
+    setLegalName(values.legalName);
+    setRepresentationDetails(values.representationDetails);
+    setSignatureJson(values.signatureJson);
     setElectronicSignatureErrors(emptyElectronicSignatureErrors);
     setApprovalRequest(currentTask?.approvalRequest ?? null);
+    setTaskAttachmentFiles([]);
   }, [currentTask]);
 
-  useEffect(() => {
-    setTaskAttachmentFiles([]);
-  }, [taskGlobalId]);
+  const formValues = { result, comment, legalName, representationDetails, signatureJson, taskAttachmentFiles };
+  const hasChanges =
+    !isCompleted && initialSnapshot.current !== undefined && JSON.stringify(formValues) !== initialSnapshot.current;
+  const unsavedChanges = useUnsavedChanges(hasChanges, taskIsSubmitting || filesAreUploading);
 
   const navigateToTab = (value: ApprovalRequestTaskProps["tab"]) => {
     if (!tenantGlobalId) return;
@@ -136,20 +151,9 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
     navigate(Routes.tenantPath(tenantGlobalId, `/tasks/${taskGlobalId}${pathSuffix}`));
   };
 
-  const cleanUp = () => {
-    setDecisionError(false);
-    setCommentError(false);
-    setResult(undefined);
-    setComment("");
-    setLegalName("");
-    setRepresentationDetails("");
-    setSignatureJson("");
-    setElectronicSignatureErrors(emptyElectronicSignatureErrors);
-    setTaskAttachmentFiles([]);
-  };
-
   const handleClose = () => {
-    cleanUp();
+    if (!unsavedChanges.confirmDiscard()) return;
+    unsavedChanges.markSaved();
     onClose(currentTask?.globalId);
   };
 
@@ -221,15 +225,19 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
       );
       if (didComplete) {
         showPersistenceSuccessNotification(PersistenceSuccessMessages.approvalDecisionSubmitted);
-        cleanUp();
+        unsavedChanges.markSaved();
+        onClose(currentTask.globalId);
         stores.approvalRequestTaskStore.clear();
         stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
-        onClose(currentTask.globalId);
       }
     });
   };
 
   const handleSubmit = () => {
+    if (filesAreUploading) {
+      notification.warning("Wait for file uploads to finish before submitting.");
+      return;
+    }
     if (requiresElectronicSignature) {
       void submit();
       return;
