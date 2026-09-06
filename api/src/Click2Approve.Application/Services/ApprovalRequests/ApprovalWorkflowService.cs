@@ -49,9 +49,11 @@ public class ApprovalWorkflowService(
                     approvalRequest.Status = ApprovalRequestStatus.Completed;
                     approvalRequest.Result = false;
                     approvalRequest.CompletedAt = timestamp;
-                    SkipPendingTasks(
+                    await SkipPendingTasksAndNotifyAsync(
                         GetTasks(approvalRequest).Where(task => task.Id != approvalRequestTask.Id),
-                        timestamp);
+                        approvalRequest,
+                        timestamp,
+                        cancellationToken);
                     break;
                 case true:
                     stepCompleted = await AdvanceAsync(approvalRequestTask, timestamp, cancellationToken);
@@ -179,7 +181,11 @@ public class ApprovalWorkflowService(
 
         if (currentStep.Mode == ApprovalStepMode.Any)
         {
-            SkipPendingTasks(currentStepTasks.Where(task => task.Id != approvalRequestTask.Id), timestamp);
+            await SkipPendingTasksAndNotifyAsync(
+                currentStepTasks.Where(task => task.Id != approvalRequestTask.Id),
+                approvalRequest,
+                timestamp,
+                cancellationToken);
         }
 
         var nextStep = approvalRequest.Steps
@@ -192,7 +198,11 @@ public class ApprovalWorkflowService(
             approvalRequest.Status = ApprovalRequestStatus.Completed;
             approvalRequest.Result = true;
             approvalRequest.CompletedAt = timestamp;
-            SkipPendingTasks(GetTasks(approvalRequest), timestamp);
+            await SkipPendingTasksAndNotifyAsync(
+                GetTasks(approvalRequest),
+                approvalRequest,
+                timestamp,
+                cancellationToken);
             return true;
         }
 
@@ -222,6 +232,17 @@ public class ApprovalWorkflowService(
             task.Status = ApprovalRequestTaskStatus.Skipped;
             task.CompletedAt = timestamp;
         }
+    }
+
+    private async Task SkipPendingTasksAndNotifyAsync(
+        IEnumerable<ApprovalRequestTask> tasks,
+        ApprovalRequest approvalRequest,
+        DateTime timestamp,
+        CancellationToken cancellationToken)
+    {
+        var skippedTasks = tasks.Where(task => task.Status == ApprovalRequestTaskStatus.Pending).ToList();
+        SkipPendingTasks(skippedTasks, timestamp);
+        await SendSystemCompletedTaskNotificationsAsync(skippedTasks, approvalRequest, cancellationToken);
     }
 
     private static IEnumerable<ApprovalRequestTask> GetTasks(ApprovalRequest approvalRequest)
@@ -278,13 +299,19 @@ public class ApprovalWorkflowService(
         ApprovalRequest approvalRequest,
         CancellationToken cancellationToken) =>
         _notificationService.SendAsync(
-            [new NotificationCommand(
-                NotificationType.ApprovalRequestCompleted,
-                approvalRequest.TenantId,
-                approvalRequest.GlobalId,
-                CreateSummary(approvalRequest.GlobalId, approvalRequest.Title),
-                [new NotificationRecipient(approvalRequest.CreatedByUserId)])],
+            [.. GetTasks(approvalRequest)
+                .Select(task => new NotificationRecipientIdentity(task.TenantId, task.AssigneeUserId))
+                .Append(new NotificationRecipientIdentity(approvalRequest.TenantId, approvalRequest.CreatedByUserId))
+                .GroupBy(identity => identity.TenantId)
+                .Select(group => new NotificationCommand(
+                    NotificationType.ApprovalRequestCompleted,
+                    group.Key,
+                    approvalRequest.GlobalId,
+                    CreateSummary(approvalRequest.GlobalId, approvalRequest.Title),
+                    [.. group.Select(identity => new NotificationRecipient(identity.UserId)).Distinct()]))],
             cancellationToken);
+
+    private sealed record NotificationRecipientIdentity(long TenantId, long UserId);
 
     private async Task<List<ApprovalRequestTask>> CreateTasksForAssigneeAsync(
         ApprovalRequest approvalRequest,

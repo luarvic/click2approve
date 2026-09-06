@@ -5,16 +5,16 @@ namespace Click2Approve.Domain.Models;
 /// </summary>
 public enum NotificationType
 {
-    // Sent to the task recipient.
+    // Sent to the task assignees.
     ApprovalRequestTaskCreated = 0,
 
-    // Sent to the task recipient when completed by the system.
+    // Sent to the task assignees when completed by the system.
     ApprovalRequestTaskCompleted = 1,
 
     // Sent to the requester.
     ApprovalRequestStepCompleted = 2,
 
-    // Sent to the requester.
+    // Sent to the requester and assignees of the request tasks.
     ApprovalRequestCompleted = 3,
 
     // Sent to chat participants.
