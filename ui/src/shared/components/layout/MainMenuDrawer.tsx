@@ -86,8 +86,8 @@ const MainMenuDrawer = () => {
   const teamsPath = tenantPath("/teams");
   const employeesPath = tenantPath("/employees");
   const delegationsPath = tenantPath("/delegations");
-  const subscriptionPlanPath = tenantPath("/subscription/plan");
-  const subscriptionUsagePath = tenantPath("/subscription/usage");
+  const subscriptionPlanPath = tenantPath("/plan");
+  const subscriptionUsagePath = tenantPath("/usage");
   const tasksAreSelected = location.pathname === "/" || location.pathname.startsWith(tasksPath);
   const requestsAreSelected = location.pathname.startsWith(requestsPath);
   const numberOfUncompletedTasks = stores.approvalRequestTaskStore.numberOfUncompletedTasks;

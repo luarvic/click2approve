@@ -3,6 +3,9 @@ import { TenantGridSettings } from "@/features/tenants/components/gridSettings";
 import { EmployeeRole, TenantListItem } from "@/features/tenants/models/tenant";
 import GridFilters from "@/shared/components/grids/GridFilters";
 import { DataGrids } from "@/shared/components/grids/dataGridSettings";
+import CompactGridCell from "@/shared/components/grids/CompactGridCell";
+import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGridSecondaryInformation";
+import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
@@ -11,12 +14,12 @@ import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add, FilterList } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
-import { Box, Button, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Button, Link, useMediaQuery, useTheme } from "@mui/material";
 import type { GridSortModel } from "@mui/x-data-grid";
 import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useCallback, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-dom";
 
 const roleLabels: Record<EmployeeRole, string> = {
   [EmployeeRole.User]: "User",
@@ -88,6 +91,26 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
       headerName: "Name",
       sortable: true,
       ...TenantGridSettings.tenantsColumnSizing.businessName,
+      renderCell: (params) => (
+        <CompactGridCell>
+          <CompactGridTitle>
+            <Link
+              component={RouterLink}
+              to={`/tenants/${params.row.globalId}`}
+              tabIndex={params.hasFocus ? 0 : -1}
+              onClick={(event) => event.stopPropagation()}
+              variant="body2"
+            >
+              {params.row.businessName}
+            </Link>
+          </CompactGridTitle>
+          {!allColumnsAreVisible && (
+            <CompactGridSecondaryInformation>
+              {roleLabels[params.row.currentEmployeeRole as EmployeeRole]}
+            </CompactGridSecondaryInformation>
+          )}
+        </CompactGridCell>
+      ),
     },
     {
       field: "currentEmployeeRole",
@@ -122,6 +145,9 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
       <Box sx={DataGrids.containerSx}>
         <DataGrid
           rows={tenants}
+          getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
+          getEstimatedRowHeight={() => (allColumnsAreVisible ? null : DataGrids.compactRowHeightEstimate)}
+          rowPositionsDebounceMs={DataGrids.compactRowPositionsDebounceMs}
           getRowId={(row) => row.globalId}
           columns={columns}
           rowSelectionModel={currentTenantGlobalId === undefined ? [] : [currentTenantGlobalId]}

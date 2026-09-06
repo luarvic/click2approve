@@ -3,6 +3,7 @@ import { listApprovalRequestGrid } from "@/features/approvalRequests/api/approva
 import ApprovalRequestNumberText, {
   getApprovalRequestNumber,
 } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
+import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
 import ApprovalRequestsFilter from "@/features/approvalRequests/components/ApprovalRequestsFilter";
 import {
   ApprovalRequestStatusLineLabel,
@@ -16,6 +17,10 @@ import {
 } from "@/features/approvalRequests/models/approvalRequestGridQuery";
 import { ApprovalRequestListItem } from "@/features/approvalRequests/models/approvalRequestListItem";
 import { DataGrids } from "@/shared/components/grids/dataGridSettings";
+import CompactGridCell from "@/shared/components/grids/CompactGridCell";
+import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGridSecondaryInformation";
+import CompactGridStatus from "@/shared/components/grids/CompactGridStatus";
+import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
 import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
@@ -25,7 +30,7 @@ import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate } from "@/shared/utils/dateTime";
 import { Add, FilterList } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
-import { Box, Button, Link, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Button, Link, useMediaQuery, useTheme } from "@mui/material";
 import type { GridSortModel } from "@mui/x-data-grid";
 import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import dayjs from "dayjs";
@@ -132,29 +137,32 @@ const RequestsGrid: React.FC<RequestsGridProps> = ({ currentApprovalRequestGloba
       disableColumnMenu: true,
       flex: ApprovalGrids.approvalColumnFlex.content,
       renderCell: (params) => (
-        <Stack sx={ApprovalGrids.approvalTitleCellSx}>
-          <Link
-            component={RouterLink}
-            to={Routes.tenantPath(tenantGlobalId!, `/requests/${params.row.globalId}`)}
-            tabIndex={params.hasFocus ? 0 : -1}
-            onClick={(event) => event.stopPropagation()}
-            variant="body2"
-            sx={ApprovalGrids.titleLinkSx}
+        <CompactGridCell>
+          <CompactGridTitle
+            badge={!allColumnsAreVisible && <ApprovalRequestRevisionChip revisionNumber={params.row.revisionNumber} />}
           >
-            {params.row.title}
-          </Link>
+            <Link
+              component={RouterLink}
+              to={Routes.tenantPath(tenantGlobalId!, `/requests/${params.row.globalId}`)}
+              tabIndex={params.hasFocus ? 0 : -1}
+              onClick={(event) => event.stopPropagation()}
+              variant="body2"
+            >
+              {params.row.title}
+            </Link>
+          </CompactGridTitle>
           {!allColumnsAreVisible && (
             <>
-              <Typography variant="caption" color="text.secondary" sx={ApprovalGrids.mobileMetadataSx}>
-                {params.row.createdByDisplayName}
-              </Typography>
-              {<ApprovalRequestStatusLineLabel result={params.row.result} status={params.row.status} />}
-              <Typography variant="caption" color="text.secondary">
+              <CompactGridStatus>
+                <ApprovalRequestStatusLineLabel result={params.row.result} status={params.row.status} />
+              </CompactGridStatus>
+              <CompactGridSecondaryInformation>{params.row.createdByDisplayName}</CompactGridSecondaryInformation>
+              <CompactGridSecondaryInformation>
                 {getHumanReadableRelativeDate(params.row.createdAtDate)}
-              </Typography>
+              </CompactGridSecondaryInformation>
             </>
           )}
-        </Stack>
+        </CompactGridCell>
       ),
       valueGetter: (_value, row) => row.title,
     },
@@ -216,6 +224,8 @@ const RequestsGrid: React.FC<RequestsGridProps> = ({ currentApprovalRequestGloba
         <DataGrid
           rows={approvalRequests}
           getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
+          getEstimatedRowHeight={() => (allColumnsAreVisible ? null : DataGrids.compactRowHeightEstimate)}
+          rowPositionsDebounceMs={DataGrids.compactRowPositionsDebounceMs}
           getRowId={(row) => row.globalId}
           columns={columns}
           rowSelectionModel={

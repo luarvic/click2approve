@@ -180,11 +180,7 @@ const SubscriptionPlanPage = () => {
           <Typography sx={planUpgradeTitleSx}>Just using it for yourself?</Typography>
           <Typography sx={planUpgradeTextSx}>Personal plans are available in your Personal workspace.</Typography>
           <Typography sx={planUpgradeTextSx}>
-            <Link
-              component={RouterLink}
-              sx={calloutActionLinkSx}
-              to={`/tenants/${personalTenant.globalId}/subscription/plan`}
-            >
+            <Link component={RouterLink} sx={calloutActionLinkSx} to={`/tenants/${personalTenant.globalId}/plan`}>
               Switch to Personal
               <ArrowForwardIcon aria-hidden fontSize="inherit" />
             </Link>

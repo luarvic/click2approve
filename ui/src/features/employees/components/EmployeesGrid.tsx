@@ -5,6 +5,10 @@ import { EmployeeListItem, EmployeeStatus } from "@/features/employees/models/em
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import GridFilters from "@/shared/components/grids/GridFilters";
 import { DataGrids } from "@/shared/components/grids/dataGridSettings";
+import CompactGridCell from "@/shared/components/grids/CompactGridCell";
+import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGridSecondaryInformation";
+import CompactGridStatus from "@/shared/components/grids/CompactGridStatus";
+import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { StatusLineLabel } from "@/shared/components/status/StatusLines";
@@ -15,12 +19,12 @@ import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add, FilterList } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
-import { Box, Button, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Button, Link, useMediaQuery, useTheme } from "@mui/material";
 import type { GridSortModel } from "@mui/x-data-grid";
 import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useCallback, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-dom";
 
 const roleLabels: Record<EmployeeRole, string> = {
   [EmployeeRole.User]: "User",
@@ -112,7 +116,53 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
   );
   const filter = (key: string) => (value: string | string[]) => updateQuery({ page: 0, filters: { [key]: value } });
   const columns: GridColDef[] = [
-    { field: "email", headerName: "Email", sortable: true, ...EmployeeGridSettings.tenantUsersColumnSizing.email },
+    {
+      field: "email",
+      headerName: "Email",
+      sortable: true,
+      ...EmployeeGridSettings.tenantUsersColumnSizing.email,
+      renderCell: (params) => (
+        <CompactGridCell>
+          <CompactGridTitle>
+            <Link
+              component={RouterLink}
+              to={Routes.tenantPath(tenantGlobalId!, `/employees/${params.row.globalId}`)}
+              tabIndex={params.hasFocus ? 0 : -1}
+              onClick={(event) => event.stopPropagation()}
+              variant="body2"
+            >
+              {params.row.email}
+            </Link>
+          </CompactGridTitle>
+          {!allColumnsAreVisible && (
+            <>
+              {params.row.status !== undefined && (
+                <CompactGridStatus>
+                  <StatusLineLabel
+                    label={statusLabels[params.row.status as EmployeeStatus]}
+                    color={params.row.status === EmployeeStatus.Active ? "started" : "other"}
+                    lineVariant="solid"
+                  />
+                </CompactGridStatus>
+              )}
+              {(params.row.firstName || params.row.lastName) && (
+                <CompactGridSecondaryInformation>
+                  {[params.row.firstName, params.row.lastName].filter(Boolean).join(" ")}
+                </CompactGridSecondaryInformation>
+              )}
+              {params.row.position && (
+                <CompactGridSecondaryInformation>{params.row.position}</CompactGridSecondaryInformation>
+              )}
+              {params.row.role !== undefined && (
+                <CompactGridSecondaryInformation>
+                  {roleLabels[params.row.role as EmployeeRole]}
+                </CompactGridSecondaryInformation>
+              )}
+            </>
+          )}
+        </CompactGridCell>
+      ),
+    },
     {
       field: "firstName",
       headerName: "First name",
@@ -183,6 +233,9 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
       <Box sx={DataGrids.containerSx}>
         <DataGrid
           rows={employees}
+          getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
+          getEstimatedRowHeight={() => (allColumnsAreVisible ? null : DataGrids.compactRowHeightEstimate)}
+          rowPositionsDebounceMs={DataGrids.compactRowPositionsDebounceMs}
           getRowId={(row) => row.globalId}
           columns={columns}
           rowSelectionModel={currentEmployeeGlobalId === undefined ? [] : [currentEmployeeGlobalId]}
@@ -195,6 +248,7 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
             lastName: allColumnsAreVisible,
             position: allColumnsAreVisible,
             role: allColumnsAreVisible,
+            status: allColumnsAreVisible,
           }}
           paginationModel={{ page: query.page, pageSize: query.pageSize }}
           paginationMode="server"

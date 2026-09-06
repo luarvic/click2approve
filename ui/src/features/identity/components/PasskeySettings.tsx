@@ -2,18 +2,23 @@ import { deletePasskey, listPasskeys, Passkey, registerPasskey } from "@/feature
 import NewPasskeyDialog from "@/features/identity/components/NewPasskeyDialog";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import { DataGrids } from "@/shared/components/grids/dataGridSettings";
+import CompactGridCell from "@/shared/components/grids/CompactGridCell";
+import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGridSecondaryInformation";
+import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
+import { Routes } from "@/shared/routing/routes";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate, parseUtcDateTime } from "@/shared/utils/dateTime";
 import { notification } from "@/shared/utils/notifications";
 import { Add, Delete } from "@mui/icons-material";
-import { Box, Button, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Button, Link, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { DataGrid, GridColDef, GridRowSelectionModel, GridToolbarContainer } from "@mui/x-data-grid";
 import { useState } from "react";
+import { Link as RouterLink } from "react-router-dom";
 
 const PasskeySettings = () => {
   const theme = useTheme();
@@ -74,7 +79,43 @@ const PasskeySettings = () => {
     </GridToolbarContainer>
   );
   const columns: GridColDef<Passkey>[] = [
-    { disableColumnMenu: true, field: "name", flex: 2, headerName: "Name", minWidth: 160, sortable: false },
+    {
+      disableColumnMenu: true,
+      field: "name",
+      flex: 2,
+      headerName: "Name",
+      minWidth: 160,
+      sortable: false,
+      renderCell: (params) => (
+        <CompactGridCell>
+          <CompactGridTitle>
+            <Link
+              component={RouterLink}
+              to={Routes.userProfileTabPath("passkeys")}
+              tabIndex={params.hasFocus ? 0 : -1}
+              onClick={(event) => event.stopPropagation()}
+              variant="body2"
+            >
+              {params.row.name}
+            </Link>
+          </CompactGridTitle>
+          {!allColumnsAreVisible && (
+            <>
+              <CompactGridSecondaryInformation>
+                Added{" "}
+                {params.row.createdAt ? getHumanReadableRelativeDate(parseUtcDateTime(params.row.createdAt)) : "—"}
+              </CompactGridSecondaryInformation>
+              <CompactGridSecondaryInformation>
+                Last used{" "}
+                {params.row.lastUsedAt
+                  ? getHumanReadableRelativeDate(parseUtcDateTime(params.row.lastUsedAt))
+                  : "Never"}
+              </CompactGridSecondaryInformation>
+            </>
+          )}
+        </CompactGridCell>
+      ),
+    },
     {
       disableColumnMenu: true,
       field: "createdAt",
@@ -113,11 +154,18 @@ const PasskeySettings = () => {
           autoHeight
           checkboxSelection
           columns={columns}
-          columnVisibilityModel={{ credentialId: allColumnsAreVisible, lastUsedAt: allColumnsAreVisible }}
+          columnVisibilityModel={{
+            createdAt: allColumnsAreVisible,
+            credentialId: allColumnsAreVisible,
+            lastUsedAt: allColumnsAreVisible,
+          }}
           disableColumnFilter
           disableColumnSelector
           disableRowSelectionOnClick
           getRowId={(row) => row.credentialId}
+          getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
+          getEstimatedRowHeight={() => (allColumnsAreVisible ? null : DataGrids.compactRowHeightEstimate)}
+          rowPositionsDebounceMs={DataGrids.compactRowPositionsDebounceMs}
           hideFooter
           loading={gridIsLoading || addAction.isRunning || removeAction.isRunning}
           onRowSelectionModelChange={setSelectedCredentialIds}

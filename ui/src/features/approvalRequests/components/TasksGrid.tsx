@@ -18,6 +18,10 @@ import {
 import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
 import { TenantType } from "@/features/tenants/models/tenant";
 import { DataGrids } from "@/shared/components/grids/dataGridSettings";
+import CompactGridCell from "@/shared/components/grids/CompactGridCell";
+import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGridSecondaryInformation";
+import CompactGridStatus from "@/shared/components/grids/CompactGridStatus";
+import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
 import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
@@ -27,7 +31,7 @@ import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate } from "@/shared/utils/dateTime";
 import { FilterList } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
-import { Box, Button, Link, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Button, Link, useMediaQuery, useTheme } from "@mui/material";
 import type { GridSortModel } from "@mui/x-data-grid";
 import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import dayjs from "dayjs";
@@ -123,38 +127,36 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
       disableColumnMenu: true,
       flex: ApprovalGrids.approvalColumnFlex.content,
       renderCell: (params) => (
-        <Stack sx={ApprovalGrids.approvalTitleCellSx}>
-          <Stack direction="row" spacing={ApprovalGrids.mobileTaskTitleSpacing} sx={ApprovalGrids.mobileTaskTitleRowSx}>
+        <CompactGridCell>
+          <CompactGridTitle
+            badge={!allColumnsAreVisible && <ApprovalRequestRevisionChip revisionNumber={params.row.revisionNumber} />}
+          >
             <Link
               component={RouterLink}
               to={Routes.tenantPath(tenantGlobalId!, `/tasks/${params.row.globalId}`)}
               tabIndex={params.hasFocus ? 0 : -1}
               onClick={(event) => event.stopPropagation()}
               variant="body2"
-              sx={allColumnsAreVisible ? ApprovalGrids.titleLinkSx : ApprovalGrids.mobileTaskTitleLinkSx}
             >
               {params.row.title}
             </Link>
-            {!allColumnsAreVisible && <ApprovalRequestRevisionChip revisionNumber={params.row.revisionNumber} />}
-          </Stack>
+          </CompactGridTitle>
           {!allColumnsAreVisible && (
             <>
-              <Typography variant="caption" color="text.secondary" sx={ApprovalGrids.mobileMetadataSx}>
-                {params.row.requestedByDisplayName}
-              </Typography>
-              {
+              <CompactGridStatus>
                 <ApprovalRequestTaskStatusLineLabel
                   action={params.row.action}
                   result={params.row.result}
                   status={params.row.status}
                 />
-              }
-              <Typography variant="caption" color="text.secondary">
+              </CompactGridStatus>
+              <CompactGridSecondaryInformation>{params.row.requestedByDisplayName}</CompactGridSecondaryInformation>
+              <CompactGridSecondaryInformation>
                 {getHumanReadableRelativeDate(params.row.createdAtDate)}
-              </Typography>
+              </CompactGridSecondaryInformation>
             </>
           )}
-        </Stack>
+        </CompactGridCell>
       ),
       valueGetter: (_value, row) => row.title,
     },
@@ -230,8 +232,8 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
         <DataGrid
           rows={tasks}
           getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
-          getEstimatedRowHeight={() => (allColumnsAreVisible ? null : ApprovalGrids.mobileTaskRowHeightEstimate)}
-          rowPositionsDebounceMs={0}
+          getEstimatedRowHeight={() => (allColumnsAreVisible ? null : DataGrids.compactRowHeightEstimate)}
+          rowPositionsDebounceMs={DataGrids.compactRowPositionsDebounceMs}
           getRowId={(row) => row.globalId}
           columns={columns}
           rowSelectionModel={currentTaskGlobalId === undefined ? [] : [currentTaskGlobalId]}

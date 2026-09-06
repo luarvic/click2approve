@@ -18,6 +18,7 @@ import {
   notificationPreferenceTypeToNotificationTypes,
 } from "@/shared/models/notifications";
 import { UserNotificationPreference } from "@/shared/models/userProfile";
+import { Routes, type UserProfileTab } from "@/shared/routing/routes";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
@@ -59,7 +60,11 @@ const notificationPreferenceTypes = [
   NotificationPreferenceType.Chat,
 ];
 
-const UserProfilePage = () => {
+interface UserProfilePageProps {
+  tab?: Exclude<UserProfileTab, "profile">;
+}
+
+const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
   usePageTitle("User profile");
   const navigate = useNavigate();
   const profile = stores.userProfileStore.profile;
@@ -69,7 +74,7 @@ const UserProfilePage = () => {
   const [defaultSignatureJson, setDefaultSignatureJson] = useState("");
   const [notificationPreferences, setNotificationPreferences] = useState<UserNotificationPreference[]>([]);
   const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
-  const [selectedTab, setSelectedTab] = useState("profile");
+  const selectedTab = tab ?? "profile";
   const removeAvatarAction = useAsyncAction(ActionLoaders.userProfile.removeAvatar());
   const saveAction = useAsyncAction(ActionLoaders.userProfile.save());
 
@@ -168,7 +173,11 @@ const UserProfilePage = () => {
       />
       <NarrowContent>
         <Stack component="form" noValidate spacing={StackSpacing.loose} sx={profileFormSx}>
-          <Tabs value={selectedTab} onChange={(_, value: string) => setSelectedTab(value)} variant="scrollable">
+          <Tabs
+            value={selectedTab}
+            onChange={(_, value: UserProfileTab) => navigate(Routes.userProfileTabPath(value))}
+            variant="scrollable"
+          >
             <Tab label="Profile" value="profile" />
             <Tab label="Passkeys" value="passkeys" />
             <Tab label="Signature" value="signature" />

@@ -51,7 +51,7 @@ const TenantEditorPage = () => {
 
   const close = (currentTenantGlobalId?: string) => {
     if (createdTenant && currentTenantGlobalId) {
-      navigate(`/tenants/${currentTenantGlobalId}/subscription/billing`);
+      navigate(`/tenants/${currentTenantGlobalId}/billing`);
       return;
     }
 

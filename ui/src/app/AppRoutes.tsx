@@ -43,7 +43,7 @@ import { observer } from "mobx-react-lite";
 import { Route, Routes } from "react-router-dom";
 
 /** The shared route tree, reacting to the active organization's capabilities. */
-const AppRoutes = () => {
+const ApplicationRoutes = () => {
   const currentTenant = stores.tenantStore.currentTenant;
   const capabilities = getTenantCapabilities(
     stores.applicationConfigurationStore.applicationConfiguration,
@@ -70,6 +70,9 @@ const AppRoutes = () => {
         <Route element={<MainLayout />}>
           <Route element={<WrapperLayout />}>
             <Route path="/userProfile" element={<UserProfilePage />} />
+            <Route path="/userProfile/passkeys" element={<UserProfilePage tab="passkeys" />} />
+            <Route path="/userProfile/signature" element={<UserProfilePage tab="signature" />} />
+            <Route path="/userProfile/notifications" element={<UserProfilePage tab="notifications" />} />
             <Route element={<RouteGuard isAllowed={stores.applicationConfigurationStore.tenantsAreEnabled} />}>
               <Route path="/tenants" element={<TenantsPage />} />
               <Route path="/tenants/new" element={<TenantEditorPage />} />
@@ -89,9 +92,9 @@ const AppRoutes = () => {
               <Route path="receipts/:receiptGlobalId" element={<ReceiptPage />} />
               <Route path="receipts/:receiptGlobalId/share" element={<ReceiptPage tab="share" />} />
               <Route element={<RouteGuard isAllowed={stores.applicationConfigurationStore.subscriptionsAreEnabled} />}>
-                <Route path="subscription/plan" element={<SubscriptionPlanPage />} />
-                <Route path="subscription/usage" element={<SubscriptionUsagePage />} />
-                <Route path="subscription/billing" element={<SubscriptionBillingPage />} />
+                <Route path="plan" element={<SubscriptionPlanPage />} />
+                <Route path="usage" element={<SubscriptionUsagePage />} />
+                <Route path="billing" element={<SubscriptionBillingPage />} />
               </Route>
               <Route path="requests/new" element={<ApprovalRequestStartPage />} />
               <Route path="requests/new/compose" element={<ApprovalRequestSubmitPage />} />
@@ -133,4 +136,4 @@ const AppRoutes = () => {
   );
 };
 
-export default observer(AppRoutes);
+export default observer(ApplicationRoutes);

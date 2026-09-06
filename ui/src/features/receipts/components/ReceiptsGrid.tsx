@@ -2,6 +2,7 @@ import { stores } from "@/app/rootStore";
 import ApprovalRequestNumberText, {
   getApprovalRequestNumber,
 } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
+import ApprovalRequestRevisionChip from "@/features/approvalRequests/components/ApprovalRequestRevisionChip";
 import ApprovalRequestsFilter from "@/features/approvalRequests/components/ApprovalRequestsFilter";
 import {
   ApprovalRequestStatusLineLabel,
@@ -16,6 +17,10 @@ import {
   type ReceiptGridQuery,
 } from "@/features/receipts/models/receiptGridQuery";
 import { DataGrids } from "@/shared/components/grids/dataGridSettings";
+import CompactGridCell from "@/shared/components/grids/CompactGridCell";
+import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGridSecondaryInformation";
+import CompactGridStatus from "@/shared/components/grids/CompactGridStatus";
+import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
 import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
@@ -25,12 +30,12 @@ import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate } from "@/shared/utils/dateTime";
 import { FilterList } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
-import { Box, Button, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Button, Link, useMediaQuery, useTheme } from "@mui/material";
 import type { GridSortModel } from "@mui/x-data-grid";
 import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { useCallback, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-dom";
 
 interface ReceiptsGridProps {
   currentReceiptGlobalId?: string;
@@ -118,9 +123,35 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
       disableColumnMenu: true,
       flex: ApprovalGrids.approvalColumnFlex.content,
       renderCell: (params) => (
-        <Stack sx={ApprovalGrids.approvalTitleCellSx}>
-          <Typography variant="body2">{params.row.approvalRequestTitle}</Typography>
-        </Stack>
+        <CompactGridCell>
+          <CompactGridTitle
+            badge={!allColumnsAreVisible && <ApprovalRequestRevisionChip revisionNumber={params.row.revisionNumber} />}
+          >
+            <Link
+              component={RouterLink}
+              to={Routes.tenantPath(tenantGlobalId!, `/receipts/${params.row.globalId}`)}
+              tabIndex={params.hasFocus ? 0 : -1}
+              onClick={(event) => event.stopPropagation()}
+              variant="body2"
+            >
+              {params.row.approvalRequestTitle}
+            </Link>
+          </CompactGridTitle>
+          {!allColumnsAreVisible && (
+            <>
+              <CompactGridStatus>
+                <ApprovalRequestStatusLineLabel
+                  result={params.row.approvalRequestResult}
+                  status={params.row.approvalRequestStatus}
+                />
+              </CompactGridStatus>
+              <CompactGridSecondaryInformation>{params.row.createdByDisplayName}</CompactGridSecondaryInformation>
+              <CompactGridSecondaryInformation>
+                {getHumanReadableRelativeDate(params.row.createdAt)}
+              </CompactGridSecondaryInformation>
+            </>
+          )}
+        </CompactGridCell>
       ),
       valueGetter: (_value, row) => row.approvalRequestTitle,
     },
@@ -186,6 +217,9 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
       <Box sx={DataGrids.containerSx}>
         <DataGrid
           rows={receipts}
+          getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
+          getEstimatedRowHeight={() => (allColumnsAreVisible ? null : DataGrids.compactRowHeightEstimate)}
+          rowPositionsDebounceMs={DataGrids.compactRowPositionsDebounceMs}
           getRowId={(row) => row.globalId}
           columns={columns}
           rowSelectionModel={currentReceiptGlobalId === undefined ? [] : [currentReceiptGlobalId]}
@@ -201,6 +235,8 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
           onPaginationModelChange={(model) => updateQuery({ page: model.page, pageSize: model.pageSize })}
           columnVisibilityModel={{
             globalId: allColumnsAreVisible,
+            revisionNumber: allColumnsAreVisible,
+            approvalRequestStatus: allColumnsAreVisible,
             createdByDisplayName: allColumnsAreVisible,
             createdAt: allColumnsAreVisible,
           }}

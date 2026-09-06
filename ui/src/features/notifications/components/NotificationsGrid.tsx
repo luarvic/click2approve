@@ -14,6 +14,10 @@ import {
 } from "@/features/notifications/models/notificationGridQuery";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import { DataGrids } from "@/shared/components/grids/dataGridSettings";
+import CompactGridCell from "@/shared/components/grids/CompactGridCell";
+import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGridSecondaryInformation";
+import CompactGridStatus from "@/shared/components/grids/CompactGridStatus";
+import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
@@ -24,7 +28,7 @@ import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate, parseUtcDateTime } from "@/shared/utils/dateTime";
 import { Delete, Done, FilterList } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
-import { Box, Button, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Button, Typography, useMediaQuery, useTheme } from "@mui/material";
 import type { GridSortModel } from "@mui/x-data-grid";
 import { DataGrid, GridColDef, GridRowSelectionModel, GridToolbarContainer } from "@mui/x-data-grid";
 import dayjs from "dayjs";
@@ -186,6 +190,24 @@ const NotificationsGrid = () => {
       disableColumnMenu: true,
       flex: notificationColumnFlex,
       minWidth: notificationColumnMinWidth,
+      renderCell: (params) => (
+        <CompactGridCell>
+          <CompactGridTitle>
+            <Typography variant="body2">{getNotificationTypeLabel(params.row.type)}</Typography>
+          </CompactGridTitle>
+          {!allColumnsAreVisible && (
+            <>
+              <CompactGridStatus>
+                <Typography variant="body2">{params.row.readAt ? "Read" : "Unread"}</Typography>
+              </CompactGridStatus>
+              <CompactGridSecondaryInformation>{params.row.summary}</CompactGridSecondaryInformation>
+              <CompactGridSecondaryInformation>
+                {getHumanReadableRelativeDate(parseUtcDateTime(params.row.occurredAt))}
+              </CompactGridSecondaryInformation>
+            </>
+          )}
+        </CompactGridCell>
+      ),
       valueGetter: (_value, row) => getNotificationTypeLabel(row.type),
     },
     {
@@ -240,12 +262,16 @@ const NotificationsGrid = () => {
           columns={columns}
           columnVisibilityModel={{
             occurredAt: allColumnsAreVisible,
+            readAt: allColumnsAreVisible,
             summary: allColumnsAreVisible,
           }}
           disableColumnSelector
           disableColumnFilter
           disableRowSelectionOnClick
           getRowId={(row) => row.globalId}
+          getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
+          getEstimatedRowHeight={() => (allColumnsAreVisible ? null : DataGrids.compactRowHeightEstimate)}
+          rowPositionsDebounceMs={DataGrids.compactRowPositionsDebounceMs}
           getRowClassName={(params) => (params.row.readAt ? "" : unreadNotificationRowClassName)}
           hideFooterSelectedRowCount
           loading={gridIsLoading || isDeleting || isMarkingRead}

@@ -14,12 +14,12 @@ import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add, FilterList } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Link } from "@mui/material";
 import type { GridSortModel } from "@mui/x-data-grid";
 import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useCallback, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-dom";
 
 interface TeamsGridProps {
   currentTeamGlobalId?: string;
@@ -76,7 +76,23 @@ const TeamsGrid: React.FC<TeamsGridProps> = ({ currentTeamGlobalId }) => {
     </GridToolbarContainer>
   );
   const columns: GridColDef[] = [
-    { field: "name", headerName: "Name", sortable: true, ...TeamGridSettings.teamsColumnSizing.name },
+    {
+      field: "name",
+      headerName: "Name",
+      sortable: true,
+      ...TeamGridSettings.teamsColumnSizing.name,
+      renderCell: (params) => (
+        <Link
+          component={RouterLink}
+          to={Routes.tenantPath(tenantGlobalId!, `/teams/${params.row.globalId}`)}
+          tabIndex={params.hasFocus ? 0 : -1}
+          onClick={(event) => event.stopPropagation()}
+          variant="body2"
+        >
+          {params.row.name}
+        </Link>
+      ),
+    },
   ];
   return (
     <>
