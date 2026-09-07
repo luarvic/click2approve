@@ -145,6 +145,17 @@ public sealed class EmailTemplatesTests
     }
 
     [Fact]
+    public void Header_LinksPlatformLogoToTheConfiguredBaseUrl()
+    {
+        var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestTaskCreated, Context());
+
+        var html = EmailLayout.Render(model, "https://example.com/logo.png", "https://click2approve.com");
+
+        Assert.Contains("<a href=\"https://click2approve.com/\"", html);
+        Assert.Contains("<img src=\"https://example.com/logo.png\"", html);
+    }
+
+    [Fact]
     public void InlineTitle_EncodesAllPartsAndDoesNotBoldMatchingActorText()
     {
         var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestTaskCreated, Context() with

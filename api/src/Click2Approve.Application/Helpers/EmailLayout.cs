@@ -7,11 +7,15 @@ namespace Click2Approve.Application.Helpers;
 public static class EmailLayout
 {
     /// <summary>Renders an email without accepting raw HTML from callers.</summary>
-    public static string Render(EmailTemplateModel model, string? logoUrl = null)
+    public static string Render(EmailTemplateModel model, string? logoUrl = null, string? logoLinkUrl = null)
     {
         var logo = SafeUrl(logoUrl) is { } url
             ? $"<img src=\"{Encode(url)}\" alt=\"Click2Approve\" width=\"48\" height=\"48\" style=\"display:block;border:0;\">"
             : "<span role=\"img\" aria-label=\"Click2Approve\" style=\"color:#15803d;font-size:40px;\">✓</span>";
+        if (SafeUrl(logoLinkUrl) is { } linkUrl)
+        {
+            logo = $"<a href=\"{Encode(linkUrl)}\" style=\"display:inline-block;text-decoration:none;\">{logo}</a>";
+        }
         return $$"""
             <!doctype html>
             <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{{Encode(model.Subject)}}</title></head>
