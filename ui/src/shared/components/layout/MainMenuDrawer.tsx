@@ -24,7 +24,6 @@ import {
   Badge,
   Box,
   Button,
-  Divider,
   Drawer,
   IconButton,
   List,
@@ -146,7 +145,6 @@ const MainMenuDrawer = () => {
           <ChevronLeftTwoTone />
         </IconButton>
       </Toolbar>
-      <Divider />
       <List
         sx={Shell.mainMenuDrawerFirstListSx}
         subheader={

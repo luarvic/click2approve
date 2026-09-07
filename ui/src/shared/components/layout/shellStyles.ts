@@ -150,6 +150,9 @@ export const Shell = {
       }),
   }),
   mainMenuDrawerToolbarSx: {
+    borderBottom: 1,
+    borderColor: "divider",
+    boxSizing: "border-box",
     height: appBarHeight,
     justifyContent: "flex-end",
     minHeight: appBarHeight,
