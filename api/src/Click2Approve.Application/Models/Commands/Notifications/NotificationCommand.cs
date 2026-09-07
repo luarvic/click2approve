@@ -10,7 +10,8 @@ public record NotificationCommand(
     long TenantId,
     Guid EntityGlobalId,
     string Summary,
-    IReadOnlyCollection<NotificationRecipient> Recipients);
+    IReadOnlyCollection<NotificationRecipient> Recipients,
+    Guid? SourceGlobalId = null);
 
 /// <summary>
 /// Identifies one intended notification recipient.

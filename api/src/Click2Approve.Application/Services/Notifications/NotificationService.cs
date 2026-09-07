@@ -29,7 +29,8 @@ public class NotificationService(
                     notification.TenantId,
                     notification.EntityGlobalId,
                     notification.Summary,
-                    recipient.UserId);
+                    recipient.UserId,
+                    notification.SourceGlobalId);
                 await _eventOutboxRepository.AddAsync(
                     new EventOutboxMessage
                     {

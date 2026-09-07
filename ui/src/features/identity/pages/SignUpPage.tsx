@@ -2,10 +2,11 @@ import { stores } from "@/app/rootStore";
 import { AuthForms } from "@/features/identity/components/authFormStyles";
 import { Information } from "@/features/identity/identityMessages";
 import { Credentials } from "@/features/identity/models/credentials";
+import { authPath } from "@/features/identity/routing/returnUrl";
+import { useAuthReturnUrl } from "@/features/identity/routing/useAuthReturnUrl";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
-import { Routes } from "@/shared/routing/routes";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { notification } from "@/shared/utils/notifications";
 import { Validation } from "@/shared/utils/validationRules";
@@ -38,6 +39,7 @@ const SignUpPage = () => {
   const [passwordConfirmationError, setPasswordConfirmationError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
+  const returnUrl = useAuthReturnUrl();
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleClickShowPasswordConfirmation = () => setShowPasswordConfirmation((show) => !show);
@@ -79,7 +81,7 @@ const SignUpPage = () => {
           });
         } else {
           if (await stores.userAccountStore.signIn(credentials)) {
-            navigate(Routes.defaultPath);
+            navigate(returnUrl, { replace: true });
           }
         }
       }
@@ -162,7 +164,12 @@ const SignUpPage = () => {
               </MainActionButton>
               <Grid container>
                 <Grid item>
-                  <Link component="button" type="button" variant="body2" onClick={() => navigate("/signIn")}>
+                  <Link
+                    component="button"
+                    type="button"
+                    variant="body2"
+                    onClick={() => navigate(authPath("/signIn", returnUrl))}
+                  >
                     Already have an account? Sign in
                   </Link>
                 </Grid>

@@ -8,7 +8,7 @@ interface CompactGridTitleProps {
 }
 
 const compactGridTitleSx: SxProps<Theme> = {
-  "& > :first-child": {
+  "& > :first-of-type": {
     minWidth: 0,
     overflowWrap: "anywhere",
     whiteSpace: "normal",

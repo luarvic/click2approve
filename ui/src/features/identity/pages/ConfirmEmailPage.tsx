@@ -1,5 +1,7 @@
 import { confirmUserEmail } from "@/features/identity/api/authApi";
 import { Information } from "@/features/identity/identityMessages";
+import { authPath } from "@/features/identity/routing/returnUrl";
+import { useAuthReturnUrl } from "@/features/identity/routing/useAuthReturnUrl";
 import { Pages } from "@/shared/components/layout/pageStyles";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import InformationPage from "@/shared/pages/InformationPage";
@@ -24,6 +26,7 @@ const ConfirmEmailPage = () => {
   usePageTitle(Information.emailVerificationResultTitle);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const returnUrl = useAuthReturnUrl();
   const [message, setMessage] = useState<ReactNode>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -39,7 +42,7 @@ const ConfirmEmailPage = () => {
             setMessage(
               renderMessageWithLink(
                 Information.emailVerificationSuccessMessage,
-                <Link component={RouterLink} to="/signIn">
+                <Link component={RouterLink} to={authPath("/signIn", returnUrl)}>
                   Sign in
                 </Link>,
               ),
@@ -48,7 +51,7 @@ const ConfirmEmailPage = () => {
             setMessage(
               renderMessageWithLink(
                 Information.emailVerificationFailureMessage,
-                <Link component={RouterLink} to="/resendConfirmationEmail">
+                <Link component={RouterLink} to={authPath("/resendConfirmationEmail", returnUrl)}>
                   request a new verification email
                 </Link>,
               ),
@@ -59,7 +62,7 @@ const ConfirmEmailPage = () => {
     } else {
       navigate("/notfound");
     }
-  }, [navigate, searchParams]);
+  }, [navigate, returnUrl, searchParams]);
 
   return (
     <>

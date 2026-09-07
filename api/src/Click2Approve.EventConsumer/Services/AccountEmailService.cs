@@ -6,82 +6,53 @@ using Click2Approve.Application.Models.Events;
 
 namespace Click2Approve.EventConsumer.Services;
 
-/// <summary>
-/// Composes and sends account lifecycle emails.
-/// </summary>
+/// <summary>Composes and sends account lifecycle emails.</summary>
 public sealed class AccountEmailService(IEmailService emailService, IConfiguration configuration)
 {
     private readonly IEmailService _emailService = emailService;
     private readonly IConfiguration _configuration = configuration;
 
-    /// <summary>
-    /// Composes and sends an account email request.
-    /// </summary>
-    public Task SendAsync(AccountEmailRequestedPayload payload, CancellationToken cancellationToken) =>
-        _emailService.SendAsync(CreateMessage(payload), cancellationToken);
-
-    private EmailMessage CreateMessage(AccountEmailRequestedPayload payload) => payload.Type switch
+    /// <summary>Composes and sends an account email request.</summary>
+    public Task SendAsync(AccountEmailRequestedPayload payload, CancellationToken cancellationToken)
     {
-        AccountEmailType.EmailConfirmation => CreateIdentityMessage(payload, "IdentityConfirmation"),
-        AccountEmailType.PasswordReset => CreateIdentityMessage(payload, "IdentityReset"),
-        AccountEmailType.EmployeeInvitation => CreateEmployeeInvitationMessage(payload),
-        _ => throw new InvalidOperationException($"Unsupported account email type '{payload.Type}'.")
-    };
-
-    private EmailMessage CreateIdentityMessage(AccountEmailRequestedPayload payload, string templateName) => new()
-    {
-        ToAddress = payload.ToAddress,
-        Subject = _configuration[$"Email:Templates:{templateName}Subject"]!,
-        Body = EmailHelpers.BuildHtmlEmail(
-            _configuration[$"Email:Templates:{templateName}Heading"]!,
-            _configuration[$"Email:Templates:{templateName}Message"]!,
-            CreateCallbackUrl(payload),
-            _configuration[$"Email:Templates:{templateName}LinkText"]!)
-    };
-
-    private EmailMessage CreateEmployeeInvitationMessage(AccountEmailRequestedPayload payload)
-    {
-        var linkText = _configuration[
-            payload.IsNewUser
-                ? "Email:Templates:EmployeeInvitationSignUpLinkText"
-                : "Email:Templates:EmployeeInvitationSignInLinkText"]
-            ?? (payload.IsNewUser ? "Sign up" : "Sign in");
-        return new EmailMessage
+        var type = payload.Type;
+        // Also recognize queued confirmations produced before the separate email-change template existed.
+        if (type == AccountEmailType.EmailConfirmation && IsEmailChange(payload.ConfirmationLink))
+        {
+            type = AccountEmailType.EmailChangeConfirmation;
+        }
+        var template = AccountEmailTemplates.Create(type, CreateCallbackUrl(payload, type), payload.TenantName, payload.IsNewUser);
+        return _emailService.SendAsync(new EmailMessage
         {
             ToAddress = payload.ToAddress,
-            Subject = _configuration["Email:Templates:EmployeeInvitationSubject"] ?? "You have been invited to Click2Approve",
-            Body = EmailHelpers.BuildHtmlEmail(
-                _configuration["Email:Templates:EmployeeInvitationHeading"] ?? "Hi there,",
-                string.Format(
-                    _configuration["Email:Templates:EmployeeInvitationMessage"]
-                    ?? "You have been invited to join {0}.",
-                    payload.TenantName),
-                UriHelpers.GetUiUri(
-                    _configuration.GetValue<Uri>("UI:BaseUrl"),
-                    _configuration["UI:AppPath"],
-                    payload.IsNewUser ? "signUp" : "signIn").ToString(),
-                linkText)
-        };
+            Subject = template.Subject,
+            Body = EmailLayout.Render(template, EmailBranding.GetLogoUrl(_configuration))
+        }, cancellationToken);
     }
 
-    private string CreateCallbackUrl(AccountEmailRequestedPayload payload) => payload.Type switch
+    private string CreateCallbackUrl(AccountEmailRequestedPayload payload, AccountEmailType type) => type switch
     {
         AccountEmailType.EmailConfirmation => UriHelpers.GetDerivedEmailConfirmationLink(
             new Uri(HttpUtility.HtmlDecode(GetRequiredConfirmationLink(payload))),
             _configuration.GetValue<Uri>("UI:BaseUrl"),
             _configuration["UI:AppPath"]).ToString(),
+        // Identity's native callback carries changedEmail; the current UI confirmation page does not forward it.
+        AccountEmailType.EmailChangeConfirmation => HttpUtility.HtmlDecode(GetRequiredConfirmationLink(payload)),
         AccountEmailType.PasswordReset when payload.ResetCode is not null => UriHelpers.GetDerivedPasswordResetLink(
-            payload.ToAddress,
-            payload.ResetCode,
-            _configuration.GetValue<Uri>("UI:BaseUrl"),
-            _configuration["UI:AppPath"]).ToString(),
-        AccountEmailType.PasswordReset => GetRequiredResetLink(payload),
-        _ => throw new InvalidOperationException($"Unsupported account email type '{payload.Type}'.")
+            payload.ToAddress, payload.ResetCode,
+            _configuration.GetValue<Uri>("UI:BaseUrl"), _configuration["UI:AppPath"]).ToString(),
+        AccountEmailType.PasswordReset => HttpUtility.HtmlDecode(payload.ResetLink
+            ?? throw new InvalidOperationException("Password reset requires a reset link or code.")),
+        AccountEmailType.EmployeeInvitation => UriHelpers.GetUiUri(
+            _configuration.GetValue<Uri>("UI:BaseUrl"), _configuration["UI:AppPath"],
+            payload.IsNewUser ? "signUp" : "signIn").ToString(),
+        _ => throw new InvalidOperationException($"Unsupported account email type '{type}'.")
     };
+
+    private static bool IsEmailChange(string? link) =>
+        Uri.TryCreate(HttpUtility.HtmlDecode(link), UriKind.Absolute, out var uri)
+        && HttpUtility.ParseQueryString(uri.Query).Get("changedEmail") is not null;
 
     private static string GetRequiredConfirmationLink(AccountEmailRequestedPayload payload) =>
         payload.ConfirmationLink ?? throw new InvalidOperationException("Email confirmation requires a confirmation link.");
-
-    private static string GetRequiredResetLink(AccountEmailRequestedPayload payload) =>
-        payload.ResetLink ?? throw new InvalidOperationException("Password reset requires a reset link or code.");
 }

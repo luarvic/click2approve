@@ -1,10 +1,11 @@
 import { stores } from "@/app/rootStore";
 import { AuthForms } from "@/features/identity/components/authFormStyles";
 import { Credentials } from "@/features/identity/models/credentials";
+import { authPath } from "@/features/identity/routing/returnUrl";
+import { useAuthReturnUrl } from "@/features/identity/routing/useAuthReturnUrl";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
-import { Routes } from "@/shared/routing/routes";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { notification } from "@/shared/utils/notifications";
 import { Validation } from "@/shared/utils/validationRules";
@@ -38,6 +39,7 @@ const ResetPasswordPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const returnUrl = useAuthReturnUrl();
 
   useEffect(() => {
     const emailParam = searchParams.get("email");
@@ -79,7 +81,7 @@ const ResetPasswordPage = () => {
       if (await stores.userAccountStore.resetPassword(email, code, password.toString())) {
         const credentials = new Credentials(email, password.toString());
         if (await stores.userAccountStore.signIn(credentials)) {
-          navigate(Routes.defaultPath);
+          navigate(returnUrl, { replace: true });
         }
       }
       setIsLoading(false);
@@ -148,12 +150,22 @@ const ResetPasswordPage = () => {
               </MainActionButton>
               <Grid container>
                 <Grid item xs>
-                  <Link component="button" type="button" variant="body2" onClick={() => navigate("/signIn")}>
+                  <Link
+                    component="button"
+                    type="button"
+                    variant="body2"
+                    onClick={() => navigate(authPath("/signIn", returnUrl))}
+                  >
                     Sign in
                   </Link>
                 </Grid>
                 <Grid item>
-                  <Link component="button" type="button" variant="body2" onClick={() => navigate("/signUp")}>
+                  <Link
+                    component="button"
+                    type="button"
+                    variant="body2"
+                    onClick={() => navigate(authPath("/signUp", returnUrl))}
+                  >
                     New to us? Sign up
                   </Link>
                 </Grid>

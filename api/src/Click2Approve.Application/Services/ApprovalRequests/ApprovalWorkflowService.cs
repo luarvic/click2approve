@@ -276,7 +276,8 @@ public class ApprovalWorkflowService(
                     group.Key.TenantId,
                     approvalRequest.GlobalId,
                     CreateSummary(approvalRequest.GlobalId, approvalRequest.Title),
-                    [new NotificationRecipient(group.Key.AssigneeUserId)]))],
+                    [new NotificationRecipient(group.Key.AssigneeUserId)],
+                    SourceGlobalId: group.OrderBy(task => task.Id).First().GlobalId))],
             cancellationToken);
     }
 
@@ -291,7 +292,8 @@ public class ApprovalWorkflowService(
                 approvalRequest.TenantId,
                 approvalRequest.GlobalId,
                 CreateSummary(approvalRequest.GlobalId, approvalRequest.Title),
-                [new NotificationRecipient(approvalRequest.CreatedByUserId)])],
+                [new NotificationRecipient(approvalRequest.CreatedByUserId)],
+                SourceGlobalId: approvalRequestTask.GlobalId)],
             cancellationToken);
     }
 

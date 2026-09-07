@@ -10,4 +10,5 @@ public sealed record NotificationEventPayload(
     long TenantId,
     Guid EntityGlobalId,
     string Summary,
-    long UserId);
+    long UserId,
+    Guid? SourceGlobalId = null);

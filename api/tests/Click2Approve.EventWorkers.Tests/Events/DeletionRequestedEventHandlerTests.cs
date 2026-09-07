@@ -55,6 +55,7 @@ public sealed class DeletionRequestedEventHandlerTests
         var tenant = new Tenant
         {
             BusinessName = "Personal",
+            SubscriptionPlan = SubscriptionPlan.PersonalFree,
             Owner = owner,
             Type = TenantType.Personal
         };

@@ -39,20 +39,15 @@ public static class EmailHelpers
         return normalizedEmail.ToLowerInvariant();
     }
 
-    /// <summary>
-    /// Builds an HTML email body with the given heading, message and link.
-    /// </summary>
-    public static string BuildHtmlEmail(string heading, string message, string link, string linkText)
-    {
-        return string.Join(
-            Environment.NewLine,
-            "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">",
-            $"<p style=\"margin: 0 0 1em;\">{heading}</p>",
-            $"<p style=\"margin: 0 0 1em;\">{message}</p>",
-            $"<p style=\"margin: 0 0 1em;\"><a href=\"{link}\">{linkText}</a></p>",
-            "<p style=\"margin: 0 0 0.25em;\">Thanks,</p>",
-            "<p style=\"margin: 0;\">The Click2Approve team</p>",
-            "</div>"
-        );
-    }
+    /// <summary>Builds a safely encoded email using the shared transactional layout.</summary>
+    public static string BuildHtmlEmail(string heading, string message, string link, string linkText) =>
+        EmailLayout.Render(new Models.Emails.EmailTemplateModel
+        {
+            Subject = heading,
+            Heading = heading,
+            Body = message,
+            PrimaryActionUrl = link,
+            PrimaryActionText = linkText,
+            Footer = "This email was delivered by Click2Approve."
+        });
 }

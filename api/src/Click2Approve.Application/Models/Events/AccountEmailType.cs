@@ -7,5 +7,6 @@ public enum AccountEmailType
 {
     EmailConfirmation = 0,
     PasswordReset = 1,
-    EmployeeInvitation = 2
+    EmployeeInvitation = 2,
+    EmailChangeConfirmation = 3
 }

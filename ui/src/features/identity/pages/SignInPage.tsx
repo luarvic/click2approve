@@ -2,11 +2,12 @@ import { stores } from "@/app/rootStore";
 import { browserSupportsPasskeys } from "@/features/identity/api/passkeysApi";
 import { AuthForms } from "@/features/identity/components/authFormStyles";
 import { Credentials } from "@/features/identity/models/credentials";
+import { authPath } from "@/features/identity/routing/returnUrl";
+import { useAuthReturnUrl } from "@/features/identity/routing/useAuthReturnUrl";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Text } from "@/shared/components/text/textStyles";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
-import { Routes } from "@/shared/routing/routes";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { notification } from "@/shared/utils/notifications";
 import { validateEmail } from "@/shared/utils/validators";
@@ -39,6 +40,7 @@ const SignInPage = () => {
   const [passwordError, setPasswordError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
+  const returnUrl = useAuthReturnUrl();
   const location = useLocation();
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -61,7 +63,7 @@ const SignInPage = () => {
       setIsLoading(true);
       if (await stores.userAccountStore.signIn(credentials)) {
         if (location.pathname === "/signIn") {
-          navigate(Routes.defaultPath);
+          navigate(returnUrl, { replace: true });
         }
       }
       setIsLoading(false);
@@ -71,7 +73,7 @@ const SignInPage = () => {
   const handlePasskeySignIn = async () => {
     setIsLoading(true);
     if (await stores.userAccountStore.signInWithPasskey()) {
-      navigate(Routes.defaultPath);
+      navigate(returnUrl, { replace: true });
     }
     setIsLoading(false);
   };
@@ -127,7 +129,12 @@ const SignInPage = () => {
               </MainActionButton>
               <Grid container>
                 <Grid item xs={4}>
-                  <Link component="button" type="button" variant="body2" onClick={() => navigate("/forgotPassword")}>
+                  <Link
+                    component="button"
+                    type="button"
+                    variant="body2"
+                    onClick={() => navigate(authPath("/forgotPassword", returnUrl))}
+                  >
                     Forgot password
                   </Link>
                 </Grid>
@@ -136,13 +143,18 @@ const SignInPage = () => {
                     component="button"
                     type="button"
                     variant="body2"
-                    onClick={() => navigate("/resendConfirmationEmail")}
+                    onClick={() => navigate(authPath("/resendConfirmationEmail", returnUrl))}
                   >
                     Resend confirmation
                   </Link>
                 </Grid>
                 <Grid item xs={4} sx={Text.alignRightSx}>
-                  <Link component="button" type="button" variant="body2" onClick={() => navigate("/signUp")}>
+                  <Link
+                    component="button"
+                    type="button"
+                    variant="body2"
+                    onClick={() => navigate(authPath("/signUp", returnUrl))}
+                  >
                     New to us? Sign up
                   </Link>
                 </Grid>

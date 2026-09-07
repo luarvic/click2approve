@@ -133,6 +133,9 @@ dotnet run --project api/src/Click2Approve.EventPublisher/Click2Approve.EventPub
 dotnet run --project api/src/Click2Approve.EventConsumer/Click2Approve.EventConsumer.csproj
 ```
 
+Transactional emails share a table-based HTML layout. See [email templates](docs/email-templates.md)
+for sender configuration, branding, and event compatibility.
+
 The development profile listens on
 [http://localhost:5555/](http://localhost:5555/). Swagger is available at
 [http://localhost:5555/swagger](http://localhost:5555/swagger).
