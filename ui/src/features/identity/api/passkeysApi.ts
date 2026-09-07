@@ -169,7 +169,7 @@ export const signInWithPasskey = async (): Promise<boolean> => {
     return true;
   } catch (e) {
     if (isPasskeyOperationCancelled(e)) {
-      // return false;
+      return false;
     }
     notification.error(e instanceof Error ? e.message : getApiErrorNotification(e));
     return false;
