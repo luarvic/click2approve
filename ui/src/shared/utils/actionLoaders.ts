@@ -82,6 +82,16 @@ export const GlobalLoadingActionLoaderScopes = [
 ] as const;
 
 export const ActionLoaders = {
+  organizationCreation: {
+    choosePlan: () => "organizationCreation.choosePlan",
+  },
+  billing: {
+    cancelScheduledChange: (tenantGlobalId?: string) =>
+      createActionLoaderKey("billing.cancelScheduledChange", tenantGlobalId),
+    load: (tenantGlobalId?: string) => createActionLoaderKey("billing.load", tenantGlobalId),
+    recover: (tenantGlobalId?: string) => createActionLoaderKey("billing.recover", tenantGlobalId),
+    refresh: (tenantGlobalId?: string) => createActionLoaderKey("billing.refresh", tenantGlobalId),
+  },
   approvalRequests: {
     cancel: (approvalRequestGlobalId: string | undefined) =>
       createActionLoaderKey(ActionLoaderScopes.approvalRequestsCancel, approvalRequestGlobalId),

@@ -40,7 +40,13 @@ builder.Services.AddApiVersioning(options =>
     options.AssumeDefaultVersionWhenUnspecified = true;
     options.ReportApiVersions = true;
     options.ApiVersionReader = new UrlSegmentApiVersionReader();
-});
+})
+    .AddMvc()
+    .AddApiExplorer(options =>
+    {
+        options.GroupNameFormat = "'v'VVV";
+        options.SubstituteApiVersionInUrl = true;
+    });
 builder.Services.AddCors();
 builder.Services.AddDbContext<ApiDbContext>(options =>
 {
@@ -101,6 +107,10 @@ app.UseMiddleware<InitialTenantSetupMiddleware>();
 app.UseMiddleware<DefaultTenantResolutionMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
-app.MapGroup("/api/v1/account").MapIdentityApi<AppUser>();
+var account = app.NewVersionedApi("Account")
+    .MapGroup("/api/v{version:apiVersion}/account")
+    .WithTags("Click2Approve.WebApi.Account")
+    .HasApiVersion(1.0);
+account.MapIdentityApi<AppUser>();
 
 app.Run();

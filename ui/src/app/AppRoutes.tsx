@@ -21,11 +21,12 @@ import NotificationsPage from "@/features/notifications/pages/NotificationsPage"
 import PublicReceiptPage from "@/features/receipts/pages/PublicReceiptPage";
 import ReceiptPage from "@/features/receipts/pages/ReceiptPage";
 import ReceiptsPage from "@/features/receipts/pages/ReceiptsPage";
-import SubscriptionBillingPage from "@/features/subscriptions/pages/SubscriptionBillingPage";
-import SubscriptionPlanPage from "@/features/subscriptions/pages/SubscriptionPlanPage";
+import SubscriptionPlansPage from "@/features/subscriptions/pages/SubscriptionPlansPage";
 import SubscriptionUsagePage from "@/features/subscriptions/pages/SubscriptionUsagePage";
 import TeamEditorPage from "@/features/teams/pages/TeamEditorPage";
 import TeamsPage from "@/features/teams/pages/TeamsPage";
+import OrganizationCreationPage from "@/features/tenants/pages/OrganizationCreationPage";
+import OrganizationPlanSelectionPage from "@/features/tenants/pages/OrganizationPlanSelectionPage";
 import TenantEditorPage from "@/features/tenants/pages/TenantEditorPage";
 import TenantsPage from "@/features/tenants/pages/TenantsPage";
 import { getTenantCapabilities } from "@/features/tenants/utils/tenantCapabilities";
@@ -75,7 +76,9 @@ const ApplicationRoutes = () => {
             <Route path="/userProfile/notifications" element={<UserProfilePage tab="notifications" />} />
             <Route element={<RouteGuard isAllowed={stores.applicationConfigurationStore.tenantsAreEnabled} />}>
               <Route path="/tenants" element={<TenantsPage />} />
-              <Route path="/tenants/new" element={<TenantEditorPage />} />
+              <Route path="/tenants/new" element={<OrganizationCreationPage />}>
+                <Route path="plans" element={<OrganizationPlanSelectionPage />} />
+              </Route>
               <Route path="/tenants/:tenantGlobalId" element={<TenantEditorPage />} />
             </Route>
           </Route>
@@ -92,9 +95,8 @@ const ApplicationRoutes = () => {
               <Route path="receipts/:receiptGlobalId" element={<ReceiptPage />} />
               <Route path="receipts/:receiptGlobalId/share" element={<ReceiptPage tab="share" />} />
               <Route element={<RouteGuard isAllowed={stores.applicationConfigurationStore.subscriptionsAreEnabled} />}>
-                <Route path="plan" element={<SubscriptionPlanPage />} />
+                <Route path="plans" element={<SubscriptionPlansPage />} />
                 <Route path="usage" element={<SubscriptionUsagePage />} />
-                <Route path="billing" element={<SubscriptionBillingPage />} />
               </Route>
               <Route path="requests/new" element={<ApprovalRequestStartPage />} />
               <Route path="requests/new/compose" element={<ApprovalRequestSubmitPage />} />

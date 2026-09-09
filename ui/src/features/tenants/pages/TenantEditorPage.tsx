@@ -51,7 +51,7 @@ const TenantEditorPage = () => {
 
   const close = (currentTenantGlobalId?: string) => {
     if (createdTenant && currentTenantGlobalId) {
-      navigate(`/tenants/${currentTenantGlobalId}/billing`);
+      navigate(`/tenants/${currentTenantGlobalId}/plans`);
       return;
     }
 
@@ -59,12 +59,14 @@ const TenantEditorPage = () => {
       state: currentTenantGlobalId ? { currentTenantGlobalId } : undefined,
     });
   };
-  const submit = async (payload: CreateTenantRequest | UpdateTenantRequest, globalId?: string) => {
+  const submit = async (payload: CreateTenantRequest | UpdateTenantRequest, globalId?: string, logo?: File) => {
     const saved = globalId
       ? await stores.tenantStore.update(globalId, payload as UpdateTenantRequest)
-      : await stores.tenantStore.create(payload as CreateTenantRequest);
+      : logo
+        ? await stores.tenantStore.createWithLogo(payload as CreateTenantRequest, logo)
+        : await stores.tenantStore.create(payload as CreateTenantRequest);
     if (saved && !globalId) {
-      await stores.refreshTenantScope();
+      stores.clearTenantScope();
       setCreatedTenant(true);
     }
     if (saved) {

@@ -4,6 +4,7 @@ export enum NotificationType {
   ApprovalRequestStepCompleted = 2,
   ApprovalRequestCompleted = 3,
   DiscussionMessageCreated = 4,
+  BillingRecovery = 5,
 }
 
 export enum NotificationChannel {
@@ -15,12 +16,14 @@ export enum NotificationPreferenceType {
   Requests = 0,
   Tasks = 1,
   Chat = 2,
+  Billing = 3,
 }
 
 export const notificationPreferenceTypeLabels: Record<NotificationPreferenceType, string> = {
   [NotificationPreferenceType.Requests]: "Request notifications",
   [NotificationPreferenceType.Tasks]: "Task notifications",
   [NotificationPreferenceType.Chat]: "Chat notifications",
+  [NotificationPreferenceType.Billing]: "Billing recovery reminders",
 };
 
 export const notificationChannelLabels: Record<NotificationChannel, string> = {
@@ -38,4 +41,5 @@ export const notificationPreferenceTypeToNotificationTypes: Record<NotificationP
     NotificationType.ApprovalRequestTaskCompleted,
   ],
   [NotificationPreferenceType.Chat]: [NotificationType.DiscussionMessageCreated],
+  [NotificationPreferenceType.Billing]: [NotificationType.BillingRecovery],
 };

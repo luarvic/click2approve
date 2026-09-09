@@ -5,6 +5,7 @@ import { ApplicationConfigurationStore } from "@/features/applicationConfigurati
 import { EmployeeStore } from "@/features/employees/stores/employeeStore";
 import { UserAccountStore } from "@/features/identity/stores/userAccountStore";
 import { NotificationStore } from "@/features/notifications/stores/notificationStore";
+import { BillingAccessStore } from "@/features/subscriptions/stores/billingAccessStore";
 import { TeamStore } from "@/features/teams/stores/teamStore";
 import { TenantStore } from "@/features/tenants/stores/tenantStore";
 import { configureRequestContext } from "@/shared/api/requestContext";
@@ -16,18 +17,19 @@ const getTenantGlobalIdFromCurrentPath = (): string | undefined =>
   window.location.pathname.match(/(?:^|\/)tenants\/([^/]+)/)?.[1];
 
 export class RootStore {
-  commonStore: CommonStore;
-  userAccountStore: UserAccountStore;
-  approvalRequestStore: ApprovalRequestStore;
-  approvalRequestTaskStore: ApprovalRequestTaskStore;
-  userPreferencesStore: UserPreferencesStore;
-  userProfileStore: UserProfileStore;
-  applicationConfigurationStore: ApplicationConfigurationStore;
-  tenantStore: TenantStore;
-  employeeStore: EmployeeStore;
-  teamStore: TeamStore;
-  approvalStepTemplateStore: ApprovalStepTemplateStore;
-  notificationStore: NotificationStore;
+  readonly billingAccessStore: BillingAccessStore;
+  readonly commonStore: CommonStore;
+  readonly userAccountStore: UserAccountStore;
+  readonly approvalRequestStore: ApprovalRequestStore;
+  readonly approvalRequestTaskStore: ApprovalRequestTaskStore;
+  readonly userPreferencesStore: UserPreferencesStore;
+  readonly userProfileStore: UserProfileStore;
+  readonly applicationConfigurationStore: ApplicationConfigurationStore;
+  readonly tenantStore: TenantStore;
+  readonly employeeStore: EmployeeStore;
+  readonly teamStore: TeamStore;
+  readonly approvalStepTemplateStore: ApprovalStepTemplateStore;
+  readonly notificationStore: NotificationStore;
   private workEmployeeInvalidRecovery: Promise<void> | null = null;
 
   constructor(
@@ -43,7 +45,9 @@ export class RootStore {
     teamStore: TeamStore,
     approvalStepTemplateStore: ApprovalStepTemplateStore,
     notificationStore: NotificationStore,
+    billingAccessStore: BillingAccessStore,
   ) {
+    this.billingAccessStore = billingAccessStore;
     this.commonStore = commonStore;
     this.userAccountStore = userAccountStore;
     this.approvalRequestStore = approvalRequestStore;
@@ -71,6 +75,10 @@ export class RootStore {
       getWorkEmployeeGlobalId: () => this.tenantStore.currentWorkEmployeeGlobalId,
       onWorkEmployeeInvalid: this.recoverInvalidWorkEmployee,
       onUnauthorized: this.userAccountStore.signOut,
+      onTenantSuspended: (tenantGlobalId) => {
+        this.billingAccessStore.block(tenantGlobalId);
+        if (this.tenantStore.currentTenantGlobalId === tenantGlobalId) this.clearTenantScope();
+      },
     });
   }
 
@@ -121,6 +129,7 @@ export class RootStore {
   };
 
   clearSession = (): void => {
+    this.billingAccessStore.clear();
     this.clearTenantScope();
     this.tenantStore.clear();
     this.userProfileStore.clear();
@@ -141,4 +150,5 @@ export const stores = new RootStore(
   new TeamStore(),
   new ApprovalStepTemplateStore(),
   new NotificationStore(),
+  new BillingAccessStore(),
 );

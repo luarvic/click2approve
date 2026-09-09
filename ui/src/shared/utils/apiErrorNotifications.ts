@@ -82,7 +82,7 @@ const trimErrorMessage = (message: string): string => {
   return `${message.slice(0, Notifications.errorMessageMaxLength - 1).trimEnd()}…`;
 };
 
-export const getApiErrorNotification = (error: unknown): ErrorNotification => {
+export const getApiErrorNotification = (error: unknown): ErrorNotification | undefined => {
   try {
     if (!isAxiosError(error)) {
       const message = error instanceof Error ? error.message : Errors.unknownMessage;
@@ -123,6 +123,10 @@ export const getApiErrorNotification = (error: unknown): ErrorNotification => {
 
     if (typeof data === "object" && data !== null && !Array.isArray(data)) {
       const problemDetails = data as Record<string, unknown>;
+      if (status === 402 && problemDetails.code === "tenant_suspended") {
+        return undefined;
+      }
+
       const authenticationMessage =
         status === 401 || status === 403 ? getAuthenticationErrorMessage(problemDetails.detail) : undefined;
       const message =

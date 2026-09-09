@@ -15,6 +15,11 @@ const apiDelayMs = Number(import.meta.env.VITE_API_DELAY_MS ?? 0);
 const workEmployeeHeaderName = "X-Click2Approve-Work-Employee";
 const workEmployeeInvalidHeaderName = "X-Click2Approve-Work-Employee-Invalid";
 
+interface TenantSuspendedResponse {
+  code: string;
+  tenantGlobalId: string;
+}
+
 const anonymousUrls: string[] = [
   ApiPaths.account.forgotPassword,
   ApiPaths.account.login,
@@ -47,6 +52,17 @@ const delayRequest = async (): Promise<void> => {
   await new Promise((resolve) => window.setTimeout(resolve, apiDelayMs));
 };
 
+const handleTenantSuspension = (error: { response?: { data?: unknown; status?: number } }): boolean => {
+  const { response } = error;
+  const data = response?.data as Partial<TenantSuspendedResponse> | undefined;
+  if (response?.status !== 402 || data?.code !== "tenant_suspended" || typeof data.tenantGlobalId !== "string") {
+    return false;
+  }
+
+  getRequestContext().onTenantSuspended(data.tenantGlobalId);
+  return true;
+};
+
 axiosInstance.defaults.baseURL = Api.baseUri;
 axiosInstance.interceptors.request.use(async (config) => {
   await delayRequest();
@@ -66,6 +82,9 @@ axiosInstance.interceptors.response.use(
   async (response) => response,
   async (error) => {
     const context = getRequestContext();
+    if (handleTenantSuspension(error)) {
+      return Promise.reject(error);
+    }
     const originalRequest = error.config;
     const workEmployeeIsInvalid =
       error.response?.headers?.get?.(workEmployeeInvalidHeaderName) === "true" ||

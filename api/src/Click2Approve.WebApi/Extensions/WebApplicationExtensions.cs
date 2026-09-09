@@ -50,7 +50,11 @@ public static class WebApplicationExtensions
         if (!app.Environment.IsDevelopment()) return app;
 
         app.UseSwagger();
-        app.UseSwaggerUI();
+        app.UseSwaggerUI(options =>
+        {
+            foreach (var description in app.DescribeApiVersions())
+                options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName);
+        });
         return app;
     }
 }

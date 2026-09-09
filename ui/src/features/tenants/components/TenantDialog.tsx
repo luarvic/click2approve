@@ -1,22 +1,34 @@
 import { stores } from "@/app/rootStore";
-import { CreateTenantRequest, SubscriptionPlan, Tenant, UpdateTenantRequest } from "@/features/tenants/models/tenant";
+import { CreateTenantRequest, Tenant, UpdateTenantRequest } from "@/features/tenants/models/tenant";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import ImagePicker from "@/shared/components/images/ImagePicker";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Business } from "@mui/icons-material";
-import { Button, MenuItem, Stack, TextField } from "@mui/material";
+import { Button, Stack, TextField } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 
+export interface OrganizationDraft {
+  details: UpdateTenantRequest;
+  logo?: File;
+}
+
 interface TenantDialogProps {
+  draft?: OrganizationDraft;
+  onNext?: (draft: OrganizationDraft) => void;
   canEdit: boolean;
   canScheduleDeletion: boolean;
   tenant?: Tenant | null;
   onClose: (currentTenantGlobalId?: string) => void;
-  onSubmit: (payload: CreateTenantRequest | UpdateTenantRequest, tenantGlobalId?: string) => Promise<Tenant | null>;
+  onSubmit: (
+    payload: CreateTenantRequest | UpdateTenantRequest,
+    tenantGlobalId?: string,
+    logo?: File,
+  ) => Promise<Tenant | null>;
   onLogoUpload: (tenantGlobalId: string, logo: File) => Promise<boolean>;
   onLogoDelete: (tenantGlobalId: string) => Promise<boolean>;
   onScheduleDeletion: () => void;
@@ -24,6 +36,8 @@ interface TenantDialogProps {
 
 const TenantDialog: React.FC<TenantDialogProps> = ({
   tenant,
+  draft,
+  onNext,
   canEdit,
   canScheduleDeletion,
   onClose,
@@ -37,7 +51,6 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
-  const [subscriptionPlan, setSubscriptionPlan] = useState(SubscriptionPlan.BusinessTrial);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoWasRemoved, setLogoWasRemoved] = useState(false);
   const saveLoader = ActionLoaders.tenants.save(tenant?.globalId);
@@ -46,21 +59,33 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
   const saveIsLoading = saveAction.isRunning;
 
   const reset = useCallback(() => {
-    setBusinessName(tenant?.businessName ?? "");
-    setEmail(tenant?.email ?? "");
-    setPhone(tenant?.phone ?? "");
-    setAddress(tenant?.address ?? "");
-    setWebsiteUrl(tenant?.websiteUrl ?? "");
-    setSubscriptionPlan(tenant?.subscriptionPlan ?? SubscriptionPlan.BusinessTrial);
-    setLogoFile(null);
+    setBusinessName(tenant?.businessName ?? draft?.details.businessName ?? "");
+    setEmail(tenant?.email ?? draft?.details.email ?? "");
+    setPhone(tenant?.phone ?? draft?.details.phone ?? "");
+    setAddress(tenant?.address ?? draft?.details.address ?? "");
+    setWebsiteUrl(tenant?.websiteUrl ?? draft?.details.websiteUrl ?? "");
+    setLogoFile(draft?.logo ?? null);
     setLogoWasRemoved(false);
-  }, [tenant]);
+  }, [draft, tenant]);
 
   useEffect(() => {
     reset();
   }, [reset]);
 
   const handleSubmit = async () => {
+    if (isNew && onNext) {
+      onNext({
+        details: {
+          businessName: businessName.trim(),
+          email: email.trim() || undefined,
+          phone: phone.trim() || undefined,
+          address: address.trim() || undefined,
+          websiteUrl: websiteUrl.trim() || undefined,
+        },
+        logo: logoFile ?? undefined,
+      });
+      return;
+    }
     await saveAction.run(async () => {
       const savedTenant = await onSubmit(
         {
@@ -69,9 +94,9 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
           phone: phone.trim() || undefined,
           address: address.trim() || undefined,
           websiteUrl: websiteUrl.trim() || undefined,
-          ...(isNew ? { subscriptionPlan } : {}),
         },
         tenant?.globalId,
+        isNew ? (logoFile ?? undefined) : undefined,
       );
 
       if (!savedTenant) {
@@ -85,7 +110,7 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
         }
       }
 
-      if (logoFile) {
+      if (logoFile && !isNew) {
         const uploaded = await onLogoUpload(savedTenant.globalId, logoFile);
         if (!uploaded) {
           return;
@@ -115,7 +140,18 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
             state: tenant ? { currentTenantGlobalId: tenant.globalId } : undefined,
             to: "/tenants",
           },
-          { label: tenant?.businessName ?? "New organization" },
+          {
+            label: tenant?.businessName ?? "New organization",
+            titleAction: (
+              <HelpPopover
+                helpText={
+                  isNew
+                    ? "Enter your organization details, then choose a plan. Paid workspaces remain restricted until payment succeeds. Business Trial is available once per owner."
+                    : "Update your organization details and logo. Only the owner can delete the organization."
+                }
+              />
+            ),
+          },
         ]}
       />
       <Stack spacing={Forms.formStackSpacing}>
@@ -137,20 +173,6 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
           onChange={(event) => setBusinessName(event.target.value)}
           disabled={!isNew && !canEdit}
         />
-        {isNew && (
-          <TextField
-            select
-            label="Plan"
-            required
-            value={subscriptionPlan}
-            onChange={(event) => setSubscriptionPlan(Number(event.target.value) as SubscriptionPlan)}
-          >
-            <MenuItem value={SubscriptionPlan.BusinessTrial}>Business Trial</MenuItem>
-            <MenuItem value={SubscriptionPlan.BusinessStarter}>Business Starter</MenuItem>
-            <MenuItem value={SubscriptionPlan.BusinessStandard}>Business Standard</MenuItem>
-            <MenuItem value={SubscriptionPlan.BusinessUltimate}>Business Ultimate</MenuItem>
-          </TextField>
-        )}
         <TextField
           label="Email"
           value={email}
@@ -187,7 +209,7 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
         )}
         {(isNew || canEdit) && (
           <MainActionButton disabled={!businessName.trim()} loading={saveIsLoading} onClick={handleSubmit}>
-            Save
+            {isNew ? "Next" : "Save"}
           </MainActionButton>
         )}
       </Stack>

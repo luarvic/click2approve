@@ -39,7 +39,7 @@ import {
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useMatch, useNavigate } from "react-router-dom";
 
 const tasksTextBadgeSx: SxProps<Theme> = {
   display: "inline-flex",
@@ -52,6 +52,7 @@ const tasksTextBadgeSx: SxProps<Theme> = {
 
 const MainMenuDrawer = () => {
   const location = useLocation();
+  const isPlansPage = Boolean(useMatch("/tenants/:tenantGlobalId/plans"));
   const navigate = useNavigate();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
@@ -77,6 +78,7 @@ const MainMenuDrawer = () => {
   const workspaceGroupIsVisible = employeeManagerIsVisible || teamsManagerIsVisible || delegationsIsVisible;
   const currentTenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const tenantScopeIsReady = stores.tenantStore.hasLoaded && currentTenantGlobalId !== null;
+  const tenantIsBlocked = currentTenantGlobalId !== null && stores.billingAccessStore.isBlocked(currentTenantGlobalId);
   const tenantPath = (path: string) => (currentTenantGlobalId ? Routes.tenantPath(currentTenantGlobalId, path) : "/");
   const tasksPath = tenantPath(Routes.tasksPath);
   const requestsPath = tenantPath("/requests");
@@ -85,12 +87,13 @@ const MainMenuDrawer = () => {
   const teamsPath = tenantPath("/teams");
   const employeesPath = tenantPath("/employees");
   const delegationsPath = tenantPath("/delegations");
-  const subscriptionPlanPath = tenantPath("/plan");
+  const subscriptionPlanPath = tenantPath("/plans");
   const subscriptionUsagePath = tenantPath("/usage");
   const tasksAreSelected = location.pathname === "/" || location.pathname.startsWith(tasksPath);
   const requestsAreSelected = location.pathname.startsWith(requestsPath);
   const numberOfUncompletedTasks = stores.approvalRequestTaskStore.numberOfUncompletedTasks;
-  const organizationsIsSelected = /^\/tenants(?:\/[^/]+)?$/.test(location.pathname);
+  const organizationsIsSelected =
+    /^\/tenants(?:\/[^/]+)?$/.test(location.pathname) || location.pathname.startsWith("/tenants/new/");
 
   useEffect(() => {
     if (!currentUser) {
@@ -111,7 +114,7 @@ const MainMenuDrawer = () => {
   }, [currentUser, isDesktop]);
 
   useEffect(() => {
-    if (!currentUser || !tenantScopeIsReady) {
+    if (!currentUser || !tenantScopeIsReady || tenantIsBlocked || isPlansPage) {
       return;
     }
 
@@ -125,12 +128,12 @@ const MainMenuDrawer = () => {
 
     const intervalId = window.setInterval(() => {
       const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-      if (tenantGlobalId) {
+      if (tenantGlobalId && !stores.billingAccessStore.isBlocked(tenantGlobalId)) {
         stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
       }
     }, Refresh.uncompletedTasksMs);
     return () => window.clearInterval(intervalId);
-  }, [currentUser, tenantScopeIsReady]);
+  }, [currentUser, currentTenantGlobalId, tenantScopeIsReady, tenantIsBlocked, isPlansPage]);
 
   const closeTemporaryDrawer = () => {
     if (!isDesktop) {
@@ -171,7 +174,7 @@ const MainMenuDrawer = () => {
           <ListItemButton
             selected={tasksAreSelected}
             onClick={() => {
-              if (currentTenantGlobalId) {
+              if (currentTenantGlobalId && !tenantIsBlocked) {
                 stores.approvalRequestTaskStore.loadUncompletedCount(currentTenantGlobalId);
               }
               navigate(tasksPath);
@@ -324,7 +327,7 @@ const MainMenuDrawer = () => {
               <ListItemIcon sx={Lists.itemIconSx}>
                 <StyleTwoTone />
               </ListItemIcon>
-              <ListItemText primary="Plan" />
+              <ListItemText primary="Plans" />
             </ListItemButton>
           </ListItem>
           <ListItem key="subscriptionUsage" disablePadding>

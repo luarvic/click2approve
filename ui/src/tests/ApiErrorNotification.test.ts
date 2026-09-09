@@ -32,10 +32,28 @@ describe("getApiErrorNotification", () => {
     });
   });
 
+  test("suppresses notifications for restricted billing access", () => {
+    expect(
+      getApiErrorNotification({
+        isAxiosError: true,
+        message: "Request failed with status code 402",
+        response: { status: 402, data: { code: "tenant_suspended", tenantGlobalId: "tenant-test" } },
+      }),
+    ).toBeUndefined();
+  });
+
+  test("preserves messages for unrelated 402 errors", () => {
+    const result = getApiErrorNotification({
+      isAxiosError: true,
+      response: { status: 402, data: { title: "Payment authorization was declined." } },
+    });
+    expect(result?.message).toBe("Payment authorization was declined.");
+  });
+
   test("trims the error message displayed in the Snackbar", () => {
     const error = new Error("A".repeat(200));
 
-    expect(getApiErrorNotification(error).message).toHaveLength(160);
-    expect(getApiErrorNotification(error).message).toMatch(/…$/);
+    expect(getApiErrorNotification(error)?.message).toHaveLength(160);
+    expect(getApiErrorNotification(error)?.message).toMatch(/…$/);
   });
 });

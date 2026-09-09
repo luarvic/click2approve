@@ -19,7 +19,7 @@ namespace Click2Approve.WebApi.Controllers;
 /// <summary>
 /// API endpoints that register, authenticate with, and remove passkeys.
 /// </summary>
-[Tags("Click2Approve.WebApi.Passkeys")]
+[Tags("Click2Approve.WebApi.Passkey")]
 [ApiController]
 [ApiVersion(1.0)]
 [Route("api/v{version:apiVersion}/account/passkeys")]

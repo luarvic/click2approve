@@ -18,5 +18,8 @@ public enum NotificationType
     ApprovalRequestCompleted = 3,
 
     // Sent to chat participants.
-    DiscussionMessageCreated = 4
+    DiscussionMessageCreated = 4,
+
+    // Sent to tenant owners and administrators during payment recovery.
+    BillingRecovery = 5
 }

@@ -9,7 +9,9 @@ using Click2Approve.WebApi.Identity;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Click2Approve.WebApi.Extensions;
 
@@ -73,11 +75,6 @@ public static class ServiceCollectionExtensions
     {
         services.AddSwaggerGen(options =>
         {
-            options.SwaggerDoc("v1", new OpenApiInfo
-            {
-                Version = "v1",
-                Title = "Click2Approve API Specification",
-            });
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "ApiSpecification.XML"));
             options.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
             {
@@ -91,6 +88,7 @@ public static class ServiceCollectionExtensions
                 [new OpenApiSecuritySchemeReference("bearer", document)] = []
             });
         });
+        services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
         return services;
     }
 }

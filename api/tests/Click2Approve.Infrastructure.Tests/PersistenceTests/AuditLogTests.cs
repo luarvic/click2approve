@@ -35,6 +35,7 @@ public class AuditLogTests
         {
             BusinessName = "Personal",
             Type = TenantType.Personal,
+            SubscriptionPlan = SubscriptionPlan.PersonalFree,
             Owner = owner
         };
 
@@ -91,6 +92,7 @@ public class AuditLogTests
         {
             BusinessName = "Personal",
             Type = TenantType.Personal,
+            SubscriptionPlan = SubscriptionPlan.PersonalFree,
             Owner = owner
         };
         var userFile = new UserFile
@@ -163,6 +165,7 @@ public class AuditLogTests
         {
             BusinessName = "Personal",
             Type = TenantType.Personal,
+            SubscriptionPlan = SubscriptionPlan.PersonalFree,
             Owner = owner
         };
         var userFile = new UserFile

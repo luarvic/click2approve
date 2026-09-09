@@ -33,7 +33,11 @@ const show = (severity: NotificationSeverity, message: string, details: Notifica
 };
 
 export const notification = {
-  error: (error: ErrorNotification | string): void => {
+  error: (error: ErrorNotification | string | undefined): void => {
+    if (error === undefined) {
+      return;
+    }
+
     const errorNotification = typeof error === "string" ? { details: [], message: error } : error;
     show("error", errorNotification.message, errorNotification.details);
   },

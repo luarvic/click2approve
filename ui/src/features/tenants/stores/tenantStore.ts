@@ -102,7 +102,7 @@ export class TenantStore {
     });
   };
 
-  create = async (payload: CreateTenantRequest): Promise<Tenant | null> => {
+  create = async (payload: CreateTenantRequest, select: boolean = true): Promise<Tenant | null> => {
     const requestVersion = this.requestVersion;
     const tenant = await tenantApi.createTenant(payload);
     if (!tenant || requestVersion !== this.requestVersion) {
@@ -111,16 +111,20 @@ export class TenantStore {
 
     runInAction(() => {
       this.tenants = [...this.tenants, tenant];
-      this.currentTenantGlobalId = tenant.globalId;
-      this.currentWorkEmployeeGlobalId = tenant.currentEmployeeGlobalId ?? null;
+      if (select) {
+        this.currentTenantGlobalId = tenant.globalId;
+        this.currentWorkEmployeeGlobalId = tenant.currentEmployeeGlobalId ?? null;
+      }
       this.hasLoaded = true;
     });
-    writeCurrentTenantGlobalId(tenant.globalId);
-    writeCurrentWorkEmployeeGlobalId(this.currentWorkEmployeeGlobalId);
+    if (select) {
+      writeCurrentTenantGlobalId(tenant.globalId);
+      writeCurrentWorkEmployeeGlobalId(this.currentWorkEmployeeGlobalId);
+    }
     return tenant;
   };
 
-  createWithLogo = async (payload: CreateTenantRequest, logo: File): Promise<Tenant | null> => {
+  createWithLogo = async (payload: CreateTenantRequest, logo: File, select: boolean = true): Promise<Tenant | null> => {
     const requestVersion = this.requestVersion;
     const tenant = await tenantApi.createTenantWithLogo(payload, logo);
     if (!tenant || requestVersion !== this.requestVersion) {
@@ -129,12 +133,16 @@ export class TenantStore {
 
     runInAction(() => {
       this.tenants = [...this.tenants, tenant];
-      this.currentTenantGlobalId = tenant.globalId;
-      this.currentWorkEmployeeGlobalId = tenant.currentEmployeeGlobalId ?? null;
+      if (select) {
+        this.currentTenantGlobalId = tenant.globalId;
+        this.currentWorkEmployeeGlobalId = tenant.currentEmployeeGlobalId ?? null;
+      }
       this.hasLoaded = true;
     });
-    writeCurrentTenantGlobalId(tenant.globalId);
-    writeCurrentWorkEmployeeGlobalId(this.currentWorkEmployeeGlobalId);
+    if (select) {
+      writeCurrentTenantGlobalId(tenant.globalId);
+      writeCurrentWorkEmployeeGlobalId(this.currentWorkEmployeeGlobalId);
+    }
     return tenant;
   };
 

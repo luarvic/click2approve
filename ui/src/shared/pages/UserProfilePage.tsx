@@ -58,6 +58,7 @@ const notificationPreferenceTypes = [
   NotificationPreferenceType.Requests,
   NotificationPreferenceType.Tasks,
   NotificationPreferenceType.Chat,
+  NotificationPreferenceType.Billing,
 ];
 
 interface UserProfilePageProps {
@@ -231,24 +232,37 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {notificationPreferenceTypes.map((type) => (
-                    <TableRow key={type}>
-                      <TableCell component="th" scope="row">
-                        {notificationPreferenceTypeLabels[type]}
-                      </TableCell>
-                      {notificationChannels.map((channel) => (
-                        <TableCell key={channel} align="center">
-                          <Switch
-                            checked={isNotificationCategoryEnabled(type, channel)}
-                            inputProps={{
-                              "aria-label": `${notificationPreferenceTypeLabels[type]} ${notificationChannelLabels[channel]}`,
-                            }}
-                            onChange={() => handleNotificationToggle(type, channel)}
-                          />
+                  {notificationPreferenceTypes
+                    .filter(
+                      (type) =>
+                        type !== NotificationPreferenceType.Billing ||
+                        stores.applicationConfigurationStore.subscriptionsAreEnabled,
+                    )
+                    .map((type) => (
+                      <TableRow key={type}>
+                        <TableCell component="th" scope="row">
+                          {notificationPreferenceTypeLabels[type]}
                         </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
+                        {notificationChannels.map((channel) => (
+                          <TableCell key={channel} align="center">
+                            <Switch
+                              disabled={
+                                type === NotificationPreferenceType.Billing && channel === NotificationChannel.InApp
+                              }
+                              checked={
+                                type === NotificationPreferenceType.Billing && channel === NotificationChannel.InApp
+                                  ? false
+                                  : isNotificationCategoryEnabled(type, channel)
+                              }
+                              inputProps={{
+                                "aria-label": `${notificationPreferenceTypeLabels[type]} ${notificationChannelLabels[channel]}`,
+                              }}
+                              onChange={() => handleNotificationToggle(type, channel)}
+                            />
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
                 </TableBody>
               </Table>
             </Stack>

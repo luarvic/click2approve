@@ -119,6 +119,32 @@ describe("store architecture", () => {
     );
   });
 
+  test.each([false, true])(
+    "creation can retain the previous workspace while Checkout starts (logo: %s)",
+    async (withLogo) => {
+      const tenant: Tenant = {
+        globalId: "new-org",
+        businessName: "New organization",
+        type: TenantType.Business,
+        currentEmployeeRole: EmployeeRole.Owner,
+      };
+      vi.mocked(tenantApi.createTenant).mockResolvedValue(tenant);
+      vi.mocked(tenantApi.createTenantWithLogo).mockResolvedValue(tenant);
+      const store = new TenantStore([], "previous", "previous-employee", true);
+      const selected: Array<string | null> = [];
+      const dispose = autorun(() => {
+        selected.push(store.currentTenantGlobalId);
+      });
+      if (withLogo)
+        await store.createWithLogo({ businessName: tenant.businessName }, new File(["logo"], "logo.png"), false);
+      else await store.create({ businessName: tenant.businessName }, false);
+      dispose();
+      expect(selected).toEqual(["previous"]);
+      expect(store.currentWorkEmployeeGlobalId).toBe("previous-employee");
+      expect(store.tenants).toContainEqual(tenant);
+    },
+  );
+
   test("creating a tenant selects its employee work context", async () => {
     const tenant: Tenant = {
       globalId: "11111111-1111-4111-8111-111111111111",

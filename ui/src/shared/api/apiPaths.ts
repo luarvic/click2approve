@@ -74,6 +74,7 @@ export const ApiPaths = {
     root: "api/v1/tenants",
     scheduleDeletion: (tenantGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/scheduleDeletion`,
     subscriptionPlan: (tenantGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/subscription/plan`,
+    subscriptionBilling: (tenantGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/subscription/billing`,
     subscriptionUsage: (tenantGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/subscription/usage`,
     task: (tenantGlobalId: string, taskGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/tasks/${taskGlobalId}`,
     taskAttachment: (tenantGlobalId: string, taskGlobalId: string, attachmentGlobalId: string) =>
