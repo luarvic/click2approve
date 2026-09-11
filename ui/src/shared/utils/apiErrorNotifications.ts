@@ -123,10 +123,6 @@ export const getApiErrorNotification = (error: unknown): ErrorNotification | und
 
     if (typeof data === "object" && data !== null && !Array.isArray(data)) {
       const problemDetails = data as Record<string, unknown>;
-      if (status === 402 && problemDetails.code === "tenant_suspended") {
-        return undefined;
-      }
-
       const authenticationMessage =
         status === 401 || status === 403 ? getAuthenticationErrorMessage(problemDetails.detail) : undefined;
       const message =

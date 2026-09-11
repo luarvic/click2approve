@@ -3,11 +3,13 @@ import type { BillingStatus, SubscriptionPlanConfiguration } from "@/features/su
 import {
   cancelScheduledPlanChange,
   changeSubscriptionPlan,
+  getBillingStatus,
   getSubscriptionPlans,
   recoverPayment,
   refreshBilling,
 } from "@/features/subscriptions/api/subscriptionsApi";
 import PlanPriceCard from "@/features/subscriptions/components/PlanPriceCard";
+import { PaymentIssue } from "@/features/subscriptions/models/paymentIssue";
 import { SubscriptionPlan, TenantType } from "@/features/tenants/models/tenant";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
@@ -26,9 +28,16 @@ import type { SxProps, Theme } from "@mui/material";
 import { Alert, Chip, Divider, Grid, Link, Stack, Tooltip, Typography } from "@mui/material";
 import type { SystemStyleObject } from "@mui/system";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
-import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link as RouterLink, useParams } from "react-router-dom";
 
+const paymentIssueMessages: Record<PaymentIssue, string> = {
+  [PaymentIssue.PaymentMethodRequired]: "Add a payment method to complete this payment.",
+  [PaymentIssue.Declined]: "Your payment was declined. Update your payment method.",
+  [PaymentIssue.AuthenticationRequired]: "Confirm your payment to complete it.",
+  [PaymentIssue.Processing]: "Your payment is processing.",
+  [PaymentIssue.PaymentRequired]: "Complete payment to activate your selected plan.",
+};
 const personalPlans = [SubscriptionPlan.PersonalFree, SubscriptionPlan.PersonalPro];
 const businessPlans = [
   SubscriptionPlan.BusinessTrial,
@@ -64,7 +73,6 @@ const calloutActionLinkSx: SxProps<Theme> = [
 ];
 
 const SubscriptionPlansPage = () => {
-  const navigate = useNavigate();
   const { tenantGlobalId } = useParams<{ tenantGlobalId: string }>();
   const currentTenant = stores.tenantStore.currentTenant;
   const personalTenant = stores.tenantStore.tenants.find((tenant) => tenant.type === TenantType.Personal);
@@ -80,6 +88,10 @@ const SubscriptionPlansPage = () => {
   const [changingPlan, setChangingPlan] = useState<SubscriptionPlan>();
   const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlanConfiguration[]>([]);
   const [subscriptionPlansHaveLoaded, setSubscriptionPlansHaveLoaded] = useState(false);
+  const initialLoad = useRef<{
+    tenantGlobalId: string;
+    promise: Promise<[SubscriptionPlanConfiguration[], BillingStatus]>;
+  }>();
   const subtitle =
     currentTenant?.type === TenantType.Personal
       ? "Plans for your personal workspace"
@@ -93,10 +105,20 @@ const SubscriptionPlansPage = () => {
     setBilling(undefined);
     setFailed(false);
     stores.commonStore.updateActionLoadingCounter(subscriptionPlansLoader, 1);
-    void Promise.all([getSubscriptionPlans(), refreshBilling(tenantGlobalId)])
-      .then(async ([loadedSubscriptionPlans, loadedBilling]) => {
-        if (!active) return;
-        await stores.tenantStore.load(undefined, tenantGlobalId);
+    // Share the initial request across React effect replays.
+    if (initialLoad.current?.tenantGlobalId !== tenantGlobalId) {
+      initialLoad.current = {
+        tenantGlobalId,
+        promise: Promise.all([getSubscriptionPlans(), refreshBilling(tenantGlobalId)]).then(async (result) => {
+          if (stores.tenantStore.currentTenant?.globalId === tenantGlobalId) {
+            await stores.tenantStore.load(undefined, tenantGlobalId);
+          }
+          return result;
+        }),
+      };
+    }
+    void initialLoad.current.promise
+      .then(([loadedSubscriptionPlans, loadedBilling]) => {
         if (active) {
           setSubscriptionPlans(loadedSubscriptionPlans);
           setBilling(loadedBilling);
@@ -139,26 +161,32 @@ const SubscriptionPlansPage = () => {
       return;
     }
 
-    const planChanged = await changePlanAction.run(async () => {
-      setChangingPlan(plan);
-      try {
-        const result = await changeSubscriptionPlan(tenantGlobalId, plan);
-        setBilling(result);
-        if (result.checkoutUrl) {
-          window.location.assign(result.checkoutUrl);
-          return false;
+    try {
+      const planChanged = await changePlanAction.run(async () => {
+        setChangingPlan(plan);
+        try {
+          const result = await changeSubscriptionPlan(tenantGlobalId, plan);
+          setBilling(result);
+          if (result.checkoutUrl) {
+            window.location.assign(result.checkoutUrl);
+            return false;
+          }
+          if (result.pendingPlan !== null || result.scheduledPlan !== null) {
+            return false;
+          }
+          await stores.tenantStore.load(undefined, tenantGlobalId);
+          return true;
+        } finally {
+          setChangingPlan(undefined);
         }
-        if (result.pendingPlan !== null || result.scheduledPlan !== null) {
-          return false;
-        }
-        await stores.tenantStore.load(undefined, tenantGlobalId);
-        return true;
-      } finally {
-        setChangingPlan(undefined);
+      });
+      if (planChanged) {
+        showPersistenceSuccessNotification(PersistenceSuccessMessages.subscriptionPlanChanged);
       }
-    });
-    if (planChanged) {
-      showPersistenceSuccessNotification(PersistenceSuccessMessages.subscriptionPlanChanged);
+    } catch (error) {
+      const refreshedBilling = await getBillingStatus(tenantGlobalId).catch(() => undefined);
+      if (refreshedBilling) setBilling(refreshedBilling);
+      throw error;
     }
   };
 
@@ -194,7 +222,9 @@ const SubscriptionPlansPage = () => {
     paymentAction.isRunning ||
     cancelAction.isRunning;
 
+  const hasPaymentIssue = !billing.cleanupStarted && billing.paymentIssue != null;
   const hasBillingNotice =
+    hasPaymentIssue ||
     billing.cleanupStarted ||
     billing.suspendedAt ||
     billing.paymentRequired ||
@@ -223,7 +253,7 @@ const SubscriptionPlansPage = () => {
             <Alert severity="warning">The recovery period has ended and workspace cleanup has started.</Alert>
           ) : billing.suspendedAt ? (
             <Alert severity="error">Workspace access is suspended because the subscription payment failed.</Alert>
-          ) : billing.paymentRequired ? (
+          ) : billing.paymentRequired && !hasPaymentIssue ? (
             <Alert severity="info">Complete payment to activate your selected plan.</Alert>
           ) : null}
           {billing.recoveryDeadline && (
@@ -236,8 +266,12 @@ const SubscriptionPlansPage = () => {
           )}
           {billing.pendingPlan !== null && !billing.paymentRequired && (
             <Alert severity="info">
-              Your change to {planNames[billing.pendingPlan]} is awaiting payment confirmation. Your existing plan
-              remains active.
+              Your change to {planNames[billing.pendingPlan]} is pending. Your existing plan remains active.
+            </Alert>
+          )}
+          {hasPaymentIssue && (
+            <Alert severity={billing.paymentIssue === PaymentIssue.Processing ? "info" : "warning"}>
+              {paymentIssueMessages[billing.paymentIssue!] ?? paymentIssueMessages[PaymentIssue.PaymentRequired]}
             </Alert>
           )}
           {!canManage && <Typography>Only an Owner or Admin can change plans or manage billing.</Typography>}
@@ -249,7 +283,7 @@ const SubscriptionPlansPage = () => {
             <PlanPriceCard
               actions={
                 <>
-                  {!isCurrentPlan && billing.scheduledPlan !== plan && (
+                  {!isCurrentPlan && billing.pendingPlan !== plan && billing.scheduledPlan !== plan && (
                     <LoadingButton
                       variant="text"
                       aria-label={`Choose ${planNames[plan]}`}
@@ -298,7 +332,6 @@ const SubscriptionPlansPage = () => {
               }
               highlighted={isCurrentPlan}
               limits={limits}
-              stackActions
               status={
                 billing.scheduledPlan === plan ? (
                   <Chip color="info" label="Planned" size="small" />

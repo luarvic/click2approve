@@ -11,7 +11,7 @@ namespace Click2Approve.WebApi.Middlewares;
 /// Handles unhandled exceptions globally and returns consistent error responses.
 /// </summary>
 /// <param name="logger">The logger instance.</param>
-public sealed class GlobalExceptionHandler(
+public class GlobalExceptionHandler(
     ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {
     private readonly ILogger<GlobalExceptionHandler> _logger = logger;
@@ -21,14 +21,7 @@ public sealed class GlobalExceptionHandler(
         Exception exception,
         CancellationToken cancellationToken)
     {
-        var isValidationException = exception is ValidationException;
-        var isCustomException = exception is BaseException;
-        var logLevel = exception switch
-        {
-            UnauthorizedAccessException => LogLevel.Warning,
-            _ when isCustomException || isValidationException => LogLevel.Warning,
-            _ => LogLevel.Error
-        };
+        var (problemDetails, logLevel) = CreateProblemDetails(exception, httpContext.TraceIdentifier);
 
         if (_logger.IsEnabled(logLevel))
             _logger.Log(logLevel, exception, "Request {RequestId} {Method} {Path} failed with message: {Message}",
@@ -37,6 +30,22 @@ public sealed class GlobalExceptionHandler(
         if (httpContext.Response.HasStarted)
             return false;
 
+        httpContext.Response.StatusCode = problemDetails.Status ?? StatusCodes.Status500InternalServerError;
+        await httpContext.Response.WriteAsJsonAsync(
+            problemDetails,
+            problemDetails.GetType(),
+            options: null,
+            contentType: MediaTypeNames.Application.ProblemJson,
+            cancellationToken: cancellationToken);
+
+        return true;
+    }
+
+    /// <summary>Maps an exception to its client response and log level.</summary>
+    protected virtual (ProblemDetails ProblemDetails, LogLevel LogLevel) CreateProblemDetails(Exception exception, string traceId)
+    {
+        var isValidationException = exception is ValidationException;
+        var isCustomException = exception is BaseException;
         var statusCode = exception switch
         {
             UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
@@ -44,26 +53,19 @@ public sealed class GlobalExceptionHandler(
             _ when isCustomException || isValidationException => StatusCodes.Status400BadRequest,
             _ => StatusCodes.Status500InternalServerError
         };
+        var logLevel = isCustomException || isValidationException || exception is UnauthorizedAccessException
+            ? LogLevel.Warning
+            : LogLevel.Error;
+        if (exception is not ValidationException validationException)
+        {
+            return (
+                new ErrorResponse(
+                    title: isCustomException ? exception.Message : "An unexpected error occurred. Please try again later.",
+                    status: statusCode,
+                    traceId: traceId),
+                logLevel);
+        }
 
-        ProblemDetails problemDetails = exception is ValidationException validationException
-            ? CreateValidationProblemDetails(validationException, statusCode, httpContext.TraceIdentifier)
-            : new ErrorResponse(
-                title: isCustomException ? exception.Message : "An unexpected error occurred. Please try again later.",
-                status: statusCode,
-                traceId: httpContext.TraceIdentifier);
-
-        httpContext.Response.StatusCode = statusCode;
-        httpContext.Response.ContentType = MediaTypeNames.Application.ProblemJson;
-        await httpContext.Response.WriteAsJsonAsync(problemDetails, problemDetails.GetType(), cancellationToken);
-
-        return true;
-    }
-
-    private static ValidationProblemDetails CreateValidationProblemDetails(
-        ValidationException validationException,
-        int statusCode,
-        string traceId)
-    {
         var problemDetails = new ValidationProblemDetails(validationException.Errors
                 .GroupBy(error => error.PropertyName)
                 .ToDictionary(group => group.Key, group => group.Select(error => error.ErrorMessage).ToArray()))
@@ -72,6 +74,6 @@ public sealed class GlobalExceptionHandler(
             Status = statusCode
         };
         problemDetails.Extensions["traceId"] = traceId;
-        return problemDetails;
+        return (problemDetails, logLevel);
     }
 }

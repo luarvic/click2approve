@@ -7,7 +7,7 @@ import { Routes } from "@/shared/routing/routes";
 import {
   AddTwoTone,
   AssignmentTurnedInTwoTone,
-  BallotTwoTone,
+  AssignmentTwoTone,
   BusinessTwoTone,
   ChevronLeftTwoTone,
   ContentCopyTwoTone,
@@ -206,7 +206,7 @@ const MainMenuDrawer = () => {
             }}
           >
             <ListItemIcon sx={Lists.itemIconSx}>
-              <BallotTwoTone />
+              <AssignmentTwoTone />
             </ListItemIcon>
             <ListItemText primary="Requests" />
           </ListItemButton>

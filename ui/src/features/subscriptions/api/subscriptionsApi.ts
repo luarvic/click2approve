@@ -1,9 +1,13 @@
 import { stores } from "@/app/rootStore";
+import { PaymentIssue } from "@/features/subscriptions/models/paymentIssue";
 import { SubscriptionPlan } from "@/features/tenants/models/tenant";
 import { ApiPaths } from "@/shared/api/apiPaths";
 import axios from "@/shared/api/axios";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
+
+// Refresh may include a Stripe payment attempt and verification.
+const billingRefreshTimeoutMilliseconds = 60000;
 
 export interface SubscriptionUsage {
   plan: SubscriptionPlan;
@@ -48,6 +52,7 @@ export const getSubscriptionUsage = async (tenantGlobalId: string): Promise<Subs
 };
 
 export interface BillingStatus {
+  paymentIssue: PaymentIssue | null;
   canManage: boolean;
   hasSubscription: boolean;
   paymentRequired: boolean;
@@ -73,7 +78,11 @@ export const getBillingStatus = async (tenantGlobalId: string): Promise<BillingS
 
 export const refreshBilling = async (tenantGlobalId: string): Promise<BillingStatus> => {
   try {
-    const { data } = await axios.post<BillingStatus>(`${ApiPaths.tenants.subscriptionBilling(tenantGlobalId)}/refresh`);
+    const { data } = await axios.post<BillingStatus>(
+      `${ApiPaths.tenants.subscriptionBilling(tenantGlobalId)}/refresh`,
+      undefined,
+      { timeout: billingRefreshTimeoutMilliseconds },
+    );
     if (!data.paymentRequired && !data.cleanupStarted && !data.suspendedAt) {
       stores.billingAccessStore.unblock(tenantGlobalId);
     }

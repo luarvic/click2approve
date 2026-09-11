@@ -32,14 +32,29 @@ describe("getApiErrorNotification", () => {
     });
   });
 
-  test("suppresses notifications for restricted billing access", () => {
+  test("shows notifications for restricted billing access", () => {
     expect(
       getApiErrorNotification({
         isAxiosError: true,
         message: "Request failed with status code 402",
-        response: { status: 402, data: { code: "tenant_suspended", tenantGlobalId: "tenant-test" } },
+        response: {
+          status: 402,
+          data: {
+            code: "tenant_suspended",
+            tenantGlobalId: "tenant-test",
+            title: "This organization requires payment.",
+          },
+        },
       }),
-    ).toBeUndefined();
+    ).toEqual({
+      details: [
+        { label: "Status", value: "402" },
+        { label: "Message", value: "This organization requires payment." },
+        { label: "Code", value: "tenant_suspended" },
+        { label: "Tenant Global Id", value: "tenant-test" },
+      ],
+      message: "This organization requires payment.",
+    });
   });
 
   test("preserves messages for unrelated 402 errors", () => {
