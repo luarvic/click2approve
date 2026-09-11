@@ -110,9 +110,16 @@ public sealed class EmailTemplatesTests
     {
         var model = new EmailTemplateModel
         {
-            Subject = "<subject>", Heading = "<heading>", Body = "<script>alert(1)</script>",
-            RequestTitle = "<request>", StepName = "<step>", MessagePreview = "<preview>", Details = "<details>", Footer = "<footer>",
-            PrimaryActionText = "<action>", PrimaryActionUrl = "https://example.com/?code=a%2Bb&email=a%40b.com",
+            Subject = "<subject>",
+            Heading = "<heading>",
+            Body = "<script>alert(1)</script>",
+            RequestTitle = "<request>",
+            StepName = "<step>",
+            MessagePreview = "<preview>",
+            Details = "<details>",
+            Footer = "<footer>",
+            PrimaryActionText = "<action>",
+            PrimaryActionUrl = "https://example.com/?code=a%2Bb&email=a%40b.com",
             Actor = new EmailActor { DisplayName = "<actor>", OrganizationDisplayName = "<org>", AvatarUrl = "javascript:alert(1)" }
         };
         var html = EmailLayout.Render(model, "https://example.com/logo.png");
@@ -132,8 +139,10 @@ public sealed class EmailTemplatesTests
     {
         var actor = new EmailActor
         {
-            DisplayName = "John", AvatarUrl = "https://example.com/avatar.png",
-            OrganizationDisplayName = "Acme", OrganizationLogoUrl = "https://example.com/org.png"
+            DisplayName = "John",
+            AvatarUrl = "https://example.com/avatar.png",
+            OrganizationDisplayName = "Acme",
+            OrganizationLogoUrl = "https://example.com/org.png"
         };
         var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestTaskCreated, Context() with { Actor = actor });
         var html = EmailLayout.Render(model, "https://example.com/logo.png");
@@ -199,7 +208,8 @@ public sealed class EmailTemplatesTests
 
     private static NotificationEmailContext Context() => new()
     {
-        RequestTitle = "Contract", ActionUrl = "https://example.com/app/requests",
+        RequestTitle = "Contract",
+        ActionUrl = "https://example.com/app/requests",
         Actor = new EmailActor { DisplayName = "John Smith", OrganizationDisplayName = "Acme Inc." }
     };
 }

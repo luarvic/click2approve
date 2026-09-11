@@ -8,14 +8,25 @@ import { runInAction } from "mobx";
 import { Link, MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const mocks = vi.hoisted(() => ({ refresh: vi.fn(), count: vi.fn(), switchTenant: vi.fn(), clear: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  refresh: vi.fn(),
+  count: vi.fn(),
+  switchTenant: vi.fn(),
+  clear: vi.fn(),
+}));
 vi.mock("@/app/rootStore", async () => {
   const { observable, action } = await import("mobx");
   const tenantStore = observable({
     hasLoaded: true,
     currentTenantGlobalId: "paid",
     tenants: [
-      { globalId: "paid", businessName: "Acme", type: 1, subscriptionPlan: 3, currentEmployeeGlobalId: "owner" },
+      {
+        globalId: "paid",
+        businessName: "Acme",
+        type: 1,
+        subscriptionPlan: 3,
+        currentEmployeeGlobalId: "owner",
+      },
     ],
     get currentTenant() {
       return this.tenants.find((tenant) => tenant.globalId === this.currentTenantGlobalId);
@@ -29,14 +40,20 @@ vi.mock("@/app/rootStore", async () => {
     stores: {
       tenantStore,
       userAccountStore: { currentUser: {} },
-      applicationConfigurationStore: { tenantsAreEnabled: true, subscriptionsAreEnabled: true },
+      applicationConfigurationStore: {
+        tenantsAreEnabled: true,
+        subscriptionsAreEnabled: true,
+      },
       billingAccessStore: { isBlocked: () => false },
       commonStore: {
         updateActionLoadingCounter: vi.fn(),
         setMainMenuDrawerIsOpen: vi.fn(),
         mainMenuDrawerIsOpen: false,
       },
-      approvalRequestTaskStore: { numberOfUncompletedTasks: 0, loadUncompletedCount: mocks.count },
+      approvalRequestTaskStore: {
+        numberOfUncompletedTasks: 0,
+        loadUncompletedCount: mocks.count,
+      },
       switchTenant: mocks.switchTenant,
       clearTenantScope: mocks.clear,
     },
@@ -58,12 +75,12 @@ beforeEach(() => vi.clearAllMocks());
 
 describe("return from Stripe", () => {
   it.each([
-    { currentTenantGlobalId: "paid", paymentRequired: false },
-    { currentTenantGlobalId: "previous", paymentRequired: false },
-    { currentTenantGlobalId: "paid", paymentRequired: true },
+    { currentTenantGlobalId: "paid", paymentResolutionRequired: false },
+    { currentTenantGlobalId: "previous", paymentResolutionRequired: false },
+    { currentTenantGlobalId: "paid", paymentResolutionRequired: true },
   ])(
-    "verifies the return and stays on Plans: $currentTenantGlobalId, unpaid=$paymentRequired",
-    async ({ currentTenantGlobalId, paymentRequired }) => {
+    "verifies the return and stays on Plans: $currentTenantGlobalId, unpaid=$paymentResolutionRequired",
+    async ({ currentTenantGlobalId, paymentResolutionRequired }) => {
       runInAction(() => {
         stores.tenantStore.currentTenantGlobalId = currentTenantGlobalId;
       });
@@ -94,7 +111,7 @@ describe("return from Stripe", () => {
         complete({
           canManage: true,
           hasSubscription: true,
-          paymentRequired,
+          paymentResolutionRequired,
           cleanupStarted: false,
           suspendedAt: null,
           recoveryDeadline: null,
@@ -104,7 +121,7 @@ describe("return from Stripe", () => {
           checkoutUrl: null,
         });
       });
-      if (paymentRequired) {
+      if (paymentResolutionRequired) {
         expect(await screen.findByText("Complete payment to activate your selected plan.")).toBeTruthy();
         expect(screen.queryByText("Organizations list")).toBeNull();
         return;

@@ -55,7 +55,7 @@ export interface BillingStatus {
   paymentIssue: PaymentIssue | null;
   canManage: boolean;
   hasSubscription: boolean;
-  paymentRequired: boolean;
+  paymentResolutionRequired: boolean;
   cleanupStarted: boolean;
   suspendedAt: string | null;
   suspensionReason: number | null;
@@ -83,7 +83,7 @@ export const refreshBilling = async (tenantGlobalId: string): Promise<BillingSta
       undefined,
       { timeout: billingRefreshTimeoutMilliseconds },
     );
-    if (!data.paymentRequired && !data.cleanupStarted && !data.suspendedAt) {
+    if (!data.paymentResolutionRequired && !data.cleanupStarted && !data.suspendedAt) {
       stores.billingAccessStore.unblock(tenantGlobalId);
     }
     return data;

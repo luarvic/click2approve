@@ -153,7 +153,7 @@ const SubscriptionPlansPage = () => {
     if (
       !tenantGlobalId ||
       !canManage ||
-      billing.paymentRequired ||
+      billing.paymentResolutionRequired ||
       billing.cleanupStarted ||
       billing.pendingPlan !== null ||
       billing.scheduledPlan !== null
@@ -191,7 +191,7 @@ const SubscriptionPlansPage = () => {
   };
 
   const cancelScheduledChange = async () => {
-    if (!tenantGlobalId || !canManage || billing.cleanupStarted || billing.paymentRequired) return;
+    if (!tenantGlobalId || !canManage || billing.cleanupStarted || billing.paymentResolutionRequired) return;
     await cancelAction.run(async () => {
       setBilling(await cancelScheduledPlanChange(tenantGlobalId));
       showPersistenceSuccessNotification(PersistenceSuccessMessages.scheduledPlanChangeCanceled);
@@ -207,14 +207,14 @@ const SubscriptionPlansPage = () => {
     ? "Cleanup started"
     : billing.suspendedAt
       ? "Suspended"
-      : billing.paymentRequired
+      : billing.paymentResolutionRequired
         ? "Pending"
         : "Active";
   const paymentColor =
-    billing.cleanupStarted || billing.suspendedAt ? "error" : billing.paymentRequired ? "warning" : "success";
+    billing.cleanupStarted || billing.suspendedAt ? "error" : billing.paymentResolutionRequired ? "warning" : "success";
   const changesDisabled =
     !canManage ||
-    billing.paymentRequired ||
+    billing.paymentResolutionRequired ||
     billing.cleanupStarted ||
     billing.pendingPlan !== null ||
     billing.scheduledPlan !== null ||
@@ -227,7 +227,7 @@ const SubscriptionPlansPage = () => {
     hasPaymentIssue ||
     billing.cleanupStarted ||
     billing.suspendedAt ||
-    billing.paymentRequired ||
+    billing.paymentResolutionRequired ||
     billing.recoveryDeadline ||
     billing.pendingPlan !== null ||
     !canManage;
@@ -253,7 +253,7 @@ const SubscriptionPlansPage = () => {
             <Alert severity="warning">The recovery period has ended and workspace cleanup has started.</Alert>
           ) : billing.suspendedAt ? (
             <Alert severity="error">Workspace access is suspended because the subscription payment failed.</Alert>
-          ) : billing.paymentRequired && !hasPaymentIssue ? (
+          ) : billing.paymentResolutionRequired && !hasPaymentIssue ? (
             <Alert severity="info">Complete payment to activate your selected plan.</Alert>
           ) : null}
           {billing.recoveryDeadline && (
@@ -264,7 +264,7 @@ const SubscriptionPlansPage = () => {
                 : "After this deadline, the organization and its data will be permanently deleted."}
             </Alert>
           )}
-          {billing.pendingPlan !== null && !billing.paymentRequired && (
+          {billing.pendingPlan !== null && !billing.paymentResolutionRequired && (
             <Alert severity="info">
               Your change to {planNames[billing.pendingPlan]} is pending. Your existing plan remains active.
             </Alert>
@@ -298,7 +298,7 @@ const SubscriptionPlansPage = () => {
                       Choose
                     </LoadingButton>
                   )}
-                  {billing.scheduledPlan === plan && !billing.cleanupStarted && !billing.paymentRequired && (
+                  {billing.scheduledPlan === plan && !billing.cleanupStarted && !billing.paymentResolutionRequired && (
                     <LoadingButton
                       variant="text"
                       loading={cancelAction.isRunning}
@@ -325,7 +325,9 @@ const SubscriptionPlansPage = () => {
                           })
                         }
                       >
-                        {billing.paymentRequired || billing.pendingPlan !== null ? "Resolve payment" : "Manage billing"}
+                        {billing.paymentResolutionRequired || billing.pendingPlan !== null
+                          ? "Resolve payment"
+                          : "Manage billing"}
                       </LoadingButton>
                     )}
                 </>

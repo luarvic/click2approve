@@ -54,7 +54,8 @@ public sealed class AccountEmailServiceTests
 
     private static IConfiguration Configuration() => new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
     {
-        ["UI:BaseUrl"] = "https://ui.example.com", ["UI:AppPath"] = "/app"
+        ["UI:BaseUrl"] = "https://ui.example.com",
+        ["UI:AppPath"] = "/app"
     }).Build();
 
     private sealed class RecordingEmailService : IEmailService
