@@ -100,6 +100,7 @@ export const Shell = {
   } as SxProps<Theme>,
   appBarBrandTitleSx: (hideBelowWidth: number): SxProps<Theme> => ({
     display: "block",
+    ml: -0.5,
     [`@media (max-width: ${hideBelowWidth}px)`]: {
       display: "none",
     },
