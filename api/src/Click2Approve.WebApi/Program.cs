@@ -48,6 +48,7 @@ builder.Services.AddApiVersioning(options =>
         options.SubstituteApiVersionInUrl = true;
     });
 builder.Services.AddCors();
+builder.Services.AddIdentityRateLimiting(builder.Configuration);
 builder.Services.AddDbContext<ApiDbContext>(options =>
 {
     var connectionString = builder.Configuration.GetConnectionString("Default");
@@ -111,6 +112,6 @@ var account = app.NewVersionedApi("Account")
     .MapGroup("/api/v{version:apiVersion}/account")
     .WithTags("Click2Approve.WebApi.Account")
     .HasApiVersion(1.0);
-account.MapIdentityApi<AppUser>();
+account.MapIdentityApi<AppUser>().RequireIdentityRateLimiting();
 
 app.Run();

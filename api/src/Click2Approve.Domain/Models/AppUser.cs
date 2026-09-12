@@ -15,6 +15,8 @@ public class AppUser : IdentityUser<long>
     public long? DefaultTenantId { get; set; }
 
     // Scalar properties
+    public int AccountEmailRateLimitRequestCount { get; set; }
+    public DateTime? AccountEmailRateLimitWindowStartedAt { get; set; }
     public string? DefaultSignatureJson { get; set; }
     public string? FirstName { get; set; }
     public bool HasLoggedIn { get; set; }

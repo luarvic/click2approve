@@ -1,5 +1,6 @@
 using Click2Approve.Application.Abstractions.FileStorage;
 using Click2Approve.Application.Abstractions.Identity;
+using Click2Approve.Application.Models.Results.Identity;
 using Click2Approve.Domain.Models;
 using Click2Approve.Infrastructure.Email;
 using Click2Approve.Infrastructure.FileStorage;
@@ -8,6 +9,7 @@ using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.WebApi.Identity;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
@@ -20,6 +22,24 @@ namespace Click2Approve.WebApi.Extensions;
 /// </summary>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Adds email-address rate limiting for anonymous identity email endpoints.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>The service collection.</returns>
+    public static IServiceCollection AddIdentityRateLimiting(this IServiceCollection services, IConfiguration configuration)
+    {
+        var permitLimit = configuration.GetValue("RateLimiting:Identity:EmailPermitLimit", 3);
+        var windowInMinutes = configuration.GetValue("RateLimiting:Identity:WindowInMinutes", 15);
+
+        services.AddScoped<IIdentityEmailRateLimitService>(serviceProvider => new IdentityEmailRateLimitService(
+            serviceProvider.GetRequiredService<ApiDbContext>(),
+            permitLimit,
+            TimeSpan.FromMinutes(windowInMinutes)));
+        return services;
+    }
+
     /// <summary>
     /// Adds and configures AuthN/Z services to the service collection.
     /// </summary>
@@ -90,5 +110,59 @@ public static class ServiceCollectionExtensions
         });
         services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
         return services;
+    }
+
+    /// <summary>
+    /// Applies email-address rate limits to anonymous identity endpoints that send account emails.
+    /// </summary>
+    /// <param name="builder">The identity API endpoint builder.</param>
+    /// <returns>The identity API endpoint builder.</returns>
+    public static IEndpointConventionBuilder RequireIdentityRateLimiting(this IEndpointConventionBuilder builder)
+    {
+        builder.Add(endpointBuilder =>
+        {
+            if (endpointBuilder is not RouteEndpointBuilder routeEndpointBuilder)
+            {
+                return;
+            }
+
+            if (IsEmailRateLimitedRoute(routeEndpointBuilder.RoutePattern.RawText))
+            {
+                routeEndpointBuilder.FilterFactories.Add((_, next) => async invocationContext =>
+                {
+                    var email = GetEmail(invocationContext.Arguments);
+                    if (email is null)
+                    {
+                        return await next(invocationContext);
+                    }
+
+                    var services = invocationContext.HttpContext.RequestServices;
+                    var normalizer = services.GetRequiredService<ILookupNormalizer>();
+                    var rateLimiter = services.GetRequiredService<IIdentityEmailRateLimitService>();
+                    var result = await rateLimiter.TryAcquireAsync(
+                        normalizer.NormalizeEmail(email),
+                        invocationContext.HttpContext.RequestAborted);
+                    if (result == IdentityEmailRateLimitResult.RateLimited)
+                    {
+                        return Results.StatusCode(StatusCodes.Status429TooManyRequests);
+                    }
+
+                    return await next(invocationContext);
+                });
+            }
+        });
+        return builder;
+    }
+
+    private static string? GetEmail(IList<object?> arguments)
+    {
+        return arguments.OfType<ForgotPasswordRequest>().FirstOrDefault()?.Email
+            ?? arguments.OfType<ResendConfirmationEmailRequest>().FirstOrDefault()?.Email;
+    }
+
+    private static bool IsEmailRateLimitedRoute(string? route)
+    {
+        return route?.EndsWith("/forgotPassword", StringComparison.Ordinal) == true
+            || route?.EndsWith("/resendConfirmationEmail", StringComparison.Ordinal) == true;
     }
 }
