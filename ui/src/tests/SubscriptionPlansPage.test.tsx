@@ -219,6 +219,24 @@ describe("plans and billing", () => {
       expect(screen.getByRole("button", { name: "Manage billing" }).hasAttribute("disabled")).toBe(false),
     );
   });
+  it("keeps the billing action loading while the portal redirect opens", async () => {
+    mocks.refresh.mockResolvedValue({ ...active, hasSubscription: true });
+    mocks.recover.mockResolvedValue("https://billing.stripe.com/test");
+    const assign = vi.spyOn(window.location, "assign").mockImplementation(() => undefined);
+    showPage();
+
+    fireEvent.click(await screen.findByRole("button", { name: "Manage billing" }));
+
+    await waitFor(() => expect(assign).toHaveBeenCalledWith("https://billing.stripe.com/test"));
+    expect(screen.getByRole("button", { name: "Manage billing" }).hasAttribute("disabled")).toBe(true);
+
+    const pageShowEvent = new Event("pageshow");
+    Object.defineProperty(pageShowEvent, "persisted", { value: true });
+    fireEvent(window, pageShowEvent);
+
+    await waitFor(() => expect(mocks.refresh).toHaveBeenCalledTimes(2));
+    expect(screen.getByRole("button", { name: "Manage billing" }).hasAttribute("disabled")).toBe(false);
+  });
   it("cancels the scheduled downgrade and keeps the current plan", async () => {
     mocks.tenant.subscriptionPlan = SubscriptionPlan.PersonalPro;
     mocks.refresh.mockResolvedValue({

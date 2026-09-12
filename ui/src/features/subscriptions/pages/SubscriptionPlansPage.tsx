@@ -86,6 +86,8 @@ const SubscriptionPlansPage = () => {
   const subscriptionPlansLoader = ActionLoaders.subscriptionPlan.load();
   const changePlanAction = useAsyncAction(changePlanLoader);
   const [changingPlan, setChangingPlan] = useState<SubscriptionPlan>();
+  const [billingPortalIsOpening, setBillingPortalIsOpening] = useState(false);
+  const [plansRefreshVersion, setPlansRefreshVersion] = useState(0);
   const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlanConfiguration[]>([]);
   const [subscriptionPlansHaveLoaded, setSubscriptionPlansHaveLoaded] = useState(false);
   const initialLoad = useRef<{
@@ -97,6 +99,18 @@ const SubscriptionPlansPage = () => {
       ? "Plans for your personal workspace"
       : `Plans for ${currentTenant?.businessName}`;
   usePageTitle("Plans");
+
+  useEffect(() => {
+    const refreshAfterBrowserBack = (event: PageTransitionEvent) => {
+      if (!event.persisted) return;
+
+      initialLoad.current = undefined;
+      setBillingPortalIsOpening(false);
+      setPlansRefreshVersion((version) => version + 1);
+    };
+    window.addEventListener("pageshow", refreshAfterBrowserBack);
+    return () => window.removeEventListener("pageshow", refreshAfterBrowserBack);
+  }, []);
 
   useEffect(() => {
     if (!tenantGlobalId) return;
@@ -136,7 +150,7 @@ const SubscriptionPlansPage = () => {
     return () => {
       active = false;
     };
-  }, [subscriptionPlansLoader, tenantGlobalId]);
+  }, [plansRefreshVersion, subscriptionPlansLoader, tenantGlobalId]);
 
   if (failed) return <Alert severity="error">Unable to load plans and payment status. Refresh to try again.</Alert>;
   if (!stores.tenantStore.hasLoaded || !subscriptionPlansHaveLoaded || !billing) {
@@ -200,7 +214,16 @@ const SubscriptionPlansPage = () => {
   const pay = async () => {
     if (!canManage || billing.cleanupStarted) return;
     await paymentAction.run(async () => {
-      if (tenantGlobalId) window.location.assign(await recoverPayment(tenantGlobalId));
+      if (!tenantGlobalId) return;
+
+      const billingPortalUrl = await recoverPayment(tenantGlobalId);
+      setBillingPortalIsOpening(true);
+      try {
+        window.location.assign(billingPortalUrl);
+      } catch (error) {
+        setBillingPortalIsOpening(false);
+        throw error;
+      }
     });
   };
   const paymentLabel = billing.cleanupStarted
@@ -219,6 +242,7 @@ const SubscriptionPlansPage = () => {
     billing.pendingPlan !== null ||
     billing.scheduledPlan !== null ||
     changePlanAction.isRunning ||
+    billingPortalIsOpening ||
     paymentAction.isRunning ||
     cancelAction.isRunning;
 
@@ -317,8 +341,10 @@ const SubscriptionPlansPage = () => {
                     (billing.hasSubscription || billing.pendingPlan !== null) && (
                       <LoadingButton
                         variant="text"
-                        loading={paymentAction.isRunning}
-                        disabled={!canManage || changePlanAction.isRunning || cancelAction.isRunning}
+                        loading={paymentAction.isRunning || billingPortalIsOpening}
+                        disabled={
+                          !canManage || billingPortalIsOpening || changePlanAction.isRunning || cancelAction.isRunning
+                        }
                         onClick={() =>
                           void pay().catch(() => {
                             /* API failures are shown by the subscription API. */
