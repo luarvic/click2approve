@@ -29,6 +29,7 @@ describe("getApiErrorNotification", () => {
         { label: "Type", value: "https://httpstatuses.com/400" },
       ],
       message: "One or more validation errors occurred.",
+      severity: "warning",
     });
   });
 
@@ -54,6 +55,7 @@ describe("getApiErrorNotification", () => {
         { label: "Tenant Global Id", value: "tenant-test" },
       ],
       message: "This organization requires payment.",
+      severity: "warning",
     });
   });
 
@@ -63,6 +65,31 @@ describe("getApiErrorNotification", () => {
       response: { status: 402, data: { title: "Payment authorization was declined." } },
     });
     expect(result?.message).toBe("Payment authorization was declined.");
+    expect(result?.severity).toBe("warning");
+  });
+
+  test("keeps 5xx server failures as error notifications", () => {
+    const result = getApiErrorNotification({
+      isAxiosError: true,
+      response: { status: 503, data: { title: "The service is temporarily unavailable." } },
+    });
+
+    expect(result?.severity).toBe("error");
+  });
+
+  test("shows 4xx responses as warning notifications", () => {
+    const result = getApiErrorNotification({
+      isAxiosError: true,
+      response: { status: 429, data: { title: "Too many requests." } },
+    });
+
+    expect(result?.severity).toBe("warning");
+  });
+
+  test("keeps transport failures without an HTTP status as error notifications", () => {
+    const result = getApiErrorNotification({ isAxiosError: true, message: "Network Error" });
+
+    expect(result?.severity).toBe("error");
   });
 
   test("trims the error message displayed in the Snackbar", () => {

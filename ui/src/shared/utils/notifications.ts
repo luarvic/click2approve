@@ -8,6 +8,7 @@ export interface NotificationDetail {
 export interface ErrorNotification {
   details: NotificationDetail[];
   message: string;
+  severity?: Exclude<NotificationSeverity, "success">;
 }
 
 export interface Notification {
@@ -39,7 +40,7 @@ export const notification = {
     }
 
     const errorNotification = typeof error === "string" ? { details: [], message: error } : error;
-    show("error", errorNotification.message, errorNotification.details);
+    show(errorNotification.severity ?? "error", errorNotification.message, errorNotification.details);
   },
   success: (message: string): void => show("success", message),
   warning: (message: string): void => show("warning", message),

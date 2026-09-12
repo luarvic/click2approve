@@ -82,6 +82,9 @@ const trimErrorMessage = (message: string): string => {
   return `${message.slice(0, Notifications.errorMessageMaxLength - 1).trimEnd()}…`;
 };
 
+const getErrorSeverity = (status?: number): ErrorNotification["severity"] =>
+  status !== undefined && status >= 400 && status < 500 ? "warning" : "error";
+
 export const getApiErrorNotification = (error: unknown): ErrorNotification | undefined => {
   try {
     if (!isAxiosError(error)) {
@@ -99,23 +102,26 @@ export const getApiErrorNotification = (error: unknown): ErrorNotification | und
       if (looksLikeHtml) {
         switch (status) {
           case 413:
-            return { details: [], message: "The file is too large to upload." };
+            return { details: [], message: "The file is too large to upload.", severity: getErrorSeverity(status) };
           case 502:
           case 503:
           case 504:
             return {
               details: [],
               message: "The service is temporarily unavailable. Please try again.",
+              severity: getErrorSeverity(status),
             };
           case 404:
             return {
               details: [],
               message: "The requested resource was not found.",
+              severity: getErrorSeverity(status),
             };
           default:
             return {
               details: [],
               message: "The server returned an unexpected response.",
+              severity: getErrorSeverity(status),
             };
         }
       }
@@ -135,12 +141,14 @@ export const getApiErrorNotification = (error: unknown): ErrorNotification | und
       return {
         details: getResponseDetails(problemDetails, status),
         message: trimErrorMessage(message),
+        severity: getErrorSeverity(status),
       };
     }
 
     return {
       details: [],
       message: trimErrorMessage(String(data ?? error.message ?? Errors.unknownMessage)),
+      severity: getErrorSeverity(status),
     };
   } catch {
     return { details: [], message: Errors.unknownMessage };
