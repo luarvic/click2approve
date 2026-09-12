@@ -1,5 +1,6 @@
 import { stores } from "@/app/rootStore";
 import ApprovalRequestSignatureField from "@/features/approvalRequests/components/ApprovalRequestSignatureField";
+import ApiTokenSettings from "@/features/identity/components/ApiTokenSettings";
 import PasskeySettings from "@/features/identity/components/PasskeySettings";
 import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
@@ -181,6 +182,7 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
           >
             <Tab label="Profile" value="profile" />
             <Tab label="Passkeys" value="passkeys" />
+            {stores.applicationConfigurationStore.apiTokensAreEnabled && <Tab label="API tokens" value="apiTokens" />}
             <Tab label="Signature" value="signature" />
             <Tab label="Notifications" value="notifications" />
           </Tabs>
@@ -268,6 +270,7 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
             </Stack>
           )}
           {selectedTab === "passkeys" && <PasskeySettings />}
+          {selectedTab === "apiTokens" && stores.applicationConfigurationStore.apiTokensAreEnabled && <ApiTokenSettings />}
           {selectedTab === "signature" && (
             <Stack spacing={Forms.formStackSpacing} sx={Forms.tabContentSx}>
               <Typography color="text.secondary">

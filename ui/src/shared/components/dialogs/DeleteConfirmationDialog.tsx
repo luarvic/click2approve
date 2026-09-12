@@ -6,6 +6,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogContentText, Dialog
 import type { ReactNode } from "react";
 
 interface DeleteConfirmationDialogProps {
+  actionLabel?: string;
   cancelLabel?: string;
   entityName: ReactNode;
   open: boolean;
@@ -16,6 +17,7 @@ interface DeleteConfirmationDialogProps {
 }
 
 const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
+  actionLabel = "Delete",
   cancelLabel = "Cancel",
   entityName,
   open,
@@ -39,7 +41,9 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
       <DialogTitle>{title}</DialogTitle>
       <DialogContent dividers>
         <Stack spacing={Forms.formStackSpacing}>
-          <DialogContentText>Are you sure you want to delete {entityName}?</DialogContentText>
+          <DialogContentText>
+            Are you sure you want to {actionLabel.toLocaleLowerCase()} {entityName}?
+          </DialogContentText>
           {warning && <DialogContentText>{warning}</DialogContentText>}
         </Stack>
       </DialogContent>
@@ -48,7 +52,7 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
           {cancelLabel}
         </Button>
         <MainActionButton color="error" loading={deleteAction.isRunning} onClick={handleDelete}>
-          Delete
+          {actionLabel}
         </MainActionButton>
       </DialogActions>
     </Dialog>

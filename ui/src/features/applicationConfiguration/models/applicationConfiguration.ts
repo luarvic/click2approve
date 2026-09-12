@@ -7,6 +7,7 @@ export interface ApplicationConfiguration {
 }
 
 export interface ProductCapabilities {
+  apiTokens: boolean;
   tenants: boolean;
   discussions: boolean;
   discussionAttachments: boolean;

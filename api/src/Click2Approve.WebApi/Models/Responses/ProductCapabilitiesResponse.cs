@@ -6,6 +6,7 @@ namespace Click2Approve.WebApi.Models.Responses;
 public class ProductCapabilitiesResponse
 {
     public bool Tenants { get; set; }
+    public bool ApiTokens { get; set; }
     public bool Discussions { get; set; }
     public bool DiscussionAttachments { get; set; }
     public bool EmployeeAssignees { get; set; }

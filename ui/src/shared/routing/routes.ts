@@ -4,6 +4,7 @@ const userProfilePath = "/userProfile";
 const tenantPath = (tenantGlobalId: string, path: string): string => `/tenants/${tenantGlobalId}${path}`;
 
 const userProfileTabPaths = {
+  apiTokens: `${userProfilePath}/apiTokens`,
   notifications: `${userProfilePath}/notifications`,
   passkeys: `${userProfilePath}/passkeys`,
   profile: userProfilePath,

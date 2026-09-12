@@ -6,6 +6,7 @@ import { describe, expect, test } from "vitest";
 const applicationConfiguration: ApplicationConfiguration = {
   avatarImageSize: 1,
   capabilities: {
+    apiTokens: true,
     approvalRequestRevisions: true,
     approvalStepTemplates: true,
     discussionAttachments: true,

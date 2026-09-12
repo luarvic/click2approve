@@ -80,8 +80,8 @@ public static class ServiceCollectionExtensions
             {
                 Type = SecuritySchemeType.Http,
                 Scheme = "bearer",
-                BearerFormat = "JWT",
-                Description = "JWT Authorization header using the Bearer scheme."
+                BearerFormat = "Opaque token",
+                Description = "Authorization header using the Bearer scheme. Supports Identity access tokens and personal API tokens."
             });
             options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
             {

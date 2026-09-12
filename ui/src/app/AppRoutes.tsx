@@ -72,6 +72,9 @@ const ApplicationRoutes = () => {
           <Route element={<WrapperLayout />}>
             <Route path="/userProfile" element={<UserProfilePage />} />
             <Route path="/userProfile/passkeys" element={<UserProfilePage tab="passkeys" />} />
+            <Route element={<RouteGuard isAllowed={stores.applicationConfigurationStore.apiTokensAreEnabled} />}>
+              <Route path="/userProfile/apiTokens" element={<UserProfilePage tab="apiTokens" />} />
+            </Route>
             <Route path="/userProfile/signature" element={<UserProfilePage tab="signature" />} />
             <Route path="/userProfile/notifications" element={<UserProfilePage tab="notifications" />} />
             <Route element={<RouteGuard isAllowed={stores.applicationConfigurationStore.tenantsAreEnabled} />}>

@@ -1,5 +1,6 @@
-import { deletePasskey, listPasskeys, Passkey, registerPasskey } from "@/features/identity/api/passkeysApi";
-import NewPasskeyDialog from "@/features/identity/components/NewPasskeyDialog";
+import { ApiToken, createApiToken, deleteApiToken, listApiTokens } from "@/features/identity/api/apiTokensApi";
+import ApiTokenCreatedDialog from "@/features/identity/components/ApiTokenCreatedDialog";
+import NewApiTokenDialog from "@/features/identity/components/NewApiTokenDialog";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import CompactGridCell from "@/shared/components/grids/CompactGridCell";
@@ -18,40 +19,41 @@ import { Box, Button, Stack, Typography, useMediaQuery, useTheme } from "@mui/ma
 import { DataGrid, GridColDef, GridRowSelectionModel, GridToolbarContainer } from "@mui/x-data-grid";
 import { useState } from "react";
 
-const PasskeySettings = () => {
+const ApiTokenSettings = () => {
   const theme = useTheme();
   const allColumnsAreVisible = useMediaQuery(theme.breakpoints.up("md"));
-  const [passkeys, setPasskeys] = useState<Passkey[]>([]);
-  const [refreshVersion, setRefreshVersion] = useState(0);
-  const [selectedCredentialIds, setSelectedCredentialIds] = useState<GridRowSelectionModel>([]);
+  const [apiTokens, setApiTokens] = useState<ApiToken[]>([]);
+  const [createdTokenValue, setCreatedTokenValue] = useState<string | null>(null);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
-  const [newPasskeyDialogIsOpen, setNewPasskeyDialogIsOpen] = useState(false);
-  const gridLoader = ActionLoaders.grids.passkeys();
-  const addAction = useAsyncAction(ActionLoaders.passkeys.add());
+  const [newApiTokenDialogIsOpen, setNewApiTokenDialogIsOpen] = useState(false);
+  const [refreshVersion, setRefreshVersion] = useState(0);
+  const [selectedTokenGlobalIds, setSelectedTokenGlobalIds] = useState<GridRowSelectionModel>([]);
+  const gridLoader = ActionLoaders.grids.apiTokens();
+  const addAction = useAsyncAction(ActionLoaders.apiTokens.add());
   const removeAction = useAsyncAction();
-  const gridIsLoading = useGridRefresh(async () => setPasskeys(await listPasskeys()), refreshVersion, gridLoader);
+  const gridIsLoading = useGridRefresh(async () => setApiTokens(await listApiTokens()), refreshVersion, gridLoader);
 
-  const handleAdd = async (name: string) => {
-    await addAction.run(async () => {
-      if (await registerPasskey(name)) {
-        notification.success("Passkey added.");
-        setRefreshVersion((version) => version + 1);
-      }
-    });
+  const handleAdd = async (name: string, expiresAt: string | null): Promise<boolean> => {
+    const created = await addAction.run(() => createApiToken(name, expiresAt));
+    if (!created) return false;
+
+    setCreatedTokenValue(created.value);
+    setRefreshVersion((version) => version + 1);
+    return true;
   };
 
   const handleRemove = async (): Promise<boolean> => {
     const removed = await removeAction.run(async () => {
       const allDeleted = (
-        await Promise.all(selectedCredentialIds.map((credentialId) => deletePasskey(String(credentialId))))
+        await Promise.all(selectedTokenGlobalIds.map((globalId) => deleteApiToken(String(globalId))))
       ).every(Boolean);
       if (allDeleted) {
-        notification.success(selectedCredentialIds.length === 1 ? "Passkey removed." : "Passkeys removed.");
+        notification.success(selectedTokenGlobalIds.length === 1 ? "API token revoked." : "API tokens revoked.");
         setRefreshVersion((version) => version + 1);
-        setSelectedCredentialIds([]);
+        setSelectedTokenGlobalIds([]);
       }
       return allDeleted;
-    }, ActionLoaders.passkeys.remove(undefined));
+    }, ActionLoaders.apiTokens.remove(undefined));
     return removed ?? false;
   };
 
@@ -59,24 +61,25 @@ const PasskeySettings = () => {
     <GridToolbarContainer>
       <Button
         disabled={gridIsLoading || removeAction.isRunning}
-        onClick={() => setNewPasskeyDialogIsOpen(true)}
+        onClick={() => setNewApiTokenDialogIsOpen(true)}
         startIcon={<Add />}
         type="button"
       >
-        New passkey
+        New API token
       </Button>
       <Button
         color="error"
-        disabled={gridIsLoading || addAction.isRunning || removeAction.isRunning || selectedCredentialIds.length === 0}
+        disabled={gridIsLoading || addAction.isRunning || removeAction.isRunning || selectedTokenGlobalIds.length === 0}
         onClick={() => setDeleteDialogIsOpen(true)}
         startIcon={<Delete />}
         type="button"
       >
-        Remove
+        Revoke
       </Button>
     </GridToolbarContainer>
   );
-  const columns: GridColDef<Passkey>[] = [
+
+  const columns: GridColDef<ApiToken>[] = [
     {
       disableColumnMenu: true,
       field: "name",
@@ -92,14 +95,11 @@ const PasskeySettings = () => {
           {!allColumnsAreVisible && (
             <>
               <CompactGridSecondaryInformation>
-                Added{" "}
-                {params.row.createdAt ? getHumanReadableRelativeDate(parseUtcDateTime(params.row.createdAt)) : "—"}
+                Created {getHumanReadableRelativeDate(parseUtcDateTime(params.row.createdAt))}
               </CompactGridSecondaryInformation>
               <CompactGridSecondaryInformation>
-                Last used{" "}
-                {params.row.lastUsedAt
-                  ? getHumanReadableRelativeDate(parseUtcDateTime(params.row.lastUsedAt))
-                  : "Never"}
+                Expires{" "}
+                {params.row.expiresAt ? getHumanReadableRelativeDate(parseUtcDateTime(params.row.expiresAt)) : "Never"}
               </CompactGridSecondaryInformation>
             </>
           )}
@@ -110,78 +110,74 @@ const PasskeySettings = () => {
       disableColumnMenu: true,
       field: "createdAt",
       flex: 2,
-      headerName: "Added",
+      headerName: "Created",
       minWidth: 160,
       sortable: false,
-      valueFormatter: (value) => (value ? getHumanReadableRelativeDate(parseUtcDateTime(value)) : "—"),
+      valueFormatter: (value) => getHumanReadableRelativeDate(parseUtcDateTime(value)),
     },
     {
       disableColumnMenu: true,
-      field: "lastUsedAt",
+      field: "expiresAt",
       flex: 2,
-      headerName: "Last used",
+      headerName: "Expires",
       minWidth: 160,
       sortable: false,
       valueFormatter: (value) => (value ? getHumanReadableRelativeDate(parseUtcDateTime(value)) : "Never"),
-    },
-    {
-      disableColumnMenu: true,
-      field: "credentialId",
-      flex: 3,
-      headerName: "Passkey ID",
-      minWidth: 240,
-      sortable: false,
     },
   ];
 
   return (
     <Stack spacing={StackSpacing.loose}>
       <Typography color="text.secondary">
-        Sign in using your device’s biometric, PIN, or security key. Keep your password for account recovery.
+        Create revocable tokens for API access. A token is shown only once, so copy it before closing the dialog.
       </Typography>
       <Box sx={DataGrids.containerSx}>
         <DataGrid
           autoHeight
           checkboxSelection
           columns={columns}
-          columnVisibilityModel={{
-            createdAt: allColumnsAreVisible,
-            credentialId: allColumnsAreVisible,
-            lastUsedAt: allColumnsAreVisible,
-          }}
+          columnVisibilityModel={{ createdAt: allColumnsAreVisible, expiresAt: allColumnsAreVisible }}
           disableColumnFilter
           disableColumnSelector
           disableRowSelectionOnClick
-          getRowId={(row) => row.credentialId}
-          getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
           getEstimatedRowHeight={() => (allColumnsAreVisible ? null : DataGrids.compactRowHeightEstimate)}
-          rowPositionsDebounceMs={DataGrids.compactRowPositionsDebounceMs}
+          getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
+          getRowId={(row) => row.globalId}
           hideFooter
           loading={gridIsLoading || addAction.isRunning || removeAction.isRunning}
-          onRowSelectionModelChange={setSelectedCredentialIds}
-          rows={passkeys}
-          rowSelectionModel={selectedCredentialIds}
-          slotProps={{ baseCheckbox: { name: "passkey-selection" } }}
+          onRowSelectionModelChange={setSelectedTokenGlobalIds}
+          rowPositionsDebounceMs={DataGrids.compactRowPositionsDebounceMs}
+          rows={apiTokens}
+          rowSelectionModel={selectedTokenGlobalIds}
+          slotProps={{ baseCheckbox: { name: "api-token-selection" } }}
           slots={{ loadingOverlay: NoLoadingOverlay, noRowsOverlay: NoRowsOverlay, toolbar: customToolbar }}
           sx={DataGrids.sx}
         />
         <DeleteConfirmationDialog
+          actionLabel="Revoke"
           cancelLabel="Cancel"
-          entityName={selectedCredentialIds.length === 1 ? "this passkey" : `${selectedCredentialIds.length} passkeys`}
+          entityName={
+            selectedTokenGlobalIds.length === 1 ? "this API token" : `${selectedTokenGlobalIds.length} API tokens`
+          }
           open={deleteDialogIsOpen}
-          title="Remove passkeys"
+          title="Revoke API tokens"
           onClose={() => setDeleteDialogIsOpen(false)}
           onDelete={handleRemove}
         />
-        <NewPasskeyDialog
+        <NewApiTokenDialog
           loading={addAction.isRunning}
-          open={newPasskeyDialogIsOpen}
-          onClose={() => setNewPasskeyDialogIsOpen(false)}
+          open={newApiTokenDialogIsOpen}
+          onClose={() => setNewApiTokenDialogIsOpen(false)}
           onCreate={handleAdd}
+        />
+        <ApiTokenCreatedDialog
+          open={createdTokenValue !== null}
+          value={createdTokenValue}
+          onClose={() => setCreatedTokenValue(null)}
         />
       </Box>
     </Stack>
   );
 };
 
-export default PasskeySettings;
+export default ApiTokenSettings;

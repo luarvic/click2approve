@@ -31,6 +31,13 @@ export const createAppTheme = (colorMode: PaletteMode) =>
           }),
         },
       },
+      MuiDialog: {
+        styleOverrides: {
+          paper: {
+            borderRadius: SurfaceTokens.borderRadius,
+          },
+        },
+      },
       MuiFormControl: {
         defaultProps: { variant: inputVariant },
       },

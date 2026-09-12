@@ -9,6 +9,8 @@ export const ActionLoaderScopes = {
   approvalRequestTasksLoad: "approvalRequestTasks.load",
   approvalRequestTasksRemoveAttachment: "approvalRequestTasks.removeAttachment",
   approvalStepTemplatesSave: "approvalStepTemplates.save",
+  apiTokensAdd: "apiTokens.add",
+  apiTokensRemove: "apiTokens.remove",
   delegationsSave: "delegations.save",
   dialogsConfirm: "dialogs.confirm",
   dialogsDelete: "dialogs.delete",
@@ -18,6 +20,7 @@ export const ActionLoaderScopes = {
   discussionsSendForTask: "discussions.sendForTask",
   employeesSave: "employees.save",
   gridsApprovalStepTemplates: "grids.approvalStepTemplates",
+  gridsApiTokens: "grids.apiTokens",
   gridsDelegations: "grids.delegations",
   gridsEmployees: "grids.employees",
   gridsTasks: "grids.tasks",
@@ -55,6 +58,7 @@ export const ActionLoaderScopes = {
 
 export const GlobalLoadingActionLoaderScopes = [
   ActionLoaderScopes.gridsApprovalStepTemplates,
+  ActionLoaderScopes.gridsApiTokens,
   ActionLoaderScopes.gridsDelegations,
   ActionLoaderScopes.gridsEmployees,
   ActionLoaderScopes.gridsTasks,
@@ -113,6 +117,10 @@ export const ActionLoaders = {
     save: (templateGlobalId: string | undefined) =>
       createActionLoaderKey(ActionLoaderScopes.approvalStepTemplatesSave, templateGlobalId),
   },
+  apiTokens: {
+    add: () => ActionLoaderScopes.apiTokensAdd,
+    remove: (tokenGlobalId: string | undefined) => createActionLoaderKey(ActionLoaderScopes.apiTokensRemove, tokenGlobalId),
+  },
   delegations: {
     save: (delegationGlobalId: string | undefined) =>
       createActionLoaderKey(ActionLoaderScopes.delegationsSave, delegationGlobalId),
@@ -164,6 +172,7 @@ export const ActionLoaders = {
   grids: {
     approvalStepTemplates: (tenantGlobalId: string | null | undefined) =>
       createActionLoaderKey(ActionLoaderScopes.gridsApprovalStepTemplates, tenantGlobalId ?? undefined),
+    apiTokens: () => ActionLoaderScopes.gridsApiTokens,
     delegations: (tenantGlobalId: string | null | undefined) =>
       createActionLoaderKey(ActionLoaderScopes.gridsDelegations, tenantGlobalId ?? undefined),
     employees: (tenantGlobalId: string | null | undefined) =>

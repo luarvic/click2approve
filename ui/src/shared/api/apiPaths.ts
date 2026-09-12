@@ -1,5 +1,8 @@
 export const ApiPaths = {
   account: {
+    apiTokens: {
+      root: "api/v1/account/apiTokens",
+    },
     confirmEmail: "api/v1/account/confirmEmail",
     forgotPassword: "api/v1/account/forgotPassword",
     login: "api/v1/account/login",

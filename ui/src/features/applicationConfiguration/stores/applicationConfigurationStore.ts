@@ -14,6 +14,10 @@ export class ApplicationConfigurationStore {
     return this.applicationConfiguration?.capabilities.tenants === true;
   }
 
+  get apiTokensAreEnabled(): boolean {
+    return this.applicationConfiguration?.capabilities.apiTokens === true;
+  }
+
   get discussionsAreEnabled(): boolean {
     return this.applicationConfiguration?.capabilities.discussions === true;
   }
