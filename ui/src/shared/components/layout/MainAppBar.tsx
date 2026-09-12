@@ -71,9 +71,7 @@ const MainAppBar = ({
   return (
     <PublicAppBar
       brandTitleHideBelowWidth={
-        tenantPickerIsVisible
-          ? Shell.appBarBrandTitleWithTenantPickerHideBelowWidth
-          : Shell.appBarBrandTitleWithoutTenantPickerHideBelowWidth
+        tenantPickerIsVisible ? Shell.appBarBrandTitleWithTenantPickerHideBelowWidth : undefined
       }
       collapseBrandAreaWhenTitleHidden={tenantPickerIsVisible}
       homePath={currentUser ? tasksPath : Routes.defaultPath}

@@ -20,7 +20,7 @@ interface PublicAppBarProps {
 
 const PublicAppBar = ({
   collapseBrandAreaWhenTitleHidden = false,
-  brandTitleHideBelowWidth = Shell.appBarBrandTitleWithoutTenantPickerHideBelowWidth,
+  brandTitleHideBelowWidth,
   children,
   homePath = Routes.defaultPath,
   mainMenuDrawerIsVisible = false,

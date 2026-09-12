@@ -1,6 +1,5 @@
 import type { SxProps, Theme } from "@mui/material";
 const appBarHeight = 72;
-const appBarBrandTitleWithoutTenantPickerHideBelowWidth = 400;
 const appBarBrandTitleWithTenantPickerHideBelowWidth = 800;
 const mainMenuDrawerWidth = 240;
 export const Shell = {
@@ -72,13 +71,17 @@ export const Shell = {
     mr: 1,
     display: mainMenuDrawerIsOpen ? "none" : "inline-flex",
   }),
-  appBarBrandContainerSx: (titleHideBelowWidth: number, collapseWhenTitleHidden: boolean): SxProps<Theme> => ({
+  appBarBrandContainerSx: (
+    titleHideBelowWidth: number | undefined,
+    collapseWhenTitleHidden: boolean,
+  ): SxProps<Theme> => ({
     flex: "1 1 auto",
     minWidth: 0,
     overflow: "hidden",
-    [`@media (max-width: ${titleHideBelowWidth}px)`]: collapseWhenTitleHidden ? { flex: "0 0 auto" } : undefined,
+    ...(titleHideBelowWidth && collapseWhenTitleHidden
+      ? { [`@media (max-width: ${titleHideBelowWidth}px)`]: { flex: "0 0 auto" } }
+      : {}),
   }),
-  appBarBrandTitleWithoutTenantPickerHideBelowWidth,
   appBarBrandTitleWithTenantPickerHideBelowWidth,
   appBarBrandLinkSx: {
     display: "flex",
@@ -98,12 +101,10 @@ export const Shell = {
     height: 36,
     mr: 0.5,
   } as SxProps<Theme>,
-  appBarBrandTitleSx: (hideBelowWidth: number): SxProps<Theme> => ({
+  appBarBrandTitleSx: (hideBelowWidth?: number): SxProps<Theme> => ({
     display: "block",
     ml: -0.5,
-    [`@media (max-width: ${hideBelowWidth}px)`]: {
-      display: "none",
-    },
+    ...(hideBelowWidth ? { [`@media (max-width: ${hideBelowWidth}px)`]: { display: "none" } } : {}),
     color: "inherit",
     overflow: "hidden",
     textDecoration: "none",
