@@ -13,8 +13,8 @@ logo-only header and large event heading, one rounded primary action in the logo
   Configure the provider's sender display name as `Click2Approve`. Actors are never used
   as sender addresses or reply-to addresses.
 - `Email:LogoUrl` optionally overrides the logo with an absolute HTTP(S) image URL.
-  By default the worker uses `UI:BaseUrl` + `UI:AppPath` + `/logo-with-text.png`.
-  The frontend asset includes the Click2Approve wordmark.
+  By default the worker uses `UI:BaseUrl` + `UI:AppPath` + `/logo-email.png`.
+  The frontend asset is the email logo variant.
 - Deploy the frontend asset alongside the worker changes. The logo has a Click2Approve text alternative; the footer also names the platform.
 - Notifications use plain prose below the heading: personal user name, or employee name/position
   at the organization, followed by the requested action (for example, "John Smith requested
