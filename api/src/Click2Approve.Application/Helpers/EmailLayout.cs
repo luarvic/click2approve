@@ -64,7 +64,7 @@ public static class EmailLayout
         return $$"""
             <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:24px 0;"><tr>
             <td align="center" bgcolor="#22C55E" style="border-radius:999px;mso-padding-alt:12px 24px;">
-            <a href="{{Encode(safeUrl)}}" style="display:inline-block;padding:12px 24px;border:1px solid #22C55E;border-radius:999px;color:#ffffff;font-size:16px;font-weight:bold;text-decoration:none;mso-padding-alt:0;">{{Encode(text)}}</a>
+            <a href="{{Encode(safeUrl)}}" style="display:inline-block;padding:12px 24px;border:1px solid #22C55E;border-radius:999px;color:#ffffff!important;-webkit-text-fill-color:#ffffff;font-size:16px;font-weight:bold;text-decoration:none;mso-padding-alt:0;"><!--[if mso]><font color="#ffffff">{{Encode(text)}}</font><![endif]--><!--[if !mso]><!--><span style="background:#ffffff;background-image:linear-gradient(#ffffff,#ffffff);background-clip:text;-webkit-background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;">{{Encode(text)}}</span><!--<![endif]--></a>
             </td></tr></table>
             """;
     }

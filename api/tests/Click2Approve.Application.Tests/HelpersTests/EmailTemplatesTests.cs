@@ -102,7 +102,9 @@ public sealed class EmailTemplatesTests
         Assert.DoesNotContain("via Click2Approve", html);
         Assert.DoesNotContain("From:", html);
         Assert.Contains("font-size:36px", html);
-        Assert.Contains("border-radius:999px;color:#ffffff", html);
+        Assert.Contains("border-radius:999px;color:#ffffff!important;-webkit-text-fill-color:#ffffff", html);
+        Assert.Contains("<!--[if mso]><font color=\"#ffffff\">Review request</font><![endif]-->", html);
+        Assert.Contains("background-image:linear-gradient(#ffffff,#ffffff);background-clip:text;-webkit-background-clip:text", html);
     }
 
     [Fact]
