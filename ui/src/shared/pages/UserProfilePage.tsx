@@ -202,14 +202,14 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
               <TextField label="Last name" value={lastName} onChange={(event) => setLastName(event.target.value)} />
               {stores.tenantStore.tenants.length > 0 && (
                 <FormControl>
-                  <InputLabel id="default-organization-label">Default organization</InputLabel>
+                  <InputLabel id="default-workspace-label">Default workspace</InputLabel>
                   <Select
-                    labelId="default-organization-label"
-                    label="Default organization"
+                    labelId="default-workspace-label"
+                    label="Default workspace"
                     value={defaultTenantGlobalId}
                     onChange={(event) => setDefaultTenantGlobalId(event.target.value === "" ? "" : event.target.value)}
                   >
-                    <MenuItem value="">No default organization</MenuItem>
+                    <MenuItem value="">No default workspace</MenuItem>
                     {stores.tenantStore.tenants.map((tenant) => (
                       <MenuItem key={tenant.globalId} value={tenant.globalId}>
                         {tenant.businessName}
@@ -270,7 +270,9 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
             </Stack>
           )}
           {selectedTab === "passkeys" && <PasskeySettings />}
-          {selectedTab === "apiTokens" && stores.applicationConfigurationStore.apiTokensAreEnabled && <ApiTokenSettings />}
+          {selectedTab === "apiTokens" && stores.applicationConfigurationStore.apiTokensAreEnabled && (
+            <ApiTokenSettings />
+          )}
           {selectedTab === "signature" && (
             <Stack spacing={Forms.formStackSpacing} sx={Forms.tabContentSx}>
               <Typography color="text.secondary">
