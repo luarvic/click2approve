@@ -5,6 +5,10 @@ const STORAGE_ITEM_KEY: string = "tokens";
 const COLOR_MODE_KEY: string = "colorMode";
 const CURRENT_TENANT_GLOBAL_ID_KEY: string = "currentTenantGlobalId";
 const CURRENT_WORK_EMPLOYEE_GLOBAL_ID_KEY: string = "currentWorkEmployeeGlobalId";
+const PASSKEY_ENROLLMENT_PROMPT_DISMISSED_KEY: string = "passkeyEnrollmentPromptDismissed";
+
+const getPasskeyEnrollmentPromptDismissedKey = (email: string): string =>
+  `${PASSKEY_ENROLLMENT_PROMPT_DISMISSED_KEY}.${encodeURIComponent(email.trim().toLowerCase())}`;
 
 export const writeTokens = (data: AuthResponse) => {
   localStorage.setItem(STORAGE_ITEM_KEY, JSON.stringify(data));
@@ -58,4 +62,11 @@ export const readCurrentWorkEmployeeGlobalId = (): string | null =>
 
 export const deleteCurrentWorkEmployeeGlobalId = () => {
   localStorage.removeItem(CURRENT_WORK_EMPLOYEE_GLOBAL_ID_KEY);
+};
+
+export const isPasskeyEnrollmentPromptDismissed = (email: string): boolean =>
+  localStorage.getItem(getPasskeyEnrollmentPromptDismissedKey(email)) === "true";
+
+export const dismissPasskeyEnrollmentPrompt = (email: string) => {
+  localStorage.setItem(getPasskeyEnrollmentPromptDismissedKey(email), "true");
 };

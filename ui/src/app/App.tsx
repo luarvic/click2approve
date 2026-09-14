@@ -1,5 +1,6 @@
 import AppRouter from "@/app/AppRouter";
 import { stores } from "@/app/rootStore";
+import PasskeyEnrollmentDialog from "@/features/identity/components/PasskeyEnrollmentDialog";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import Notifications from "@/shared/components/overlays/Notifications";
 import "@fontsource/sora/400.css";
@@ -29,6 +30,7 @@ const App = () => {
         <CssBaseline>
           <AppRouter />
           <Notifications />
+          <PasskeyEnrollmentDialog email={stores.userAccountStore.currentUser?.email} />
         </CssBaseline>
       </ThemeProvider>
     </LocalizationProvider>
