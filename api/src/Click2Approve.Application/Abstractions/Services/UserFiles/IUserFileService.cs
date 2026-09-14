@@ -10,6 +10,7 @@ public interface IUserFileService
 {
     Task<IList<UserFileResult>> UploadAsync(AppUser user, IReadOnlyCollection<UploadedFile> files, CancellationToken cancellationToken);
     Task AttachAsync(AppUser user, IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken);
+    Task ScheduleUnattachedForDeletionAsync(IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken);
     Task<(string Filename, byte[] Bytes)> DownloadAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestAttachmentAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken);
     Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestAttachmentForTaskAsync(

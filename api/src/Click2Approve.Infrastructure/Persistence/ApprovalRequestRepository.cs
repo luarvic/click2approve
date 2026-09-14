@@ -122,14 +122,15 @@ public class ApprovalRequestRepository(
             && r.CreatedAt < end, cancellationToken);
     }
 
-    public virtual Task RemoveAsync(ApprovalRequest approvalRequest, CancellationToken cancellationToken)
+    public virtual Task<IReadOnlyCollection<Guid>> RemoveAsync(ApprovalRequest approvalRequest, CancellationToken cancellationToken)
     {
+        IReadOnlyCollection<Guid> userFileGlobalIds = [.. approvalRequest.RequestFiles.Select(file => file.UserFile.GlobalId)];
         Db.ApprovalRequestFiles.RemoveRange(approvalRequest.RequestFiles);
         Db.ApprovalRequestTasks.RemoveRange(approvalRequest.Steps.SelectMany(step => step.Tasks));
         Db.ApprovalRequestStepAssignees.RemoveRange(approvalRequest.Steps.SelectMany(step => step.Assignees));
         Db.ApprovalRequestSteps.RemoveRange(approvalRequest.Steps);
         Db.ApprovalRequests.Remove(approvalRequest);
-        return Task.CompletedTask;
+        return Task.FromResult(userFileGlobalIds);
     }
 
     protected static IQueryable<ApprovalRequest> IncludeDetails(IQueryable<ApprovalRequest> requests) => requests

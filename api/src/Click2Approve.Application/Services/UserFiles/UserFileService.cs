@@ -43,6 +43,7 @@ public class UserFileService(
                     OwnerId = user.Id,
                     Size = file.Length,
                     StorageType = UserFileStorageType.Private,
+                    ScheduledForDeletionAt = GetUnattachedDeletionAt(),
                     TenantId = tenantId,
                     Type = Path.GetExtension(file.FileName)
                 }, cancellationToken);
@@ -78,9 +79,33 @@ public class UserFileService(
 
         foreach (var userFile in userFiles)
         {
+            userFile.DeletionPublishedAt = null;
+            userFile.ScheduledForDeletionAt = null;
             userFile.Status = UserFileStatus.Attached;
         }
 
+    }
+
+    /// <summary>Schedules files that are no longer attached to a domain entity for deletion.</summary>
+    public async Task ScheduleUnattachedForDeletionAsync(IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken)
+    {
+        if (globalIds.Count == 0)
+        {
+            return;
+        }
+
+        var userFiles = await _userFileRepository.ListUnattachedAsync([.. globalIds.Distinct()], cancellationToken);
+        var scheduledForDeletionAt = GetUnattachedDeletionAt();
+        foreach (var userFile in userFiles)
+        {
+            userFile.DeletionPublishedAt = null;
+            userFile.ScheduledForDeletionAt = scheduledForDeletionAt;
+        }
+
+        if (userFiles.Count > 0)
+        {
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
     }
 
     /// <summary>
@@ -224,6 +249,18 @@ public class UserFileService(
         {
             throw new LimitExceededException($"The maximum file size ({maxFileSizeBytes} bytes) has been exceeded.");
         }
+    }
+
+    private DateTime GetUnattachedDeletionAt()
+    {
+        var delay = _configuration.GetValue<TimeSpan?>("UserFiles:UnattachedDeletionDelay")
+            ?? throw new InvalidOperationException("UserFiles:UnattachedDeletionDelay must be configured.");
+        if (delay <= TimeSpan.Zero)
+        {
+            throw new InvalidOperationException("UserFiles:UnattachedDeletionDelay must be greater than zero.");
+        }
+
+        return DateTime.UtcNow.Add(delay);
     }
 
 }

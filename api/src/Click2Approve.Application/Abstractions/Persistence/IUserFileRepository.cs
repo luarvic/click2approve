@@ -29,6 +29,6 @@ public interface IUserFileRepository
     Task<UserFile?> GetForDeleteAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken);
     Task<List<UserFile>> ListAsync(AppUser user, IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken);
-    Task<int> CountAsync(AppUser user, CancellationToken cancellationToken);
+    Task<List<UserFile>> ListUnattachedAsync(IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken);
     void Remove(UserFile userFile);
 }

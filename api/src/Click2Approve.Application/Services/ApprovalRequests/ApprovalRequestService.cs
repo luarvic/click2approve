@@ -67,13 +67,9 @@ public class ApprovalRequestService(
             ?? throw new NotFoundException("Approval request was not found.");
         await _approvalRequestDeletionValidator.ValidateAndThrowAsync(approvalRequest, cancellationToken);
 
-        foreach (var requestFile in approvalRequest.RequestFiles)
-        {
-            requestFile.UserFile.ScheduledForDeletionAt = DateTime.UtcNow;
-        }
-
-        await _approvalRequestRepository.RemoveAsync(approvalRequest, cancellationToken);
+        var deletedFileGlobalIds = await _approvalRequestRepository.RemoveAsync(approvalRequest, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _userFileService.ScheduleUnattachedForDeletionAsync(deletedFileGlobalIds, cancellationToken);
     }
 
     /// <summary>

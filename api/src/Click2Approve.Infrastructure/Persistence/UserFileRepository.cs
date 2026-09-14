@@ -107,10 +107,11 @@ public class UserFileRepository(
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<int> CountAsync(AppUser user, CancellationToken cancellationToken)
+    public virtual Task<List<UserFile>> ListUnattachedAsync(IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken)
     {
-        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await Db.UserFiles.CountAsync(f => f.TenantId == tenantId && f.OwnerId == user.Id, cancellationToken);
+        return Db.UserFiles
+            .Where(file => globalIds.Contains(file.GlobalId) && !file.ApprovalRequestFiles.Any())
+            .ToListAsync(cancellationToken);
     }
 
     public void Remove(UserFile userFile)

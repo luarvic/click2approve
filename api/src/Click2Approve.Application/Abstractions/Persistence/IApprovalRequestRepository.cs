@@ -15,5 +15,5 @@ public interface IApprovalRequestRepository
         ApprovalRequestListQueryCommand query,
         CancellationToken cancellationToken);
     Task<int> CountAsync(AppUser user, DateTime start, DateTime end, CancellationToken cancellationToken);
-    Task RemoveAsync(ApprovalRequest approvalRequest, CancellationToken cancellationToken);
+    Task<IReadOnlyCollection<Guid>> RemoveAsync(ApprovalRequest approvalRequest, CancellationToken cancellationToken);
 }

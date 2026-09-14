@@ -35,7 +35,7 @@ public class DeletionRequestedEventHandler(
     protected virtual async Task DeleteUserFileAsync(Guid userFileGlobalId, CancellationToken cancellationToken)
     {
         var userFile = await Db.UserFiles.FirstOrDefaultAsync(file => file.GlobalId == userFileGlobalId, cancellationToken);
-        if (userFile is null || userFile.ScheduledForDeletionAt is null) return;
+        if (userFile?.ScheduledForDeletionAt is not { } scheduledForDeletionAt || scheduledForDeletionAt > DateTime.UtcNow) return;
 
         await FileStorage.DeleteAsync(userFile, cancellationToken);
         Db.UserFiles.Remove(userFile);

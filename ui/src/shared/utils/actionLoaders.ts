@@ -119,7 +119,8 @@ export const ActionLoaders = {
   },
   apiTokens: {
     add: () => ActionLoaderScopes.apiTokensAdd,
-    remove: (tokenGlobalId: string | undefined) => createActionLoaderKey(ActionLoaderScopes.apiTokensRemove, tokenGlobalId),
+    remove: (tokenGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.apiTokensRemove, tokenGlobalId),
   },
   delegations: {
     save: (delegationGlobalId: string | undefined) =>
