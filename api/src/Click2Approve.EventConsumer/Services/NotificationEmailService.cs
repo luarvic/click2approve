@@ -51,20 +51,24 @@ public class NotificationEmailService(
         CancellationToken cancellationToken)
     {
         // Legacy events do not identify a message: show context only, never guess the latest author or excerpt.
-        var task = await _db.ApprovalRequestTasks.AsNoTracking()
-            .Include(item => item.ApprovalRequest)
-            .FirstOrDefaultAsync(item => item.GlobalId == payload.EntityGlobalId
-                && item.AssigneeUserId == payload.UserId && item.TenantId == payload.TenantId, cancellationToken);
-        if (task is not null)
+        var targetResourceGlobalId = payload.TargetResourceGlobalId;
+        if (targetResourceGlobalId is null) return null;
+        if (payload.TargetResourceType == NotificationResourceType.ApprovalRequestTask)
         {
+            var task = await _db.ApprovalRequestTasks.AsNoTracking()
+                .Include(item => item.ApprovalRequest)
+                .FirstOrDefaultAsync(item => item.GlobalId == targetResourceGlobalId
+                    && item.AssigneeUserId == payload.UserId && item.TenantId == payload.TenantId, cancellationToken);
+            if (task is null) return null;
             return new NotificationEmailContext
             {
                 RequestTitle = task.ApprovalRequest.Title,
                 ActionUrl = GetLink(tenantGlobalId, $"tasks/{task.GlobalId}/chat")
             };
         }
+        if (payload.TargetResourceType != NotificationResourceType.ApprovalRequest) return null;
         var request = await _db.ApprovalRequests.AsNoTracking().FirstOrDefaultAsync(
-            item => item.GlobalId == payload.EntityGlobalId && item.CreatedByUserId == payload.UserId
+            item => item.GlobalId == targetResourceGlobalId && item.CreatedByUserId == payload.UserId
                 && item.TenantId == payload.TenantId, cancellationToken);
         return request is null ? null : new NotificationEmailContext
         {
@@ -94,10 +98,12 @@ public class NotificationEmailService(
         Guid tenantGlobalId,
         CancellationToken cancellationToken)
     {
+        var targetResourceGlobalId = payload.TargetResourceGlobalId;
+        if (targetResourceGlobalId is null) return null;
         if (payload.Type == NotificationType.ApprovalRequestTaskCreated)
         {
             var task = await GetTasksQuery().FirstOrDefaultAsync(
-                item => item.GlobalId == payload.EntityGlobalId && item.AssigneeUserId == payload.UserId
+                item => item.GlobalId == targetResourceGlobalId && item.AssigneeUserId == payload.UserId
                     && item.TenantId == payload.TenantId, cancellationToken);
             return task is null ? null : new NotificationEmailContext
             {
@@ -111,7 +117,7 @@ public class NotificationEmailService(
         var request = await _db.ApprovalRequests.AsNoTracking()
             .Include(item => item.Tenant).ThenInclude(tenant => tenant.LogoUserFile)
             .Include(item => item.CompletedByUser).ThenInclude(user => user!.AvatarUserFile)
-            .FirstOrDefaultAsync(item => item.GlobalId == payload.EntityGlobalId, cancellationToken);
+            .FirstOrDefaultAsync(item => item.GlobalId == targetResourceGlobalId, cancellationToken);
         if (request is null) return null;
         string route;
         if (payload.Type != NotificationType.ApprovalRequestTaskCompleted
@@ -123,7 +129,9 @@ public class NotificationEmailService(
         {
             var tasks = _db.ApprovalRequestTasks.Where(task => task.ApprovalRequestId == request.Id
                 && task.AssigneeUserId == payload.UserId && task.TenantId == payload.TenantId);
-            if (payload.Type == NotificationType.ApprovalRequestTaskCompleted && payload.SourceGlobalId is { } sourceId)
+            if (payload.Type == NotificationType.ApprovalRequestTaskCompleted
+                && (payload.SourceResourceType is null || payload.SourceResourceType == NotificationResourceType.ApprovalRequestTask)
+                && payload.SourceResourceGlobalId is { } sourceId)
             {
                 tasks = tasks.Where(task => task.GlobalId == sourceId);
             }
@@ -152,8 +160,9 @@ public class NotificationEmailService(
         }
         if (payload.Type == NotificationType.ApprovalRequestStepCompleted)
         {
-            var task = payload.SourceGlobalId is null ? null : await GetTasksQuery().FirstOrDefaultAsync(
-                item => item.GlobalId == payload.SourceGlobalId && item.ApprovalRequestId == request.Id,
+            var task = payload.SourceResourceType is not null and not NotificationResourceType.ApprovalRequestTask
+                || payload.SourceResourceGlobalId is null ? null : await GetTasksQuery().FirstOrDefaultAsync(
+                item => item.GlobalId == payload.SourceResourceGlobalId && item.ApprovalRequestId == request.Id,
                 cancellationToken);
             return context with
             {

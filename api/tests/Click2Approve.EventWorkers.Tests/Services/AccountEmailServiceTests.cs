@@ -41,15 +41,27 @@ public sealed class AccountEmailServiceTests
     }
 
     [Fact]
-    public void NotificationPayload_RemainsCompatibleWithOldQueuedEvents()
+    public void NotificationPayload_AllowsMissingOptionalSource()
     {
-        var payload = new NotificationEventPayload(NotificationType.ApprovalRequestStepCompleted, 1, Guid.NewGuid(), "Contract", 2);
+        var payload = new NotificationEventPayload(
+            NotificationType.ApprovalRequestStepCompleted,
+            1,
+            Guid.NewGuid(),
+            NotificationResourceType.ApprovalRequest,
+            "Contract",
+            2);
         var json = JsonSerializer.Serialize(payload, EventJson.Options);
-        var oldJson = json.Replace(",\"sourceGlobalId\":null", string.Empty);
-        Assert.Null(JsonSerializer.Deserialize<NotificationEventPayload>(oldJson, EventJson.Options)!.SourceGlobalId);
+        var jsonWithoutSource = json.Replace(",\"sourceResourceGlobalId\":null", string.Empty);
+        Assert.Null(JsonSerializer.Deserialize<NotificationEventPayload>(jsonWithoutSource, EventJson.Options)!.SourceResourceGlobalId);
         var sourceId = Guid.NewGuid();
-        var newJson = JsonSerializer.Serialize(payload with { SourceGlobalId = sourceId }, EventJson.Options);
-        Assert.Equal(sourceId, JsonSerializer.Deserialize<NotificationEventPayload>(newJson, EventJson.Options)!.SourceGlobalId);
+        var newJson = JsonSerializer.Serialize(payload with
+        {
+            SourceResourceGlobalId = sourceId,
+            SourceResourceType = NotificationResourceType.ApprovalRequestTask
+        }, EventJson.Options);
+        var deserialized = JsonSerializer.Deserialize<NotificationEventPayload>(newJson, EventJson.Options)!;
+        Assert.Equal(sourceId, deserialized.SourceResourceGlobalId);
+        Assert.Equal(NotificationResourceType.ApprovalRequestTask, deserialized.SourceResourceType);
     }
 
     private static IConfiguration Configuration() => new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>

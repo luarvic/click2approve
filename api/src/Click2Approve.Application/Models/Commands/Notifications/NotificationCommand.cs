@@ -8,10 +8,12 @@ namespace Click2Approve.Application.Models.Commands.Notifications;
 public record NotificationCommand(
     NotificationType Type,
     long TenantId,
-    Guid EntityGlobalId,
+    Guid? TargetResourceGlobalId,
+    NotificationResourceType? TargetResourceType,
     string Summary,
     IReadOnlyCollection<NotificationRecipient> Recipients,
-    Guid? SourceGlobalId = null);
+    Guid? SourceResourceGlobalId = null,
+    NotificationResourceType? SourceResourceType = null);
 
 /// <summary>
 /// Identifies one intended notification recipient.

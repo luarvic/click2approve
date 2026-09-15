@@ -9,7 +9,8 @@ internal static class InAppNotificationResponseMapper
 {
     public static InAppNotificationResponse Map(InAppNotificationResult result) => new()
     {
-        EntityGlobalId = result.EntityGlobalId,
+        TargetResourceGlobalId = result.TargetResourceGlobalId,
+        TargetResourceType = result.TargetResourceType,
         GlobalId = result.GlobalId,
         OccurredAt = result.OccurredAt,
         ReadAt = result.ReadAt,

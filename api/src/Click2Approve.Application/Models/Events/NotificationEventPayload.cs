@@ -8,7 +8,9 @@ namespace Click2Approve.Application.Models.Events;
 public sealed record NotificationEventPayload(
     NotificationType Type,
     long TenantId,
-    Guid EntityGlobalId,
+    Guid? TargetResourceGlobalId,
+    NotificationResourceType? TargetResourceType,
     string Summary,
     long UserId,
-    Guid? SourceGlobalId = null);
+    Guid? SourceResourceGlobalId = null,
+    NotificationResourceType? SourceResourceType = null);

@@ -6,18 +6,22 @@ import {
   markNotificationsRead,
 } from "@/features/notifications/api/notificationsApi";
 import NotificationsFilter from "@/features/notifications/components/NotificationsFilter";
-import { getNotificationTypeLabel, type Notification } from "@/features/notifications/models/notification";
+import {
+  getNotificationTypeLabel,
+  NotificationResourceType,
+  type Notification,
+} from "@/features/notifications/models/notification";
 import {
   parseNotificationGridQuery,
   serializeNotificationGridQuery,
   type NotificationGridQuery,
 } from "@/features/notifications/models/notificationGridQuery";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
-import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import CompactGridCell from "@/shared/components/grids/CompactGridCell";
 import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGridSecondaryInformation";
 import CompactGridStatus from "@/shared/components/grids/CompactGridStatus";
 import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
@@ -37,8 +41,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 const notificationColumnFlex = 15;
 const notificationColumnMinWidth = 150;
-const statusColumnFlex = 10;
-const statusColumnMinWidth = 100;
 const detailsColumnFlex = 55;
 const receivedColumnFlex = 20;
 const unreadNotificationRowClassName = "notification-grid-unread";
@@ -51,14 +53,11 @@ const notificationGridSx: SxProps<Theme> = {
 };
 
 const getPath = (item: Notification) => {
-  const isRequestNotification =
-    item.type === NotificationType.ApprovalRequestStepCompleted ||
-    item.type === NotificationType.ApprovalRequestCompleted ||
-    item.type === NotificationType.DiscussionMessageCreated;
+  if (item.targetResourceGlobalId === undefined || item.targetResourceType === undefined) return null;
   const isDiscussionNotification = item.type === NotificationType.DiscussionMessageCreated;
-  const resourcePath = isRequestNotification ? "requests" : "tasks";
+  const resourcePath = item.targetResourceType === NotificationResourceType.ApprovalRequest ? "requests" : "tasks";
   const chatPath = isDiscussionNotification ? "/chat" : "";
-  return `/${resourcePath}/${item.entityGlobalId}${chatPath}`;
+  return `/${resourcePath}/${item.targetResourceGlobalId}${chatPath}`;
 };
 
 const NotificationsGrid = () => {
@@ -153,7 +152,8 @@ const NotificationsGrid = () => {
       });
       if (!marked) return;
     }
-    navigate(Routes.tenantPath(tenantId, getPath(item)));
+    const path = getPath(item);
+    if (path) navigate(Routes.tenantPath(tenantId, path));
   };
   const customToolbar = () => (
     <GridToolbarContainer>
@@ -211,15 +211,6 @@ const NotificationsGrid = () => {
       valueGetter: (_value, row) => getNotificationTypeLabel(row.type),
     },
     {
-      field: "readAt",
-      headerName: "Status",
-      sortable: false,
-      disableColumnMenu: true,
-      flex: statusColumnFlex,
-      minWidth: statusColumnMinWidth,
-      valueGetter: (_value, row) => (row.readAt ? "Read" : "Unread"),
-    },
-    {
       field: "summary",
       headerName: "Details",
       sortable: false,
@@ -247,9 +238,17 @@ const NotificationsGrid = () => {
             types={query.type}
             onDetailsChange={(details) => updateQuery({ details, page: 0 })}
             onReceivedFromChange={(value) =>
-              updateQuery({ page: 0, receivedFrom: value?.format("YYYY-MM-DD") ?? null })
+              updateQuery({
+                page: 0,
+                receivedFrom: value?.format("YYYY-MM-DD") ?? null,
+              })
             }
-            onReceivedToChange={(value) => updateQuery({ page: 0, receivedTo: value?.format("YYYY-MM-DD") ?? null })}
+            onReceivedToChange={(value) =>
+              updateQuery({
+                page: 0,
+                receivedTo: value?.format("YYYY-MM-DD") ?? null,
+              })
+            }
             onStatusesChange={(status) => updateQuery({ page: 0, status })}
             onTypesChange={(type) => updateQuery({ page: 0, type })}
           />
@@ -262,7 +261,6 @@ const NotificationsGrid = () => {
           columns={columns}
           columnVisibilityModel={{
             occurredAt: allColumnsAreVisible,
-            readAt: allColumnsAreVisible,
             summary: allColumnsAreVisible,
           }}
           disableColumnSelector

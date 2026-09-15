@@ -1,10 +1,16 @@
 import { NotificationType } from "@/shared/models/notifications";
 
+export enum NotificationResourceType {
+  ApprovalRequest,
+  ApprovalRequestTask,
+}
+
 export interface Notification {
   globalId: string;
   type: NotificationType;
   occurredAt: string;
-  entityGlobalId: string;
+  targetResourceGlobalId?: string;
+  targetResourceType?: NotificationResourceType;
   summary: string;
   readAt?: string;
 }

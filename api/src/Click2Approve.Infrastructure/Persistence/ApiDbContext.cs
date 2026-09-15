@@ -395,6 +395,9 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             .Property(notification => notification.Type)
             .HasConversion<int>();
         modelBuilder.Entity<InAppNotification>()
+            .Property(notification => notification.TargetResourceType)
+            .HasConversion<int>();
+        modelBuilder.Entity<InAppNotification>()
             .Property(notification => notification.Summary)
             .HasMaxLength(512);
         modelBuilder.Entity<InAppNotification>()

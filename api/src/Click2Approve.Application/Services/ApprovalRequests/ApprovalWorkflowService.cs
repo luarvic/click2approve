@@ -259,8 +259,11 @@ public class ApprovalWorkflowService(
                 NotificationType.ApprovalRequestTaskCreated,
                 task.TenantId,
                 task.GlobalId,
-                CreateSummary(task.GlobalId, task.Title),
-                [new NotificationRecipient(task.AssigneeUserId)]))],
+                NotificationResourceType.ApprovalRequestTask,
+                CreateSummary(task.Title),
+                [new NotificationRecipient(task.AssigneeUserId)],
+                SourceResourceGlobalId: task.GlobalId,
+                SourceResourceType: NotificationResourceType.ApprovalRequestTask))],
             cancellationToken);
     }
 
@@ -275,9 +278,11 @@ public class ApprovalWorkflowService(
                     NotificationType.ApprovalRequestTaskCompleted,
                     group.Key.TenantId,
                     approvalRequest.GlobalId,
-                    CreateSummary(approvalRequest.GlobalId, approvalRequest.Title),
+                    NotificationResourceType.ApprovalRequest,
+                    CreateSummary(approvalRequest.Title),
                     [new NotificationRecipient(group.Key.AssigneeUserId)],
-                    SourceGlobalId: group.OrderBy(task => task.Id).First().GlobalId))],
+                    SourceResourceGlobalId: group.OrderBy(task => task.Id).First().GlobalId,
+                    SourceResourceType: NotificationResourceType.ApprovalRequestTask))],
             cancellationToken);
     }
 
@@ -291,9 +296,11 @@ public class ApprovalWorkflowService(
                 NotificationType.ApprovalRequestStepCompleted,
                 approvalRequest.TenantId,
                 approvalRequest.GlobalId,
-                CreateSummary(approvalRequest.GlobalId, approvalRequest.Title),
+                NotificationResourceType.ApprovalRequest,
+                CreateSummary(approvalRequest.Title),
                 [new NotificationRecipient(approvalRequest.CreatedByUserId)],
-                SourceGlobalId: approvalRequestTask.GlobalId)],
+                SourceResourceGlobalId: approvalRequestTask.GlobalId,
+                SourceResourceType: NotificationResourceType.ApprovalRequestTask)],
             cancellationToken);
     }
 
@@ -309,8 +316,11 @@ public class ApprovalWorkflowService(
                     NotificationType.ApprovalRequestCompleted,
                     group.Key,
                     approvalRequest.GlobalId,
-                    CreateSummary(approvalRequest.GlobalId, approvalRequest.Title),
-                    [.. group.Select(identity => new NotificationRecipient(identity.UserId)).Distinct()]))],
+                    NotificationResourceType.ApprovalRequest,
+                    CreateSummary(approvalRequest.Title),
+                    [.. group.Select(identity => new NotificationRecipient(identity.UserId)).Distinct()],
+                    SourceResourceGlobalId: approvalRequest.GlobalId,
+                    SourceResourceType: NotificationResourceType.ApprovalRequest))],
             cancellationToken);
 
     private sealed record NotificationRecipientIdentity(long TenantId, long UserId);
@@ -361,6 +371,5 @@ public class ApprovalWorkflowService(
         return tasks;
     }
 
-    private static string CreateSummary(Guid globalId, string title) =>
-        $"#{globalId.ToString()[..5]} {title}";
+    private static string CreateSummary(string title) => title;
 }

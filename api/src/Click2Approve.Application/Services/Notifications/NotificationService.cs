@@ -27,10 +27,12 @@ public class NotificationService(
                 var payload = new NotificationEventPayload(
                     notification.Type,
                     notification.TenantId,
-                    notification.EntityGlobalId,
+                    notification.TargetResourceGlobalId,
+                    notification.TargetResourceType,
                     notification.Summary,
                     recipient.UserId,
-                    notification.SourceGlobalId);
+                    notification.SourceResourceGlobalId,
+                    notification.SourceResourceType);
                 await _eventOutboxRepository.AddAsync(
                     new EventOutboxMessage
                     {
@@ -118,7 +120,8 @@ public class NotificationService(
         GlobalId = notification.GlobalId,
         Type = notification.Type,
         OccurredAt = notification.OccurredAt,
-        EntityGlobalId = notification.EntityGlobalId,
+        TargetResourceGlobalId = notification.TargetResourceGlobalId,
+        TargetResourceType = notification.TargetResourceType,
         Summary = notification.Summary,
         ReadAt = notification.ReadAt
     };

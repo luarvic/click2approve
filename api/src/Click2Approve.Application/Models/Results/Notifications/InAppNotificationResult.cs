@@ -10,7 +10,8 @@ public class InAppNotificationResult
     public required Guid GlobalId { get; set; }
     public required NotificationType Type { get; set; }
     public required DateTime OccurredAt { get; set; }
-    public required Guid EntityGlobalId { get; set; }
+    public Guid? TargetResourceGlobalId { get; set; }
+    public NotificationResourceType? TargetResourceType { get; set; }
     public required string Summary { get; set; }
     public DateTime? ReadAt { get; set; }
 }

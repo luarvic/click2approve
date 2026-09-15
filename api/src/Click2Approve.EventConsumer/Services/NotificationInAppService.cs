@@ -27,11 +27,12 @@ public sealed class NotificationInAppService(
         await _inAppNotificationRepository.AddAsync(
             new InAppNotification
             {
-                EntityGlobalId = payload.EntityGlobalId,
                 EventId = envelope.EventId,
                 Type = payload.Type,
                 OccurredAt = envelope.OccurredAt,
                 Summary = payload.Summary,
+                TargetResourceGlobalId = payload.TargetResourceGlobalId,
+                TargetResourceType = payload.TargetResourceType,
                 TenantId = payload.TenantId,
                 UserId = payload.UserId
             },
