@@ -2,7 +2,7 @@ import { refreshAuthSession } from "@/features/identity/api/authApi";
 import { ApiPaths } from "@/shared/api/apiPaths";
 import { getRequestContext } from "@/shared/api/requestContext";
 import { Api } from "@/shared/config/application";
-import { readTokens } from "@/shared/session/session";
+import { readTokens, writeTokens } from "@/shared/session/session";
 import axios from "axios";
 
 const axiosInstance = axios.create({
@@ -14,6 +14,7 @@ const axiosInstance = axios.create({
 const apiDelayMs = Number(import.meta.env.VITE_API_DELAY_MS ?? 0);
 const workEmployeeHeaderName = "X-Click2Approve-Work-Employee";
 const workEmployeeInvalidHeaderName = "X-Click2Approve-Work-Employee-Invalid";
+let refreshRequest: { promise: ReturnType<typeof refreshAuthSession>; refreshToken: string } | null = null;
 
 interface TenantSuspendedResponse {
   code: string;
@@ -50,6 +51,18 @@ const delayRequest = async (): Promise<void> => {
   }
 
   await new Promise((resolve) => window.setTimeout(resolve, apiDelayMs));
+};
+
+const refreshTokens = async (refreshToken: string) => {
+  if (refreshRequest?.refreshToken === refreshToken) return await refreshRequest.promise;
+
+  const request = { promise: refreshAuthSession(refreshToken), refreshToken };
+  refreshRequest = request;
+  try {
+    return await request.promise;
+  } finally {
+    if (refreshRequest === request) refreshRequest = null;
+  }
 };
 
 const handleTenantSuspension = (error: { response?: { data?: unknown; status?: number } }): boolean => {
@@ -104,22 +117,25 @@ axiosInstance.interceptors.response.use(
       error.response &&
       error.response.status &&
       error.response.status === 401 &&
-      originalRequest?.url !== ApiPaths.account.refresh &&
-      !originalRequest?.url.startsWith(ApiPaths.account.confirmEmail) &&
-      !originalRequest?.url.startsWith(ApiPaths.receiptLinks.root)
+      originalRequest &&
+      shouldSendAuthentication(originalRequest.url)
     ) {
-      if (!originalRequest._retry) {
+      if (originalRequest._retry) {
+        const authorization = originalRequest.headers?.Authorization ?? originalRequest.headers?.get?.("Authorization");
+        if (authorization === `Bearer ${readTokens()?.accessToken}`) context.onUnauthorized();
+      } else {
         originalRequest._retry = true;
         const tokens = readTokens();
         if (tokens) {
-          const newTokens = await refreshAuthSession(tokens.refreshToken);
-          if (newTokens) {
+          const newTokens = await refreshTokens(tokens.refreshToken);
+          if (newTokens && readTokens()?.refreshToken === tokens.refreshToken) {
+            writeTokens(newTokens);
             originalRequest.headers = originalRequest.headers ?? {};
             originalRequest.headers.Authorization = `Bearer ${newTokens.accessToken}`;
             return axiosInstance(originalRequest);
           }
-          context.onUnauthorized();
         }
+        if (!tokens || readTokens()?.refreshToken === tokens.refreshToken) context.onUnauthorized();
       }
     }
     return Promise.reject(error);

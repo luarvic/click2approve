@@ -1,9 +1,9 @@
 import { AuthResponse } from "@/features/identity/models/authResponse";
 import { CredentialsData } from "@/features/identity/models/credentials";
 import { UserAccount } from "@/features/identity/models/userAccount";
-import axios from "@/shared/api/axios";
 import { ApiPaths } from "@/shared/api/apiPaths";
-import { deleteTokens, writeTokens } from "@/shared/session/session";
+import axios from "@/shared/api/axios";
+import { writeTokens } from "@/shared/session/session";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
 
@@ -38,7 +38,6 @@ export const loginUser = async (credentials: CredentialsData): Promise<boolean> 
     writeTokens(data);
     return true;
   } catch (e) {
-    deleteTokens();
     notification.error(getApiErrorNotification(e));
     return false;
   }
@@ -87,7 +86,6 @@ export const refreshAuthSession = async (refreshToken: string): Promise<AuthResp
     const { data } = await axios.post<AuthResponse>(ApiPaths.account.refresh, {
       refreshToken: refreshToken,
     });
-    writeTokens(data);
     return data;
   } catch (e) {
     return null;

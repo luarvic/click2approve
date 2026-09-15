@@ -33,9 +33,6 @@ export class UserAccountStore {
   };
 
   signIn = async (credentials: CredentialsData): Promise<boolean> => {
-    if (this.currentUser) {
-      this.signOut();
-    }
     if (await loginUser(credentials)) {
       return await this.signInWithCachedToken();
     }
@@ -43,9 +40,6 @@ export class UserAccountStore {
   };
 
   signInWithPasskey = async (): Promise<boolean> => {
-    if (this.currentUser) {
-      this.signOut();
-    }
     if (await signInWithPasskey()) {
       return await this.signInWithCachedToken();
     }
@@ -67,6 +61,11 @@ export class UserAccountStore {
   signInWithCachedToken = async (): Promise<boolean> => {
     const tokens = readTokens();
     if (tokens) {
+      this.clearSession();
+      runInAction(() => {
+        this.currentUser = undefined;
+        this.isManualSignOut = false;
+      });
       const currentUser = await getUserAccountManageInfo();
       if (currentUser) {
         await this.initializeSession();
@@ -87,6 +86,15 @@ export class UserAccountStore {
       this.isManualSignOut = isManual;
       this.currentUser = null;
     });
+  };
+
+  synchronizeWithSharedSession = async (): Promise<void> => {
+    if (!readTokens()) {
+      this.signOut(true);
+      return;
+    }
+
+    await this.signInWithCachedToken();
   };
 
   clearManualSignOut = () => {

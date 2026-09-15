@@ -1,7 +1,7 @@
 import { AuthResponse } from "@/features/identity/models/authResponse";
 import { PaletteMode } from "@mui/material";
 
-const STORAGE_ITEM_KEY: string = "tokens";
+export const TOKENS_STORAGE_KEY = "tokens";
 const COLOR_MODE_KEY: string = "colorMode";
 const CURRENT_TENANT_GLOBAL_ID_KEY: string = "currentTenantGlobalId";
 const CURRENT_WORK_EMPLOYEE_GLOBAL_ID_KEY: string = "currentWorkEmployeeGlobalId";
@@ -11,11 +11,11 @@ const getPasskeyEnrollmentPromptDismissedKey = (email: string): string =>
   `${PASSKEY_ENROLLMENT_PROMPT_DISMISSED_KEY}.${encodeURIComponent(email.trim().toLowerCase())}`;
 
 export const writeTokens = (data: AuthResponse) => {
-  localStorage.setItem(STORAGE_ITEM_KEY, JSON.stringify(data));
+  localStorage.setItem(TOKENS_STORAGE_KEY, JSON.stringify(data));
 };
 
 export const readTokens = (): AuthResponse | null => {
-  const dataJson = localStorage.getItem(STORAGE_ITEM_KEY);
+  const dataJson = localStorage.getItem(TOKENS_STORAGE_KEY);
   if (dataJson) {
     return JSON.parse(dataJson) as AuthResponse;
   } else {
@@ -24,7 +24,7 @@ export const readTokens = (): AuthResponse | null => {
 };
 
 export const deleteTokens = () => {
-  localStorage.removeItem(STORAGE_ITEM_KEY);
+  localStorage.removeItem(TOKENS_STORAGE_KEY);
 };
 
 export const writeColorMode = (colorMode: PaletteMode) => {

@@ -1,6 +1,7 @@
 import AppRouter from "@/app/AppRouter";
 import { stores } from "@/app/rootStore";
 import PasskeyEnrollmentDialog from "@/features/identity/components/PasskeyEnrollmentDialog";
+import { useSharedSessionSynchronization } from "@/features/identity/hooks/useSharedSessionSynchronization";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import Notifications from "@/shared/components/overlays/Notifications";
 import "@fontsource/sora/400.css";
@@ -13,6 +14,8 @@ import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 
 const App = () => {
+  useSharedSessionSynchronization();
+
   useEffect(() => {
     const load = async () => {
       await stores.applicationConfigurationStore.load();
