@@ -192,6 +192,16 @@ describe("store architecture", () => {
     expect(store.actionLoadingCounter).toEqual({});
   });
 
+  test("remembers the selected menu page until the session clears", () => {
+    const store = new CommonStore();
+
+    store.setCurrentMenuPath("/tenants");
+    expect(store.currentMenuPath).toBe("/tenants");
+
+    store.clearSessionState();
+    expect(store.currentMenuPath).toBeUndefined();
+  });
+
   test("an obsolete tenant response cannot replace current employees", async () => {
     const firstRequest = deferred<Employee[]>();
     const secondRequest = deferred<Employee[]>();

@@ -13,6 +13,7 @@ export class CommonStore {
   mainMenuDrawerIsOpen: boolean;
   profileDrawerIsOpen: boolean;
   tenantCreateDialogIsOpen: boolean;
+  currentMenuPath: string | undefined;
 
   constructor(
     approvalRequestSubmitDialogIsOpen: boolean = false,
@@ -106,6 +107,12 @@ export class CommonStore {
     });
   };
 
+  setCurrentMenuPath = (path: string | undefined) => {
+    runInAction(() => {
+      this.currentMenuPath = path;
+    });
+  };
+
   clearSessionState = (): void => {
     runInAction(() => {
       this.approvalRequestSubmitDialogIsOpen = false;
@@ -117,6 +124,7 @@ export class CommonStore {
       this.mainMenuDrawerIsOpen = false;
       this.profileDrawerIsOpen = false;
       this.tenantCreateDialogIsOpen = false;
+      this.currentMenuPath = undefined;
       this.actionLoadingCounter = {};
     });
   };

@@ -4,6 +4,7 @@ import { Shell } from "@/shared/components/layout/shellStyles";
 import { Lists } from "@/shared/components/lists/listStyles";
 import { Api, Refresh } from "@/shared/config/application";
 import { Routes } from "@/shared/routing/routes";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   AddTwoTone,
   AssignmentTurnedInTwoTone,
@@ -89,11 +90,20 @@ const MainMenuDrawer = () => {
   const delegationsPath = tenantPath("/delegations");
   const subscriptionPlanPath = tenantPath("/plans");
   const subscriptionUsagePath = tenantPath("/usage");
-  const tasksAreSelected = location.pathname === "/" || location.pathname.startsWith(tasksPath);
-  const requestsAreSelected = location.pathname.startsWith(requestsPath);
+  const selectedMenuPath = stores.commonStore.isActionLoading(ActionLoaders.pages.tenantScope())
+    ? (stores.commonStore.currentMenuPath ?? Routes.tasksPath)
+    : undefined;
+  const tasksAreSelected =
+    selectedMenuPath === undefined
+      ? location.pathname === "/" || location.pathname.startsWith(tasksPath)
+      : selectedMenuPath === Routes.tasksPath;
+  const requestsAreSelected =
+    selectedMenuPath === undefined ? location.pathname.startsWith(requestsPath) : selectedMenuPath === "/requests";
   const numberOfUncompletedTasks = stores.approvalRequestTaskStore.numberOfUncompletedTasks;
   const organizationsIsSelected =
-    /^\/tenants(?:\/[^/]+)?$/.test(location.pathname) || location.pathname.startsWith("/tenants/new/");
+    selectedMenuPath === undefined
+      ? /^\/tenants(?:\/[^/]+)?$/.test(location.pathname) || location.pathname.startsWith("/tenants/new/")
+      : selectedMenuPath === "/tenants";
 
   useEffect(() => {
     if (!currentUser) {
@@ -141,6 +151,12 @@ const MainMenuDrawer = () => {
     }
   };
 
+  const navigateWorkspaceMenu = (path: string) => {
+    stores.commonStore.setCurrentMenuPath(path);
+    navigate(tenantPath(path));
+    closeTemporaryDrawer();
+  };
+
   const drawerContent = (
     <Box>
       <Toolbar disableGutters sx={Shell.mainMenuDrawerToolbarSx}>
@@ -160,6 +176,7 @@ const MainMenuDrawer = () => {
                 size="small"
                 startIcon={<AddTwoTone />}
                 onClick={() => {
+                  stores.commonStore.setCurrentMenuPath("/requests");
                   navigate(`${requestsPath}/new`);
                   closeTemporaryDrawer();
                 }}
@@ -177,8 +194,7 @@ const MainMenuDrawer = () => {
               if (currentTenantGlobalId && !tenantIsBlocked) {
                 stores.approvalRequestTaskStore.loadUncompletedCount(currentTenantGlobalId);
               }
-              navigate(tasksPath);
-              closeTemporaryDrawer();
+              navigateWorkspaceMenu(Routes.tasksPath);
             }}
           >
             <ListItemIcon sx={Lists.itemIconSx}>
@@ -201,8 +217,7 @@ const MainMenuDrawer = () => {
           <ListItemButton
             selected={requestsAreSelected}
             onClick={() => {
-              navigate(requestsPath);
-              closeTemporaryDrawer();
+              navigateWorkspaceMenu("/requests");
             }}
           >
             <ListItemIcon sx={Lists.itemIconSx}>
@@ -214,10 +229,13 @@ const MainMenuDrawer = () => {
         {receiptsIsVisible && (
           <ListItem key="receipts" disablePadding>
             <ListItemButton
-              selected={location.pathname.startsWith(receiptsPath)}
+              selected={
+                selectedMenuPath === undefined
+                  ? location.pathname.startsWith(receiptsPath)
+                  : selectedMenuPath === "/receipts"
+              }
               onClick={() => {
-                navigate(receiptsPath);
-                closeTemporaryDrawer();
+                navigateWorkspaceMenu("/receipts");
               }}
             >
               <ListItemIcon sx={Lists.itemIconSx}>
@@ -230,10 +248,13 @@ const MainMenuDrawer = () => {
         {templatesIsVisible && (
           <ListItem key="approvalStepTemplates" disablePadding>
             <ListItemButton
-              selected={location.pathname.startsWith(templatesPath)}
+              selected={
+                selectedMenuPath === undefined
+                  ? location.pathname.startsWith(templatesPath)
+                  : selectedMenuPath === "/approvalStepTemplates"
+              }
               onClick={() => {
-                navigate(templatesPath);
-                closeTemporaryDrawer();
+                navigateWorkspaceMenu("/approvalStepTemplates");
               }}
             >
               <ListItemIcon sx={Lists.itemIconSx}>
@@ -250,6 +271,7 @@ const MainMenuDrawer = () => {
             <ListItemButton
               selected={organizationsIsSelected}
               onClick={() => {
+                stores.commonStore.setCurrentMenuPath("/tenants");
                 navigate("/tenants");
                 closeTemporaryDrawer();
               }}
@@ -267,10 +289,13 @@ const MainMenuDrawer = () => {
           {employeeManagerIsVisible && (
             <ListItem key="employees" disablePadding>
               <ListItemButton
-                selected={location.pathname.startsWith(employeesPath)}
+                selected={
+                  selectedMenuPath === undefined
+                    ? location.pathname.startsWith(employeesPath)
+                    : selectedMenuPath === "/employees"
+                }
                 onClick={() => {
-                  navigate(employeesPath);
-                  closeTemporaryDrawer();
+                  navigateWorkspaceMenu("/employees");
                 }}
               >
                 <ListItemIcon sx={Lists.itemIconSx}>
@@ -283,10 +308,13 @@ const MainMenuDrawer = () => {
           {teamsManagerIsVisible && (
             <ListItem key="teams" disablePadding>
               <ListItemButton
-                selected={location.pathname.startsWith(teamsPath)}
+                selected={
+                  selectedMenuPath === undefined
+                    ? location.pathname.startsWith(teamsPath)
+                    : selectedMenuPath === "/teams"
+                }
                 onClick={() => {
-                  navigate(teamsPath);
-                  closeTemporaryDrawer();
+                  navigateWorkspaceMenu("/teams");
                 }}
               >
                 <ListItemIcon sx={Lists.itemIconSx}>
@@ -299,10 +327,13 @@ const MainMenuDrawer = () => {
           {delegationsIsVisible && (
             <ListItem key="delegations" disablePadding>
               <ListItemButton
-                selected={location.pathname.startsWith(delegationsPath)}
+                selected={
+                  selectedMenuPath === undefined
+                    ? location.pathname.startsWith(delegationsPath)
+                    : selectedMenuPath === "/delegations"
+                }
                 onClick={() => {
-                  navigate(delegationsPath);
-                  closeTemporaryDrawer();
+                  navigateWorkspaceMenu("/delegations");
                 }}
               >
                 <ListItemIcon sx={Lists.itemIconSx}>
@@ -318,10 +349,13 @@ const MainMenuDrawer = () => {
         <List subheader={<ListSubheader component="div">Subscription</ListSubheader>}>
           <ListItem key="subscriptionPlan" disablePadding>
             <ListItemButton
-              selected={location.pathname.startsWith(subscriptionPlanPath)}
+              selected={
+                selectedMenuPath === undefined
+                  ? location.pathname.startsWith(subscriptionPlanPath)
+                  : selectedMenuPath === "/plans"
+              }
               onClick={() => {
-                navigate(subscriptionPlanPath);
-                closeTemporaryDrawer();
+                navigateWorkspaceMenu("/plans");
               }}
             >
               <ListItemIcon sx={Lists.itemIconSx}>
@@ -332,10 +366,13 @@ const MainMenuDrawer = () => {
           </ListItem>
           <ListItem key="subscriptionUsage" disablePadding>
             <ListItemButton
-              selected={location.pathname.startsWith(subscriptionUsagePath)}
+              selected={
+                selectedMenuPath === undefined
+                  ? location.pathname.startsWith(subscriptionUsagePath)
+                  : selectedMenuPath === "/usage"
+              }
               onClick={() => {
-                navigate(subscriptionUsagePath);
-                closeTemporaryDrawer();
+                navigateWorkspaceMenu("/usage");
               }}
             >
               <ListItemIcon sx={Lists.itemIconSx}>

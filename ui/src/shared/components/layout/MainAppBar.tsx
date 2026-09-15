@@ -15,7 +15,7 @@ import { getEmailInitials } from "@/shared/utils/email";
 import { Menu } from "@mui/icons-material";
 import { Avatar, FormControl, IconButton, InputLabel, MenuItem, Select } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const createTenantPickerOption = (tenant: Tenant, employeeGlobalId: string | null, employeeDisplayName?: string) => ({
   employeeDisplayName,
@@ -28,7 +28,6 @@ const MainAppBar = ({
   showProfileButton = true,
   showTenantPicker = true,
 }: AppBarOptions) => {
-  const location = useLocation();
   const navigate = useNavigate();
   const currentUser = stores.userAccountStore.currentUser;
   const profile = stores.userProfileStore.profile;
@@ -123,11 +122,20 @@ const MainAppBar = ({
                 if (!option) return;
                 if (!confirmUnsavedChanges()) return;
                 const tenantGlobalId = option.tenant.globalId;
+                const currentMenuPath = stores.commonStore.currentMenuPath ?? Routes.tasksPath;
                 const loader = ActionLoaders.pages.tenantScope();
                 stores.commonStore.updateActionLoadingCounter(loader, 1);
                 try {
-                  await stores.switchTenant(tenantGlobalId, option.employeeGlobalId, location.pathname === tasksPath);
-                  navigate(Routes.tenantPath(tenantGlobalId, Routes.tasksPath));
+                  await stores.switchTenant(
+                    tenantGlobalId,
+                    option.employeeGlobalId,
+                    currentMenuPath === Routes.tasksPath,
+                  );
+                  navigate(
+                    currentMenuPath === "/tenants"
+                      ? currentMenuPath
+                      : Routes.tenantPath(tenantGlobalId, currentMenuPath),
+                  );
                 } finally {
                   stores.commonStore.updateActionLoadingCounter(loader, -1);
                 }
