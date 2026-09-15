@@ -18,10 +18,12 @@ public class ApprovalRequest : DbEntity
     public string? CompletedByDisplayName { get; set; }
     public required DateTime CreatedAt { get; set; }
     public required string CreatedByDisplayName { get; set; }
+    public DateTime? DeletionPublishedAt { get; set; }
     public required string OrganizationDisplayName { get; set; }
     public required string? Description { get; set; }
     public int RevisionNumber { get; set; } = 1;
     public bool? Result { get; set; }
+    public DateTime? ScheduledForDeletionAt { get; set; }
     public required ApprovalRequestStatus Status { get; set; }
     public required string Title { get; set; }
 

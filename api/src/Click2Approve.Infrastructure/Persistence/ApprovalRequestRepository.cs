@@ -52,8 +52,7 @@ public class ApprovalRequestRepository(
         CancellationToken cancellationToken)
     {
         var scope = await AccessScopeProvider.GetAsync(user, cancellationToken);
-        var requests = Db.ApprovalRequests
-            .AsNoTracking()
+        var requests = GetApprovalRequestListQuery(Db.ApprovalRequests.AsNoTracking())
             .Where(AccessPolicy.CanManageRequest(scope));
 
         if (query.Status.Count > 0)
@@ -152,4 +151,6 @@ public class ApprovalRequestRepository(
         .Include(request => request.Steps)
             .ThenInclude(step => step.Tasks)
                 .ThenInclude(task => task.CompletedByUser);
+
+    protected virtual IQueryable<ApprovalRequest> GetApprovalRequestListQuery(IQueryable<ApprovalRequest> requests) => requests;
 }

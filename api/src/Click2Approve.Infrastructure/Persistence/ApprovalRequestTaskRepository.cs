@@ -55,8 +55,7 @@ public class ApprovalRequestTaskRepository(
         CancellationToken cancellationToken)
     {
         var scope = await AccessScopeProvider.GetAsync(user, cancellationToken);
-        var tasks = Db.ApprovalRequestTasks
-            .AsNoTracking()
+        var tasks = GetApprovalRequestTaskListQuery(Db.ApprovalRequestTasks.AsNoTracking())
             .Where(AccessPolicy.CanWorkTask(scope))
             .AsQueryable();
 
@@ -241,8 +240,11 @@ public class ApprovalRequestTaskRepository(
                 .ThenInclude(step => step.Tasks)
                     .ThenInclude(requestTask => requestTask.AssigneeUser)
             .Include(request => request.Steps.Where(step => !hiddenStepSequences.Contains(step.Sequence)))
-                .ThenInclude(step => step.Tasks)
-                    .ThenInclude(requestTask => requestTask.CompletedByUser);
+            .ThenInclude(step => step.Tasks)
+                .ThenInclude(requestTask => requestTask.CompletedByUser);
+
+    protected virtual IQueryable<ApprovalRequestTask> GetApprovalRequestTaskListQuery(
+        IQueryable<ApprovalRequestTask> tasks) => tasks;
 
     protected virtual Task PopulateTaskFilesAsync(
         IEnumerable<ApprovalRequestTask> tasks,

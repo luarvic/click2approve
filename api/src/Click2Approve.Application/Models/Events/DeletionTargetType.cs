@@ -5,6 +5,7 @@ namespace Click2Approve.Application.Models.Events;
 /// </summary>
 public enum DeletionTargetType
 {
+    ApprovalRequest,
     Tenant,
     UserFile
 }

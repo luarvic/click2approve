@@ -134,6 +134,9 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             .HasIndex(r => new { r.TenantId, r.Status, r.Result });
 
         modelBuilder.Entity<ApprovalRequest>()
+            .HasIndex(r => new { r.ScheduledForDeletionAt, r.DeletionPublishedAt });
+
+        modelBuilder.Entity<ApprovalRequest>()
             .Property(r => r.RevisionNumber)
             .HasDefaultValue(1);
 
