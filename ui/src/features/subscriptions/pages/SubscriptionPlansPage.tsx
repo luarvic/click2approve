@@ -1,10 +1,15 @@
 import { stores } from "@/app/rootStore";
-import type { BillingStatus, SubscriptionPlanConfiguration } from "@/features/subscriptions/api/subscriptionsApi";
+import type {
+  BillingStatus,
+  SubscriptionPlanConfiguration,
+  SubscriptionUsage,
+} from "@/features/subscriptions/api/subscriptionsApi";
 import {
   cancelScheduledPlanChange,
   changeSubscriptionPlan,
   getBillingStatus,
   getSubscriptionPlans,
+  getSubscriptionUsage,
   recoverPayment,
   refreshBilling,
 } from "@/features/subscriptions/api/subscriptionsApi";
@@ -18,6 +23,7 @@ import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { parseUtcDateTime } from "@/shared/utils/dateTime";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
@@ -90,9 +96,10 @@ const SubscriptionPlansPage = () => {
   const [plansRefreshVersion, setPlansRefreshVersion] = useState(0);
   const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlanConfiguration[]>([]);
   const [subscriptionPlansHaveLoaded, setSubscriptionPlansHaveLoaded] = useState(false);
+  const [trialUsage, setTrialUsage] = useState<SubscriptionUsage>();
   const initialLoad = useRef<{
     tenantGlobalId: string;
-    promise: Promise<[SubscriptionPlanConfiguration[], BillingStatus]>;
+    promise: Promise<[SubscriptionPlanConfiguration[], BillingStatus, SubscriptionUsage | undefined]>;
   }>();
   const subtitle =
     currentTenant?.type === TenantType.Personal
@@ -118,12 +125,19 @@ const SubscriptionPlansPage = () => {
     setSubscriptionPlansHaveLoaded(false);
     setBilling(undefined);
     setFailed(false);
+    setTrialUsage(undefined);
     stores.commonStore.updateActionLoadingCounter(subscriptionPlansLoader, 1);
     // Share the initial request across React effect replays.
     if (initialLoad.current?.tenantGlobalId !== tenantGlobalId) {
       initialLoad.current = {
         tenantGlobalId,
-        promise: Promise.all([getSubscriptionPlans(), refreshBilling(tenantGlobalId)]).then(async (result) => {
+        promise: Promise.all([
+          getSubscriptionPlans(),
+          refreshBilling(tenantGlobalId),
+          currentTenant?.subscriptionPlan === SubscriptionPlan.BusinessTrial
+            ? getSubscriptionUsage(tenantGlobalId)
+            : Promise.resolve(undefined),
+        ]).then(async (result) => {
           if (stores.tenantStore.currentTenant?.globalId === tenantGlobalId) {
             await stores.tenantStore.load(undefined, tenantGlobalId);
           }
@@ -132,10 +146,11 @@ const SubscriptionPlansPage = () => {
       };
     }
     void initialLoad.current.promise
-      .then(([loadedSubscriptionPlans, loadedBilling]) => {
+      .then(([loadedSubscriptionPlans, loadedBilling, loadedTrialUsage]) => {
         if (active) {
           setSubscriptionPlans(loadedSubscriptionPlans);
           setBilling(loadedBilling);
+          setTrialUsage(loadedTrialUsage);
         }
       })
       .catch(() => {
@@ -235,6 +250,10 @@ const SubscriptionPlansPage = () => {
         : "Active";
   const paymentColor =
     billing.cleanupStarted || billing.suspendedAt ? "error" : billing.paymentResolutionRequired ? "warning" : "success";
+  const businessTrialHasEnded =
+    currentTenant?.subscriptionPlan === SubscriptionPlan.BusinessTrial &&
+    trialUsage !== undefined &&
+    parseUtcDateTime(trialUsage.usagePeriodEndsAt) <= new Date();
   const changesDisabled =
     !canManage ||
     billing.paymentResolutionRequired ||
@@ -254,6 +273,7 @@ const SubscriptionPlansPage = () => {
     billing.paymentResolutionRequired ||
     billing.recoveryDeadline ||
     billing.pendingPlan !== null ||
+    businessTrialHasEnded ||
     !canManage;
 
   return (
@@ -286,6 +306,11 @@ const SubscriptionPlansPage = () => {
               {currentTenant?.type === TenantType.Personal
                 ? "After this deadline, your personal workflow data and uploads will be deleted and your plan will return to Personal Free. Your account and profile will remain."
                 : "After this deadline, the organization and its data will be permanently deleted."}
+            </Alert>
+          )}
+          {businessTrialHasEnded && (
+            <Alert severity="warning">
+              Your Business Trial has ended. Choose a paid plan to continue using your workspace.
             </Alert>
           )}
           {billing.pendingPlan !== null && !billing.paymentResolutionRequired && (
@@ -364,8 +389,20 @@ const SubscriptionPlansPage = () => {
                 billing.scheduledPlan === plan ? (
                   <Chip color="info" label="Planned" size="small" />
                 ) : isCurrentPlan ? (
-                  <Tooltip title={paymentLabel === "Pending" ? "Payment pending" : ""}>
-                    <Chip color={paymentColor} label={paymentLabel} size="small" />
+                  <Tooltip
+                    title={
+                      businessTrialHasEnded
+                        ? "Choose a paid plan to continue"
+                        : paymentLabel === "Pending"
+                          ? "Payment pending"
+                          : ""
+                    }
+                  >
+                    <Chip
+                      color={businessTrialHasEnded ? "warning" : paymentColor}
+                      label={businessTrialHasEnded ? "Trial ended" : paymentLabel}
+                      size="small"
+                    />
                   </Tooltip>
                 ) : billing.pendingPlan === plan ? (
                   <Tooltip title="Payment pending">
@@ -378,7 +415,9 @@ const SubscriptionPlansPage = () => {
                   ? billing.scheduledPlanEffectiveAt
                     ? `Effective ${new Date(billing.scheduledPlanEffectiveAt).toLocaleString()}`
                     : "Effective at the next renewal"
-                  : undefined
+                  : isCurrentPlan && plan === SubscriptionPlan.BusinessTrial && trialUsage
+                    ? `Expires ${new Date(trialUsage.usagePeriodEndsAt).toLocaleString()}`
+                    : undefined
               }
               title={planNames[plan]}
             />

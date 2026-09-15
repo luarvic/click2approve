@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   change: vi.fn(),
   recover: vi.fn(),
   load: vi.fn(),
+  usage: vi.fn(),
   tenant: {
     globalId: "test",
     type: 0,
@@ -40,6 +41,7 @@ vi.mock("@/features/subscriptions/api/subscriptionsApi", () => ({
   changeSubscriptionPlan: mocks.change,
   recoverPayment: mocks.recover,
   getSubscriptionPlans: vi.fn().mockResolvedValue([]),
+  getSubscriptionUsage: mocks.usage,
 }));
 vi.mock("@/shared/utils/persistenceNotifications", () => ({
   PersistenceSuccessMessages: {},
@@ -76,6 +78,7 @@ beforeEach(() => {
   mocks.load.mockResolvedValue(undefined);
   mocks.refresh.mockResolvedValue(active);
   mocks.status.mockResolvedValue(active);
+  mocks.usage.mockResolvedValue({ usagePeriodEndsAt: "2099-01-01T00:00:00Z" });
 });
 describe("plans and billing", () => {
   it.each(["", "?retryPendingPlan=True", "?retryPendingPlan=true"])(
@@ -187,6 +190,23 @@ describe("plans and billing", () => {
     const recoveryCard = screen.getByRole("button", { name: "Resolve payment" }).closest(".MuiCard-root");
     expect(recoveryCard?.textContent).toContain("Business Starter");
     expect(recoveryCard?.textContent).not.toContain("Business Trial");
+  });
+  it("shows that an expired Business Trial needs a paid plan", async () => {
+    mocks.tenant.type = TenantType.Business;
+    mocks.tenant.subscriptionPlan = SubscriptionPlan.BusinessTrial;
+    mocks.usage.mockResolvedValue({ usagePeriodEndsAt: "2020-01-01T00:00:00Z" });
+
+    showPage();
+
+    expect(
+      await screen.findByText("Your Business Trial has ended. Choose a paid plan to continue using your workspace."),
+    ).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Business Trial" }).closest(".MuiCard-root")?.textContent).toContain(
+      "Trial ended",
+    );
+    expect(screen.getByRole("heading", { name: "Business Trial" }).closest(".MuiCard-root")?.textContent).toContain(
+      `Expires ${new Date("2020-01-01T00:00:00Z").toLocaleString()}`,
+    );
   });
   it("shows suspension and cleanup consequences, then refreshes verified payment state", async () => {
     mocks.tenant.subscriptionPlan = SubscriptionPlan.PersonalPro;
