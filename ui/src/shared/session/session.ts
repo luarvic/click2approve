@@ -33,7 +33,9 @@ export const writeColorMode = (colorMode: PaletteMode) => {
 
 export const readColorMode = (): PaletteMode => {
   const colorMode = localStorage.getItem(COLOR_MODE_KEY);
-  return colorMode ? (colorMode as PaletteMode) : "light";
+  if (colorMode) return colorMode as PaletteMode;
+
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 };
 
 export const writeCurrentTenantGlobalId = (tenantGlobalId: string) => {
