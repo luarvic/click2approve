@@ -11,6 +11,9 @@ const uncompletedTasksRefreshSeconds = Number(
 const discussionsRefreshSeconds = Number(
   import.meta.env.VITE_DISCUSSIONS_REFRESH_SECONDS ?? String(refreshSecondsDefault),
 );
+const approvalRequestDetailsRefreshSeconds = Number(
+  import.meta.env.VITE_APPROVAL_REQUEST_DETAILS_REFRESH_SECONDS ?? String(refreshSecondsDefault),
+);
 const notificationsRefreshSeconds = Number(
   import.meta.env.VITE_NOTIFICATIONS_REFRESH_SECONDS ?? String(refreshSecondsDefault),
 );
@@ -33,6 +36,7 @@ export const Refresh = {
   gridSeconds: toRefreshSeconds(gridRefreshSeconds),
   uncompletedTasksSeconds: toRefreshSeconds(uncompletedTasksRefreshSeconds),
   discussionsSeconds: toRefreshSeconds(discussionsRefreshSeconds),
+  approvalRequestDetailsSeconds: toRefreshSeconds(approvalRequestDetailsRefreshSeconds),
   notificationsSeconds: toRefreshSeconds(notificationsRefreshSeconds),
   get gridMs() {
     return this.gridSeconds * 1000;
@@ -42,6 +46,9 @@ export const Refresh = {
   },
   get discussionsMs() {
     return this.discussionsSeconds * 1000;
+  },
+  get approvalRequestDetailsMs() {
+    return this.approvalRequestDetailsSeconds * 1000;
   },
   get notificationsMs() {
     return this.notificationsSeconds * 1000;

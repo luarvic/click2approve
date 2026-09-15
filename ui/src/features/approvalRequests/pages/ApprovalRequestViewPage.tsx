@@ -2,6 +2,7 @@ import { stores } from "@/app/rootStore";
 import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestView from "@/features/approvalRequests/components/ApprovalRequestView";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
+import { Refresh } from "@/shared/config/application";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { Routes } from "@/shared/routing/routes";
@@ -34,7 +35,11 @@ const ApprovalRequestViewPage: React.FC<ApprovalRequestViewPageProps> = ({ tab =
   useEffect(() => {
     let active = true;
     setLoadedApprovalRequestGlobalId(null);
-    if (tenantGlobalId && approvalRequestGlobalId) {
+    const load = () => {
+      if (!tenantGlobalId || !approvalRequestGlobalId) {
+        return;
+      }
+
       stores.commonStore.updateActionLoadingCounter(detailLoader, 1);
       void stores.approvalRequestStore
         .loadDetails(tenantGlobalId, approvalRequestGlobalId)
@@ -44,9 +49,19 @@ const ApprovalRequestViewPage: React.FC<ApprovalRequestViewPageProps> = ({ tab =
           }
         })
         .finally(() => stores.commonStore.updateActionLoadingCounter(detailLoader, -1));
+    };
+
+    load();
+    if (Refresh.approvalRequestDetailsMs <= 0) {
+      return () => {
+        active = false;
+      };
     }
+
+    const intervalId = window.setInterval(load, Refresh.approvalRequestDetailsMs);
     return () => {
       active = false;
+      window.clearInterval(intervalId);
     };
   }, [approvalRequestGlobalId, detailLoader, tenantGlobalId]);
 

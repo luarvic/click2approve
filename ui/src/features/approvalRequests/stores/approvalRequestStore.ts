@@ -100,6 +100,17 @@ export class ApprovalRequestStore {
               this.requestToClone = approvalRequest;
             }
           });
+        } else {
+          runInAction(() => {
+            this.details.delete(globalId);
+            this.registry.delete(globalId);
+            if (this.currentApprovalRequest?.globalId === globalId) {
+              this.currentApprovalRequest = null;
+            }
+            if (this.requestToClone?.globalId === globalId) {
+              this.requestToClone = null;
+            }
+          });
         }
         return approvalRequest;
       })

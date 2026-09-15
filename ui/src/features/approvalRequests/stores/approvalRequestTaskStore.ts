@@ -70,6 +70,14 @@ export class ApprovalRequestTaskStore {
               this.currentTask = task;
             }
           });
+        } else {
+          runInAction(() => {
+            this.details.delete(globalId);
+            this.registry.delete(globalId);
+            if (this.currentTask?.globalId === globalId) {
+              this.currentTask = null;
+            }
+          });
         }
         return task;
       })

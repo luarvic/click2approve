@@ -2,6 +2,7 @@ import { stores } from "@/app/rootStore";
 import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestTask from "@/features/approvalRequests/components/ApprovalRequestTask";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
+import { Refresh } from "@/shared/config/application";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { Routes } from "@/shared/routing/routes";
@@ -30,7 +31,11 @@ const ApprovalRequestTaskPage: React.FC<ApprovalRequestTaskPageProps> = ({ tab =
   useEffect(() => {
     let active = true;
     setLoadedTaskGlobalId(null);
-    if (tenantGlobalId && taskGlobalId) {
+    const load = () => {
+      if (!tenantGlobalId || !taskGlobalId) {
+        return;
+      }
+
       stores.commonStore.updateActionLoadingCounter(detailLoader, 1);
       void stores.approvalRequestTaskStore
         .loadDetails(tenantGlobalId, taskGlobalId)
@@ -40,9 +45,19 @@ const ApprovalRequestTaskPage: React.FC<ApprovalRequestTaskPageProps> = ({ tab =
           }
         })
         .finally(() => stores.commonStore.updateActionLoadingCounter(detailLoader, -1));
+    };
+
+    load();
+    if (Refresh.approvalRequestDetailsMs <= 0) {
+      return () => {
+        active = false;
+      };
     }
+
+    const intervalId = window.setInterval(load, Refresh.approvalRequestDetailsMs);
     return () => {
       active = false;
+      window.clearInterval(intervalId);
     };
   }, [detailLoader, taskGlobalId, tenantGlobalId]);
 

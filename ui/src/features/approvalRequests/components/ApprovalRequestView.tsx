@@ -14,6 +14,7 @@ import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { notification } from "@/shared/utils/notifications";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
@@ -84,14 +85,45 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
     onClose(approvalRequest?.globalId);
   };
 
-  const handleResubmit = () => {
-    if (!approvalRequest) {
+  const refreshApprovalRequest = async () => {
+    if (!tenantGlobalId) {
+      return null;
+    }
+
+    return await stores.approvalRequestStore.loadDetails(tenantGlobalId, approvalRequestGlobalId);
+  };
+
+  const handleResubmit = async () => {
+    const refreshedApprovalRequest = await refreshApprovalRequest();
+    if (
+      !refreshedApprovalRequest ||
+      !stores.applicationConfigurationStore.approvalRequestRevisionsAreEnabled ||
+      refreshedApprovalRequest.nextRevisionApprovalRequestGlobalId ||
+      !resubmittableApprovalRequestStatuses.includes(refreshedApprovalRequest.status) ||
+      refreshedApprovalRequest.result === true
+    ) {
+      notification.warning("This request has changed. Review the latest details before continuing.");
       return;
     }
 
     navigate(
-      tenantGlobalId ? Routes.tenantPath(tenantGlobalId, `/requests/${approvalRequest.globalId}/resubmit`) : "/",
+      tenantGlobalId
+        ? Routes.tenantPath(tenantGlobalId, `/requests/${refreshedApprovalRequest.globalId}/resubmit`)
+        : "/",
     );
+  };
+
+  const canSendMessage = async (): Promise<boolean> => {
+    const refreshedApprovalRequest = await refreshApprovalRequest();
+    const canSend =
+      refreshedApprovalRequest?.status !== ApprovalRequestStatus.Completed &&
+      refreshedApprovalRequest?.steps.some((step) =>
+        step.tasks?.some((task) => task.status === ApprovalRequestTaskStatus.Pending),
+      ) === true;
+    if (!canSend) {
+      notification.warning("This request has changed. Review the latest details before continuing.");
+    }
+    return canSend;
   };
 
   const cancel = async (): Promise<boolean> => {
@@ -100,7 +132,13 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
     }
 
     const isCanceled = await cancelAction.run(async () => {
-      const canceled = await stores.approvalRequestStore.cancel(tenantGlobalId, approvalRequest.globalId);
+      const refreshedApprovalRequest = await refreshApprovalRequest();
+      if (!refreshedApprovalRequest || !cancelableApprovalRequestStatuses.includes(refreshedApprovalRequest.status)) {
+        notification.warning("This request has changed. Review the latest details before continuing.");
+        return false;
+      }
+
+      const canceled = await stores.approvalRequestStore.cancel(tenantGlobalId, refreshedApprovalRequest.globalId);
       if (canceled) {
         showPersistenceSuccessNotification(PersistenceSuccessMessages.approvalRequestCanceled);
       }
@@ -125,7 +163,13 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
     }
 
     const deleted = await deleteAction.run(async () => {
-      const result = await stores.approvalRequestStore.delete(tenantGlobalId, approvalRequest.globalId);
+      const refreshedApprovalRequest = await refreshApprovalRequest();
+      if (!refreshedApprovalRequest) {
+        notification.warning("This request is no longer available.");
+        return false;
+      }
+
+      const result = await stores.approvalRequestStore.delete(tenantGlobalId, refreshedApprovalRequest.globalId);
       if (result) {
         showPersistenceSuccessNotification(PersistenceSuccessMessages.approvalRequestDeleted);
       }
@@ -193,7 +237,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
               </LoadingButton>
             )}
             {canResubmit && (
-              <MainActionButton startIcon={<Replay />} onClick={handleResubmit}>
+              <MainActionButton startIcon={<Replay />} onClick={() => void handleResubmit()}>
                 Resubmit
               </MainActionButton>
             )}
@@ -205,6 +249,7 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
           attachmentsAreEnabled={discussionAttachmentsAreEnabled}
           approvalRequest={approvalRequest}
           canSend={canSendDiscussion}
+          canSendMessage={canSendMessage}
           onClose={handleClose}
           tenantGlobalId={tenantGlobalId}
         />

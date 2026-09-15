@@ -13,6 +13,7 @@ interface DiscussionPanelProps {
   attachmentsAreEnabled: boolean;
   body: string;
   canSend: boolean;
+  canSendMessage?: () => Promise<boolean>;
   files: UserFile[];
   onBodyChange: (body: string) => void;
   onFilesChange: Dispatch<SetStateAction<UserFile[]>>;
@@ -43,6 +44,7 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
       attachmentsAreEnabled,
       body,
       canSend,
+      canSendMessage,
       files,
       onBodyChange,
       onFilesChange,
@@ -64,6 +66,7 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
       messages,
       send: sendMessage,
     } = useDiscussionMessages({
+      canSend: canSendMessage,
       requestGlobalId,
       taskGlobalId,
       tenantGlobalId,

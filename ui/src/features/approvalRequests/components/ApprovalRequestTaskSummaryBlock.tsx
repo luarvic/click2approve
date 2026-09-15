@@ -283,10 +283,10 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   const metadata = hasMetadata ? (
     <Stack spacing={StackSpacing.default}>
       {showComment && task.comment?.trim() && (
-        <>
+        <Stack spacing={StackSpacing.tight}>
           <ApprovalRequestParticipantLabel>Comment</ApprovalRequestParticipantLabel>
           <UserProvidedText text={task.comment} />
-        </>
+        </Stack>
       )}
       {additionalMetadata}
       {showElectronicSignature && taskElectronicSignatureIsVisible(task) && (

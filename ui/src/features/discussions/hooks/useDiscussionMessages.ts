@@ -13,12 +13,14 @@ import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface UseDiscussionMessagesOptions {
+  canSend?: () => Promise<boolean>;
   requestGlobalId: string;
   taskGlobalId?: string;
   tenantGlobalId: string | null;
 }
 
 export const useDiscussionMessages = ({
+  canSend,
   requestGlobalId,
   taskGlobalId,
   tenantGlobalId,
@@ -68,6 +70,9 @@ export const useDiscussionMessages = ({
       if (!tenantGlobalId || (!body.trim() && files.length === 0)) {
         return false;
       }
+      if (canSend && !(await canSend())) {
+        return false;
+      }
 
       const message = await sendAction.run(() =>
         taskGlobalId
@@ -92,7 +97,7 @@ export const useDiscussionMessages = ({
       setMessages((currentMessages) => [...(currentMessages ?? []), message]);
       return true;
     },
-    [requestGlobalId, sendAction, taskGlobalId, tenantGlobalId],
+    [canSend, requestGlobalId, sendAction, taskGlobalId, tenantGlobalId],
   );
 
   return { isSending: sendAction.isRunning, messages, send };

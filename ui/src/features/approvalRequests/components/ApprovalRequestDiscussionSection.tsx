@@ -12,6 +12,7 @@ interface ApprovalRequestDiscussionSectionProps {
   attachmentsAreEnabled: boolean;
   approvalRequest: ApprovalRequest;
   canSend: boolean;
+  canSendMessage: () => Promise<boolean>;
   onClose: () => void;
   task?: ApprovalRequestTaskModel;
   tenantGlobalId: string | null;
@@ -21,6 +22,7 @@ const ApprovalRequestDiscussionSection: React.FC<ApprovalRequestDiscussionSectio
   attachmentsAreEnabled,
   approvalRequest,
   canSend,
+  canSendMessage,
   onClose,
   task,
   tenantGlobalId,
@@ -42,6 +44,7 @@ const ApprovalRequestDiscussionSection: React.FC<ApprovalRequestDiscussionSectio
         attachmentsAreEnabled={attachmentsAreEnabled}
         body={body}
         canSend={canSend}
+        canSendMessage={canSendMessage}
         files={files}
         onBodyChange={setBody}
         onFilesChange={setFiles}

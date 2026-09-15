@@ -157,6 +157,28 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
     onClose(currentTask?.globalId);
   };
 
+  const refreshTask = async () => {
+    if (!tenantGlobalId) {
+      return null;
+    }
+
+    return await stores.approvalRequestTaskStore.loadDetails(tenantGlobalId, taskGlobalId);
+  };
+
+  const canSendMessage = async (): Promise<boolean> => {
+    const refreshedTask = await refreshTask();
+    const refreshedDiscussionStep = refreshedTask?.approvalRequest?.steps.find(
+      (step) => step.globalId === refreshedTask.approvalRequestStepGlobalId,
+    );
+    const canSend =
+      refreshedTask?.approvalRequest?.status !== ApprovalRequestStatus.Completed &&
+      refreshedDiscussionStep?.tasks?.some((task) => task.status === ApprovalRequestTaskStatus.Pending) === true;
+    if (!canSend) {
+      notification.warning("This task has changed. Review the latest details before continuing.");
+    }
+    return canSend;
+  };
+
   const handleSignatureChange = useCallback((value: string) => {
     setSignatureJson(value);
     setElectronicSignatureErrors((current) => ({ ...current, signature: "" }));
@@ -205,13 +227,19 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
     }
 
     await submitAction.run(async () => {
+      const refreshedTask = await refreshTask();
+      if (!refreshedTask || refreshedTask.status !== ApprovalRequestTaskStatus.Pending) {
+        notification.warning("This task has changed. Review the latest details before continuing.");
+        return;
+      }
+
       if (taskAttachments.current && !(await taskAttachments.current.attach())) {
         return;
       }
 
       const didComplete = await completeApprovalRequestTask(
         tenantGlobalId,
-        currentTask.globalId,
+        refreshedTask.globalId,
         result,
         comment,
         requiresElectronicSignature
@@ -393,6 +421,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
           attachmentsAreEnabled={discussionAttachmentsAreEnabled}
           approvalRequest={approvalRequest}
           canSend={canSendDiscussion}
+          canSendMessage={canSendMessage}
           onClose={handleClose}
           task={currentTask}
           tenantGlobalId={tenantGlobalId}
