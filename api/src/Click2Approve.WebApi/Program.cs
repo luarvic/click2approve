@@ -19,6 +19,7 @@ using Click2Approve.Application.Services.UserProfiles;
 using Click2Approve.Application.Validation.ApprovalRequests;
 using Click2Approve.Domain.Models;
 using Click2Approve.Infrastructure.Authorization;
+using Click2Approve.Infrastructure.Extensions;
 using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.WebApi.Auditing;
 using Click2Approve.WebApi.Extensions;
@@ -49,6 +50,7 @@ builder.Services.AddApiVersioning(options =>
     });
 builder.Services.AddCors();
 builder.Services.AddIdentityRateLimiting(builder.Configuration);
+builder.Services.AddAzureServiceAuthentication(builder.Configuration);
 builder.Services.AddDbContext<ApiDbContext>(options =>
 {
     var connectionString = builder.Configuration.GetConnectionString("Default");

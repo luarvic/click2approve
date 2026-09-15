@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = Host.CreateApplicationBuilder(args);
 
+builder.Services.AddAzureServiceAuthentication(builder.Configuration);
 builder.Services.AddDbContext<ApiDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("Default")));
 builder.Services.AddAzureEmailDeliveryServices(builder.Configuration);

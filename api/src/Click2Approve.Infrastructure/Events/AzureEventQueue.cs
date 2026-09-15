@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Azure.Core;
 using Azure.Storage.Queues;
 using Azure.Storage.Queues.Models;
 using Click2Approve.Application.Abstractions.Events;
@@ -10,12 +11,20 @@ namespace Click2Approve.Infrastructure.Events;
 /// <summary>
 /// Publishes application events to an Azure Storage Queue.
 /// </summary>
-public sealed class AzureEventQueue(IConfiguration configuration) : IEventQueue
+public sealed class AzureEventQueue(IConfiguration configuration, TokenCredential credential) : IEventQueue
 {
     private readonly Dictionary<EventPriority, Lazy<Task<QueueClient>>> _queues = Enum.GetValues<EventPriority>()
-        .ToDictionary(priority => priority, priority => new Lazy<Task<QueueClient>>(() => CreateAsync(configuration, priority, poison: false)));
+        .ToDictionary(priority => priority, priority => new Lazy<Task<QueueClient>>(() => CreateAsync(
+            configuration,
+            credential,
+            priority,
+            poison: false)));
     private readonly Dictionary<EventPriority, Lazy<Task<QueueClient>>> _poisonQueues = Enum.GetValues<EventPriority>()
-        .ToDictionary(priority => priority, priority => new Lazy<Task<QueueClient>>(() => CreateAsync(configuration, priority, poison: true)));
+        .ToDictionary(priority => priority, priority => new Lazy<Task<QueueClient>>(() => CreateAsync(
+            configuration,
+            credential,
+            priority,
+            poison: true)));
 
     public async Task EnqueueAsync(EventPriority priority, EventEnvelope envelope, CancellationToken cancellationToken)
     {
@@ -69,19 +78,28 @@ public sealed class AzureEventQueue(IConfiguration configuration) : IEventQueue
         return new ReceivedEvent(envelope, priority, message.MessageId, message.PopReceipt, checked((int)message.DequeueCount));
     }
 
-    private static async Task<QueueClient> CreateAsync(IConfiguration configuration, EventPriority priority, bool poison)
+    private static async Task<QueueClient> CreateAsync(
+        IConfiguration configuration,
+        TokenCredential credential,
+        EventPriority priority,
+        bool poison)
     {
-        var connectionString = configuration["EventQueue:ConnectionString"]
-            ?? throw new InfrastructureException("EventQueue configuration is invalid.");
         var queueName = configuration[$"EventQueue:Queues:{priority}:{(poison ? "PoisonName" : "Name")}"]
             ?? throw new InfrastructureException("EventQueue configuration is invalid.");
-        var queue = new QueueClient(
-            connectionString,
-            queueName,
-            new QueueClientOptions
-            {
-                MessageEncoding = QueueMessageEncoding.Base64
-            });
+        var connectionString = configuration["EventQueue:ConnectionString"];
+        var options = new QueueClientOptions
+        {
+            MessageEncoding = QueueMessageEncoding.Base64
+        };
+        var queue = !string.IsNullOrWhiteSpace(connectionString)
+            ? new QueueClient(connectionString, queueName, options)
+            : new QueueClient(
+                new Uri(
+                    new Uri(configuration["EventQueue:ServiceUri"]
+                        ?? throw new InfrastructureException("EventQueue configuration is invalid.")),
+                    queueName),
+                credential,
+                options);
         await queue.CreateIfNotExistsAsync();
         return queue;
     }

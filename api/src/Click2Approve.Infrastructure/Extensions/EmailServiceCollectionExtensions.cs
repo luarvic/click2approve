@@ -1,7 +1,7 @@
 using Azure.Core;
+using Azure.Communication.Email;
 using Click2Approve.Application.Abstractions.Email;
 using Click2Approve.Infrastructure.Email;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Click2Approve.Infrastructure.Extensions;
@@ -25,16 +25,21 @@ public static class EmailServiceCollectionExtensions
         }
 
         var settings = configuration.GetSection("AzureEmailCommunication");
-        services.AddAzureClients(clientBuilder =>
+        var options = new EmailClientOptions
         {
-            clientBuilder.AddEmailClient(settings.GetValue<string>("ConnectionString"))
-                .ConfigureOptions(options =>
-                {
-                    options.Retry.Mode = RetryMode.Fixed;
-                    options.Retry.Delay = TimeSpan.FromSeconds(settings.GetValue<int>("RetryDelaySeconds"));
-                    options.Retry.MaxRetries = settings.GetValue<int>("MaxRetryAttempts");
-                });
-        });
+            Retry =
+            {
+                Mode = RetryMode.Fixed,
+                Delay = TimeSpan.FromSeconds(settings.GetValue<int>("RetryDelaySeconds")),
+                MaxRetries = settings.GetValue<int>("MaxRetryAttempts")
+            }
+        };
+        var endpoint = settings.GetValue<string>("Endpoint")
+            ?? throw new InvalidOperationException("AzureEmailCommunication configuration is invalid.");
+        services.AddSingleton(serviceProvider => new EmailClient(
+            new Uri(endpoint),
+            serviceProvider.GetRequiredService<TokenCredential>(),
+            options));
         services.AddSingleton<IEmailService, AzureEmailCommunicationService>();
         return services;
     }

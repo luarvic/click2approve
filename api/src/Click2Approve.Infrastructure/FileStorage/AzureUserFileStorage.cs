@@ -1,5 +1,6 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Core;
 using Click2Approve.Application.Abstractions.FileStorage;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
@@ -9,10 +10,18 @@ namespace Click2Approve.Infrastructure.FileStorage;
 /// <summary>
 /// Stores public and private user-file content in Azure Blob Storage.
 /// </summary>
-public class AzureUserFileStorage(IConfiguration configuration) : IUserFileStorage
+public class AzureUserFileStorage(IConfiguration configuration, TokenCredential credential) : IUserFileStorage
 {
-    private readonly Lazy<Task<BlobContainerClient>> _private = new(() => CreateAsync(configuration, "PrivateContainerName", PublicAccessType.None));
-    private readonly Lazy<Task<BlobContainerClient>> _public = new(() => CreateAsync(configuration, "PublicContainerName", PublicAccessType.Blob));
+    private readonly Lazy<Task<BlobContainerClient>> _private = new(() => CreateAsync(
+        configuration,
+        credential,
+        "PrivateContainerName",
+        PublicAccessType.None));
+    private readonly Lazy<Task<BlobContainerClient>> _public = new(() => CreateAsync(
+        configuration,
+        credential,
+        "PublicContainerName",
+        PublicAccessType.Blob));
 
     public async Task SaveAsync(UserFile userFile, byte[] bytes, CancellationToken cancellationToken)
     {
@@ -59,14 +68,20 @@ public class AzureUserFileStorage(IConfiguration configuration) : IUserFileStora
 
     private static async Task<BlobContainerClient> CreateAsync(
         IConfiguration configuration,
+        TokenCredential credential,
         string key,
         PublicAccessType publicAccessType)
     {
-        var connectionString = configuration["FileStorage:ConnectionString"]
-            ?? throw new InfrastructureException("FileStorage configuration is invalid.");
         var containerName = configuration[$"FileStorage:{key}"]
             ?? throw new InfrastructureException("FileStorage configuration is invalid.");
-        var container = new BlobContainerClient(connectionString, containerName);
+        var connectionString = configuration["FileStorage:ConnectionString"];
+        var container = !string.IsNullOrWhiteSpace(connectionString)
+            ? new BlobContainerClient(connectionString, containerName)
+            : new BlobServiceClient(
+                new Uri(configuration["FileStorage:ServiceUri"]
+                    ?? throw new InfrastructureException("FileStorage configuration is invalid.")),
+                credential)
+                .GetBlobContainerClient(containerName);
         await container.CreateIfNotExistsAsync(publicAccessType);
         return container;
     }
