@@ -1,3 +1,4 @@
+import ApprovalRequestField from "@/features/approvalRequests/components/ApprovalRequestField";
 import ApprovalRequestSignatureView from "@/features/approvalRequests/components/ApprovalRequestSignatureView";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { Forms } from "@/shared/components/dialogs/formStyles";
@@ -45,27 +46,15 @@ const ApprovalRequestElectronicSignatureView: React.FC<ApprovalRequestElectronic
     <AccordionDetails sx={electronicSignatureDetailsSx}>
       <Stack spacing={Forms.formStackSpacing}>
         <Stack direction="row" spacing={Forms.formStackSpacing}>
-          <Stack spacing={Forms.actionSpacing}>
-            <Typography color="text.secondary" variant="caption">
-              Legal name
-            </Typography>
-            <Typography>{task.assigneeLegalName || "Not provided"}</Typography>
-          </Stack>
+          <ApprovalRequestField label="Legal name" value={task.assigneeLegalName || "Not provided"} />
           {task.assigneeRepresentationDetails && (
-            <Stack spacing={Forms.actionSpacing}>
-              <Typography color="text.secondary" variant="caption">
-                Representation details
-              </Typography>
-              <Typography>{task.assigneeRepresentationDetails}</Typography>
-            </Stack>
+            <ApprovalRequestField label="Representation details" value={task.assigneeRepresentationDetails} />
           )}
         </Stack>
-        <Stack spacing={Forms.actionSpacing}>
-          <Typography color="text.secondary" variant="caption">
-            Signature
-          </Typography>
-          <ApprovalRequestSignatureView signatureJson={task.assigneeSignatureJson} />
-        </Stack>
+        <ApprovalRequestField
+          label="Signature"
+          value={<ApprovalRequestSignatureView signatureJson={task.assigneeSignatureJson} />}
+        />
       </Stack>
     </AccordionDetails>
   </Accordion>

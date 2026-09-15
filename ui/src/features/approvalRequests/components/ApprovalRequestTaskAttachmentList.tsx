@@ -1,9 +1,7 @@
-import ApprovalRequestDetailLabel from "@/features/approvalRequests/components/ApprovalRequestDetailLabel";
+import ApprovalRequestField from "@/features/approvalRequests/components/ApprovalRequestField";
 import ApprovalRequestFilesList from "@/features/approvalRequests/components/ApprovalRequestFilesList";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import { downloadApprovalRequestTaskAttachment } from "@/features/userFiles/utils/downloaders";
-import { StackSpacing } from "@/shared/theme/tokens";
-import { Stack } from "@mui/material";
 
 interface ApprovalRequestTaskAttachmentListProps {
   label?: string;
@@ -19,9 +17,8 @@ const ApprovalRequestTaskAttachmentList: React.FC<ApprovalRequestTaskAttachmentL
   taskFiles,
   taskGlobalId,
   tenantGlobalId,
-}) => (
-  <Stack alignItems="flex-start" spacing={StackSpacing.tight}>
-    {showLabel && <ApprovalRequestDetailLabel>{label}</ApprovalRequestDetailLabel>}
+}) => {
+  const files = (
     <ApprovalRequestFilesList
       existingFiles={taskFiles.map((file) => ({ file }))}
       linkVariant="body1"
@@ -29,7 +26,9 @@ const ApprovalRequestTaskAttachmentList: React.FC<ApprovalRequestTaskAttachmentL
       onDownloadExisting={(file) => void downloadApprovalRequestTaskAttachment(tenantGlobalId, file, taskGlobalId)}
       onRemoveNew={() => undefined}
     />
-  </Stack>
-);
+  );
+
+  return showLabel ? <ApprovalRequestField label={label} value={files} /> : files;
+};
 
 export default ApprovalRequestTaskAttachmentList;

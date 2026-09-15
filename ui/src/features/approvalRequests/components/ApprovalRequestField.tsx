@@ -1,4 +1,3 @@
-import ApprovalRequestDetailLabel from "@/features/approvalRequests/components/ApprovalRequestDetailLabel";
 import { ApprovalRequestFieldValueVariantContext } from "@/features/approvalRequests/components/ApprovalRequestFieldContext";
 import { StackSpacing } from "@/shared/theme/tokens";
 import type { TypographyProps } from "@mui/material";
@@ -7,6 +6,7 @@ import type { SxProps, Theme } from "@mui/material/styles";
 import { useContext, type ReactNode } from "react";
 
 interface ApprovalRequestFieldProps {
+  labelId?: string;
   label: string;
   valueColor?: TypographyProps["color"];
   valueIcon?: ReactNode;
@@ -16,6 +16,7 @@ interface ApprovalRequestFieldProps {
 }
 
 const ApprovalRequestField: React.FC<ApprovalRequestFieldProps> = ({
+  labelId,
   label,
   value,
   valueColor,
@@ -29,7 +30,9 @@ const ApprovalRequestField: React.FC<ApprovalRequestFieldProps> = ({
 
   return (
     <Stack spacing={StackSpacing.tight}>
-      <ApprovalRequestDetailLabel>{label}</ApprovalRequestDetailLabel>
+      <Typography color="text.secondary" id={labelId} variant="caption">
+        {label}
+      </Typography>
       {isEmpty ? (
         <Typography color="text.secondary" variant={resolvedValueVariant}>
           None

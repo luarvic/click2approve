@@ -4,7 +4,6 @@ import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/A
 import ApprovalRequestField from "@/features/approvalRequests/components/ApprovalRequestField";
 import ApprovalRequestFieldGroup from "@/features/approvalRequests/components/ApprovalRequestFieldGroup";
 import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
-import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
 import ApprovalRequestParticipantPair from "@/features/approvalRequests/components/ApprovalRequestParticipantPair";
 import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
 import ApprovalRequestTimestamp from "@/features/approvalRequests/components/ApprovalRequestTimestamp";
@@ -74,7 +73,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
   const participantTimeline =
     completionLabel && completedTimestamp ? (
       <ApprovalRequestParticipantPair
-        firstLabel={<ApprovalRequestParticipantLabel>Requested by</ApprovalRequestParticipantLabel>}
+        firstLabel="Requested by"
         firstParticipant={
           <ApprovalRequestParticipant
             displayName={approvalRequest.createdByDisplayName}
@@ -87,7 +86,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
         firstTimestamp={
           <ApprovalRequestTimestamp date={approvalRequest.createdAtDate} label="Requested at" type="created" />
         }
-        secondLabel={<ApprovalRequestParticipantLabel>{completionLabel}</ApprovalRequestParticipantLabel>}
+        secondLabel={completionLabel}
         secondParticipant={
           <ApprovalRequestParticipant
             displayName={completionDisplayName}
@@ -108,7 +107,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
       />
     ) : (
       <ApprovalRequestParticipantPair
-        firstLabel={<ApprovalRequestParticipantLabel>Requested by</ApprovalRequestParticipantLabel>}
+        firstLabel="Requested by"
         firstParticipant={
           <ApprovalRequestParticipant
             displayName={approvalRequest.createdByDisplayName}

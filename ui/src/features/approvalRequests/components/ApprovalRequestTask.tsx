@@ -1,11 +1,11 @@
 import { stores } from "@/app/rootStore";
 import { completeApprovalRequestTask } from "@/features/approvalRequests/api/approvalRequestTasksApi";
 import ApprovalRequestActionBar from "@/features/approvalRequests/components/ApprovalRequestActionBar";
-import ApprovalRequestDetailLabel from "@/features/approvalRequests/components/ApprovalRequestDetailLabel";
 import ApprovalRequestDetails from "@/features/approvalRequests/components/ApprovalRequestDetails";
 import ApprovalRequestDiscussionSection from "@/features/approvalRequests/components/ApprovalRequestDiscussionSection";
 import type { ElectronicSignatureErrors } from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureForm";
 import ApprovalRequestElectronicSignatureForm from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureForm";
+import ApprovalRequestField from "@/features/approvalRequests/components/ApprovalRequestField";
 import ApprovalRequestTaskAttachmentList from "@/features/approvalRequests/components/ApprovalRequestTaskAttachmentList";
 import ApprovalRequestTaskAttachments, {
   ApprovalRequestTaskAttachmentsHandle,
@@ -333,20 +333,25 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
             {!isCompleted && (
               <Stack spacing={StackSpacing.default}>
                 <FormControl key="decision" error={decisionError}>
-                  <ApprovalRequestDetailLabel id="decision-label">Your decision</ApprovalRequestDetailLabel>
-                  <RadioGroup
-                    aria-labelledby="decision-label"
-                    row
-                    name="decision"
-                    value={result === undefined ? "" : String(result)}
-                    onChange={(event) => {
-                      setResult(event.target.value === "true");
-                      setDecisionError(false);
-                    }}
-                  >
-                    <FormControlLabel value="true" control={<Radio />} label={actionLabels.positive} />
-                    <FormControlLabel value="false" control={<Radio />} label={actionLabels.negative} />
-                  </RadioGroup>
+                  <ApprovalRequestField
+                    label="Your decision"
+                    labelId="decision-label"
+                    value={
+                      <RadioGroup
+                        aria-labelledby="decision-label"
+                        row
+                        name="decision"
+                        value={result === undefined ? "" : String(result)}
+                        onChange={(event) => {
+                          setResult(event.target.value === "true");
+                          setDecisionError(false);
+                        }}
+                      >
+                        <FormControlLabel value="true" control={<Radio />} label={actionLabels.positive} />
+                        <FormControlLabel value="false" control={<Radio />} label={actionLabels.negative} />
+                      </RadioGroup>
+                    }
+                  />
                   {decisionError && (
                     <FormHelperText sx={Forms.fieldHelperTextSx}>{actionLabels.missing}</FormHelperText>
                   )}

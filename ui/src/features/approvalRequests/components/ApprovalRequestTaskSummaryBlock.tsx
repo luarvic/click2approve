@@ -5,7 +5,6 @@ import ApprovalRequestElectronicSignatureView from "@/features/approvalRequests/
 import ApprovalRequestField from "@/features/approvalRequests/components/ApprovalRequestField";
 import ApprovalRequestFieldGroup from "@/features/approvalRequests/components/ApprovalRequestFieldGroup";
 import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
-import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
 import ApprovalRequestParticipantPair from "@/features/approvalRequests/components/ApprovalRequestParticipantPair";
 import ApprovalRequestSummary from "@/features/approvalRequests/components/ApprovalRequestSummary";
 import ApprovalRequestTimestamp from "@/features/approvalRequests/components/ApprovalRequestTimestamp";
@@ -124,9 +123,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
     participant !== "none" ? (
       completionLabel && completedTimestamp ? (
         <ApprovalRequestParticipantPair
-          firstLabel={
-            participant === "assignee" && <ApprovalRequestParticipantLabel>Assigned to</ApprovalRequestParticipantLabel>
-          }
+          firstLabel={participant === "assignee" ? "Assigned to" : undefined}
           firstParticipant={
             <ApprovalRequestParticipant
               icon={icon}
@@ -140,7 +137,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
           firstTimestamp={
             showTimeline && <ApprovalRequestTimestamp date={task.createdAtDate} label="Assigned at" type="created" />
           }
-          secondLabel={<ApprovalRequestParticipantLabel>{completionLabel}</ApprovalRequestParticipantLabel>}
+          secondLabel={completionLabel}
           secondParticipant={
             <ApprovalRequestParticipant
               displayName={completionDisplayName}
@@ -163,9 +160,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
         />
       ) : (
         <ApprovalRequestParticipantPair
-          firstLabel={
-            participant === "assignee" && <ApprovalRequestParticipantLabel>Assigned to</ApprovalRequestParticipantLabel>
-          }
+          firstLabel={participant === "assignee" ? "Assigned to" : undefined}
           firstParticipant={
             <ApprovalRequestParticipant
               icon={icon}
@@ -198,22 +193,27 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
       <>
         {showInstructions && task.instructions?.trim() && (
           <>
-            {showInstructionsLabel && <ApprovalRequestParticipantLabel>Instructions</ApprovalRequestParticipantLabel>}
-            <UserProvidedText text={task.instructions} />
+            {showInstructionsLabel ? (
+              <ApprovalRequestField label="Instructions" value={<UserProvidedText text={task.instructions} />} />
+            ) : (
+              <UserProvidedText text={task.instructions} />
+            )}
           </>
         )}
         {participants}
         {showRequester && (
-          <Stack spacing={StackSpacing.tight}>
-            <ApprovalRequestParticipantLabel>Requested by</ApprovalRequestParticipantLabel>
-            <ApprovalRequestParticipant
-              displayName={task.requestedByDisplayName}
-              email={requestedByEmail}
-              organizationDisplayName={participantOrganizationDisplayName}
-              showOrganization={organizationIsVisible}
-              type={requesterParticipantType}
-            />
-          </Stack>
+          <ApprovalRequestField
+            label="Requested by"
+            value={
+              <ApprovalRequestParticipant
+                displayName={task.requestedByDisplayName}
+                email={requestedByEmail}
+                organizationDisplayName={participantOrganizationDisplayName}
+                showOrganization={organizationIsVisible}
+                type={requesterParticipantType}
+              />
+            }
+          />
         )}
       </>
     ) : undefined;
@@ -283,10 +283,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   const metadata = hasMetadata ? (
     <Stack spacing={StackSpacing.default}>
       {showComment && task.comment?.trim() && (
-        <Stack spacing={StackSpacing.tight}>
-          <ApprovalRequestParticipantLabel>Comment</ApprovalRequestParticipantLabel>
-          <UserProvidedText text={task.comment} />
-        </Stack>
+        <ApprovalRequestField label="Comment" value={<UserProvidedText text={task.comment} />} />
       )}
       {additionalMetadata}
       {showElectronicSignature && taskElectronicSignatureIsVisible(task) && (

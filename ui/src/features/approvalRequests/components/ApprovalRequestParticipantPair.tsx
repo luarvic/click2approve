@@ -1,3 +1,4 @@
+import ApprovalRequestField from "@/features/approvalRequests/components/ApprovalRequestField";
 import { StackSpacing } from "@/shared/theme/tokens";
 import type { SxProps } from "@mui/material";
 import { Box, Stack } from "@mui/material";
@@ -5,10 +6,10 @@ import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
 
 interface ApprovalRequestParticipantPairProps {
-  firstLabel: ReactNode;
+  firstLabel?: string;
   firstParticipant: ReactNode;
   firstTimestamp: ReactNode;
-  secondLabel?: ReactNode;
+  secondLabel?: string;
   secondParticipant?: ReactNode;
   secondTimestamp?: ReactNode;
 }
@@ -42,19 +43,27 @@ const ApprovalRequestParticipantPair: React.FC<ApprovalRequestParticipantPairPro
   secondTimestamp,
 }) => {
   const hasSecondParticipant = Boolean(secondLabel || secondParticipant || secondTimestamp);
+  const firstValue = (
+    <Stack spacing={StackSpacing.default}>
+      {firstParticipant}
+      {firstTimestamp}
+    </Stack>
+  );
+  const secondValue = (
+    <Stack spacing={StackSpacing.default}>
+      {secondParticipant}
+      {secondTimestamp}
+    </Stack>
+  );
 
   return (
     <Box sx={pairSx}>
-      <Stack spacing={StackSpacing.default} sx={firstParticipantColumnSx}>
-        {firstLabel}
-        {firstParticipant}
-        {firstTimestamp}
+      <Stack sx={firstParticipantColumnSx}>
+        {firstLabel ? <ApprovalRequestField label={firstLabel} value={firstValue} /> : firstValue}
       </Stack>
       {hasSecondParticipant && (
-        <Stack spacing={StackSpacing.default} sx={participantColumnSx}>
-          {secondLabel}
-          {secondParticipant}
-          {secondTimestamp}
+        <Stack sx={participantColumnSx}>
+          {secondLabel ? <ApprovalRequestField label={secondLabel} value={secondValue} /> : secondValue}
         </Stack>
       )}
     </Box>

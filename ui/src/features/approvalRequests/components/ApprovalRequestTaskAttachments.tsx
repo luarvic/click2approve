@@ -2,7 +2,7 @@ import {
   addApprovalRequestTaskAttachments,
   removeApprovalRequestTaskAttachment,
 } from "@/features/approvalRequests/api/approvalRequestTaskAttachmentsApi";
-import ApprovalRequestDetailLabel from "@/features/approvalRequests/components/ApprovalRequestDetailLabel";
+import ApprovalRequestField from "@/features/approvalRequests/components/ApprovalRequestField";
 import ApprovalRequestFilesList from "@/features/approvalRequests/components/ApprovalRequestFilesList";
 import { useUserFileDelete } from "@/features/userFiles/hooks/useUserFileDelete";
 import { useUserFileUpload } from "@/features/userFiles/hooks/useUserFileUpload";
@@ -115,8 +115,24 @@ const ApprovalRequestTaskAttachments = forwardRef<
 
     return (
       <Stack alignItems="flex-start" spacing={StackSpacing.default}>
-        <Stack alignItems="flex-start" spacing={showLabel ? StackSpacing.tight : StackSpacing.none}>
-          {showLabel && <ApprovalRequestDetailLabel>{label}</ApprovalRequestDetailLabel>}
+        {showLabel ? (
+          <ApprovalRequestField
+            label={label}
+            value={
+              <ApprovalRequestFilesList
+                existingFiles={files.map((file) => ({ file }))}
+                isActionsDisabled={isManagingFiles}
+                linkVariant="body1"
+                newFiles={newFiles}
+                onDownloadExisting={(file) =>
+                  void downloadApprovalRequestTaskAttachment(tenantGlobalId, file, taskGlobalId)
+                }
+                onRemoveExisting={canManageFiles ? (index) => void removeAttachedFile(index) : undefined}
+                onRemoveNew={(index) => void removeNewFile(index)}
+              />
+            }
+          />
+        ) : (
           <ApprovalRequestFilesList
             existingFiles={files.map((file) => ({ file }))}
             isActionsDisabled={isManagingFiles}
@@ -128,7 +144,7 @@ const ApprovalRequestTaskAttachments = forwardRef<
             onRemoveExisting={canManageFiles ? (index) => void removeAttachedFile(index) : undefined}
             onRemoveNew={(index) => void removeNewFile(index)}
           />
-        </Stack>
+        )}
         {canManageFiles && (
           <>
             <LoadingButton
