@@ -14,6 +14,7 @@ import { makeAutoObservable, runInAction } from "mobx";
 
 export class UserAccountStore {
   currentUser: UserAccount | null | undefined; // undefined means we don't know yet if it's authenticated or anonymous user
+  isManualSignOut = false;
   private clearSession: () => void = () => undefined;
   private initializeSession: () => Promise<void> = async () => undefined;
 
@@ -79,11 +80,17 @@ export class UserAccountStore {
     return false;
   };
 
-  signOut = () => {
+  signOut = (isManual = false) => {
     deleteTokens();
     this.clearSession();
     runInAction(() => {
+      this.isManualSignOut = isManual;
       this.currentUser = null;
     });
+  };
+
+  clearManualSignOut = () => {
+    if (!this.isManualSignOut) return;
+    this.isManualSignOut = false;
   };
 }

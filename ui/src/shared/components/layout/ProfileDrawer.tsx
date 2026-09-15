@@ -1,4 +1,5 @@
 import { stores } from "@/app/rootStore";
+import { clearPendingReturnUrl } from "@/features/identity/routing/returnUrl";
 import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
 import DisplayName from "@/shared/components/identity/DisplayName";
 import { Shell } from "@/shared/components/layout/shellStyles";
@@ -50,8 +51,8 @@ const ProfileDrawer = () => {
             <ListItemButton
               onClick={() => {
                 if (!confirmUnsavedChanges()) return;
-                stores.userAccountStore.signOut();
-                navigate("/");
+                clearPendingReturnUrl();
+                stores.userAccountStore.signOut(true);
               }}
             >
               <ListItemIcon sx={Lists.itemIconSx}>

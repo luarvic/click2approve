@@ -49,6 +49,15 @@ export const rememberReturnUrl = (value: string): void => {
   }
 };
 
+/** Discards a destination when authentication is intentionally abandoned. */
+export const clearPendingReturnUrl = (): void => {
+  try {
+    localStorage.removeItem(storageKey);
+  } catch {
+    // A storage restriction must not prevent sign-out.
+  }
+};
+
 const readPendingReturnUrl = (): string | null => {
   try {
     const stored = JSON.parse(localStorage.getItem(storageKey) ?? "null");
@@ -75,9 +84,5 @@ export const authPath = (path: string, returnUrl: string): string => {
 /** Consume only the destination actually reached, so unrelated tabs cannot discard it. */
 export const clearReachedReturnUrl = (path: string): void => {
   if (readPendingReturnUrl() !== path) return;
-  try {
-    localStorage.removeItem(storageKey);
-  } catch {
-    // A storage restriction must not prevent access to an authenticated route.
-  }
+  clearPendingReturnUrl();
 };

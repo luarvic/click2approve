@@ -13,16 +13,17 @@ const RouteGuard = ({ isAllowed = true }: RouteGuardProps) => {
   const location = useLocation();
   const destination = `${location.pathname}${location.search}${location.hash}`;
   const user = stores.userAccountStore.currentUser;
+  const isManualSignOut = stores.userAccountStore.isManualSignOut;
   const needsConfirmation = stores.applicationConfigurationStore.requiresConfirmedEmail && !user?.isEmailConfirmed;
   useEffect(() => {
     if (user === undefined) return;
-    if (!user || needsConfirmation) rememberReturnUrl(destination);
+    if ((!user || needsConfirmation) && !isManualSignOut) rememberReturnUrl(destination);
     else clearReachedReturnUrl(destination);
-  }, [destination, needsConfirmation, user]);
+  }, [destination, isManualSignOut, needsConfirmation, user]);
 
   if (user === undefined) return null;
   if (!user) {
-    return <Navigate to={authPath("/signIn", destination)} replace />;
+    return <Navigate to={isManualSignOut ? "/signIn" : authPath("/signIn", destination)} replace />;
   }
 
   if (needsConfirmation) {

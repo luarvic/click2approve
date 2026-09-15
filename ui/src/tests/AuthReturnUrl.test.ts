@@ -1,5 +1,6 @@
 import {
   authPath,
+  clearPendingReturnUrl,
   clearReachedReturnUrl,
   getAuthReturnUrl,
   rememberReturnUrl,
@@ -45,6 +46,12 @@ describe("authentication return destinations", () => {
     clearReachedReturnUrl("/userProfile");
     expect(getAuthReturnUrl("")).toBe(destination);
     clearReachedReturnUrl(destination);
+    expect(getAuthReturnUrl("")).toBe("/");
+  });
+
+  test("discards a saved destination when signing out intentionally", () => {
+    rememberReturnUrl(destination);
+    clearPendingReturnUrl();
     expect(getAuthReturnUrl("")).toBe("/");
   });
 

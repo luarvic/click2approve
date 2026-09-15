@@ -4,7 +4,7 @@ import SignInPage from "@/features/identity/pages/SignInPage";
 import SignUpPage from "@/features/identity/pages/SignUpPage";
 import AnonymousRoute from "@/shared/components/routing/AnonymousRoute";
 import RouteGuard from "@/shared/components/routing/RouteGuard";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { runInAction } from "mobx";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
@@ -16,7 +16,10 @@ vi.mock("@/app/rootStore", async () => {
       userAccountStore: observable(
         {
           currentUser: null,
+          isManualSignOut: false,
+          clearManualSignOut: vi.fn(),
           signIn: vi.fn(),
+          signOut: vi.fn(),
           signUp: vi.fn(),
           signInWithPasskey: vi.fn(),
         },
@@ -26,8 +29,12 @@ vi.mock("@/app/rootStore", async () => {
     },
   };
 });
-vi.mock("@/features/identity/api/passkeysApi", () => ({ browserSupportsPasskeys: () => true }));
-vi.mock("@/features/identity/api/authApi", () => ({ confirmUserEmail: vi.fn().mockResolvedValue(true) }));
+vi.mock("@/features/identity/api/passkeysApi", () => ({
+  browserSupportsPasskeys: () => true,
+}));
+vi.mock("@/features/identity/api/authApi", () => ({
+  confirmUserEmail: vi.fn().mockResolvedValue(true),
+}));
 
 const destination =
   "/tenants/f08eb8f4-4a49-484a-af9d-ca7bd918ea07/tasks/90de3e09-ea64-4f93-bf7a-4b9a4f49ab0d?view=full#details";
@@ -37,7 +44,12 @@ const renderFlow = (initialEntry = destination) => {
     [
       {
         element: <RouteGuard />,
-        children: [{ path: "/tenants/:tenantGlobalId/tasks/:taskGlobalId", element: <p>Task detail</p> }],
+        children: [
+          {
+            path: "/tenants/:tenantGlobalId/tasks/:taskGlobalId",
+            element: <p>Task detail</p>,
+          },
+        ],
       },
       {
         element: <AnonymousRoute />,
@@ -58,9 +70,9 @@ const renderFlow = (initialEntry = destination) => {
 
 const authenticate = async () => {
   runInAction(() => {
-    stores.userAccountStore.currentUser = { isEmailConfirmed: true } as NonNullable<
-      typeof stores.userAccountStore.currentUser
-    >;
+    stores.userAccountStore.currentUser = {
+      isEmailConfirmed: true,
+    } as NonNullable<typeof stores.userAccountStore.currentUser>;
   });
   return true;
 };
@@ -69,9 +81,13 @@ beforeEach(() => {
   localStorage.clear();
   runInAction(() => {
     stores.userAccountStore.currentUser = null;
+    stores.userAccountStore.isManualSignOut = false;
   });
-  (stores.applicationConfigurationStore as unknown as { requiresConfirmedEmail: boolean }).requiresConfirmedEmail =
-    false;
+  (
+    stores.applicationConfigurationStore as unknown as {
+      requiresConfirmedEmail: boolean;
+    }
+  ).requiresConfirmedEmail = false;
   vi.mocked(stores.userAccountStore.signIn).mockImplementation(authenticate);
   vi.mocked(stores.userAccountStore.signInWithPasskey).mockImplementation(authenticate);
   vi.mocked(stores.userAccountStore.signUp).mockResolvedValue(true);
@@ -102,8 +118,11 @@ test.each(["password", "passkey"])("opens the original task after %s sign-in", a
 test.each([false, true])(
   "preserves the task through sign-up with confirmation required=%s",
   async (confirmationRequired) => {
-    (stores.applicationConfigurationStore as unknown as { requiresConfirmedEmail: boolean }).requiresConfirmedEmail =
-      confirmationRequired;
+    (
+      stores.applicationConfigurationStore as unknown as {
+        requiresConfirmedEmail: boolean;
+      }
+    ).requiresConfirmedEmail = confirmationRequired;
     renderFlow();
     fireEvent.click(await screen.findByRole("button", { name: "New to us? Sign up" }));
     await screen.findByRole("heading", { name: "Sign up" });
@@ -129,3 +148,23 @@ test.each([false, true])(
     await waitFor(() => expect(screen.getByText("Task detail")).toBeTruthy());
   },
 );
+
+test("does not create a return destination after manual sign-out", async () => {
+  runInAction(() => {
+    stores.userAccountStore.currentUser = {
+      isEmailConfirmed: true,
+    } as NonNullable<typeof stores.userAccountStore.currentUser>;
+  });
+  const router = renderFlow();
+  await screen.findByText("Task detail");
+
+  await act(async () => {
+    runInAction(() => {
+      stores.userAccountStore.currentUser = null;
+      stores.userAccountStore.isManualSignOut = true;
+    });
+  });
+
+  await screen.findByRole("heading", { name: "Sign in" });
+  expect(router.state.location.search).toBe("");
+});
