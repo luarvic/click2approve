@@ -2,14 +2,14 @@ import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { describe, expect, test } from "vitest";
 
 describe("getApiErrorNotification", () => {
-  test("separates API Problem Details into a message and diagnostic details", () => {
+  test("shows the first validation error in the toast and retains every error in details", () => {
     const error = {
       isAxiosError: true,
       message: "Request failed",
       response: {
         data: {
           detail: "The supplied record is not valid.",
-          errors: { name: ["Name is required."] },
+          errors: { email: ["Email address is invalid."], name: ["Name is required."] },
           status: 400,
           title: "One or more validation errors occurred.",
           traceId: "00-abc123",
@@ -23,12 +23,13 @@ describe("getApiErrorNotification", () => {
       details: [
         { label: "Message", value: "One or more validation errors occurred." },
         { label: "Detail", value: "The supplied record is not valid." },
+        { label: "Validation error: email", value: "Email address is invalid." },
         { label: "Validation error: name", value: "Name is required." },
         { label: "Status", value: "400" },
         { label: "Trace ID", value: "00-abc123" },
         { label: "Type", value: "https://httpstatuses.com/400" },
       ],
-      message: "One or more validation errors occurred.",
+      message: "Email address is invalid.",
       severity: "warning",
     });
   });

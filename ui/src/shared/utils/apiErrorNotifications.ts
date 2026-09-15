@@ -38,6 +38,25 @@ const getAuthenticationErrorMessage = (detail: unknown): string | undefined => {
   }
 };
 
+const getFirstValidationError = (errors: unknown): string | undefined => {
+  if (typeof errors !== "object" || errors === null || Array.isArray(errors)) {
+    return undefined;
+  }
+
+  for (const messages of Object.values(errors)) {
+    if (Array.isArray(messages)) {
+      const message = messages.find((value): value is string => typeof value === "string" && value.length > 0);
+      if (message !== undefined) {
+        return message;
+      }
+    } else if (typeof messages === "string" && messages.length > 0) {
+      return messages;
+    }
+  }
+
+  return undefined;
+};
+
 const getResponseDetails = (data: Record<string, unknown>, status?: number): NotificationDetail[] => {
   const details: NotificationDetail[] = [];
 
@@ -131,8 +150,10 @@ export const getApiErrorNotification = (error: unknown): ErrorNotification | und
       const problemDetails = data as Record<string, unknown>;
       const authenticationMessage =
         status === 401 || status === 403 ? getAuthenticationErrorMessage(problemDetails.detail) : undefined;
+      const validationMessage = getFirstValidationError(problemDetails.errors);
       const message =
         authenticationMessage ??
+        validationMessage ??
         (typeof problemDetails.title === "string" ? problemDetails.title : undefined) ??
         (typeof problemDetails.detail === "string" ? problemDetails.detail : undefined) ??
         error.message ??
