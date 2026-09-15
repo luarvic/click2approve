@@ -50,7 +50,8 @@ export const Shell = {
           ? `min(calc(100% - ${mainMenuDrawerWidth}px), ${theme.breakpoints.values.xl - mainMenuDrawerWidth}px)`
           : `min(100%, ${theme.breakpoints.values.xl}px)`,
     },
-    zIndex: (theme) => (profileDrawerIsOpen ? theme.zIndex.drawer - 1 : theme.zIndex.drawer + 1),
+    pointerEvents: profileDrawerIsOpen ? "none" : "auto",
+    zIndex: (theme) => (profileDrawerIsOpen ? theme.zIndex.drawer + 2 : theme.zIndex.drawer + 1),
     transition: (theme) =>
       theme.transitions.create(["margin", "width"], {
         easing: theme.transitions.easing.sharp,
@@ -140,6 +141,25 @@ export const Shell = {
     height: 24,
     width: 24,
   } as SxProps<Theme>,
+  profileDrawerBackdropSx: {
+    zIndex: (theme) => theme.zIndex.drawer + 1,
+  } as SxProps<Theme>,
+  profileDrawerModalSx: {
+    pointerEvents: "none",
+    zIndex: (theme) => theme.zIndex.drawer + 3,
+  } as SxProps<Theme>,
+  profileDrawerPaperSx: {
+    pointerEvents: "auto",
+  } as SxProps<Theme>,
+  profileDrawerToolbarSx: {
+    borderBottom: 1,
+    borderColor: "divider",
+    boxSizing: "border-box",
+    height: appBarHeight,
+    justifyContent: "flex-start",
+    minHeight: appBarHeight,
+    px: 1,
+  } as SxProps<Theme>,
   mainMenuDrawerNavSx: (drawerIsOpen: boolean): SxProps<Theme> => ({
     width: {
       md: drawerIsOpen ? mainMenuDrawerWidth : 0,
@@ -186,10 +206,5 @@ export const Shell = {
       },
     };
   },
-  profileDrawerSx: {
-    "& .MuiDrawer-paper": {
-      right: (theme) => `max(0px, calc((100vw - ${theme.breakpoints.values.xl}px) / 2))`,
-    },
-  } as SxProps<Theme>,
   profileDrawerContentSx: { minWidth: 280 } as SxProps<Theme>,
 } as const;

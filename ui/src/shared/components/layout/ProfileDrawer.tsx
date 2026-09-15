@@ -6,17 +6,19 @@ import { Shell } from "@/shared/components/layout/shellStyles";
 import { Lists } from "@/shared/components/lists/listStyles";
 import { confirmUnsavedChanges } from "@/shared/routing/unsavedChanges";
 import { getUserProfileName } from "@/shared/utils/displayNameHelpers";
-import { Logout, Settings } from "@mui/icons-material";
+import { ChevronRightTwoTone, Logout, Settings } from "@mui/icons-material";
 import {
   Avatar,
+  Backdrop,
   Box,
-  Divider,
   Drawer,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Toolbar,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
@@ -28,42 +30,57 @@ const ProfileDrawer = () => {
   const displayName = getUserProfileName(profile);
 
   return (
-    <Drawer
-      anchor="right"
-      open={stores.commonStore.profileDrawerIsOpen}
-      onClose={() => stores.commonStore.setProfileDrawerIsOpen(false)}
-      sx={Shell.profileDrawerSx}
-    >
-      <Box sx={Shell.profileDrawerContentSx} onClick={() => stores.commonStore.setProfileDrawerIsOpen(false)}>
-        <List>
-          <ListItem key="manageAccount" disablePadding>
-            <ListItemButton onClick={() => navigate("/userProfile")}>
-              <ListItemIcon sx={Lists.itemIconSx}>
-                <Avatar src={getPublicApiUrl(profile?.avatar)} sx={Shell.profileDrawerAvatarSx}>
-                  <Settings fontSize="small" />
-                </Avatar>
-              </ListItemIcon>
-              <ListItemText disableTypography primary={<DisplayName displayName={displayName} email={email} />} />
-            </ListItemButton>
-          </ListItem>
-          <Divider />
-          <ListItem key="signOut" disablePadding>
-            <ListItemButton
-              onClick={() => {
-                if (!confirmUnsavedChanges()) return;
-                clearPendingReturnUrl();
-                stores.userAccountStore.signOut(true);
-              }}
+    <>
+      <Backdrop
+        open={stores.commonStore.profileDrawerIsOpen}
+        sx={Shell.profileDrawerBackdropSx}
+        onClick={() => stores.commonStore.setProfileDrawerIsOpen(false)}
+      />
+      <Drawer
+        anchor="right"
+        ModalProps={{ hideBackdrop: true, sx: Shell.profileDrawerModalSx }}
+        PaperProps={{ sx: Shell.profileDrawerPaperSx }}
+        open={stores.commonStore.profileDrawerIsOpen}
+        onClose={() => stores.commonStore.setProfileDrawerIsOpen(false)}
+      >
+        <Box sx={Shell.profileDrawerContentSx} onClick={() => stores.commonStore.setProfileDrawerIsOpen(false)}>
+          <Toolbar disableGutters sx={Shell.profileDrawerToolbarSx}>
+            <IconButton
+              aria-label="Close profile menu"
+              onClick={() => stores.commonStore.setProfileDrawerIsOpen(false)}
             >
-              <ListItemIcon sx={Lists.itemIconSx}>
-                <Logout />
-              </ListItemIcon>
-              <ListItemText primary="Sign out" />
-            </ListItemButton>
-          </ListItem>
-        </List>
-      </Box>
-    </Drawer>
+              <ChevronRightTwoTone />
+            </IconButton>
+          </Toolbar>
+          <List>
+            <ListItem key="manageAccount" disablePadding>
+              <ListItemButton onClick={() => navigate("/userProfile")}>
+                <ListItemIcon sx={Lists.itemIconSx}>
+                  <Avatar src={getPublicApiUrl(profile?.avatar)} sx={Shell.profileDrawerAvatarSx}>
+                    <Settings fontSize="small" />
+                  </Avatar>
+                </ListItemIcon>
+                <ListItemText disableTypography primary={<DisplayName displayName={displayName} email={email} />} />
+              </ListItemButton>
+            </ListItem>
+            <ListItem key="signOut" disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  if (!confirmUnsavedChanges()) return;
+                  clearPendingReturnUrl();
+                  stores.userAccountStore.signOut(true);
+                }}
+              >
+                <ListItemIcon sx={Lists.itemIconSx}>
+                  <Logout />
+                </ListItemIcon>
+                <ListItemText primary="Sign out" />
+              </ListItemButton>
+            </ListItem>
+          </List>
+        </Box>
+      </Drawer>
+    </>
   );
 };
 
