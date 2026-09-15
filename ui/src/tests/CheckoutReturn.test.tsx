@@ -46,6 +46,7 @@ vi.mock("@/app/rootStore", async () => {
       },
       billingAccessStore: { isBlocked: () => false },
       commonStore: {
+        isActionLoading: () => false,
         updateActionLoadingCounter: vi.fn(),
         setMainMenuDrawerIsOpen: vi.fn(),
         mainMenuDrawerIsOpen: false,
