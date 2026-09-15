@@ -12,9 +12,9 @@ import { StackSpacing } from "@/shared/theme/tokens";
 import { notification } from "@/shared/utils/notifications";
 import { validateEmail } from "@/shared/utils/validators";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Box,
-  Button,
   Container,
   Divider,
   FormControl,
@@ -39,6 +39,7 @@ const SignInPage = () => {
   const [emailError, setEmailError] = useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isPasskeyLoading, setIsPasskeyLoading] = useState<boolean>(false);
   const navigate = useNavigate();
   const returnUrl = useAuthReturnUrl();
   const location = useLocation();
@@ -71,11 +72,11 @@ const SignInPage = () => {
   };
 
   const handlePasskeySignIn = async () => {
-    setIsLoading(true);
+    setIsPasskeyLoading(true);
     if (await stores.userAccountStore.signInWithPasskey()) {
       navigate(returnUrl, { replace: true });
     }
-    setIsLoading(false);
+    setIsPasskeyLoading(false);
   };
 
   return (
@@ -124,7 +125,7 @@ const SignInPage = () => {
           </FormControl>
           <Box sx={AuthForms.authActionsSx}>
             <Stack spacing={StackSpacing.loose}>
-              <MainActionButton loading={isLoading} type="submit" fullWidth>
+              <MainActionButton disabled={isPasskeyLoading} loading={isLoading} type="submit" fullWidth>
                 Sign in
               </MainActionButton>
               <Grid container>
@@ -164,9 +165,16 @@ const SignInPage = () => {
                   <Typography color="text.secondary" component="div" variant="body2">
                     <Divider>OR</Divider>
                   </Typography>
-                  <Button disabled={isLoading} fullWidth onClick={handlePasskeySignIn} type="button" variant="outlined">
+                  <LoadingButton
+                    disabled={isLoading}
+                    fullWidth
+                    loading={isPasskeyLoading}
+                    onClick={handlePasskeySignIn}
+                    type="button"
+                    variant="outlined"
+                  >
                     Sign in with a passkey
-                  </Button>
+                  </LoadingButton>
                 </>
               )}
             </Stack>
