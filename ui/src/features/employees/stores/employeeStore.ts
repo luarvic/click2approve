@@ -55,13 +55,13 @@ export class EmployeeStore {
     return request;
   };
 
-  loadPicker = async (tenantGlobalId: string): Promise<void> => {
+  loadPicker = async (tenantGlobalId: string, selectedEmployeeGlobalIds: readonly string[] = []): Promise<void> => {
     const requestVersion = ++this.pickerRequestVersion;
     runInAction(() => {
       this.isPickerLoading = true;
     });
     try {
-      const employees = await employeeApi.listEmployeePicker(tenantGlobalId);
+      const employees = await employeeApi.listEmployeePicker(tenantGlobalId, selectedEmployeeGlobalIds);
       if (requestVersion !== this.pickerRequestVersion) {
         return;
       }

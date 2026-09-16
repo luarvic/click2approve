@@ -61,10 +61,14 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({ currentDelegationGlob
   const gridIsLoading = useGridRefresh(
     () =>
       tenantGlobalId
-        ? Promise.all([
-            stores.employeeStore.loadPicker(tenantGlobalId),
-            listApprovalDelegationGrid(tenantGlobalId, query),
-          ]).then(([, page]) => {
+        ? listApprovalDelegationGrid(tenantGlobalId, query).then(async (page) => {
+            await stores.employeeStore.loadPicker(
+              tenantGlobalId,
+              page.items.flatMap((delegation) => [
+                delegation.delegatorEmployeeGlobalId,
+                delegation.delegateEmployeeGlobalId,
+              ]),
+            );
             setDelegations(page.items);
             setTotalCount(page.totalCount);
           })

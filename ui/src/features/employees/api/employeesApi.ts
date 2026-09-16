@@ -5,13 +5,13 @@ import {
   EmployeePickerItem,
   UpdateEmployeeRequest,
 } from "@/features/employees/models/employee";
-import axios from "@/shared/api/axios";
 import { ApiPaths } from "@/shared/api/apiPaths";
+import axios from "@/shared/api/axios";
+import type { GridPage } from "@/shared/grids/gridPage";
+import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
+import { serializeSimpleGridQuery } from "@/shared/grids/simpleGridQuery";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
-import { serializeSimpleGridQuery } from "@/shared/grids/simpleGridQuery";
-import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
-import type { GridPage } from "@/shared/grids/gridPage";
 
 export const listEmployeeGrid = async (
   tenantGlobalId: string,
@@ -40,9 +40,17 @@ export const listEmployees = async (tenantGlobalId: string): Promise<EmployeeLis
   ).items;
 };
 
-export const listEmployeePicker = async (tenantGlobalId: string): Promise<EmployeePickerItem[]> => {
+export const listEmployeePicker = async (
+  tenantGlobalId: string,
+  selectedEmployeeGlobalIds: readonly string[] = [],
+): Promise<EmployeePickerItem[]> => {
   try {
-    const { data } = await axios.get<EmployeePickerItem[]>(ApiPaths.tenants.employeesPicker(tenantGlobalId));
+    const query = new URLSearchParams();
+    selectedEmployeeGlobalIds.forEach((employeeGlobalId) =>
+      query.append("selectedEmployeeGlobalIds", employeeGlobalId),
+    );
+    const path = ApiPaths.tenants.employeesPicker(tenantGlobalId);
+    const { data } = await axios.get<EmployeePickerItem[]>(query.size > 0 ? `${path}?${query}` : path);
     return data;
   } catch (e) {
     notification.error(getApiErrorNotification(e));

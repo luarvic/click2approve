@@ -44,13 +44,16 @@ const DelegationEditorPage = () => {
     }
 
     stores.commonStore.updateActionLoadingCounter(loader, 1);
-    void Promise.all([
-      stores.employeeStore.loadPicker(tenantGlobalId),
-      isNewDelegation || !delegationGlobalId
-        ? Promise.resolve(null)
-        : getApprovalDelegation(tenantGlobalId, delegationGlobalId),
-    ])
-      .then(([, loadedDelegation]) => {
+    void (async () => {
+      const loadedDelegation =
+        isNewDelegation || !delegationGlobalId ? null : await getApprovalDelegation(tenantGlobalId, delegationGlobalId);
+      await stores.employeeStore.loadPicker(
+        tenantGlobalId,
+        loadedDelegation ? [loadedDelegation.delegatorEmployeeGlobalId, loadedDelegation.delegateEmployeeGlobalId] : [],
+      );
+      return loadedDelegation;
+    })()
+      .then((loadedDelegation) => {
         setDelegation(loadedDelegation);
       })
       .finally(() => {

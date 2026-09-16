@@ -39,11 +39,15 @@ const TeamEditorPage = () => {
     }
 
     stores.commonStore.updateActionLoadingCounter(loader, 1);
-    void Promise.all([
-      isNewTeam || !teamGlobalId ? Promise.resolve(null) : getTeam(tenantGlobalId, teamGlobalId),
-      stores.employeeStore.loadPicker(tenantGlobalId),
-    ])
-      .then(([loadedTeam]) => {
+    void (async () => {
+      const loadedTeam = isNewTeam || !teamGlobalId ? null : await getTeam(tenantGlobalId, teamGlobalId);
+      await stores.employeeStore.loadPicker(
+        tenantGlobalId,
+        loadedTeam?.members?.map((member) => member.globalId),
+      );
+      return loadedTeam;
+    })()
+      .then((loadedTeam) => {
         if (active) {
           setTeam(loadedTeam);
         }

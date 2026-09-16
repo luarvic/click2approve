@@ -67,7 +67,14 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
     setSteps(template ? createEditableSteps(template.steps) : [createEmptyStep(1, true, defaultAssigneeType)]);
     if (tenantGlobalId && businessTenantIsSelected) {
       if (canUseEmployees) {
-        stores.employeeStore.loadPicker(tenantGlobalId);
+        stores.employeeStore.loadPicker(
+          tenantGlobalId,
+          template?.steps.flatMap((step) =>
+            step.assignees
+              .filter((assignee) => assignee.type === AssigneeType.Employee && assignee.employeeGlobalId)
+              .map((assignee) => assignee.employeeGlobalId!),
+          ) ?? [],
+        );
       }
       if (canUseTeams) {
         stores.teamStore.loadPicker(tenantGlobalId);

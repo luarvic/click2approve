@@ -113,7 +113,14 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
 
     if (tenantGlobalId && businessTenantIsSelected) {
       if (canUseEmployees) {
-        stores.employeeStore.loadPicker(tenantGlobalId);
+        stores.employeeStore.loadPicker(
+          tenantGlobalId,
+          requestToClone?.steps.flatMap((step) =>
+            step.assignees
+              .filter((assignee) => assignee.type === AssigneeType.Employee && assignee.employeeGlobalId)
+              .map((assignee) => assignee.employeeGlobalId!),
+          ) ?? [],
+        );
       }
       if (canUseTeams) {
         stores.teamStore.loadPicker(tenantGlobalId);
@@ -135,6 +142,14 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
             setTitle(template.name);
             setDescription(template.description ?? "");
             setSteps(createEditableSteps(template.steps));
+            void stores.employeeStore.loadPicker(
+              tenantGlobalId,
+              template.steps.flatMap((step) =>
+                step.assignees
+                  .filter((assignee) => assignee.type === AssigneeType.Employee && assignee.employeeGlobalId)
+                  .map((assignee) => assignee.employeeGlobalId!),
+              ),
+            );
           }
           initialTemplateHasBeenApplied.current = true;
         });
