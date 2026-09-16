@@ -15,6 +15,7 @@ import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirma
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
@@ -24,6 +25,7 @@ import {
   showPersistenceSuccessNotification,
 } from "@/shared/utils/persistenceNotifications";
 import { Button, Stack, TextField } from "@mui/material";
+import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 
 interface ApprovalStepTemplateEditorProps {
@@ -72,6 +74,19 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
       }
     }
   }, [template, tenantGlobalId, businessTenantIsSelected, canUseEmployees, canUseTeams, defaultAssigneeType, setSteps]);
+
+  const employeePickerIsLoading =
+    canUseEmployees &&
+    tenantGlobalId !== null &&
+    (stores.employeeStore.isPickerLoading || stores.employeeStore.pickerTenantGlobalId !== tenantGlobalId);
+  const teamPickerIsLoading =
+    canUseTeams &&
+    tenantGlobalId !== null &&
+    (stores.teamStore.isPickerLoading || stores.teamStore.pickerTenantGlobalId !== tenantGlobalId);
+
+  if (employeePickerIsLoading || teamPickerIsLoading) {
+    return <LoadingOverlay />;
+  }
 
   const removeAssignee = (stepIndex: number, assigneeIndex: number) => {
     if ((steps[stepIndex]?.assignees.length ?? 0) > 1) {
@@ -205,4 +220,4 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
   );
 };
 
-export default ApprovalStepTemplateEditor;
+export default observer(ApprovalStepTemplateEditor);

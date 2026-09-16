@@ -5,9 +5,12 @@ import { makeAutoObservable, runInAction } from "mobx";
 export class TeamStore {
   teams: TeamListItem[];
   pickerTeams: TeamPickerItem[] = [];
+  pickerTenantGlobalId: string | null = null;
+  isPickerLoading = false;
   private loadedTenantGlobalId: string | null = null;
   private loadRequest: Promise<void> | null = null;
   private loadingTenantGlobalId: string | null = null;
+  private pickerRequestVersion = 0;
   private requestVersion = 0;
 
   constructor(teams: TeamListItem[] = []) {
@@ -47,10 +50,26 @@ export class TeamStore {
   };
 
   loadPicker = async (tenantGlobalId: string): Promise<void> => {
-    const teams = await teamApi.listTeamPicker(tenantGlobalId);
+    const requestVersion = ++this.pickerRequestVersion;
     runInAction(() => {
-      this.pickerTeams = teams;
+      this.isPickerLoading = true;
     });
+    try {
+      const teams = await teamApi.listTeamPicker(tenantGlobalId);
+      if (requestVersion !== this.pickerRequestVersion) {
+        return;
+      }
+      runInAction(() => {
+        this.pickerTeams = teams;
+        this.pickerTenantGlobalId = tenantGlobalId;
+      });
+    } finally {
+      if (requestVersion === this.pickerRequestVersion) {
+        runInAction(() => {
+          this.isPickerLoading = false;
+        });
+      }
+    }
   };
 
   create = async (tenantGlobalId: string, payload: UpsertTeamRequest): Promise<Team | null> => {
@@ -95,9 +114,12 @@ export class TeamStore {
       this.requestVersion += 1;
       this.teams = [];
       this.pickerTeams = [];
+      this.pickerTenantGlobalId = null;
+      this.isPickerLoading = false;
       this.loadedTenantGlobalId = null;
       this.loadRequest = null;
       this.loadingTenantGlobalId = null;
+      this.pickerRequestVersion += 1;
     });
   };
 }

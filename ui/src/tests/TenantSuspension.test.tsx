@@ -7,7 +7,9 @@ import type { AxiosResponse } from "axios";
 import { Link, MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("@/features/identity/api/authApi", () => ({ refreshAuthSession: vi.fn() }));
+vi.mock("@/features/identity/api/authApi", () => ({
+  refreshAuthSession: vi.fn(),
+}));
 vi.mock("@/shared/session/session", () => ({ readTokens: () => null }));
 vi.mock("@/app/rootStore", () => ({
   stores: {
@@ -26,6 +28,7 @@ beforeEach(() => {
   access = new BillingAccessStore();
   configureRequestContext({
     getWorkEmployeeGlobalId: () => null,
+    onTenantAccessRevoked: async () => undefined,
     onWorkEmployeeInvalid: async () => undefined,
     onUnauthorized: vi.fn(),
     onTenantSuspended: (tenantGlobalId) => {

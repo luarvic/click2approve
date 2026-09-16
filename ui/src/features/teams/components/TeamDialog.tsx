@@ -39,10 +39,6 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
   const teamsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/teams") : "/";
   const nameHasError = nameTouched && !name.trim();
   const saveIsLoading = saveAction.isRunning || stores.commonStore.isActionLoading(saveLoader);
-  const activeEmployees = employees.filter(
-    (employee) => employee.status === undefined || employee.status === EmployeeStatus.Active,
-  );
-
   useEffect(() => {
     setName(team?.name ?? "");
     setMembers(team?.members ?? []);
@@ -100,7 +96,8 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
         />
         <Autocomplete
           multiple
-          options={activeEmployees}
+          options={employees}
+          getOptionDisabled={(employee) => employee.status === EmployeeStatus.Disabled}
           value={members}
           getOptionLabel={getEmployeeLabel}
           isOptionEqualToValue={(option, value) => option.globalId === value.globalId}

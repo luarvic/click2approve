@@ -81,6 +81,7 @@ const calloutActionLinkSx: SxProps<Theme> = [
 const SubscriptionPlansPage = () => {
   const { tenantGlobalId } = useParams<{ tenantGlobalId: string }>();
   const currentTenant = stores.tenantStore.currentTenant;
+  const requiresTrialUsage = currentTenant?.subscriptionPlan === SubscriptionPlan.BusinessTrial;
   const personalTenant = stores.tenantStore.tenants.find((tenant) => tenant.type === TenantType.Personal);
   const [billing, setBilling] = useState<BillingStatus>();
   const [failed, setFailed] = useState(false);
@@ -99,6 +100,7 @@ const SubscriptionPlansPage = () => {
   const [trialUsage, setTrialUsage] = useState<SubscriptionUsage>();
   const initialLoad = useRef<{
     tenantGlobalId: string;
+    requiresTrialUsage: boolean;
     promise: Promise<[SubscriptionPlanConfiguration[], BillingStatus, SubscriptionUsage | undefined]>;
   }>();
   const subtitle =
@@ -128,15 +130,17 @@ const SubscriptionPlansPage = () => {
     setTrialUsage(undefined);
     stores.commonStore.updateActionLoadingCounter(subscriptionPlansLoader, 1);
     // Share the initial request across React effect replays.
-    if (initialLoad.current?.tenantGlobalId !== tenantGlobalId) {
+    if (
+      initialLoad.current?.tenantGlobalId !== tenantGlobalId ||
+      initialLoad.current.requiresTrialUsage !== requiresTrialUsage
+    ) {
       initialLoad.current = {
         tenantGlobalId,
+        requiresTrialUsage,
         promise: Promise.all([
           getSubscriptionPlans(),
           refreshBilling(tenantGlobalId),
-          currentTenant?.subscriptionPlan === SubscriptionPlan.BusinessTrial
-            ? getSubscriptionUsage(tenantGlobalId)
-            : Promise.resolve(undefined),
+          requiresTrialUsage ? getSubscriptionUsage(tenantGlobalId) : Promise.resolve(undefined),
         ]).then(async (result) => {
           if (stores.tenantStore.currentTenant?.globalId === tenantGlobalId) {
             await stores.tenantStore.load(undefined, tenantGlobalId);
@@ -165,7 +169,7 @@ const SubscriptionPlansPage = () => {
     return () => {
       active = false;
     };
-  }, [plansRefreshVersion, subscriptionPlansLoader, tenantGlobalId]);
+  }, [plansRefreshVersion, requiresTrialUsage, subscriptionPlansLoader, tenantGlobalId]);
 
   if (failed) return <Alert severity="error">Unable to load plans and payment status. Refresh to try again.</Alert>;
   if (!stores.tenantStore.hasLoaded || !subscriptionPlansHaveLoaded || !billing) {

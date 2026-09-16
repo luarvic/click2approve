@@ -42,4 +42,24 @@ describe("<ApprovalStepAssigneeRow />", () => {
 
     expect(screen.getByTestId("GroupsIcon").className).toContain("MuiSvgIcon-colorDisabled");
   });
+
+  test("retains a disabled assigned employee", () => {
+    const disabledEmployee = { ...employee, status: EmployeeStatus.Disabled };
+    render(
+      <ApprovalStepAssigneeRow
+        assignee={{
+          employeeGlobalId: disabledEmployee.globalId,
+          type: AssigneeType.Employee,
+        }}
+        canUseEmployees
+        canUseTeams={false}
+        employees={[disabledEmployee]}
+        onChange={vi.fn()}
+        onRemove={vi.fn()}
+        teams={[]}
+      />,
+    );
+
+    expect(screen.getByTestId("PersonOffIcon")).toBeTruthy();
+  });
 });

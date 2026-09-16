@@ -1,5 +1,6 @@
 interface RequestContext {
   getWorkEmployeeGlobalId: () => string | null;
+  onTenantAccessRevoked: () => Promise<void>;
   onWorkEmployeeInvalid: () => Promise<void>;
   onUnauthorized: () => void;
   onTenantSuspended: (tenantGlobalId: string) => void;
@@ -7,6 +8,7 @@ interface RequestContext {
 
 const defaultContext: RequestContext = {
   getWorkEmployeeGlobalId: () => null,
+  onTenantAccessRevoked: async () => undefined,
   onWorkEmployeeInvalid: async () => undefined,
   onUnauthorized: () => undefined,
   onTenantSuspended: () => undefined,

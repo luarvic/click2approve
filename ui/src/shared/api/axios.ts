@@ -14,7 +14,11 @@ const axiosInstance = axios.create({
 const apiDelayMs = Number(import.meta.env.VITE_API_DELAY_MS ?? 0);
 const workEmployeeHeaderName = "X-Click2Approve-Work-Employee";
 const workEmployeeInvalidHeaderName = "X-Click2Approve-Work-Employee-Invalid";
-let refreshRequest: { promise: ReturnType<typeof refreshAuthSession>; refreshToken: string } | null = null;
+const tenantAccessRevokedHeaderName = "X-Click2Approve-Tenant-Access-Revoked";
+let refreshRequest: {
+  promise: ReturnType<typeof refreshAuthSession>;
+  refreshToken: string;
+} | null = null;
 
 interface TenantSuspendedResponse {
   code: string;
@@ -99,6 +103,13 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
     const originalRequest = error.config;
+    const tenantAccessWasRevoked =
+      error.response?.headers?.get?.(tenantAccessRevokedHeaderName) === "true" ||
+      error.response?.headers?.[tenantAccessRevokedHeaderName.toLowerCase()] === "true";
+    if (error.response?.status === 409 && tenantAccessWasRevoked) {
+      await context.onTenantAccessRevoked();
+      return Promise.reject(error);
+    }
     const workEmployeeIsInvalid =
       error.response?.headers?.get?.(workEmployeeInvalidHeaderName) === "true" ||
       error.response?.headers?.[workEmployeeInvalidHeaderName.toLowerCase()] === "true";

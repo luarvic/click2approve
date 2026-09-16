@@ -15,6 +15,8 @@ import * as employeeApi from "@/features/employees/api/employeesApi";
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import { EmployeeStore } from "@/features/employees/stores/employeeStore";
 import { Team } from "@/features/teams/models/team";
+import * as teamApi from "@/features/teams/api/teamsApi";
+import { TeamStore } from "@/features/teams/stores/teamStore";
 import * as tenantApi from "@/features/tenants/api/tenantsApi";
 import { EmployeeRole, Tenant, TenantType } from "@/features/tenants/models/tenant";
 import { TenantStore } from "@/features/tenants/stores/tenantStore";
@@ -39,6 +41,11 @@ vi.mock("@/features/approvalStepTemplates/api/approvalStepTemplatesApi", () => (
 
 vi.mock("@/features/employees/api/employeesApi", () => ({
   listEmployees: vi.fn(),
+  listEmployeePicker: vi.fn(),
+}));
+
+vi.mock("@/features/teams/api/teamsApi", () => ({
+  listTeamPicker: vi.fn(),
 }));
 
 vi.mock("@/features/tenants/api/tenantsApi", () => ({
@@ -218,6 +225,48 @@ describe("store architecture", () => {
     await firstLoad;
 
     expect(store.employees.map(({ globalId }) => globalId)).toEqual(["22222222-2222-4222-8222-222222222222"]);
+  });
+
+  test("an obsolete tenant response cannot replace current picker employees", async () => {
+    const firstRequest = deferred<Employee[]>();
+    const secondRequest = deferred<Employee[]>();
+    vi.mocked(employeeApi.listEmployeePicker)
+      .mockReturnValueOnce(firstRequest.promise)
+      .mockReturnValueOnce(secondRequest.promise);
+    const store = new EmployeeStore();
+
+    const firstLoad = store.loadPicker("11111111-1111-4111-8111-111111111111");
+    const secondLoad = store.loadPicker("22222222-2222-4222-8222-222222222222");
+    expect(store.isPickerLoading).toBe(true);
+    secondRequest.resolve([employee("22222222-2222-4222-8222-222222222222", "22222222-2222-4222-8222-222222222222")]);
+    await secondLoad;
+    firstRequest.resolve([employee("11111111-1111-4111-8111-111111111111", "11111111-1111-4111-8111-111111111111")]);
+    await firstLoad;
+
+    expect(store.pickerEmployees.map(({ globalId }) => globalId)).toEqual(["22222222-2222-4222-8222-222222222222"]);
+    expect(store.pickerTenantGlobalId).toBe("22222222-2222-4222-8222-222222222222");
+    expect(store.isPickerLoading).toBe(false);
+  });
+
+  test("an obsolete tenant response cannot replace current picker teams", async () => {
+    const firstRequest = deferred<Team[]>();
+    const secondRequest = deferred<Team[]>();
+    vi.mocked(teamApi.listTeamPicker)
+      .mockReturnValueOnce(firstRequest.promise)
+      .mockReturnValueOnce(secondRequest.promise);
+    const store = new TeamStore();
+
+    const firstLoad = store.loadPicker("11111111-1111-4111-8111-111111111111");
+    const secondLoad = store.loadPicker("22222222-2222-4222-8222-222222222222");
+    expect(store.isPickerLoading).toBe(true);
+    secondRequest.resolve([{ globalId: "22222222-2222-4222-8222-222222222222", name: "Finance" }]);
+    await secondLoad;
+    firstRequest.resolve([{ globalId: "11111111-1111-4111-8111-111111111111", name: "Sales" }]);
+    await firstLoad;
+
+    expect(store.pickerTeams.map(({ globalId }) => globalId)).toEqual(["22222222-2222-4222-8222-222222222222"]);
+    expect(store.pickerTenantGlobalId).toBe("22222222-2222-4222-8222-222222222222");
+    expect(store.isPickerLoading).toBe(false);
   });
 
   test("a collection load atomically replaces the previous snapshot", async () => {

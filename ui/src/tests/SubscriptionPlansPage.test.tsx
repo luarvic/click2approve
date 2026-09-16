@@ -97,6 +97,18 @@ describe("plans and billing", () => {
       );
     },
   );
+  it("loads trial usage after billing refresh changes the current plan to Business Trial", async () => {
+    mocks.tenant.type = TenantType.Business;
+    mocks.tenant.subscriptionPlan = SubscriptionPlan.BusinessStarter;
+    mocks.refresh.mockImplementation(async () => {
+      mocks.tenant.subscriptionPlan = SubscriptionPlan.BusinessTrial;
+      return active;
+    });
+
+    showPage();
+
+    await waitFor(() => expect(mocks.usage).toHaveBeenCalledWith("test"));
+  });
   it("keeps an unpaid upgrade actionable when the backend still requires payment", async () => {
     mocks.refresh.mockResolvedValue({
       ...active,

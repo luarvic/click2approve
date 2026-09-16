@@ -1,4 +1,5 @@
 import AppRoutes from "@/app/AppRoutes";
+import { Routes } from "@/shared/routing/routes";
 import { useState } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
@@ -6,7 +7,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 const AppRouter = () => {
   const [router] = useState(() =>
     createBrowserRouter([{ path: "*", element: <AppRoutes /> }], {
-      basename: "/app",
+      basename: Routes.basePath,
       future: { v7_relativeSplatPath: true },
     }),
   );

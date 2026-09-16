@@ -1,7 +1,7 @@
+import { ApplicationConfigurationStore } from "@/features/applicationConfiguration/stores/applicationConfigurationStore";
 import { ApprovalRequestStore } from "@/features/approvalRequests/stores/approvalRequestStore";
 import { ApprovalRequestTaskStore } from "@/features/approvalRequests/stores/approvalRequestTaskStore";
 import { ApprovalStepTemplateStore } from "@/features/approvalStepTemplates/stores/approvalStepTemplateStore";
-import { ApplicationConfigurationStore } from "@/features/applicationConfiguration/stores/applicationConfigurationStore";
 import { EmployeeStore } from "@/features/employees/stores/employeeStore";
 import { UserAccountStore } from "@/features/identity/stores/userAccountStore";
 import { NotificationStore } from "@/features/notifications/stores/notificationStore";
@@ -9,6 +9,7 @@ import { BillingAccessStore } from "@/features/subscriptions/stores/billingAcces
 import { TeamStore } from "@/features/teams/stores/teamStore";
 import { TenantStore } from "@/features/tenants/stores/tenantStore";
 import { configureRequestContext } from "@/shared/api/requestContext";
+import { Routes } from "@/shared/routing/routes";
 import { CommonStore } from "@/shared/stores/commonStore";
 import { UserPreferencesStore } from "@/shared/stores/userPreferencesStore";
 import { UserProfileStore } from "@/shared/stores/userProfileStore";
@@ -30,6 +31,7 @@ export class RootStore {
   readonly teamStore: TeamStore;
   readonly approvalStepTemplateStore: ApprovalStepTemplateStore;
   readonly notificationStore: NotificationStore;
+  private revokedTenantAccessRecovery: Promise<void> | null = null;
   private workEmployeeInvalidRecovery: Promise<void> | null = null;
 
   constructor(
@@ -73,6 +75,7 @@ export class RootStore {
     }, this.clearSession);
     configureRequestContext({
       getWorkEmployeeGlobalId: () => this.tenantStore.currentWorkEmployeeGlobalId,
+      onTenantAccessRevoked: this.recoverRevokedTenantAccess,
       onWorkEmployeeInvalid: this.recoverInvalidWorkEmployee,
       onUnauthorized: this.userAccountStore.signOut,
       onTenantSuspended: (tenantGlobalId) => {
@@ -116,6 +119,35 @@ export class RootStore {
       this.workEmployeeInvalidRecovery = null;
     });
     this.workEmployeeInvalidRecovery = recovery;
+    return recovery;
+  };
+
+  private recoverRevokedTenantAccess = (): Promise<void> => {
+    if (this.revokedTenantAccessRecovery) {
+      return this.revokedTenantAccessRecovery;
+    }
+
+    const recovery = (async () => {
+      this.tenantStore.setRevokedAccessRecovery(true);
+      let navigationCompleted = false;
+      try {
+        await this.tenantStore.load();
+        await this.refreshTenantScope();
+
+        const tenantGlobalId = this.tenantStore.currentTenantGlobalId;
+        const destination = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, Routes.tasksPath) : "/tenants";
+        window.history.replaceState(null, "", Routes.applicationPath(destination));
+        window.dispatchEvent(new PopStateEvent("popstate"));
+        navigationCompleted = true;
+      } finally {
+        if (!navigationCompleted || !this.tenantStore.currentTenantGlobalId) {
+          this.tenantStore.setRevokedAccessRecovery(false);
+        }
+      }
+    })().finally(() => {
+      this.revokedTenantAccessRecovery = null;
+    });
+    this.revokedTenantAccessRecovery = recovery;
     return recovery;
   };
 

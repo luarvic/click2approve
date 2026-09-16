@@ -58,9 +58,6 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
   onRemove,
   stackControlsOnSmallScreens = false,
 }) => {
-  const activeEmployees = employees.filter(
-    (employee) => employee.status === undefined || employee.status === EmployeeStatus.Active,
-  );
   const recipientTypes = [
     { value: AssigneeType.User, label: "User" },
     ...(canUseEmployees ? [{ value: AssigneeType.Employee, label: "Employee" }] : []),
@@ -111,7 +108,8 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
             <Autocomplete
               disableClearable={assignee.employeeGlobalId !== undefined}
               fullWidth
-              options={activeEmployees}
+              options={employees}
+              getOptionDisabled={(employee) => employee.status === EmployeeStatus.Disabled}
               getOptionLabel={getEmployeeDisplayName}
               value={employees.find((user) => user.globalId === assignee.employeeGlobalId) ?? null}
               disabled={disabled}

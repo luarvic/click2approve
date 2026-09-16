@@ -2,14 +2,16 @@ import { stores } from "@/app/rootStore";
 import KnownBillingAccess from "@/features/subscriptions/components/KnownBillingAccess";
 import WrapperLayout from "@/layouts/WrapperLayout";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
+import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
-import { Outlet, useMatch, useParams } from "react-router-dom";
+import { Navigate, Outlet, useMatch, useParams } from "react-router-dom";
 
 const TenantScopeLayout = () => {
   const isPlansPage = Boolean(useMatch("/tenants/:tenantGlobalId/plans"));
   const { tenantGlobalId } = useParams<{ tenantGlobalId: string }>();
+  const isRecoveringRevokedAccess = stores.tenantStore.isRecoveringRevokedAccess;
   const tenantScopeIsAvailable =
     stores.tenantStore.hasLoaded &&
     tenantGlobalId !== undefined &&
@@ -18,6 +20,15 @@ const TenantScopeLayout = () => {
       : stores.tenantStore.currentTenantGlobalId === tenantGlobalId);
 
   useEffect(() => {
+    if (
+      isRecoveringRevokedAccess &&
+      tenantGlobalId !== undefined &&
+      stores.tenantStore.currentTenantGlobalId === tenantGlobalId
+    ) {
+      stores.tenantStore.setRevokedAccessRecovery(false);
+      return;
+    }
+
     if (
       tenantScopeIsAvailable &&
       tenantGlobalId !== undefined &&
@@ -34,13 +45,18 @@ const TenantScopeLayout = () => {
       stores.commonStore.updateActionLoadingCounter(loader, 1);
       void stores.switchTenant(tenantGlobalId).finally(() => stores.commonStore.updateActionLoadingCounter(loader, -1));
     }
-  }, [isPlansPage, tenantGlobalId, tenantScopeIsAvailable]);
+  }, [isPlansPage, isRecoveringRevokedAccess, tenantGlobalId, tenantScopeIsAvailable]);
 
-  if (!stores.tenantStore.hasLoaded) {
+  if (!stores.tenantStore.hasLoaded || isRecoveringRevokedAccess) {
     return null;
   }
 
   if (!tenantScopeIsAvailable) {
+    const currentTenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+    if (stores.tenantStore.revokedTenantGlobalId === tenantGlobalId && currentTenantGlobalId) {
+      return <Navigate to={Routes.tenantPath(currentTenantGlobalId, Routes.tasksPath)} replace />;
+    }
+
     return (
       <WrapperLayout>
         <NotFoundPage />

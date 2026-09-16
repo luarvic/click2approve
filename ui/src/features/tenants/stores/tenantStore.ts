@@ -16,6 +16,8 @@ export class TenantStore {
   currentTenantGlobalId: string | null;
   currentWorkEmployeeGlobalId: string | null;
   hasLoaded: boolean;
+  isRecoveringRevokedAccess = false;
+  revokedTenantGlobalId: string | null = null;
   private businessTenantRequestVersion = 0;
   // Incremented to invalidate older async requests so only the latest response updates the store.
   private requestVersion = 0;
@@ -70,6 +72,10 @@ export class TenantStore {
       tenants.find((tenant) => tenant.globalId === cachedTenantId) ??
       tenants[0] ??
       null;
+    const revokedTenantGlobalId =
+      cachedTenantId === preferredTenantGlobalId && !tenants.some((tenant) => tenant.globalId === cachedTenantId)
+        ? cachedTenantId
+        : null;
     runInAction(() => {
       this.tenants = tenants;
       this.currentTenantGlobalId = currentTenant?.globalId ?? null;
@@ -81,6 +87,7 @@ export class TenantStore {
           ? cachedWorkEmployeeGlobalId
           : (currentTenant?.currentEmployeeGlobalId ?? null);
       this.hasLoaded = true;
+      this.revokedTenantGlobalId = revokedTenantGlobalId;
     });
     if (currentTenant) {
       writeCurrentTenantGlobalId(currentTenant.globalId);
@@ -205,9 +212,14 @@ export class TenantStore {
     runInAction(() => {
       this.currentTenantGlobalId = tenantGlobalId;
       this.currentWorkEmployeeGlobalId = employeeGlobalId;
+      this.revokedTenantGlobalId = null;
     });
     writeCurrentTenantGlobalId(tenantGlobalId);
     writeCurrentWorkEmployeeGlobalId(employeeGlobalId);
+  };
+
+  setRevokedAccessRecovery = (isRecovering: boolean): void => {
+    this.isRecoveringRevokedAccess = isRecovering;
   };
 
   clear = (): void => {
@@ -221,6 +233,8 @@ export class TenantStore {
       this.currentTenantGlobalId = null;
       this.currentWorkEmployeeGlobalId = null;
       this.hasLoaded = false;
+      this.isRecoveringRevokedAccess = false;
+      this.revokedTenantGlobalId = null;
     });
   };
 

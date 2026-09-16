@@ -11,9 +11,12 @@ import { makeAutoObservable, runInAction } from "mobx";
 export class EmployeeStore {
   employees: EmployeeListItem[];
   pickerEmployees: EmployeePickerItem[] = [];
+  pickerTenantGlobalId: string | null = null;
+  isPickerLoading = false;
   private loadedTenantGlobalId: string | null = null;
   private loadRequest: Promise<void> | null = null;
   private loadingTenantGlobalId: string | null = null;
+  private pickerRequestVersion = 0;
   private requestVersion = 0;
 
   constructor(employees: EmployeeListItem[] = []) {
@@ -53,10 +56,26 @@ export class EmployeeStore {
   };
 
   loadPicker = async (tenantGlobalId: string): Promise<void> => {
-    const employees = await employeeApi.listEmployeePicker(tenantGlobalId);
+    const requestVersion = ++this.pickerRequestVersion;
     runInAction(() => {
-      this.pickerEmployees = employees;
+      this.isPickerLoading = true;
     });
+    try {
+      const employees = await employeeApi.listEmployeePicker(tenantGlobalId);
+      if (requestVersion !== this.pickerRequestVersion) {
+        return;
+      }
+      runInAction(() => {
+        this.pickerEmployees = employees;
+        this.pickerTenantGlobalId = tenantGlobalId;
+      });
+    } finally {
+      if (requestVersion === this.pickerRequestVersion) {
+        runInAction(() => {
+          this.isPickerLoading = false;
+        });
+      }
+    }
   };
 
   create = async (tenantGlobalId: string, payload: CreateEmployeeRequest): Promise<Employee | null> => {
@@ -105,9 +124,12 @@ export class EmployeeStore {
       this.requestVersion += 1;
       this.employees = [];
       this.pickerEmployees = [];
+      this.pickerTenantGlobalId = null;
+      this.isPickerLoading = false;
       this.loadedTenantGlobalId = null;
       this.loadRequest = null;
       this.loadingTenantGlobalId = null;
+      this.pickerRequestVersion += 1;
     });
   };
 }
