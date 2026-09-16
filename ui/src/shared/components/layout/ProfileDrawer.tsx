@@ -6,7 +6,7 @@ import { Shell } from "@/shared/components/layout/shellStyles";
 import { Lists } from "@/shared/components/lists/listStyles";
 import { confirmUnsavedChanges } from "@/shared/routing/unsavedChanges";
 import { getUserProfileName } from "@/shared/utils/displayNameHelpers";
-import { ChevronRightTwoTone, Logout, Settings } from "@mui/icons-material";
+import { ChevronRightTwoTone, Logout, Person } from "@mui/icons-material";
 import {
   Avatar,
   Backdrop,
@@ -57,7 +57,7 @@ const ProfileDrawer = () => {
               <ListItemButton onClick={() => navigate("/userProfile")}>
                 <ListItemIcon sx={Lists.itemIconSx}>
                   <Avatar src={getPublicApiUrl(profile?.avatar)} sx={Shell.profileDrawerAvatarSx}>
-                    <Settings fontSize="small" />
+                    <Person fontSize="small" />
                   </Avatar>
                 </ListItemIcon>
                 <ListItemText disableTypography primary={<DisplayName displayName={displayName} email={email} />} />

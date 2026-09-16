@@ -138,6 +138,8 @@ export const Shell = {
     width: 32,
   } as SxProps<Theme>,
   profileDrawerAvatarSx: {
+    bgcolor: "action.active",
+    color: "background.paper",
     height: 24,
     width: 24,
   } as SxProps<Theme>,
