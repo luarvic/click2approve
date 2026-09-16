@@ -104,6 +104,11 @@ const trimErrorMessage = (message: string): string => {
 const getErrorSeverity = (status?: number): ErrorNotification["severity"] =>
   status !== undefined && status >= 400 && status < 500 ? "warning" : "error";
 
+const paymentRequiredMessage = "Payment is required to continue. Please review your organization's plan.";
+
+const getUserFacingMessage = (message: string, status?: number): string =>
+  status === 402 && message.trim() === "Request failed with status code 402" ? paymentRequiredMessage : message;
+
 export const getApiErrorNotification = (error: unknown): ErrorNotification | undefined => {
   try {
     if (!isAxiosError(error)) {
@@ -161,7 +166,15 @@ export const getApiErrorNotification = (error: unknown): ErrorNotification | und
 
       return {
         details: getResponseDetails(problemDetails, status),
-        message: trimErrorMessage(message),
+        message: trimErrorMessage(getUserFacingMessage(message, status)),
+        severity: getErrorSeverity(status),
+      };
+    }
+
+    if (status === 402) {
+      return {
+        details: [],
+        message: paymentRequiredMessage,
         severity: getErrorSeverity(status),
       };
     }

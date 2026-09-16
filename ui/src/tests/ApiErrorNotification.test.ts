@@ -69,6 +69,30 @@ describe("getApiErrorNotification", () => {
     expect(result?.severity).toBe("warning");
   });
 
+  test("replaces a generic 402 error with a payment message", () => {
+    expect(
+      getApiErrorNotification({
+        isAxiosError: true,
+        message: "Request failed with status code 402",
+        response: { status: 402 },
+      }),
+    ).toEqual({
+      details: [],
+      message: "Payment is required to continue. Please review your organization's plan.",
+      severity: "warning",
+    });
+  });
+
+  test("replaces a generic message returned in a 402 response", () => {
+    const result = getApiErrorNotification({
+      isAxiosError: true,
+      message: "Request failed with status code 402",
+      response: { status: 402, data: { title: "Request failed with status code 402" } },
+    });
+
+    expect(result?.message).toBe("Payment is required to continue. Please review your organization's plan.");
+  });
+
   test("keeps 5xx server failures as error notifications", () => {
     const result = getApiErrorNotification({
       isAxiosError: true,

@@ -151,7 +151,7 @@ export const registerPasskey = async (name: string): Promise<boolean> => {
     if (isPasskeyOperationCancelled(e)) {
       return false;
     }
-    notification.error(e instanceof Error ? e.message : getApiErrorNotification(e));
+    notification.error(getApiErrorNotification(e));
     return false;
   }
 };
@@ -171,7 +171,7 @@ export const signInWithPasskey = async (): Promise<boolean> => {
     if (isPasskeyOperationCancelled(e)) {
       return false;
     }
-    notification.error(e instanceof Error ? e.message : getApiErrorNotification(e));
+    notification.error(getApiErrorNotification(e));
     return false;
   }
 };
