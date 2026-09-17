@@ -9,16 +9,16 @@ import {
   AddTwoTone,
   AssignmentTurnedInTwoTone,
   AssignmentTwoTone,
+  AutoDeleteTwoTone,
   BusinessTwoTone,
   ChevronLeftTwoTone,
   ContentCopyTwoTone,
-  Diversity3TwoTone,
   GroupsTwoTone,
-  HelpOutlineTwoTone,
+  HelpTwoTone,
+  PeopleAltTwoTone,
   PersonTwoTone,
   ReceiptLongTwoTone,
   ShowChartTwoTone,
-  SettingsTwoTone,
   StyleTwoTone,
 } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
@@ -339,7 +339,7 @@ const MainMenuDrawer = () => {
                 }}
               >
                 <ListItemIcon sx={Lists.itemIconSx}>
-                  <Diversity3TwoTone />
+                  <PeopleAltTwoTone />
                 </ListItemIcon>
                 <ListItemText primary="Delegations" />
               </ListItemButton>
@@ -395,7 +395,7 @@ const MainMenuDrawer = () => {
               }}
             >
               <ListItemIcon sx={Lists.itemIconSx}>
-                <SettingsTwoTone />
+                <AutoDeleteTwoTone />
               </ListItemIcon>
               <ListItemText primary="Retention" />
             </ListItemButton>
@@ -406,7 +406,7 @@ const MainMenuDrawer = () => {
         <ListItem key="help" disablePadding>
           <ListItemButton component="a" href={Api.uiBaseUri} onClick={closeTemporaryDrawer}>
             <ListItemIcon sx={Lists.itemIconSx}>
-              <HelpOutlineTwoTone />
+              <HelpTwoTone />
             </ListItemIcon>
             <ListItemText primary="Help" />
           </ListItemButton>
