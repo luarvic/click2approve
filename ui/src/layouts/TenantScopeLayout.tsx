@@ -70,7 +70,7 @@ const TenantScopeLayout = () => {
 
   return (
     <KnownBillingAccess>
-      <Outlet />
+      <Outlet key={`${tenantGlobalId}:${stores.tenantStore.currentWorkEmployeeGlobalId ?? ""}`} />
     </KnownBillingAccess>
   );
 };
