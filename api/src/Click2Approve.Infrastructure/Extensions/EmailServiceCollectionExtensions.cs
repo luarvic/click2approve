@@ -1,5 +1,5 @@
-using Azure.Core;
 using Azure.Communication.Email;
+using Azure.Core;
 using Click2Approve.Application.Abstractions.Email;
 using Click2Approve.Infrastructure.Email;
 using Microsoft.Extensions.DependencyInjection;
