@@ -3,6 +3,7 @@ using Click2Approve.Application.Abstractions.Email;
 using Click2Approve.Application.Helpers;
 using Click2Approve.Application.Models.Emails;
 using Click2Approve.Application.Models.Events;
+using Click2Approve.EventConsumer.Email;
 
 namespace Click2Approve.EventConsumer.Services;
 

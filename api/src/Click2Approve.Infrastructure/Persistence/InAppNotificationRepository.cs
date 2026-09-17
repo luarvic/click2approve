@@ -97,13 +97,6 @@ public class InAppNotificationRepository(ApiDbContext db) : IInAppNotificationRe
                                    notification.TenantId == tenantId)
             .ToListAsync(cancellationToken);
 
-    public Task<List<InAppNotification>> ListUnreadForReadAsync(long userId, long tenantId, CancellationToken cancellationToken) =>
-        _db.InAppNotifications
-            .Where(notification => notification.UserId == userId &&
-                                   notification.TenantId == tenantId &&
-                                   notification.ReadAt == null)
-            .ToListAsync(cancellationToken);
-
     public void RemoveRange(IReadOnlyCollection<InAppNotification> notifications) =>
         _db.InAppNotifications.RemoveRange(notifications);
 }

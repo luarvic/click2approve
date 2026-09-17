@@ -13,6 +13,7 @@ import { Routes } from "@/shared/routing/routes";
 import { CommonStore } from "@/shared/stores/commonStore";
 import { UserPreferencesStore } from "@/shared/stores/userPreferencesStore";
 import { UserProfileStore } from "@/shared/stores/userProfileStore";
+import { notification } from "@/shared/utils/notifications";
 
 const getTenantGlobalIdFromCurrentPath = (): string | undefined =>
   window.location.pathname.match(/(?:^|\/)tenants\/([^/]+)/)?.[1];
@@ -62,6 +63,7 @@ export class RootStore {
     this.teamStore = teamStore;
     this.approvalStepTemplateStore = approvalStepTemplateStore;
     this.notificationStore = notificationStore;
+    this.tenantStore.configurePickerLoadFailure(this.handleTenantPickerLoadFailure);
     this.userAccountStore.configureSessionLifecycle(async () => {
       await this.userProfileStore.load();
       if (this.applicationConfigurationStore.tenantsAreEnabled) {
@@ -166,6 +168,11 @@ export class RootStore {
     this.tenantStore.clear();
     this.userProfileStore.clear();
     this.commonStore.clearSessionState();
+  };
+
+  private handleTenantPickerLoadFailure = (): void => {
+    notification.error("We couldn't load your workspaces. You have been signed out.");
+    this.userAccountStore.signOut();
   };
 }
 

@@ -1,6 +1,6 @@
 using Click2Approve.Application.Helpers;
 
-namespace Click2Approve.EventConsumer.Services;
+namespace Click2Approve.EventConsumer.Email;
 
 /// <summary>Resolves the deployment's shared branding asset for transactional email.</summary>
 public static class EmailBranding

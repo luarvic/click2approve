@@ -51,13 +51,12 @@ export const getTenant = async (tenantGlobalId: string): Promise<Tenant | null> 
   }
 };
 
-export const listTenantPicker = async (): Promise<Tenant[]> => {
+export const listTenantPicker = async (): Promise<Tenant[] | null> => {
   try {
     const { data } = await axios.get<Tenant[]>(ApiPaths.tenants.picker);
     return data;
-  } catch (e) {
-    notification.error(getApiErrorNotification(e));
-    return [];
+  } catch {
+    return null;
   }
 };
 

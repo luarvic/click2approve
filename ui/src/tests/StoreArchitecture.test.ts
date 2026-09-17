@@ -51,6 +51,7 @@ vi.mock("@/features/teams/api/teamsApi", () => ({
 vi.mock("@/features/tenants/api/tenantsApi", () => ({
   createTenant: vi.fn(),
   createTenantWithLogo: vi.fn(),
+  listTenantPicker: vi.fn(),
 }));
 
 const deferred = <T>() => {
@@ -430,6 +431,20 @@ describe("store architecture", () => {
     expect(stores.approvalRequestStore.requestToClone).toBeNull();
     expect(stores.approvalRequestTaskStore.numberOfUncompletedTasks).toBe(0);
     expect(stores.commonStore.approvalRequestSubmitDialogIsOpen).toBe(false);
+  });
+
+  test("signs out when the tenant picker cannot be loaded", async () => {
+    vi.mocked(tenantApi.listTenantPicker).mockResolvedValue(null);
+    runInAction(() => {
+      stores.userAccountStore.currentUser = {
+        email: "user@example.com",
+        isEmailConfirmed: true,
+      };
+    });
+
+    await stores.tenantStore.load();
+
+    expect(stores.userAccountStore.currentUser).toBeNull();
   });
 
   test("switching tenants clears scope before loading the new scope", async () => {

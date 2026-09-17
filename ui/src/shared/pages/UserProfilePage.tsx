@@ -29,7 +29,6 @@ import {
 import { Person } from "@mui/icons-material";
 import {
   Box,
-  Button,
   FormControl,
   InputLabel,
   MenuItem,
@@ -159,10 +158,6 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
     });
   };
 
-  const handleCancel = () => {
-    navigate(-1);
-  };
-
   return (
     <Box sx={profileContainerSx}>
       <PageBreadcrumbs
@@ -282,9 +277,6 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
             </Stack>
           )}
           <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
-            <Button type="button" variant="outlined" onClick={handleCancel}>
-              Cancel
-            </Button>
             <MainActionButton loading={saveAction.isRunning} onClick={handleSave}>
               Save
             </MainActionButton>

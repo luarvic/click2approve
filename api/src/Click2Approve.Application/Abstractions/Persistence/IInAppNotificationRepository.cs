@@ -22,6 +22,5 @@ public interface IInAppNotificationRepository
         long tenantId,
         IReadOnlyCollection<Guid> globalIds,
         CancellationToken cancellationToken);
-    Task<List<InAppNotification>> ListUnreadForReadAsync(long userId, long tenantId, CancellationToken cancellationToken);
     void RemoveRange(IReadOnlyCollection<InAppNotification> notifications);
 }

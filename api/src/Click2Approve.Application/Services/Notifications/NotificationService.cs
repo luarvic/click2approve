@@ -78,13 +78,6 @@ public class NotificationService(
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task MarkAllInAppReadAsync(AppUser user, long tenantId, CancellationToken cancellationToken)
-    {
-        var notifications = await _inAppNotificationRepository.ListUnreadForReadAsync(user.Id, tenantId, cancellationToken);
-        foreach (var notification in notifications) notification.ReadAt = DateTime.UtcNow;
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-    }
-
     public async Task MarkInAppReadAsync(
         AppUser user,
         long tenantId,

@@ -69,6 +69,9 @@ export class UserAccountStore {
       const currentUser = await getUserAccountManageInfo();
       if (currentUser) {
         await this.initializeSession();
+        if (this.currentUser !== undefined) {
+          return false;
+        }
         runInAction(() => {
           this.currentUser = currentUser;
         });

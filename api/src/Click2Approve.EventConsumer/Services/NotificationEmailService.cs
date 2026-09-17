@@ -4,6 +4,7 @@ using Click2Approve.Application.Helpers;
 using Click2Approve.Application.Models.Emails;
 using Click2Approve.Application.Models.Events;
 using Click2Approve.Domain.Models;
+using Click2Approve.EventConsumer.Email;
 using Click2Approve.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 

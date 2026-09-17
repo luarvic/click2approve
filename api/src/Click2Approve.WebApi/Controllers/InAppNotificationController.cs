@@ -97,12 +97,4 @@ public class InAppNotificationController(
         return Ok();
     }
 
-    [HttpPost("read")]
-    public async Task<IActionResult> MarkAllInAppReadAsync(CancellationToken cancellationToken)
-    {
-        var user = await userManager.GetAppUserAsync(User);
-        var tenantId = await tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        await notificationService.MarkAllInAppReadAsync(user, tenantId, cancellationToken);
-        return Ok();
-    }
 }

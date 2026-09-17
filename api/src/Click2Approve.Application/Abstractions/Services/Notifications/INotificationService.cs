@@ -26,5 +26,4 @@ public interface INotificationService
         long tenantId,
         IReadOnlyCollection<Guid> notificationGlobalIds,
         CancellationToken cancellationToken);
-    Task MarkAllInAppReadAsync(AppUser user, long tenantId, CancellationToken cancellationToken);
 }

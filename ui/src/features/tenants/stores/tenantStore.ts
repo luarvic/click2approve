@@ -19,6 +19,7 @@ export class TenantStore {
   isRecoveringRevokedAccess = false;
   revokedTenantGlobalId: string | null = null;
   private businessTenantRequestVersion = 0;
+  private onPickerLoadFailure: () => void = () => undefined;
   // Incremented to invalidate older async requests so only the latest response updates the store.
   private requestVersion = 0;
 
@@ -62,6 +63,10 @@ export class TenantStore {
     const requestVersion = ++this.requestVersion;
     const tenants = await tenantApi.listTenantPicker();
     if (requestVersion !== this.requestVersion) {
+      return;
+    }
+    if (tenants === null) {
+      this.onPickerLoadFailure();
       return;
     }
     const cachedTenantId = readCurrentTenantGlobalId();
@@ -220,6 +225,10 @@ export class TenantStore {
 
   setRevokedAccessRecovery = (isRecovering: boolean): void => {
     this.isRecoveringRevokedAccess = isRecovering;
+  };
+
+  configurePickerLoadFailure = (handler: () => void): void => {
+    this.onPickerLoadFailure = handler;
   };
 
   clear = (): void => {
