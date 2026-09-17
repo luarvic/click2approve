@@ -31,6 +31,31 @@ export interface SubscriptionPlanConfiguration {
   tasksPerMonth: number;
 }
 
+export interface RetentionPolicy {
+  approvalRequestMonths: number;
+  approvalRequestMonthsCanBeChanged: boolean;
+  canManage: boolean;
+  inAppNotificationMonths: number;
+}
+
+export const getRetentionPolicy = async (tenantGlobalId: string): Promise<RetentionPolicy> => {
+  const { data } = await axios.get<RetentionPolicy>(ApiPaths.tenants.subscriptionRetention(tenantGlobalId));
+  return data;
+};
+
+export const saveRetentionPolicy = async (
+  tenantGlobalId: string,
+  policy: Pick<RetentionPolicy, "approvalRequestMonths" | "inAppNotificationMonths">,
+): Promise<RetentionPolicy> => {
+  try {
+    const { data } = await axios.put<RetentionPolicy>(ApiPaths.tenants.subscriptionRetention(tenantGlobalId), policy);
+    return data;
+  } catch (error) {
+    notification.error(getApiErrorNotification(error));
+    throw error;
+  }
+};
+
 export const getSubscriptionPlans = async (): Promise<SubscriptionPlanConfiguration[]> => {
   try {
     const { data } = await axios.get<SubscriptionPlanConfiguration[]>(ApiPaths.products.subscriptionPlans);

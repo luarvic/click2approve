@@ -6,6 +6,7 @@ namespace Click2Approve.Domain.Models;
 public class EventOutboxMessage : DbEntity
 {
     // Scalar properties
+    public DateTime? DeletionPublishedAt { get; set; }
     public required Guid EventId { get; set; }
     public required string EventType { get; set; }
     public required DateTime OccurredAt { get; set; }

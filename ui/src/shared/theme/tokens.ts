@@ -7,4 +7,5 @@ export const StackSpacing = {
   default: 1,
   relaxed: 1.5,
   loose: 2,
+  extraLoose: 6,
 } as const;

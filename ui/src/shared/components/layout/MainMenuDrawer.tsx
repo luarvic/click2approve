@@ -18,6 +18,7 @@ import {
   PersonTwoTone,
   ReceiptLongTwoTone,
   ShowChartTwoTone,
+  SettingsTwoTone,
   StyleTwoTone,
 } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
@@ -90,6 +91,7 @@ const MainMenuDrawer = () => {
   const delegationsPath = tenantPath("/delegations");
   const subscriptionPlanPath = tenantPath("/plans");
   const subscriptionUsagePath = tenantPath("/usage");
+  const subscriptionRetentionPath = tenantPath("/retention");
   const selectedMenuPath = stores.commonStore.isActionLoading(ActionLoaders.pages.tenantScope())
     ? (stores.commonStore.currentMenuPath ?? Routes.tasksPath)
     : undefined;
@@ -379,6 +381,23 @@ const MainMenuDrawer = () => {
                 <ShowChartTwoTone />
               </ListItemIcon>
               <ListItemText primary="Usage" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem key="subscriptionRetention" disablePadding>
+            <ListItemButton
+              selected={
+                selectedMenuPath === undefined
+                  ? location.pathname.startsWith(subscriptionRetentionPath)
+                  : selectedMenuPath === "/retention"
+              }
+              onClick={() => {
+                navigateWorkspaceMenu("/retention");
+              }}
+            >
+              <ListItemIcon sx={Lists.itemIconSx}>
+                <SettingsTwoTone />
+              </ListItemIcon>
+              <ListItemText primary="Retention" />
             </ListItemButton>
           </ListItem>
         </List>

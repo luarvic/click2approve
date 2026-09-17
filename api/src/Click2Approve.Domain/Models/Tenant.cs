@@ -10,8 +10,10 @@ public class Tenant : DbEntity
 
     // Scalar properties
     public string? Address { get; set; }
+    public int ApprovalRequestRetentionMonths { get; set; }
     public required string BusinessName { get; set; }
     public string? Email { get; set; }
+    public int InAppNotificationRetentionMonths { get; set; }
     public string? Phone { get; set; }
     public DateTime? DeletionPublishedAt { get; set; }
     public DateTime? ScheduledForDeletionAt { get; set; }

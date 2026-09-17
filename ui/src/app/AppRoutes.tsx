@@ -22,6 +22,7 @@ import PublicReceiptPage from "@/features/receipts/pages/PublicReceiptPage";
 import ReceiptPage from "@/features/receipts/pages/ReceiptPage";
 import ReceiptsPage from "@/features/receipts/pages/ReceiptsPage";
 import SubscriptionPlansPage from "@/features/subscriptions/pages/SubscriptionPlansPage";
+import SubscriptionRetentionPage from "@/features/subscriptions/pages/SubscriptionRetentionPage";
 import SubscriptionUsagePage from "@/features/subscriptions/pages/SubscriptionUsagePage";
 import TeamEditorPage from "@/features/teams/pages/TeamEditorPage";
 import TeamsPage from "@/features/teams/pages/TeamsPage";
@@ -99,6 +100,7 @@ const ApplicationRoutes = () => {
               <Route path="receipts/:receiptGlobalId/share" element={<ReceiptPage tab="share" />} />
               <Route element={<RouteGuard isAllowed={stores.applicationConfigurationStore.subscriptionsAreEnabled} />}>
                 <Route path="plans" element={<SubscriptionPlansPage />} />
+                <Route path="retention" element={<SubscriptionRetentionPage />} />
                 <Route path="usage" element={<SubscriptionUsagePage />} />
               </Route>
               <Route path="requests/new" element={<ApprovalRequestStartPage />} />
