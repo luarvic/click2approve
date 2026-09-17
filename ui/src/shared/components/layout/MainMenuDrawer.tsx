@@ -14,7 +14,7 @@ import {
   ChevronLeftTwoTone,
   ContentCopyTwoTone,
   GroupsTwoTone,
-  HelpTwoTone,
+  HelpCenterTwoTone,
   PeopleAltTwoTone,
   PersonTwoTone,
   ReceiptLongTwoTone,
@@ -406,7 +406,7 @@ const MainMenuDrawer = () => {
         <ListItem key="help" disablePadding>
           <ListItemButton component="a" href={Api.uiBaseUri} onClick={closeTemporaryDrawer}>
             <ListItemIcon sx={Lists.itemIconSx}>
-              <HelpTwoTone />
+              <HelpCenterTwoTone />
             </ListItemIcon>
             <ListItemText primary="Help" />
           </ListItemButton>
