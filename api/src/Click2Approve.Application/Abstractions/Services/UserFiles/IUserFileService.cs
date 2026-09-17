@@ -9,9 +9,8 @@ namespace Click2Approve.Application.Abstractions.Services.UserFiles;
 public interface IUserFileService
 {
     Task<IList<UserFileResult>> UploadAsync(AppUser user, IReadOnlyCollection<UploadedFile> files, CancellationToken cancellationToken);
-    Task AttachAsync(AppUser user, IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken);
+    Task<List<UserFile>> AttachAsync(AppUser user, IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken);
     Task ScheduleUnattachedForDeletionAsync(IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken);
-    Task<(string Filename, byte[] Bytes)> DownloadAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestAttachmentAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken);
     Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestAttachmentForTaskAsync(
         AppUser user,
@@ -28,6 +27,5 @@ public interface IUserFileService
         Guid globalId,
         Guid discussionMessageGlobalId,
         CancellationToken cancellationToken);
-    Task<IList<UserFileResult>> ListAsync(AppUser user, CancellationToken cancellationToken);
     Task DeleteAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
 }

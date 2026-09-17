@@ -137,64 +137,6 @@ public static class HttpClientExtensions
     }
 
     /// <summary>
-    /// Lists files by sending GET request to the tenant files endpoint.
-    /// </summary>
-    public static async ValueTask<List<UserFileResponse>> ListFilesAsync(this HttpClient httpClient,
-        string accessToken,
-        CancellationToken cancellationToken)
-    {
-        var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
-        return await httpClient.SendAsync<List<UserFileResponse>>(HttpMethod.Get,
-            $"api/v1/tenants/{tenantId}/files",
-            new Dictionary<string, string> {
-                {"Authorization", $"Bearer {accessToken}"}
-            },
-            null,
-            null,
-            cancellationToken);
-    }
-
-    /// <summary>
-    /// Downloads a file by sending GET request to the tenant files endpoint.
-    /// </summary>
-    public static async Task<string> DownloadFileAsync(this HttpClient httpClient,
-    string accessToken,
-    Guid globalId,
-    CancellationToken cancellationToken)
-    {
-        var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
-        return await httpClient.SendAsync<string>(HttpMethod.Get,
-            $"api/v1/tenants/{tenantId}/files/{globalId}/download",
-            new Dictionary<string, string> {
-                {"Authorization", $"Bearer {accessToken}"}
-            },
-            null,
-            null,
-            cancellationToken
-            );
-    }
-
-    /// <summary>
-    /// Downloads base64 representation of a file by sending GET request to the tenant files endpoint.
-    /// </summary>
-    public static async Task<string> DownloadBase64Async(this HttpClient httpClient,
-    string accessToken,
-    Guid globalId,
-    CancellationToken cancellationToken)
-    {
-        var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
-        return await httpClient.SendAsync<string>(HttpMethod.Get,
-            $"api/v1/tenants/{tenantId}/files/{globalId}/downloadBase64",
-            new Dictionary<string, string> {
-                {"Authorization", $"Bearer {accessToken}"}
-            },
-            null,
-            null,
-            cancellationToken
-            );
-    }
-
-    /// <summary>
     /// Downloads a base64 representation of a file attached to an approval request task.
     /// </summary>
     public static async Task<string> DownloadApprovalRequestTaskBase64Async(this HttpClient httpClient,

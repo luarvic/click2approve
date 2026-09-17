@@ -12,8 +12,10 @@ export interface PublicReceipt {
   approvalRequestCreatedAt: Date;
   approvalRequestApprovedAt?: Date;
   approvalRequestCompletedByDisplayName?: string;
-  createdByEmail: string;
-  createdByDisplayName: string;
+  submittedByDisplayName: string;
+  submittedByEmail: string;
+  requesterEmail: string;
+  requesterDisplayName: string;
   organizationDisplayName: string;
   tenantGlobalId: string;
   tenantDisplayName: string;

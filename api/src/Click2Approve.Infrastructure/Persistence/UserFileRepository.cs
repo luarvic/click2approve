@@ -33,11 +33,6 @@ public class UserFileRepository(
             cancellationToken);
     }
 
-    public virtual Task<UserFile?> GetForDownloadAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
-    {
-        return GetForDownloadCoreAsync(user, globalId, cancellationToken);
-    }
-
     public virtual async Task<UserFile?> GetForDeleteAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
@@ -91,14 +86,6 @@ public class UserFileRepository(
         CancellationToken cancellationToken) =>
         Task.FromResult<UserFile?>(null);
 
-    public virtual async Task<IList<UserFile>> ListAsync(AppUser user, CancellationToken cancellationToken)
-    {
-        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await Db.UserFiles
-            .Where(f => f.TenantId == tenantId && f.OwnerId == user.Id)
-            .ToListAsync(cancellationToken);
-    }
-
     public virtual async Task<List<UserFile>> ListAsync(AppUser user, IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken)
     {
         var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
@@ -119,11 +106,4 @@ public class UserFileRepository(
         Db.UserFiles.Remove(userFile);
     }
 
-    private async Task<UserFile?> GetForDownloadCoreAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
-    {
-        var tenantId = await TenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
-        return await Db.UserFiles
-            .Include(f => f.Owner)
-            .FirstOrDefaultAsync(f => f.GlobalId == globalId && f.TenantId == tenantId && f.OwnerId == user.Id, cancellationToken);
-    }
 }

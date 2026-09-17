@@ -145,7 +145,7 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequest>()
-            .Property(r => r.CreatedByDisplayName)
+            .Property(r => r.RequesterDisplayName)
             .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequest>()
@@ -157,16 +157,26 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequest>()
-            .HasIndex(r => new { r.TenantId, r.CreatedByUserId, r.CreatedAt });
+            .HasIndex(r => new { r.TenantId, r.RequesterUserId, r.CreatedAt });
 
         modelBuilder.Entity<ApprovalRequest>()
             .HasIndex(r => r.PreviousRevisionApprovalRequestId)
             .IsUnique();
 
         modelBuilder.Entity<ApprovalRequest>()
-            .HasOne(r => r.CreatedByUser)
+            .HasOne(r => r.RequesterUser)
             .WithMany()
-            .HasForeignKey(r => r.CreatedByUserId)
+            .HasForeignKey(r => r.RequesterUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequest>()
+            .Property(r => r.SubmittedByDisplayName)
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<ApprovalRequest>()
+            .HasOne(r => r.SubmittedByUser)
+            .WithMany()
+            .HasForeignKey(r => r.SubmittedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ApprovalRequest>()
@@ -411,6 +421,9 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
         modelBuilder.Entity<InAppNotification>()
             .HasIndex(notification => new { notification.UserId, notification.TenantId, notification.ReadAt });
     }
+
+    public async Task<IUnitOfWorkTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) =>
+        new UnitOfWorkTransaction(await Database.BeginTransactionAsync(cancellationToken));
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

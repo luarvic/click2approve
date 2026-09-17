@@ -8,9 +8,12 @@ import { describe, expect, test } from "vitest";
 const approvalRequest: ApprovalRequest = {
   createdAt: "2026-08-11T12:00:00Z",
   createdAtDate: new Date("2026-08-11T12:00:00Z"),
-  createdByDisplayName: "Requester",
-  createdByEmail: "requester@example.com",
-  createdByUserGlobalId: "2a570304-5896-43b8-ab23-ff4db0c9efee",
+  requesterDisplayName: "Requester",
+  submittedByDisplayName: "Requester",
+  requesterEmail: "requester@example.com",
+  submittedByEmail: "requester@example.com",
+  requesterUserGlobalId: "2a570304-5896-43b8-ab23-ff4db0c9efee",
+  submittedByUserGlobalId: "2a570304-5896-43b8-ab23-ff4db0c9efee",
   description: "Request description",
   globalId: "request-id",
   organizationDisplayName: "Personal",
@@ -22,6 +25,31 @@ const approvalRequest: ApprovalRequest = {
 };
 
 describe("<ApprovalRequestSummaryBlock />", () => {
+  test("shows the actual submitter separately for a delegated request", () => {
+    render(
+      <ApprovalRequestSummaryBlock
+        approvalRequest={{
+          ...approvalRequest,
+          requesterEmployeeGlobalId: "owner-employee",
+          submittedByUserGlobalId: "delegate-user",
+          submittedByEmployeeGlobalId: "delegate-employee",
+          submittedByDisplayName: "Submitting delegate",
+          submittedByEmail: "delegate@example.com",
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Requested by")).toBeTruthy();
+    expect(screen.getByText("Requester")).toBeTruthy();
+    expect(screen.getByText("Submitted by")).toBeTruthy();
+    expect(screen.getByText("Submitting delegate")).toBeTruthy();
+  });
+
+  test("does not duplicate the submitter when submitting for yourself", () => {
+    render(<ApprovalRequestSummaryBlock approvalRequest={approvalRequest} />);
+    expect(screen.queryByText("Submitted by")).toBeNull();
+  });
+
   test("can be collapsed by default and expanded", async () => {
     const user = userEvent.setup();
 
@@ -78,7 +106,7 @@ describe("<ApprovalRequestSummaryBlock />", () => {
       <ApprovalRequestSummaryBlock
         approvalRequest={{
           ...approvalRequest,
-          createdByEmployeeGlobalId: "ae932e27-9916-4e24-a10a-cc46826a8bc5",
+          requesterEmployeeGlobalId: "ae932e27-9916-4e24-a10a-cc46826a8bc5",
         }}
       />,
     );

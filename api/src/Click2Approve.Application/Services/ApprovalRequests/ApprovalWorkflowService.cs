@@ -298,7 +298,7 @@ public class ApprovalWorkflowService(
                 approvalRequest.GlobalId,
                 NotificationResourceType.ApprovalRequest,
                 CreateSummary(approvalRequest.Title),
-                [new NotificationRecipient(approvalRequest.CreatedByUserId)],
+                [new NotificationRecipient(approvalRequest.RequesterUserId)],
                 SourceResourceGlobalId: approvalRequestTask.GlobalId,
                 SourceResourceType: NotificationResourceType.ApprovalRequestTask)],
             cancellationToken);
@@ -310,7 +310,7 @@ public class ApprovalWorkflowService(
         _notificationService.SendAsync(
             [.. GetTasks(approvalRequest)
                 .Select(task => new NotificationRecipientIdentity(task.TenantId, task.AssigneeUserId))
-                .Append(new NotificationRecipientIdentity(approvalRequest.TenantId, approvalRequest.CreatedByUserId))
+                .Append(new NotificationRecipientIdentity(approvalRequest.TenantId, approvalRequest.RequesterUserId))
                 .GroupBy(identity => identity.TenantId)
                 .Select(group => new NotificationCommand(
                     NotificationType.ApprovalRequestCompleted,

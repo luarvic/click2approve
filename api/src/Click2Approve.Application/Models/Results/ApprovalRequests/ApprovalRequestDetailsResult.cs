@@ -9,9 +9,13 @@ public class ApprovalRequestDetailsResult : ApprovalRequestListItemResult
     public required List<ApprovalRequestStepResult> Steps { get; init; }
     public string? Description { get; init; }
     public DateTime? CompletedAt { get; init; }
-    public Guid CreatedByUserGlobalId { get; init; }
-    public Guid? CreatedByEmployeeGlobalId { get; init; }
-    public required string CreatedByEmail { get; init; }
+    public Guid SubmittedByUserGlobalId { get; init; }
+    public Guid? SubmittedByEmployeeGlobalId { get; init; }
+    public required string SubmittedByDisplayName { get; init; }
+    public required string SubmittedByEmail { get; init; }
+    public Guid RequesterUserGlobalId { get; init; }
+    public Guid? RequesterEmployeeGlobalId { get; init; }
+    public required string RequesterEmail { get; init; }
     public Guid? CompletedByUserGlobalId { get; init; }
     public Guid? CompletedByEmployeeGlobalId { get; init; }
     public string? CompletedByDisplayName { get; init; }

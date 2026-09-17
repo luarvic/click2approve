@@ -16,8 +16,8 @@ public static class ApprovalRequestMapper
         var assigneeGlobalIdsById = approvalRequest.Steps
             .SelectMany(step => step.Assignees)
             .ToDictionary(assignee => assignee.Id, assignee => assignee.GlobalId);
-        var createdByEmail = approvalRequest.CreatedByUser.NormalizedEmailOrEmpty();
-        var createdByDisplayName = GetRequesterDisplayName(approvalRequest);
+        var requesterEmail = approvalRequest.RequesterUser.NormalizedEmailOrEmpty();
+        var requesterDisplayName = GetRequesterDisplayName(approvalRequest);
         return new ApprovalRequestDetailsResult
         {
             GlobalId = approvalRequest.GlobalId,
@@ -26,24 +26,28 @@ public static class ApprovalRequestMapper
             Steps = [.. approvalRequest.Steps.Select(step => MapStep(
                 step,
                 approvalRequest.GlobalId,
-                createdByDisplayName,
-                createdByEmail,
+                requesterDisplayName,
+                requesterEmail,
                 approvalRequest.OrganizationDisplayName,
                 assigneeGlobalIdsById,
                 assigneeGlobalIdMaps))],
             Description = approvalRequest.Description,
             CreatedAt = approvalRequest.CreatedAt,
             CompletedAt = approvalRequest.CompletedAt,
-            CreatedByUserGlobalId = approvalRequest.CreatedByUser.GlobalId,
-            CreatedByEmployeeGlobalId = GetEmployeeGlobalId(
-                approvalRequest.CreatedByEmployeeId,
+            SubmittedByUserGlobalId = approvalRequest.SubmittedByUser.GlobalId,
+            SubmittedByEmployeeGlobalId = GetEmployeeGlobalId(approvalRequest.SubmittedByEmployeeId, assigneeGlobalIdMaps),
+            SubmittedByDisplayName = approvalRequest.SubmittedByDisplayName,
+            SubmittedByEmail = approvalRequest.SubmittedByUser.NormalizedEmailOrEmpty(),
+            RequesterUserGlobalId = approvalRequest.RequesterUser.GlobalId,
+            RequesterEmployeeGlobalId = GetEmployeeGlobalId(
+                approvalRequest.RequesterEmployeeId,
                 assigneeGlobalIdMaps),
             CompletedByUserGlobalId = approvalRequest.CompletedByUser?.GlobalId,
             CompletedByEmployeeGlobalId = GetEmployeeGlobalId(
                 approvalRequest.CompletedByEmployeeId,
                 assigneeGlobalIdMaps),
-            CreatedByEmail = createdByEmail,
-            CreatedByDisplayName = createdByDisplayName,
+            RequesterEmail = requesterEmail,
+            RequesterDisplayName = requesterDisplayName,
             CompletedByDisplayName = GetRequestCompleterDisplayName(approvalRequest),
             CompletedByEmail = approvalRequest.CompletedByUser.NormalizedEmailOrEmpty(),
             OrganizationDisplayName = approvalRequest.OrganizationDisplayName,
@@ -77,8 +81,8 @@ public static class ApprovalRequestMapper
             .SelectMany(step => step.Assignees)
             .ToDictionary(assignee => assignee.Id, assignee => assignee.GlobalId);
 
-        var createdByEmail = approvalRequest.CreatedByUser.NormalizedEmailOrEmpty();
-        var createdByDisplayName = GetRequesterDisplayName(approvalRequest);
+        var requesterEmail = approvalRequest.RequesterUser.NormalizedEmailOrEmpty();
+        var requesterDisplayName = GetRequesterDisplayName(approvalRequest);
         return new ApprovalRequestDetailsResult
         {
             GlobalId = approvalRequest.GlobalId,
@@ -89,8 +93,8 @@ public static class ApprovalRequestMapper
                 .Select(step => MapStep(
                     step,
                     approvalRequest.GlobalId,
-                    createdByDisplayName,
-                    createdByEmail,
+                    requesterDisplayName,
+                    requesterEmail,
                     approvalRequest.OrganizationDisplayName,
                     assigneeGlobalIdsById,
                     assigneeGlobalIdMaps,
@@ -98,16 +102,20 @@ public static class ApprovalRequestMapper
             Description = approvalRequest.Description,
             CreatedAt = approvalRequest.CreatedAt,
             CompletedAt = approvalRequest.CompletedAt,
-            CreatedByUserGlobalId = approvalRequest.CreatedByUser.GlobalId,
-            CreatedByEmployeeGlobalId = GetEmployeeGlobalId(
-                approvalRequest.CreatedByEmployeeId,
+            SubmittedByUserGlobalId = approvalRequest.SubmittedByUser.GlobalId,
+            SubmittedByEmployeeGlobalId = GetEmployeeGlobalId(approvalRequest.SubmittedByEmployeeId, assigneeGlobalIdMaps),
+            SubmittedByDisplayName = approvalRequest.SubmittedByDisplayName,
+            SubmittedByEmail = approvalRequest.SubmittedByUser.NormalizedEmailOrEmpty(),
+            RequesterUserGlobalId = approvalRequest.RequesterUser.GlobalId,
+            RequesterEmployeeGlobalId = GetEmployeeGlobalId(
+                approvalRequest.RequesterEmployeeId,
                 assigneeGlobalIdMaps),
             CompletedByUserGlobalId = approvalRequest.CompletedByUser?.GlobalId,
             CompletedByEmployeeGlobalId = GetEmployeeGlobalId(
                 approvalRequest.CompletedByEmployeeId,
                 assigneeGlobalIdMaps),
-            CreatedByEmail = createdByEmail,
-            CreatedByDisplayName = createdByDisplayName,
+            RequesterEmail = requesterEmail,
+            RequesterDisplayName = requesterDisplayName,
             CompletedByDisplayName = GetRequestCompleterDisplayName(approvalRequest),
             CompletedByEmail = approvalRequest.CompletedByUser.NormalizedEmailOrEmpty(),
             OrganizationDisplayName = approvalRequest.OrganizationDisplayName,
@@ -124,8 +132,8 @@ public static class ApprovalRequestMapper
     private static ApprovalRequestStepResult MapStep(
         ApprovalRequestStep step,
         Guid approvalRequestGlobalId,
-        string createdByDisplayName,
-        string createdByEmail,
+        string requesterDisplayName,
+        string requesterEmail,
         string organizationDisplayName,
         IReadOnlyDictionary<long, Guid>? assigneeGlobalIdsById = null,
         ApprovalRequestAssigneeGlobalIdMaps? assigneeGlobalIdMaps = null,
@@ -146,8 +154,8 @@ public static class ApprovalRequestMapper
             Assignees = [.. step.Assignees.Select(assignee => MapAssignee(assignee, assigneeGlobalIdMaps))],
             Tasks = [.. step.Tasks.Select(task => MapTask(
                 task,
-                createdByDisplayName,
-                createdByEmail,
+                requesterDisplayName,
+                requesterEmail,
                 organizationDisplayName,
                 approvalRequestGlobalId,
                 step.GlobalId,
@@ -180,8 +188,8 @@ public static class ApprovalRequestMapper
 
     private static ApprovalRequestTaskResult MapTask(
         ApprovalRequestTask task,
-        string? createdByDisplayName = null,
-        string? createdByEmail = null,
+        string? requesterDisplayName = null,
+        string? requesterEmail = null,
         string? organizationDisplayName = null,
         Guid? approvalRequestGlobalId = null,
         Guid? approvalRequestStepGlobalId = null,
@@ -200,8 +208,8 @@ public static class ApprovalRequestMapper
             CompletedByEmail = task.CompletedByUser.NormalizedEmailOrEmpty(),
             Action = task.Action,
             Result = task.Result,
-            RequestedByEmail = createdByEmail ?? task.ApprovalRequest.CreatedByUser.NormalizedEmailOrEmpty(),
-            RequestedByDisplayName = createdByDisplayName ?? GetRequesterDisplayName(task.ApprovalRequest),
+            RequestedByEmail = requesterEmail ?? task.ApprovalRequest.RequesterUser.NormalizedEmailOrEmpty(),
+            RequestedByDisplayName = requesterDisplayName ?? GetRequesterDisplayName(task.ApprovalRequest),
             OrganizationDisplayName = organizationDisplayName
                 ?? task.OrganizationDisplayName
                 ?? task.ApprovalRequest.OrganizationDisplayName,
@@ -256,9 +264,9 @@ public static class ApprovalRequestMapper
     }
 
     private static string GetRequesterDisplayName(ApprovalRequest approvalRequest) =>
-        approvalRequest.CreatedByEmployeeId.HasValue
-            ? approvalRequest.CreatedByDisplayName
-            : approvalRequest.CreatedByUser.NormalizedEmailOrEmpty();
+        approvalRequest.RequesterEmployeeId.HasValue
+            ? approvalRequest.RequesterDisplayName
+            : approvalRequest.RequesterUser.NormalizedEmailOrEmpty();
 
     private static string? GetRequestCompleterDisplayName(ApprovalRequest approvalRequest) =>
         approvalRequest.CompletedByEmployeeId.HasValue

@@ -23,9 +23,6 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
     /// </summary>
     [Theory]
     [InlineData("POST", "api/v1/tenants/00000000-0000-0000-0000-000000000001/files/upload")]
-    [InlineData("GET", "api/v1/tenants/00000000-0000-0000-0000-000000000001/files")]
-    [InlineData("GET", "api/v1/tenants/00000000-0000-0000-0000-000000000001/files/00000000-0000-0000-0000-000000000002/download")]
-    [InlineData("GET", "api/v1/tenants/00000000-0000-0000-0000-000000000001/files/00000000-0000-0000-0000-000000000002/downloadBase64")]
     [InlineData("GET", "api/v1/tenants/00000000-0000-0000-0000-000000000001/requests/00000000-0000-0000-0000-000000000002/attachments/00000000-0000-0000-0000-000000000003/downloadBase64")]
     [InlineData("GET", "api/v1/tenants/00000000-0000-0000-0000-000000000001/tasks/00000000-0000-0000-0000-000000000003/requestAttachments/00000000-0000-0000-0000-000000000004/downloadBase64")]
     [InlineData("DELETE", "api/v1/tenants/00000000-0000-0000-0000-000000000001/files/00000000-0000-0000-0000-000000000002")]
@@ -49,12 +46,6 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
         var missingApprovalRequestGlobalId = Guid.NewGuid();
         var missingTaskGlobalId = Guid.NewGuid();
 
-        var downloadResponse = await _client.GetAsync($"api/v1/tenants/{tenantGlobalId}/files/{missingFileGlobalId}/download");
-        Assert.Equal(HttpStatusCode.NotFound, downloadResponse.StatusCode);
-
-        var downloadBase64Response = await _client.GetAsync($"api/v1/tenants/{tenantGlobalId}/files/{missingFileGlobalId}/downloadBase64");
-        Assert.Equal(HttpStatusCode.NotFound, downloadBase64Response.StatusCode);
-
         var deleteResponse = await _client.DeleteAsync($"api/v1/tenants/{tenantGlobalId}/files/{missingFileGlobalId}");
         Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
 
@@ -66,15 +57,7 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
     }
 
     /// <summary>
-    /// Tests if:
-    ///     1. Uploading files works correctly.
-    ///     2. Owners can list their files.
-    ///     3. Owners can download their files.
-    ///     4. Users cannot download and delete files owned by other users.
-    ///     5. Assignees can download files attached to their task only through the task endpoint.
-    ///     6. Assignees cannot download files added to the request after their task was issued.
-    ///     7. Owners can delete unattached files.
-    ///     8. Owners cannot delete files attached to approval requests.
+    /// Verifies uploads, resource-authorized downloads, and deletion of unattached uploads.
     /// </summary>
     [Fact]
     public async Task AllEndpoints_WhenRequestedWithBearerToken_ShouldWorkProperly()
@@ -115,19 +98,6 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
 
         foreach (var testDataEntry in testData)
         {
-            var loginData = await _client.LogInAsync(testDataEntry.Credentials, CancellationToken.None);
-
-            var userFiles = await _client.ListFilesAsync(loginData.AccessToken, CancellationToken.None);
-            Assert.Equal(testDataEntry.FilesToUpload.Count, userFiles.Count);
-            foreach (var file in testDataEntry.FilesToUpload)
-            {
-                Assert.Contains(userFiles, f => f.Name == file.Key);
-            }
-        }
-
-        foreach (var testDataEntry in testData)
-        {
-            var loginData = await _client.LogInAsync(testDataEntry.Credentials, CancellationToken.None);
             var normalizedEmail = testDataEntry.Credentials.Email.ToLowerInvariant();
 
             var filesOwnedByUser = _db.UserFiles
@@ -139,18 +109,6 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
                 Assert.Equal(UserFileStorageType.Private, file.StorageType);
                 Assert.Equal(UserFileStatus.Uploaded, file.Status);
             });
-
-            foreach (var file in filesOwnedByUser)
-            {
-                var originalFile = testDataEntry.FilesToUpload.Single(f => f.Key == file.Name);
-
-                var downloadedFileContent = await _client.DownloadFileAsync(loginData.AccessToken, file.GlobalId, CancellationToken.None);
-                Assert.Equal(originalFile.Value, downloadedFileContent);
-
-                var downloadFileBase64 = await _client.DownloadBase64Async(loginData.AccessToken, file.GlobalId, CancellationToken.None);
-                var originalFileBase64 = $"data:{MimeTypes.GetMimeType(originalFile.Key)};base64,{Converters.GetBase64FromString(originalFile.Value)}";
-                Assert.Equal(originalFileBase64, downloadFileBase64);
-            }
         }
 
         foreach (var testDataEntry in testData)
@@ -164,8 +122,6 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
 
             foreach (var file in filesOwnedByOtherUsers)
             {
-                await Assert.ThrowsAsync<Exception>(async () =>
-                    await _client.DownloadFileAsync(loginData.AccessToken, file.GlobalId, CancellationToken.None));
                 await Assert.ThrowsAsync<Exception>(async () =>
                     await _client.DeleteFileAsync(loginData.AccessToken, file.GlobalId, CancellationToken.None));
             }
@@ -230,29 +186,27 @@ public class UserFileControllerTests(CustomWebApplicationFactory<Program> applic
         });
         await _db.SaveChangesAsync();
 
-        await _client.DownloadApprovalRequestBase64Async(
+        var requesterDownload = await _client.DownloadApprovalRequestBase64Async(
             requesterLoginData.AccessToken,
             taskFile.GlobalId,
             approvalRequest.GlobalId,
             CancellationToken.None);
 
+        var expectedContent = $"data:{MimeTypes.GetMimeType(taskFile.Name)};base64,{Converters.GetBase64FromString(requester.FilesToUpload[taskFile.Name])}";
+        Assert.Equal(expectedContent, requesterDownload);
+
         var assigneeLoginData = await _client.LogInAsync(assignee.Credentials, CancellationToken.None);
-        await Assert.ThrowsAsync<Exception>(() =>
-            _client.DownloadFileAsync(assigneeLoginData.AccessToken, taskFile.GlobalId, CancellationToken.None));
-        await Assert.ThrowsAsync<Exception>(() =>
-            _client.DownloadBase64Async(assigneeLoginData.AccessToken, taskFile.GlobalId, CancellationToken.None));
-        await _client.DownloadApprovalRequestTaskBase64Async(
+        var assigneeDownload = await _client.DownloadApprovalRequestTaskBase64Async(
             assigneeLoginData.AccessToken,
             taskFile.GlobalId,
             approvalRequestTask.GlobalId,
             CancellationToken.None);
+        Assert.Equal(expectedContent, assigneeDownload);
         await _client.DownloadApprovalRequestTaskBase64Async(
             assigneeLoginData.AccessToken,
             laterRequestFile.GlobalId,
             approvalRequestTask.GlobalId,
             CancellationToken.None);
-        await Assert.ThrowsAsync<Exception>(() =>
-            _client.DownloadBase64Async(assigneeLoginData.AccessToken, laterRequestFile.GlobalId, CancellationToken.None));
 
         var approvalRequestFileIds = approvalRequest.RequestFiles.Select(file => file.UserFileId).ToHashSet();
         foreach (var testDataEntry in testData)

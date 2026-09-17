@@ -5,5 +5,7 @@ namespace Click2Approve.Application.Abstractions.Persistence;
 /// </summary>
 public interface IUnitOfWork
 {
+    Task<IUnitOfWorkTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

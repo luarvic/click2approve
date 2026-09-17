@@ -39,8 +39,10 @@ public sealed class NotificationEmailAttributionTests
         var request = new ApprovalRequest
         {
             CreatedAt = DateTime.UtcNow,
-            CreatedByUserId = 1,
-            CreatedByDisplayName = snapshot,
+            RequesterUserId = 1,
+            SubmittedByUserId = 1,
+            RequesterDisplayName = snapshot,
+            SubmittedByDisplayName = snapshot,
             OrganizationDisplayName = "Aurora",
             Description = null,
             Title = "New car 1500",

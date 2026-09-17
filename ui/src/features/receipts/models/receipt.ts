@@ -12,8 +12,10 @@ export interface Receipt {
   approvalRequestCreatedAt: Date;
   approvalRequestCompletedAt?: Date;
   approvalRequestCompletedByDisplayName?: string;
-  createdByEmail: string;
-  createdByDisplayName: string;
+  submittedByDisplayName: string;
+  submittedByEmail: string;
+  requesterEmail: string;
+  requesterDisplayName: string;
   organizationDisplayName: string;
   tenantGlobalId: string;
   tenantDisplayName: string;
@@ -26,7 +28,7 @@ export interface Receipt {
 export interface ReceiptListItem {
   globalId: string;
   approvalRequestTitle: string;
-  createdByDisplayName: string;
+  requesterDisplayName: string;
   approvalRequestStatus: ApprovalRequestStatus;
   approvalRequestResult?: boolean;
   revisionNumber: number;

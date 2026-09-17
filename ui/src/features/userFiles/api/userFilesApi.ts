@@ -21,16 +21,6 @@ export const uploadUserFiles = async (tenantGlobalId: string, files: FileList | 
   }
 };
 
-export const downloadUserFileBase64 = async (tenantGlobalId: string, globalId: string): Promise<string | null> => {
-  try {
-    const { data } = await axios.get(ApiPaths.tenants.fileDownload(tenantGlobalId, globalId));
-    return data;
-  } catch (e) {
-    notification.error(getApiErrorNotification(e));
-    return null;
-  }
-};
-
 export const deleteUserFile = async (tenantGlobalId: string, globalId: string): Promise<boolean> => {
   try {
     await axios.delete(ApiPaths.tenants.file(tenantGlobalId, globalId));

@@ -11,7 +11,6 @@ namespace Click2Approve.Application.Services.ApprovalRequests;
 public class ApprovalRequestService(
     IApprovalRequestRepository approvalRequestRepository,
     ITenantRepository tenantRepository,
-    IUserFileRepository userFileRepository,
     IUserFileService userFileService,
     IUnitOfWork unitOfWork,
     IApprovalRequestAssigneeGlobalIdResolver assigneeGlobalIdResolver,
@@ -25,7 +24,6 @@ public class ApprovalRequestService(
     protected readonly IUnitOfWork _unitOfWork = unitOfWork;
     protected readonly IApprovalWorkflowService _workflowService = workflowService;
 
-    private readonly IUserFileRepository _userFileRepository = userFileRepository;
     private readonly IUserFileService _userFileService = userFileService;
     private readonly ITenantRepository _tenantRepository = tenantRepository;
     private readonly IApprovalRequestAssigneeGlobalIdResolver _assigneeGlobalIdResolver = assigneeGlobalIdResolver;
@@ -37,8 +35,15 @@ public class ApprovalRequestService(
     /// </summary>
     public virtual async Task<Guid> SubmitAsync(AppUser user, SubmitApprovalRequestCommand payload, CancellationToken cancellationToken)
     {
-        await AttachFilesAsync(user, payload.RequestFiles.Select(file => file.UserFileGlobalId), cancellationToken);
-        return await CreateAsync(user, payload, cancellationToken);
+        await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        var approvalRequest = await BuildRequestAsync(user, payload, cancellationToken);
+        var userFiles = await AttachFilesAsync(
+            user, payload.RequestFiles.Select(file => file.UserFileGlobalId), cancellationToken);
+        approvalRequest.RequestFiles = [.. BuildRequestFiles(payload.RequestFiles, userFiles)];
+        await InitializeRequestAsync(approvalRequest, payload.Steps, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return approvalRequest.GlobalId;
     }
 
     /// <summary>
@@ -94,7 +99,7 @@ public class ApprovalRequestService(
         return ApprovalRequestMapper.MapApprovalRequest(approvalRequest, assigneeGlobalIdMaps);
     }
 
-    protected async Task<Guid> CreateAsync(
+    protected async Task<ApprovalRequest> BuildRequestAsync(
         AppUser user,
         SubmitApprovalRequestCommand payload,
         CancellationToken cancellationToken)
@@ -105,74 +110,89 @@ public class ApprovalRequestService(
             throw new BusinessRuleException("Title is required.");
         }
 
-        var userFileGlobalIds = payload.RequestFiles.Select(file => file.UserFileGlobalId).Distinct().ToList();
-        if (userFileGlobalIds.Count == 0)
+        if (payload.RequestFiles.Count == 0)
         {
             throw new BusinessRuleException("Add one or more files.");
-        }
-
-        var userFiles = await _userFileRepository.ListAsync(user, userFileGlobalIds, cancellationToken);
-        if (userFiles.Count != userFileGlobalIds.Count)
-        {
-            throw new BusinessRuleException("One or more files could not be found.");
         }
 
         var now = DateTime.UtcNow;
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
         var tenant = await _tenantRepository.GetAsync(tenantId, cancellationToken)
             ?? throw new NotFoundException("Tenant was not found.");
-        var creator = await ResolveCreatorAsync(user, tenantId, cancellationToken);
+        var requester = await ResolveRequesterAsync(user, tenantId, cancellationToken);
+        var submitter = await ResolveSubmitterAsync(user, tenantId, cancellationToken);
         var steps = BuildSteps(payload.Steps);
 
-        var newApprovalRequest = await _approvalRequestRepository.AddAsync(new ApprovalRequest
+        return new ApprovalRequest
         {
             Title = title,
-            RequestFiles = [.. BuildRequestFiles(payload.RequestFiles, userFiles)],
             Steps = steps,
             CreatedAt = now,
             Description = payload.Description,
             Status = ApprovalRequestStatus.Pending,
             TenantId = tenantId,
-            CreatedByEmployeeId = creator.EmployeeId,
-            CreatedByUserId = user.Id,
-            CreatedByUser = user,
-            CreatedByDisplayName = creator.DisplayName,
+            RequesterEmployeeId = requester.EmployeeId,
+            RequesterUserId = requester.User.Id,
+            RequesterUser = requester.User,
+            RequesterDisplayName = requester.DisplayName,
+            SubmittedByEmployeeId = submitter.EmployeeId,
+            SubmittedByUserId = user.Id,
+            SubmittedByUser = user,
+            SubmittedByDisplayName = submitter.DisplayName,
             OrganizationDisplayName = tenant.Type == TenantType.Business ? tenant.BusinessName : string.Empty
-        }, cancellationToken);
-        foreach (var requestFile in newApprovalRequest.RequestFiles)
-        {
-            requestFile.ApprovalRequest = newApprovalRequest;
-        }
-
-        await _workflowService.CreateInitialTasksAsync(
-            newApprovalRequest,
-            payload.Steps,
-            now,
-            cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return newApprovalRequest.GlobalId;
+        };
     }
 
-    protected Task AttachFilesAsync(
+    /// <summary>
+    /// Tracks a fully assembled request and creates its initial tasks without committing.
+    /// </summary>
+    protected async Task InitializeRequestAsync(
+        ApprovalRequest approvalRequest,
+        List<ApprovalRequestStepCommand> steps,
+        CancellationToken cancellationToken)
+    {
+        if (!approvalRequest.RequestFiles.Any(file => file.RevisionAction != ApprovalRequestFileRevisionAction.Removed))
+        {
+            throw new BusinessRuleException("Add one or more files.");
+        }
+
+        foreach (var requestFile in approvalRequest.RequestFiles)
+        {
+            requestFile.ApprovalRequest = approvalRequest;
+        }
+
+        await _approvalRequestRepository.AddAsync(approvalRequest, cancellationToken);
+        await _workflowService.CreateInitialTasksAsync(
+            approvalRequest, steps, approvalRequest.CreatedAt, cancellationToken);
+    }
+
+    protected Task<List<UserFile>> AttachFilesAsync(
         AppUser user,
         IEnumerable<Guid> userFileGlobalIds,
         CancellationToken cancellationToken) =>
         _userFileService.AttachAsync(user, [.. userFileGlobalIds], cancellationToken);
 
-    protected virtual Task<ApprovalRequestCreator> ResolveCreatorAsync(
+    protected virtual Task<ApprovalRequestParticipant> ResolveRequesterAsync(
         AppUser user,
         long tenantId,
         CancellationToken cancellationToken)
     {
-        return Task.FromResult(new ApprovalRequestCreator(
+        return Task.FromResult(new ApprovalRequestParticipant(
+            User: user,
             EmployeeId: null,
             DisplayName: user.FormatParticipantDisplayName()));
     }
 
+    protected virtual Task<ApprovalRequestParticipant> ResolveSubmitterAsync(
+        AppUser user,
+        long tenantId,
+        CancellationToken cancellationToken) =>
+        Task.FromResult(new ApprovalRequestParticipant(user, EmployeeId: null, DisplayName: user.FormatParticipantDisplayName()));
+
     /// <summary>
-    /// Contains resolved creator information for an approval request.
+    /// Contains a request participant identity and display-name snapshot.
     /// </summary>
-    protected sealed record ApprovalRequestCreator(long? EmployeeId, string DisplayName);
+    protected sealed record ApprovalRequestParticipant(AppUser User, long? EmployeeId, string DisplayName);
 
     private static IEnumerable<ApprovalRequestFile> BuildRequestFiles(
         IEnumerable<ApprovalRequestFileCommand> submittedFiles,
@@ -204,15 +224,7 @@ public class ApprovalRequestService(
 
         return [.. stepCommands
             .OrderBy(step => step.Sequence)
-            .Select((stepCommand, index) =>
-            {
-                if (stepCommand.Assignees.Count == 0)
-                {
-                    throw new BusinessRuleException("Each approval step must have one or more assignees.");
-                }
-
-                return BuildStep(stepCommand, index + 1);
-            })];
+            .Select((stepCommand, index) => BuildStep(stepCommand, index + 1))];
     }
 
     private static ApprovalRequestStep BuildStep(ApprovalRequestStepCommand stepCommand, int sequence)

@@ -145,7 +145,7 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
                   status={params.row.approvalRequestStatus}
                 />
               </CompactGridStatus>
-              <CompactGridSecondaryInformation>{params.row.createdByDisplayName}</CompactGridSecondaryInformation>
+              <CompactGridSecondaryInformation>{params.row.requesterDisplayName}</CompactGridSecondaryInformation>
               <CompactGridSecondaryInformation>
                 {getHumanReadableRelativeDate(params.row.createdAt)}
               </CompactGridSecondaryInformation>
@@ -179,13 +179,13 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
       valueGetter: (_value, row) => getApprovalRequestStatusLabel(row.approvalRequestStatus, row.approvalRequestResult),
     },
     {
-      field: "createdByDisplayName",
+      field: "requesterDisplayName",
       headerName: "Requested by",
       sortable: false,
       disableColumnMenu: true,
       flex: ApprovalGrids.approvalColumnFlex.metadata,
-      renderCell: (params) => <OneLineDisplayName displayName={params.row.createdByDisplayName} variant="body2" />,
-      valueGetter: (_value, row) => row.createdByDisplayName,
+      renderCell: (params) => <OneLineDisplayName displayName={params.row.requesterDisplayName} variant="body2" />,
+      valueGetter: (_value, row) => row.requesterDisplayName,
     },
     {
       field: "createdAt",
@@ -237,7 +237,7 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ currentReceiptGlobalId }) =
             globalId: allColumnsAreVisible,
             revisionNumber: allColumnsAreVisible,
             approvalRequestStatus: allColumnsAreVisible,
-            createdByDisplayName: allColumnsAreVisible,
+            requesterDisplayName: allColumnsAreVisible,
             createdAt: allColumnsAreVisible,
           }}
           pageSizeOptions={DataGrids.pageSizeOptions}

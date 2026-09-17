@@ -69,7 +69,7 @@ public class NotificationEmailService(
         }
         if (payload.TargetResourceType != NotificationResourceType.ApprovalRequest) return null;
         var request = await _db.ApprovalRequests.AsNoTracking().FirstOrDefaultAsync(
-            item => item.GlobalId == targetResourceGlobalId && item.CreatedByUserId == payload.UserId
+            item => item.GlobalId == targetResourceGlobalId && item.RequesterUserId == payload.UserId
                 && item.TenantId == payload.TenantId, cancellationToken);
         return request is null ? null : new NotificationEmailContext
         {
@@ -111,7 +111,10 @@ public class NotificationEmailService(
                 RequestTitle = task.ApprovalRequest.Title,
                 ActionUrl = GetLink(tenantGlobalId, $"tasks/{task.GlobalId}"),
                 Action = task.Action,
-                Actor = CreateActor(task.ApprovalRequest.CreatedByDisplayName, task.ApprovalRequest.CreatedByUser, task.ApprovalRequest)
+                Actor = CreateActor(task.ApprovalRequest.SubmittedByDisplayName, task.ApprovalRequest.SubmittedByUser, task.ApprovalRequest),
+                Requester = task.ApprovalRequest.RequesterUserId == task.ApprovalRequest.SubmittedByUserId
+                    ? null
+                    : CreateActor(task.ApprovalRequest.RequesterDisplayName, task.ApprovalRequest.RequesterUser, task.ApprovalRequest)
             };
         }
 
@@ -122,7 +125,7 @@ public class NotificationEmailService(
         if (request is null) return null;
         string route;
         if (payload.Type != NotificationType.ApprovalRequestTaskCompleted
-            && request.CreatedByUserId == payload.UserId && request.TenantId == payload.TenantId)
+            && request.RequesterUserId == payload.UserId && request.TenantId == payload.TenantId)
         {
             route = $"requests/{request.GlobalId}";
         }
@@ -178,7 +181,8 @@ public class NotificationEmailService(
 
     private IQueryable<ApprovalRequestTask> GetTasksQuery() => _db.ApprovalRequestTasks.AsNoTracking()
         .Include(item => item.CompletedByUser).ThenInclude(user => user!.AvatarUserFile)
-        .Include(item => item.ApprovalRequest).ThenInclude(request => request.CreatedByUser).ThenInclude(user => user.AvatarUserFile)
+        .Include(item => item.ApprovalRequest).ThenInclude(request => request.RequesterUser).ThenInclude(user => user.AvatarUserFile)
+        .Include(item => item.ApprovalRequest).ThenInclude(request => request.SubmittedByUser).ThenInclude(user => user.AvatarUserFile)
         .Include(item => item.ApprovalRequest).ThenInclude(request => request.Tenant).ThenInclude(tenant => tenant.LogoUserFile);
 
     private string? PublicImage(UserFile? file) => file is { StorageType: UserFileStorageType.Public }

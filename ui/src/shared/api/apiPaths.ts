@@ -47,8 +47,6 @@ export const ApiPaths = {
     employees: (tenantGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/employees`,
     employeesPicker: (tenantGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/employees/picker`,
     file: (tenantGlobalId: string, fileGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/files/${fileGlobalId}`,
-    fileDownload: (tenantGlobalId: string, fileGlobalId: string) =>
-      `api/v1/tenants/${tenantGlobalId}/files/${fileGlobalId}/downloadBase64`,
     fileUpload: (tenantGlobalId: string) => `api/v1/tenants/${tenantGlobalId}/files/upload`,
     notificationMarkRead: (tenantGlobalId: string, notificationGlobalId: string) =>
       `api/v1/tenants/${tenantGlobalId}/notifications/${notificationGlobalId}/read`,

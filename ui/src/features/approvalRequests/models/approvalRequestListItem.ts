@@ -7,6 +7,6 @@ export interface ApprovalRequestListItem {
   result?: boolean;
   createdAt: string;
   createdAtDate: Date;
-  createdByDisplayName: string;
+  requesterDisplayName: string;
   revisionNumber: number;
 }

@@ -77,7 +77,9 @@ public static class NotificationEmailTemplates
         return model with
         {
             Subject = $"{heading}: {context.RequestTitle}",
-            Body = $"{ActorLead(context.Actor)} requested your {action} on ",
+            Body = $"{ActorLead(context.Actor)}"
+                + (context.Requester is null ? string.Empty : $", on behalf of {ActorLead(context.Requester)},")
+                + $" requested your {action} on ",
             Heading = heading,
             PrimaryActionText = "Review request"
         };

@@ -22,9 +22,12 @@ public class ApprovalRequestCompletionAttributorTests
         var approvalRequest = new ApprovalRequest
         {
             CreatedAt = DateTime.UtcNow,
-            CreatedByDisplayName = "requester@example.com",
-            CreatedByUser = user,
-            CreatedByUserId = user.Id,
+            RequesterDisplayName = "requester@example.com",
+            SubmittedByDisplayName = "requester@example.com",
+            RequesterUser = user,
+            SubmittedByUser = user,
+            RequesterUserId = user.Id,
+            SubmittedByUserId = user.Id,
             Description = null,
             OrganizationDisplayName = "Personal",
             Status = ApprovalRequestStatus.Pending,

@@ -67,8 +67,8 @@ public class ApprovalRequestRepository(
 
         if (!string.IsNullOrWhiteSpace(query.RequestedBy))
         {
-            requests = requests.Where(request => request.CreatedByDisplayName.Contains(query.RequestedBy)
-                || request.CreatedByUser.NormalizedEmail!.Contains(query.RequestedBy));
+            requests = requests.Where(request => request.RequesterDisplayName.Contains(query.RequestedBy)
+                || request.RequesterUser.NormalizedEmail!.Contains(query.RequestedBy));
         }
 
         if (query.CreatedFrom.HasValue)
@@ -103,9 +103,9 @@ public class ApprovalRequestRepository(
                 Status = request.Status,
                 Result = request.Result,
                 CreatedAt = request.CreatedAt,
-                CreatedByDisplayName = request.CreatedByEmployeeId.HasValue
-                    ? request.CreatedByDisplayName
-                    : request.CreatedByUser.NormalizedEmail ?? string.Empty,
+                RequesterDisplayName = request.RequesterEmployeeId.HasValue
+                    ? request.RequesterDisplayName
+                    : request.RequesterUser.NormalizedEmail ?? string.Empty,
                 RevisionNumber = request.RevisionNumber
             })
             .ToListAsync(cancellationToken);
@@ -134,10 +134,13 @@ public class ApprovalRequestRepository(
 
     protected static IQueryable<ApprovalRequest> IncludeDetails(IQueryable<ApprovalRequest> requests) => requests
         .AsSplitQuery()
-        .Include(request => request.CreatedByUser)
-            .Include(request => request.CompletedByUser)
+        .Include(request => request.RequesterUser)
+        .Include(request => request.SubmittedByUser)
+        .Include(request => request.CompletedByUser)
         .Include(request => request.NextRevisionApprovalRequest)
-            .ThenInclude(nextRevision => nextRevision!.CreatedByUser)
+            .ThenInclude(nextRevision => nextRevision!.RequesterUser)
+        .Include(request => request.NextRevisionApprovalRequest)
+            .ThenInclude(nextRevision => nextRevision!.SubmittedByUser)
         .Include(request => request.PreviousRevisionApprovalRequest)
         .Include(request => request.RequestFiles)
             .ThenInclude(file => file.UserFile)

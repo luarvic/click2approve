@@ -1,4 +1,5 @@
 import App from "@/app/App";
+import { Routes } from "@/shared/routing/routes";
 import { render, screen } from "@testing-library/react";
 import { beforeAll, describe, expect, test, vi } from "vitest";
 
@@ -14,14 +15,7 @@ vi.mock("@/features/applicationConfiguration/api/applicationConfigurationApi", (
 
 describe("<App />", () => {
   beforeAll(() => {
-    Object.defineProperty(window, "location", {
-      writable: true,
-      value: {
-        pathname: "/app/signIn",
-        origin: "http://localhost",
-        href: "http://localhost/app/signIn",
-      },
-    });
+    window.history.replaceState(null, "", Routes.applicationPath("/signIn"));
   });
 
   test("App mounts properly", async () => {

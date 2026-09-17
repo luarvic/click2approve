@@ -11,8 +11,10 @@ const receipt: Receipt = {
   approvalRequestStatus: ApprovalRequestStatus.Completed,
   approvalRequestTitle: "Request title",
   createdAt: new Date("2026-08-20T12:30:00Z"),
-  createdByDisplayName: "Requester",
-  createdByEmail: "requester@example.com",
+  requesterDisplayName: "Requester",
+  submittedByDisplayName: "Requester",
+  requesterEmail: "requester@example.com",
+  submittedByEmail: "requester@example.com",
   files: [],
   globalId: "receipt-id",
   links: [],
@@ -35,6 +37,14 @@ const createAssignee = (isAssigneeEmployee: boolean, organizationDisplayName: st
 });
 
 describe("<ReceiptCard />", () => {
+  test("distinguishes the requester from the submitting delegate", () => {
+    render(<ReceiptCard receipt={{ ...receipt, submittedByDisplayName: "Submitting delegate" }} />);
+    expect(screen.getByText("Requested by:")).toBeTruthy();
+    expect(screen.getByText("Requester")).toBeTruthy();
+    expect(screen.getByText("Submitted by:")).toBeTruthy();
+    expect(screen.getByText("Submitting delegate")).toBeTruthy();
+  });
+
   test("shows the organization for an employee assignee", () => {
     render(
       <ReceiptCard

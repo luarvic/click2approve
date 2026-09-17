@@ -156,7 +156,7 @@ const RequestsGrid: React.FC<RequestsGridProps> = ({ currentApprovalRequestGloba
               <CompactGridStatus>
                 <ApprovalRequestStatusLineLabel result={params.row.result} status={params.row.status} />
               </CompactGridStatus>
-              <CompactGridSecondaryInformation>{params.row.createdByDisplayName}</CompactGridSecondaryInformation>
+              <CompactGridSecondaryInformation>{params.row.requesterDisplayName}</CompactGridSecondaryInformation>
               <CompactGridSecondaryInformation>
                 {getHumanReadableRelativeDate(params.row.createdAtDate)}
               </CompactGridSecondaryInformation>
@@ -185,13 +185,13 @@ const RequestsGrid: React.FC<RequestsGridProps> = ({ currentApprovalRequestGloba
       valueGetter: (_value, row) => getApprovalRequestStatusLabel(row.status, row.result),
     },
     {
-      field: "createdByDisplayName",
+      field: "requesterDisplayName",
       headerName: "Requested by",
       sortable: false,
       disableColumnMenu: true,
       flex: ApprovalGrids.approvalColumnFlex.metadata,
-      renderCell: (params) => <OneLineDisplayName displayName={params.row.createdByDisplayName} variant="body2" />,
-      valueGetter: (_value, row) => row.createdByDisplayName,
+      renderCell: (params) => <OneLineDisplayName displayName={params.row.requesterDisplayName} variant="body2" />,
+      valueGetter: (_value, row) => row.requesterDisplayName,
     },
     {
       field: "createdAtDate",
@@ -245,7 +245,7 @@ const RequestsGrid: React.FC<RequestsGridProps> = ({ currentApprovalRequestGloba
             globalId: allColumnsAreVisible,
             revisionNumber: allColumnsAreVisible,
             status: allColumnsAreVisible,
-            createdByDisplayName: allColumnsAreVisible,
+            requesterDisplayName: allColumnsAreVisible,
             createdAtDate: allColumnsAreVisible,
           }}
           paginationModel={paginationModel}

@@ -53,7 +53,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
 }) => {
   const organizationIsVisible = stores.tenantStore.currentTenant?.type === TenantType.Personal;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
-  const requesterType = approvalRequest.createdByEmployeeGlobalId ? AssigneeType.Employee : AssigneeType.User;
+  const requesterType = approvalRequest.requesterEmployeeGlobalId ? AssigneeType.Employee : AssigneeType.User;
   const completionType = approvalRequest.completedByEmployeeGlobalId ? AssigneeType.Employee : AssigneeType.User;
   const organizationDisplayName =
     organizationIsVisible && approvalRequest.organizationDisplayName
@@ -65,10 +65,10 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
     approvalRequest.status === ApprovalRequestStatus.Completed && !approvalRequest.completedByDisplayName;
   const completionDisplayName = completedBySystem
     ? "System"
-    : (approvalRequest.completedByDisplayName ?? approvalRequest.createdByDisplayName);
+    : (approvalRequest.completedByDisplayName ?? approvalRequest.requesterDisplayName);
   const completionEmail = completedBySystem
     ? undefined
-    : (approvalRequest.completedByEmail ?? approvalRequest.createdByEmail);
+    : (approvalRequest.completedByEmail ?? approvalRequest.requesterEmail);
   const requestStatusColor = getApprovalRequestStatusColor(approvalRequest.status, approvalRequest.result);
   const participantTimeline =
     completionLabel && completedTimestamp ? (
@@ -76,8 +76,8 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
         firstLabel="Requested by"
         firstParticipant={
           <ApprovalRequestParticipant
-            displayName={approvalRequest.createdByDisplayName}
-            email={approvalRequest.createdByEmail}
+            displayName={approvalRequest.requesterDisplayName}
+            email={approvalRequest.requesterEmail}
             organizationDisplayName={approvalRequest.organizationDisplayName}
             showOrganization={organizationIsVisible}
             type={requesterType}
@@ -110,8 +110,8 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
         firstLabel="Requested by"
         firstParticipant={
           <ApprovalRequestParticipant
-            displayName={approvalRequest.createdByDisplayName}
-            email={approvalRequest.createdByEmail}
+            displayName={approvalRequest.requesterDisplayName}
+            email={approvalRequest.requesterEmail}
             organizationDisplayName={approvalRequest.organizationDisplayName}
             showOrganization={organizationIsVisible}
             type={requesterType}
@@ -145,13 +145,26 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
         label="Requested by"
         value={
           <ApprovalRequestParticipant
-            displayName={approvalRequest.createdByDisplayName}
-            email={approvalRequest.createdByEmail}
+            displayName={approvalRequest.requesterDisplayName}
+            email={approvalRequest.requesterEmail}
             type={requesterType}
             variant="body2"
           />
         }
       />
+      {approvalRequest.submittedByUserGlobalId !== approvalRequest.requesterUserGlobalId && (
+        <ApprovalRequestField
+          label="Submitted by"
+          value={
+            <ApprovalRequestParticipant
+              displayName={approvalRequest.submittedByDisplayName}
+              email={approvalRequest.submittedByEmail}
+              type={approvalRequest.submittedByEmployeeGlobalId ? AssigneeType.Employee : AssigneeType.User}
+              variant="body2"
+            />
+          }
+        />
+      )}
       <ApprovalRequestField label="Requested at" value={getLocaleDateTimeString(approvalRequest.createdAtDate)} />
       <ApprovalRequestField
         label="Completed by"

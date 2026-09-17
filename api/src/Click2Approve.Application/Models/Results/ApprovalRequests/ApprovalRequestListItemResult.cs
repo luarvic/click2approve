@@ -12,6 +12,6 @@ public class ApprovalRequestListItemResult
     public ApprovalRequestStatus Status { get; init; }
     public bool? Result { get; init; }
     public DateTime CreatedAt { get; init; }
-    public required string CreatedByDisplayName { get; init; }
+    public required string RequesterDisplayName { get; init; }
     public int RevisionNumber { get; init; }
 }

@@ -8,6 +8,7 @@ public sealed record NotificationEmailContext
     public required string RequestTitle { get; init; }
     public required string ActionUrl { get; init; }
     public EmailActor? Actor { get; init; }
+    public EmailActor? Requester { get; init; }
     public ApprovalRequestTaskAction? Action { get; init; }
     public ApprovalRequestStatus? Status { get; init; }
     public bool? Result { get; init; }

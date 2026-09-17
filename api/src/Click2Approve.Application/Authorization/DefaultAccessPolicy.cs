@@ -11,7 +11,7 @@ namespace Click2Approve.Application.Authorization;
 public class DefaultAccessPolicy : IAccessPolicy
 {
     public virtual Expression<Func<ApprovalRequest, bool>> CanManageRequest(AccessScope scope) =>
-        request => request.TenantId == scope.TenantId && request.CreatedByUserId == scope.UserId;
+        request => request.TenantId == scope.TenantId && request.RequesterUserId == scope.UserId;
 
     public virtual Expression<Func<ApprovalRequestTask, bool>> CanWorkTask(AccessScope scope) =>
         task => task.TenantId == scope.TenantId && task.AssigneeUserId == scope.UserId;

@@ -62,12 +62,12 @@ public class UserFileService(
         return [.. userFiles.Select(UserFileMapper.MapUserFile)];
     }
 
-    public async Task AttachAsync(AppUser user, IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken)
+    public async Task<List<UserFile>> AttachAsync(AppUser user, IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken)
     {
         var distinctGlobalIds = globalIds.Distinct().ToList();
         if (distinctGlobalIds.Count == 0)
         {
-            return;
+            return [];
         }
 
         var userFiles = await _userFileRepository.ListAsync(user, distinctGlobalIds, cancellationToken);
@@ -84,6 +84,7 @@ public class UserFileService(
             userFile.Status = UserFileStatus.Attached;
         }
 
+        return userFiles;
     }
 
     /// <summary>Schedules files that are no longer attached to a domain entity for deletion.</summary>
@@ -106,16 +107,6 @@ public class UserFileService(
         {
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
-    }
-
-    /// <summary>
-    /// Downloads the user file.
-    /// </summary>
-    public async Task<(string Filename, byte[] Bytes)> DownloadAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
-    {
-        var userFile = await _userFileRepository.GetForDownloadAsync(user, globalId, cancellationToken)
-            ?? throw new NotFoundException("File was not found.");
-        return await ReadAsync(userFile, cancellationToken);
     }
 
     /// <summary>
@@ -215,15 +206,6 @@ public class UserFileService(
                 _logger.LogError(exception, "Failed to clean up stored user file {UserFileGlobalId} after an upload failure.", userFile.GlobalId);
             }
         }
-    }
-
-    /// <summary>
-    /// Lists the user files.
-    /// </summary>
-    public async Task<IList<UserFileResult>> ListAsync(AppUser user, CancellationToken cancellationToken)
-    {
-        var userFiles = await _userFileRepository.ListAsync(user, cancellationToken);
-        return [.. userFiles.Select(UserFileMapper.MapUserFile)];
     }
 
     /// <summary>

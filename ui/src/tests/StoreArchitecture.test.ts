@@ -8,14 +8,14 @@ import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/ap
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { ApprovalRequestStore } from "@/features/approvalRequests/stores/approvalRequestStore";
 import { ApprovalRequestTaskStore } from "@/features/approvalRequests/stores/approvalRequestTaskStore";
-import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
 import * as approvalStepTemplateApi from "@/features/approvalStepTemplates/api/approvalStepTemplatesApi";
+import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
 import { ApprovalStepTemplateStore } from "@/features/approvalStepTemplates/stores/approvalStepTemplateStore";
 import * as employeeApi from "@/features/employees/api/employeesApi";
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import { EmployeeStore } from "@/features/employees/stores/employeeStore";
-import { Team } from "@/features/teams/models/team";
 import * as teamApi from "@/features/teams/api/teamsApi";
+import { Team } from "@/features/teams/models/team";
 import { TeamStore } from "@/features/teams/stores/teamStore";
 import * as tenantApi from "@/features/tenants/api/tenantsApi";
 import { EmployeeRole, Tenant, TenantType } from "@/features/tenants/models/tenant";
@@ -75,11 +75,14 @@ const approvalRequest = (globalId: string): ApprovalRequest => ({
   title: `Request `,
   requestFiles: [],
   steps: [],
-  createdAt: "2026-01-01T00:00:00",
-  createdAtDate: new Date(),
-  createdByUserGlobalId: "7e3ee32d-66dc-4421-b484-93709f6f3bb8",
-  createdByEmail: "user@example.com",
-  createdByDisplayName: "user@example.com",
+  createdAt: "2026-01-01T00:00:00Z",
+  createdAtDate: new Date("2026-01-01T00:00:00Z"),
+  requesterUserGlobalId: "7e3ee32d-66dc-4421-b484-93709f6f3bb8",
+  submittedByUserGlobalId: "7e3ee32d-66dc-4421-b484-93709f6f3bb8",
+  requesterEmail: "user@example.com",
+  submittedByEmail: "user@example.com",
+  requesterDisplayName: "user@example.com",
+  submittedByDisplayName: "user@example.com",
   organizationDisplayName: "Personal",
   revisionNumber: 1,
   status: ApprovalRequestStatus.Pending,
@@ -104,8 +107,8 @@ const approvalRequestTask = (
   revisionNumber: 1,
   result,
   status,
-  createdAt: "2026-01-01T00:00:00",
-  createdAtDate: new Date(),
+  createdAt: "2026-01-01T00:00:00Z",
+  createdAtDate: new Date("2026-01-01T00:00:00Z"),
   requestFiles: [],
 });
 

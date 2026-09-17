@@ -2,7 +2,6 @@ import { downloadApprovalRequestFileBase64 } from "@/features/approvalRequests/a
 import { downloadApprovalRequestTaskFileBase64 } from "@/features/approvalRequests/api/approvalRequestTaskFilesApi";
 import { downloadApprovalRequestTaskAttachmentBase64 } from "@/features/approvalRequests/api/approvalRequestTaskAttachmentsApi";
 import { downloadDiscussionMessageFileBase64 } from "@/features/discussions/api/discussionsApi";
-import { downloadUserFileBase64 } from "@/features/userFiles/api/userFilesApi";
 import { UserFile } from "@/features/userFiles/models/userFile";
 
 const browserOpenableExtensions = new Set([
@@ -27,10 +26,6 @@ const browserOpenableExtensions = new Set([
   ".webp",
   ".xml",
 ]);
-
-export const downloadUserFile = async (tenantGlobalId: string, userFile: UserFile) => {
-  return downloadFile(userFile, () => downloadUserFileBase64(tenantGlobalId, userFile.globalId));
-};
 
 export const downloadApprovalRequestFile = async (
   tenantGlobalId: string,

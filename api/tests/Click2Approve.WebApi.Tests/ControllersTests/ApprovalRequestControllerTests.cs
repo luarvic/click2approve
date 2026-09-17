@@ -125,7 +125,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         using var approvalRequestListDocument = JsonDocument.Parse(await approvalRequestListResponse.Content.ReadAsStringAsync());
         var approvalRequestListItem = approvalRequestListDocument.RootElement.GetProperty("items")[0];
         Assert.False(approvalRequestListItem.TryGetProperty("completedAt", out _));
-        Assert.False(approvalRequestListItem.TryGetProperty("createdByEmail", out _));
+        Assert.False(approvalRequestListItem.TryGetProperty("requesterEmail", out _));
         Assert.False(approvalRequestListItem.TryGetProperty("organizationDisplayName", out _));
         var approvalRequestResponse = await client.GetAsync($"api/v1/tenants/{requesterTenantId}/requests/{approvalRequestSummary.GlobalId}");
         Assert.True(approvalRequestResponse.IsSuccessStatusCode, await approvalRequestResponse.Content.ReadAsStringAsync());
@@ -137,8 +137,8 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
             requesterLogin.AccessToken,
             approvalRequestSummary.GlobalId,
             CancellationToken.None);
-        Assert.NotEqual(Guid.Empty, approvalRequest.CreatedByUserGlobalId);
-        Assert.Null(approvalRequest.CreatedByEmployeeGlobalId);
+        Assert.NotEqual(Guid.Empty, approvalRequest.RequesterUserGlobalId);
+        Assert.Null(approvalRequest.RequesterEmployeeGlobalId);
         Assert.Equal(string.Empty, approvalRequest.OrganizationDisplayName);
         var approvalRequestTask = Assert.Single(approvalRequest.Steps.Single(step => step.Sequence == 1).Tasks);
         Assert.Equal(string.Empty, approvalRequestTask.OrganizationDisplayName);
@@ -158,7 +158,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var taskJson = await taskResponse.Content.ReadAsStringAsync();
         Assert.Contains("\"approvalRequest\":{", taskJson);
         Assert.Contains("\"steps\"", taskJson);
-        Assert.Contains("\"createdByEmail\"", taskJson);
+        Assert.Contains("\"requesterEmail\"", taskJson);
         Assert.DoesNotContain("\"taskLogEntries\"", taskJson);
         Assert.DoesNotContain("\"visibilityMode\"", taskJson);
 

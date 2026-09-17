@@ -71,8 +71,8 @@ public class ApprovalRequestTaskRepository(
 
         if (!string.IsNullOrWhiteSpace(query.RequestedBy))
         {
-            tasks = tasks.Where(task => task.ApprovalRequest.CreatedByDisplayName.Contains(query.RequestedBy)
-                || task.ApprovalRequest.CreatedByUser.NormalizedEmail!.Contains(query.RequestedBy));
+            tasks = tasks.Where(task => task.ApprovalRequest.RequesterDisplayName.Contains(query.RequestedBy)
+                || task.ApprovalRequest.RequesterUser.NormalizedEmail!.Contains(query.RequestedBy));
         }
 
         if (query.CreatedFrom.HasValue)
@@ -108,9 +108,9 @@ public class ApprovalRequestTaskRepository(
                 Status = task.Status,
                 Result = task.Result,
                 CreatedAt = task.CreatedAt,
-                RequestedByDisplayName = task.ApprovalRequest.CreatedByEmployeeId.HasValue
-                    ? task.ApprovalRequest.CreatedByDisplayName
-                    : task.ApprovalRequest.CreatedByUser.NormalizedEmail ?? string.Empty,
+                RequestedByDisplayName = task.ApprovalRequest.RequesterEmployeeId.HasValue
+                    ? task.ApprovalRequest.RequesterDisplayName
+                    : task.ApprovalRequest.RequesterUser.NormalizedEmail ?? string.Empty,
                 OrganizationDisplayName = task.OrganizationDisplayName ?? task.ApprovalRequest.OrganizationDisplayName,
                 RevisionNumber = task.RevisionNumber
             })
@@ -136,7 +136,9 @@ public class ApprovalRequestTaskRepository(
         return await Db.ApprovalRequestTasks
             .AsSplitQuery()
             .Include(t => t.ApprovalRequest)
-                .ThenInclude(r => r.CreatedByUser)
+                .ThenInclude(r => r.RequesterUser)
+            .Include(t => t.ApprovalRequest)
+                .ThenInclude(r => r.SubmittedByUser)
             .Include(t => t.ApprovalRequest)
                 .ThenInclude(r => r.RequestFiles)
                     .ThenInclude(file => file.UserFile)
@@ -190,7 +192,9 @@ public class ApprovalRequestTaskRepository(
             .Include(task => task.ApprovalRequestStepAssignee)
                 .ThenInclude(assignee => assignee!.User)
             .Include(task => task.ApprovalRequest)
-                .ThenInclude(request => request.CreatedByUser)
+                .ThenInclude(request => request.RequesterUser)
+            .Include(task => task.ApprovalRequest)
+                .ThenInclude(request => request.SubmittedByUser)
             .Include(task => task.ApprovalRequest)
                 .ThenInclude(request => request.RequestFiles)
                     .ThenInclude(file => file.UserFile)
@@ -223,10 +227,13 @@ public class ApprovalRequestTaskRepository(
         IQueryable<ApprovalRequest> requests,
         IReadOnlyCollection<int> hiddenStepSequences) => requests
             .AsSplitQuery()
-            .Include(request => request.CreatedByUser)
+            .Include(request => request.RequesterUser)
+            .Include(request => request.SubmittedByUser)
             .Include(request => request.CompletedByUser)
             .Include(request => request.NextRevisionApprovalRequest)
-                .ThenInclude(nextRevision => nextRevision!.CreatedByUser)
+                .ThenInclude(nextRevision => nextRevision!.RequesterUser)
+            .Include(request => request.NextRevisionApprovalRequest)
+                .ThenInclude(nextRevision => nextRevision!.SubmittedByUser)
             .Include(request => request.RequestFiles)
                 .ThenInclude(file => file.UserFile)
             .Include(request => request.Steps.Where(step => !hiddenStepSequences.Contains(step.Sequence)))

@@ -94,14 +94,14 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   task,
 }) => {
   const organizationIsVisible = stores.tenantStore.currentTenant?.type === TenantType.Personal;
-  const requestedByEmail = task.requestedByEmail ?? task.approvalRequest?.createdByEmail;
+  const requestedByEmail = task.requestedByEmail ?? task.approvalRequest?.requesterEmail;
   const participantDisplayName = participant === "assignee" ? task.assigneeDisplayName : task.requestedByDisplayName;
   const participantEmail = participant === "assignee" ? task.assigneeEmail : requestedByEmail;
   const participantOrganizationDisplayName = task.organizationDisplayName;
   const resolvedParticipantType =
     participantType ?? (participant === "assignee" ? AssigneeType.User : AssigneeType.Employee);
   const requesterParticipantType = task.approvalRequest
-    ? task.approvalRequest.createdByEmployeeGlobalId
+    ? task.approvalRequest.requesterEmployeeGlobalId
       ? AssigneeType.Employee
       : AssigneeType.User
     : participant === "assignee"

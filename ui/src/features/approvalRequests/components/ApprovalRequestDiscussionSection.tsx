@@ -51,9 +51,9 @@ const ApprovalRequestDiscussionSection: React.FC<ApprovalRequestDiscussionSectio
         onSendStateChange={setIsSending}
         ref={discussionPanel}
         requestGlobalId={approvalRequest.globalId}
-        requesterDisplayName={approvalRequest.createdByDisplayName}
-        requesterEmail={approvalRequest.createdByEmail}
-        requesterType={approvalRequest.createdByEmployeeGlobalId ? AssigneeType.Employee : AssigneeType.User}
+        requesterDisplayName={approvalRequest.requesterDisplayName}
+        requesterEmail={approvalRequest.requesterEmail}
+        requesterType={approvalRequest.requesterEmployeeGlobalId ? AssigneeType.Employee : AssigneeType.User}
         stepLabels={getApprovalRequestStepLabels(approvalRequest)}
         steps={approvalRequest.steps}
         taskApprovalRequestStepGlobalId={task?.approvalRequestStepGlobalId}
