@@ -26,6 +26,18 @@ test("recognizes Identity's MFA-required response without creating a session or 
   expect(notification.error).not.toHaveBeenCalled();
 });
 
+test("recognizes an email-confirmation-required response without creating a session or showing an error", async () => {
+  vi.mocked(axios.post).mockRejectedValue(
+    new AxiosError("Unauthorized", undefined, undefined, undefined, {
+      status: 401,
+      data: { detail: "RequiresEmailConfirmation" },
+    } as AxiosResponse),
+  );
+  expect(await loginUser(credentials)).toEqual({ requiresEmailConfirmation: true });
+  expect(writeTokens).not.toHaveBeenCalled();
+  expect(notification.error).not.toHaveBeenCalled();
+});
+
 test.each([{ twoFactorCode: "012345" }, { twoFactorRecoveryCode: "ABCDE-12345" }])(
   "uses native login for %j",
   async (factor) => {

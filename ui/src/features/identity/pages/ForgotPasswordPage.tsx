@@ -1,6 +1,8 @@
 import { stores } from "@/app/rootStore";
 import AuthForm from "@/features/identity/components/AuthForm";
 import AuthFormActions from "@/features/identity/components/AuthFormActions";
+import AuthTextLink from "@/features/identity/components/AuthTextLink";
+import AuthTextLinks from "@/features/identity/components/AuthTextLinks";
 import AuthTextField from "@/features/identity/components/AuthTextField";
 import { AuthForms } from "@/features/identity/components/authFormStyles";
 import { authPath } from "@/features/identity/routing/returnUrl";
@@ -10,7 +12,7 @@ import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { notification } from "@/shared/utils/notifications";
 import { validateEmail } from "@/shared/utils/validators";
-import { Box, Container, Grid, Link } from "@mui/material";
+import { Box, Container } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -58,28 +60,14 @@ const ForgotPasswordPage = () => {
             <MainActionButton loading={isLoading} type="submit" fullWidth>
               Send password reset link
             </MainActionButton>
-            <Grid container>
-              <Grid item xs>
-                <Link
-                  component="button"
-                  type="button"
-                  variant="body2"
-                  onClick={() => navigate(authPath("/signIn", returnUrl))}
-                >
-                  Sign in
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link
-                  component="button"
-                  type="button"
-                  variant="body2"
-                  onClick={() => navigate(authPath("/signUp", returnUrl))}
-                >
-                  New to us? Sign up
-                </Link>
-              </Grid>
-            </Grid>
+            <AuthTextLinks>
+              <AuthTextLink component="button" type="button" onClick={() => navigate(authPath("/signIn", returnUrl))}>
+                Sign in
+              </AuthTextLink>
+              <AuthTextLink component="button" type="button" onClick={() => navigate(authPath("/signUp", returnUrl))}>
+                Sign up
+              </AuthTextLink>
+            </AuthTextLinks>
           </AuthFormActions>
         </AuthForm>
       </Box>

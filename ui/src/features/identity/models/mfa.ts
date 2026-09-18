@@ -2,6 +2,10 @@ export interface MfaRequired {
   requiresTwoFactor: true;
 }
 
+export interface EmailConfirmationRequired {
+  requiresEmailConfirmation: true;
+}
+
 export interface TwoFactorCredentials {
   twoFactorCode?: string;
   twoFactorRecoveryCode?: string;

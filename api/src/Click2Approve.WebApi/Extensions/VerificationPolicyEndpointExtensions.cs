@@ -20,7 +20,17 @@ public static class VerificationPolicyEndpointExtensions
             {
                 var services = context.HttpContext.RequestServices;
                 var signIn = services.GetRequiredService<SignInManager<AppUser>>();
-                if (signIn.Options.SignIn.RequireConfirmedEmail) return await next(context);
+                if (signIn.Options.SignIn.RequireConfirmedEmail)
+                {
+                    if (!login) return await next(context);
+                    var confirmationRequest = context.Arguments.OfType<LoginRequest>().Single();
+                    var confirmationUser = await signIn.UserManager.FindByEmailAsync(confirmationRequest.Email);
+                    if (confirmationUser is null || confirmationUser.EmailConfirmed
+                        || await signIn.UserManager.IsLockedOutAsync(confirmationUser)
+                        || !await signIn.UserManager.CheckPasswordAsync(confirmationUser, confirmationRequest.Password))
+                        return await next(context);
+                    return Results.Problem("RequiresEmailConfirmation", statusCode: StatusCodes.Status401Unauthorized);
+                }
                 if (management) return Results.NotFound();
                 var request = context.Arguments.OfType<LoginRequest>().Single();
                 var user = await signIn.UserManager.FindByEmailAsync(request.Email);

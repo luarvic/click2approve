@@ -1,13 +1,15 @@
 import { loginUser } from "@/features/identity/api/authApi";
 import AuthForm from "@/features/identity/components/AuthForm";
 import AuthFormActions from "@/features/identity/components/AuthFormActions";
+import AuthTextLink from "@/features/identity/components/AuthTextLink";
+import AuthTextLinks from "@/features/identity/components/AuthTextLinks";
 import AuthTextField from "@/features/identity/components/AuthTextField";
 import { CredentialsData } from "@/features/identity/models/credentials";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { notification } from "@/shared/utils/notifications";
-import { Link, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { useState } from "react";
 
 interface Props {
@@ -61,20 +63,22 @@ const MfaVerification = ({ credentials, onVerified, onBack }: Props) => {
         <MainActionButton fullWidth type="submit" loading={action.isRunning}>
           Verify code
         </MainActionButton>
-        <Link
-          component="button"
-          type="button"
-          disabled={action.isRunning}
-          onClick={() => {
-            setRecovery(!recovery);
-            setCode("");
-          }}
-        >
-          {recovery ? "Use authenticator app" : "Use a recovery code"}
-        </Link>
-        <Link component="button" type="button" disabled={action.isRunning} onClick={onBack}>
-          Back
-        </Link>
+        <AuthTextLinks>
+          <AuthTextLink
+            component="button"
+            type="button"
+            disabled={action.isRunning}
+            onClick={() => {
+              setRecovery(!recovery);
+              setCode("");
+            }}
+          >
+            {recovery ? "Use authenticator app" : "Use a recovery code"}
+          </AuthTextLink>
+          <AuthTextLink component="button" type="button" disabled={action.isRunning} onClick={onBack}>
+            Back
+          </AuthTextLink>
+        </AuthTextLinks>
       </AuthFormActions>
     </AuthForm>
   );

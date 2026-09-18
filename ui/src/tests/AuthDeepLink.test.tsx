@@ -153,6 +153,24 @@ test.each(["password", "passkey"])("opens the original task after %s sign-in", a
   );
 });
 
+test("offers to resend verification email only after an unconfirmed email sign-in attempt", async () => {
+  vi.mocked(stores.userAccountStore.signIn).mockResolvedValue({ requiresEmailConfirmation: true });
+  vi.mocked(stores.userAccountStore.resendConfirmationEmail).mockResolvedValue(true);
+  renderFlow();
+  expect(screen.queryByRole("button", { name: "Resend verification email" })).toBeNull();
+  fireEvent.change(screen.getByLabelText("Email address", { exact: false }), {
+    target: { value: "person@example.com" },
+  });
+  fireEvent.change(document.querySelector<HTMLInputElement>('input[name="password"]')!, {
+    target: { value: "StrongPassword1!" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+  await screen.findByText("Confirm your email before signing in.");
+  fireEvent.click(screen.getByRole("button", { name: "Resend verification email" }));
+  await screen.findByRole("heading", { name: "Verify your email" });
+  expect(stores.userAccountStore.resendConfirmationEmail).toHaveBeenCalledWith("person@example.com");
+});
+
 test.each([false, true])(
   "preserves the task through sign-up with confirmation required=%s",
   async (confirmationRequired) => {
@@ -162,7 +180,7 @@ test.each([false, true])(
       }
     ).requiresConfirmedEmail = confirmationRequired;
     renderFlow();
-    fireEvent.click(await screen.findByRole("button", { name: "New to us? Sign up" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Sign up" }));
     await screen.findByRole("heading", { name: "Sign up" });
     fireEvent.change(screen.getByLabelText("Email address", { exact: false }), {
       target: { value: "person@example.com" },
@@ -304,8 +322,7 @@ test.each([destination, "/confirmationEmailSent", "/passwordResetEmailSent"])(
     );
     if (entry === destination)
       expect(new URLSearchParams(router.state.location.search).get("returnUrl")).toBe(destination);
-    fireEvent.click(screen.getByRole("button", { name: /resend/i }));
-    await screen.findByRole("heading", { name: "Email confirmation" });
+    expect(screen.queryByRole("button", { name: "Resend verification email" })).toBeNull();
     toast.mockRestore();
   },
 );

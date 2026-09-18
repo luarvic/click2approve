@@ -1,6 +1,8 @@
 import { stores } from "@/app/rootStore";
 import AuthForm from "@/features/identity/components/AuthForm";
 import AuthFormActions from "@/features/identity/components/AuthFormActions";
+import AuthTextLink from "@/features/identity/components/AuthTextLink";
+import AuthTextLinks from "@/features/identity/components/AuthTextLinks";
 import { AuthForms } from "@/features/identity/components/authFormStyles";
 import { authPath } from "@/features/identity/routing/returnUrl";
 import { useAuthReturnUrl } from "@/features/identity/routing/useAuthReturnUrl";
@@ -16,11 +18,9 @@ import {
   Container,
   FormControl,
   FormHelperText,
-  Grid,
   IconButton,
   InputAdornment,
   InputLabel,
-  Link,
   OutlinedInput,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
@@ -143,28 +143,14 @@ const ResetPasswordPage = () => {
             <MainActionButton loading={isLoading} type="submit" fullWidth>
               Reset
             </MainActionButton>
-            <Grid container>
-              <Grid item xs>
-                <Link
-                  component="button"
-                  type="button"
-                  variant="body2"
-                  onClick={() => navigate(authPath("/signIn", returnUrl))}
-                >
-                  Sign in
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link
-                  component="button"
-                  type="button"
-                  variant="body2"
-                  onClick={() => navigate(authPath("/signUp", returnUrl))}
-                >
-                  New to us? Sign up
-                </Link>
-              </Grid>
-            </Grid>
+            <AuthTextLinks>
+              <AuthTextLink component="button" type="button" onClick={() => navigate(authPath("/signIn", returnUrl))}>
+                Sign in
+              </AuthTextLink>
+              <AuthTextLink component="button" type="button" onClick={() => navigate(authPath("/signUp", returnUrl))}>
+                Sign up
+              </AuthTextLink>
+            </AuthTextLinks>
           </AuthFormActions>
         </AuthForm>
       </Box>

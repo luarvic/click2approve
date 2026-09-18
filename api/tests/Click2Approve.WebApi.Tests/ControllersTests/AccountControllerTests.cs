@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Click2Approve.Application.Abstractions.Identity;
 using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.WebApi.Tests.Models;
@@ -47,6 +48,28 @@ public class AccountControllerTests(CustomWebApplicationFactory<Program> applica
             Assert.False(user.IsPlaceholder);
             Assert.Equal(email, user.UserName);
         }
+    }
+
+    [Fact]
+    public async Task LoginAsync_WithValidPasswordForUnconfirmedEmail_RequiresEmailConfirmation()
+    {
+        await using var applicationFactory = new CustomWebApplicationFactory<Program>().WithWebHostBuilder(
+            builder => builder.UseSetting("Authentication:VerificationEnabled", "true"));
+        var client = applicationFactory.CreateClient();
+        var credentials = new Credentials
+        {
+            Email = $"unconfirmed-{Guid.NewGuid()}@example.com",
+            Password = "ZAQ12wsx!"
+        };
+
+        (await client.PostAsJsonAsync("api/v1/account/register", credentials)).EnsureSuccessStatusCode();
+
+        var response = await client.PostAsJsonAsync("api/v1/account/login", credentials);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        Assert.Equal(
+            "RequiresEmailConfirmation",
+            (await response.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("detail").GetString());
     }
 }
 

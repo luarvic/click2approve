@@ -1,6 +1,6 @@
 import { AuthResponse } from "@/features/identity/models/authResponse";
 import { CredentialsData } from "@/features/identity/models/credentials";
-import { MfaRequired, TwoFactorCredentials } from "@/features/identity/models/mfa";
+import { EmailConfirmationRequired, MfaRequired, TwoFactorCredentials } from "@/features/identity/models/mfa";
 import { UserAccount } from "@/features/identity/models/userAccount";
 import { ApiPaths } from "@/shared/api/apiPaths";
 import axios from "@/shared/api/axios";
@@ -34,7 +34,7 @@ export const confirmUserEmail = async (userId: string, code: string): Promise<bo
 export const loginUser = async (
   credentials: CredentialsData,
   factor: TwoFactorCredentials = {},
-): Promise<boolean | MfaRequired> => {
+): Promise<boolean | EmailConfirmationRequired | MfaRequired> => {
   try {
     const { data } = await axios.post<AuthResponse>(ApiPaths.account.login, {
       email: credentials.email,
@@ -46,6 +46,8 @@ export const loginUser = async (
   } catch (e) {
     if (isAxiosError(e) && e.response?.status === 401 && e.response.data?.detail === "RequiresTwoFactor")
       return { requiresTwoFactor: true };
+    if (isAxiosError(e) && e.response?.status === 401 && e.response.data?.detail === "RequiresEmailConfirmation")
+      return { requiresEmailConfirmation: true };
     notification.error(getApiErrorNotification(e));
     return false;
   }

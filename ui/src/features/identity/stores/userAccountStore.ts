@@ -8,7 +8,7 @@ import {
 } from "@/features/identity/api/authApi";
 import { signInWithPasskey } from "@/features/identity/api/passkeysApi";
 import { CredentialsData } from "@/features/identity/models/credentials";
-import { MfaRequired } from "@/features/identity/models/mfa";
+import { EmailConfirmationRequired, MfaRequired } from "@/features/identity/models/mfa";
 import { UserAccount } from "@/features/identity/models/userAccount";
 import { deleteTokens, readTokens } from "@/shared/session/session";
 import { makeAutoObservable, runInAction } from "mobx";
@@ -34,7 +34,7 @@ export class UserAccountStore {
     return await registerUser(credentials);
   };
 
-  signIn = async (credentials: CredentialsData): Promise<boolean | MfaRequired> => {
+  signIn = async (credentials: CredentialsData): Promise<boolean | EmailConfirmationRequired | MfaRequired> => {
     const result = await loginUser(credentials);
     if (typeof result === "object") return result;
     if (result) {

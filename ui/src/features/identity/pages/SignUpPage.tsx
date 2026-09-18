@@ -1,6 +1,8 @@
 import { stores } from "@/app/rootStore";
 import AuthForm from "@/features/identity/components/AuthForm";
 import AuthFormActions from "@/features/identity/components/AuthFormActions";
+import AuthTextLink from "@/features/identity/components/AuthTextLink";
+import AuthTextLinks from "@/features/identity/components/AuthTextLinks";
 import AuthTextField from "@/features/identity/components/AuthTextField";
 import { AuthForms } from "@/features/identity/components/authFormStyles";
 import { Credentials } from "@/features/identity/models/credentials";
@@ -18,11 +20,9 @@ import {
   Container,
   FormControl,
   FormHelperText,
-  Grid,
   IconButton,
   InputAdornment,
   InputLabel,
-  Link,
   OutlinedInput,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
@@ -152,18 +152,11 @@ const SignUpPage = () => {
             <MainActionButton loading={isLoading} type="submit" fullWidth>
               Sign up
             </MainActionButton>
-            <Grid container>
-              <Grid item>
-                <Link
-                  component="button"
-                  type="button"
-                  variant="body2"
-                  onClick={() => navigate(authPath("/signIn", returnUrl))}
-                >
-                  Already have an account? Sign in
-                </Link>
-              </Grid>
-            </Grid>
+            <AuthTextLinks>
+              <AuthTextLink component="button" type="button" onClick={() => navigate(authPath("/signIn", returnUrl))}>
+                Sign in
+              </AuthTextLink>
+            </AuthTextLinks>
           </AuthFormActions>
         </AuthForm>
       </Box>

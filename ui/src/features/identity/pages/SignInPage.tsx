@@ -2,6 +2,8 @@ import { stores } from "@/app/rootStore";
 import { browserSupportsPasskeys } from "@/features/identity/api/passkeysApi";
 import AuthForm from "@/features/identity/components/AuthForm";
 import AuthFormActions from "@/features/identity/components/AuthFormActions";
+import AuthTextLink from "@/features/identity/components/AuthTextLink";
+import AuthTextLinks from "@/features/identity/components/AuthTextLinks";
 import AuthTextField from "@/features/identity/components/AuthTextField";
 import MfaVerification from "@/features/identity/components/MfaVerification";
 import { AuthForms } from "@/features/identity/components/authFormStyles";
@@ -10,7 +12,7 @@ import { authPath } from "@/features/identity/routing/returnUrl";
 import { useAuthReturnUrl } from "@/features/identity/routing/useAuthReturnUrl";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import { Text } from "@/shared/components/text/textStyles";
+import InlineNotice from "@/shared/components/status/InlineNotice";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
@@ -24,11 +26,9 @@ import {
   Divider,
   FormControl,
   FormHelperText,
-  Grid,
   IconButton,
   InputAdornment,
   InputLabel,
-  Link,
   OutlinedInput,
   Typography,
 } from "@mui/material";
@@ -41,8 +41,10 @@ const SignInPage = () => {
   const [showPassword, setShowPassword] = React.useState(false);
   const [emailError, setEmailError] = useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<boolean>(false);
+  const [emailAwaitingConfirmation, setEmailAwaitingConfirmation] = useState<string | null>(null);
   const [pendingCredentials, setPendingCredentials] = useState<CredentialsData | null>(null);
   const signInAction = useAsyncAction(ActionLoaders.identity.signIn());
+  const resendAction = useAsyncAction(ActionLoaders.identity.resendConfirmationEmail());
   const passkeyAction = useAsyncAction(ActionLoaders.identity.passkeySignIn());
   const isLoading = signInAction.isRunning;
   const isPasskeyLoading = passkeyAction.isRunning;
@@ -69,10 +71,20 @@ const SignInPage = () => {
       const credentials = new Credentials(email.toString(), password.toString());
       await signInAction.run(async () => {
         const result = await stores.userAccountStore.signIn(credentials);
-        if (typeof result === "object") setPendingCredentials(credentials);
+        if (typeof result === "object" && "requiresEmailConfirmation" in result)
+          setEmailAwaitingConfirmation(credentials.email);
+        else if (typeof result === "object") setPendingCredentials(credentials);
         else if (result && location.pathname === "/signIn") navigate(returnUrl, { replace: true });
       });
     }
+  };
+
+  const handleResendConfirmation = async () => {
+    if (!emailAwaitingConfirmation) return;
+    await resendAction.run(async () => {
+      if (await stores.userAccountStore.resendConfirmationEmail(emailAwaitingConfirmation))
+        navigate(authPath("/confirmationEmailSent", returnUrl));
+    });
   };
 
   const handlePasskeySignIn = async () => {
@@ -106,7 +118,10 @@ const SignInPage = () => {
               autoFocus
               error={emailError}
               helperText={emailError && "Invalid email address"}
-              onChange={() => setEmailError(false)}
+              onChange={() => {
+                setEmailError(false);
+                setEmailAwaitingConfirmation(null);
+              }}
             />
             <FormControl margin="normal" fullWidth variant={AuthForms.inputVariant} required>
               <InputLabel error={passwordError}>Password</InputLabel>
@@ -127,48 +142,48 @@ const SignInPage = () => {
                   </InputAdornment>
                 }
                 label="Password"
-                onChange={() => setPasswordError(false)}
+                onChange={() => {
+                  setPasswordError(false);
+                  setEmailAwaitingConfirmation(null);
+                }}
               />
               <FormHelperText error id="passwordError">
                 {passwordError && "Password cannot be empty"}
               </FormHelperText>
             </FormControl>
+            {emailAwaitingConfirmation && (
+              <InlineNotice
+                severity="info"
+                action={
+                  <AuthTextLink
+                    component="button"
+                    disabled={resendAction.isRunning}
+                    type="button"
+                    onClick={() => void handleResendConfirmation()}
+                  >
+                    Resend verification email
+                  </AuthTextLink>
+                }
+              >
+                Confirm your email before signing in.
+              </InlineNotice>
+            )}
             <AuthFormActions>
               <MainActionButton disabled={isPasskeyLoading} loading={isLoading} type="submit" fullWidth>
                 Sign in
               </MainActionButton>
-              <Grid container>
-                <Grid item xs={4}>
-                  <Link
-                    component="button"
-                    type="button"
-                    variant="body2"
-                    onClick={() => navigate(authPath("/forgotPassword", returnUrl))}
-                  >
-                    Forgot password
-                  </Link>
-                </Grid>
-                <Grid item xs={4} sx={Text.alignCenterSx}>
-                  <Link
-                    component="button"
-                    type="button"
-                    variant="body2"
-                    onClick={() => navigate(authPath("/resendConfirmationEmail", returnUrl))}
-                  >
-                    Resend confirmation
-                  </Link>
-                </Grid>
-                <Grid item xs={4} sx={Text.alignRightSx}>
-                  <Link
-                    component="button"
-                    type="button"
-                    variant="body2"
-                    onClick={() => navigate(authPath("/signUp", returnUrl))}
-                  >
-                    New to us? Sign up
-                  </Link>
-                </Grid>
-              </Grid>
+              <AuthTextLinks>
+                <AuthTextLink component="button" type="button" onClick={() => navigate(authPath("/signUp", returnUrl))}>
+                  Sign up
+                </AuthTextLink>
+                <AuthTextLink
+                  component="button"
+                  type="button"
+                  onClick={() => navigate(authPath("/forgotPassword", returnUrl))}
+                >
+                  Forgot password
+                </AuthTextLink>
+              </AuthTextLinks>
               {browserSupportsPasskeys() && (
                 <>
                   <Typography color="text.secondary" component="div" variant="body2">
