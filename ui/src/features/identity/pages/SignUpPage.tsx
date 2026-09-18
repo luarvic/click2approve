@@ -1,13 +1,14 @@
 import { stores } from "@/app/rootStore";
+import AuthForm from "@/features/identity/components/AuthForm";
+import AuthFormActions from "@/features/identity/components/AuthFormActions";
+import AuthTextField from "@/features/identity/components/AuthTextField";
 import { AuthForms } from "@/features/identity/components/authFormStyles";
-import { Information } from "@/features/identity/identityMessages";
 import { Credentials } from "@/features/identity/models/credentials";
 import { authPath } from "@/features/identity/routing/returnUrl";
 import { useAuthReturnUrl } from "@/features/identity/routing/useAuthReturnUrl";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
-import { StackSpacing } from "@/shared/theme/tokens";
 import { notification } from "@/shared/utils/notifications";
 import { Validation } from "@/shared/utils/validationRules";
 import { validateEmail, validatePassword } from "@/shared/utils/validators";
@@ -23,8 +24,6 @@ import {
   InputLabel,
   Link,
   OutlinedInput,
-  Stack,
-  TextField,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
@@ -73,14 +72,9 @@ const SignUpPage = () => {
       setIsLoading(true);
       if (await stores.userAccountStore.signUp(credentials)) {
         if (stores.applicationConfigurationStore.requiresConfirmedEmail) {
-          navigate("/information", {
-            state: {
-              title: Information.emailVerificationTitle,
-              message: Information.emailVerificationMessage,
-            },
-          });
+          navigate(authPath("/confirmationEmailSent", returnUrl));
         } else {
-          if (await stores.userAccountStore.signIn(credentials)) {
+          if ((await stores.userAccountStore.signIn(credentials)) === true) {
             navigate(returnUrl, { replace: true });
           }
         }
@@ -93,12 +87,9 @@ const SignUpPage = () => {
     <Container component="main" maxWidth={AuthForms.maxWidth}>
       <Box sx={AuthForms.containerSx}>
         <PageBreadcrumbs items={[{ label: "Sign up" }]} />
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={AuthForms.authFormSx}>
-          <TextField
-            margin="normal"
-            variant={AuthForms.inputVariant}
+        <AuthForm onSubmit={handleSubmit} noValidate>
+          <AuthTextField
             required
-            fullWidth
             id="email"
             label="Email address"
             name="email"
@@ -157,26 +148,24 @@ const SignUpPage = () => {
               {!passwordError && passwordConfirmationError && "Does not match password"}
             </FormHelperText>
           </FormControl>
-          <Box sx={AuthForms.authActionsSx}>
-            <Stack spacing={StackSpacing.loose}>
-              <MainActionButton loading={isLoading} type="submit" fullWidth>
-                Sign up
-              </MainActionButton>
-              <Grid container>
-                <Grid item>
-                  <Link
-                    component="button"
-                    type="button"
-                    variant="body2"
-                    onClick={() => navigate(authPath("/signIn", returnUrl))}
-                  >
-                    Already have an account? Sign in
-                  </Link>
-                </Grid>
+          <AuthFormActions>
+            <MainActionButton loading={isLoading} type="submit" fullWidth>
+              Sign up
+            </MainActionButton>
+            <Grid container>
+              <Grid item>
+                <Link
+                  component="button"
+                  type="button"
+                  variant="body2"
+                  onClick={() => navigate(authPath("/signIn", returnUrl))}
+                >
+                  Already have an account? Sign in
+                </Link>
               </Grid>
-            </Stack>
-          </Box>
-        </Box>
+            </Grid>
+          </AuthFormActions>
+        </AuthForm>
       </Box>
     </Container>
   );

@@ -3,10 +3,30 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Click2Approve.Infrastructure.Persistence;
 
-/// <summary>Commits an EF transaction or rolls it back when disposed without a commit.</summary>
-internal sealed class UnitOfWorkTransaction(IDbContextTransaction transaction) : IUnitOfWorkTransaction
+/// <summary>
+/// Commits once and discards tracked state when a transaction does not complete successfully.
+/// </summary>
+internal sealed class UnitOfWorkTransaction(ApiDbContext db, IDbContextTransaction transaction) : IUnitOfWorkTransaction
 {
-    public Task CommitAsync(CancellationToken cancellationToken = default) => transaction.CommitAsync(cancellationToken);
+    private bool _committed;
 
-    public ValueTask DisposeAsync() => transaction.DisposeAsync();
+    /// <inheritdoc />
+    public async Task CommitAsync(CancellationToken cancellationToken = default)
+    {
+        await transaction.CommitAsync(cancellationToken);
+        _committed = true;
+    }
+
+    /// <inheritdoc />
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            await transaction.DisposeAsync();
+        }
+        finally
+        {
+            if (!_committed) db.ChangeTracker.Clear();
+        }
+    }
 }

@@ -1,5 +1,4 @@
 import { stores } from "@/app/rootStore";
-import { Information } from "@/features/identity/identityMessages";
 import { authPath, clearReachedReturnUrl, rememberReturnUrl } from "@/features/identity/routing/returnUrl";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
@@ -14,29 +13,15 @@ const RouteGuard = ({ isAllowed = true }: RouteGuardProps) => {
   const destination = `${location.pathname}${location.search}${location.hash}`;
   const user = stores.userAccountStore.currentUser;
   const isManualSignOut = stores.userAccountStore.isManualSignOut;
-  const needsConfirmation = stores.applicationConfigurationStore.requiresConfirmedEmail && !user?.isEmailConfirmed;
   useEffect(() => {
     if (user === undefined) return;
-    if ((!user || needsConfirmation) && !isManualSignOut) rememberReturnUrl(destination);
+    if (!user && !isManualSignOut) rememberReturnUrl(destination);
     else clearReachedReturnUrl(destination);
-  }, [destination, isManualSignOut, needsConfirmation, user]);
+  }, [destination, isManualSignOut, user]);
 
   if (user === undefined) return null;
   if (!user) {
     return <Navigate to={isManualSignOut ? "/signIn" : authPath("/signIn", destination)} replace />;
-  }
-
-  if (needsConfirmation) {
-    return (
-      <Navigate
-        to="/information"
-        replace
-        state={{
-          title: Information.emailVerificationTitle,
-          message: Information.emailVerificationMessage,
-        }}
-      />
-    );
   }
 
   return isAllowed ? <Outlet /> : <Navigate to="/" replace />;

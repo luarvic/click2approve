@@ -21,6 +21,8 @@ decisions and discussion, and tracking request history.
 - Sign up, sign in with a password or passkey, confirm email addresses, reset
   passwords, and use authenticated browser sessions through the built-in
   account API.
+- Protect password sign-in with [authenticator-app MFA and recovery codes](docs/authenticator-mfa.md),
+  including QR-code setup through ASP.NET Core Identity.
 - Compose workflow requests with one or more files, a title, description, and
   email-based assignees.
 - Build multi-step workflows with serial or parallel assignee steps, choosing approval, signature, confirmation,

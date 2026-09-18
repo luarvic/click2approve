@@ -2,9 +2,9 @@ import { confirmUserEmail } from "@/features/identity/api/authApi";
 import { Information } from "@/features/identity/identityMessages";
 import { authPath } from "@/features/identity/routing/returnUrl";
 import { useAuthReturnUrl } from "@/features/identity/routing/useAuthReturnUrl";
+import ActionResult from "@/shared/components/layout/ActionResult";
 import { Pages } from "@/shared/components/layout/pageStyles";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
-import InformationPage from "@/shared/pages/InformationPage";
 import { Backdrop, CircularProgress, Link } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState, type ReactNode } from "react";
@@ -66,7 +66,7 @@ const ConfirmEmailPage = () => {
 
   return (
     <>
-      <InformationPage title={Information.emailVerificationResultTitle} message={message} />
+      <ActionResult title={Information.emailVerificationResultTitle} message={message} />
       <Backdrop sx={Pages.backdropLoadingSx} open={isLoading}>
         <CircularProgress color="inherit" />
       </Backdrop>

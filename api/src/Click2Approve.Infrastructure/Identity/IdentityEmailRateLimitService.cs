@@ -1,54 +1,77 @@
+using System.Text.Json;
 using Click2Approve.Application.Abstractions.Identity;
 using Click2Approve.Application.Models.Results.Identity;
+using Click2Approve.Application.Services.Identity;
 using Click2Approve.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Click2Approve.Infrastructure.Identity;
 
 /// <summary>
-/// Enforces identity email rate limits through persisted user data.
+/// Enforces independent, persistent per-account security email allowances.
 /// </summary>
-public class IdentityEmailRateLimitService(
+public sealed class IdentityEmailRateLimitService(
     ApiDbContext db,
-    int permitLimit,
-    TimeSpan window) : IIdentityEmailRateLimitService
+    IOptionsMonitor<AccountEmailRateLimitOptions> options,
+    TimeProvider timeProvider) : IIdentityEmailRateLimitService
 {
+    private const string Provider = "Click2Approve.AccountEmailLimits";
     private readonly ApiDbContext _db = db;
-    private readonly int _permitLimit = permitLimit;
-    private readonly TimeSpan _window = window;
+    private readonly IOptionsMonitor<AccountEmailRateLimitOptions> _options = options;
+    private readonly TimeProvider _timeProvider = timeProvider;
 
-    /// <inheritdoc />
-    public async Task<IdentityEmailRateLimitResult> TryAcquireAsync(string normalizedEmail, CancellationToken cancellationToken)
+    public async Task<IdentityEmailRateLimitResult> TryAcquireAsync(
+        string normalizedEmail, AccountEmailPurpose purpose, CancellationToken cancellationToken)
     {
-        var now = DateTime.UtcNow;
-        var windowStartCutoff = now - _window;
-        var updated = await _db.Users
-            .Where(user => user.NormalizedEmail == normalizedEmail)
-            .Where(user => user.AccountEmailRateLimitWindowStartedAt == null
-                || user.AccountEmailRateLimitWindowStartedAt <= windowStartCutoff
-                || user.AccountEmailRateLimitRequestCount < _permitLimit)
-            .ExecuteUpdateAsync(
-                setters => setters
-                    .SetProperty(
-                        user => user.AccountEmailRateLimitRequestCount,
-                        user => user.AccountEmailRateLimitWindowStartedAt == null
-                            || user.AccountEmailRateLimitWindowStartedAt <= windowStartCutoff
-                            ? 1
-                            : user.AccountEmailRateLimitRequestCount + 1)
-                    .SetProperty(
-                        user => user.AccountEmailRateLimitWindowStartedAt,
-                        user => user.AccountEmailRateLimitWindowStartedAt == null
-                            || user.AccountEmailRateLimitWindowStartedAt <= windowStartCutoff
-                            ? now
-                            : user.AccountEmailRateLimitWindowStartedAt),
-                cancellationToken);
+        var userId = await _db.Users.Where(user => user.NormalizedEmail == normalizedEmail)
+            .Select(user => (long?)user.Id).SingleOrDefaultAsync(cancellationToken);
+        if (userId is null) return IdentityEmailRateLimitResult.NotFound;
 
-        if (updated > 0)
+        var name = purpose.ToString();
+        var policy = _options.Get(name);
+        var tokens = _db.UserTokens.Where(token => token.UserId == userId.Value
+            && token.LoginProvider == Provider && token.Name == name);
+        for (var attempt = 0; attempt < 8; attempt++)
         {
-            return IdentityEmailRateLimitResult.Allowed;
-        }
+            var expected = await tokens.AsNoTracking().Select(token => token.Value)
+                .SingleOrDefaultAsync(cancellationToken);
+            var now = _timeProvider.GetUtcNow();
+            var state = expected is null ? null : JsonSerializer.Deserialize<AccountEmailRateLimitState>(expected);
+            if (state is null || state.WindowStartedAt.AddMinutes(policy.EmailWindowMinutes) <= now)
+                state = new AccountEmailRateLimitState(now, 0);
+            if (state.RequestCount >= policy.EmailPermitLimit) return IdentityEmailRateLimitResult.RateLimited;
+            var value = JsonSerializer.Serialize(state with { RequestCount = state.RequestCount + 1 });
+            if (expected is not null)
+            {
+                if (await tokens.Where(token => token.Value == expected)
+                    .ExecuteUpdateAsync(setters => setters.SetProperty(token => token.Value, value), cancellationToken) == 1)
+                    return IdentityEmailRateLimitResult.Allowed;
+                continue;
+            }
 
-        var userExists = await _db.Users.AnyAsync(user => user.NormalizedEmail == normalizedEmail, cancellationToken);
-        return userExists ? IdentityEmailRateLimitResult.RateLimited : IdentityEmailRateLimitResult.NotFound;
+            var token = new IdentityUserToken<long>
+            {
+                UserId = userId.Value,
+                LoginProvider = Provider,
+                Name = name,
+                Value = value
+            };
+            _db.UserTokens.Add(token);
+            try
+            {
+                await _db.SaveChangesAsync(cancellationToken);
+                _db.Entry(token).State = EntityState.Detached;
+                return IdentityEmailRateLimitResult.Allowed;
+            }
+            catch (DbUpdateException)
+            {
+                _db.Entry(token).State = EntityState.Detached;
+                // Retry only when another request created the same allowance row.
+                if (!await tokens.AnyAsync(cancellationToken)) throw;
+            }
+        }
+        return IdentityEmailRateLimitResult.RateLimited;
     }
 }

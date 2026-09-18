@@ -33,7 +33,7 @@ const App = () => {
         <CssBaseline>
           <AppRouter />
           <Notifications />
-          <PasskeyEnrollmentDialog email={stores.userAccountStore.currentUser?.email} />
+          <PasskeyEnrollmentDialog />
         </CssBaseline>
       </ThemeProvider>
     </LocalizationProvider>

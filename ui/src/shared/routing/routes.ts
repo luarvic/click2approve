@@ -8,6 +8,7 @@ const applicationPath = (path: string): string => `${basePath}${path}`;
 const userProfileTabPaths = {
   apiTokens: `${userProfilePath}/apiTokens`,
   notifications: `${userProfilePath}/notifications`,
+  security: `${userProfilePath}/security`,
   passkeys: `${userProfilePath}/passkeys`,
   profile: userProfilePath,
   signature: `${userProfilePath}/signature`,

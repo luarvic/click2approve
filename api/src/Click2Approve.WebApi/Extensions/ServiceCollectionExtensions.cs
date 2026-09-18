@@ -1,6 +1,7 @@
 using Click2Approve.Application.Abstractions.FileStorage;
 using Click2Approve.Application.Abstractions.Identity;
 using Click2Approve.Application.Models.Results.Identity;
+using Click2Approve.Application.Services.Identity;
 using Click2Approve.Domain.Models;
 using Click2Approve.Infrastructure.Email;
 using Click2Approve.Infrastructure.FileStorage;
@@ -30,13 +31,16 @@ public static class ServiceCollectionExtensions
     /// <returns>The service collection.</returns>
     public static IServiceCollection AddIdentityRateLimiting(this IServiceCollection services, IConfiguration configuration)
     {
-        var permitLimit = configuration.GetValue("RateLimiting:Identity:EmailPermitLimit", 3);
-        var windowInMinutes = configuration.GetValue("RateLimiting:Identity:WindowInMinutes", 15);
-
-        services.AddScoped<IIdentityEmailRateLimitService>(serviceProvider => new IdentityEmailRateLimitService(
-            serviceProvider.GetRequiredService<ApiDbContext>(),
-            permitLimit,
-            TimeSpan.FromMinutes(windowInMinutes)));
+        foreach (var purpose in Enum.GetValues<AccountEmailPurpose>())
+        {
+            services.AddOptions<AccountEmailRateLimitOptions>(purpose.ToString())
+                .Bind(configuration.GetSection($"Authentication:{purpose}"))
+                .Validate(options => options.EmailPermitLimit is >= 1 and <= 1000
+                    && options.EmailWindowMinutes is >= 1 and <= 1440, "Invalid account email allowance.")
+                .ValidateOnStart();
+        }
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddScoped<IIdentityEmailRateLimitService, IdentityEmailRateLimitService>();
         return services;
     }
 
@@ -47,25 +51,26 @@ public static class ServiceCollectionExtensions
     {
         services.AddFido2(options =>
         {
-            options.ServerDomain = configuration["Passkeys:RelyingPartyId"];
-            options.ServerName = configuration["Passkeys:RelyingPartyName"];
-            options.Origins = configuration.GetSection("Passkeys:Origins").Get<HashSet<string>>();
+            options.ServerDomain = configuration["Authentication:Passkeys:RelyingPartyId"];
+            options.ServerName = configuration["Authentication:Passkeys:RelyingPartyName"];
+            options.Origins = configuration.GetSection("Authentication:Passkeys:Origins").Get<HashSet<string>>();
         });
+        services.TryAddSingleton(TimeProvider.System);
         services.AddAuthentication();
         services.Configure<BearerTokenOptions>(IdentityConstants.BearerScheme, options =>
         {
-            options.BearerTokenExpiration = TimeSpan.FromMinutes(configuration.GetValue<int>("Authentication:BearerTokenExpirationInMinutes"));
-            options.RefreshTokenExpiration = TimeSpan.FromDays(configuration.GetValue<int>("Authentication:RefreshTokenExpirationInDays"));
+            options.BearerTokenExpiration = TimeSpan.FromMinutes(configuration.GetValue<int>("Authentication:Tokens:AccessTokenLifetimeMinutes"));
+            options.RefreshTokenExpiration = TimeSpan.FromDays(configuration.GetValue<int>("Authentication:Tokens:RefreshTokenLifetimeDays"));
         });
         services.AddAuthorization();
         services.AddIdentityApiEndpoints<AppUser>(options =>
             {
                 options.User.RequireUniqueEmail = true;
-                options.Password.RequiredLength = configuration.GetValue<int>("Identity:Password:RequiredLength");
-                options.SignIn.RequireConfirmedEmail = configuration.GetValue<bool>("Identity:RequireConfirmedEmail");
-                options.Lockout.MaxFailedAccessAttempts = configuration.GetValue<int>("Identity:Lockout:MaxFailedAccessAttempts");
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(configuration.GetValue<int>("Identity:Lockout:LockoutTimeSpanInMinutes"));
-                options.Lockout.AllowedForNewUsers = configuration.GetValue<bool>("Identity:Lockout:AllowedForNewUsers");
+                options.Password.RequiredLength = configuration.GetValue<int>("Authentication:Password:RequiredLength");
+                options.SignIn.RequireConfirmedEmail = configuration.GetValue<bool>("Authentication:VerificationEnabled");
+                options.Lockout.MaxFailedAccessAttempts = configuration.GetValue<int>("Authentication:Lockout:MaxFailedAttempts");
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(configuration.GetValue<int>("Authentication:Lockout:DurationMinutes"));
+                options.Lockout.AllowedForNewUsers = true;
             })
             .AddEntityFrameworkStores<ApiDbContext>();
         services.AddScoped<IUserStore<AppUser>, PlaceholderAwareUserStore>();
@@ -141,6 +146,8 @@ public static class ServiceCollectionExtensions
                     var rateLimiter = services.GetRequiredService<IIdentityEmailRateLimitService>();
                     var result = await rateLimiter.TryAcquireAsync(
                         normalizer.NormalizeEmail(email),
+                        invocationContext.Arguments.Any(argument => argument is ForgotPasswordRequest)
+                            ? AccountEmailPurpose.PasswordReset : AccountEmailPurpose.EmailConfirmation,
                         invocationContext.HttpContext.RequestAborted);
                     if (result == IdentityEmailRateLimitResult.RateLimited)
                     {

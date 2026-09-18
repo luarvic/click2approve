@@ -1,12 +1,12 @@
 import { stores } from "@/app/rootStore";
+import AuthForm from "@/features/identity/components/AuthForm";
+import AuthFormActions from "@/features/identity/components/AuthFormActions";
 import { AuthForms } from "@/features/identity/components/authFormStyles";
-import { Credentials } from "@/features/identity/models/credentials";
 import { authPath } from "@/features/identity/routing/returnUrl";
 import { useAuthReturnUrl } from "@/features/identity/routing/useAuthReturnUrl";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
-import { StackSpacing } from "@/shared/theme/tokens";
 import { notification } from "@/shared/utils/notifications";
 import { Validation } from "@/shared/utils/validationRules";
 import { validatePassword } from "@/shared/utils/validators";
@@ -22,7 +22,6 @@ import {
   InputLabel,
   Link,
   OutlinedInput,
-  Stack,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
@@ -79,10 +78,7 @@ const ResetPasswordPage = () => {
     } else {
       setIsLoading(true);
       if (await stores.userAccountStore.resetPassword(email, code, password.toString())) {
-        const credentials = new Credentials(email, password.toString());
-        if (await stores.userAccountStore.signIn(credentials)) {
-          navigate(returnUrl, { replace: true });
-        }
+        navigate(authPath("/passwordResetComplete", returnUrl), { replace: true });
       }
       setIsLoading(false);
     }
@@ -92,7 +88,7 @@ const ResetPasswordPage = () => {
     <Container component="main" maxWidth={AuthForms.maxWidth}>
       <Box sx={AuthForms.containerSx}>
         <PageBreadcrumbs items={[{ label: "Reset password" }]} />
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={AuthForms.authFormSx}>
+        <AuthForm onSubmit={handleSubmit} noValidate>
           <FormControl margin="normal" fullWidth variant={AuthForms.inputVariant} required>
             <InputLabel error={passwordError}>Password</InputLabel>
             <OutlinedInput
@@ -143,36 +139,34 @@ const ResetPasswordPage = () => {
               {!passwordError && passwordConfirmationError && "Does not match password"}
             </FormHelperText>
           </FormControl>
-          <Box sx={AuthForms.authActionsSx}>
-            <Stack spacing={StackSpacing.loose}>
-              <MainActionButton loading={isLoading} type="submit" fullWidth>
-                Reset
-              </MainActionButton>
-              <Grid container>
-                <Grid item xs>
-                  <Link
-                    component="button"
-                    type="button"
-                    variant="body2"
-                    onClick={() => navigate(authPath("/signIn", returnUrl))}
-                  >
-                    Sign in
-                  </Link>
-                </Grid>
-                <Grid item>
-                  <Link
-                    component="button"
-                    type="button"
-                    variant="body2"
-                    onClick={() => navigate(authPath("/signUp", returnUrl))}
-                  >
-                    New to us? Sign up
-                  </Link>
-                </Grid>
+          <AuthFormActions>
+            <MainActionButton loading={isLoading} type="submit" fullWidth>
+              Reset
+            </MainActionButton>
+            <Grid container>
+              <Grid item xs>
+                <Link
+                  component="button"
+                  type="button"
+                  variant="body2"
+                  onClick={() => navigate(authPath("/signIn", returnUrl))}
+                >
+                  Sign in
+                </Link>
               </Grid>
-            </Stack>
-          </Box>
-        </Box>
+              <Grid item>
+                <Link
+                  component="button"
+                  type="button"
+                  variant="body2"
+                  onClick={() => navigate(authPath("/signUp", returnUrl))}
+                >
+                  New to us? Sign up
+                </Link>
+              </Grid>
+            </Grid>
+          </AuthFormActions>
+        </AuthForm>
       </Box>
     </Container>
   );

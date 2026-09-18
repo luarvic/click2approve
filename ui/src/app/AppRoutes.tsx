@@ -12,7 +12,10 @@ import DelegationsPage from "@/features/delegations/pages/DelegationsPage";
 import EmployeeEditorPage from "@/features/employees/pages/EmployeeEditorPage";
 import EmployeesPage from "@/features/employees/pages/EmployeesPage";
 import ConfirmEmailPage from "@/features/identity/pages/ConfirmEmailPage";
+import ConfirmationEmailSentPage from "@/features/identity/pages/ConfirmationEmailSentPage";
 import ForgotPasswordPage from "@/features/identity/pages/ForgotPasswordPage";
+import PasswordResetCompletePage from "@/features/identity/pages/PasswordResetCompletePage";
+import PasswordResetEmailSentPage from "@/features/identity/pages/PasswordResetEmailSentPage";
 import ResendConfirmationEmailPage from "@/features/identity/pages/ResendConfirmationEmailPage";
 import ResetPasswordPage from "@/features/identity/pages/ResetPasswordPage";
 import SignInPage from "@/features/identity/pages/SignInPage";
@@ -39,7 +42,6 @@ import AnonymousRoute from "@/shared/components/routing/AnonymousRoute";
 import NotFoundRoute from "@/shared/components/routing/NotFoundRoute";
 import RouteGuard from "@/shared/components/routing/RouteGuard";
 import TenantHomeRedirect from "@/shared/components/routing/TenantHomeRedirect";
-import InformationPage from "@/shared/pages/InformationPage";
 import UserProfilePage from "@/shared/pages/UserProfilePage";
 import { observer } from "mobx-react-lite";
 import { Route, Routes } from "react-router-dom";
@@ -65,13 +67,16 @@ const ApplicationRoutes = () => {
             <Route path="/resetPassword" element={<ResetPasswordPage />} />
           </Route>
           <Route path="/confirmEmail" element={<ConfirmEmailPage />} />
-          <Route path="/information" element={<InformationPage />} />
+          <Route path="/passwordResetComplete" element={<PasswordResetCompletePage />} />
+          <Route path="/confirmationEmailSent" element={<ConfirmationEmailSentPage />} />
+          <Route path="/passwordResetEmailSent" element={<PasswordResetEmailSentPage />} />
         </Route>
       </Route>
       <Route element={<RouteGuard />}>
         <Route element={<MainLayout />}>
           <Route element={<WrapperLayout />}>
             <Route path="/userProfile" element={<UserProfilePage />} />
+            <Route path="/userProfile/security" element={<UserProfilePage tab="security" />} />
             <Route path="/userProfile/passkeys" element={<UserProfilePage tab="passkeys" />} />
             <Route element={<RouteGuard isAllowed={stores.applicationConfigurationStore.apiTokensAreEnabled} />}>
               <Route path="/userProfile/apiTokens" element={<UserProfilePage tab="apiTokens" />} />

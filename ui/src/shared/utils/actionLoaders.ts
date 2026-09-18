@@ -86,6 +86,14 @@ export const GlobalLoadingActionLoaderScopes = [
 ] as const;
 
 export const ActionLoaders = {
+  identity: {
+    resendConfirmationEmail: () => "identity.resendConfirmationEmail",
+    loadMfa: () => "identity.loadMfa",
+    signIn: () => "identity.signIn",
+    passkeySignIn: () => "identity.passkeySignIn",
+    saveMfa: () => "identity.saveMfa",
+    verifyMfa: () => "identity.verifyMfa",
+  },
   organizationCreation: {
     choosePlan: () => "organizationCreation.choosePlan",
   },

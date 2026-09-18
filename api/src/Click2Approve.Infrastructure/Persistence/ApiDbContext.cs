@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Click2Approve.Infrastructure.Persistence;
 
@@ -28,6 +29,15 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<UserFile> UserFiles { get; set; }
     public DbSet<UserNotificationPreference> UserNotificationPreferences { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder);
+        // Deliberately disable EF retries, including Azure SQL's defaults: callers own explicit
+        // transactions, whose bodies cannot be replayed by BeginTransactionAsync. Surface failures
+        // rather than replay intermediate saves or external effects after an uncertain commit.
+        optionsBuilder.ReplaceService<IExecutionStrategyFactory, NonRetryingExecutionStrategyFactory>();
+    }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
@@ -422,8 +432,9 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             .HasIndex(notification => new { notification.UserId, notification.TenantId, notification.ReadAt });
     }
 
+    /// <inheritdoc />
     public async Task<IUnitOfWorkTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) =>
-        new UnitOfWorkTransaction(await Database.BeginTransactionAsync(cancellationToken));
+        new UnitOfWorkTransaction(this, await Database.BeginTransactionAsync(cancellationToken));
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -445,14 +456,10 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             return await SaveChangesWithAuditAsync(pendingAuditLogs, cancellationToken);
         }
 
-        var executionStrategy = Database.CreateExecutionStrategy();
-        return await executionStrategy.ExecuteAsync(async () =>
-        {
-            await using var transaction = await Database.BeginTransactionAsync(cancellationToken);
-            var result = await SaveChangesWithAuditAsync(pendingAuditLogs, cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
-            return result;
-        });
+        await using var transaction = await BeginTransactionAsync(cancellationToken);
+        var result = await SaveChangesWithAuditAsync(pendingAuditLogs, cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return result;
     }
 
     protected static void ConfigureGlobalIdIndexes(ModelBuilder modelBuilder)
@@ -470,7 +477,8 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
         }
     }
 
-    private async Task<int> SaveChangesWithAuditAsync(List<PendingAuditLog> pendingAuditLogs, CancellationToken cancellationToken)
+    private async Task<int> SaveChangesWithAuditAsync(List<PendingAuditLog> pendingAuditLogs,
+        CancellationToken cancellationToken)
     {
         var result = await base.SaveChangesAsync(cancellationToken);
 

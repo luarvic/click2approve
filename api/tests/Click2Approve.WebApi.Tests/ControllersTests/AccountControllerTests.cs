@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using Click2Approve.Application.Abstractions.Identity;
 using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.WebApi.Tests.Models;
+using Click2Approve.WebApi.Tests.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -60,7 +61,8 @@ public class AccountRateLimitingTests
     public async Task PasswordAndConfirmationEndpointsAsync_ExceedingLimit_ReturnsTooManyRequests(string endpoint)
     {
         await using var applicationFactory = new CustomWebApplicationFactory<Program>().WithWebHostBuilder(
-            builder => builder.UseSetting("RateLimiting:Identity:EmailPermitLimit", "3"));
+            builder => builder.UseSetting("Authentication:EmailConfirmation:EmailPermitLimit", "3")
+                .UseSetting("Authentication:PasswordReset:EmailPermitLimit", "3"));
         var client = applicationFactory.CreateClient();
         var email = $"account-rate-limit-{Guid.NewGuid()}@example.com";
         var registrationResponse = await client.PostAsJsonAsync(
@@ -91,10 +93,43 @@ public class AccountRateLimitingTests
     }
 
     [Fact]
+    public async Task EmailAllowances_AreIndependent_AndExpireAtConfiguredWindows()
+    {
+        var clock = new TestTimeProvider();
+        await using var factory = new CustomWebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+        {
+            builder.UseSetting("Authentication:EmailConfirmation:EmailPermitLimit", "1");
+            builder.UseSetting("Authentication:EmailConfirmation:EmailWindowMinutes", "2");
+            builder.UseSetting("Authentication:PasswordReset:EmailPermitLimit", "2");
+            builder.UseSetting("Authentication:PasswordReset:EmailWindowMinutes", "5");
+            builder.ConfigureServices(services => services.AddSingleton<TimeProvider>(clock));
+        });
+        var client = factory.CreateClient();
+        var email = $"independent-limits-{Guid.NewGuid()}@example.com";
+        (await client.PostAsJsonAsync("api/v1/account/register",
+            new Credentials { Email = email, Password = "ZAQ12wsx!" })).EnsureSuccessStatusCode();
+
+        async Task AssertStatus(string endpoint, HttpStatusCode status) =>
+            Assert.Equal(status, (await client.PostAsJsonAsync($"api/v1/account/{endpoint}", new { email })).StatusCode);
+
+        await AssertStatus("resendConfirmationEmail", HttpStatusCode.OK);
+        await AssertStatus("resendConfirmationEmail", HttpStatusCode.TooManyRequests);
+        await AssertStatus("forgotPassword", HttpStatusCode.OK);
+        await AssertStatus("forgotPassword", HttpStatusCode.OK);
+        await AssertStatus("forgotPassword", HttpStatusCode.TooManyRequests);
+        clock.Advance(TimeSpan.FromMinutes(2));
+        await AssertStatus("resendConfirmationEmail", HttpStatusCode.OK);
+        await AssertStatus("forgotPassword", HttpStatusCode.TooManyRequests);
+        clock.Advance(TimeSpan.FromMinutes(3));
+        await AssertStatus("forgotPassword", HttpStatusCode.OK);
+    }
+
+    [Fact]
     public async Task RegisterAsync_IsNotRateLimited()
     {
         await using var applicationFactory = new CustomWebApplicationFactory<Program>().WithWebHostBuilder(
-            builder => builder.UseSetting("RateLimiting:Identity:EmailPermitLimit", "3"));
+            builder => builder.UseSetting("Authentication:EmailConfirmation:EmailPermitLimit", "3")
+                .UseSetting("Authentication:PasswordReset:EmailPermitLimit", "3"));
         var client = applicationFactory.CreateClient();
 
         for (var requestNumber = 0; requestNumber < 3; requestNumber++)

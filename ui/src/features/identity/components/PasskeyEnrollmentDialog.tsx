@@ -1,3 +1,4 @@
+import { stores } from "@/app/rootStore";
 import { browserSupportsPasskeys, listPasskeys, registerPasskey } from "@/features/identity/api/passkeysApi";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
@@ -14,35 +15,41 @@ import {
   DialogTitle,
   FormControlLabel,
 } from "@mui/material";
+import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
-
-interface PasskeyEnrollmentDialogProps {
-  email: string | undefined;
-}
 
 const defaultPasskeyName = "This device";
 
-const PasskeyEnrollmentDialog: React.FC<PasskeyEnrollmentDialogProps> = ({ email }) => {
+const PasskeyEnrollmentDialog = () => {
+  const { currentUser, passkeyEnrollmentPending, completePasskeyEnrollmentPrompt } = stores.userAccountStore;
+  const email = currentUser?.email;
   const [open, setOpen] = useState(false);
   const [doNotShowAgain, setDoNotShowAgain] = useState(false);
   const addAction = useAsyncAction(ActionLoaders.passkeys.add());
 
   useEffect(() => {
+    setOpen(false);
+    setDoNotShowAgain(false);
+    if (!passkeyEnrollmentPending) return;
+
     let isCurrent = true;
 
     const checkWhetherToOpen = async () => {
       if (!email || !browserSupportsPasskeys()) {
         setOpen(false);
+        completePasskeyEnrollmentPrompt();
         return;
       }
       if (isPasskeyEnrollmentPromptDismissed(email)) {
         setOpen(false);
+        completePasskeyEnrollmentPrompt();
         return;
       }
 
       const passkeys = await listPasskeys();
-      if (isCurrent && passkeys.length === 0) {
-        setOpen(true);
+      if (isCurrent) {
+        if (passkeys.length === 0) setOpen(true);
+        else completePasskeyEnrollmentPrompt();
       }
     };
 
@@ -50,13 +57,14 @@ const PasskeyEnrollmentDialog: React.FC<PasskeyEnrollmentDialogProps> = ({ email
     return () => {
       isCurrent = false;
     };
-  }, [email]);
+  }, [email, passkeyEnrollmentPending, completePasskeyEnrollmentPrompt]);
 
   const handleClose = () => {
     if (email && doNotShowAgain) {
       dismissPasskeyEnrollmentPrompt(email);
     }
     setOpen(false);
+    completePasskeyEnrollmentPrompt();
   };
 
   const handleAdd = async () => {
@@ -69,7 +77,7 @@ const PasskeyEnrollmentDialog: React.FC<PasskeyEnrollmentDialogProps> = ({ email
   };
 
   return (
-    <Dialog fullWidth maxWidth="sm" open={open} onClose={handleClose}>
+    <Dialog fullWidth maxWidth="sm" open={passkeyEnrollmentPending && open} onClose={handleClose}>
       <DialogTitle>Add a passkey</DialogTitle>
       <DialogContent dividers>
         <DialogContentText>
@@ -98,4 +106,4 @@ const PasskeyEnrollmentDialog: React.FC<PasskeyEnrollmentDialogProps> = ({ email
   );
 };
 
-export default PasskeyEnrollmentDialog;
+export default observer(PasskeyEnrollmentDialog);

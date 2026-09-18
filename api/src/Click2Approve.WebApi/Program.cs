@@ -114,6 +114,6 @@ var account = app.NewVersionedApi("Account")
     .MapGroup("/api/v{version:apiVersion}/account")
     .WithTags("Click2Approve.WebApi.Account")
     .HasApiVersion(1.0);
-account.MapIdentityApi<AppUser>().RequireIdentityRateLimiting();
+account.MapIdentityApi<AppUser>().RequireIdentityRateLimiting().ApplyVerificationPolicy();
 
 app.Run();

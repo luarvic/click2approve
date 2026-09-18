@@ -7,5 +7,5 @@ namespace Click2Approve.Application.Abstractions.Identity;
 /// </summary>
 public interface IIdentityEmailRateLimitService
 {
-    Task<IdentityEmailRateLimitResult> TryAcquireAsync(string normalizedEmail, CancellationToken cancellationToken);
+    Task<IdentityEmailRateLimitResult> TryAcquireAsync(string normalizedEmail, AccountEmailPurpose purpose, CancellationToken cancellationToken);
 }

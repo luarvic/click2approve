@@ -4,6 +4,8 @@ export const ApiPaths = {
       root: "api/v1/account/apiTokens",
     },
     confirmEmail: "api/v1/account/confirmEmail",
+    mfaStatus: "api/v1/account/mfa",
+    manageTwoFactor: "api/v1/account/manage/2fa",
     forgotPassword: "api/v1/account/forgotPassword",
     login: "api/v1/account/login",
     passkeys: {

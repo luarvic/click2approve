@@ -1,11 +1,13 @@
 import { AuthResponse } from "@/features/identity/models/authResponse";
 import { CredentialsData } from "@/features/identity/models/credentials";
+import { MfaRequired, TwoFactorCredentials } from "@/features/identity/models/mfa";
 import { UserAccount } from "@/features/identity/models/userAccount";
 import { ApiPaths } from "@/shared/api/apiPaths";
 import axios from "@/shared/api/axios";
 import { writeTokens } from "@/shared/session/session";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
+import { isAxiosError } from "axios";
 
 export const registerUser = async (credentials: CredentialsData): Promise<boolean> => {
   try {
@@ -29,15 +31,21 @@ export const confirmUserEmail = async (userId: string, code: string): Promise<bo
   }
 };
 
-export const loginUser = async (credentials: CredentialsData): Promise<boolean> => {
+export const loginUser = async (
+  credentials: CredentialsData,
+  factor: TwoFactorCredentials = {},
+): Promise<boolean | MfaRequired> => {
   try {
     const { data } = await axios.post<AuthResponse>(ApiPaths.account.login, {
       email: credentials.email,
       password: credentials.password,
+      ...factor,
     });
     writeTokens(data);
     return true;
   } catch (e) {
+    if (isAxiosError(e) && e.response?.status === 401 && e.response.data?.detail === "RequiresTwoFactor")
+      return { requiresTwoFactor: true };
     notification.error(getApiErrorNotification(e));
     return false;
   }

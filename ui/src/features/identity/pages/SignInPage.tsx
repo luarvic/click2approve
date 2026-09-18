@@ -1,14 +1,19 @@
 import { stores } from "@/app/rootStore";
 import { browserSupportsPasskeys } from "@/features/identity/api/passkeysApi";
+import AuthForm from "@/features/identity/components/AuthForm";
+import AuthFormActions from "@/features/identity/components/AuthFormActions";
+import AuthTextField from "@/features/identity/components/AuthTextField";
+import MfaVerification from "@/features/identity/components/MfaVerification";
 import { AuthForms } from "@/features/identity/components/authFormStyles";
-import { Credentials } from "@/features/identity/models/credentials";
+import { Credentials, CredentialsData } from "@/features/identity/models/credentials";
 import { authPath } from "@/features/identity/routing/returnUrl";
 import { useAuthReturnUrl } from "@/features/identity/routing/useAuthReturnUrl";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { Text } from "@/shared/components/text/textStyles";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
-import { StackSpacing } from "@/shared/theme/tokens";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { notification } from "@/shared/utils/notifications";
 import { validateEmail } from "@/shared/utils/validators";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
@@ -25,8 +30,6 @@ import {
   InputLabel,
   Link,
   OutlinedInput,
-  Stack,
-  TextField,
   Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
@@ -38,8 +41,11 @@ const SignInPage = () => {
   const [showPassword, setShowPassword] = React.useState(false);
   const [emailError, setEmailError] = useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isPasskeyLoading, setIsPasskeyLoading] = useState<boolean>(false);
+  const [pendingCredentials, setPendingCredentials] = useState<CredentialsData | null>(null);
+  const signInAction = useAsyncAction(ActionLoaders.identity.signIn());
+  const passkeyAction = useAsyncAction(ActionLoaders.identity.passkeySignIn());
+  const isLoading = signInAction.isRunning;
+  const isPasskeyLoading = passkeyAction.isRunning;
   const navigate = useNavigate();
   const returnUrl = useAuthReturnUrl();
   const location = useLocation();
@@ -61,70 +67,73 @@ const SignInPage = () => {
       notification.warning("Invalid input.");
     } else {
       const credentials = new Credentials(email.toString(), password.toString());
-      setIsLoading(true);
-      if (await stores.userAccountStore.signIn(credentials)) {
-        if (location.pathname === "/signIn") {
-          navigate(returnUrl, { replace: true });
-        }
-      }
-      setIsLoading(false);
+      await signInAction.run(async () => {
+        const result = await stores.userAccountStore.signIn(credentials);
+        if (typeof result === "object") setPendingCredentials(credentials);
+        else if (result && location.pathname === "/signIn") navigate(returnUrl, { replace: true });
+      });
     }
   };
 
   const handlePasskeySignIn = async () => {
-    setIsPasskeyLoading(true);
-    if (await stores.userAccountStore.signInWithPasskey()) {
-      navigate(returnUrl, { replace: true });
-    }
-    setIsPasskeyLoading(false);
+    await passkeyAction.run(async () => {
+      if (await stores.userAccountStore.signInWithPasskey()) navigate(returnUrl, { replace: true });
+    });
   };
 
   return (
     <Container component="main" maxWidth={AuthForms.maxWidth}>
       <Box sx={AuthForms.containerSx}>
         <PageBreadcrumbs items={[{ label: "Sign in" }]} />
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={AuthForms.authFormSx}>
-          <TextField
-            margin="normal"
-            variant={AuthForms.inputVariant}
-            required
-            fullWidth
-            id="email"
-            label="Email address"
-            name="email"
-            autoComplete="email"
-            autoFocus
-            error={emailError}
-            helperText={emailError && "Invalid email address"}
-            onChange={() => setEmailError(false)}
+        {pendingCredentials ? (
+          <MfaVerification
+            credentials={pendingCredentials}
+            onBack={() => setPendingCredentials(null)}
+            onVerified={async () => {
+              setPendingCredentials(null);
+              if (await stores.userAccountStore.signInWithCachedToken({ promptForPasskey: true }))
+                navigate(returnUrl, { replace: true });
+            }}
           />
-          <FormControl margin="normal" fullWidth variant={AuthForms.inputVariant} required>
-            <InputLabel error={passwordError}>Password</InputLabel>
-            <OutlinedInput
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
-                    edge="end"
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              }
-              label="Password"
-              onChange={() => setPasswordError(false)}
+        ) : (
+          <AuthForm onSubmit={handleSubmit} noValidate>
+            <AuthTextField
+              required
+              id="email"
+              label="Email address"
+              name="email"
+              autoComplete="email"
+              autoFocus
+              error={emailError}
+              helperText={emailError && "Invalid email address"}
+              onChange={() => setEmailError(false)}
             />
-            <FormHelperText error id="passwordError">
-              {passwordError && "Password cannot be empty"}
-            </FormHelperText>
-          </FormControl>
-          <Box sx={AuthForms.authActionsSx}>
-            <Stack spacing={StackSpacing.loose}>
+            <FormControl margin="normal" fullWidth variant={AuthForms.inputVariant} required>
+              <InputLabel error={passwordError}>Password</InputLabel>
+              <OutlinedInput
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+                label="Password"
+                onChange={() => setPasswordError(false)}
+              />
+              <FormHelperText error id="passwordError">
+                {passwordError && "Password cannot be empty"}
+              </FormHelperText>
+            </FormControl>
+            <AuthFormActions>
               <MainActionButton disabled={isPasskeyLoading} loading={isLoading} type="submit" fullWidth>
                 Sign in
               </MainActionButton>
@@ -177,9 +186,9 @@ const SignInPage = () => {
                   </LoadingButton>
                 </>
               )}
-            </Stack>
-          </Box>
-        </Box>
+            </AuthFormActions>
+          </AuthForm>
+        )}
       </Box>
     </Container>
   );

@@ -8,6 +8,7 @@ import {
 } from "@/features/identity/api/authApi";
 import { signInWithPasskey } from "@/features/identity/api/passkeysApi";
 import { CredentialsData } from "@/features/identity/models/credentials";
+import { MfaRequired } from "@/features/identity/models/mfa";
 import { UserAccount } from "@/features/identity/models/userAccount";
 import { deleteTokens, readTokens } from "@/shared/session/session";
 import { makeAutoObservable, runInAction } from "mobx";
@@ -15,6 +16,7 @@ import { makeAutoObservable, runInAction } from "mobx";
 export class UserAccountStore {
   currentUser: UserAccount | null | undefined; // undefined means we don't know yet if it's authenticated or anonymous user
   isManualSignOut = false;
+  passkeyEnrollmentPending = false;
   private clearSession: () => void = () => undefined;
   private initializeSession: () => Promise<void> = async () => undefined;
 
@@ -32,9 +34,11 @@ export class UserAccountStore {
     return await registerUser(credentials);
   };
 
-  signIn = async (credentials: CredentialsData): Promise<boolean> => {
-    if (await loginUser(credentials)) {
-      return await this.signInWithCachedToken();
+  signIn = async (credentials: CredentialsData): Promise<boolean | MfaRequired> => {
+    const result = await loginUser(credentials);
+    if (typeof result === "object") return result;
+    if (result) {
+      return await this.signInWithCachedToken({ promptForPasskey: true });
     }
     return false;
   };
@@ -58,7 +62,10 @@ export class UserAccountStore {
     return await resetUserPassword(email, code, password);
   };
 
-  signInWithCachedToken = async (): Promise<boolean> => {
+  signInWithCachedToken = async ({
+    promptForPasskey = false,
+  }: { promptForPasskey?: boolean } = {}): Promise<boolean> => {
+    this.passkeyEnrollmentPending = false;
     const tokens = readTokens();
     if (tokens) {
       this.clearSession();
@@ -74,6 +81,7 @@ export class UserAccountStore {
         }
         runInAction(() => {
           this.currentUser = currentUser;
+          this.passkeyEnrollmentPending = promptForPasskey;
         });
         return true;
       }
@@ -88,6 +96,7 @@ export class UserAccountStore {
     runInAction(() => {
       this.isManualSignOut = isManual;
       this.currentUser = null;
+      this.passkeyEnrollmentPending = false;
     });
   };
 
@@ -98,6 +107,10 @@ export class UserAccountStore {
     }
 
     await this.signInWithCachedToken();
+  };
+
+  completePasskeyEnrollmentPrompt = () => {
+    this.passkeyEnrollmentPending = false;
   };
 
   clearManualSignOut = () => {

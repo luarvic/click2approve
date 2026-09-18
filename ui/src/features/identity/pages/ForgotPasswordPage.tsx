@@ -1,13 +1,16 @@
 import { stores } from "@/app/rootStore";
+import AuthForm from "@/features/identity/components/AuthForm";
+import AuthFormActions from "@/features/identity/components/AuthFormActions";
+import AuthTextField from "@/features/identity/components/AuthTextField";
 import { AuthForms } from "@/features/identity/components/authFormStyles";
-import { Information } from "@/features/identity/identityMessages";
+import { authPath } from "@/features/identity/routing/returnUrl";
+import { useAuthReturnUrl } from "@/features/identity/routing/useAuthReturnUrl";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
-import { StackSpacing } from "@/shared/theme/tokens";
 import { notification } from "@/shared/utils/notifications";
 import { validateEmail } from "@/shared/utils/validators";
-import { Box, Container, Grid, Link, Stack, TextField } from "@mui/material";
+import { Box, Container, Grid, Link } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +20,7 @@ const ForgotPasswordPage = () => {
   const [emailError, setEmailError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
+  const returnUrl = useAuthReturnUrl();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -28,12 +32,7 @@ const ForgotPasswordPage = () => {
     } else {
       setIsLoading(true);
       if (await stores.userAccountStore.sendResetPasswordLink(email.toString())) {
-        navigate("/information", {
-          state: {
-            title: Information.passwordResetTitle,
-            message: Information.passwordResetMessage,
-          },
-        });
+        navigate(authPath("/passwordResetEmailSent", returnUrl));
       }
       setIsLoading(false);
     }
@@ -43,12 +42,9 @@ const ForgotPasswordPage = () => {
     <Container component="main" maxWidth={AuthForms.maxWidth}>
       <Box sx={AuthForms.containerSx}>
         <PageBreadcrumbs items={[{ label: "Forgot password" }]} />
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={AuthForms.authFormSx}>
-          <TextField
-            margin="normal"
-            variant={AuthForms.inputVariant}
+        <AuthForm onSubmit={handleSubmit} noValidate>
+          <AuthTextField
             required
-            fullWidth
             id="email"
             label="Email address"
             name="email"
@@ -58,26 +54,34 @@ const ForgotPasswordPage = () => {
             helperText={emailError && "Invalid email address"}
             onChange={() => setEmailError(false)}
           />
-          <Box sx={AuthForms.authActionsSx}>
-            <Stack spacing={StackSpacing.loose}>
-              <MainActionButton loading={isLoading} type="submit" fullWidth>
-                Send password reset link
-              </MainActionButton>
-              <Grid container>
-                <Grid item xs>
-                  <Link component="button" type="button" variant="body2" onClick={() => navigate("/signIn")}>
-                    Sign in
-                  </Link>
-                </Grid>
-                <Grid item>
-                  <Link component="button" type="button" variant="body2" onClick={() => navigate("/signUp")}>
-                    New to us? Sign up
-                  </Link>
-                </Grid>
+          <AuthFormActions>
+            <MainActionButton loading={isLoading} type="submit" fullWidth>
+              Send password reset link
+            </MainActionButton>
+            <Grid container>
+              <Grid item xs>
+                <Link
+                  component="button"
+                  type="button"
+                  variant="body2"
+                  onClick={() => navigate(authPath("/signIn", returnUrl))}
+                >
+                  Sign in
+                </Link>
               </Grid>
-            </Stack>
-          </Box>
-        </Box>
+              <Grid item>
+                <Link
+                  component="button"
+                  type="button"
+                  variant="body2"
+                  onClick={() => navigate(authPath("/signUp", returnUrl))}
+                >
+                  New to us? Sign up
+                </Link>
+              </Grid>
+            </Grid>
+          </AuthFormActions>
+        </AuthForm>
       </Box>
     </Container>
   );

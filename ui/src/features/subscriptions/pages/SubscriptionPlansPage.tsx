@@ -20,6 +20,7 @@ import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
+import InlineNotice from "@/shared/components/status/InlineNotice";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
@@ -31,7 +32,7 @@ import {
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import LoadingButton from "@mui/lab/LoadingButton";
 import type { SxProps, Theme } from "@mui/material";
-import { Alert, Chip, Divider, Grid, Link, Stack, Tooltip, Typography } from "@mui/material";
+import { Chip, Divider, Grid, Link, Stack, Tooltip, Typography } from "@mui/material";
 import type { SystemStyleObject } from "@mui/system";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef, useState } from "react";
@@ -171,7 +172,8 @@ const SubscriptionPlansPage = () => {
     };
   }, [plansRefreshVersion, requiresTrialUsage, subscriptionPlansLoader, tenantGlobalId]);
 
-  if (failed) return <Alert severity="error">Unable to load plans and payment status. Refresh to try again.</Alert>;
+  if (failed)
+    return <InlineNotice severity="error">Unable to load plans and payment status. Refresh to try again.</InlineNotice>;
   if (!stores.tenantStore.hasLoaded || !subscriptionPlansHaveLoaded || !billing) {
     return <LoadingOverlay />;
   }
@@ -253,7 +255,7 @@ const SubscriptionPlansPage = () => {
         ? "Pending"
         : "Active";
   const paymentColor =
-    billing.cleanupStarted || billing.suspendedAt ? "error" : billing.paymentResolutionRequired ? "warning" : "success";
+    billing.cleanupStarted || billing.suspendedAt ? "error" : billing.paymentResolutionRequired ? "warning" : "primary";
   const businessTrialHasEnded =
     currentTenant?.subscriptionPlan === SubscriptionPlan.BusinessTrial &&
     trialUsage !== undefined &&
@@ -298,34 +300,38 @@ const SubscriptionPlansPage = () => {
       {hasBillingNotice && (
         <Stack spacing={planHeaderSpacing} sx={billingNoticeSx}>
           {billing.cleanupStarted ? (
-            <Alert severity="warning">The recovery period has ended and workspace cleanup has started.</Alert>
+            <InlineNotice severity="warning">
+              The recovery period has ended and workspace cleanup has started.
+            </InlineNotice>
           ) : billing.suspendedAt ? (
-            <Alert severity="error">Workspace access is suspended because the subscription payment failed.</Alert>
+            <InlineNotice severity="error">
+              Workspace access is suspended because the subscription payment failed.
+            </InlineNotice>
           ) : billing.paymentResolutionRequired && !hasPaymentIssue ? (
-            <Alert severity="info">Complete payment to activate your selected plan.</Alert>
+            <InlineNotice severity="info">Complete payment to activate your selected plan.</InlineNotice>
           ) : null}
           {billing.recoveryDeadline && (
-            <Alert severity="warning">
+            <InlineNotice severity="warning">
               Complete payment by {new Date(billing.recoveryDeadline).toLocaleString()}.{" "}
               {currentTenant?.type === TenantType.Personal
                 ? "After this deadline, your personal workflow data and uploads will be deleted and your plan will return to Personal Free. Your account and profile will remain."
                 : "After this deadline, the organization and its data will be permanently deleted."}
-            </Alert>
+            </InlineNotice>
           )}
           {businessTrialHasEnded && (
-            <Alert severity="warning">
+            <InlineNotice severity="warning">
               Your Business Trial has ended. Choose a paid plan to continue using your workspace.
-            </Alert>
+            </InlineNotice>
           )}
           {billing.pendingPlan !== null && !billing.paymentResolutionRequired && (
-            <Alert severity="info">
+            <InlineNotice severity="info">
               Your change to {planNames[billing.pendingPlan]} is pending. Your existing plan remains active.
-            </Alert>
+            </InlineNotice>
           )}
           {hasPaymentIssue && (
-            <Alert severity={billing.paymentIssue === PaymentIssue.Processing ? "info" : "warning"}>
+            <InlineNotice severity={billing.paymentIssue === PaymentIssue.Processing ? "info" : "warning"}>
               {paymentIssueMessages[billing.paymentIssue!] ?? paymentIssueMessages[PaymentIssue.PaymentRequired]}
-            </Alert>
+            </InlineNotice>
           )}
           {!canManage && <Typography>Only an Owner or Admin can change plans or manage billing.</Typography>}
         </Stack>
@@ -391,7 +397,7 @@ const SubscriptionPlansPage = () => {
               limits={limits}
               status={
                 billing.scheduledPlan === plan ? (
-                  <Chip color="info" label="Planned" size="small" />
+                  <Chip color="info" label="Planned" size="small" variant="outlined" />
                 ) : isCurrentPlan ? (
                   <Tooltip
                     title={
@@ -406,11 +412,12 @@ const SubscriptionPlansPage = () => {
                       color={businessTrialHasEnded ? "warning" : paymentColor}
                       label={businessTrialHasEnded ? "Trial ended" : paymentLabel}
                       size="small"
+                      variant="outlined"
                     />
                   </Tooltip>
                 ) : billing.pendingPlan === plan ? (
                   <Tooltip title="Payment pending">
-                    <Chip color="warning" label="Pending" size="small" />
+                    <Chip color="warning" label="Pending" size="small" variant="outlined" />
                   </Tooltip>
                 ) : undefined
               }

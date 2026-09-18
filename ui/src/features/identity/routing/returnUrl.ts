@@ -7,9 +7,11 @@ const publicPaths = new Set([
   "/signup",
   "/forgotpassword",
   "/resetpassword",
+  "/passwordresetcomplete",
   "/confirmemail",
   "/resendconfirmationemail",
-  "/information",
+  "/confirmationemailsent",
+  "/passwordresetemailsent",
 ]);
 
 /** Only router-relative internal destinations may be resumed after authentication. */

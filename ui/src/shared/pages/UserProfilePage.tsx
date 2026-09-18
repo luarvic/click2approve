@@ -1,6 +1,7 @@
 import { stores } from "@/app/rootStore";
 import ApprovalRequestSignatureField from "@/features/approvalRequests/components/ApprovalRequestSignatureField";
 import ApiTokenSettings from "@/features/identity/components/ApiTokenSettings";
+import MfaSettings from "@/features/identity/components/MfaSettings";
 import PasskeySettings from "@/features/identity/components/PasskeySettings";
 import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
@@ -164,7 +165,9 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
         items={[
           {
             label: "User profile",
-            titleAction: <HelpPopover helpText="Update your profile, signature, and notification preferences." />,
+            titleAction: (
+              <HelpPopover helpText="Update your profile, authenticator MFA, passkeys, signature, and notification preferences." />
+            ),
           },
         ]}
       />
@@ -176,6 +179,7 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
             variant="scrollable"
           >
             <Tab label="Profile" value="profile" />
+            <Tab label="Security" value="security" />
             <Tab label="Passkeys" value="passkeys" />
             {stores.applicationConfigurationStore.apiTokensAreEnabled && <Tab label="API tokens" value="apiTokens" />}
             <Tab label="Signature" value="signature" />
@@ -264,6 +268,7 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
               </Table>
             </Stack>
           )}
+          {selectedTab === "security" && <MfaSettings />}
           {selectedTab === "passkeys" && <PasskeySettings />}
           {selectedTab === "apiTokens" && stores.applicationConfigurationStore.apiTokensAreEnabled && (
             <ApiTokenSettings />
@@ -276,11 +281,13 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
               <ApprovalRequestSignatureField onChange={handleSignatureChange} value={defaultSignatureJson} />
             </Stack>
           )}
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
-            <MainActionButton loading={saveAction.isRunning} onClick={handleSave}>
-              Save
-            </MainActionButton>
-          </Stack>
+          {["profile", "signature", "notifications"].includes(selectedTab) && (
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
+              <MainActionButton loading={saveAction.isRunning} onClick={handleSave}>
+                Save
+              </MainActionButton>
+            </Stack>
+          )}
         </Stack>
       </NarrowContent>
     </Box>
