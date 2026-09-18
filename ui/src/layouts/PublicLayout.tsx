@@ -3,6 +3,7 @@ import ColorModeSwitch from "@/shared/components/layout/ColorModeSwitch";
 import PublicAppBar from "@/shared/components/layout/PublicAppBar";
 import { Shell } from "@/shared/components/layout/shellStyles";
 import { Box, Container, Toolbar } from "@mui/material";
+import { observer } from "mobx-react-lite";
 import { ReactNode } from "react";
 import { Outlet } from "react-router-dom";
 
@@ -30,4 +31,4 @@ const PublicLayout = ({ children }: PublicLayoutProps) => {
   );
 };
 
-export default PublicLayout;
+export default observer(PublicLayout);
