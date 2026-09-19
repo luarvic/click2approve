@@ -1,5 +1,7 @@
 import type { SxProps, Theme } from "@mui/material";
 const appBarHeight = 72;
+const appBarLogoSize = 42;
+const mainMenuLogoSize = 36;
 const mainMenuDrawerWidth = 240;
 export const Shell = {
   appBarHeight,
@@ -41,8 +43,9 @@ export const Shell = {
     zIndex: (theme) => theme.zIndex.drawer + 1,
   } as SxProps<Theme>,
   appBarToolbarSx: {
-    height: appBarHeight,
-    minHeight: appBarHeight,
+    flexShrink: 0,
+    height: "100%",
+    minHeight: "100%",
     px: 2,
   } as SxProps<Theme>,
   appBarSpacerSx: {
@@ -54,12 +57,16 @@ export const Shell = {
     display: mainMenuDrawerIsOpen ? "none" : "inline-flex",
   }),
   appBarBrandContainerSx: {
+    display: "flex",
     flex: "1 0 auto",
+    justifyContent: "flex-start",
     minWidth: 0,
     overflow: "hidden",
+    pr: 1,
   } as SxProps<Theme>,
   appBarBrandLinkSx: {
     display: "flex",
+    gap: 1,
     alignItems: "center",
     color: "inherit",
     maxWidth: "100%",
@@ -67,18 +74,28 @@ export const Shell = {
     textDecoration: "none",
     width: "fit-content",
   } as SxProps<Theme>,
+  get mainMenuBrandLinkSx(): SxProps<Theme> {
+    return {
+      ...this.appBarBrandLinkSx,
+      gap: 0.3,
+    };
+  },
   appBarLogoSx: {
     display: "block",
-    flex: "0 0 36px",
-    minHeight: 36,
-    minWidth: 36,
-    width: 36,
-    height: 36,
-    mr: 0.5,
+    flex: "0 0 auto",
+    minHeight: appBarLogoSize,
+    width: "auto",
+    height: appBarLogoSize,
+  } as SxProps<Theme>,
+  mainMenuLogoSx: {
+    display: "block",
+    flex: "0 0 auto",
+    minHeight: mainMenuLogoSize,
+    width: "auto",
+    height: mainMenuLogoSize,
   } as SxProps<Theme>,
   appBarBrandTitleSx: {
     display: "block",
-    ml: -0.5,
     color: "inherit",
     overflow: "hidden",
     textDecoration: "none",

@@ -53,7 +53,7 @@ const tasksTextBadgeSx: SxProps<Theme> = {
 };
 
 const baseUrl = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
-const logoSrc = `${baseUrl}logo.svg`;
+const logoSrc = `${baseUrl}logo-wall-to-wall.svg`;
 
 const MainMenuDrawer = () => {
   const location = useLocation();
@@ -169,10 +169,10 @@ const MainMenuDrawer = () => {
           component="button"
           variant="body2"
           aria-label="Click2Approve home"
-          sx={Shell.appBarBrandLinkSx}
+          sx={Shell.mainMenuBrandLinkSx}
           onClick={() => navigateWorkspaceMenu(Routes.tasksPath)}
         >
-          <Box component="img" src={logoSrc} alt="" aria-hidden="true" sx={Shell.appBarLogoSx} />
+          <Box component="img" src={logoSrc} alt="" aria-hidden="true" sx={Shell.mainMenuLogoSx} />
           <Typography variant="h6" sx={Shell.appBarBrandTitleSx}>
             Click2Approve
           </Typography>
