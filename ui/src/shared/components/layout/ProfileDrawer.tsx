@@ -6,7 +6,7 @@ import { Shell } from "@/shared/components/layout/shellStyles";
 import { Lists } from "@/shared/components/lists/listStyles";
 import { confirmUnsavedChanges } from "@/shared/routing/unsavedChanges";
 import { getUserProfileName } from "@/shared/utils/displayNameHelpers";
-import { ChevronRightTwoTone, Logout, Person } from "@mui/icons-material";
+import { Close, Logout, Person } from "@mui/icons-material";
 import {
   Avatar,
   Backdrop,
@@ -19,6 +19,7 @@ import {
   ListItemIcon,
   ListItemText,
   Toolbar,
+  Typography,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
@@ -43,18 +44,24 @@ const ProfileDrawer = () => {
         open={stores.commonStore.profileDrawerIsOpen}
         onClose={() => stores.commonStore.setProfileDrawerIsOpen(false)}
       >
-        <Box sx={Shell.profileDrawerContentSx} onClick={() => stores.commonStore.setProfileDrawerIsOpen(false)}>
+        <Box sx={Shell.profileDrawerContentSx}>
           <Toolbar disableGutters sx={Shell.profileDrawerToolbarSx}>
+            <Typography variant="h6">Settings</Typography>
             <IconButton
               aria-label="Close profile menu"
               onClick={() => stores.commonStore.setProfileDrawerIsOpen(false)}
             >
-              <ChevronRightTwoTone />
+              <Close />
             </IconButton>
           </Toolbar>
           <List>
             <ListItem key="manageAccount" disablePadding>
-              <ListItemButton onClick={() => navigate("/userProfile")}>
+              <ListItemButton
+                onClick={() => {
+                  stores.commonStore.setProfileDrawerIsOpen(false);
+                  navigate("/userProfile");
+                }}
+              >
                 <ListItemIcon sx={Lists.itemIconSx}>
                   <Avatar src={getPublicApiUrl(profile?.avatar)} sx={Shell.profileDrawerAvatarSx}>
                     <Person fontSize="small" />
@@ -67,6 +74,7 @@ const ProfileDrawer = () => {
               <ListItemButton
                 onClick={() => {
                   if (!confirmUnsavedChanges()) return;
+                  stores.commonStore.setProfileDrawerIsOpen(false);
                   clearPendingReturnUrl();
                   stores.userAccountStore.signOut(true);
                 }}

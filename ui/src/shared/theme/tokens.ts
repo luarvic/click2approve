@@ -1,6 +1,9 @@
 export const SurfaceTokens = {
   borderRadius: "12px",
 } as const;
+export const ControlTokens = {
+  borderRadius: "6px",
+} as const;
 export const StackSpacing = {
   none: 0,
   tight: 0.5,

@@ -143,9 +143,10 @@ export const Shell = {
     borderColor: "divider",
     boxSizing: "border-box",
     height: appBarHeight,
-    justifyContent: "flex-start",
+    justifyContent: "space-between",
     minHeight: appBarHeight,
-    px: 1,
+    pl: 2,
+    pr: 1,
   } as SxProps<Theme>,
   mainMenuDrawerNavSx: (drawerIsOpen: boolean): SxProps<Theme> => ({
     width: {

@@ -1,4 +1,4 @@
-import { SurfaceTokens } from "@/shared/theme/tokens";
+import { ControlTokens, SurfaceTokens } from "@/shared/theme/tokens";
 import { PaletteMode, createTheme } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 
@@ -16,6 +16,13 @@ export const createAppTheme = (colorMode: PaletteMode) =>
             "&:first-of-type, &:last-of-type": {
               borderRadius: SurfaceTokens.borderRadius,
             },
+          },
+        },
+      },
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: ControlTokens.borderRadius,
           },
         },
       },
@@ -46,6 +53,9 @@ export const createAppTheme = (colorMode: PaletteMode) =>
       },
       MuiOutlinedInput: {
         styleOverrides: {
+          root: {
+            borderRadius: ControlTokens.borderRadius,
+          },
           input: {
             "&[type='password']": {
               fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
