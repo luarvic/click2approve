@@ -1,12 +1,11 @@
 import type { SxProps, Theme } from "@mui/material";
 const appBarHeight = 72;
-const appBarBrandTitleWithTenantPickerHideBelowWidth = 800;
 const mainMenuDrawerWidth = 240;
 export const Shell = {
   appBarHeight,
   mainMenuDrawerWidth,
   outerBackgroundSx: {
-    bgcolor: "action.hover",
+    bgcolor: "background.default",
     minHeight: "100vh",
   } as SxProps<Theme>,
   contentBackgroundSx: {
@@ -14,7 +13,7 @@ export const Shell = {
     minHeight: "100vh",
   } as SxProps<Theme>,
   mainContentSx: (drawerIsVisible: boolean): SxProps<Theme> => ({
-    ml: drawerIsVisible ? { md: `${mainMenuDrawerWidth}px` } : 0,
+    ml: drawerIsVisible ? { lg: `${mainMenuDrawerWidth}px` } : 0,
     minWidth: 0,
     position: "relative",
     transition: (theme) =>
@@ -23,7 +22,7 @@ export const Shell = {
         duration: theme.transitions.duration.leavingScreen,
       }),
     width: {
-      md: drawerIsVisible ? `calc(100% - ${mainMenuDrawerWidth}px)` : "100%",
+      lg: drawerIsVisible ? `calc(100% - ${mainMenuDrawerWidth}px)` : "100%",
     },
   }),
   loadingProgressSx: {
@@ -33,36 +32,18 @@ export const Shell = {
     top: appBarHeight,
     zIndex: 2,
   } as SxProps<Theme>,
-  appBarSx: (mainMenuDrawerIsVisible: boolean, profileDrawerIsOpen: boolean): SxProps<Theme> => ({
+  appBarSx: {
     bgcolor: "background.default",
     borderBottom: 1,
     borderColor: "divider",
     height: appBarHeight,
-    ml: {
-      md: (theme) =>
-        mainMenuDrawerIsVisible
-          ? `calc(max(0px, (100vw - ${theme.breakpoints.values.xl}px) / 2) + ${mainMenuDrawerWidth}px)`
-          : `max(0px, calc((100vw - ${theme.breakpoints.values.xl}px) / 2))`,
-    },
-    width: {
-      md: (theme) =>
-        mainMenuDrawerIsVisible
-          ? `min(calc(100% - ${mainMenuDrawerWidth}px), ${theme.breakpoints.values.xl - mainMenuDrawerWidth}px)`
-          : `min(100%, ${theme.breakpoints.values.xl}px)`,
-    },
-    pointerEvents: profileDrawerIsOpen ? "none" : "auto",
-    zIndex: (theme) => (profileDrawerIsOpen ? theme.zIndex.drawer + 2 : theme.zIndex.drawer + 1),
-    transition: (theme) =>
-      theme.transitions.create(["margin", "width"], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-      }),
-  }),
+    width: "100%",
+    zIndex: (theme) => theme.zIndex.drawer + 1,
+  } as SxProps<Theme>,
   appBarToolbarSx: {
     height: appBarHeight,
     minHeight: appBarHeight,
-    pl: 2,
-    pr: 2,
+    px: 2,
   } as SxProps<Theme>,
   appBarSpacerSx: {
     height: appBarHeight,
@@ -72,18 +53,11 @@ export const Shell = {
     mr: 1,
     display: mainMenuDrawerIsOpen ? "none" : "inline-flex",
   }),
-  appBarBrandContainerSx: (
-    titleHideBelowWidth: number | undefined,
-    collapseWhenTitleHidden: boolean,
-  ): SxProps<Theme> => ({
-    flex: "1 1 auto",
+  appBarBrandContainerSx: {
+    flex: "1 0 auto",
     minWidth: 0,
     overflow: "hidden",
-    ...(titleHideBelowWidth && collapseWhenTitleHidden
-      ? { [`@media (max-width: ${titleHideBelowWidth}px)`]: { flex: "0 0 auto" } }
-      : {}),
-  }),
-  appBarBrandTitleWithTenantPickerHideBelowWidth,
+  } as SxProps<Theme>,
   appBarBrandLinkSx: {
     display: "flex",
     alignItems: "center",
@@ -102,27 +76,21 @@ export const Shell = {
     height: 36,
     mr: 0.5,
   } as SxProps<Theme>,
-  appBarBrandTitleSx: (hideBelowWidth?: number): SxProps<Theme> => ({
+  appBarBrandTitleSx: {
     display: "block",
     ml: -0.5,
-    ...(hideBelowWidth ? { [`@media (max-width: ${hideBelowWidth}px)`]: { display: "none" } } : {}),
     color: "inherit",
     overflow: "hidden",
     textDecoration: "none",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
-  }),
+  } as SxProps<Theme>,
   tenantPickerSx: {
-    flex: "0 0 auto",
+    flex: "0 1 auto",
     maxWidth: 380,
     minWidth: 0,
     mr: 1,
     width: 380,
-    [`@media (max-width: ${appBarBrandTitleWithTenantPickerHideBelowWidth}px)`]: {
-      flex: "1 1 0",
-      maxWidth: "none",
-      width: "auto",
-    },
     "& .MuiSelect-select": {
       overflow: "hidden",
       textOverflow: "ellipsis",
@@ -144,11 +112,11 @@ export const Shell = {
     width: 24,
   } as SxProps<Theme>,
   profileDrawerBackdropSx: {
-    zIndex: (theme) => theme.zIndex.drawer + 1,
+    zIndex: (theme) => theme.zIndex.drawer + 4,
   } as SxProps<Theme>,
   profileDrawerModalSx: {
     pointerEvents: "none",
-    zIndex: (theme) => theme.zIndex.drawer + 3,
+    zIndex: (theme) => theme.zIndex.drawer + 5,
   } as SxProps<Theme>,
   profileDrawerPaperSx: {
     pointerEvents: "auto",
@@ -164,9 +132,9 @@ export const Shell = {
   } as SxProps<Theme>,
   mainMenuDrawerNavSx: (drawerIsOpen: boolean): SxProps<Theme> => ({
     width: {
-      md: drawerIsOpen ? mainMenuDrawerWidth : 0,
+      lg: drawerIsOpen ? mainMenuDrawerWidth : 0,
     },
-    flexShrink: { md: 0 },
+    flexShrink: { lg: 0 },
     transition: (theme) =>
       theme.transitions.create("width", {
         easing: theme.transitions.easing.sharp,
@@ -178,12 +146,17 @@ export const Shell = {
     borderColor: "divider",
     boxSizing: "border-box",
     height: appBarHeight,
-    justifyContent: "flex-end",
     minHeight: appBarHeight,
-    px: 1,
+    pl: 2,
+    pr: 1,
   } as SxProps<Theme>,
   mainMenuDrawerFirstListSx: {
     pt: 1,
+  } as SxProps<Theme>,
+  mainMenuDrawerContentSx: {
+    borderRight: 1,
+    borderColor: "divider",
+    minHeight: `calc(100vh - ${appBarHeight}px)`,
   } as SxProps<Theme>,
   drawerPaperSx: {
     "& .MuiDrawer-paper": {
@@ -195,6 +168,7 @@ export const Shell = {
   get temporaryDrawerSx(): SxProps<Theme> {
     return {
       display: { xs: "block", lg: "none" },
+      zIndex: (theme) => theme.zIndex.drawer + 3,
       ...this.drawerPaperSx,
     };
   },
@@ -202,9 +176,11 @@ export const Shell = {
     return {
       display: { xs: "none", lg: "block" },
       "& .MuiDrawer-paper": {
+        borderRight: 0,
         boxSizing: "border-box",
-        left: (theme) => `max(0px, calc((100vw - ${theme.breakpoints.values.xl}px) / 2))`,
+        left: 0,
         width: mainMenuDrawerWidth,
+        zIndex: (theme) => theme.zIndex.drawer + 2,
       },
     };
   },

@@ -32,7 +32,6 @@ const MainAppBar = ({
   const currentUser = stores.userAccountStore.currentUser;
   const profile = stores.userProfileStore.profile;
   const mainMenuDrawerIsOpen = stores.commonStore.mainMenuDrawerIsOpen;
-  const profileDrawerIsOpen = stores.commonStore.profileDrawerIsOpen;
   const mainMenuDrawerIsVisible = Boolean(currentUser) && showMainMenuButton && mainMenuDrawerIsOpen;
   const tenantPickerIsVisible =
     showTenantPicker &&
@@ -69,14 +68,8 @@ const MainAppBar = ({
   const tasksPath = currentTenantGlobalId ? Routes.tenantPath(currentTenantGlobalId, Routes.tasksPath) : "/";
   return (
     <PublicAppBar
-      brandTitleHideBelowWidth={
-        tenantPickerIsVisible ? Shell.appBarBrandTitleWithTenantPickerHideBelowWidth : undefined
-      }
-      collapseBrandAreaWhenTitleHidden={tenantPickerIsVisible}
       homePath={currentUser ? tasksPath : Routes.defaultPath}
-      mainMenuDrawerIsVisible={mainMenuDrawerIsVisible}
-      profileDrawerIsOpen={profileDrawerIsOpen}
-      showBrandTitle
+      showBrand={!mainMenuDrawerIsVisible}
       startContent={
         currentUser &&
         showMainMenuButton && (

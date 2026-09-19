@@ -11,7 +11,6 @@ import {
   AssignmentTwoTone,
   AutoDeleteTwoTone,
   BusinessTwoTone,
-  ChevronLeftTwoTone,
   ContentCopyTwoTone,
   GroupsTwoTone,
   HelpCenterTwoTone,
@@ -27,7 +26,7 @@ import {
   Box,
   Button,
   Drawer,
-  IconButton,
+  Link,
   List,
   ListItem,
   ListItemButton,
@@ -36,6 +35,7 @@ import {
   ListSubheader,
   Toolbar,
   Tooltip,
+  Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -51,6 +51,9 @@ const tasksTextBadgeSx: SxProps<Theme> = {
     transform: "translate(100%, -50%)",
   },
 };
+
+const baseUrl = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+const logoSrc = `${baseUrl}logo.svg`;
 
 const MainMenuDrawer = () => {
   const location = useLocation();
@@ -162,256 +165,267 @@ const MainMenuDrawer = () => {
   const drawerContent = (
     <Box>
       <Toolbar disableGutters sx={Shell.mainMenuDrawerToolbarSx}>
-        <IconButton aria-label="Collapse menu" onClick={() => stores.commonStore.setMainMenuDrawerIsOpen(false)}>
-          <ChevronLeftTwoTone />
-        </IconButton>
+        <Link
+          component="button"
+          variant="body2"
+          aria-label="Click2Approve home"
+          sx={Shell.appBarBrandLinkSx}
+          onClick={() => navigateWorkspaceMenu(Routes.tasksPath)}
+        >
+          <Box component="img" src={logoSrc} alt="" aria-hidden="true" sx={Shell.appBarLogoSx} />
+          <Typography variant="h6" sx={Shell.appBarBrandTitleSx}>
+            Click2Approve
+          </Typography>
+        </Link>
       </Toolbar>
-      <List
-        sx={Shell.mainMenuDrawerFirstListSx}
-        subheader={
-          <ListSubheader component="div" sx={Lists.actionSubheaderSx}>
-            <span>Work</span>
-            <Tooltip title="Compose request">
-              <Button
-                aria-label="Compose request"
-                color="primary"
-                size="small"
-                startIcon={<AddTwoTone />}
+      <Box sx={Shell.mainMenuDrawerContentSx}>
+        <List
+          sx={Shell.mainMenuDrawerFirstListSx}
+          subheader={
+            <ListSubheader component="div" sx={Lists.actionSubheaderSx}>
+              <span>Work</span>
+              <Tooltip title="Compose request">
+                <Button
+                  aria-label="Compose request"
+                  color="primary"
+                  size="small"
+                  startIcon={<AddTwoTone />}
+                  onClick={() => {
+                    stores.commonStore.setCurrentMenuPath("/requests");
+                    navigate(`${requestsPath}/new`);
+                    closeTemporaryDrawer();
+                  }}
+                >
+                  New request
+                </Button>
+              </Tooltip>
+            </ListSubheader>
+          }
+        >
+          <ListItem key="incoming" disablePadding>
+            <ListItemButton
+              selected={tasksAreSelected}
+              onClick={() => {
+                if (currentTenantGlobalId && !tenantIsBlocked) {
+                  stores.approvalRequestTaskStore.loadUncompletedCount(currentTenantGlobalId);
+                }
+                navigateWorkspaceMenu(Routes.tasksPath);
+              }}
+            >
+              <ListItemIcon sx={Lists.itemIconSx}>
+                <AssignmentTurnedInTwoTone />
+              </ListItemIcon>
+              <ListItemText
+                primary={
+                  numberOfUncompletedTasks > 0 ? (
+                    <Badge badgeContent={numberOfUncompletedTasks} color="error" sx={tasksTextBadgeSx}>
+                      <span>Tasks</span>
+                    </Badge>
+                  ) : (
+                    "Tasks"
+                  )
+                }
+              />
+            </ListItemButton>
+          </ListItem>
+          <ListItem key="outgoing" disablePadding>
+            <ListItemButton
+              selected={requestsAreSelected}
+              onClick={() => {
+                navigateWorkspaceMenu("/requests");
+              }}
+            >
+              <ListItemIcon sx={Lists.itemIconSx}>
+                <AssignmentTwoTone />
+              </ListItemIcon>
+              <ListItemText primary="Requests" />
+            </ListItemButton>
+          </ListItem>
+          {receiptsIsVisible && (
+            <ListItem key="receipts" disablePadding>
+              <ListItemButton
+                selected={
+                  selectedMenuPath === undefined
+                    ? location.pathname.startsWith(receiptsPath)
+                    : selectedMenuPath === "/receipts"
+                }
                 onClick={() => {
-                  stores.commonStore.setCurrentMenuPath("/requests");
-                  navigate(`${requestsPath}/new`);
+                  navigateWorkspaceMenu("/receipts");
+                }}
+              >
+                <ListItemIcon sx={Lists.itemIconSx}>
+                  <ReceiptLongTwoTone />
+                </ListItemIcon>
+                <ListItemText primary="Receipts" />
+              </ListItemButton>
+            </ListItem>
+          )}
+          {templatesIsVisible && (
+            <ListItem key="approvalStepTemplates" disablePadding>
+              <ListItemButton
+                selected={
+                  selectedMenuPath === undefined
+                    ? location.pathname.startsWith(templatesPath)
+                    : selectedMenuPath === "/approvalStepTemplates"
+                }
+                onClick={() => {
+                  navigateWorkspaceMenu("/approvalStepTemplates");
+                }}
+              >
+                <ListItemIcon sx={Lists.itemIconSx}>
+                  <ContentCopyTwoTone />
+                </ListItemIcon>
+                <ListItemText primary="Templates" />
+              </ListItemButton>
+            </ListItem>
+          )}
+        </List>
+        {organizationsIsVisible && (
+          <List subheader={<ListSubheader component="div">Access</ListSubheader>}>
+            <ListItem key="organizations" disablePadding>
+              <ListItemButton
+                selected={organizationsIsSelected}
+                onClick={() => {
+                  stores.commonStore.setCurrentMenuPath("/tenants");
+                  navigate("/tenants");
                   closeTemporaryDrawer();
                 }}
               >
-                New request
-              </Button>
-            </Tooltip>
-          </ListSubheader>
-        }
-      >
-        <ListItem key="incoming" disablePadding>
-          <ListItemButton
-            selected={tasksAreSelected}
-            onClick={() => {
-              if (currentTenantGlobalId && !tenantIsBlocked) {
-                stores.approvalRequestTaskStore.loadUncompletedCount(currentTenantGlobalId);
-              }
-              navigateWorkspaceMenu(Routes.tasksPath);
-            }}
-          >
-            <ListItemIcon sx={Lists.itemIconSx}>
-              <AssignmentTurnedInTwoTone />
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                numberOfUncompletedTasks > 0 ? (
-                  <Badge badgeContent={numberOfUncompletedTasks} color="error" sx={tasksTextBadgeSx}>
-                    <span>Tasks</span>
-                  </Badge>
-                ) : (
-                  "Tasks"
-                )
-              }
-            />
-          </ListItemButton>
-        </ListItem>
-        <ListItem key="outgoing" disablePadding>
-          <ListItemButton
-            selected={requestsAreSelected}
-            onClick={() => {
-              navigateWorkspaceMenu("/requests");
-            }}
-          >
-            <ListItemIcon sx={Lists.itemIconSx}>
-              <AssignmentTwoTone />
-            </ListItemIcon>
-            <ListItemText primary="Requests" />
-          </ListItemButton>
-        </ListItem>
-        {receiptsIsVisible && (
-          <ListItem key="receipts" disablePadding>
-            <ListItemButton
-              selected={
-                selectedMenuPath === undefined
-                  ? location.pathname.startsWith(receiptsPath)
-                  : selectedMenuPath === "/receipts"
-              }
-              onClick={() => {
-                navigateWorkspaceMenu("/receipts");
-              }}
-            >
-              <ListItemIcon sx={Lists.itemIconSx}>
-                <ReceiptLongTwoTone />
-              </ListItemIcon>
-              <ListItemText primary="Receipts" />
-            </ListItemButton>
-          </ListItem>
+                <ListItemIcon sx={Lists.itemIconSx}>
+                  <BusinessTwoTone />
+                </ListItemIcon>
+                <ListItemText primary="Organizations" />
+              </ListItemButton>
+            </ListItem>
+          </List>
         )}
-        {templatesIsVisible && (
-          <ListItem key="approvalStepTemplates" disablePadding>
-            <ListItemButton
-              selected={
-                selectedMenuPath === undefined
-                  ? location.pathname.startsWith(templatesPath)
-                  : selectedMenuPath === "/approvalStepTemplates"
-              }
-              onClick={() => {
-                navigateWorkspaceMenu("/approvalStepTemplates");
-              }}
-            >
-              <ListItemIcon sx={Lists.itemIconSx}>
-                <ContentCopyTwoTone />
-              </ListItemIcon>
-              <ListItemText primary="Templates" />
-            </ListItemButton>
-          </ListItem>
+        {workspaceGroupIsVisible && (
+          <List subheader={<ListSubheader component="div">People</ListSubheader>}>
+            {employeeManagerIsVisible && (
+              <ListItem key="employees" disablePadding>
+                <ListItemButton
+                  selected={
+                    selectedMenuPath === undefined
+                      ? location.pathname.startsWith(employeesPath)
+                      : selectedMenuPath === "/employees"
+                  }
+                  onClick={() => {
+                    navigateWorkspaceMenu("/employees");
+                  }}
+                >
+                  <ListItemIcon sx={Lists.itemIconSx}>
+                    <PersonTwoTone />
+                  </ListItemIcon>
+                  <ListItemText primary="Employees" />
+                </ListItemButton>
+              </ListItem>
+            )}
+            {teamsManagerIsVisible && (
+              <ListItem key="teams" disablePadding>
+                <ListItemButton
+                  selected={
+                    selectedMenuPath === undefined
+                      ? location.pathname.startsWith(teamsPath)
+                      : selectedMenuPath === "/teams"
+                  }
+                  onClick={() => {
+                    navigateWorkspaceMenu("/teams");
+                  }}
+                >
+                  <ListItemIcon sx={Lists.itemIconSx}>
+                    <GroupsTwoTone />
+                  </ListItemIcon>
+                  <ListItemText primary="Teams" />
+                </ListItemButton>
+              </ListItem>
+            )}
+            {delegationsIsVisible && (
+              <ListItem key="delegations" disablePadding>
+                <ListItemButton
+                  selected={
+                    selectedMenuPath === undefined
+                      ? location.pathname.startsWith(delegationsPath)
+                      : selectedMenuPath === "/delegations"
+                  }
+                  onClick={() => {
+                    navigateWorkspaceMenu("/delegations");
+                  }}
+                >
+                  <ListItemIcon sx={Lists.itemIconSx}>
+                    <PeopleAltTwoTone />
+                  </ListItemIcon>
+                  <ListItemText primary="Delegations" />
+                </ListItemButton>
+              </ListItem>
+            )}
+          </List>
         )}
-      </List>
-      {organizationsIsVisible && (
-        <List subheader={<ListSubheader component="div">Access</ListSubheader>}>
-          <ListItem key="organizations" disablePadding>
-            <ListItemButton
-              selected={organizationsIsSelected}
-              onClick={() => {
-                stores.commonStore.setCurrentMenuPath("/tenants");
-                navigate("/tenants");
-                closeTemporaryDrawer();
-              }}
-            >
-              <ListItemIcon sx={Lists.itemIconSx}>
-                <BusinessTwoTone />
-              </ListItemIcon>
-              <ListItemText primary="Organizations" />
-            </ListItemButton>
-          </ListItem>
-        </List>
-      )}
-      {workspaceGroupIsVisible && (
-        <List subheader={<ListSubheader component="div">People</ListSubheader>}>
-          {employeeManagerIsVisible && (
-            <ListItem key="employees" disablePadding>
+        {subscriptionsIsVisible && (
+          <List subheader={<ListSubheader component="div">Subscription</ListSubheader>}>
+            <ListItem key="subscriptionPlan" disablePadding>
               <ListItemButton
                 selected={
                   selectedMenuPath === undefined
-                    ? location.pathname.startsWith(employeesPath)
-                    : selectedMenuPath === "/employees"
+                    ? location.pathname.startsWith(subscriptionPlanPath)
+                    : selectedMenuPath === "/plans"
                 }
                 onClick={() => {
-                  navigateWorkspaceMenu("/employees");
+                  navigateWorkspaceMenu("/plans");
                 }}
               >
                 <ListItemIcon sx={Lists.itemIconSx}>
-                  <PersonTwoTone />
+                  <StyleTwoTone />
                 </ListItemIcon>
-                <ListItemText primary="Employees" />
+                <ListItemText primary="Plans" />
               </ListItemButton>
             </ListItem>
-          )}
-          {teamsManagerIsVisible && (
-            <ListItem key="teams" disablePadding>
+            <ListItem key="subscriptionUsage" disablePadding>
               <ListItemButton
                 selected={
                   selectedMenuPath === undefined
-                    ? location.pathname.startsWith(teamsPath)
-                    : selectedMenuPath === "/teams"
+                    ? location.pathname.startsWith(subscriptionUsagePath)
+                    : selectedMenuPath === "/usage"
                 }
                 onClick={() => {
-                  navigateWorkspaceMenu("/teams");
+                  navigateWorkspaceMenu("/usage");
                 }}
               >
                 <ListItemIcon sx={Lists.itemIconSx}>
-                  <GroupsTwoTone />
+                  <ShowChartTwoTone />
                 </ListItemIcon>
-                <ListItemText primary="Teams" />
+                <ListItemText primary="Usage" />
               </ListItemButton>
             </ListItem>
-          )}
-          {delegationsIsVisible && (
-            <ListItem key="delegations" disablePadding>
+            <ListItem key="subscriptionRetention" disablePadding>
               <ListItemButton
                 selected={
                   selectedMenuPath === undefined
-                    ? location.pathname.startsWith(delegationsPath)
-                    : selectedMenuPath === "/delegations"
+                    ? location.pathname.startsWith(subscriptionRetentionPath)
+                    : selectedMenuPath === "/retention"
                 }
                 onClick={() => {
-                  navigateWorkspaceMenu("/delegations");
+                  navigateWorkspaceMenu("/retention");
                 }}
               >
                 <ListItemIcon sx={Lists.itemIconSx}>
-                  <PeopleAltTwoTone />
+                  <AutoDeleteTwoTone />
                 </ListItemIcon>
-                <ListItemText primary="Delegations" />
+                <ListItemText primary="Retention" />
               </ListItemButton>
             </ListItem>
-          )}
-        </List>
-      )}
-      {subscriptionsIsVisible && (
-        <List subheader={<ListSubheader component="div">Subscription</ListSubheader>}>
-          <ListItem key="subscriptionPlan" disablePadding>
-            <ListItemButton
-              selected={
-                selectedMenuPath === undefined
-                  ? location.pathname.startsWith(subscriptionPlanPath)
-                  : selectedMenuPath === "/plans"
-              }
-              onClick={() => {
-                navigateWorkspaceMenu("/plans");
-              }}
-            >
+          </List>
+        )}
+        <List subheader={<ListSubheader component="div">Support</ListSubheader>}>
+          <ListItem key="help" disablePadding>
+            <ListItemButton component="a" href={Api.uiBaseUri} onClick={closeTemporaryDrawer}>
               <ListItemIcon sx={Lists.itemIconSx}>
-                <StyleTwoTone />
+                <HelpCenterTwoTone />
               </ListItemIcon>
-              <ListItemText primary="Plans" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem key="subscriptionUsage" disablePadding>
-            <ListItemButton
-              selected={
-                selectedMenuPath === undefined
-                  ? location.pathname.startsWith(subscriptionUsagePath)
-                  : selectedMenuPath === "/usage"
-              }
-              onClick={() => {
-                navigateWorkspaceMenu("/usage");
-              }}
-            >
-              <ListItemIcon sx={Lists.itemIconSx}>
-                <ShowChartTwoTone />
-              </ListItemIcon>
-              <ListItemText primary="Usage" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem key="subscriptionRetention" disablePadding>
-            <ListItemButton
-              selected={
-                selectedMenuPath === undefined
-                  ? location.pathname.startsWith(subscriptionRetentionPath)
-                  : selectedMenuPath === "/retention"
-              }
-              onClick={() => {
-                navigateWorkspaceMenu("/retention");
-              }}
-            >
-              <ListItemIcon sx={Lists.itemIconSx}>
-                <AutoDeleteTwoTone />
-              </ListItemIcon>
-              <ListItemText primary="Retention" />
+              <ListItemText primary="Help" />
             </ListItemButton>
           </ListItem>
         </List>
-      )}
-      <List subheader={<ListSubheader component="div">Support</ListSubheader>}>
-        <ListItem key="help" disablePadding>
-          <ListItemButton component="a" href={Api.uiBaseUri} onClick={closeTemporaryDrawer}>
-            <ListItemIcon sx={Lists.itemIconSx}>
-              <HelpCenterTwoTone />
-            </ListItemIcon>
-            <ListItemText primary="Help" />
-          </ListItemButton>
-        </ListItem>
-      </List>
+      </Box>
     </Box>
   );
 
