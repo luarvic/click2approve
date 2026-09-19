@@ -41,10 +41,14 @@ The UI uses bearer tokens and requires MFA on each password sign-in; it does not
 expose a remember-browser option. Identity's native cookie-mode behavior is still
 available to API callers, but the former custom device-trust cookie is never read.
 
-`Authentication:VerificationEnabled=false` bypasses email confirmation and MFA
-at password sign-in without changing enrollment. Password validation and account
-lockout still apply. Management is unavailable while the switch is off. Both
-editions use the same implementation and configuration. MFA needs no mail worker.
+`Authentication:VerificationEnabled` controls email confirmation only. Authenticator
+MFA setup and management are always available to authenticated users, and enrolled
+users must complete MFA at password sign-in even when email verification is disabled.
+Password validation and account lockout still apply. Both editions use the same
+implementation and configuration. MFA needs no mail worker.
+
+Deployments with `VerificationEnabled=false` that previously bypassed MFA now require
+authenticator codes or recovery codes for users already enrolled in MFA.
 
 ## Deployment from the former email-code implementation
 

@@ -23,11 +23,13 @@ public sealed class AuthenticatorMfaTests
     private const string LoginPath = "api/v1/account/login";
     private const string ManagementPath = "api/v1/account/manage/2fa";
 
-    [Fact]
-    public async Task Enrollment_Login_RecoveryRotation_AndRemoval_UseIdentity()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Enrollment_Login_RecoveryRotation_AndRemoval_UseIdentity(bool verificationEnabled)
     {
-        await using var factory = CreateFactory();
-        var email = await CreateUserAsync(factory);
+        await using var factory = CreateFactory(verificationEnabled);
+        var email = await CreateUserAsync(factory, emailConfirmed: verificationEnabled);
         using var client = factory.CreateClient();
         var tokens = await LoginAsync(client, email);
         Authorize(client, tokens);
@@ -69,11 +71,13 @@ public sealed class AuthenticatorMfaTests
         await LoginAsync(client, email);
     }
 
-    [Fact]
-    public async Task InvalidAuthenticatorCodes_TriggerAccountLockout()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task InvalidAuthenticatorCodes_TriggerAccountLockout(bool verificationEnabled)
     {
-        await using var factory = CreateFactory();
-        var email = await CreateUserAsync(factory);
+        await using var factory = CreateFactory(verificationEnabled);
+        var email = await CreateUserAsync(factory, emailConfirmed: verificationEnabled);
         using var client = factory.CreateClient();
         Authorize(client, await LoginAsync(client, email));
         var setup = await ManageAsync(client, new { });
@@ -88,32 +92,27 @@ public sealed class AuthenticatorMfaTests
     }
 
     [Fact]
-    public async Task DisabledVerification_BypassesMfaWithoutChangingEnrollment_AndRetainsLockout()
+    public async Task DisabledEmailVerification_RetainsPasswordLockout()
     {
         await using var factory = CreateFactory(verificationEnabled: false);
-        var email = await CreateUserAsync(factory);
-        await using (var scope = factory.Services.CreateAsyncScope())
-        {
-            var users = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
-            Assert.True((await users.SetTwoFactorEnabledAsync((await users.FindByEmailAsync(email))!, true)).Succeeded);
-        }
+        var email = await CreateUserAsync(factory, emailConfirmed: false);
         using var client = factory.CreateClient();
-        Authorize(client, await LoginAsync(client, email));
-        var status = await client.GetFromJsonAsync<MfaStatusResponse>("api/v1/account/mfa");
-        Assert.True(status!.Enabled);
-        Assert.False(status.IsAvailable);
-        Assert.Equal(HttpStatusCode.NotFound, (await client.PostAsJsonAsync(ManagementPath, new { enable = false })).StatusCode);
-        client.DefaultRequestHeaders.Authorization = null;
+        await LoginAsync(client, email);
         for (var attempt = 0; attempt < 3; attempt++)
-            Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostAsJsonAsync(LoginPath, new { email, password = "wrong" })).StatusCode);
-        Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostAsJsonAsync(LoginPath, new { email, password = Password })).StatusCode);
+            Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostAsJsonAsync(LoginPath,
+                new { email, password = "wrong" })).StatusCode);
+        var locked = await client.PostAsJsonAsync(LoginPath, new { email, password = Password });
+        Assert.Equal(HttpStatusCode.Unauthorized, locked.StatusCode);
+        Assert.Equal("LockedOut", (await locked.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("detail").GetString());
     }
 
-    [Fact]
-    public async Task PasswordReset_DoesNotBypassAuthenticatorMfa()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task PasswordReset_DoesNotBypassAuthenticatorMfa(bool verificationEnabled)
     {
-        await using var factory = CreateFactory();
-        var email = await CreateUserAsync(factory);
+        await using var factory = CreateFactory(verificationEnabled);
+        var email = await CreateUserAsync(factory, emailConfirmed: verificationEnabled);
         using var client = factory.CreateClient();
         Authorize(client, await LoginAsync(client, email));
         var setup = await ManageAsync(client, new { resetSharedKey = true });
@@ -134,10 +133,12 @@ public sealed class AuthenticatorMfaTests
             new { email, password = newPassword, twoFactorCode = Code(setup.SharedKey) })).EnsureSuccessStatusCode();
     }
 
-    [Fact]
-    public async Task Management_RequiresAnAuthenticatedSession()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Management_RequiresAnAuthenticatedSession(bool verificationEnabled)
     {
-        await using var factory = CreateFactory();
+        await using var factory = CreateFactory(verificationEnabled);
         using var client = factory.CreateClient();
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostAsJsonAsync(ManagementPath, new { enable = false })).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("api/v1/account/mfa")).StatusCode);
@@ -147,14 +148,14 @@ public sealed class AuthenticatorMfaTests
         new CustomWebApplicationFactory<Program>().WithWebHostBuilder(builder =>
             builder.UseSetting("Authentication:VerificationEnabled", verificationEnabled.ToString()));
 
-    private static async Task<string> CreateUserAsync(WebApplicationFactory<Program> factory)
+    private static async Task<string> CreateUserAsync(WebApplicationFactory<Program> factory, bool emailConfirmed)
     {
         await using var scope = factory.Services.CreateAsyncScope();
         var users = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
         var email = $"mfa-{Guid.NewGuid():N}@example.com";
         Assert.True((await users.CreateAsync(new AppUser
         {
-            Email = email, UserName = email, EmailConfirmed = true, LockoutEnabled = true
+            Email = email, UserName = email, EmailConfirmed = emailConfirmed, LockoutEnabled = true
         }, Password)).Succeeded);
         return email;
     }

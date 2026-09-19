@@ -23,9 +23,11 @@ Both API hosts use one `Authentication` section for account security policies:
 }
 ```
 
-`VerificationEnabled=false` bypasses email-confirmation and MFA enforcement together,
-without changing enrollment. Password validation and lockout remain active.
-Development and Docker configurations disable verification; production enables it.
+`VerificationEnabled` controls only email confirmation: `false` allows sign-in without
+a confirmed email. Authenticator MFA is always available and enforced for enrolled
+users, regardless of this setting. Password validation and lockout remain active.
+The open-source Development and Docker configurations disable email verification;
+production and business Development enable it.
 When verification is enabled for an existing unconfirmed session, the UI signs the
 user out and redirects to Sign in with an error toast explaining that email
 verification is required. Users can request another verification email from Sign in.

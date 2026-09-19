@@ -14,7 +14,7 @@ namespace Click2Approve.WebApi.Controllers;
 [ApiVersion(1.0)]
 [Route("api/v{version:apiVersion}/account/mfa")]
 [Authorize]
-public sealed class MfaController(UserManager<AppUser> users, SignInManager<AppUser> signIn) : ControllerBase
+public sealed class MfaController(UserManager<AppUser> users) : ControllerBase
 {
     /// <summary>
     /// Returns enrollment and deployment availability without changing the security stamp.
@@ -24,6 +24,6 @@ public sealed class MfaController(UserManager<AppUser> users, SignInManager<AppU
     {
         var user = await users.GetUserAsync(User);
         return user is null ? Unauthorized() : Ok(new MfaStatusResponse(
-            await users.GetTwoFactorEnabledAsync(user), signIn.Options.SignIn.RequireConfirmedEmail));
+            await users.GetTwoFactorEnabledAsync(user), IsAvailable: true));
     }
 }
