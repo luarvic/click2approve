@@ -9,13 +9,21 @@ import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { parseUtcDateTime } from "@/shared/utils/dateTime";
 import type { SxProps, Theme } from "@mui/material";
 import { Box, CardContent, Grid, Stack, Typography, useTheme } from "@mui/material";
-import { PieChart } from "@mui/x-charts/PieChart";
+import { yellow } from "@mui/material/colors";
+import { BarChart } from "@mui/x-charts/BarChart";
 import prettyBytes from "pretty-bytes";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
-const usageChartHeight = 200;
-const usageChartMargin = { bottom: 5, left: 5, right: 5, top: 5 };
+const usageChartHeight = 40;
+const usageChartSx: SxProps<Theme> = {
+  // Clip the entire stack so adjoining segments retain straight edges.
+  "& > g[clip-path]": { clipPath: "inset(0 round 4px) fill-box" },
+};
+const usageGridSpacing = 2;
+const lowQuotaThreshold = 0.25;
+const criticalQuotaThreshold = 0.1;
+const usageChartMargin = { bottom: 2.5, left: 0, right: 0, top: 2.5 };
 const bytesPerGigabyte = 1000 * 1000 * 1000;
 const usageLegendMarkerSize = 16;
 const usageLegendSpacing = 1;
@@ -23,7 +31,7 @@ const usageLegendSx: SxProps<Theme> = { mt: 0 };
 const usageSummarySx: SxProps<Theme> = { mt: 1 };
 const usageLegendMarkerSx = (color: string): SxProps<Theme> => ({
   backgroundColor: color,
-  borderRadius: "50%",
+  borderRadius: 0.5,
   height: usageLegendMarkerSize,
   width: usageLegendMarkerSize,
 });
@@ -81,7 +89,9 @@ const SubscriptionUsagePage = () => {
   if (!usage || !usageHasLoaded) return null;
   const usageChartColors = {
     available: theme.palette.mode === "dark" ? theme.palette.grey[800] : "#D5DEE2",
-    used: "#22c55e",
+    healthy: theme.palette.success.main,
+    low: yellow[700],
+    critical: theme.palette.error.main,
   };
   const items = [
     {
@@ -116,10 +126,17 @@ const SubscriptionUsagePage = () => {
         ]}
         subtitle={getBillingPeriodSubtitle(usage.usagePeriodStartsAt, usage.usagePeriodEndsAt)}
       />
-      <Grid container spacing={2}>
+      <Grid container spacing={usageGridSpacing}>
         {items.map((item) => {
           const limit = item.limit || Math.max(item.used, 1);
           const remaining = Math.max(limit - item.used, 0);
+          const remainingRatio = remaining / limit;
+          const usedColor =
+            remainingRatio < criticalQuotaThreshold
+              ? usageChartColors.critical
+              : remainingRatio <= lowQuotaThreshold
+                ? usageChartColors.low
+                : usageChartColors.healthy;
           const format = (value: number) => (item.suffix ? prettyBytes(value) : value.toLocaleString());
           return (
             <Grid item key={item.label} md={4} xs={12}>
@@ -128,27 +145,29 @@ const SubscriptionUsagePage = () => {
                   <Typography color="text.primary" component="h2" variant="h6">
                     {item.label}
                   </Typography>
-                  <PieChart
+                  <BarChart
+                    aria-label={`${item.label}: ${format(item.used)} used, ${format(remaining)} available`}
+                    axisHighlight={{ y: "none" }}
+                    bottomAxis={null}
                     height={usageChartHeight}
+                    layout="horizontal"
+                    leftAxis={null}
                     margin={usageChartMargin}
                     series={[
-                      {
-                        data: [
-                          { color: usageChartColors.used, id: 0, label: "Used", value: item.used },
-                          { color: usageChartColors.available, id: 1, label: "Available", value: remaining },
-                        ],
-                      },
+                      { color: usedColor, data: [item.used], label: "Used", stack: "quota" },
+                      { color: usageChartColors.available, data: [remaining], label: "Available", stack: "quota" },
                     ]}
                     slotProps={{
-                      legend: {
-                        hidden: true,
-                      },
+                      legend: { hidden: true },
                     }}
+                    sx={usageChartSx}
                     tooltip={{ trigger: "none" }}
+                    xAxis={[{ min: 0, max: Math.max(limit, item.used) }]}
+                    yAxis={[{ data: [item.label], scaleType: "band" }]}
                   />
                   <Stack direction="row" justifyContent="flex-start" spacing={usageLegendSpacing} sx={usageLegendSx}>
                     {[
-                      { color: usageChartColors.used, label: "Used" },
+                      { color: usedColor, label: "Used" },
                       { color: usageChartColors.available, label: "Available" },
                     ].map((legendItem) => (
                       <Stack alignItems="center" direction="row" key={legendItem.label} spacing={usageLegendSpacing}>
@@ -159,6 +178,9 @@ const SubscriptionUsagePage = () => {
                   </Stack>
                   <Typography sx={usageSummarySx}>
                     {item.limit ? `${format(item.used)} of ${format(item.limit)}` : `${format(item.used)} used`}
+                  </Typography>
+                  <Typography color="text.secondary" variant="body2">
+                    {format(remaining)} available
                   </Typography>
                 </CardContent>
               </AppCard>
