@@ -134,7 +134,7 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             .HasIndex(t => t.BusinessName);
 
         modelBuilder.Entity<Tenant>()
-            .HasIndex(t => new { t.ScheduledForDeletionAt, t.DeletionPublishedAt });
+            .HasIndex(t => new { t.DeletionPublishedAt, t.ScheduledForDeletionAt });
 
         modelBuilder.Entity<ApprovalRequest>()
             .Property(r => r.Status)
@@ -144,7 +144,7 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             .HasIndex(r => new { r.TenantId, r.Status, r.Result });
 
         modelBuilder.Entity<ApprovalRequest>()
-            .HasIndex(r => new { r.ScheduledForDeletionAt, r.DeletionPublishedAt });
+            .HasIndex(r => new { r.DeletionPublishedAt, r.ScheduledForDeletionAt });
 
         modelBuilder.Entity<ApprovalRequest>()
             .Property(r => r.RevisionNumber)
@@ -167,7 +167,8 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequest>()
-            .HasIndex(r => new { r.TenantId, r.RequesterUserId, r.CreatedAt });
+            .HasIndex(r => new { r.TenantId, r.RequesterUserId, r.CreatedAt, r.GlobalId })
+            .IsDescending(false, false, true, false);
 
         modelBuilder.Entity<ApprovalRequest>()
             .HasIndex(r => r.PreviousRevisionApprovalRequestId)
@@ -322,6 +323,10 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             .HasIndex(t => new { t.TenantId, t.AssigneeUserId, t.Status });
 
         modelBuilder.Entity<ApprovalRequestTask>()
+            .HasIndex(t => new { t.TenantId, t.AssigneeUserId, t.CreatedAt, t.GlobalId })
+            .IsDescending(false, false, true, false);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
             .HasOne(t => t.AssigneeUser)
             .WithMany()
             .HasForeignKey(t => t.AssigneeUserId)
@@ -361,7 +366,7 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             .HasIndex(f => new { f.TenantId, f.OwnerId });
 
         modelBuilder.Entity<UserFile>()
-            .HasIndex(f => new { f.ScheduledForDeletionAt, f.DeletionPublishedAt });
+            .HasIndex(f => new { f.DeletionPublishedAt, f.ScheduledForDeletionAt });
 
         modelBuilder.Entity<UserFile>()
             .Property(file => file.StorageType)
@@ -430,6 +435,15 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             .IsUnique();
         modelBuilder.Entity<InAppNotification>()
             .HasIndex(notification => new { notification.UserId, notification.TenantId, notification.ReadAt });
+        modelBuilder.Entity<InAppNotification>()
+            .HasIndex(notification => new
+            {
+                notification.UserId,
+                notification.TenantId,
+                notification.OccurredAt,
+                notification.GlobalId
+            })
+            .IsDescending(false, false, true, false);
     }
 
     /// <inheritdoc />
