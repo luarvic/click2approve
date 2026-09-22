@@ -1,7 +1,8 @@
 import { stores } from "@/app/rootStore";
 import ApprovalRequestActionBar from "@/features/approvalRequests/components/ApprovalRequestActionBar";
 import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
-import { createReceiptLink, deleteReceipt, deleteReceiptLink, getReceipt } from "@/features/receipts/api/receiptsApi";
+import { deleteReceipt, getReceipt } from "@/features/receipts/api/receiptsApi";
+import ReceiptLinksGrid from "@/features/receipts/components/ReceiptLinksGrid";
 import ReceiptView from "@/features/receipts/components/ReceiptView";
 import type { Receipt } from "@/features/receipts/models/receipt";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
@@ -9,6 +10,7 @@ import { Forms } from "@/shared/components/dialogs/formStyles";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { Routes } from "@/shared/routing/routes";
@@ -16,8 +18,8 @@ import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
 } from "@/shared/utils/persistenceNotifications";
-import { Button, Link, List, ListItem, Stack, Tab, Tabs, Typography } from "@mui/material";
-import { useCallback, useEffect, useState } from "react";
+import { Button, Stack, Tab, Tabs } from "@mui/material";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 interface ReceiptPageProps {
@@ -32,16 +34,22 @@ const ReceiptPage: React.FC<ReceiptPageProps> = ({ tab = "request" }) => {
   const [receipt, setReceipt] = useState<Receipt | null | undefined>(undefined);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const receiptsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/receipts") : "/";
-  const reload = useCallback(() => {
-    if (tenantGlobalId && receiptGlobalId) void getReceipt(tenantGlobalId, receiptGlobalId).then(setReceipt);
-  }, [receiptGlobalId, tenantGlobalId]);
-
   useEffect(() => {
-    reload();
-  }, [reload]);
+    let active = true;
+    setReceipt(undefined);
+    if (tenantGlobalId && receiptGlobalId) {
+      void getReceipt(tenantGlobalId, receiptGlobalId).then((value) => {
+        if (active) setReceipt(value);
+      });
+    }
+    return () => {
+      active = false;
+    };
+  }, [receiptGlobalId, tenantGlobalId]);
 
   if (receipt === null) return <NotFoundPage />;
   if (!receipt || !receiptGlobalId) return null;
+  if (tab === "share" && !receipt.canManageLinks) return <NotFoundPage />;
 
   const handleClose = () => {
     navigate(receiptsPath, {
@@ -70,7 +78,12 @@ const ReceiptPage: React.FC<ReceiptPageProps> = ({ tab = "request" }) => {
               state: { currentReceiptGlobalId: receipt.globalId },
               to: receiptsPath,
             },
-            { label: receipt.approvalRequestTitle },
+            {
+              label: receipt.approvalRequestTitle,
+              titleAction: (
+                <HelpPopover helpText="Manage verification links for your own receipts in Personal. In organizations, only owners and admins can manage links." />
+              ),
+            },
           ]}
         />
         <Tabs
@@ -80,58 +93,29 @@ const ReceiptPage: React.FC<ReceiptPageProps> = ({ tab = "request" }) => {
           }
         >
           <Tab label="Receipt" value="request" />
-          <Tab label="Share" value="share" />
+          {receipt.canManageLinks && <Tab label="Share" value="share" />}
         </Tabs>
         {tab === "request" && (
           <Stack sx={Forms.tabContentSx}>
             <ReceiptView receipt={receipt} />
             <ApprovalRequestActionBar onClose={handleClose}>
-              <Button color="error" variant="outlined" onClick={() => setDeleteDialogIsOpen(true)}>
-                Delete
-              </Button>
+              {receipt.canDelete && (
+                <Button color="error" variant="outlined" onClick={() => setDeleteDialogIsOpen(true)}>
+                  Delete
+                </Button>
+              )}
             </ApprovalRequestActionBar>
           </Stack>
         )}
         {tab === "share" && (
-          <>
-            <Button
-              onClick={() => {
-                if (tenantGlobalId && receiptGlobalId) {
-                  void createReceiptLink(tenantGlobalId, receiptGlobalId).then(reload);
-                }
-              }}
-            >
-              Create link
-            </Button>
-            <List>
-              {receipt.links.map((link) => (
-                <ListItem
-                  key={link.globalId}
-                  secondaryAction={
-                    <Button
-                      onClick={() => {
-                        if (tenantGlobalId && receiptGlobalId) {
-                          void deleteReceiptLink(tenantGlobalId, receiptGlobalId, link.globalId).then(reload);
-                        }
-                      }}
-                    >
-                      Delete
-                    </Button>
-                  }
-                >
-                  <Link
-                    href={`${window.location.origin}/app/receipt-verification/${link.globalId}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {link.globalId}
-                  </Link>
-                </ListItem>
-              ))}
-              {receipt.links.length === 0 && <Typography color="text.secondary">No receipt links.</Typography>}
-            </List>
+          <Stack sx={Forms.tabContentSx}>
+            <ReceiptLinksGrid
+              key={`${tenantGlobalId}:${receiptGlobalId}`}
+              tenantGlobalId={tenantGlobalId!}
+              receiptGlobalId={receiptGlobalId}
+            />
             <ApprovalRequestActionBar onClose={handleClose} />
-          </>
+          </Stack>
         )}
         <DeleteConfirmationDialog
           entityName={receipt.approvalRequestTitle}

@@ -70,6 +70,7 @@ const MainAppBar = ({
     <PublicAppBar
       homePath={currentUser ? tasksPath : Routes.defaultPath}
       showBrand={!mainMenuDrawerIsVisible}
+      showBrandTitle={!showMainMenuButton}
       startContent={
         currentUser &&
         showMainMenuButton && (

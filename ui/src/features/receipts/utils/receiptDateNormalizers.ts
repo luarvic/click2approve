@@ -11,6 +11,7 @@ export const normalizeReceiptDates = (receipt: Receipt): Receipt => ({
   createdAt: parseUtcDateTime(receipt.createdAt as unknown as string),
   links: receipt.links.map((link) => ({
     ...link,
+    expiresAt: parseUtcDateTime(link.expiresAt as unknown as string),
     createdAt: parseUtcDateTime(link.createdAt as unknown as string),
   })),
   participants: receipt.participants.map((participant) => ({

@@ -6,6 +6,8 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 const receipt: Receipt = {
+  canDelete: true,
+  canManageLinks: false,
   approvalRequestCreatedAt: new Date("2026-08-20T12:00:00Z"),
   approvalRequestGlobalId: "request-id",
   approvalRequestStatus: ApprovalRequestStatus.Completed,

@@ -1,10 +1,10 @@
 import type { Receipt, ReceiptListItem } from "@/features/receipts/models/receipt";
-import { type ReceiptGridQuery, serializeReceiptGridQuery } from "@/features/receipts/models/receiptGridQuery";
+import { serializeReceiptGridQuery, type ReceiptGridQuery } from "@/features/receipts/models/receiptGridQuery";
 import { normalizeReceiptDates } from "@/features/receipts/utils/receiptDateNormalizers";
-import axios from "@/shared/api/axios";
 import { ApiPaths } from "@/shared/api/apiPaths";
+import axios from "@/shared/api/axios";
 import type { GridPage } from "@/shared/grids/gridPage";
-import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
+import { getApiErrorNotification, isResourceNotFoundOrForbiddenError } from "@/shared/utils/apiErrorNotifications";
 import { parseUtcDateTime } from "@/shared/utils/dateTime";
 import { notification } from "@/shared/utils/notifications";
 
@@ -44,16 +44,20 @@ export const getReceipt = async (tenantGlobalId: string, receiptGlobalId: string
     const { data } = await axios.get<Receipt>(ApiPaths.tenants.receipt(tenantGlobalId, receiptGlobalId), config);
     return normalizeReceiptDates(data);
   } catch (error) {
-    notification.error(getApiErrorNotification(error));
+    if (!isResourceNotFoundOrForbiddenError(error)) notification.error(getApiErrorNotification(error));
     return null;
   }
 };
 
-export const createReceiptLink = async (tenantGlobalId: string, receiptGlobalId: string): Promise<string | null> => {
+export const createReceiptLink = async (
+  tenantGlobalId: string,
+  receiptGlobalId: string,
+  expiresAt: Date,
+): Promise<string | null> => {
   try {
     const { data } = await axios.post<string>(
       ApiPaths.tenants.receiptLinks(tenantGlobalId, receiptGlobalId),
-      undefined,
+      { expiresAt: expiresAt.toISOString() },
       config,
     );
     return data;

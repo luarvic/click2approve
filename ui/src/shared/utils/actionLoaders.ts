@@ -200,6 +200,8 @@ export const ActionLoaders = {
     tenants: () => ActionLoaderScopes.gridsTenants,
   },
   receiptLinks: {
+    create: (receiptGlobalId: string) => createActionLoaderKey("receiptLinks.create", receiptGlobalId),
+    load: (receiptGlobalId: string) => createActionLoaderKey("receiptLinks.load", receiptGlobalId),
     createForRequest: (approvalRequestGlobalId: string | undefined) =>
       createActionLoaderKey(ActionLoaderScopes.receiptLinksCreateForRequest, approvalRequestGlobalId),
     createForTask: (approvalRequestTaskGlobalId: string | undefined) =>

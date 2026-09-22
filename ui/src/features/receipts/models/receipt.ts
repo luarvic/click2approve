@@ -2,6 +2,8 @@ import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approv
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 
 export interface Receipt {
+  canDelete: boolean;
+  canManageLinks: boolean;
   globalId: string;
   approvalRequestGlobalId: string;
   approvalRequestTitle: string;
@@ -77,6 +79,7 @@ export enum ReceiptParticipantRole {
 }
 
 export interface ReceiptLink {
+  expiresAt: Date;
   globalId: string;
   createdAt: Date;
 }
