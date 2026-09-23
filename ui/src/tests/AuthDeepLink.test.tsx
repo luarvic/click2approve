@@ -71,6 +71,7 @@ const renderFlow = (initialEntry = destination) => {
           {
             element: <RouteGuard />,
             children: [
+              { path: "/", element: <p>Home</p> },
               {
                 path: "/tenants/:tenantGlobalId/tasks/:taskGlobalId",
                 element: <p>Task detail</p>,
@@ -91,7 +92,6 @@ const renderFlow = (initialEntry = destination) => {
           { path: "/confirmationEmailSent", element: <ConfirmationEmailSentPage /> },
           { path: "/passwordResetEmailSent", element: <PasswordResetEmailSentPage /> },
           { path: "/forgotPassword", element: <ForgotPasswordPage /> },
-          { path: "/", element: <p>Home</p> },
         ],
       },
     ],
@@ -112,8 +112,9 @@ const authenticate = async () => {
 
 beforeEach(() => {
   localStorage.clear();
-  vi.mocked(stores.userAccountStore.signOut).mockImplementation(() => {
+  vi.mocked(stores.userAccountStore.signOut).mockImplementation((isManual = false) => {
     runInAction(() => {
+      stores.userAccountStore.isManualSignOut = isManual;
       stores.userAccountStore.currentUser = null;
     });
   });
@@ -151,6 +152,36 @@ test.each(["password", "passkey"])("opens the original task after %s sign-in", a
   expect(`${router.state.location.pathname}${router.state.location.search}${router.state.location.hash}`).toBe(
     destination,
   );
+  expect(localStorage.getItem("authenticationReturnUrl")).toBeNull();
+});
+
+test.each(["/", "/signIn"])("ordinary entry at %s keeps authentication links free of return URLs", async (entry) => {
+  const router = renderFlow(entry);
+  await screen.findByRole("heading", { name: "Sign in" });
+  expect(router.state.location.search).toBe("");
+  fireEvent.click(screen.getByRole("button", { name: "Sign up" }));
+  await screen.findByRole("heading", { name: "Sign up" });
+  expect(router.state.location.search).toBe("");
+  fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+  await screen.findByRole("heading", { name: "Sign in" });
+  expect(router.state.location.search).toBe("");
+  expect(localStorage.getItem("authenticationReturnUrl")).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Sign in with a passkey" }));
+  await screen.findByText("Home");
+});
+
+test("opening a protected link while authenticated does not save a return destination", async () => {
+  await authenticate();
+  renderFlow();
+  await screen.findByText("Task detail");
+  expect(localStorage.getItem("authenticationReturnUrl")).toBeNull();
+});
+
+test("authenticated result pages do not recreate a pending destination from their query", async () => {
+  await authenticate();
+  renderFlow(`/confirmationEmailSent?returnUrl=${encodeURIComponent(destination)}`);
+  await screen.findByRole("heading", { name: "Verify your email" });
+  expect(localStorage.getItem("authenticationReturnUrl")).toBeNull();
 });
 
 test("offers to resend verification email only after an unconfirmed email sign-in attempt", async () => {
@@ -320,8 +351,8 @@ test.each([destination, "/confirmationEmailSent", "/passwordResetEmailSent"])(
     expect(toast).toHaveBeenCalledWith(
       "You’ve been signed out because your email address must be verified. Verify your email before signing in again.",
     );
-    if (entry === destination)
-      expect(new URLSearchParams(router.state.location.search).get("returnUrl")).toBe(destination);
+    expect(router.state.location.search).toBe("");
+    expect(localStorage.getItem("authenticationReturnUrl")).toBeNull();
     expect(screen.queryByRole("button", { name: "Resend verification email" })).toBeNull();
     toast.mockRestore();
   },

@@ -30,6 +30,7 @@ export const validateReturnUrl = (value: unknown): string | null => {
     const pathname = decodeURIComponent(url.pathname);
     if (
       pathname.startsWith("//") ||
+      pathname === Routes.defaultPath ||
       url.origin !== window.location.origin ||
       publicPaths.has(pathname.replace(/\/+$/, "").toLowerCase())
     )

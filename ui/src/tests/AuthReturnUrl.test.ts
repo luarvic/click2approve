@@ -21,6 +21,9 @@ describe("authentication return destinations", () => {
   });
 
   test.each([
+    "/",
+    "/?source=home",
+    "/a/..",
     "/a/..//evil.example",
     "/a/../%2fevil.example",
     "https://evil.example/path",
@@ -67,5 +70,12 @@ describe("authentication return destinations", () => {
     rememberReturnUrl(destination);
     vi.mocked(Date.now).mockReturnValue(now + 24 * 60 * 60 * 1000 + 1);
     expect(getAuthReturnUrl("")).toBe("/");
+  });
+
+  test("does not propagate or save the default destination", () => {
+    expect(authPath("/signIn", getAuthReturnUrl(""))).toBe("/signIn");
+    rememberReturnUrl(destination);
+    rememberReturnUrl("/");
+    expect(getAuthReturnUrl("")).toBe(destination);
   });
 });

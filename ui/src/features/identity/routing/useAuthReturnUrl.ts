@@ -1,3 +1,4 @@
+import { stores } from "@/app/rootStore";
 import { getAuthReturnUrl, rememberReturnUrl } from "@/features/identity/routing/returnUrl";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
@@ -6,8 +7,9 @@ import { useLocation } from "react-router-dom";
 export const useAuthReturnUrl = (): string => {
   const { search } = useLocation();
   const returnUrl = getAuthReturnUrl(search);
+  const user = stores.userAccountStore.currentUser;
   useEffect(() => {
-    if (new URLSearchParams(search).has("returnUrl")) rememberReturnUrl(returnUrl);
-  }, [returnUrl, search]);
+    if (user === null && new URLSearchParams(search).has("returnUrl")) rememberReturnUrl(returnUrl);
+  }, [returnUrl, search, user]);
   return returnUrl;
 };

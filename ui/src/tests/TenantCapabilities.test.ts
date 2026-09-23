@@ -31,6 +31,29 @@ const createTenant = (type: TenantType, currentEmployeeRole?: EmployeeRole): Ten
 });
 
 describe("getTenantCapabilities", () => {
+  test.each([
+    [TenantType.Business, EmployeeRole.Owner, true],
+    [TenantType.Business, EmployeeRole.Admin, true],
+    [TenantType.Business, EmployeeRole.User, false],
+    [TenantType.Business, undefined, false],
+    [TenantType.Personal, undefined, true],
+  ])("receipt access for tenant %s and role %s is %s", (type, role, expected) => {
+    expect(getTenantCapabilities(applicationConfiguration, createTenant(type, role)).canViewReceipts).toBe(expected);
+  });
+
+  test("hides receipts without an active tenant or backend support", () => {
+    expect(getTenantCapabilities(applicationConfiguration, null).canViewReceipts).toBe(false);
+    expect(getTenantCapabilities(null, createTenant(TenantType.Personal)).canViewReceipts).toBe(false);
+    const configuration = {
+      ...applicationConfiguration,
+      capabilities: { ...applicationConfiguration.capabilities, receipts: false },
+    };
+    expect(
+      getTenantCapabilities(configuration, createTenant(TenantType.Business, EmployeeRole.Owner)).canViewReceipts,
+    ).toBe(false);
+    expect(getTenantCapabilities(configuration, createTenant(TenantType.Personal)).canViewReceipts).toBe(false);
+  });
+
   test("allows business members to view employee and team records without granting management access", () => {
     const capabilities = getTenantCapabilities(
       applicationConfiguration,

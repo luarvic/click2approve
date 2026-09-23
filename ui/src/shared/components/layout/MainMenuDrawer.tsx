@@ -1,5 +1,6 @@
 import { stores } from "@/app/rootStore";
 import { TenantType } from "@/features/tenants/models/tenant";
+import { getTenantCapabilities } from "@/features/tenants/utils/tenantCapabilities";
 import { Shell } from "@/shared/components/layout/shellStyles";
 import { Lists } from "@/shared/components/lists/listStyles";
 import { Api, Refresh } from "@/shared/config/application";
@@ -66,7 +67,10 @@ const MainMenuDrawer = () => {
   const currentTenant = stores.tenantStore.currentTenant;
   const currentUser = stores.userAccountStore.currentUser;
   const organizationsIsVisible = stores.applicationConfigurationStore.tenantsAreEnabled;
-  const receiptsIsVisible = stores.applicationConfigurationStore.receiptsAreEnabled;
+  const receiptsIsVisible = getTenantCapabilities(
+    stores.applicationConfigurationStore.applicationConfiguration,
+    currentTenant,
+  ).canViewReceipts;
   const subscriptionsIsVisible = stores.applicationConfigurationStore.subscriptionsAreEnabled;
   const employeeManagerIsVisible =
     stores.applicationConfigurationStore.tenantsAreEnabled &&

@@ -42,9 +42,10 @@ import AnonymousRoute from "@/shared/components/routing/AnonymousRoute";
 import NotFoundRoute from "@/shared/components/routing/NotFoundRoute";
 import RouteGuard from "@/shared/components/routing/RouteGuard";
 import TenantHomeRedirect from "@/shared/components/routing/TenantHomeRedirect";
+import NotFoundPage from "@/shared/pages/NotFoundPage";
 import UserProfilePage from "@/shared/pages/UserProfilePage";
 import { observer } from "mobx-react-lite";
-import { Route, Routes } from "react-router-dom";
+import { Outlet, Route, Routes } from "react-router-dom";
 
 /** The shared route tree, reacting to the active organization's capabilities. */
 const ApplicationRoutes = () => {
@@ -100,9 +101,11 @@ const ApplicationRoutes = () => {
               <Route path="tasks/:taskGlobalId/workflow" element={<ApprovalRequestTaskPage tab="request" />} />
               <Route path="tasks/:taskGlobalId/chat" element={<ApprovalRequestTaskPage tab="chat" />} />
               <Route path="requests" element={<RequestsPage />} />
-              <Route path="receipts" element={<ReceiptsPage />} />
-              <Route path="receipts/:receiptGlobalId" element={<ReceiptPage />} />
-              <Route path="receipts/:receiptGlobalId/share" element={<ReceiptPage tab="share" />} />
+              <Route element={capabilities.canViewReceipts ? <Outlet /> : <NotFoundPage />}>
+                <Route path="receipts" element={<ReceiptsPage />} />
+                <Route path="receipts/:receiptGlobalId" element={<ReceiptPage />} />
+                <Route path="receipts/:receiptGlobalId/share" element={<ReceiptPage tab="share" />} />
+              </Route>
               <Route element={<RouteGuard isAllowed={stores.applicationConfigurationStore.subscriptionsAreEnabled} />}>
                 <Route path="plans" element={<SubscriptionPlansPage />} />
                 <Route path="retention" element={<SubscriptionRetentionPage />} />

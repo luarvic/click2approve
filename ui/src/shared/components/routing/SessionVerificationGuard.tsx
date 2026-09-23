@@ -1,10 +1,5 @@
 import { stores } from "@/app/rootStore";
-import {
-  authPath,
-  getAuthReturnUrl,
-  rememberReturnUrl,
-  validateReturnUrl,
-} from "@/features/identity/routing/returnUrl";
+import { authPath, getAuthReturnUrl } from "@/features/identity/routing/returnUrl";
 import { notification } from "@/shared/utils/notifications";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
@@ -20,10 +15,8 @@ const SessionVerificationGuard = () => {
 
   useEffect(() => {
     if (!needsVerification || !stores.userAccountStore.currentUser) return;
-    const destination =
-      validateReturnUrl(`${location.pathname}${location.search}${location.hash}`) ?? getAuthReturnUrl(location.search);
-    rememberReturnUrl(destination);
-    stores.userAccountStore.signOut();
+    const destination = getAuthReturnUrl(location.search);
+    stores.userAccountStore.signOut(true);
     notification.error(
       "You’ve been signed out because your email address must be verified. Verify your email before signing in again.",
     );

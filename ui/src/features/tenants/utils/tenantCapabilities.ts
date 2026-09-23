@@ -7,6 +7,7 @@ export interface TenantCapabilities {
   canManageTeams: boolean;
   canViewDelegations: boolean;
   canViewEmployees: boolean;
+  canViewReceipts: boolean;
   canViewTemplates: boolean;
   canViewTeams: boolean;
 }
@@ -26,6 +27,8 @@ export const getTenantCapabilities = (
     canManageTeams: Boolean(applicationConfiguration?.capabilities.teamAssignees) && canManage,
     canViewDelegations: isBusinessMember,
     canViewEmployees: Boolean(applicationConfiguration?.capabilities.employeeAssignees) && isBusinessMember,
+    canViewReceipts:
+      Boolean(applicationConfiguration?.capabilities.receipts) && (tenant?.type === TenantType.Personal || canManage),
     canViewTemplates: Boolean(applicationConfiguration?.capabilities.approvalStepTemplates) && isBusinessMember,
     canViewTeams: Boolean(applicationConfiguration?.capabilities.teamAssignees) && isBusinessMember,
   };
