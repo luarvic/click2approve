@@ -1,5 +1,6 @@
 using Click2Approve.Application.Abstractions.Services.Tenants;
 using Click2Approve.Domain.Models;
+using Click2Approve.WebApi.Auditing;
 using Microsoft.AspNetCore.Identity;
 
 namespace Click2Approve.WebApi.Middlewares;
@@ -25,6 +26,7 @@ public abstract class InitialTenantSetupMiddlewareBase(RequestDelegate next)
 
         var user = await userManager.GetUserAsync(context.User)
             ?? throw new UnauthorizedAccessException("User not found.");
+        context.Items[typeof(HttpAuditContext)] = user.Id;
         if (!user.HasLoggedIn && CanRunInitialSetup(userManager, user))
         {
             await tenantService.InitializeUserAsync(user, context.RequestAborted);

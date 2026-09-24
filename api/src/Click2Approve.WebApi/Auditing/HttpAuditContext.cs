@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Click2Approve.Application.Abstractions.Auditing;
 
 namespace Click2Approve.WebApi.Auditing;
@@ -12,12 +11,5 @@ public sealed class HttpAuditContext(IHttpContextAccessor httpContextAccessor) :
     public bool IsEnabled => true;
 
     /// <inheritdoc />
-    public long? UserId
-    {
-        get
-        {
-            var userIdClaim = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return long.TryParse(userIdClaim, out var userId) ? userId : null;
-        }
-    }
+    public long? UserId => httpContextAccessor.HttpContext?.Items[typeof(HttpAuditContext)] as long?;
 }

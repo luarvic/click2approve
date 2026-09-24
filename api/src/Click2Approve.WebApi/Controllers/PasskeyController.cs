@@ -67,8 +67,8 @@ public class PasskeyController(
             User = new Fido2User
             {
                 DisplayName = user.Email ?? user.UserName ?? "Click2Approve user",
-                Id = Encoding.UTF8.GetBytes(user.Id.ToString()),
-                Name = user.UserName ?? user.Email ?? user.Id.ToString()
+                Id = Encoding.UTF8.GetBytes(user.GlobalId.ToString()),
+                Name = user.UserName ?? user.Email ?? user.GlobalId.ToString()
             },
             ExcludeCredentials = passkeys.Select(passkey => new PublicKeyCredentialDescriptor(passkey.CredentialIdBytes)).ToArray(),
             AuthenticatorSelection = new AuthenticatorSelection
@@ -78,7 +78,7 @@ public class PasskeyController(
             },
             AttestationPreference = AttestationConveyancePreference.None
         });
-        WriteState(new PasskeyCeremonyState { OptionsJson = options.ToJson(), UserId = user.Id.ToString() });
+        WriteState(new PasskeyCeremonyState { OptionsJson = options.ToJson(), UserId = user.GlobalId.ToString() });
         return Ok(options);
     }
 
@@ -93,7 +93,7 @@ public class PasskeyController(
     {
         var state = ReadState();
         var user = await _userManager.GetAppUserAsync(User);
-        if (state.UserId != user.Id.ToString())
+        if (state.UserId != user.GlobalId.ToString())
         {
             return Unauthorized();
         }
@@ -181,7 +181,7 @@ public class PasskeyController(
             StoredSignatureCounter = storedPasskey.SignCount,
             IsUserHandleOwnerOfCredentialIdCallback = (parameters, _) => Task.FromResult(
                 parameters.CredentialId.SequenceEqual(response.RawId) &&
-                parameters.UserHandle.SequenceEqual(Encoding.UTF8.GetBytes(user.Id.ToString())))
+                parameters.UserHandle.SequenceEqual(Encoding.UTF8.GetBytes(user.GlobalId.ToString())))
         }, cancellationToken);
         storedPasskey.SignCount = result.SignCount;
         storedPasskey.LastUsedAt = DateTimeOffset.UtcNow;
