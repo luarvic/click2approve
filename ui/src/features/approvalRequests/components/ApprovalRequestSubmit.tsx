@@ -20,10 +20,14 @@ import { TenantType } from "@/features/tenants/models/tenant";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { CollectionLimits } from "@/shared/config/collectionLimits";
+import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { useUnsavedChanges } from "@/shared/hooks/useUnsavedChanges";
 import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { textRule } from "@/shared/utils/formValidation";
 import { notification } from "@/shared/utils/notifications";
 import {
   PersistenceSuccessMessages,
@@ -167,6 +171,13 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
     setSteps,
   ]);
 
+  const validation = useFormValidation(
+    { title, description },
+    {
+      title: textRule("Title", FieldLimits.name, true),
+      description: textRule("Description", FieldLimits.text),
+    },
+  );
   const formValues = { title, description, steps, existingFiles, newFiles };
   const initialSnapshot = useRef(JSON.stringify(formValues));
   const hasChanges = JSON.stringify(formValues) !== initialSnapshot.current;
@@ -174,13 +185,20 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
   const stepErrors = getStepErrors(steps);
   const titleError =
     (validationAttempted || templateValidationAttempted) && !title.trim() ? "Title is required." : undefined;
-  const filesError =
-    validationAttempted && !newFiles.length && !existingFiles.some((file) => !file.removed)
-      ? "Attach at least one file for approval."
-      : undefined;
+  const filesError = validationAttempted
+    ? existingFiles.length + newFiles.length > CollectionLimits.files
+      ? `At most ${CollectionLimits.files} files are allowed.`
+      : !newFiles.length && !existingFiles.some((file) => !file.removed)
+        ? "Attach at least one file for approval."
+        : undefined
+    : undefined;
   const stepsError =
-    (validationAttempted || templateValidationAttempted) && !steps.length
-      ? "Add at least one approval step."
+    validationAttempted || templateValidationAttempted
+      ? steps.length > CollectionLimits.workflowSteps
+        ? `At most ${CollectionLimits.workflowSteps} approval steps are allowed.`
+        : !steps.length
+          ? "Add at least one approval step."
+          : undefined
       : undefined;
 
   const unsavedChanges = useUnsavedChanges(
@@ -208,7 +226,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
 
   const validateSteps = () => {
     setTemplateValidationAttempted(true);
-    const valid = steps.length > 0 && !stepErrors.some(Boolean);
+    const valid = steps.length > 0 && steps.length <= CollectionLimits.workflowSteps && !stepErrors.some(Boolean);
     if (!valid) {
       notification.warning("Complete the highlighted approval steps.");
       focusFirstError();
@@ -217,11 +235,15 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
   };
 
   const validateDraft = () => {
+    const fieldsValid = validation.validate();
     setValidationAttempted(true);
     const valid =
+      fieldsValid &&
       Boolean(title.trim()) &&
       (newFiles.length > 0 || existingFiles.some((file) => !file.removed)) &&
+      existingFiles.length + newFiles.length <= CollectionLimits.files &&
       steps.length > 0 &&
+      steps.length <= CollectionLimits.workflowSteps &&
       !stepErrors.some(Boolean);
     if (!valid) {
       notification.warning("Complete the highlighted fields before submitting.");
@@ -233,6 +255,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
   const getSubmittedSteps = () => toApprovalStepSubmissions(steps);
 
   const saveTemplate = async () => {
+    if (!validation.validate()) return;
     if (!tenantGlobalId || !canUseTemplates) {
       return;
     }
@@ -248,23 +271,25 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
       return;
     }
 
-    await saveTemplateAction.run(async () => {
-      await stores.approvalStepTemplateStore.load(tenantGlobalId);
-      const payload = {
-        description,
-        name: trimmedTitle,
-        steps: getSubmittedSteps(),
-      };
-      const existingTemplate = stores.approvalStepTemplateStore.templates.find(
-        (template) => template.name.localeCompare(trimmedTitle, undefined, { sensitivity: "base" }) === 0,
-      );
-      const template = existingTemplate
-        ? await stores.approvalStepTemplateStore.update(tenantGlobalId, existingTemplate.globalId, payload)
-        : await stores.approvalStepTemplateStore.create(tenantGlobalId, payload);
-      if (template) {
-        showPersistenceSuccessNotification(PersistenceSuccessMessages.templateSaved);
-      }
-    });
+    await validation.run(() =>
+      saveTemplateAction.run(async () => {
+        await stores.approvalStepTemplateStore.load(tenantGlobalId);
+        const payload = {
+          description,
+          name: trimmedTitle,
+          steps: getSubmittedSteps(),
+        };
+        const existingTemplate = stores.approvalStepTemplateStore.templates.find(
+          (template) => template.name.localeCompare(trimmedTitle, undefined, { sensitivity: "base" }) === 0,
+        );
+        const template = existingTemplate
+          ? await stores.approvalStepTemplateStore.update(tenantGlobalId, existingTemplate.globalId, payload)
+          : await stores.approvalStepTemplateStore.create(tenantGlobalId, payload);
+        if (template) {
+          showPersistenceSuccessNotification(PersistenceSuccessMessages.templateSaved);
+        }
+      }),
+    );
   };
 
   const submit = async () => {
@@ -276,77 +301,79 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
       return;
     }
 
-    await submitAction.run(async () => {
-      const requestFiles: ApprovalRequestFileSubmission[] = [];
+    await validation.run(() =>
+      submitAction.run(async () => {
+        const requestFiles: ApprovalRequestFileSubmission[] = [];
 
-      existingFiles.forEach((file, index) => {
-        if (file.removed) {
+        existingFiles.forEach((file, index) => {
+          if (file.removed) {
+            requestFiles.push({
+              userFileGlobalId: file.file.globalId,
+              sequence: index,
+              revisionAction: ApprovalRequestFileRevisionAction.Removed,
+              previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
+            });
+            return;
+          }
+
+          if (file.replacement) {
+            requestFiles.push({
+              userFileGlobalId: file.replacement.globalId,
+              sequence: index,
+              revisionAction: ApprovalRequestFileRevisionAction.Replaced,
+              previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
+            });
+            return;
+          }
+
           requestFiles.push({
             userFileGlobalId: file.file.globalId,
             sequence: index,
-            revisionAction: ApprovalRequestFileRevisionAction.Removed,
+            revisionAction: isRevision
+              ? ApprovalRequestFileRevisionAction.Unchanged
+              : ApprovalRequestFileRevisionAction.Added,
             previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
           });
-          return;
-        }
+        });
 
-        if (file.replacement) {
+        newFiles.forEach((file, index) => {
           requestFiles.push({
-            userFileGlobalId: file.replacement.globalId,
-            sequence: index,
-            revisionAction: ApprovalRequestFileRevisionAction.Replaced,
-            previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
+            userFileGlobalId: file.globalId,
+            sequence: existingFiles.length + index,
+            revisionAction: ApprovalRequestFileRevisionAction.Added,
           });
-          return;
+        });
+
+        const approvalRequestGlobalId =
+          isRevision && requestToClone
+            ? await resubmitApprovalRequest(
+                tenantGlobalId,
+                requestToClone.globalId,
+                getSubmittedSteps(),
+                description,
+                requestFiles,
+              )
+            : await submitApprovalRequest(
+                tenantGlobalId,
+                trimmedTitle,
+                getSubmittedSteps(),
+                description,
+                undefined,
+                requestFiles,
+              );
+        if (approvalRequestGlobalId) {
+          showPersistenceSuccessNotification(PersistenceSuccessMessages.approvalRequestSubmitted);
+          unsavedChanges.markSaved();
+          onClose(approvalRequestGlobalId);
+          stores.approvalRequestStore.clear();
+          void Promise.all([
+            stores.approvalRequestStore.load(tenantGlobalId),
+            stores.approvalRequestStore.loadDetails(tenantGlobalId, approvalRequestGlobalId),
+          ]).then(([, createdRequest]) => stores.approvalRequestStore.setCurrent(createdRequest ?? null));
+          stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
         }
-
-        requestFiles.push({
-          userFileGlobalId: file.file.globalId,
-          sequence: index,
-          revisionAction: isRevision
-            ? ApprovalRequestFileRevisionAction.Unchanged
-            : ApprovalRequestFileRevisionAction.Added,
-          previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
-        });
-      });
-
-      newFiles.forEach((file, index) => {
-        requestFiles.push({
-          userFileGlobalId: file.globalId,
-          sequence: existingFiles.length + index,
-          revisionAction: ApprovalRequestFileRevisionAction.Added,
-        });
-      });
-
-      const approvalRequestGlobalId =
-        isRevision && requestToClone
-          ? await resubmitApprovalRequest(
-              tenantGlobalId,
-              requestToClone.globalId,
-              getSubmittedSteps(),
-              description,
-              requestFiles,
-            )
-          : await submitApprovalRequest(
-              tenantGlobalId,
-              trimmedTitle,
-              getSubmittedSteps(),
-              description,
-              undefined,
-              requestFiles,
-            );
-      if (approvalRequestGlobalId) {
-        showPersistenceSuccessNotification(PersistenceSuccessMessages.approvalRequestSubmitted);
-        unsavedChanges.markSaved();
-        onClose(approvalRequestGlobalId);
-        stores.approvalRequestStore.clear();
-        void Promise.all([
-          stores.approvalRequestStore.load(tenantGlobalId),
-          stores.approvalRequestStore.loadDetails(tenantGlobalId, approvalRequestGlobalId),
-        ]).then(([, createdRequest]) => stores.approvalRequestStore.setCurrent(createdRequest ?? null));
-        stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
-      }
-    });
+      }),
+    );
   };
 
   const handleSubmit = () => {
@@ -384,7 +411,8 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
       />
       <Box ref={formContainer}>
         <ApprovalRequestSubmitCompose
-          titleError={titleError}
+          titleError={validation.message("title") || titleError}
+          descriptionError={validation.message("description")}
           filesError={filesError}
           stepsError={stepsError}
           stepErrors={validationAttempted || templateValidationAttempted ? stepErrors : undefined}

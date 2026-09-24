@@ -3,7 +3,10 @@ import DiscussionComposer from "@/features/discussions/components/DiscussionComp
 import DiscussionMessageList from "@/features/discussions/components/DiscussionMessageList";
 import { useDiscussionMessages } from "@/features/discussions/hooks/useDiscussionMessages";
 import type { UserFile } from "@/features/userFiles/models/userFile";
+import { FieldLimits } from "@/shared/config/fieldLimits";
+import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { StackSpacing } from "@/shared/theme/tokens";
+import { textRule } from "@/shared/utils/formValidation";
 import { Stack } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import type { Dispatch, SetStateAction } from "react";
@@ -83,13 +86,18 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
     useEffect(() => {
       onSendStateChange?.(isSending);
     }, [isSending, onSendStateChange]);
+    const validation = useFormValidation(
+      { body },
+      { body: textRule("Message", FieldLimits.text, !attachmentsAreEnabled || files.length === 0) },
+    );
     const send = useCallback(async () => {
+      if (!validation.validate()) return;
       const sent = await sendMessage(body, attachmentsAreEnabled ? files : []);
       if (sent) {
         onBodyChange("");
         onFilesChange([]);
       }
-    }, [attachmentsAreEnabled, body, files, onBodyChange, onFilesChange, sendMessage]);
+    }, [attachmentsAreEnabled, body, files, onBodyChange, onFilesChange, sendMessage, validation]);
 
     useImperativeHandle(
       ref,
@@ -115,6 +123,7 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
         />
         {canSend && (
           <DiscussionComposer
+            error={validation.message("body")}
             attachmentsAreEnabled={attachmentsAreEnabled}
             body={body}
             files={files}

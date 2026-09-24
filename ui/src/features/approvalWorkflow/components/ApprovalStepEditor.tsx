@@ -13,6 +13,8 @@ import { EditableApprovalStep } from "@/features/approvalWorkflow/models/editabl
 import { Employee } from "@/features/employees/models/employee";
 import { Icons } from "@/shared/components/icons/iconStyles";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
+import { FieldLimits } from "@/shared/config/fieldLimits";
+import { textRule } from "@/shared/utils/formValidation";
 import { AccountTreeOutlined, Add, DeleteOutline, ExpandMore, North, South } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import {
@@ -251,6 +253,10 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                     <TextField
                       fullWidth
                       label="Instructions"
+                      error={Boolean(stepErrors && textRule("Instructions", FieldLimits.text)(step.instructions ?? ""))}
+                      helperText={
+                        stepErrors ? textRule("Instructions", FieldLimits.text)(step.instructions ?? "") : undefined
+                      }
                       multiline
                       value={step.instructions ?? ""}
                       disabled={disabled}

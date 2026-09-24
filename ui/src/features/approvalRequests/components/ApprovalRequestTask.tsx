@@ -27,12 +27,15 @@ import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { useUnsavedChanges } from "@/shared/hooks/useUnsavedChanges";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { Routes } from "@/shared/routing/routes";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { signatureRule, textRule } from "@/shared/utils/formValidation";
 import { notification } from "@/shared/utils/notifications";
 import {
   PersistenceSuccessMessages,
@@ -140,6 +143,20 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
     setTaskAttachmentFiles([]);
   }, [currentTask]);
 
+  const validation = useFormValidation(
+    { comment, legalName, representationDetails, signatureJson },
+    {
+      comment: textRule("Comment", FieldLimits.text),
+      legalName: textRule("Legal name", FieldLimits.name),
+      representationDetails: textRule("Representation details", FieldLimits.details),
+      signatureJson: signatureRule,
+    },
+    {
+      legalName: "AssigneeLegalName",
+      representationDetails: "AssigneeRepresentationDetails",
+      signatureJson: "AssigneeSignatureJson",
+    },
+  );
   const formValues = { result, comment, legalName, representationDetails, signatureJson, taskAttachmentFiles };
   const hasChanges =
     !isCompleted && initialSnapshot.current !== undefined && JSON.stringify(formValues) !== initialSnapshot.current;
@@ -199,9 +216,11 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
   };
 
   const submit = async () => {
+    if (!validation.validate()) return;
     if (isCompleted) return;
     if (result === undefined) {
       setDecisionError(true);
+      notification.warning("Choose a decision.");
       return;
     }
     if (!currentTask || !stores.userAccountStore.currentUser) return;
@@ -209,6 +228,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
     if (!tenantGlobalId) return;
     if ((result === false || currentTask.isCommentRequired) && !comment.trim()) {
       setCommentError(true);
+      notification.warning("Comment is required.");
       return;
     }
     if (
@@ -226,39 +246,41 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
       }
     }
 
-    await submitAction.run(async () => {
-      const refreshedTask = await refreshTask();
-      if (!refreshedTask || refreshedTask.status !== ApprovalRequestTaskStatus.Pending) {
-        notification.warning("This task has changed. Review the latest details before continuing.");
-        return;
-      }
+    await validation.run(() =>
+      submitAction.run(async () => {
+        const refreshedTask = await refreshTask();
+        if (!refreshedTask || refreshedTask.status !== ApprovalRequestTaskStatus.Pending) {
+          notification.warning("This task has changed. Review the latest details before continuing.");
+          return;
+        }
 
-      if (taskAttachments.current && !(await taskAttachments.current.attach())) {
-        return;
-      }
+        if (taskAttachments.current && !(await taskAttachments.current.attach())) {
+          return;
+        }
 
-      const didComplete = await completeApprovalRequestTask(
-        tenantGlobalId,
-        refreshedTask.globalId,
-        result,
-        comment,
-        requiresElectronicSignature
-          ? {
-              assigneeLegalName: legalName.trim(),
-              assigneeRepresentationDetails: canEnterRepresentationDetails ? representationDetails : undefined,
-              assigneeSignatureJson: signatureJson,
-            }
-          : undefined,
-        createApprovalRequestTaskClientAuditContext(),
-      );
-      if (didComplete) {
-        showPersistenceSuccessNotification(PersistenceSuccessMessages.approvalDecisionSubmitted);
-        unsavedChanges.markSaved();
-        onClose(currentTask.globalId);
-        stores.approvalRequestTaskStore.clear();
-        stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
-      }
-    });
+        const didComplete = await completeApprovalRequestTask(
+          tenantGlobalId,
+          refreshedTask.globalId,
+          result,
+          comment,
+          requiresElectronicSignature
+            ? {
+                assigneeLegalName: legalName.trim(),
+                assigneeRepresentationDetails: canEnterRepresentationDetails ? representationDetails : undefined,
+                assigneeSignatureJson: signatureJson,
+              }
+            : undefined,
+          createApprovalRequestTaskClientAuditContext(),
+        );
+        if (didComplete) {
+          showPersistenceSuccessNotification(PersistenceSuccessMessages.approvalDecisionSubmitted);
+          unsavedChanges.markSaved();
+          onClose(currentTask.globalId);
+          stores.approvalRequestTaskStore.clear();
+          stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
+        }
+      }),
+    );
   };
 
   const handleSubmit = () => {
@@ -376,8 +398,8 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
                   label="Comment"
                   multiline
                   value={comment}
-                  error={commentError}
-                  helperText={commentError ? "Comment is required." : undefined}
+                  error={commentError || validation.field("comment").error}
+                  helperText={validation.message("comment") || (commentError ? "Comment is required." : undefined)}
                   onChange={(event) => {
                     setComment(event.target.value);
                     setCommentError(false);
@@ -385,7 +407,11 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
                 />
                 {requiresElectronicSignature && (
                   <ApprovalRequestElectronicSignatureForm
-                    errors={electronicSignatureErrors}
+                    errors={{
+                      legalName: validation.message("legalName") || electronicSignatureErrors.legalName,
+                      signature: validation.message("signatureJson") || electronicSignatureErrors.signature,
+                      representationDetails: validation.message("representationDetails"),
+                    }}
                     legalName={legalName}
                     representationDetails={representationDetails}
                     onFieldErrorClear={clearElectronicSignatureError}

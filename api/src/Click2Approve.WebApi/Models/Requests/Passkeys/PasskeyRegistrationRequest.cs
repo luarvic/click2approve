@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Click2Approve.Domain.Validation;
 using Fido2NetLib;
 
 namespace Click2Approve.WebApi.Models.Requests.Passkeys;
@@ -13,6 +14,6 @@ public class PasskeyRegistrationRequest
     public string? AuthenticatorAttachment { get; init; }
 
     [Required]
-    [StringLength(100)]
+    [StringLength(PasskeyLimits.Name)]
     public string Name { get; init; } = string.Empty;
 }

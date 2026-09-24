@@ -10,7 +10,9 @@ import ImagePicker from "@/shared/components/images/ImagePicker";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
+import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import {
   NotificationChannel,
@@ -23,6 +25,7 @@ import { UserNotificationPreference } from "@/shared/models/userProfile";
 import { Routes, type UserProfileTab } from "@/shared/routing/routes";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { signatureRule, textRule } from "@/shared/utils/formValidation";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
@@ -80,6 +83,15 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
   const removeAvatarAction = useAsyncAction(ActionLoaders.userProfile.removeAvatar());
   const saveAction = useAsyncAction(ActionLoaders.userProfile.save());
 
+  const validation = useFormValidation(
+    { firstName, lastName, defaultSignatureJson },
+    {
+      firstName: textRule("First name", FieldLimits.name),
+      lastName: textRule("Last name", FieldLimits.name),
+      defaultSignatureJson: signatureRule,
+    },
+  );
+
   const handleSignatureChange = useCallback((value: string) => {
     setDefaultSignatureJson(value);
   }, []);
@@ -126,27 +138,30 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
   };
 
   const handleSave = async () => {
-    await saveAction.run(async () => {
-      const saved = await stores.userProfileStore.update({
-        firstName: firstName.trim() || undefined,
-        lastName: lastName.trim() || undefined,
-        defaultTenantGlobalId: defaultTenantGlobalId === "" ? undefined : defaultTenantGlobalId,
-        defaultSignatureJson: defaultSignatureJson || undefined,
-        notificationPreferences,
-      });
-      if (!saved) {
-        return;
-      }
-
-      if (selectedAvatar) {
-        const uploaded = await stores.userProfileStore.uploadAvatar(selectedAvatar);
-        if (!uploaded) {
+    if (!validation.validate()) return;
+    await validation.run(() =>
+      saveAction.run(async () => {
+        const saved = await stores.userProfileStore.update({
+          firstName: firstName.trim() || undefined,
+          lastName: lastName.trim() || undefined,
+          defaultTenantGlobalId: defaultTenantGlobalId === "" ? undefined : defaultTenantGlobalId,
+          defaultSignatureJson: defaultSignatureJson || undefined,
+          notificationPreferences,
+        });
+        if (!saved) {
           return;
         }
-        setSelectedAvatar(null);
-      }
-      showPersistenceSuccessNotification(PersistenceSuccessMessages.profileSaved);
-    });
+
+        if (selectedAvatar) {
+          const uploaded = await stores.userProfileStore.uploadAvatar(selectedAvatar);
+          if (!uploaded) {
+            return;
+          }
+          setSelectedAvatar(null);
+        }
+        showPersistenceSuccessNotification(PersistenceSuccessMessages.profileSaved);
+      }),
+    );
   };
 
   const handleRemoveAvatar = async () => {
@@ -197,8 +212,18 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
                 selectedFile={selectedAvatar}
                 title="Edit avatar"
               />
-              <TextField label="First name" value={firstName} onChange={(event) => setFirstName(event.target.value)} />
-              <TextField label="Last name" value={lastName} onChange={(event) => setLastName(event.target.value)} />
+              <TextField
+                label="First name"
+                value={firstName}
+                {...validation.field("firstName")}
+                onChange={(event) => setFirstName(event.target.value)}
+              />
+              <TextField
+                label="Last name"
+                value={lastName}
+                {...validation.field("lastName")}
+                onChange={(event) => setLastName(event.target.value)}
+              />
               {stores.tenantStore.tenants.length > 0 && (
                 <FormControl>
                   <InputLabel id="default-workspace-label">Default workspace</InputLabel>
@@ -278,7 +303,12 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
               <Typography color="text.secondary">
                 Your saved signature will be prefilled when you sign an approval request.
               </Typography>
-              <ApprovalRequestSignatureField onChange={handleSignatureChange} value={defaultSignatureJson} />
+              <ApprovalRequestSignatureField
+                error={Boolean(validation.message("defaultSignatureJson"))}
+                helperText={validation.message("defaultSignatureJson")}
+                onChange={handleSignatureChange}
+                value={defaultSignatureJson}
+              />
             </Stack>
           )}
           {["profile", "signature", "notifications"].includes(selectedTab) && (

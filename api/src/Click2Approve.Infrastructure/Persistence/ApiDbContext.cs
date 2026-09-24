@@ -54,56 +54,20 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
         ConfigureGlobalIdIndexes(modelBuilder);
 
         modelBuilder.Entity<AuditLog>()
-            .Property(log => log.UserId)
-            .HasMaxLength(450);
-
-        modelBuilder.Entity<AuditLog>()
-            .Property(log => log.EntityType)
-            .HasMaxLength(255);
-
-        modelBuilder.Entity<AuditLog>()
-            .Property(log => log.EntityState)
-            .HasMaxLength(32);
-
-        modelBuilder.Entity<AuditLog>()
             .HasIndex(log => log.Timestamp);
 
         modelBuilder.Entity<AuditLog>()
             .HasIndex(log => new { log.EntityType, log.EntityId });
 
         modelBuilder.Entity<Tenant>()
-            .Property(t => t.BusinessName)
-            .HasMaxLength(255);
-
-        modelBuilder.Entity<Tenant>()
             .Property(t => t.Type)
             .HasConversion<int>();
-
-        modelBuilder.Entity<Tenant>()
-            .Property(t => t.Email)
-            .HasMaxLength(320);
-
-        modelBuilder.Entity<Tenant>()
-            .Property(t => t.Phone)
-            .HasMaxLength(64);
-
-        modelBuilder.Entity<Tenant>()
-            .Property(t => t.WebsiteUrl)
-            .HasMaxLength(2048);
 
         modelBuilder.Entity<Tenant>()
             .HasOne(t => t.Owner)
             .WithMany()
             .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<AppUser>()
-            .Property(u => u.FirstName)
-            .HasMaxLength(255);
-
-        modelBuilder.Entity<AppUser>()
-            .Property(u => u.LastName)
-            .HasMaxLength(255);
 
         modelBuilder.Entity<AppUser>()
             .HasIndex(u => u.IsPlaceholder);
@@ -151,22 +115,6 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             .HasDefaultValue(1);
 
         modelBuilder.Entity<ApprovalRequest>()
-            .Property(r => r.Title)
-            .HasMaxLength(255);
-
-        modelBuilder.Entity<ApprovalRequest>()
-            .Property(r => r.RequesterDisplayName)
-            .HasMaxLength(255);
-
-        modelBuilder.Entity<ApprovalRequest>()
-            .Property(r => r.CompletedByDisplayName)
-            .HasMaxLength(255);
-
-        modelBuilder.Entity<ApprovalRequest>()
-            .Property(r => r.OrganizationDisplayName)
-            .HasMaxLength(255);
-
-        modelBuilder.Entity<ApprovalRequest>()
             .HasIndex(r => new { r.TenantId, r.RequesterUserId, r.CreatedAt, r.GlobalId })
             .IsDescending(false, false, true, false);
 
@@ -179,10 +127,6 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             .WithMany()
             .HasForeignKey(r => r.RequesterUserId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<ApprovalRequest>()
-            .Property(r => r.SubmittedByDisplayName)
-            .HasMaxLength(255);
 
         modelBuilder.Entity<ApprovalRequest>()
             .HasOne(r => r.SubmittedByUser)
@@ -256,10 +200,6 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             .HasConversion<int>();
 
         modelBuilder.Entity<ApprovalRequestStepAssignee>()
-            .Property(a => a.AssigneeDisplayName)
-            .HasMaxLength(255);
-
-        modelBuilder.Entity<ApprovalRequestStepAssignee>()
             .HasOne(a => a.ApprovalRequestStep)
             .WithMany(s => s.Assignees)
             .HasForeignKey(a => a.ApprovalRequestStepId)
@@ -287,37 +227,8 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             .HasDefaultValue(1);
 
         modelBuilder.Entity<ApprovalRequestTask>()
-            .Property(t => t.Title)
-            .HasMaxLength(255);
-
-        modelBuilder.Entity<ApprovalRequestTask>()
-            .Property(t => t.AssigneeDisplayName)
-            .HasMaxLength(255);
-
-        modelBuilder.Entity<ApprovalRequestTask>()
-            .Property(t => t.CompletedByDisplayName)
-            .HasMaxLength(255);
-
-        modelBuilder.Entity<ApprovalRequestTask>()
-            .Property(t => t.OrganizationDisplayName)
-            .HasMaxLength(255);
-
-        modelBuilder.Entity<ApprovalRequestTask>()
-            .Property(t => t.AssigneeIpAddress)
-            .HasMaxLength(128);
-
-        modelBuilder.Entity<ApprovalRequestTask>()
-            .Property(t => t.AssigneeBrowserData)
-            .HasMaxLength(1024);
-
-        modelBuilder.Entity<ApprovalRequestTask>()
-            .Property(t => t.AssigneeLegalName)
-            .HasMaxLength(255);
-
-        modelBuilder.Entity<ApprovalRequestTask>()
             .Property(t => t.AssigneeRepresentationDetails)
-            .HasColumnName("AssigneeOrganization")
-            .HasMaxLength(1024);
+            .HasColumnName("AssigneeOrganization");
 
         modelBuilder.Entity<ApprovalRequestTask>()
             .HasIndex(t => new { t.TenantId, t.AssigneeUserId, t.Status });
@@ -408,9 +319,6 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             .IsUnique();
 
         modelBuilder.Entity<EventOutboxMessage>()
-            .Property(message => message.EventType)
-            .HasMaxLength(128);
-        modelBuilder.Entity<EventOutboxMessage>()
             .HasIndex(message => message.EventId)
             .IsUnique();
         modelBuilder.Entity<EventOutboxMessage>()
@@ -422,9 +330,6 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
         modelBuilder.Entity<InAppNotification>()
             .Property(notification => notification.TargetResourceType)
             .HasConversion<int>();
-        modelBuilder.Entity<InAppNotification>()
-            .Property(notification => notification.Summary)
-            .HasMaxLength(512);
         modelBuilder.Entity<InAppNotification>()
             .HasOne(notification => notification.User)
             .WithMany()
@@ -444,6 +349,8 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
                 notification.GlobalId
             })
             .IsDescending(false, false, true, false);
+        TextConstraints.Configure(modelBuilder, Database.ProviderName == "Microsoft.EntityFrameworkCore.SqlServer");
+        ConfigureEnumConstraints(modelBuilder);
     }
 
     /// <inheritdoc />
@@ -474,6 +381,23 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
         var result = await SaveChangesWithAuditAsync(pendingAuditLogs, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         return result;
+    }
+
+    /// <summary>Restricts persisted enum values to the domain's supported states.</summary>
+    protected static void ConfigureEnumConstraints(ModelBuilder modelBuilder)
+    {
+        foreach (var entity in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entity.GetProperties())
+            {
+                var type = Nullable.GetUnderlyingType(property.ClrType) ?? property.ClrType;
+                if (!type.IsEnum || type.IsDefined(typeof(FlagsAttribute), inherit: false)) continue;
+                var values = string.Join(", ", Enum.GetValues(type).Cast<object>().Select(Convert.ToInt64).Distinct());
+                var column = property.GetColumnName();
+                modelBuilder.Entity(entity.ClrType).ToTable(table => table.HasCheckConstraint(
+                    $"CK_{entity.ClrType.Name}_{property.Name}", $"[{column}] IN ({values})"));
+            }
+        }
     }
 
     protected static void ConfigureGlobalIdIndexes(ModelBuilder modelBuilder)

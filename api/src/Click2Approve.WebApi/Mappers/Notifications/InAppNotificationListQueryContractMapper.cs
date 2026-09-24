@@ -1,3 +1,4 @@
+using Click2Approve.Domain.Validation;
 using Click2Approve.Application.Models.Commands.Notifications;
 
 namespace Click2Approve.WebApi.Mappers.Notifications;
@@ -9,7 +10,7 @@ public static class InAppNotificationListQueryContractMapper
     public static InAppNotificationListQueryCommand Map(InAppNotificationListQueryRequest request) => new()
     {
         Page = Math.Max(request.Page, 0),
-        PageSize = Math.Clamp(request.PageSize, 1, 100),
+        PageSize = Math.Clamp(request.PageSize, PaginationLimits.MinimumPageSize, PaginationLimits.MaximumPageSize),
         SortDirection = request.SortDirection?.Equals("asc", StringComparison.OrdinalIgnoreCase) == true
             ? InAppNotificationListSortDirection.Asc
             : InAppNotificationListSortDirection.Desc,

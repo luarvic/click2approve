@@ -15,11 +15,13 @@ import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirma
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
-import { Validation } from "@/shared/utils/validationRules";
+import { emailRule, textRule } from "@/shared/utils/formValidation";
 import {
   Autocomplete,
   Button,
@@ -70,7 +72,6 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
   const [role, setRole] = useState(EmployeeRole.User);
   const [isActive, setIsActive] = useState(true);
   const [selectedTeams, setSelectedTeams] = useState<Team[]>([]);
-  const [emailTouched, setEmailTouched] = useState(false);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const [disableDialogIsOpen, setDisableDialogIsOpen] = useState(false);
   const [ownershipTransferDialogIsOpen, setOwnershipTransferDialogIsOpen] = useState(false);
@@ -79,7 +80,6 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
   const isNew = employee === null;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const employeesPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/employees") : "/";
-  const emailHasError = isNew && emailTouched && !Validation.emailRegex.test(email);
   const saveIsLoading = saveAction.isRunning || stores.commonStore.isActionLoading(saveLoader);
   const availableRoleOptions = [
     ...roleOptions,
@@ -96,7 +96,6 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
     setRole(employee?.role ?? EmployeeRole.User);
     setIsActive(employee?.status === EmployeeStatus.Active);
     setSelectedTeams(teams.filter((team) => selectedTeamGlobalIds.includes(team.globalId)));
-    setEmailTouched(false);
   }, [employee, teams, selectedTeamGlobalIds]);
 
   const saveEmployee = async () => {
@@ -109,27 +108,35 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
       teamGlobalIds: selectedTeams.map((team) => team.globalId),
     };
     return (
-      (await saveAction.run(async () => {
-        const savedEmployee = !isNew
-          ? await onSubmit(payload, employee.globalId)
-          : await onSubmit({ ...payload, email: email.trim() });
+      (await validation.run(() =>
+        saveAction.run(async () => {
+          const savedEmployee = !isNew
+            ? await onSubmit(payload, employee.globalId)
+            : await onSubmit({ ...payload, email: email.trim() });
 
-        if (savedEmployee) {
-          onClose(savedEmployee.globalId);
-        }
+          if (savedEmployee) {
+            onClose(savedEmployee.globalId);
+          }
 
-        return savedEmployee !== null;
-      })) ?? false
+          return savedEmployee !== null;
+        }),
+      )) ?? false
     );
   };
 
-  const handleSubmit = async () => {
-    if (!canEdit) {
-      return;
-    }
+  const validation = useFormValidation(
+    { email, firstName, lastName, position },
+    {
+      email: emailRule(isNew),
+      firstName: textRule("First name", FieldLimits.name),
+      lastName: textRule("Last name", FieldLimits.name),
+      position: textRule("Position", FieldLimits.name),
+    },
+  );
 
-    if (isNew && !Validation.emailRegex.test(email)) {
-      setEmailTouched(true);
+  const handleSubmit = async () => {
+    if (!validation.validate()) return;
+    if (!canEdit) {
       return;
     }
 
@@ -162,17 +169,16 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
         <TextField
           label="Email"
           value={email}
+          {...validation.field("email")}
           onChange={(event) => setEmail(event.target.value)}
-          onBlur={() => setEmailTouched(true)}
           disabled={!isNew || !canEdit}
-          error={emailHasError}
-          helperText={emailHasError ? "Enter a valid email address." : undefined}
           fullWidth
           required
         />
         <TextField
           label="First name"
           value={firstName}
+          {...validation.field("firstName")}
           onChange={(event) => setFirstName(event.target.value)}
           fullWidth
           disabled={!canEdit}
@@ -180,6 +186,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
         <TextField
           label="Last name"
           value={lastName}
+          {...validation.field("lastName")}
           onChange={(event) => setLastName(event.target.value)}
           fullWidth
           disabled={!canEdit}
@@ -187,6 +194,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
         <TextField
           label="Position"
           value={position}
+          {...validation.field("position")}
           onChange={(event) => setPosition(event.target.value)}
           fullWidth
           disabled={!canEdit}

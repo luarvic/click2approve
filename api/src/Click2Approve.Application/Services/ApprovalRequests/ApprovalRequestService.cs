@@ -17,13 +17,19 @@ public class ApprovalRequestService(
     IApprovalWorkflowService workflowService,
     ITenantContext tenantContext,
     IApprovalRequestCompletionAttributor completionAttributor,
-    IValidator<ApprovalRequest> approvalRequestDeletionValidator) : IApprovalRequestService
+    IValidator<ApprovalRequest> approvalRequestDeletionValidator,
+    IValidator<SubmitApprovalRequestCommand> submitApprovalRequestCommandValidator,
+    IValidator<ApprovalRequestListQueryCommand> approvalRequestListQueryCommandValidator) : IApprovalRequestService
 {
+    protected readonly IValidator<SubmitApprovalRequestCommand> _submitApprovalRequestCommandValidator =
+        submitApprovalRequestCommandValidator;
     protected readonly IApprovalRequestRepository _approvalRequestRepository = approvalRequestRepository;
     protected readonly IApprovalRequestCompletionAttributor _completionAttributor = completionAttributor;
     protected readonly IUnitOfWork _unitOfWork = unitOfWork;
     protected readonly IApprovalWorkflowService _workflowService = workflowService;
 
+    private readonly IValidator<ApprovalRequestListQueryCommand> _approvalRequestListQueryCommandValidator =
+        approvalRequestListQueryCommandValidator;
     private readonly IUserFileService _userFileService = userFileService;
     private readonly ITenantRepository _tenantRepository = tenantRepository;
     private readonly IApprovalRequestAssigneeGlobalIdResolver _assigneeGlobalIdResolver = assigneeGlobalIdResolver;
@@ -35,6 +41,7 @@ public class ApprovalRequestService(
     /// </summary>
     public virtual async Task<Guid> SubmitAsync(AppUser user, SubmitApprovalRequestCommand payload, CancellationToken cancellationToken)
     {
+        await _submitApprovalRequestCommandValidator.ValidateAndThrowAsync(payload, cancellationToken);
         await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
         var approvalRequest = await BuildRequestAsync(user, payload, cancellationToken);
         var userFiles = await AttachFilesAsync(
@@ -85,6 +92,7 @@ public class ApprovalRequestService(
         ApprovalRequestListQueryCommand query,
         CancellationToken cancellationToken)
     {
+        await _approvalRequestListQueryCommandValidator.ValidateAndThrowAsync(query, cancellationToken);
         return await _approvalRequestRepository.ListAsync(user, query, cancellationToken);
     }
 

@@ -1,5 +1,6 @@
 import { stores } from "@/app/rootStore";
 import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
+import { getAssigneeError, getStepErrors } from "@/features/approvalRequests/utils/submitValidation";
 import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
 import { useEditableApprovalSteps } from "@/features/approvalWorkflow/hooks/useEditableApprovalSteps";
@@ -16,9 +17,13 @@ import { Forms } from "@/shared/components/dialogs/formStyles";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
+import { CollectionLimits } from "@/shared/config/collectionLimits";
+import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { textRule } from "@/shared/utils/formValidation";
 import { notification } from "@/shared/utils/notifications";
 import {
   PersistenceSuccessMessages,
@@ -61,10 +66,20 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
     initialSteps: [createEmptyStep(1)],
   });
 
+  const [stepsValidationAttempted, setStepsValidationAttempted] = useState(false);
+  const validation = useFormValidation(
+    { name, description },
+    {
+      name: textRule("Name", FieldLimits.name, true),
+      description: textRule("Description", FieldLimits.text),
+    },
+  );
+
   useEffect(() => {
     setName(template?.name ?? "");
     setDescription(template?.description ?? "");
     setSteps(template ? createEditableSteps(template.steps) : [createEmptyStep(1, true, defaultAssigneeType)]);
+
     if (tenantGlobalId && businessTenantIsSelected) {
       if (canUseEmployees) {
         stores.employeeStore.loadPicker(
@@ -101,28 +116,18 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
     }
   };
 
+  const stepErrors = getStepErrors(steps);
   const validateSteps = () => {
-    const hasMissingRecipient = steps.some((step) =>
-      step.assignees.some((assignee) => {
-        if (assignee.type === AssigneeType.User) {
-          return !assignee.email?.trim();
-        }
-        if (assignee.type === AssigneeType.Employee) {
-          return !assignee.employeeGlobalId;
-        }
-        return !assignee.teamGlobalId;
-      }),
-    );
-
-    if (hasMissingRecipient) {
-      notification.warning("Specify valid assignees for every step.");
+    setStepsValidationAttempted(true);
+    if (!steps.length || steps.length > CollectionLimits.workflowSteps || stepErrors.some(Boolean)) {
+      notification.warning("Complete the highlighted approval steps.");
       return false;
     }
-
     return true;
   };
 
   const handleSubmit = async () => {
+    if (!validation.validate()) return;
     if (!tenantGlobalId) {
       return;
     }
@@ -130,23 +135,25 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
       return;
     }
 
-    await saveAction.run(async () => {
-      const saved = template
-        ? await stores.approvalStepTemplateStore.update(tenantGlobalId, template.globalId, {
-            description,
-            name: name.trim(),
-            steps: toApprovalStepSubmissions(steps),
-          })
-        : await stores.approvalStepTemplateStore.create(tenantGlobalId, {
-            description,
-            name: name.trim(),
-            steps: toApprovalStepSubmissions(steps),
-          });
-      if (saved) {
-        showPersistenceSuccessNotification(PersistenceSuccessMessages.templateSaved);
-        onClose(saved.globalId);
-      }
-    });
+    await validation.run(() =>
+      saveAction.run(async () => {
+        const saved = template
+          ? await stores.approvalStepTemplateStore.update(tenantGlobalId, template.globalId, {
+              description,
+              name: name.trim(),
+              steps: toApprovalStepSubmissions(steps),
+            })
+          : await stores.approvalStepTemplateStore.create(tenantGlobalId, {
+              description,
+              name: name.trim(),
+              steps: toApprovalStepSubmissions(steps),
+            });
+        if (saved) {
+          showPersistenceSuccessNotification(PersistenceSuccessMessages.templateSaved);
+          onClose(saved.globalId);
+        }
+      }),
+    );
   };
 
   const validateTemplate = () => {
@@ -174,16 +181,26 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
       />
       <Stack spacing={Forms.formStackSpacing}>
         <ApprovalRequestDetailsCard ariaLabel="Template details" elevated showStatusBorder={false}>
-          <TextField label="Name" value={name} onChange={(event) => setName(event.target.value)} fullWidth required />
+          <TextField
+            label="Name"
+            value={name}
+            {...validation.field("name")}
+            onChange={(event) => setName(event.target.value)}
+            fullWidth
+            required
+          />
           <TextField
             fullWidth
             label="Description"
             multiline
             value={description}
+            {...validation.field("description")}
             onChange={(event) => setDescription(event.target.value)}
           />
         </ApprovalRequestDetailsCard>
         <ApprovalStepEditor
+          stepErrors={stepsValidationAttempted ? stepErrors : undefined}
+          getAssigneeError={stepsValidationAttempted ? getAssigneeError : undefined}
           steps={steps}
           canUseEmployees={canUseEmployees}
           canUseTeams={canUseTeams}

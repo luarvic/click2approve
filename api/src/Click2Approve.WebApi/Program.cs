@@ -10,13 +10,11 @@ using Click2Approve.Application.Abstractions.Services.UserFiles;
 using Click2Approve.Application.Abstractions.Services.UserProfiles;
 using Click2Approve.Application.Abstractions.TenantContext;
 using Click2Approve.Application.Authorization;
-using Click2Approve.Application.Models.ApprovalRequests;
 using Click2Approve.Application.Services.ApprovalRequests;
 using Click2Approve.Application.Services.Notifications;
 using Click2Approve.Application.Services.Tenants;
 using Click2Approve.Application.Services.UserFiles;
 using Click2Approve.Application.Services.UserProfiles;
-using Click2Approve.Application.Validation.ApprovalRequests;
 using Click2Approve.Domain.Models;
 using Click2Approve.Infrastructure.Authorization;
 using Click2Approve.Infrastructure.Extensions;
@@ -25,12 +23,12 @@ using Click2Approve.WebApi.Auditing;
 using Click2Approve.WebApi.Extensions;
 using Click2Approve.WebApi.Middlewares;
 using Click2Approve.WebApi.TenantContext;
-using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers()
+    .AddInputValidation(typeof(Program).Assembly, typeof(ApprovalRequestService).Assembly)
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
@@ -83,8 +81,6 @@ builder.Services.AddScoped<IUserFileService, UserFileService>();
 builder.Services.AddScoped<IUserNotificationPreferenceService, UserNotificationPreferenceService>();
 builder.Services.AddScoped<IUserProfileAccessService, DefaultUserProfileAccessService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
-builder.Services.AddScoped<IValidator<ApprovalRequest>, ApprovalRequestDeletionValidator>();
-builder.Services.AddScoped<IValidator<ApprovalRequestTaskCreationContext>, ApprovalRequestTaskCreationValidator>();
 
 // Infrastructure services
 builder.Services.AddScoped<IApprovalRequestRepository, ApprovalRequestRepository>();

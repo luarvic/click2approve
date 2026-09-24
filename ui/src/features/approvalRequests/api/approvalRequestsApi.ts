@@ -14,6 +14,7 @@ import { normalizeApprovalRequestDates } from "@/features/approvalRequests/utils
 import { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
 import { ApiPaths } from "@/shared/api/apiPaths";
 import axios from "@/shared/api/axios";
+import { PaginationLimits } from "@/shared/config/paginationLimits";
 import type { GridPage } from "@/shared/grids/gridPage";
 import { getApiErrorNotification, isResourceNotFoundOrForbiddenError } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
@@ -109,7 +110,12 @@ export const listApprovalRequestGrid = async (
 };
 
 export const listApprovalRequests = async (tenantGlobalId: string): Promise<ApprovalRequestListItem[]> =>
-  (await listApprovalRequestGrid(tenantGlobalId, { ...defaultApprovalRequestGridQuery, pageSize: 100 })).items;
+  (
+    await listApprovalRequestGrid(tenantGlobalId, {
+      ...defaultApprovalRequestGridQuery,
+      pageSize: PaginationLimits.maximumPageSize,
+    })
+  ).items;
 
 export const getApprovalRequest = async (tenantGlobalId: string, globalId: string): Promise<ApprovalRequest | null> => {
   try {

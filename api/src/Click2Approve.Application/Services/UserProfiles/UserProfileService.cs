@@ -1,6 +1,8 @@
+using Click2Approve.Domain.Validation;
 using Click2Approve.Application.Models.Files;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
+using FluentValidation;
 
 namespace Click2Approve.Application.Services.UserProfiles;
 
@@ -16,10 +18,13 @@ public class UserProfileService(
     IUserProfileAccessService profileAccessService,
     IUserFileStorage fileStorage,
     IConfiguration configuration,
-    ILogger<UserProfileService> logger) : IUserProfileService
+    ILogger<UserProfileService> logger,
+    IValidator<UpdateUserProfileCommand> updateUserProfileCommandValidator) : IUserProfileService
 {
     private const string AllowedAvatarExtensionsConfigurationKey = "Limitations:AllowedAvatarExtensions";
 
+    private readonly IValidator<UpdateUserProfileCommand> _updateUserProfileCommandValidator =
+        updateUserProfileCommandValidator;
     private readonly IUserIdentityService _userIdentityService = userIdentityService;
     private readonly ITenantRepository _tenantRepository = tenantRepository;
     private readonly IUserFileRepository _userFileRepository = userFileRepository;
@@ -43,6 +48,7 @@ public class UserProfileService(
 
     public async Task<UserProfileResult> UpdateAsync(AppUser user, UpdateUserProfileCommand payload, CancellationToken cancellationToken)
     {
+        await _updateUserProfileCommandValidator.ValidateAndThrowAsync(payload, cancellationToken);
         long? defaultTenantId = null;
         if (payload.DefaultTenantGlobalId is not null)
         {
@@ -213,7 +219,7 @@ public class UserProfileService(
     private static string? GetDefaultSignatureJson(string? signatureJson)
     {
         var trimmedSignatureJson = string.IsNullOrWhiteSpace(signatureJson) ? null : signatureJson.Trim();
-        if (trimmedSignatureJson?.Length > 16000)
+        if (trimmedSignatureJson?.Length > FieldLimits.Signature)
         {
             throw new BusinessRuleException("Signature is too large.");
         }

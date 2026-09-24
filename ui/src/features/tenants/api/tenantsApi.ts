@@ -1,6 +1,7 @@
 import { CreateTenantRequest, Tenant, TenantListItem, UpdateTenantRequest } from "@/features/tenants/models/tenant";
 import { ApiPaths } from "@/shared/api/apiPaths";
 import axios from "@/shared/api/axios";
+import { PaginationLimits } from "@/shared/config/paginationLimits";
 import type { GridPage } from "@/shared/grids/gridPage";
 import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
 import { serializeSimpleGridQuery } from "@/shared/grids/simpleGridQuery";
@@ -34,7 +35,7 @@ export const listTenants = async (): Promise<TenantListItem[]> => {
     await listTenantGrid({
       filters: {},
       page: 0,
-      pageSize: 100,
+      pageSize: PaginationLimits.maximumPageSize,
       sortBy: "name",
       sortDirection: "asc",
     })

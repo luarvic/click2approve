@@ -2,12 +2,13 @@ import {
   ApprovalStepTemplate,
   UpsertApprovalStepTemplateRequest,
 } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
-import axios from "@/shared/api/axios";
 import { ApiPaths } from "@/shared/api/apiPaths";
+import axios from "@/shared/api/axios";
+import { PaginationLimits } from "@/shared/config/paginationLimits";
+import type { GridPage } from "@/shared/grids/gridPage";
+import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
-import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
-import type { GridPage } from "@/shared/grids/gridPage";
 
 export const listApprovalStepTemplateGrid = async (
   tenantGlobalId: string,
@@ -35,7 +36,7 @@ export const listApprovalStepTemplates = async (tenantGlobalId: string): Promise
     await listApprovalStepTemplateGrid(tenantGlobalId, {
       filters: {},
       page: 0,
-      pageSize: 100,
+      pageSize: PaginationLimits.maximumPageSize,
       sortBy: "name",
       sortDirection: "asc",
     })

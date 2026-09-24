@@ -1,3 +1,4 @@
+using Click2Approve.Domain.Validation;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Asp.Versioning;
@@ -32,11 +33,11 @@ public class ApprovalRequestTaskController(
     IUserFileService userFileService,
     UserManager<AppUser> userManager) : ControllerBase
 {
-    private const int MaxBrowserDataLength = 1024;
+    private const int MaxBrowserDataLength = FieldLimits.Details;
     private const int MaxHeaderLength = 256;
     private const int MaxLanguageCount = 5;
     private const int MaxRouteLength = 192;
-    private const int MaxShortValueLength = 64;
+    private const int MaxShortValueLength = ClientAuditLimits.ShortValue;
     private const int MaxTimestampLength = 40;
 
     private static readonly JsonSerializerOptions BrowserDataJsonOptions = new()

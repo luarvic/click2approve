@@ -23,6 +23,9 @@ namespace Click2Approve.WebApi.Extensions;
 /// </summary>
 public static class ServiceCollectionExtensions
 {
+    private const int MaximumEmailPermitLimit = 1000;
+    private const int MaximumEmailWindowMinutes = 1440;
+
     /// <summary>
     /// Adds email-address rate limiting for anonymous identity email endpoints.
     /// </summary>
@@ -35,8 +38,8 @@ public static class ServiceCollectionExtensions
         {
             services.AddOptions<AccountEmailRateLimitOptions>(purpose.ToString())
                 .Bind(configuration.GetSection($"Authentication:{purpose}"))
-                .Validate(options => options.EmailPermitLimit is >= 1 and <= 1000
-                    && options.EmailWindowMinutes is >= 1 and <= 1440, "Invalid account email allowance.")
+                .Validate(options => options.EmailPermitLimit is >= 1 and <= MaximumEmailPermitLimit
+                    && options.EmailWindowMinutes is >= 1 and <= MaximumEmailWindowMinutes, "Invalid account email allowance.")
                 .ValidateOnStart();
         }
         services.TryAddSingleton(TimeProvider.System);

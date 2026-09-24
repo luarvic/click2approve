@@ -18,6 +18,19 @@ public class AccountControllerTests(CustomWebApplicationFactory<Program> applica
     private readonly CustomWebApplicationFactory<Program> _applicationFactory = applicationFactory;
 
     [Fact]
+    public async Task RegisterAsync_WithOversizedEmail_ReturnsValidationErrorWithoutCreatingUser()
+    {
+        var email = new string('a', 245) + "@example.com";
+        var response = await _applicationFactory.CreateClient().PostAsJsonAsync(
+            "api/v1/account/register", new Credentials { Email = email, Password = "ZAQ12wsx!" });
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains("EmailTooLong", await response.Content.ReadAsStringAsync());
+        await using var scope = _applicationFactory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+        Assert.False(await db.Users.AnyAsync(user => user.Email == email));
+    }
+
+    [Fact]
     public async Task RegisterAsync_WithPlaceholderUser_ActivatesPlaceholder()
     {
         var email = $"employee-{Guid.NewGuid()}@example.com";

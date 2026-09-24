@@ -21,6 +21,7 @@ interface ApprovalRequestSubmitComposeProps {
   canUseEmployees: boolean;
   canUseTeams: boolean;
   description: string;
+  descriptionError?: string;
   employees: Employee[];
   existingFiles: RevisionExistingFile[];
   fileInput: RefObject<HTMLInputElement>;
@@ -67,6 +68,7 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
   canUseEmployees,
   canUseTeams,
   description,
+  descriptionError,
   employees,
   existingFiles,
   fileInput,
@@ -174,6 +176,8 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
             margin="normal"
             multiline
             value={description}
+            error={Boolean(descriptionError)}
+            helperText={descriptionError}
             onChange={(event) => onDescriptionChange(event.target.value)}
           />
         </Stack>

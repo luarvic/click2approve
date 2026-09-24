@@ -4,15 +4,17 @@ import {
   saveRetentionPolicy,
 } from "@/features/subscriptions/api/subscriptionsApi";
 import RetentionControl from "@/features/subscriptions/components/RetentionControl";
+import { RetentionLimits } from "@/features/subscriptions/config/retentionLimits";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
+import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { notification } from "@/shared/utils/notifications";
-import { Stack, type SxProps, type Theme } from "@mui/material";
+import { FormHelperText, Stack, type SxProps, type Theme } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
@@ -24,6 +26,16 @@ const SubscriptionRetentionPage = () => {
   const [approvalRequestMonths, setApprovalRequestMonths] = useState(1);
   const [inAppNotificationMonths, setInAppNotificationMonths] = useState(1);
   const [saving, setSaving] = useState(false);
+  const retentionRule = (value: string) =>
+    Number.isInteger(Number(value)) &&
+    Number(value) >= RetentionLimits.neverDeleteMonths &&
+    Number(value) <= RetentionLimits.maximumMonths
+      ? undefined
+      : `Choose a retention period between ${RetentionLimits.neverDeleteMonths} and ${RetentionLimits.maximumMonths.toLocaleString()} months.`;
+  const validation = useFormValidation(
+    { approvalRequestMonths: String(approvalRequestMonths), inAppNotificationMonths: String(inAppNotificationMonths) },
+    { approvalRequestMonths: retentionRule, inAppNotificationMonths: retentionRule },
+  );
   usePageTitle("Retention");
 
   useEffect(() => {
@@ -36,7 +48,7 @@ const SubscriptionRetentionPage = () => {
   }, [tenantGlobalId]);
 
   const save = () => {
-    if (!tenantGlobalId || !policy) return;
+    if (!tenantGlobalId || !policy || !validation.validate()) return;
     setSaving(true);
     void saveRetentionPolicy(tenantGlobalId, {
       approvalRequestMonths,
@@ -70,12 +82,18 @@ const SubscriptionRetentionPage = () => {
             months={approvalRequestMonths}
             onChange={setApprovalRequestMonths}
           />
+          {validation.message("approvalRequestMonths") && (
+            <FormHelperText error>{validation.message("approvalRequestMonths")}</FormHelperText>
+          )}
           <RetentionControl
             disabled={!policy.canManage || !policy.approvalRequestMonthsCanBeChanged}
             label="Notifications"
             months={inAppNotificationMonths}
             onChange={setInAppNotificationMonths}
           />
+          {validation.message("inAppNotificationMonths") && (
+            <FormHelperText error>{validation.message("inAppNotificationMonths")}</FormHelperText>
+          )}
         </Stack>
         {policy.canManage && policy.approvalRequestMonthsCanBeChanged && (
           <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>

@@ -3,6 +3,7 @@ using Click2Approve.Application.Models.Commands.Notifications;
 using Click2Approve.Application.Models.Events;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
+using FluentValidation;
 
 namespace Click2Approve.Application.Services.Notifications;
 
@@ -12,8 +13,11 @@ namespace Click2Approve.Application.Services.Notifications;
 public class NotificationService(
     IInAppNotificationRepository inAppNotificationRepository,
     IEventOutboxRepository eventOutboxRepository,
-    IUnitOfWork unitOfWork) : INotificationService
+    IUnitOfWork unitOfWork,
+    IValidator<InAppNotificationListQueryCommand> inAppNotificationListQueryCommandValidator) : INotificationService
 {
+    private readonly IValidator<InAppNotificationListQueryCommand> _inAppNotificationListQueryCommandValidator =
+        inAppNotificationListQueryCommandValidator;
     private readonly IInAppNotificationRepository _inAppNotificationRepository = inAppNotificationRepository;
     private readonly IEventOutboxRepository _eventOutboxRepository = eventOutboxRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
@@ -55,6 +59,7 @@ public class NotificationService(
         InAppNotificationListQueryCommand query,
         CancellationToken cancellationToken)
     {
+        await _inAppNotificationListQueryCommandValidator.ValidateAndThrowAsync(query, cancellationToken);
         var page = await _inAppNotificationRepository.ListAsync(user.Id, tenantId, query, cancellationToken);
         return new GridPageResult<InAppNotificationResult>
         {

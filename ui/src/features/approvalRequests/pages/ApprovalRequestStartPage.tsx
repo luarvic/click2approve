@@ -4,6 +4,7 @@ import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
@@ -33,6 +34,17 @@ const ApprovalRequestStartPage = () => {
   const [requestType, setRequestType] = useState<RequestType>("custom");
   const [templateGlobalId, setTemplateGlobalId] = useState<string | "">("");
 
+  const validation = useFormValidation(
+    { templateGlobalId },
+    {
+      templateGlobalId: (value) =>
+        requestType === "template" &&
+        !stores.approvalStepTemplateStore.templates.some((template) => template.globalId === value)
+          ? "Choose a template."
+          : undefined,
+    },
+  );
+
   useEffect(() => {
     stores.approvalRequestStore.setRequestToClone(null);
   }, []);
@@ -56,6 +68,7 @@ const ApprovalRequestStartPage = () => {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!validation.validate()) return;
     navigate(composePath, {
       state: requestType === "template" ? { templateGlobalId } : undefined,
     });
@@ -86,6 +99,7 @@ const ApprovalRequestStartPage = () => {
               fullWidth
               label="Template"
               value={templateGlobalId}
+              {...validation.field("templateGlobalId")}
               onChange={(event) => setTemplateGlobalId(event.target.value)}
             >
               {!hasTemplates && <MenuItem disabled>No templates available</MenuItem>}
@@ -96,11 +110,7 @@ const ApprovalRequestStartPage = () => {
               ))}
             </TextField>
           )}
-          <MainActionButton
-            disabled={requestType === "template" && (!hasTemplates || templateGlobalId === "")}
-            sx={continueButtonSx}
-            type="submit"
-          >
+          <MainActionButton sx={continueButtonSx} type="submit">
             Continue
           </MainActionButton>
         </Stack>

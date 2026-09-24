@@ -7,6 +7,7 @@ import {
 } from "@/features/employees/models/employee";
 import { ApiPaths } from "@/shared/api/apiPaths";
 import axios from "@/shared/api/axios";
+import { PaginationLimits } from "@/shared/config/paginationLimits";
 import type { GridPage } from "@/shared/grids/gridPage";
 import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
 import { serializeSimpleGridQuery } from "@/shared/grids/simpleGridQuery";
@@ -33,7 +34,7 @@ export const listEmployees = async (tenantGlobalId: string): Promise<EmployeeLis
     await listEmployeeGrid(tenantGlobalId, {
       filters: {},
       page: 0,
-      pageSize: 100,
+      pageSize: PaginationLimits.maximumPageSize,
       sortBy: "email",
       sortDirection: "asc",
     })

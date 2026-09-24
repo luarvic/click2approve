@@ -1,12 +1,14 @@
 import { loginUser } from "@/features/identity/api/authApi";
 import AuthForm from "@/features/identity/components/AuthForm";
 import AuthFormActions from "@/features/identity/components/AuthFormActions";
+import AuthTextField from "@/features/identity/components/AuthTextField";
 import AuthTextLink from "@/features/identity/components/AuthTextLink";
 import AuthTextLinks from "@/features/identity/components/AuthTextLinks";
-import AuthTextField from "@/features/identity/components/AuthTextField";
+import { authenticatorCodePattern, IdentityValidation } from "@/features/identity/config/identityValidation";
 import { CredentialsData } from "@/features/identity/models/credentials";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { notification } from "@/shared/utils/notifications";
 import { Typography } from "@mui/material";
@@ -22,11 +24,29 @@ const MfaVerification = ({ credentials, onVerified, onBack }: Props) => {
   const [code, setCode] = useState("");
   const [recovery, setRecovery] = useState(false);
   const action = useAsyncAction(ActionLoaders.identity.verifyMfa());
+  const validation = useFormValidation(
+    { code },
+    {
+      code: (value) => {
+        const normalized = value.replace(/\s/g, "");
+        return recovery
+          ? !normalized || normalized.length > IdentityValidation.recoveryCodeLength
+            ? "Enter a recovery code."
+            : undefined
+          : authenticatorCodePattern.test(normalized)
+            ? undefined
+            : `Enter the ${IdentityValidation.authenticatorCodeLength}-digit code from your authenticator app.`;
+      },
+    },
+  );
   const verify = async () => {
+    if (!validation.validate()) return;
     const normalized = code.replace(/\s/g, "");
-    if (recovery ? !normalized : !/^\d{6}$/.test(normalized)) {
+    if (recovery ? !normalized : !authenticatorCodePattern.test(normalized)) {
       notification.warning(
-        recovery ? "Enter a recovery code." : "Enter the six-digit code from your authenticator app.",
+        recovery
+          ? "Enter a recovery code."
+          : `Enter the ${IdentityValidation.authenticatorCodeLength}-digit code from your authenticator app.`,
       );
       return;
     }
@@ -48,12 +68,13 @@ const MfaVerification = ({ credentials, onVerified, onBack }: Props) => {
       <Typography color="text.secondary">
         {recovery
           ? "Enter one of your saved recovery codes. Each code can be used once."
-          : "Enter the six-digit code from your authenticator app."}
+          : `Enter the ${IdentityValidation.authenticatorCodeLength}-digit code from your authenticator app.`}
       </Typography>
       <AuthTextField
         autoFocus
         label={recovery ? "Recovery code" : "Verification code"}
         value={code}
+        {...validation.field("code")}
         disabled={action.isRunning}
         autoComplete="one-time-code"
         inputProps={{ inputMode: recovery ? "text" : "numeric" }}

@@ -1,3 +1,4 @@
+import { FieldLimits } from "@/shared/config/fieldLimits";
 import { Validation } from "@/shared/utils/validationRules";
 
 export const validateEmails = (emails: string[]): boolean => {
@@ -7,7 +8,7 @@ export const validateEmails = (emails: string[]): boolean => {
 
 export const validateEmail = (email: string): boolean => {
   const regexp = new RegExp(Validation.emailRegex);
-  return regexp.test(email);
+  return email.length <= FieldLimits.email && regexp.test(email);
 };
 
 export const validatePassword = (password: string): boolean => {

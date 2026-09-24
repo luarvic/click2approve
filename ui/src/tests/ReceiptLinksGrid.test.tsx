@@ -23,11 +23,13 @@ vi.mock("@/app/rootStore", () => ({
   },
 }));
 vi.mock("@/shared/hooks/useGridRefresh", async () => {
-  const { useEffect } = await import("react");
+  const { useEffect, useRef } = await import("react");
   return {
     useGridRefresh: (load: () => Promise<void>, version: number) => {
+      const loadRef = useRef(load);
+      loadRef.current = load;
       useEffect(() => {
-        void load();
+        void loadRef.current();
       }, [version]);
       return false;
     },

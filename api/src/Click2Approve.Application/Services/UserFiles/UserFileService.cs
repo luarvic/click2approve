@@ -1,6 +1,7 @@
 using Click2Approve.Application.Models.Files;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
+using FluentValidation;
 
 namespace Click2Approve.Application.Services.UserFiles;
 
@@ -13,8 +14,10 @@ public class UserFileService(
     ITenantContext tenantContext,
     IUnitOfWork unitOfWork,
     IUserFileStorage fileStorage,
-    ILogger<UserFileService> logger) : IUserFileService
+    ILogger<UserFileService> logger,
+    IValidator<UploadedFile> uploadedFileValidator) : IUserFileService
 {
+    private readonly IValidator<UploadedFile> _uploadedFileValidator = uploadedFileValidator;
     private readonly IConfiguration _configuration = configuration;
     private readonly IUserFileRepository _userFileRepository = userFileRepository;
     private readonly ITenantContext _tenantContext = tenantContext;
@@ -27,6 +30,8 @@ public class UserFileService(
     /// </summary>
     public virtual async Task<IList<UserFileResult>> UploadAsync(AppUser user, IReadOnlyCollection<UploadedFile> files, CancellationToken cancellationToken)
     {
+        foreach (var file in files)
+            await _uploadedFileValidator.ValidateAndThrowAsync(file, cancellationToken);
         await CheckLimitations(user, files, cancellationToken);
         var tenantId = await _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
 

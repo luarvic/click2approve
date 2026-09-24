@@ -1,5 +1,8 @@
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { Forms } from "@/shared/components/dialogs/formStyles";
+import { FieldLimits } from "@/shared/config/fieldLimits";
+import { useFormValidation } from "@/shared/hooks/useFormValidation";
+import { futureDateRule, textRule } from "@/shared/utils/formValidation";
 import {
   Button,
   Dialog,
@@ -26,14 +29,25 @@ const NewApiTokenDialog: React.FC<NewApiTokenDialogProps> = ({ loading, open, on
   const [name, setName] = useState("");
 
   const handleClose = () => {
+    validation.reset();
     setExpiresAt(null);
     setName("");
     onClose();
   };
 
+  const expirationValue = expiresAt ? (expiresAt.isValid() ? expiresAt.toISOString() : "invalid") : "";
+  const validation = useFormValidation(
+    { name, expirationValue },
+    {
+      name: textRule("Name", FieldLimits.name, true),
+      expirationValue: futureDateRule(),
+    },
+    { expirationValue: "ExpiresAt" },
+  );
+
   const handleCreate = async () => {
-    if (!name.trim()) return;
-    const created = await onCreate(name.trim(), expiresAt?.toISOString() ?? null);
+    if (!validation.validate()) return;
+    const created = await validation.run(() => onCreate(name.trim(), expiresAt?.toISOString() ?? null));
     if (created) handleClose();
   };
 
@@ -51,11 +65,12 @@ const NewApiTokenDialog: React.FC<NewApiTokenDialogProps> = ({ loading, open, on
             onChange={(event) => setName(event.target.value)}
             required
             value={name}
+            {...validation.field("name")}
           />
           <DateTimePicker
             label="Expires at"
             minDateTime={dayjs()}
-            slotProps={{ field: { clearable: true } }}
+            slotProps={{ field: { clearable: true }, textField: validation.field("expirationValue") }}
             value={expiresAt}
             onChange={setExpiresAt}
           />
@@ -65,7 +80,7 @@ const NewApiTokenDialog: React.FC<NewApiTokenDialogProps> = ({ loading, open, on
         <Button disabled={loading} onClick={handleClose} type="button">
           Cancel
         </Button>
-        <MainActionButton disabled={!name.trim()} loading={loading} onClick={() => void handleCreate()} type="button">
+        <MainActionButton loading={loading} onClick={() => void handleCreate()} type="button">
           Create token
         </MainActionButton>
       </DialogActions>

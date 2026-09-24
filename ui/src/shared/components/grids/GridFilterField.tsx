@@ -1,6 +1,8 @@
 import { FilterStyles } from "@/shared/components/grids/filterStyles";
 import { Filters } from "@/shared/config/application";
+import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
+import { textRule } from "@/shared/utils/formValidation";
 import { Autocomplete, MenuItem, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -12,6 +14,7 @@ export interface GridFilterOption {
 export interface GridFilterFieldProps {
   label: string;
   multiple?: boolean;
+  maxLength?: number;
   onChange: (value: any) => void;
   options?: GridFilterOption[];
   value: string | string[];
@@ -19,7 +22,7 @@ export interface GridFilterFieldProps {
 
 /** Renders a consistently styled grid filter, debouncing free-text values. */
 const GridFilterField: React.FC<GridFilterFieldProps> = (props) => {
-  const { label, multiple = false, onChange, options, value } = props;
+  const { label, maxLength = FieldLimits.name, multiple = false, onChange, options, value } = props;
   const [textValue, setTextValue] = useState(typeof value === "string" ? value : "");
   const debouncedTextValue = useDebouncedValue(textValue, Filters.textInputDebounceMs);
 
@@ -27,11 +30,19 @@ const GridFilterField: React.FC<GridFilterFieldProps> = (props) => {
     if (typeof value === "string") setTextValue(value);
   }, [value]);
 
+  const error =
+    !options && textValue === debouncedTextValue ? textRule(label, maxLength)(debouncedTextValue) : undefined;
+
   useEffect(() => {
-    if (!options && typeof value === "string" && debouncedTextValue !== value) {
+    if (
+      !textRule(label, maxLength)(debouncedTextValue) &&
+      !options &&
+      typeof value === "string" &&
+      debouncedTextValue !== value
+    ) {
       onChange(debouncedTextValue);
     }
-  }, [debouncedTextValue, onChange, options, value]);
+  }, [debouncedTextValue, label, maxLength, onChange, options, value]);
 
   if (multiple) {
     return (
@@ -52,6 +63,8 @@ const GridFilterField: React.FC<GridFilterFieldProps> = (props) => {
   return (
     <TextField
       label={label}
+      error={Boolean(error)}
+      helperText={error}
       onChange={(event) => (options ? onChange(event.target.value) : setTextValue(event.target.value))}
       select={Boolean(options)}
       size="small"

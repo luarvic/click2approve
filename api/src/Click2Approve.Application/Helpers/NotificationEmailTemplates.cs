@@ -7,6 +7,8 @@ namespace Click2Approve.Application.Helpers;
 /// <summary>Builds concise, action-aware content for each supported notification.</summary>
 public static class NotificationEmailTemplates
 {
+    private const int MaximumPreviewCharacters = 200;
+
     /// <summary>Creates a notification template from event-specific context.</summary>
     public static EmailTemplateModel Create(NotificationType type, NotificationEmailContext context)
     {
@@ -58,7 +60,7 @@ public static class NotificationEmailTemplates
         if (string.IsNullOrWhiteSpace(message)) return null;
         var text = string.Join(" ", message.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
         var elements = StringInfo.ParseCombiningCharacters(text);
-        return elements.Length <= 200 ? text : text[..elements[199]].TrimEnd() + "…";
+        return elements.Length <= MaximumPreviewCharacters ? text : text[..elements[MaximumPreviewCharacters - 1]].TrimEnd() + "…";
     }
 
     private static EmailTemplateModel TaskCreated(EmailTemplateModel model, NotificationEmailContext context)

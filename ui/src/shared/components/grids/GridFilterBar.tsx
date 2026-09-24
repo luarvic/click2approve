@@ -10,6 +10,7 @@ export type GridFilterItem =
       label: string;
       onChange: (value: string) => void;
       type: "text";
+      maxLength?: number;
       value: string;
     }
   | {
@@ -23,6 +24,8 @@ export type GridFilterItem =
       label: string;
       onChange: (value: Dayjs | null) => void;
       type: "date";
+      minDate?: Dayjs;
+      maxDate?: Dayjs;
       value: Dayjs | null;
     };
 
@@ -46,8 +49,12 @@ const GridFilterBar: React.FC<GridFilterBarProps> = ({ items }) => (
                 field: { clearable: true },
                 textField: { size: "small", sx: FilterStyles.multiSelectSx, variant: "outlined" },
               }}
+              minDate={item.minDate}
+              maxDate={item.maxDate}
               value={item.value}
-              onChange={item.onChange}
+              onChange={(value, context) => {
+                if (!context.validationError) item.onChange(value);
+              }}
             />
           );
         case "multiSelect":
@@ -62,7 +69,15 @@ const GridFilterBar: React.FC<GridFilterBarProps> = ({ items }) => (
             />
           );
         case "text":
-          return <GridFilterField key={item.label} label={item.label} value={item.value} onChange={item.onChange} />;
+          return (
+            <GridFilterField
+              key={item.label}
+              label={item.label}
+              maxLength={item.maxLength}
+              value={item.value}
+              onChange={item.onChange}
+            />
+          );
       }
     })}
   </Stack>

@@ -1,10 +1,12 @@
 import { stores } from "@/app/rootStore";
 import { manageTwoFactor } from "@/features/identity/api/mfaApi";
+import { authenticatorCodePattern, IdentityValidation } from "@/features/identity/config/identityValidation";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import InlineNotice from "@/shared/components/status/InlineNotice";
 import CopyableCodeField from "@/shared/components/text/CopyableCodeField";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { notification } from "@/shared/utils/notifications";
 import {
@@ -54,15 +56,27 @@ const MfaSettingsDialog = ({ mode, onClose }: Props) => {
   const action = useAsyncAction(ActionLoaders.identity.saveMfa());
   const issuer = "Click2Approve";
   const email = stores.userAccountStore.currentUser?.email ?? "";
-  const authenticatorUri = `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(email)}?secret=${sharedKey ?? ""}&issuer=${encodeURIComponent(issuer)}&digits=6&period=30`;
+  const authenticatorUri = `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(email)}?secret=${sharedKey ?? ""}&issuer=${encodeURIComponent(issuer)}&digits=${IdentityValidation.authenticatorCodeLength}&period=${IdentityValidation.authenticatorPeriodSeconds}`;
   const close = () => {
     if (action.isRunning || (recoveryCodes && !savedCodes)) return;
     onClose();
     if (sessionChanged) stores.userAccountStore.signOut();
   };
+  const validation = useFormValidation(
+    { code },
+    {
+      code: (value) =>
+        sharedKey && !authenticatorCodePattern.test(value.replace(/\s/g, ""))
+          ? `Enter the ${IdentityValidation.authenticatorCodeLength}-digit code from your authenticator app.`
+          : undefined,
+    },
+  );
   const submit = async () => {
-    if (sharedKey && !/^\d{6}$/.test(code.replace(/\s/g, ""))) {
-      notification.warning("Enter the six-digit code from your authenticator app.");
+    if (!validation.validate()) return;
+    if (sharedKey && !authenticatorCodePattern.test(code.replace(/\s/g, ""))) {
+      notification.warning(
+        `Enter the ${IdentityValidation.authenticatorCodeLength}-digit code from your authenticator app.`,
+      );
       return;
     }
     await action.run(async () => {
@@ -157,8 +171,9 @@ const MfaSettingsDialog = ({ mode, onClose }: Props) => {
                     autoFocus
                     label="Verification code from your authenticator app"
                     value={code}
+                    {...validation.field("code")}
                     autoComplete="one-time-code"
-                    inputProps={{ inputMode: "numeric", maxLength: 6 }}
+                    inputProps={{ inputMode: "numeric", maxLength: IdentityValidation.authenticatorCodeLength }}
                     disabled={action.isRunning}
                     onChange={(event) => setCode(event.target.value)}
                   />

@@ -11,6 +11,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { useCallback } from "react";
 
 interface DiscussionComposerProps {
+  error?: string;
   attachmentsAreEnabled: boolean;
   body: string;
   files: UserFile[];
@@ -22,6 +23,7 @@ interface DiscussionComposerProps {
 
 const DiscussionComposer: React.FC<DiscussionComposerProps> = ({
   attachmentsAreEnabled,
+  error,
   body,
   files,
   onBodyChange,
@@ -53,6 +55,8 @@ const DiscussionComposer: React.FC<DiscussionComposerProps> = ({
       <TextField
         fullWidth
         label="Message"
+        error={Boolean(error)}
+        helperText={error}
         multiline
         value={body}
         onChange={(event) => onBodyChange(event.target.value)}

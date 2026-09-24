@@ -2,6 +2,7 @@ using Asp.Versioning;
 using Click2Approve.Application.Abstractions.Services.Notifications;
 using Click2Approve.Application.Abstractions.TenantContext;
 using Click2Approve.Domain.Models;
+using Click2Approve.Domain.Validation;
 using Click2Approve.WebApi.Extensions;
 using Click2Approve.WebApi.Mappers.Grids;
 using Click2Approve.WebApi.Mappers.Notifications;
@@ -62,9 +63,9 @@ public class InAppNotificationController(
         [FromBody] ReadInAppNotificationsRequest payload,
         CancellationToken cancellationToken)
     {
-        if (payload.NotificationGlobalIds.Count is < 1 or > 100)
+        if (payload.NotificationGlobalIds.Count is < 1 or > CollectionLimits.NotificationActionItems)
         {
-            return BadRequest("Between one and 100 notification deliveries must be selected.");
+            return BadRequest($"Between one and {CollectionLimits.NotificationActionItems} notification deliveries must be selected.");
         }
 
         var user = await userManager.GetAppUserAsync(User);
@@ -82,9 +83,9 @@ public class InAppNotificationController(
         [FromBody] DeleteInAppNotificationsRequest payload,
         CancellationToken cancellationToken)
     {
-        if (payload.NotificationGlobalIds.Count is < 1 or > 100)
+        if (payload.NotificationGlobalIds.Count is < 1 or > CollectionLimits.NotificationActionItems)
         {
-            return BadRequest("Between one and 100 notification deliveries must be selected.");
+            return BadRequest($"Between one and {CollectionLimits.NotificationActionItems} notification deliveries must be selected.");
         }
 
         var user = await userManager.GetAppUserAsync(User);

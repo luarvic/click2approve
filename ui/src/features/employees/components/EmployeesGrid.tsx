@@ -3,15 +3,16 @@ import { listEmployeeGrid } from "@/features/employees/api/employeesApi";
 import { EmployeeGridSettings } from "@/features/employees/components/gridSettings";
 import { EmployeeListItem, EmployeeStatus } from "@/features/employees/models/employee";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
-import GridFilters from "@/shared/components/grids/GridFilters";
-import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import CompactGridCell from "@/shared/components/grids/CompactGridCell";
 import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGridSecondaryInformation";
 import CompactGridStatus from "@/shared/components/grids/CompactGridStatus";
 import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
+import GridFilters from "@/shared/components/grids/GridFilters";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { StatusLineLabel } from "@/shared/components/status/StatusLines";
+import { FieldLimits } from "@/shared/config/fieldLimits";
 import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
 import { parseSimpleGridQuery, serializeSimpleGridQuery } from "@/shared/grids/simpleGridQuery";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
@@ -208,7 +209,7 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
         <Box sx={filterContainerSx}>
           <GridFilters
             fields={[
-              { label: "Email", onChange: filter("email"), value: query.filters.email },
+              { label: "Email", maxLength: FieldLimits.email, onChange: filter("email"), value: query.filters.email },
               { label: "First name", onChange: filter("firstName"), value: query.filters.firstName },
               { label: "Last name", onChange: filter("lastName"), value: query.filters.lastName },
               { label: "Position", onChange: filter("position"), value: query.filters.position },

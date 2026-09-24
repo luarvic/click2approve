@@ -1,10 +1,11 @@
 import { Team, TeamListItem, TeamPickerItem, UpsertTeamRequest } from "@/features/teams/models/team";
-import axios from "@/shared/api/axios";
 import { ApiPaths } from "@/shared/api/apiPaths";
+import axios from "@/shared/api/axios";
+import { PaginationLimits } from "@/shared/config/paginationLimits";
+import type { GridPage } from "@/shared/grids/gridPage";
+import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
-import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
-import type { GridPage } from "@/shared/grids/gridPage";
 
 export const listTeamGrid = async (tenantGlobalId: string, query: SimpleGridQuery): Promise<GridPage<TeamListItem>> => {
   try {
@@ -26,7 +27,13 @@ export const listTeamGrid = async (tenantGlobalId: string, query: SimpleGridQuer
 
 export const listTeams = async (tenantGlobalId: string): Promise<TeamListItem[]> => {
   return (
-    await listTeamGrid(tenantGlobalId, { filters: {}, page: 0, pageSize: 100, sortBy: "name", sortDirection: "asc" })
+    await listTeamGrid(tenantGlobalId, {
+      filters: {},
+      page: 0,
+      pageSize: PaginationLimits.maximumPageSize,
+      sortBy: "name",
+      sortDirection: "asc",
+    })
   ).items;
 };
 

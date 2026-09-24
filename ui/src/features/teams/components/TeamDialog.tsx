@@ -9,10 +9,13 @@ import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirma
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
+import { textRule } from "@/shared/utils/formValidation";
 import { Autocomplete, Button, Stack, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -30,44 +33,46 @@ const getEmployeeLabel = (employee: Employee) => getEmployeeDisplayName(employee
 const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClose, onDelete, onSubmit }) => {
   const [name, setName] = useState("");
   const [members, setMembers] = useState<Employee[]>([]);
-  const [nameTouched, setNameTouched] = useState(false);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const saveLoader = ActionLoaders.teams.save(team?.globalId);
   const saveAction = useAsyncAction(saveLoader);
   const isNew = team === null;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const teamsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/teams") : "/";
-  const nameHasError = nameTouched && !name.trim();
   const saveIsLoading = saveAction.isRunning || stores.commonStore.isActionLoading(saveLoader);
   useEffect(() => {
     setName(team?.name ?? "");
     setMembers(team?.members ?? []);
-    setNameTouched(false);
   }, [team]);
 
+  const validation = useFormValidation(
+    { name },
+    {
+      name: textRule("Name", FieldLimits.name, true),
+    },
+  );
+
   const handleSubmit = async () => {
+    if (!validation.validate()) return;
     if (!canEdit) {
       return;
     }
 
-    if (!name.trim()) {
-      setNameTouched(true);
-      return;
-    }
+    await validation.run(() =>
+      saveAction.run(async () => {
+        const savedTeam = await onSubmit(
+          {
+            name: name.trim(),
+            employeeGlobalIds: members.map((member) => member.globalId),
+          },
+          team?.globalId,
+        );
 
-    await saveAction.run(async () => {
-      const savedTeam = await onSubmit(
-        {
-          name: name.trim(),
-          employeeGlobalIds: members.map((member) => member.globalId),
-        },
-        team?.globalId,
-      );
-
-      if (savedTeam) {
-        onClose(savedTeam.globalId);
-      }
-    });
+        if (savedTeam) {
+          onClose(savedTeam.globalId);
+        }
+      }),
+    );
   };
 
   return (
@@ -86,10 +91,8 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
         <TextField
           label="Name"
           value={name}
+          {...validation.field("name")}
           onChange={(event) => setName(event.target.value)}
-          onBlur={() => setNameTouched(true)}
-          error={nameHasError}
-          helperText={nameHasError ? "Team name is required." : undefined}
           fullWidth
           required
           disabled={!canEdit}

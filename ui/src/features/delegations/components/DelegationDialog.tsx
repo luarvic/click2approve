@@ -8,6 +8,7 @@ import { Forms } from "@/shared/components/dialogs/formStyles";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
@@ -35,25 +36,25 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
 }) => {
   const [delegatorEmployeeId, setDelegatorEmployeeId] = useState(employeeSelectionDefault);
   const [delegateEmployeeId, setDelegateEmployeeId] = useState(employeeSelectionDefault);
-  const [delegatorTouched, setDelegatorTouched] = useState(false);
-  const [delegateTouched, setDelegateTouched] = useState(false);
-  const [submitAttempted, setSubmitAttempted] = useState(false);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const saveLoader = ActionLoaders.delegations.save(delegation?.globalId);
   const saveAction = useAsyncAction(saveLoader);
   const isNew = delegation === null;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const delegationsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/delegations") : "/";
-  const selectionsAreMissing = !delegatorEmployeeId || !delegateEmployeeId;
-  const employeesMatch =
-    delegatorEmployeeId !== employeeSelectionDefault &&
-    delegateEmployeeId !== employeeSelectionDefault &&
-    delegatorEmployeeId === delegateEmployeeId;
-  const delegatorHasError = (delegatorTouched || submitAttempted) && !delegatorEmployeeId;
-  const delegateHasError = ((delegateTouched || submitAttempted) && !delegateEmployeeId) || employeesMatch;
-  const delegateHelperText = employeesMatch
-    ? "Delegator and delegate must be different employees."
-    : "Select a delegate.";
+  const validation = useFormValidation(
+    { delegatorEmployeeId, delegateEmployeeId },
+    {
+      delegatorEmployeeId: (value) => (!value ? "Select an employee." : undefined),
+      delegateEmployeeId: (value) =>
+        !value
+          ? "Select a delegate."
+          : value === delegatorEmployeeId
+            ? "Delegator and delegate must be different employees."
+            : undefined,
+    },
+    { delegatorEmployeeId: "DelegatorEmployeeGlobalId", delegateEmployeeId: "DelegateEmployeeGlobalId" },
+  );
   const saveIsLoading = saveAction.isRunning || stores.commonStore.isActionLoading(saveLoader);
   const fieldsDisabled = !isNew && !canEdit;
   const delegationName = `${getEmployeeName(
@@ -72,30 +73,28 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
   useEffect(() => {
     setDelegatorEmployeeId(delegation?.delegatorEmployeeGlobalId ?? employeeSelectionDefault);
     setDelegateEmployeeId(delegation?.delegateEmployeeGlobalId ?? employeeSelectionDefault);
-    setDelegatorTouched(false);
-    setDelegateTouched(false);
-    setSubmitAttempted(false);
   }, [delegation]);
 
   const handleSubmit = async () => {
-    setSubmitAttempted(true);
-    if (selectionsAreMissing || employeesMatch) {
+    if (!validation.validate()) {
       return;
     }
 
-    await saveAction.run(async () => {
-      const savedDelegation = await onSubmit(
-        {
-          delegateEmployeeGlobalId: delegateEmployeeId,
-          delegatorEmployeeGlobalId: delegatorEmployeeId,
-        },
-        delegation?.globalId,
-      );
+    await validation.run(() =>
+      saveAction.run(async () => {
+        const savedDelegation = await onSubmit(
+          {
+            delegateEmployeeGlobalId: delegateEmployeeId,
+            delegatorEmployeeGlobalId: delegatorEmployeeId,
+          },
+          delegation?.globalId,
+        );
 
-      if (savedDelegation) {
-        onClose(savedDelegation.globalId);
-      }
-    });
+        if (savedDelegation) {
+          onClose(savedDelegation.globalId);
+        }
+      }),
+    );
   };
 
   return (
@@ -121,9 +120,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
             renderValue: (selected) => renderEmployeeValue(selected as string),
           }}
           onChange={(event) => setDelegatorEmployeeId(event.target.value)}
-          onBlur={() => setDelegatorTouched(true)}
-          error={delegatorHasError}
-          helperText={delegatorHasError ? "Select an employee." : undefined}
+          {...validation.field("delegatorEmployeeId")}
           fullWidth
           required
           disabled={fieldsDisabled}
@@ -147,9 +144,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
             renderValue: (selected) => renderEmployeeValue(selected as string),
           }}
           onChange={(event) => setDelegateEmployeeId(event.target.value)}
-          onBlur={() => setDelegateTouched(true)}
-          error={delegateHasError}
-          helperText={delegateHasError ? delegateHelperText : undefined}
+          {...validation.field("delegateEmployeeId")}
           fullWidth
           required
           disabled={fieldsDisabled}

@@ -1,5 +1,5 @@
-import type { NotificationStatus } from "@/features/notifications/models/notificationGridQuery";
 import { getNotificationTypeLabel, notificationTypes } from "@/features/notifications/models/notification";
+import type { NotificationStatus } from "@/features/notifications/models/notificationGridQuery";
 import GridFilterBar from "@/shared/components/grids/GridFilterBar";
 import { NotificationType } from "@/shared/models/notifications";
 import type { Dayjs } from "dayjs";
@@ -49,8 +49,20 @@ const NotificationsFilter: React.FC<NotificationsFilterProps> = ({
         value: statuses,
       },
       { label: "Details", onChange: onDetailsChange, type: "text", value: details },
-      { label: "Received from", onChange: onReceivedFromChange, type: "date", value: receivedFrom },
-      { label: "Received to", onChange: onReceivedToChange, type: "date", value: receivedTo },
+      {
+        label: "Received from",
+        onChange: onReceivedFromChange,
+        type: "date",
+        maxDate: receivedTo ?? undefined,
+        value: receivedFrom,
+      },
+      {
+        label: "Received to",
+        onChange: onReceivedToChange,
+        type: "date",
+        minDate: receivedFrom ?? undefined,
+        value: receivedTo,
+      },
     ]}
   />
 );

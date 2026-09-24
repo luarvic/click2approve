@@ -8,6 +8,7 @@ import { alpha } from "@mui/material/styles";
 
 export interface ElectronicSignatureErrors {
   legalName: string;
+  representationDetails?: string;
   signature: string;
 }
 
@@ -66,6 +67,8 @@ const ApprovalRequestElectronicSignatureForm: React.FC<ApprovalRequestElectronic
         <TextField
           fullWidth
           label="Representation details"
+          error={Boolean(errors.representationDetails)}
+          helperText={errors.representationDetails}
           multiline
           value={representationDetails}
           onChange={(event) => onRepresentationDetailsChange(event.target.value)}

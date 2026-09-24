@@ -1,5 +1,6 @@
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import GridFilterBar from "@/shared/components/grids/GridFilterBar";
+import { FieldLimits } from "@/shared/config/fieldLimits";
 import type { Dayjs } from "dayjs";
 
 interface ApprovalRequestTasksFilterProps {
@@ -35,7 +36,13 @@ const ApprovalRequestTasksFilter: React.FC<ApprovalRequestTasksFilterProps> = ({
     <GridFilterBar
       items={[
         { label: "Title", onChange: onTitleChange, type: "text", value: title },
-        { label: "Requested by", onChange: onRequestedByChange, type: "text", value: requestedBy },
+        {
+          label: "Requested by",
+          maxLength: FieldLimits.participantDisplayName,
+          onChange: onRequestedByChange,
+          type: "text",
+          value: requestedBy,
+        },
         {
           label: "Status",
           onChange: (values) => onStatusesChange(values.map((value) => Number(value) as ApprovalRequestTaskStatus)),
@@ -43,8 +50,20 @@ const ApprovalRequestTasksFilter: React.FC<ApprovalRequestTasksFilterProps> = ({
           type: "multiSelect",
           value: statuses.map(String),
         },
-        { label: "Created from", onChange: onCreatedFromChange, type: "date", value: createdFrom },
-        { label: "Created to", onChange: onCreatedToChange, type: "date", value: createdTo },
+        {
+          label: "Created from",
+          onChange: onCreatedFromChange,
+          type: "date",
+          maxDate: createdTo ?? undefined,
+          value: createdFrom,
+        },
+        {
+          label: "Created to",
+          onChange: onCreatedToChange,
+          type: "date",
+          minDate: createdFrom ?? undefined,
+          value: createdTo,
+        },
       ]}
     />
   );

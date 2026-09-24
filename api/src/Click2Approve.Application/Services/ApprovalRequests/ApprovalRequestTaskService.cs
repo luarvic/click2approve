@@ -1,5 +1,8 @@
+using Click2Approve.Domain.Validation;
+using Click2Approve.Application.Validation.ApprovalRequests;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
+using FluentValidation;
 
 namespace Click2Approve.Application.Services.ApprovalRequests;
 
@@ -10,8 +13,16 @@ public class ApprovalRequestTaskService(
     IApprovalRequestTaskRepository approvalRequestTaskRepository,
     IUnitOfWork unitOfWork,
     IApprovalWorkflowService workflowService,
-    IApprovalRequestTaskCompletionAttributor completionAttributor) : IApprovalRequestTaskService
+    IApprovalRequestTaskCompletionAttributor completionAttributor,
+    IValidator<ApprovalRequestTaskListQueryCommand> approvalRequestTaskListQueryCommandValidator,
+    IValidator<CompleteApprovalRequestTaskCommand> completeApprovalRequestTaskCommandValidator,
+    IValidator<TaskCompletionContext> taskCompletionValidator) : IApprovalRequestTaskService
 {
+    private readonly IValidator<ApprovalRequestTaskListQueryCommand> _approvalRequestTaskListQueryCommandValidator =
+        approvalRequestTaskListQueryCommandValidator;
+    private readonly IValidator<CompleteApprovalRequestTaskCommand> _completeApprovalRequestTaskCommandValidator =
+        completeApprovalRequestTaskCommandValidator;
+    private readonly IValidator<TaskCompletionContext> _taskCompletionValidator = taskCompletionValidator;
     private readonly IApprovalRequestTaskRepository _approvalRequestTaskRepository = approvalRequestTaskRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IApprovalWorkflowService _workflowService = workflowService;
@@ -25,6 +36,7 @@ public class ApprovalRequestTaskService(
         ApprovalRequestTaskListQueryCommand query,
         CancellationToken cancellationToken)
     {
+        await _approvalRequestTaskListQueryCommandValidator.ValidateAndThrowAsync(query, cancellationToken);
         return await _approvalRequestTaskRepository.ListAsync(user, query, cancellationToken);
     }
 
@@ -42,24 +54,13 @@ public class ApprovalRequestTaskService(
     /// </summary>
     public async Task CompleteAsync(AppUser user, CompleteApprovalRequestTaskCommand payload, CancellationToken cancellationToken)
     {
+        await _completeApprovalRequestTaskCommandValidator.ValidateAndThrowAsync(payload, cancellationToken);
         var approvalRequestTask = await _approvalRequestTaskRepository.GetForCompletionAsync(user, payload.GlobalId, cancellationToken)
             ?? throw new NotFoundException("Approval request task was not found.");
-        if (approvalRequestTask.Status != ApprovalRequestTaskStatus.Pending)
-        {
-            throw new BusinessRuleException("The task has already been completed.");
-        }
-
+        await _taskCompletionValidator.ValidateAndThrowAsync(
+            new TaskCompletionContext(approvalRequestTask, payload), cancellationToken);
         var now = DateTime.UtcNow;
         ApplyCompletionDetails(approvalRequestTask, payload);
-        if ((!payload.Result || approvalRequestTask.IsCommentRequired) && string.IsNullOrWhiteSpace(payload.Comment))
-        {
-            throw new BusinessRuleException("Comment is required.");
-        }
-        if (payload.Result && approvalRequestTask.IsAttachmentRequired
-            && !await _approvalRequestTaskRepository.HasAttachmentsAsync(approvalRequestTask, cancellationToken))
-        {
-            throw new BusinessRuleException("At least one attachment is required.");
-        }
 
         approvalRequestTask.Status = ApprovalRequestTaskStatus.Completed;
         approvalRequestTask.Result = payload.Result;
@@ -83,8 +84,8 @@ public class ApprovalRequestTaskService(
         ApprovalRequestTask approvalRequestTask,
         CompleteApprovalRequestTaskCommand payload)
     {
-        approvalRequestTask.AssigneeIpAddress = TrimToLength(payload.AssigneeIpAddress, 128);
-        approvalRequestTask.AssigneeBrowserData = TrimToLength(payload.AssigneeBrowserData, 1024);
+        approvalRequestTask.AssigneeIpAddress = TrimToLength(payload.AssigneeIpAddress, FieldLimits.IpAddress);
+        approvalRequestTask.AssigneeBrowserData = TrimToLength(payload.AssigneeBrowserData, FieldLimits.Details);
         if (!payload.Result || !approvalRequestTask.IsElectronicSignatureRequired)
         {
             return;
@@ -92,23 +93,8 @@ public class ApprovalRequestTaskService(
 
         var legalName = (payload.AssigneeLegalName ?? string.Empty).Trim();
         var signatureJson = (payload.AssigneeSignatureJson ?? string.Empty).Trim();
-        if (legalName.Length == 0)
-        {
-            throw new BusinessRuleException("Legal name is required.");
-        }
-
-        if (signatureJson.Length == 0)
-        {
-            throw new BusinessRuleException("Signature is required.");
-        }
-
-        if (signatureJson.Length > 16000)
-        {
-            throw new BusinessRuleException("Signature is too large.");
-        }
-
         approvalRequestTask.AssigneeLegalName = legalName;
-        approvalRequestTask.AssigneeRepresentationDetails = TrimToLength(payload.AssigneeRepresentationDetails, 1024);
+        approvalRequestTask.AssigneeRepresentationDetails = TrimToLength(payload.AssigneeRepresentationDetails, FieldLimits.Details);
         approvalRequestTask.AssigneeSignatureJson = signatureJson;
     }
 

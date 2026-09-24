@@ -1,20 +1,21 @@
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskClientAuditContext } from "@/features/approvalRequests/models/approvalRequestTaskClientAuditContext";
-import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
 import {
   ApprovalRequestTaskGridQuery,
   defaultApprovalRequestTaskGridQuery,
   serializeApprovalRequestTaskGridQuery,
 } from "@/features/approvalRequests/models/approvalRequestTaskGridQuery";
+import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
 import {
   normalizeApprovalRequestDates,
   normalizeApprovalRequestTaskDates,
 } from "@/features/approvalRequests/utils/approvalRequestDateNormalizers";
-import axios from "@/shared/api/axios";
 import { ApiPaths } from "@/shared/api/apiPaths";
+import axios from "@/shared/api/axios";
+import { PaginationLimits } from "@/shared/config/paginationLimits";
+import type { GridPage } from "@/shared/grids/gridPage";
 import { getApiErrorNotification, isResourceNotFoundOrForbiddenError } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
-import type { GridPage } from "@/shared/grids/gridPage";
 
 export const completeApprovalRequestTask = async (
   tenantGlobalId: string,
@@ -65,7 +66,12 @@ export const listApprovalRequestTaskGrid = async (
 };
 
 export const listApprovalRequestTasks = async (tenantGlobalId: string): Promise<ApprovalRequestTaskListItem[]> =>
-  (await listApprovalRequestTaskGrid(tenantGlobalId, { ...defaultApprovalRequestTaskGridQuery, pageSize: 100 })).items;
+  (
+    await listApprovalRequestTaskGrid(tenantGlobalId, {
+      ...defaultApprovalRequestTaskGridQuery,
+      pageSize: PaginationLimits.maximumPageSize,
+    })
+  ).items;
 
 export const getApprovalRequestTask = async (
   tenantGlobalId: string,

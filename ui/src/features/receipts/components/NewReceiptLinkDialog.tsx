@@ -1,5 +1,6 @@
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { Forms } from "@/shared/components/dialogs/formStyles";
+import { notification } from "@/shared/utils/notifications";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Stack } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { type Dayjs } from "dayjs";
@@ -18,6 +19,7 @@ const NewReceiptLinkDialog = ({ loading, onClose, onCreate }: NewReceiptLinkDial
   const handleCreate = async () => {
     if (!expiration?.isValid() || expiration.endOf("day").valueOf() <= Date.now()) {
       setError(true);
+      notification.warning("Choose a valid expiration date.");
       return;
     }
     if (await onCreate(expiration.endOf("day").toDate())) onClose();
@@ -61,7 +63,7 @@ const NewReceiptLinkDialog = ({ loading, onClose, onCreate }: NewReceiptLinkDial
         <Button disabled={loading} onClick={onClose}>
           Cancel
         </Button>
-        <MainActionButton disabled={!expiration} loading={loading} onClick={() => void handleCreate()}>
+        <MainActionButton loading={loading} onClick={() => void handleCreate()}>
           Create link
         </MainActionButton>
       </DialogActions>

@@ -1,10 +1,10 @@
 import { deletePasskey, listPasskeys, Passkey, registerPasskey } from "@/features/identity/api/passkeysApi";
 import NewPasskeyDialog from "@/features/identity/components/NewPasskeyDialog";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
-import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import CompactGridCell from "@/shared/components/grids/CompactGridCell";
 import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGridSecondaryInformation";
 import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
@@ -31,13 +31,15 @@ const PasskeySettings = () => {
   const removeAction = useAsyncAction();
   const gridIsLoading = useGridRefresh(async () => setPasskeys(await listPasskeys()), refreshVersion, gridLoader);
 
-  const handleAdd = async (name: string) => {
-    await addAction.run(async () => {
-      if (await registerPasskey(name)) {
+  const handleAdd = async (name: string): Promise<boolean> => {
+    return (
+      (await addAction.run(async () => {
+        if (!(await registerPasskey(name))) return false;
         notification.success("Passkey added.");
         setRefreshVersion((version) => version + 1);
-      }
-    });
+        return true;
+      })) ?? false
+    );
   };
 
   const handleRemove = async (): Promise<boolean> => {

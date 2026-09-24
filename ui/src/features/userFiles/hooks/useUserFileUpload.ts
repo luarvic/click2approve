@@ -1,7 +1,10 @@
 import { uploadUserFiles } from "@/features/userFiles/api/userFilesApi";
 import { UserFile } from "@/features/userFiles/models/userFile";
+import { CollectionLimits } from "@/shared/config/collectionLimits";
+import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { notification } from "@/shared/utils/notifications";
 import type { ChangeEvent } from "react";
 import { useCallback, useRef } from "react";
 
@@ -26,6 +29,15 @@ export const useUserFileUpload = ({ onUploaded, tenantGlobalId }: UseUserFileUpl
         return;
       }
 
+      if (
+        selectedFiles.length > CollectionLimits.files ||
+        selectedFiles.some((file) => !file.name.trim() || file.name.length > FieldLimits.name)
+      ) {
+        notification.warning(
+          `Choose at most ${CollectionLimits.files} files with filenames no longer than ${FieldLimits.name} characters.`,
+        );
+        return;
+      }
       const uploadedFiles = await uploadAction.run(() => uploadUserFiles(tenantGlobalId, selectedFiles));
       if (uploadedFiles?.length) {
         onUploaded(uploadedFiles);
