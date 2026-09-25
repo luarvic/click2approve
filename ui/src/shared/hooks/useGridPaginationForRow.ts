@@ -10,7 +10,7 @@ export const useGridPaginationForRow = <TRow extends RowWithGlobalId>(
   rows: readonly TRow[],
   currentRowGlobalId?: string,
 ) => {
-  const positionedRowGlobalId = useRef<string>();
+  const positionedRowGlobalId = useRef<string | undefined>(undefined);
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
     pageSize: DataGrids.defaultPageSize,

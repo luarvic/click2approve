@@ -2,20 +2,17 @@ import { stores } from "@/app/rootStore";
 import { TenantType } from "@/features/tenants/models/tenant";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { Forms } from "@/shared/components/dialogs/formStyles";
+import { Flex } from "@/shared/components/layout/flexStyles";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
-import type { SxProps } from "@mui/material";
 import { FormControl, FormControlLabel, MenuItem, Radio, RadioGroup, Stack, TextField } from "@mui/material";
-import type { Theme } from "@mui/material/styles";
 import { observer } from "mobx-react-lite";
 import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const continueButtonSx: SxProps<Theme> = { alignSelf: "flex-start" };
 
 type RequestType = "custom" | "template";
 
@@ -110,7 +107,7 @@ const ApprovalRequestStartPage = () => {
               ))}
             </TextField>
           )}
-          <MainActionButton sx={continueButtonSx} type="submit">
+          <MainActionButton sx={Flex.alignSelfStartSx} type="submit">
             Continue
           </MainActionButton>
         </Stack>

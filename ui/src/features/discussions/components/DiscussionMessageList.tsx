@@ -85,7 +85,7 @@ const DiscussionMessageList: React.FC<DiscussionMessageListProps> = ({
           <Stack spacing={StackSpacing.tight}>
             <ApprovalRequestParticipantLine displayName={sender} type={message.sentByType} variant="body2" />
             {message.isDelegated && representedSender && (
-              <Typography color="inherit" sx={delegatedSenderSx} variant="caption">
+              <Typography variant="caption" color="inherit" sx={delegatedSenderSx}>
                 On behalf of {representedSender}
               </Typography>
             )}
@@ -119,7 +119,7 @@ const DiscussionMessageList: React.FC<DiscussionMessageListProps> = ({
         discussionSteps.map((step) => (
           <Fragment key={step.globalId ?? step.sequence}>
             <Divider>
-              <Typography color="text.secondary" variant="body2">
+              <Typography variant="body2" color="text.secondary">
                 {`${step.globalId ? (stepLabels[step.globalId] ?? "Step") : "Step"} · ${
                   getApprovalRequestTaskActionLabels(step.action).positive
                 }`}

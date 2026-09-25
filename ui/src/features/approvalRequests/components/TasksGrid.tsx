@@ -17,11 +17,12 @@ import {
 } from "@/features/approvalRequests/models/approvalRequestTaskGridQuery";
 import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
 import { TenantType } from "@/features/tenants/models/tenant";
-import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import CompactGridCell from "@/shared/components/grids/CompactGridCell";
 import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGridSecondaryInformation";
 import CompactGridStatus from "@/shared/components/grids/CompactGridStatus";
 import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
+import { FilterStyles } from "@/shared/components/grids/filterStyles";
 import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
@@ -30,7 +31,6 @@ import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate } from "@/shared/utils/dateTime";
 import { FilterList } from "@mui/icons-material";
-import type { SxProps, Theme } from "@mui/material";
 import { Box, Button, Link, useMediaQuery, useTheme } from "@mui/material";
 import type { GridSortModel } from "@mui/x-data-grid";
 import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
@@ -42,8 +42,6 @@ import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-d
 interface TasksGridProps {
   currentTaskGlobalId?: string;
 }
-
-const filterContainerSx: SxProps<Theme> = { mb: 2 };
 
 const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
   const navigate = useNavigate();
@@ -213,7 +211,7 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
   return (
     <>
       {filtersAreVisible && (
-        <Box sx={filterContainerSx}>
+        <Box sx={FilterStyles.containerSx}>
           <ApprovalRequestTasksFilter
             createdFrom={createdFromFilter}
             createdTo={createdToFilter}
@@ -230,13 +228,16 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
       )}
       <Box sx={DataGrids.containerSx}>
         <DataGrid
+          showToolbar
           rows={tasks}
           getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
           getEstimatedRowHeight={() => (allColumnsAreVisible ? null : DataGrids.compactRowHeightEstimate)}
-          rowPositionsDebounceMs={DataGrids.compactRowPositionsDebounceMs}
           getRowId={(row) => row.globalId}
           columns={columns}
-          rowSelectionModel={currentTaskGlobalId === undefined ? [] : [currentTaskGlobalId]}
+          rowSelectionModel={{
+            type: "include",
+            ids: new Set(currentTaskGlobalId === undefined ? [] : [currentTaskGlobalId]),
+          }}
           hideFooterSelectedRowCount
           onRowClick={(params) => {
             const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;

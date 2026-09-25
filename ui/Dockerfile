@@ -1,4 +1,4 @@
-FROM node:20.2.0-alpine as build
+FROM node:24-alpine AS build
 ARG ENV=production
 WORKDIR /app
 COPY nginx ./nginx
@@ -9,9 +9,9 @@ COPY package.json ./
 COPY package-lock.json ./
 COPY tsconfig.json ./
 COPY tsconfig.node.json ./
+COPY vite.config.mts ./
 COPY .env.${ENV} ./
-RUN npm install --silent
-RUN npm install react-scripts@5.0.1 -g --silent
+RUN npm ci --silent
 RUN if [ "${ENV}" = "production" ]; then \
   npm run build; \
   else \

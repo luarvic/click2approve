@@ -1,6 +1,7 @@
 import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
 import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
 import { AssigneeType, type ApprovalStepAssignee } from "@/features/approvalWorkflow/models/approvalStep";
+import { Flex } from "@/shared/components/layout/flexStyles";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { stripInlineEmail } from "@/shared/utils/displayNameHelpers";
 import { Stack } from "@mui/material";
@@ -41,7 +42,7 @@ const DiscussionParticipants: React.FC<DiscussionParticipantsProps> = ({
   return (
     <Stack spacing={StackSpacing.default}>
       <ApprovalRequestParticipantLabel>{`Participants · ${participants.length}`}</ApprovalRequestParticipantLabel>
-      <Stack direction="row" flexWrap="wrap" spacing={StackSpacing.default} useFlexGap>
+      <Stack direction="row" spacing={StackSpacing.default} useFlexGap sx={Flex.wrapSx}>
         {participants.map((participant) => (
           <ApprovalRequestParticipantLine
             key={participant.key}

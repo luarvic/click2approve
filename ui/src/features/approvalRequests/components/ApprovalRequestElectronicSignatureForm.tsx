@@ -1,5 +1,6 @@
 import ApprovalRequestSignatureField from "@/features/approvalRequests/components/ApprovalRequestSignatureField";
 import { Forms } from "@/shared/components/dialogs/formStyles";
+import { Flex } from "@/shared/components/layout/flexStyles";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import DrawOutlinedIcon from "@mui/icons-material/DrawOutlined";
 import { Box, InputAdornment, Stack, TextField, Typography } from "@mui/material";
@@ -43,7 +44,7 @@ const ApprovalRequestElectronicSignatureForm: React.FC<ApprovalRequestElectronic
 }) => (
   <Box sx={electronicSignatureFormSx}>
     <Stack spacing={Forms.formStackSpacing}>
-      <Stack alignItems="center" direction="row" spacing={Forms.actionSpacing}>
+      <Stack direction="row" spacing={Forms.actionSpacing} sx={Flex.alignCenterSx}>
         <DrawOutlinedIcon color="secondary" />
         <Typography color="secondary" variant="subtitle1">
           Electronic signature
@@ -72,12 +73,14 @@ const ApprovalRequestElectronicSignatureForm: React.FC<ApprovalRequestElectronic
           multiline
           value={representationDetails}
           onChange={(event) => onRepresentationDetailsChange(event.target.value)}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <HelpPopover helpText="Add an organization name, address, or other context about who or what you represent when signing." />
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <HelpPopover helpText="Add an organization name, address, or other context about who or what you represent when signing." />
+                </InputAdornment>
+              ),
+            },
           }}
         />
       )}

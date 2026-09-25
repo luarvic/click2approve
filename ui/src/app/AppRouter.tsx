@@ -11,11 +11,10 @@ const AppRouter = () => {
       [{ element: <SessionVerificationGuard />, children: [{ path: "*", element: <AppRoutes /> }] }],
       {
         basename: Routes.basePath,
-        future: { v7_relativeSplatPath: true },
       },
     ),
   );
-  return <RouterProvider router={router} future={{ v7_startTransition: true }} />;
+  return <RouterProvider router={router} />;
 };
 
 export default AppRouter;

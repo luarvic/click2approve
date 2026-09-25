@@ -8,11 +8,12 @@ interface FileRowProps {
 }
 
 const fileRowSx: SxProps<Theme> = {
+  alignItems: "center",
   minHeight: 24,
 };
 
 const FileRow: React.FC<FileRowProps> = ({ children, sx }) => (
-  <Stack alignItems="center" direction="row" sx={[fileRowSx, ...(Array.isArray(sx) ? sx : [sx])]}>
+  <Stack direction="row" sx={[fileRowSx, ...(Array.isArray(sx) ? sx : [sx])]}>
     {children}
   </Stack>
 );

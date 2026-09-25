@@ -71,7 +71,7 @@ export interface ReceiptParticipant {
   taskStatus?: ApprovalRequestTaskStatus;
 }
 
-export interface ReceiptParticipantFile extends ReceiptFile {}
+export type ReceiptParticipantFile = ReceiptFile;
 
 export enum ReceiptParticipantRole {
   Requester,

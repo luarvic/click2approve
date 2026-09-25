@@ -1,6 +1,7 @@
 import { stores } from "@/app/rootStore";
 import { getSubscriptionUsage, SubscriptionUsage } from "@/features/subscriptions/api/subscriptionsApi";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
+import { Flex } from "@/shared/components/layout/flexStyles";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import AppCard from "@/shared/components/papers/AppCard";
@@ -16,10 +17,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 const usageChartHeight = 40;
-const usageChartSx: SxProps<Theme> = {
-  // Clip the entire stack so adjoining segments retain straight edges.
-  "& > g[clip-path]": { clipPath: "inset(0 round 4px) fill-box" },
-};
 const usageGridSpacing = 2;
 const lowQuotaThreshold = 0.25;
 const criticalQuotaThreshold = 0.1;
@@ -27,11 +24,12 @@ const usageChartMargin = { bottom: 2.5, left: 0, right: 0, top: 2.5 };
 const bytesPerGigabyte = 1000 * 1000 * 1000;
 const usageLegendMarkerSize = 16;
 const usageLegendSpacing = 1;
-const usageLegendSx: SxProps<Theme> = { mt: 0 };
+const usageLegendSx: SxProps<Theme> = { mt: 0, justifyContent: "flex-start" };
 const usageSummarySx: SxProps<Theme> = { mt: 1 };
 const usageLegendMarkerSx = (color: string): SxProps<Theme> => ({
   backgroundColor: color,
-  borderRadius: 0.5,
+  borderRadius: "50%",
+  flexShrink: 0,
   height: usageLegendMarkerSize,
   width: usageLegendMarkerSize,
 });
@@ -139,38 +137,44 @@ const SubscriptionUsagePage = () => {
                 : usageChartColors.healthy;
           const format = (value: number) => (item.suffix ? prettyBytes(value) : value.toLocaleString());
           return (
-            <Grid item key={item.label} md={4} xs={12}>
+            <Grid
+              key={item.label}
+              size={{
+                md: 4,
+                xs: 12,
+              }}
+            >
               <AppCard elevated>
                 <CardContent>
-                  <Typography color="text.primary" component="h2" variant="h6">
+                  <Typography component="h2" variant="h6" color="text.primary">
                     {item.label}
                   </Typography>
                   <BarChart
                     aria-label={`${item.label}: ${format(item.used)} used, ${format(remaining)} available`}
                     axisHighlight={{ y: "none" }}
-                    bottomAxis={null}
                     height={usageChartHeight}
                     layout="horizontal"
-                    leftAxis={null}
                     margin={usageChartMargin}
                     series={[
                       { color: usedColor, data: [item.used], label: "Used", stack: "quota" },
                       { color: usageChartColors.available, data: [remaining], label: "Available", stack: "quota" },
                     ]}
-                    slotProps={{
-                      legend: { hidden: true },
-                    }}
-                    sx={usageChartSx}
-                    tooltip={{ trigger: "none" }}
-                    xAxis={[{ min: 0, max: Math.max(limit, item.used) }]}
-                    yAxis={[{ data: [item.label], scaleType: "band" }]}
+                    hideLegend
+                    slotProps={{ tooltip: { trigger: "none" } }}
+                    xAxis={[{ min: 0, max: Math.max(limit, item.used), position: "none" }]}
+                    yAxis={[{ data: [item.label], scaleType: "band", position: "none" }]}
                   />
-                  <Stack direction="row" justifyContent="flex-start" spacing={usageLegendSpacing} sx={usageLegendSx}>
+                  <Stack direction="row" spacing={usageLegendSpacing} sx={usageLegendSx}>
                     {[
                       { color: usedColor, label: "Used" },
                       { color: usageChartColors.available, label: "Available" },
                     ].map((legendItem) => (
-                      <Stack alignItems="center" direction="row" key={legendItem.label} spacing={usageLegendSpacing}>
+                      <Stack
+                        direction="row"
+                        key={legendItem.label}
+                        spacing={usageLegendSpacing}
+                        sx={Flex.alignCenterSx}
+                      >
                         <Box sx={usageLegendMarkerSx(legendItem.color)} />
                         <Typography>{legendItem.label}</Typography>
                       </Stack>
@@ -179,7 +183,7 @@ const SubscriptionUsagePage = () => {
                   <Typography sx={usageSummarySx}>
                     {item.limit ? `${format(item.used)} of ${format(item.limit)}` : `${format(item.used)} used`}
                   </Typography>
-                  <Typography color="text.secondary" variant="body2">
+                  <Typography variant="body2" color="text.secondary">
                     {format(remaining)} available
                   </Typography>
                 </CardContent>

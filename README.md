@@ -117,9 +117,6 @@ Blob Storage emulator first from the repository root:
 docker compose up -d db azurite
 ```
 
-The local Azurite image configures blob CORS for the development UI origin
-(`http://localhost:3333`) when it starts.
-
 Then run the Web API project:
 
 ```bash

@@ -1,4 +1,5 @@
 import { stores } from "@/app/rootStore";
+import { ApprovalRequestFileStyles } from "@/features/approvalRequests/components/approvalRequestFileStyles";
 import {
   ApprovalRequestFile,
   ApprovalRequestFileRevisionAction,
@@ -8,6 +9,7 @@ import { downloadApprovalRequestFile, downloadApprovalRequestTaskFile } from "@/
 import FileNameLink from "@/shared/components/files/FileNameLink";
 import FileRow from "@/shared/components/files/FileRow";
 import ReplacedFileGroup from "@/shared/components/files/ReplacedFileGroup";
+import { Flex } from "@/shared/components/layout/flexStyles";
 import CommentPaper from "@/shared/components/papers/CommentPaper";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { Chip, Stack, Tooltip, type SxProps } from "@mui/material";
@@ -21,14 +23,6 @@ interface ApprovalRequestFilesBoxProps {
   compareWithPrevious?: boolean;
   showFileStateIndicators?: boolean;
 }
-
-const replacedOriginalFileLinkSx: SxProps<Theme> = {
-  opacity: 0.55,
-};
-
-const deletedFileLinkSx: SxProps<Theme> = {
-  opacity: 0.55,
-};
 
 const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
   requestFiles,
@@ -65,7 +59,7 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
     tooltip?: string,
   ) => {
     const fileLink = (
-      <FileRow key={key} sx={{ columnGap: StackSpacing.default }}>
+      <FileRow key={key} sx={ApprovalRequestFileStyles.actionsSx}>
         <FileNameLink
           fileName={userFile.name}
           onClick={onDownload ? () => onDownload(userFile) : undefined}
@@ -99,7 +93,7 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
 
   return (
     <CommentPaper>
-      <Stack alignItems="flex-start" spacing={StackSpacing.default}>
+      <Stack spacing={StackSpacing.default} sx={Flex.alignStartSx}>
         {orderedFiles.map((file, index) => {
           if (!compareWithPrevious) {
             return file.revisionAction === ApprovalRequestFileRevisionAction.Removed ? null : renderCurrentFile(file);
@@ -113,7 +107,7 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
             return renderFileLink(
               file.previousUserFile ?? file.userFile,
               file.globalId,
-              showFileStateIndicators ? deletedFileLinkSx : undefined,
+              showFileStateIndicators ? ApprovalRequestFileStyles.inactiveLinkSx : undefined,
               "error",
               showFileStateIndicators ? "Deleted" : undefined,
               showFileStateIndicators ? "Deleted file" : undefined,
@@ -124,7 +118,7 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
             const previousRequestFile = getReplacedOriginalFile(index);
 
             return (
-              <Stack key={file.globalId} alignItems="flex-start" spacing={StackSpacing.default}>
+              <Stack key={file.globalId} spacing={StackSpacing.default} sx={Flex.alignStartSx}>
                 {renderFileLink(
                   file.userFile,
                   `${file.globalId}-current`,
@@ -138,7 +132,7 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
                     {renderFileLink(
                       previousRequestFile?.userFile ?? file.previousUserFile!,
                       `${file.globalId}-previous`,
-                      showFileStateIndicators ? replacedOriginalFileLinkSx : undefined,
+                      showFileStateIndicators ? ApprovalRequestFileStyles.inactiveLinkSx : undefined,
                       "default",
                       undefined,
                       showFileStateIndicators ? "Replaced file" : undefined,

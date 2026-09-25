@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 const renderCompose = (onClose = vi.fn()) => {
   const router = createMemoryRouter([{ path: "*", element: <ApprovalRequestSubmit onClose={onClose} /> }]);
-  return render(<RouterProvider router={router} future={{ v7_startTransition: true }} />);
+  return render(<RouterProvider router={router} />);
 };
 
 describe("request composition", () => {

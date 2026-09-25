@@ -3,10 +3,11 @@ import { useUserFileDelete } from "@/features/userFiles/hooks/useUserFileDelete"
 import { useUserFileUpload } from "@/features/userFiles/hooks/useUserFileUpload";
 import type { UserFile } from "@/features/userFiles/models/userFile";
 import { Files } from "@/shared/components/files/fileInputStyles";
+import { Flex } from "@/shared/components/layout/flexStyles";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { AttachFile } from "@mui/icons-material";
-import LoadingButton from "@mui/lab/LoadingButton";
 import { Stack, TextField } from "@mui/material";
+import Button from "@mui/material/Button";
 import type { Dispatch, SetStateAction } from "react";
 import { useCallback } from "react";
 
@@ -51,7 +52,7 @@ const DiscussionComposer: React.FC<DiscussionComposerProps> = ({
   };
 
   return (
-    <Stack alignItems="flex-start" spacing={StackSpacing.tight}>
+    <Stack spacing={StackSpacing.tight} sx={Flex.alignStartSx}>
       <TextField
         fullWidth
         label="Message"
@@ -77,14 +78,14 @@ const DiscussionComposer: React.FC<DiscussionComposerProps> = ({
       )}
       {attachmentsAreEnabled && (
         <>
-          <LoadingButton
+          <Button
             disabled={isManagingFiles}
             loading={fileUpload.isUploading}
             startIcon={<AttachFile />}
             onClick={fileUpload.openFileDialog}
           >
             Attach files
-          </LoadingButton>
+          </Button>
           <input
             multiple
             ref={fileUpload.fileInput}

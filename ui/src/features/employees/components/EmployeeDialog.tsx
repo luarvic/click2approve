@@ -219,18 +219,24 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
           multiple
           options={teams}
           value={selectedTeams}
+          getOptionKey={(option) => option.globalId}
           getOptionLabel={(option) => option.name}
           isOptionEqualToValue={(option, value) => option.globalId === value.globalId}
           onChange={(_, value) => setSelectedTeams(value)}
           disabled={!canEdit}
-          renderTags={(value, getTagProps) =>
-            value.map((option, index) => (
-              <ApprovalRequestParticipantChip
-                {...getTagProps({ index })}
-                displayName={option.name}
-                type={AssigneeType.Team}
-              />
-            ))
+          renderValue={(value, getItemProps) =>
+            value.map((option, index) => {
+              const { key, ...chipProps } = getItemProps({ index });
+              void key; // Use the resource ID instead of MUI's positional key.
+              return (
+                <ApprovalRequestParticipantChip
+                  key={option.globalId}
+                  {...chipProps}
+                  displayName={option.name}
+                  type={AssigneeType.Team}
+                />
+              );
+            })
           }
           renderInput={(params) => <TextField {...params} label="Teams" helperText="Assign this employee to teams." />}
         />

@@ -1,6 +1,7 @@
 import { FilterStyles } from "@/shared/components/grids/filterStyles";
 import type { GridFilterOption } from "@/shared/components/grids/GridFilterField";
 import GridFilterField from "@/shared/components/grids/GridFilterField";
+import { Flex } from "@/shared/components/layout/flexStyles";
 import { Stack } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import type { Dayjs } from "dayjs";
@@ -37,7 +38,7 @@ const filterStackSpacing = 2;
 
 /** Renders a consistently sized, responsive collection of grid filters. */
 const GridFilterBar: React.FC<GridFilterBarProps> = ({ items }) => (
-  <Stack direction={{ xs: "column", md: "row" }} flexWrap="wrap" spacing={filterStackSpacing} useFlexGap>
+  <Stack direction={{ xs: "column", md: "row" }} spacing={filterStackSpacing} useFlexGap sx={Flex.wrapSx}>
     {items.map((item) => {
       switch (item.type) {
         case "date":

@@ -16,11 +16,12 @@ import {
   serializeApprovalRequestGridQuery,
 } from "@/features/approvalRequests/models/approvalRequestGridQuery";
 import { ApprovalRequestListItem } from "@/features/approvalRequests/models/approvalRequestListItem";
-import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import CompactGridCell from "@/shared/components/grids/CompactGridCell";
 import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGridSecondaryInformation";
 import CompactGridStatus from "@/shared/components/grids/CompactGridStatus";
 import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
+import { FilterStyles } from "@/shared/components/grids/filterStyles";
 import OneLineDisplayName from "@/shared/components/identity/OneLineDisplayName";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
@@ -29,7 +30,6 @@ import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate } from "@/shared/utils/dateTime";
 import { Add, FilterList } from "@mui/icons-material";
-import type { SxProps, Theme } from "@mui/material";
 import { Box, Button, Link, useMediaQuery, useTheme } from "@mui/material";
 import type { GridSortModel } from "@mui/x-data-grid";
 import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
@@ -41,8 +41,6 @@ import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-d
 interface RequestsGridProps {
   currentApprovalRequestGlobalId?: string;
 }
-
-const filterContainerSx: SxProps<Theme> = { mb: 2 };
 
 const RequestsGrid: React.FC<RequestsGridProps> = ({ currentApprovalRequestGlobalId }) => {
   const navigate = useNavigate();
@@ -205,7 +203,7 @@ const RequestsGrid: React.FC<RequestsGridProps> = ({ currentApprovalRequestGloba
   return (
     <>
       {filtersAreVisible && (
-        <Box sx={filterContainerSx}>
+        <Box sx={FilterStyles.containerSx}>
           <ApprovalRequestsFilter
             createdFrom={createdFromFilter}
             createdTo={createdToFilter}
@@ -222,19 +220,22 @@ const RequestsGrid: React.FC<RequestsGridProps> = ({ currentApprovalRequestGloba
       )}
       <Box sx={DataGrids.containerSx}>
         <DataGrid
+          showToolbar
           rows={approvalRequests}
           getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
           getEstimatedRowHeight={() => (allColumnsAreVisible ? null : DataGrids.compactRowHeightEstimate)}
-          rowPositionsDebounceMs={DataGrids.compactRowPositionsDebounceMs}
           getRowId={(row) => row.globalId}
           columns={columns}
-          rowSelectionModel={
-            currentApprovalRequestGlobalId === undefined
-              ? stores.approvalRequestStore.currentApprovalRequest
-                ? [stores.approvalRequestStore.currentApprovalRequest.globalId]
-                : []
-              : [currentApprovalRequestGlobalId]
-          }
+          rowSelectionModel={{
+            type: "include",
+            ids: new Set(
+              currentApprovalRequestGlobalId === undefined
+                ? stores.approvalRequestStore.currentApprovalRequest
+                  ? [stores.approvalRequestStore.currentApprovalRequest.globalId]
+                  : []
+                : [currentApprovalRequestGlobalId],
+            ),
+          }}
           hideFooterSelectedRowCount
           onRowClick={(params) => {
             const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;

@@ -65,6 +65,7 @@ vi.mock("@/features/subscriptions/api/subscriptionsApi", () => ({
   refreshBilling: mocks.refresh,
   changeSubscriptionPlan: vi.fn(),
   recoverPayment: vi.fn(),
+  cancelPendingPlanChange: vi.fn(),
   cancelScheduledPlanChange: vi.fn(),
 }));
 vi.mock("@/shared/utils/persistenceNotifications", () => ({

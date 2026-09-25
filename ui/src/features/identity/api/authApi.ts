@@ -97,7 +97,7 @@ export const refreshAuthSession = async (refreshToken: string): Promise<AuthResp
       refreshToken: refreshToken,
     });
     return data;
-  } catch (e) {
+  } catch {
     return null;
   }
 };
@@ -106,7 +106,7 @@ export const getUserAccountManageInfo = async (): Promise<UserAccount | null> =>
   try {
     const { data } = await axios.get<UserAccount>(ApiPaths.account.manageInfo);
     return data;
-  } catch (e) {
+  } catch {
     return null;
   }
 };

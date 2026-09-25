@@ -1,7 +1,13 @@
 services:
   azurite:
-    build: ./azurite
-    image: click2approve-azurite:local
+    image: mcr.microsoft.com/azure-storage/azurite:3.35.0
+    command:
+      - sh
+      - -c
+      - >
+        azurite-blob --blobHost 0.0.0.0 --skipApiVersionCheck &
+        azurite-queue --queueHost 0.0.0.0 --skipApiVersionCheck &
+        wait
     ports:
       - "10000:10000"
       - "10001:10001"

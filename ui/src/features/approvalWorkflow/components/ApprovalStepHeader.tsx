@@ -33,8 +33,7 @@ const ApprovalStepHeader: React.FC<ApprovalStepHeaderProps> = ({
   <Stack
     direction="row"
     spacing={ApprovalStepStyles.stepHeaderSpacing}
-    alignItems="center"
-    sx={hasBottomMargin ? headerSx : undefined}
+    sx={[Flex.alignCenterSx, hasBottomMargin && headerSx]}
   >
     <Stack sx={Flex.growSx}>
       <Stack direction="row" sx={titleRowSx}>

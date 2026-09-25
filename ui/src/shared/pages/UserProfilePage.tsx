@@ -280,10 +280,12 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
                                   ? false
                                   : isNotificationCategoryEnabled(type, channel)
                               }
-                              inputProps={{
-                                "aria-label": `${notificationPreferenceTypeLabels[type]} ${notificationChannelLabels[channel]}`,
-                              }}
                               onChange={() => handleNotificationToggle(type, channel)}
+                              slotProps={{
+                                input: {
+                                  "aria-label": `${notificationPreferenceTypeLabels[type]} ${notificationChannelLabels[channel]}`,
+                                },
+                              }}
                             />
                           </TableCell>
                         ))}

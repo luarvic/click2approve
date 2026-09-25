@@ -12,16 +12,16 @@ const RouteGuard = ({ isAllowed = true }: RouteGuardProps) => {
   const location = useLocation();
   const destination = `${location.pathname}${location.search}${location.hash}`;
   const user = stores.userAccountStore.currentUser;
-  const isManualSignOut = stores.userAccountStore.isManualSignOut;
+  const isSessionSignOut = stores.userAccountStore.isSessionSignOut;
   useEffect(() => {
     if (user === undefined) return;
-    if (!user && !isManualSignOut) rememberReturnUrl(destination);
+    if (!user && !isSessionSignOut) rememberReturnUrl(destination);
     else clearReachedReturnUrl(destination);
-  }, [destination, isManualSignOut, user]);
+  }, [destination, isSessionSignOut, user]);
 
   if (user === undefined) return null;
   if (!user) {
-    return <Navigate to={isManualSignOut ? "/signIn" : authPath("/signIn", destination)} replace />;
+    return <Navigate to={isSessionSignOut ? "/signIn" : authPath("/signIn", destination)} replace />;
   }
 
   return isAllowed ? <Outlet /> : <Navigate to="/" replace />;

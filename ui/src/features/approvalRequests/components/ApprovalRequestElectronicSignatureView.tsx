@@ -2,6 +2,7 @@ import ApprovalRequestField from "@/features/approvalRequests/components/Approva
 import ApprovalRequestSignatureView from "@/features/approvalRequests/components/ApprovalRequestSignatureView";
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { Forms } from "@/shared/components/dialogs/formStyles";
+import { Flex } from "@/shared/components/layout/flexStyles";
 import { DrawOutlined, ExpandMore } from "@mui/icons-material";
 import { Accordion, AccordionDetails, AccordionSummary, Stack, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
@@ -36,7 +37,7 @@ const electronicSignatureDetailsSx: SxProps<Theme> = {
 const ApprovalRequestElectronicSignatureView: React.FC<ApprovalRequestElectronicSignatureViewProps> = ({ task }) => (
   <Accordion disableGutters sx={electronicSignatureAccordionSx}>
     <AccordionSummary expandIcon={<ExpandMore />} sx={electronicSignatureSummarySx}>
-      <Stack alignItems="center" direction="row" spacing={Forms.actionSpacing}>
+      <Stack direction="row" spacing={Forms.actionSpacing} sx={Flex.alignCenterSx}>
         <DrawOutlined color="secondary" />
         <Typography color="secondary" variant="subtitle1">
           Electronic signature

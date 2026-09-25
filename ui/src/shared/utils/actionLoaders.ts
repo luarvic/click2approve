@@ -98,6 +98,8 @@ export const ActionLoaders = {
     choosePlan: () => "organizationCreation.choosePlan",
   },
   billing: {
+    cancelPendingChange: (tenantGlobalId?: string) =>
+      createActionLoaderKey("billing.cancelPendingChange", tenantGlobalId),
     cancelScheduledChange: (tenantGlobalId?: string) =>
       createActionLoaderKey("billing.cancelScheduledChange", tenantGlobalId),
     load: (tenantGlobalId?: string) => createActionLoaderKey("billing.load", tenantGlobalId),

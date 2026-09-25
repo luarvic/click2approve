@@ -54,8 +54,8 @@ public static class ServiceCollectionExtensions
     {
         services.AddFido2(options =>
         {
-            options.ServerDomain = configuration["Authentication:Passkeys:RelyingPartyId"];
-            options.ServerName = configuration["Authentication:Passkeys:RelyingPartyName"];
+            options.RPID = configuration["Authentication:Passkeys:RelyingPartyId"];
+            options.RPName = configuration["Authentication:Passkeys:RelyingPartyName"];
             options.Origins = configuration.GetSection("Authentication:Passkeys:Origins").Get<HashSet<string>>();
         });
         services.TryAddSingleton(TimeProvider.System);

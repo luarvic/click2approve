@@ -8,7 +8,7 @@ const AnonymousRoute = () => {
   const returnUrl = useAuthReturnUrl();
   const user = stores.userAccountStore.currentUser;
   useEffect(() => {
-    if (!user) stores.userAccountStore.clearManualSignOut();
+    if (!user) stores.userAccountStore.clearSessionSignOut();
   }, [user]);
   return user ? <Navigate to={returnUrl} replace /> : <Outlet />;
 };

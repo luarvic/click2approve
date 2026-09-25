@@ -7,13 +7,17 @@ interface NotificationDetailsDialogProps {
   onClose: () => void;
 }
 
+const messageSpacingSx = {
+  marginBottom: "16px",
+} as const;
+
 const NotificationDetailsDialog = ({ details, open, onClose }: NotificationDetailsDialogProps) => {
   return (
     <Dialog fullWidth maxWidth="sm" onClose={onClose} open={open}>
       <DialogTitle>Error details</DialogTitle>
       <DialogContent dividers>
         {details.map((detail) => (
-          <Typography component="p" key={detail.label} paragraph>
+          <Typography component="p" key={detail.label} sx={messageSpacingSx}>
             <strong>{detail.label}:</strong> {detail.value}
           </Typography>
         ))}

@@ -50,10 +50,6 @@ const stepIsCompleted = (status: string) =>
 
 const stepHasError = (status: string) => status === "Completed unsuccessfully";
 
-const stepContentSx: SxProps<Theme> = {
-  pr: 0,
-};
-
 const getStepIcon = (status: string) => {
   switch (status) {
     case "Completed successfully":
@@ -99,7 +95,12 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
           if (step.isVisible === false) {
             return (
               <Step key={step.globalId ?? step.sequence} completed={stepIsCompleted(stepStatus)}>
-                <StepLabel error={stepHasError(stepStatus)} StepIconComponent={HiddenStepIcon}>
+                <StepLabel
+                  error={stepHasError(stepStatus)}
+                  slots={{
+                    stepIcon: HiddenStepIcon,
+                  }}
+                >
                   <ApprovalStepTitle sequence={step.sequence} />
                 </StepLabel>
               </Step>
@@ -108,10 +109,20 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
 
           return (
             <Step key={step.globalId ?? step.sequence} completed={stepIsCompleted(stepStatus)}>
-              <StepLabel error={stepHasError(stepStatus)} StepIconComponent={stepIcon}>
+              <StepLabel
+                error={stepHasError(stepStatus)}
+                slots={{
+                  stepIcon: stepIcon,
+                }}
+              >
                 <ApprovalStepTitle sequence={step.sequence} />
               </StepLabel>
-              <StepContent sx={stepContentSx} TransitionProps={{ in: true, unmountOnExit: false }}>
+              <StepContent
+                sx={ApprovalStepStyles.contentSx}
+                slotProps={{
+                  transition: { in: true, unmountOnExit: false },
+                }}
+              >
                 <Stack spacing={ApprovalStepStyles.stepHeaderSpacing}>
                   <ApprovalStepMetadata showVisibility={showVisibleStepVisibility} step={step} />
                   <ApprovalStepBlock

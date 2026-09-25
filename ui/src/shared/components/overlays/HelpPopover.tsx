@@ -35,9 +35,11 @@ const HelpPopover: React.FC<HelpPopoverProps> = ({ helpText }) => {
         anchorOrigin={{ horizontal: "left", vertical: "bottom" }}
         id={isOpen ? popoverId : undefined}
         open={isOpen}
-        PaperProps={{ sx: helpPopoverPaperSx }}
         transformOrigin={{ horizontal: "left", vertical: "top" }}
         onClose={() => setAnchorElement(null)}
+        slotProps={{
+          paper: { sx: helpPopoverPaperSx },
+        }}
       >
         <Typography>{helpText}</Typography>
       </Popover>

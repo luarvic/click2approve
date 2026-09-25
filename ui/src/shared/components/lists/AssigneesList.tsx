@@ -9,14 +9,17 @@ interface AssigneesListProps {
   sx?: SxProps<Theme>;
 }
 
+const startAlignedSx = {
+  justifyContent: "flex-start",
+  alignItems: "flex-start",
+} as const;
+
 const AssigneesList: React.FC<AssigneesListProps> = ({ assignees, direction, sx }) => {
   return (
     <Stack
       spacing={Lists.itemSpacing}
       direction={direction}
-      justifyContent="flex-start"
-      alignItems="flex-start"
-      sx={[Lists.overflowHiddenSx, ...(Array.isArray(sx) ? sx : [sx])]}
+      sx={[startAlignedSx, Lists.overflowHiddenSx, ...(Array.isArray(sx) ? sx : [sx])]}
     >
       {assignees.map((assignee, index) => (
         <Box key={index}>{assignee.toLowerCase()}</Box>

@@ -15,7 +15,7 @@ import { getHumanReadableRelativeDate, parseUtcDateTime } from "@/shared/utils/d
 import { notification } from "@/shared/utils/notifications";
 import { Add, Delete } from "@mui/icons-material";
 import { Box, Button, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
-import { DataGrid, GridColDef, GridRowSelectionModel, GridToolbarContainer } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridRowId, GridToolbarContainer } from "@mui/x-data-grid";
 import { useState } from "react";
 
 const PasskeySettings = () => {
@@ -23,7 +23,7 @@ const PasskeySettings = () => {
   const allColumnsAreVisible = useMediaQuery(theme.breakpoints.up("md"));
   const [passkeys, setPasskeys] = useState<Passkey[]>([]);
   const [refreshVersion, setRefreshVersion] = useState(0);
-  const [selectedCredentialIds, setSelectedCredentialIds] = useState<GridRowSelectionModel>([]);
+  const [selectedCredentialIds, setSelectedCredentialIds] = useState<GridRowId[]>([]);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const [newPasskeyDialogIsOpen, setNewPasskeyDialogIsOpen] = useState(false);
   const gridLoader = ActionLoaders.grids.passkeys();
@@ -143,8 +143,10 @@ const PasskeySettings = () => {
       </Typography>
       <Box sx={DataGrids.containerSx}>
         <DataGrid
+          showToolbar
           autoHeight
           checkboxSelection
+          disableRowSelectionExcludeModel
           columns={columns}
           columnVisibilityModel={{
             createdAt: allColumnsAreVisible,
@@ -157,12 +159,11 @@ const PasskeySettings = () => {
           getRowId={(row) => row.credentialId}
           getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
           getEstimatedRowHeight={() => (allColumnsAreVisible ? null : DataGrids.compactRowHeightEstimate)}
-          rowPositionsDebounceMs={DataGrids.compactRowPositionsDebounceMs}
           hideFooter
           loading={gridIsLoading || addAction.isRunning || removeAction.isRunning}
-          onRowSelectionModelChange={setSelectedCredentialIds}
+          onRowSelectionModelChange={(selection) => setSelectedCredentialIds([...selection.ids])}
           rows={passkeys}
-          rowSelectionModel={selectedCredentialIds}
+          rowSelectionModel={{ type: "include", ids: new Set(selectedCredentialIds) }}
           slotProps={{ baseCheckbox: { name: "passkey-selection" } }}
           slots={{ loadingOverlay: NoLoadingOverlay, noRowsOverlay: NoRowsOverlay, toolbar: customToolbar }}
           sx={DataGrids.sx}

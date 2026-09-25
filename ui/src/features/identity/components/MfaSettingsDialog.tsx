@@ -112,12 +112,14 @@ const MfaSettingsDialog = ({ mode, onClose }: Props) => {
       maxWidth="sm"
       onClose={close}
       aria-labelledby="mfa-settings-title"
-      PaperProps={{
-        component: "form",
-        onSubmit: (event: FormEvent<HTMLFormElement>) => {
-          event.preventDefault();
-          if (recoveryCodes) close();
-          else void submit();
+      slotProps={{
+        paper: {
+          component: "form",
+          onSubmit: (event: FormEvent) => {
+            event.preventDefault();
+            if (recoveryCodes) close();
+            else void submit();
+          },
         },
       }}
     >
@@ -173,9 +175,11 @@ const MfaSettingsDialog = ({ mode, onClose }: Props) => {
                     value={code}
                     {...validation.field("code")}
                     autoComplete="one-time-code"
-                    inputProps={{ inputMode: "numeric", maxLength: IdentityValidation.authenticatorCodeLength }}
                     disabled={action.isRunning}
                     onChange={(event) => setCode(event.target.value)}
+                    slotProps={{
+                      htmlInput: { inputMode: "numeric", maxLength: IdentityValidation.authenticatorCodeLength },
+                    }}
                   />
                 </>
               ) : (

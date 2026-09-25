@@ -18,7 +18,7 @@ import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approv
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
 import { getLocaleDateTimeString } from "@/shared/utils/dateTime";
-import { Business, PlayCircleOutline } from "@mui/icons-material";
+import { Business, PlayCircleOutlined } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material/styles";
 
 interface ApprovalRequestSummaryBlockProps {
@@ -222,7 +222,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
         statusIconSx={getStatusIconSx(requestStatusColor)}
         statusIcon={
           approvalRequest.status === ApprovalRequestStatus.Started ? (
-            <PlayCircleOutline fontSize="inherit" sx={getStatusIconSx(requestStatusColor)} />
+            <PlayCircleOutlined fontSize="inherit" sx={getStatusIconSx(requestStatusColor)} />
           ) : (
             getApprovalRequestTimestampIcon(
               approvalRequest.status === ApprovalRequestStatus.Canceled

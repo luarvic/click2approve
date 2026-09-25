@@ -17,7 +17,7 @@ const PublicLayout = ({ children }: PublicLayoutProps) => {
       <PublicAppBar showBrandTitle>
         <ColorModeSwitch
           checked={stores.userPreferencesStore.theme.palette.mode === "dark"}
-          inputProps={{ "aria-label": "Dark mode" }}
+          slotProps={{ input: { "aria-label": "Dark mode" } }}
           onChange={(event) => stores.userPreferencesStore.setColorMode(event.target.checked ? "dark" : "light")}
         />
       </PublicAppBar>

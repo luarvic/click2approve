@@ -13,7 +13,6 @@ import { UserFile } from "@/features/userFiles/models/userFile";
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import { Files } from "@/shared/components/files/fileInputStyles";
 import { Add, AttachFile } from "@mui/icons-material";
-import LoadingButton from "@mui/lab/LoadingButton";
 import { Box, Button, FormHelperText, Stack, TextField } from "@mui/material";
 import type { ChangeEventHandler, FormEventHandler, RefObject } from "react";
 
@@ -24,14 +23,14 @@ interface ApprovalRequestSubmitComposeProps {
   descriptionError?: string;
   employees: Employee[];
   existingFiles: RevisionExistingFile[];
-  fileInput: RefObject<HTMLInputElement>;
+  fileInput: RefObject<HTMLInputElement | null>;
   isFilesBusy: boolean;
   isFilesUploading: boolean;
   isRevision: boolean;
   isSavingTemplate: boolean;
   isSubmitting: boolean;
   newFiles: UserFile[];
-  replacementFileInput: RefObject<HTMLInputElement>;
+  replacementFileInput: RefObject<HTMLInputElement | null>;
   showAttachmentRequirement: boolean;
   showOrganizationEmployeesVisibility: boolean;
   steps: EditableApprovalStep[];
@@ -146,14 +145,14 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
             >
               {filesError ?? "Attach at least one file for approval."}
             </FormHelperText>
-            <LoadingButton
+            <Button
               disabled={isFilesBusy}
               loading={isFilesUploading}
               startIcon={<AttachFile />}
               onClick={onUploadClick}
             >
               Attach files
-            </LoadingButton>
+            </Button>
             <input
               multiple
               name="approval-request-files"

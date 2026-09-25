@@ -1,5 +1,6 @@
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { EmployeeStatus } from "@/features/employees/models/employee";
+import { Flex } from "@/shared/components/layout/flexStyles";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { Email, Groups, Person, PersonOff } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
@@ -20,8 +21,6 @@ interface ApprovalRequestParticipantLineProps {
 }
 
 export const disabledEmployeeMessage = "This employee is disabled and no longer has access to this organization.";
-const tooltipIconSx: SxProps<Theme> = { display: "flex" };
-
 export const getAssigneeIcon = (type: AssigneeType, employeeStatus?: EmployeeStatus, disabled = false) => {
   const color = disabled ? "disabled" : "action";
 
@@ -59,7 +58,7 @@ const ApprovalRequestParticipantLine: React.FC<ApprovalRequestParticipantLinePro
   const displayedIcon =
     type === AssigneeType.Employee && employeeStatus === EmployeeStatus.Disabled ? (
       <Tooltip title={disabledEmployeeMessage}>
-        <Box component="span" sx={tooltipIconSx}>
+        <Box component="span" sx={Flex.displaySx}>
           {participantIcon}
         </Box>
       </Tooltip>
@@ -68,7 +67,7 @@ const ApprovalRequestParticipantLine: React.FC<ApprovalRequestParticipantLinePro
     );
 
   return (
-    <Stack direction="row" spacing={StackSpacing.tight} alignItems="center" sx={sx}>
+    <Stack direction="row" spacing={StackSpacing.tight} sx={[Flex.alignCenterSx, ...(Array.isArray(sx) ? sx : [sx])]}>
       {displayedIcon}
       {typeof participantLabel === "string" || typeof participantLabel === "number" ? (
         <Typography noWrap variant={variant}>

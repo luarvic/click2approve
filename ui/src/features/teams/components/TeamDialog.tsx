@@ -102,26 +102,32 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
           options={employees}
           getOptionDisabled={(employee) => employee.status === EmployeeStatus.Disabled}
           value={members}
+          getOptionKey={(option) => option.globalId}
           getOptionLabel={getEmployeeLabel}
           isOptionEqualToValue={(option, value) => option.globalId === value.globalId}
           onChange={(_, value) => setMembers(value)}
           disabled={!canEdit}
-          renderTags={(value, getTagProps) =>
-            value.map((option, index) => (
-              <ApprovalRequestParticipantChip
-                {...getTagProps({ index })}
-                displayName={getEmployeeDisplayName(option)}
-                email={option.email}
-                employeeStatus={option.status}
-                type={AssigneeType.Employee}
-              />
-            ))
+          renderValue={(value, getItemProps) =>
+            value.map((option, index) => {
+              const { key, ...chipProps } = getItemProps({ index });
+              void key; // Use the resource ID instead of MUI's positional key.
+              return (
+                <ApprovalRequestParticipantChip
+                  key={option.globalId}
+                  {...chipProps}
+                  displayName={getEmployeeDisplayName(option)}
+                  email={option.email}
+                  employeeStatus={option.status}
+                  type={AssigneeType.Employee}
+                />
+              );
+            })
           }
           renderInput={(params) => (
             <TextField {...params} label="Employees" helperText="Assign employees to this team." />
           )}
-          renderOption={(props, option) => (
-            <li {...props}>
+          renderOption={({ key, ...props }, option) => (
+            <li key={key} {...props}>
               <EmployeeDisplayName employee={option} />
             </li>
           )}

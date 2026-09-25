@@ -16,7 +16,7 @@ import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { notification } from "@/shared/utils/notifications";
 import { Add, Delete } from "@mui/icons-material";
 import { Box, Button, Link, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
-import { DataGrid, GridColDef, GridRowSelectionModel, GridToolbarContainer } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridRowId, GridToolbarContainer } from "@mui/x-data-grid";
 import { useState } from "react";
 
 interface ReceiptLinksGridProps {
@@ -29,7 +29,7 @@ const formatDate = (date: Date) => date.toLocaleDateString();
 const ReceiptLinksGrid = ({ receiptGlobalId, tenantGlobalId }: ReceiptLinksGridProps) => {
   const allColumnsAreVisible = useMediaQuery(useTheme().breakpoints.up("md"));
   const [links, setLinks] = useState<ReceiptLink[]>([]);
-  const [selectedIds, setSelectedIds] = useState<GridRowSelectionModel>([]);
+  const [selectedIds, setSelectedIds] = useState<GridRowId[]>([]);
   const [refreshVersion, setRefreshVersion] = useState(0);
   const [selectedLink, setSelectedLink] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
@@ -133,8 +133,10 @@ const ReceiptLinksGrid = ({ receiptGlobalId, tenantGlobalId }: ReceiptLinksGridP
       </Typography>
       <Box sx={DataGrids.containerSx}>
         <DataGrid
+          showToolbar
           autoHeight
           checkboxSelection
+          disableRowSelectionExcludeModel
           columns={columns}
           columnVisibilityModel={{ createdAt: allColumnsAreVisible, expiresAt: allColumnsAreVisible }}
           disableColumnFilter
@@ -144,12 +146,11 @@ const ReceiptLinksGrid = ({ receiptGlobalId, tenantGlobalId }: ReceiptLinksGridP
           getRowId={(row) => row.globalId}
           getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
           getEstimatedRowHeight={() => (allColumnsAreVisible ? null : DataGrids.compactRowHeightEstimate)}
-          rowPositionsDebounceMs={DataGrids.compactRowPositionsDebounceMs}
           hideFooter
           loading={busy}
-          onRowSelectionModelChange={setSelectedIds}
+          onRowSelectionModelChange={(selection) => setSelectedIds([...selection.ids])}
           rows={links}
-          rowSelectionModel={selectedIds}
+          rowSelectionModel={{ type: "include", ids: new Set(selectedIds) }}
           slotProps={{
             baseCheckbox: { name: "receipt-link-selection" },
           }}

@@ -1,7 +1,9 @@
+import { ApprovalRequestFileStyles } from "@/features/approvalRequests/components/approvalRequestFileStyles";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import FileNameLink from "@/shared/components/files/FileNameLink";
 import FileRow from "@/shared/components/files/FileRow";
 import ReplacedFileGroup from "@/shared/components/files/ReplacedFileGroup";
+import { Flex } from "@/shared/components/layout/flexStyles";
 import CommentPaper from "@/shared/components/papers/CommentPaper";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { Close, MoreVert, Undo } from "@mui/icons-material";
@@ -32,17 +34,16 @@ interface ApprovalRequestFilesListProps {
   onReplaceExisting?: (index: number) => void;
 }
 
-const replacedOriginalFileLinkSx: SxProps<Theme> = {
-  opacity: 0.55,
-};
-
 const fileActionButtonSx: SxProps<Theme> = {
   p: 0,
 };
 
 const fileActionRowSx: SxProps<Theme> = {
+  alignItems: "center",
   columnGap: StackSpacing.tight,
 };
+
+const compactActionsSx = { columnGap: StackSpacing.tight } as const;
 
 const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
   existingFiles,
@@ -100,7 +101,7 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
 
   const renderNewFile = (file: UserFile, index: number) => {
     const fileEntry = (
-      <Stack direction="row" alignItems="center" sx={fileActionRowSx}>
+      <Stack direction="row" sx={fileActionRowSx}>
         {renderFileLink(file.name)}
         <IconButton
           aria-label={`Remove ${file.name}`}
@@ -116,13 +117,13 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
 
     return onReplaceExisting ? (
       <Tooltip key={file.globalId} title="New file">
-        <FileRow sx={{ columnGap: StackSpacing.default }}>
+        <FileRow sx={ApprovalRequestFileStyles.actionsSx}>
           {fileEntry}
           <Chip color="success" label="Added" size="small" variant="outlined" />
         </FileRow>
       </Tooltip>
     ) : (
-      <Stack key={file.globalId} direction="row" alignItems="center">
+      <Stack key={file.globalId} direction="row" sx={Flex.alignCenterSx}>
         {fileEntry}
       </Stack>
     );
@@ -130,18 +131,15 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
 
   return (
     <CommentPaper sx={sx}>
-      <Stack alignItems="flex-start" spacing={StackSpacing.default}>
+      <Stack spacing={StackSpacing.default} sx={Flex.alignStartSx}>
         {existingFiles.map((file, index) => (
-          <FileRow
-            key={`existing-${file.requestFileGlobalId ?? file.file.globalId}`}
-            sx={{ columnGap: StackSpacing.tight }}
-          >
+          <FileRow key={`existing-${file.requestFileGlobalId ?? file.file.globalId}`} sx={compactActionsSx}>
             {onReplaceExisting ? (
               <>
                 {file.removed ? (
                   <Tooltip title="Deleted file">
-                    <Stack direction="row" alignItems="center" spacing={StackSpacing.default}>
-                      {renderFileLink(file.file.name, replacedOriginalFileLinkSx)}
+                    <Stack direction="row" spacing={StackSpacing.default} sx={Flex.alignCenterSx}>
+                      {renderFileLink(file.file.name, ApprovalRequestFileStyles.inactiveLinkSx)}
                       <Chip color="error" label="Deleted" size="small" variant="outlined" />
                       <IconButton
                         aria-label={`Restore ${file.file.name}`}
@@ -154,9 +152,9 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
                     </Stack>
                   </Tooltip>
                 ) : file.replacement ? (
-                  <Stack alignItems="flex-start" spacing={StackSpacing.default}>
+                  <Stack spacing={StackSpacing.default} sx={Flex.alignStartSx}>
                     <Tooltip title="Replacement file">
-                      <Stack direction="row" alignItems="center" spacing={StackSpacing.default}>
+                      <Stack direction="row" spacing={StackSpacing.default} sx={Flex.alignCenterSx}>
                         {renderFileLink(file.replacement.name)}
                         <Chip color="warning" label="Replacement" size="small" variant="outlined" />
                         <IconButton
@@ -171,12 +169,12 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
                     </Tooltip>
                     <ReplacedFileGroup>
                       <Tooltip title="Replaced file">
-                        {renderFileLink(file.file.name, replacedOriginalFileLinkSx)}
+                        {renderFileLink(file.file.name, ApprovalRequestFileStyles.inactiveLinkSx)}
                       </Tooltip>
                     </ReplacedFileGroup>
                   </Stack>
                 ) : (
-                  <Stack direction="row" alignItems="center">
+                  <Stack direction="row" sx={Flex.alignCenterSx}>
                     {renderFileLink(file.file.name)}
                     <IconButton
                       aria-label={`Actions for ${file.file.name}`}
@@ -190,7 +188,7 @@ const ApprovalRequestFilesList: React.FC<ApprovalRequestFilesListProps> = ({
                 )}
               </>
             ) : (
-              <Stack direction="row" alignItems="center" sx={fileActionRowSx}>
+              <Stack direction="row" sx={fileActionRowSx}>
                 {renderFileLink(
                   file.file.name,
                   undefined,

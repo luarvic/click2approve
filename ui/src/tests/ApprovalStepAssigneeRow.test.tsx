@@ -2,7 +2,7 @@ import ApprovalStepAssigneeRow from "@/features/approvalWorkflow/components/Appr
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 
 const employee: Employee = {
@@ -41,6 +41,28 @@ describe("<ApprovalStepAssigneeRow />", () => {
     rerender(<ApprovalStepAssigneeRow {...props} assignee={{ teamGlobalId: "team-id", type: AssigneeType.Team }} />);
 
     expect(screen.getByTestId("GroupsIcon").className).toContain("MuiSvgIcon-colorDisabled");
+  });
+
+  test("renders employees with matching names without React key warnings", () => {
+    const consoleError = vi.spyOn(console, "error");
+    try {
+      render(
+        <ApprovalStepAssigneeRow
+          assignee={{ type: AssigneeType.Employee }}
+          canUseEmployees
+          canUseTeams={false}
+          employees={[employee, { ...employee, globalId: "second-employee-id", email: "ada2@example.com" }]}
+          onChange={vi.fn()}
+          onRemove={vi.fn()}
+          teams={[]}
+        />,
+      );
+      fireEvent.click(screen.getByRole("button", { name: "Open" }));
+      expect(screen.getAllByRole("option")).toHaveLength(2);
+      expect(consoleError.mock.calls.filter((args) => args.some((arg) => String(arg).includes("key")))).toEqual([]);
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 
   test("retains a disabled assigned employee", () => {

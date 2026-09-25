@@ -148,9 +148,11 @@ const MainAppBar = ({
         )}
         <ColorModeSwitch
           checked={stores.userPreferencesStore.theme.palette.mode === "dark"}
-          inputProps={{
-            "aria-label": "Dark mode",
-            name: "color-mode",
+          slotProps={{
+            input: {
+              "aria-label": "Dark mode",
+              name: "color-mode",
+            },
           }}
           onChange={(event) => stores.userPreferencesStore.setColorMode(event.target.checked ? "dark" : "light")}
         />

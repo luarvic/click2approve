@@ -9,9 +9,10 @@ import CompactGridStatus from "@/shared/components/grids/CompactGridStatus";
 import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
 import GridFilters from "@/shared/components/grids/GridFilters";
 import { DataGrids } from "@/shared/components/grids/dataGridSettings";
+import { FilterStyles } from "@/shared/components/grids/filterStyles";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
-import { StatusLineLabel } from "@/shared/components/status/StatusLines";
+import StatusLabel from "@/shared/components/status/StatusLabel";
 import { FieldLimits } from "@/shared/config/fieldLimits";
 import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
 import { parseSimpleGridQuery, serializeSimpleGridQuery } from "@/shared/grids/simpleGridQuery";
@@ -19,7 +20,6 @@ import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add, FilterList } from "@mui/icons-material";
-import type { SxProps, Theme } from "@mui/material";
 import { Box, Button, Link, useMediaQuery, useTheme } from "@mui/material";
 import type { GridSortModel } from "@mui/x-data-grid";
 import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
@@ -40,7 +40,6 @@ const statusLabels: Record<EmployeeStatus, string> = {
 interface EmployeesGridProps {
   currentEmployeeGlobalId?: string;
 }
-const filterContainerSx: SxProps<Theme> = { mb: 2 };
 const filterKeys = ["email", "firstName", "lastName", "position", "role", "status"];
 const roleOptions = [
   { label: "All roles", value: "" },
@@ -139,10 +138,9 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
             <>
               {params.row.status !== undefined && (
                 <CompactGridStatus>
-                  <StatusLineLabel
+                  <StatusLabel
                     label={statusLabels[params.row.status as EmployeeStatus]}
                     color={params.row.status === EmployeeStatus.Active ? "started" : "other"}
-                    lineVariant="solid"
                   />
                 </CompactGridStatus>
               )}
@@ -195,10 +193,9 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
       sortable: false,
       ...EmployeeGridSettings.tenantUsersColumnSizing.status,
       renderCell: (params) => (
-        <StatusLineLabel
+        <StatusLabel
           label={statusLabels[params.row.status as EmployeeStatus]}
           color={params.row.status === EmployeeStatus.Active ? "started" : "other"}
-          lineVariant="solid"
         />
       ),
     },
@@ -206,7 +203,7 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
   return (
     <>
       {filtersAreVisible && (
-        <Box sx={filterContainerSx}>
+        <Box sx={FilterStyles.containerSx}>
           <GridFilters
             fields={[
               { label: "Email", maxLength: FieldLimits.email, onChange: filter("email"), value: query.filters.email },
@@ -233,13 +230,16 @@ const EmployeesGrid: React.FC<EmployeesGridProps> = ({ currentEmployeeGlobalId }
       )}
       <Box sx={DataGrids.containerSx}>
         <DataGrid
+          showToolbar
           rows={employees}
           getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
           getEstimatedRowHeight={() => (allColumnsAreVisible ? null : DataGrids.compactRowHeightEstimate)}
-          rowPositionsDebounceMs={DataGrids.compactRowPositionsDebounceMs}
           getRowId={(row) => row.globalId}
           columns={columns}
-          rowSelectionModel={currentEmployeeGlobalId === undefined ? [] : [currentEmployeeGlobalId]}
+          rowSelectionModel={{
+            type: "include",
+            ids: new Set(currentEmployeeGlobalId === undefined ? [] : [currentEmployeeGlobalId]),
+          }}
           hideFooterSelectedRowCount
           onRowClick={(params) =>
             navigate(Routes.tenantPath(tenantGlobalId!, `/employees/${(params.row as EmployeeListItem).globalId}`))

@@ -30,7 +30,7 @@ const renderTask = (onClose = vi.fn()) => {
   const router = createMemoryRouter([
     { path: "*", element: <ApprovalRequestTask tab="task" taskGlobalId="task-a" onClose={onClose} /> },
   ]);
-  return render(<RouterProvider router={router} future={{ v7_startTransition: true }} />);
+  return render(<RouterProvider router={router} />);
 };
 
 describe("unsaved decisions", () => {

@@ -81,7 +81,7 @@ const getDefaultLegalName = (isAssigneeEmployee: boolean | undefined): string =>
 
 const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab, taskGlobalId }) => {
   const navigate = useNavigate();
-  const initialSnapshot = useRef<string>();
+  const initialSnapshot = useRef<string | undefined>(undefined);
   const [decisionError, setDecisionError] = useState(false);
   const [commentError, setCommentError] = useState(false);
   const [result, setResult] = useState<boolean | undefined>(undefined);

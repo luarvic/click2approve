@@ -2,10 +2,10 @@ import { ApiToken, createApiToken, deleteApiToken, listApiTokens } from "@/featu
 import ApiTokenCreatedDialog from "@/features/identity/components/ApiTokenCreatedDialog";
 import NewApiTokenDialog from "@/features/identity/components/NewApiTokenDialog";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
-import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import CompactGridCell from "@/shared/components/grids/CompactGridCell";
 import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGridSecondaryInformation";
 import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
@@ -16,7 +16,7 @@ import { getHumanReadableRelativeDate, parseUtcDateTime } from "@/shared/utils/d
 import { notification } from "@/shared/utils/notifications";
 import { Add, Delete } from "@mui/icons-material";
 import { Box, Button, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
-import { DataGrid, GridColDef, GridRowSelectionModel, GridToolbarContainer } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridRowId, GridToolbarContainer } from "@mui/x-data-grid";
 import { useState } from "react";
 
 const ApiTokenSettings = () => {
@@ -27,7 +27,7 @@ const ApiTokenSettings = () => {
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const [newApiTokenDialogIsOpen, setNewApiTokenDialogIsOpen] = useState(false);
   const [refreshVersion, setRefreshVersion] = useState(0);
-  const [selectedTokenGlobalIds, setSelectedTokenGlobalIds] = useState<GridRowSelectionModel>([]);
+  const [selectedTokenGlobalIds, setSelectedTokenGlobalIds] = useState<GridRowId[]>([]);
   const gridLoader = ActionLoaders.grids.apiTokens();
   const addAction = useAsyncAction(ActionLoaders.apiTokens.add());
   const removeAction = useAsyncAction();
@@ -133,8 +133,10 @@ const ApiTokenSettings = () => {
       </Typography>
       <Box sx={DataGrids.containerSx}>
         <DataGrid
+          showToolbar
           autoHeight
           checkboxSelection
+          disableRowSelectionExcludeModel
           columns={columns}
           columnVisibilityModel={{ createdAt: allColumnsAreVisible, expiresAt: allColumnsAreVisible }}
           disableColumnFilter
@@ -145,10 +147,9 @@ const ApiTokenSettings = () => {
           getRowId={(row) => row.globalId}
           hideFooter
           loading={gridIsLoading || addAction.isRunning || removeAction.isRunning}
-          onRowSelectionModelChange={setSelectedTokenGlobalIds}
-          rowPositionsDebounceMs={DataGrids.compactRowPositionsDebounceMs}
+          onRowSelectionModelChange={(selection) => setSelectedTokenGlobalIds([...selection.ids])}
           rows={apiTokens}
-          rowSelectionModel={selectedTokenGlobalIds}
+          rowSelectionModel={{ type: "include", ids: new Set(selectedTokenGlobalIds) }}
           slotProps={{ baseCheckbox: { name: "api-token-selection" } }}
           slots={{ loadingOverlay: NoLoadingOverlay, noRowsOverlay: NoRowsOverlay, toolbar: customToolbar }}
           sx={DataGrids.sx}

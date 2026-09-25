@@ -1,4 +1,5 @@
 import {
+  cancelPendingPlanChange,
   cancelScheduledPlanChange,
   changeSubscriptionPlan,
   recoverPayment,
@@ -43,7 +44,7 @@ describe("subscription API error notifications", () => {
       }),
     );
   });
-  it.each([recoverPayment, refreshBilling, cancelScheduledPlanChange])(
+  it.each([recoverPayment, refreshBilling, cancelScheduledPlanChange, cancelPendingPlanChange])(
     "shows billing-action failures",
     async (action) => {
       const error = new Error("Stripe is unavailable.");

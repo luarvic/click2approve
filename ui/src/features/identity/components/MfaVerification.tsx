@@ -77,7 +77,7 @@ const MfaVerification = ({ credentials, onVerified, onBack }: Props) => {
         {...validation.field("code")}
         disabled={action.isRunning}
         autoComplete="one-time-code"
-        inputProps={{ inputMode: recovery ? "text" : "numeric" }}
+        slotProps={{ htmlInput: { inputMode: recovery ? "text" : "numeric" } }}
         onChange={(event) => setCode(event.target.value)}
       />
       <AuthFormActions>

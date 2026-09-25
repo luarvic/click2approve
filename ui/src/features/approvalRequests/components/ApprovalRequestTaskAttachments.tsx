@@ -9,12 +9,13 @@ import { useUserFileUpload } from "@/features/userFiles/hooks/useUserFileUpload"
 import { UserFile } from "@/features/userFiles/models/userFile";
 import { downloadApprovalRequestTaskAttachment } from "@/features/userFiles/utils/downloaders";
 import { Files } from "@/shared/components/files/fileInputStyles";
+import { Flex } from "@/shared/components/layout/flexStyles";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { AttachFile } from "@mui/icons-material";
-import LoadingButton from "@mui/lab/LoadingButton";
 import { Stack } from "@mui/material";
+import Button from "@mui/material/Button";
 import type { Dispatch, SetStateAction } from "react";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react";
 
@@ -114,7 +115,7 @@ const ApprovalRequestTaskAttachments = forwardRef<
       attachAction.isRunning || fileDeletion.isDeleting || removeAttachmentAction.isRunning || fileUpload.isUploading;
 
     return (
-      <Stack alignItems="flex-start" spacing={StackSpacing.default}>
+      <Stack spacing={StackSpacing.default} sx={Flex.alignStartSx}>
         {showLabel ? (
           <ApprovalRequestField
             label={label}
@@ -147,14 +148,14 @@ const ApprovalRequestTaskAttachments = forwardRef<
         )}
         {canManageFiles && (
           <>
-            <LoadingButton
+            <Button
               disabled={isManagingFiles}
               loading={fileUpload.isUploading}
               startIcon={<AttachFile />}
               onClick={fileUpload.openFileDialog}
             >
               Attach files
-            </LoadingButton>
+            </Button>
             <input
               multiple
               ref={fileUpload.fileInput}

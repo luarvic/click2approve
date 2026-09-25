@@ -5,6 +5,7 @@ import type {
   SubscriptionUsage,
 } from "@/features/subscriptions/api/subscriptionsApi";
 import {
+  cancelPendingPlanChange,
   cancelScheduledPlanChange,
   changeSubscriptionPlan,
   getBillingStatus,
@@ -16,6 +17,7 @@ import {
 import PlanPriceCard from "@/features/subscriptions/components/PlanPriceCard";
 import { PaymentIssue } from "@/features/subscriptions/models/paymentIssue";
 import { SubscriptionPlan, TenantType } from "@/features/tenants/models/tenant";
+import { Flex } from "@/shared/components/layout/flexStyles";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
@@ -30,9 +32,9 @@ import {
   showPersistenceSuccessNotification,
 } from "@/shared/utils/persistenceNotifications";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import LoadingButton from "@mui/lab/LoadingButton";
 import type { SxProps, Theme } from "@mui/material";
 import { Chip, Divider, Grid, Link, Stack, Tooltip, Typography } from "@mui/material";
+import Button from "@mui/material/Button";
 import type { SystemStyleObject } from "@mui/system";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef, useState } from "react";
@@ -60,7 +62,6 @@ const planNames: Record<SubscriptionPlan, string> = {
   [SubscriptionPlan.BusinessStandard]: "Business Standard",
   [SubscriptionPlan.BusinessUltimate]: "Business Ultimate",
 };
-const planGridItemSx: SxProps<Theme> = { display: "flex" };
 const planHeaderSpacing = 1;
 const planGridSpacing = 2;
 const billingNoticeSx: SxProps<Theme> = { mb: 2 };
@@ -87,23 +88,28 @@ const SubscriptionPlansPage = () => {
   const [billing, setBilling] = useState<BillingStatus>();
   const [failed, setFailed] = useState(false);
   const canManage = billing?.canManage === true;
+  const cancelPendingAction = useAsyncAction(ActionLoaders.billing.cancelPendingChange(tenantGlobalId));
   const cancelAction = useAsyncAction(ActionLoaders.billing.cancelScheduledChange(tenantGlobalId));
   const paymentAction = useAsyncAction(ActionLoaders.billing.recover(tenantGlobalId));
   const plans = currentTenant?.type === TenantType.Personal ? personalPlans : businessPlans;
   const changePlanLoader = ActionLoaders.subscriptionPlan.change(tenantGlobalId);
   const subscriptionPlansLoader = ActionLoaders.subscriptionPlan.load();
   const changePlanAction = useAsyncAction(changePlanLoader);
+  const [checkoutOpeningPlan, setCheckoutOpeningPlan] = useState<SubscriptionPlan>();
   const [changingPlan, setChangingPlan] = useState<SubscriptionPlan>();
   const [billingPortalIsOpening, setBillingPortalIsOpening] = useState(false);
   const [plansRefreshVersion, setPlansRefreshVersion] = useState(0);
   const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlanConfiguration[]>([]);
   const [subscriptionPlansHaveLoaded, setSubscriptionPlansHaveLoaded] = useState(false);
   const [trialUsage, setTrialUsage] = useState<SubscriptionUsage>();
-  const initialLoad = useRef<{
-    tenantGlobalId: string;
-    requiresTrialUsage: boolean;
-    promise: Promise<[SubscriptionPlanConfiguration[], BillingStatus, SubscriptionUsage | undefined]>;
-  }>();
+  const initialLoad = useRef<
+    | {
+        tenantGlobalId: string;
+        requiresTrialUsage: boolean;
+        promise: Promise<[SubscriptionPlanConfiguration[], BillingStatus, SubscriptionUsage | undefined]>;
+      }
+    | undefined
+  >(undefined);
   const subtitle =
     currentTenant?.type === TenantType.Personal
       ? "Plans for your personal workspace"
@@ -116,6 +122,7 @@ const SubscriptionPlansPage = () => {
 
       initialLoad.current = undefined;
       setBillingPortalIsOpening(false);
+      setCheckoutOpeningPlan(undefined);
       setPlansRefreshVersion((version) => version + 1);
     };
     window.addEventListener("pageshow", refreshAfterBrowserBack);
@@ -191,7 +198,8 @@ const SubscriptionPlansPage = () => {
       billing.paymentResolutionRequired ||
       billing.cleanupStarted ||
       billing.pendingPlan !== null ||
-      billing.scheduledPlan !== null
+      billing.scheduledPlan !== null ||
+      checkoutOpeningPlan !== undefined
     ) {
       return;
     }
@@ -201,11 +209,12 @@ const SubscriptionPlansPage = () => {
         setChangingPlan(plan);
         try {
           const result = await changeSubscriptionPlan(tenantGlobalId, plan);
-          setBilling(result);
           if (result.checkoutUrl) {
+            setCheckoutOpeningPlan(plan);
             window.location.assign(result.checkoutUrl);
             return false;
           }
+          setBilling(result);
           if (result.pendingPlan !== null || result.scheduledPlan !== null) {
             return false;
           }
@@ -219,6 +228,7 @@ const SubscriptionPlansPage = () => {
         showPersistenceSuccessNotification(PersistenceSuccessMessages.subscriptionPlanChanged);
       }
     } catch (error) {
+      setCheckoutOpeningPlan(undefined);
       const refreshedBilling = await getBillingStatus(tenantGlobalId).catch(() => undefined);
       if (refreshedBilling) setBilling(refreshedBilling);
       throw error;
@@ -230,6 +240,22 @@ const SubscriptionPlansPage = () => {
     await cancelAction.run(async () => {
       setBilling(await cancelScheduledPlanChange(tenantGlobalId));
       showPersistenceSuccessNotification(PersistenceSuccessMessages.scheduledPlanChangeCanceled);
+    });
+  };
+  const cancelPendingChange = async () => {
+    if (!tenantGlobalId || !canManage || billing.cleanupStarted || billing.paymentResolutionRequired) return;
+    await cancelPendingAction.run(async () => {
+      const previousPlan = currentTenant?.subscriptionPlan;
+      const result = await cancelPendingPlanChange(tenantGlobalId);
+      setBilling(result);
+      await stores.tenantStore.load(undefined, tenantGlobalId);
+      if (result.pendingPlan === null) {
+        showPersistenceSuccessNotification(
+          stores.tenantStore.currentTenant?.subscriptionPlan === previousPlan
+            ? PersistenceSuccessMessages.pendingPlanChangeCanceled
+            : PersistenceSuccessMessages.subscriptionPlanChanged,
+        );
+      }
     });
   };
   const pay = async () => {
@@ -267,9 +293,11 @@ const SubscriptionPlansPage = () => {
     billing.pendingPlan !== null ||
     billing.scheduledPlan !== null ||
     changePlanAction.isRunning ||
+    checkoutOpeningPlan !== undefined ||
     billingPortalIsOpening ||
     paymentAction.isRunning ||
-    cancelAction.isRunning;
+    cancelAction.isRunning ||
+    cancelPendingAction.isRunning;
 
   const hasPaymentIssue = !billing.cleanupStarted && billing.paymentIssue != null;
   const hasBillingNotice =
@@ -290,7 +318,7 @@ const SubscriptionPlansPage = () => {
             label: "Plans",
             titleAction: (
               <>
-                <HelpPopover helpText="Owners and administrators can change plans and manage billing. Paid plans activate after verified payment. Resolve failed payments before the recovery deadline to retain your workspace data." />
+                <HelpPopover helpText="Owners and administrators can change plans and manage billing. Paid plans activate after verified payment. Cancel an unpaid plan change to keep your current plan. Resolve failed payments before the recovery deadline to retain your workspace data." />
               </>
             ),
           },
@@ -338,15 +366,23 @@ const SubscriptionPlansPage = () => {
       )}
       <Grid container spacing={planGridSpacing}>
         {planCards.map(({ isCurrentPlan, limits, plan }) => (
-          <Grid item key={plan} md={4} xs={12} sx={planGridItemSx}>
+          <Grid
+            key={plan}
+            sx={Flex.displaySx}
+            size={{
+              md: 4,
+              xs: 12,
+            }}
+          >
             <PlanPriceCard
               actions={
                 <>
                   {!isCurrentPlan && billing.pendingPlan !== plan && billing.scheduledPlan !== plan && (
-                    <LoadingButton
+                    <Button
+                      size="small"
                       variant="text"
                       aria-label={`Choose ${planNames[plan]}`}
-                      loading={changePlanAction.isRunning && changingPlan === plan}
+                      loading={(changePlanAction.isRunning && changingPlan === plan) || checkoutOpeningPlan === plan}
                       disabled={changesDisabled}
                       onClick={() =>
                         void changePlan(plan).catch(() => {
@@ -355,10 +391,11 @@ const SubscriptionPlansPage = () => {
                       }
                     >
                       Choose
-                    </LoadingButton>
+                    </Button>
                   )}
                   {billing.scheduledPlan === plan && !billing.cleanupStarted && !billing.paymentResolutionRequired && (
-                    <LoadingButton
+                    <Button
+                      size="small"
                       variant="text"
                       loading={cancelAction.isRunning}
                       disabled={!canManage || paymentAction.isRunning || changePlanAction.isRunning}
@@ -369,16 +406,42 @@ const SubscriptionPlansPage = () => {
                       }
                     >
                       Cancel
-                    </LoadingButton>
+                    </Button>
                   )}
+                  {billing.pendingPlan === plan &&
+                    !isCurrentPlan &&
+                    !billing.cleanupStarted &&
+                    !billing.paymentResolutionRequired && (
+                      <Button
+                        size="small"
+                        variant="text"
+                        loading={cancelPendingAction.isRunning}
+                        disabled={
+                          !canManage || paymentAction.isRunning || billingPortalIsOpening || changePlanAction.isRunning
+                        }
+                        onClick={() =>
+                          void cancelPendingChange().catch(() => {
+                            /* API failures are shown by the subscription API. */
+                          })
+                        }
+                      >
+                        Cancel change
+                      </Button>
+                    )}
                   {(billing.pendingPlan !== null ? billing.pendingPlan === plan : isCurrentPlan) &&
                     !billing.cleanupStarted &&
                     (billing.hasSubscription || billing.pendingPlan !== null) && (
-                      <LoadingButton
+                      <Button
+                        size="small"
                         variant="text"
                         loading={paymentAction.isRunning || billingPortalIsOpening}
                         disabled={
-                          !canManage || billingPortalIsOpening || changePlanAction.isRunning || cancelAction.isRunning
+                          !canManage ||
+                          billingPortalIsOpening ||
+                          checkoutOpeningPlan !== undefined ||
+                          changePlanAction.isRunning ||
+                          cancelAction.isRunning ||
+                          cancelPendingAction.isRunning
                         }
                         onClick={() =>
                           void pay().catch(() => {
@@ -389,7 +452,7 @@ const SubscriptionPlansPage = () => {
                         {billing.paymentResolutionRequired || billing.pendingPlan !== null
                           ? "Resolve payment"
                           : "Manage billing"}
-                      </LoadingButton>
+                      </Button>
                     )}
                 </>
               }

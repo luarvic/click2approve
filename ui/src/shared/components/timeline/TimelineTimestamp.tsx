@@ -1,3 +1,4 @@
+import { Flex } from "@/shared/components/layout/flexStyles";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { getLocaleDateTimeString } from "@/shared/utils/dateTime";
 import type { SxProps } from "@mui/material";
@@ -31,7 +32,7 @@ const TimelineTimestamp: React.FC<TimelineTimestampProps> = ({
   sx,
   text,
 }) => (
-  <Stack direction="row" spacing={StackSpacing.tight} alignItems="center">
+  <Stack direction="row" spacing={StackSpacing.tight} sx={Flex.alignCenterSx}>
     {icon &&
       (label ? (
         <Tooltip title={label}>

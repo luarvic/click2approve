@@ -24,29 +24,32 @@ const CopyableCodeField = ({ label, value }: Props) => {
   return (
     <TextField
       fullWidth
-      inputProps={{ "aria-label": label }}
-      InputProps={{
-        endAdornment: (
-          <InputAdornment position="end">
-            <Tooltip title={`Copy ${label}`}>
-              <IconButton
-                aria-label={`Copy ${label}`}
-                disabled={!value}
-                edge="end"
-                onClick={() => void copy()}
-                type="button"
-              >
-                <ContentCopy />
-              </IconButton>
-            </Tooltip>
-          </InputAdornment>
-        ),
-        readOnly: true,
-      }}
       multiline
       sx={codeFieldSx}
       value={value}
       variant="outlined"
+      slotProps={{
+        input: {
+          endAdornment: (
+            <InputAdornment position="end">
+              <Tooltip title={`Copy ${label}`}>
+                <IconButton
+                  aria-label={`Copy ${label}`}
+                  disabled={!value}
+                  edge="end"
+                  onClick={() => void copy()}
+                  type="button"
+                >
+                  <ContentCopy />
+                </IconButton>
+              </Tooltip>
+            </InputAdornment>
+          ),
+          readOnly: true,
+        },
+
+        htmlInput: { "aria-label": label },
+      }}
     />
   );
 };

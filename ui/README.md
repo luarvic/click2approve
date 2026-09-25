@@ -3,6 +3,16 @@
 The shared React frontend serves both editions. Feature availability comes from
 backend capabilities; styling has the same owners in both editions.
 
+## Toolchain
+
+Use Node.js 24 LTS and install dependencies with `npm ci`. CI and the UI Docker
+build use the same Node.js major version. The frontend uses React 19, MUI 9,
+Vite 8, and ESLint 10.
+
+TypeScript is held at 6.0.x because `@typescript-eslint` 8.70.1 requires
+TypeScript below 6.1. Upgrade to TypeScript 7 when the lint tooling supports it;
+do not bypass peer dependency checks with `--force` or `--legacy-peer-deps`.
+
 ## Style and settings ownership
 
 | Responsibility                                     | Location                                                | Examples                                                         |

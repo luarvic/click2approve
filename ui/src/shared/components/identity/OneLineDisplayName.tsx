@@ -1,3 +1,4 @@
+import { Text } from "@/shared/components/text/textStyles";
 import { stripInlineEmail } from "@/shared/utils/displayNameHelpers";
 import type { SxProps } from "@mui/material";
 import { Box, Typography } from "@mui/material";
@@ -17,11 +18,6 @@ const rootSx: SxProps<Theme> = {
   minWidth: 0,
 };
 
-const textSx: SxProps<Theme> = {
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-};
-
 const OneLineDisplayName: React.FC<OneLineDisplayNameProps> = ({
   displayName,
   fallback = "Unknown user",
@@ -29,7 +25,7 @@ const OneLineDisplayName: React.FC<OneLineDisplayNameProps> = ({
   variant = "body1",
 }) => (
   <Box sx={[rootSx, ...(Array.isArray(sx) ? sx : [sx])]}>
-    <Typography noWrap sx={textSx} variant={variant}>
+    <Typography noWrap sx={Text.overflowEllipsisSx} variant={variant}>
       {stripInlineEmail(displayName) || fallback}
     </Typography>
   </Box>

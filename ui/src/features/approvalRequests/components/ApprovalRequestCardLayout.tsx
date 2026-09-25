@@ -16,6 +16,19 @@ interface ApprovalRequestCardLayoutProps {
   title: string;
 }
 
+const detailsColumnSx = {
+  flex: detailsColumnFlex,
+  minWidth: 0,
+} as const;
+const activityColumnSx = {
+  flex: activityColumnFlex,
+  minWidth: 0,
+} as const;
+const headerRowSx = {
+  alignItems: "center",
+  justifyContent: "space-between",
+} as const;
+
 const ApprovalRequestCardLayout: React.FC<ApprovalRequestCardLayoutProps> = ({
   activity,
   artifacts,
@@ -27,20 +40,18 @@ const ApprovalRequestCardLayout: React.FC<ApprovalRequestCardLayoutProps> = ({
   const [expanded, setExpanded] = useState(defaultExpanded);
   const content = (
     <Stack direction={{ xs: "column", md: "row" }} spacing={cardColumnSpacing}>
-      <Stack flex={detailsColumnFlex} minWidth={0} spacing={cardColumnSpacing}>
+      <Stack spacing={cardColumnSpacing} sx={detailsColumnSx}>
         {details}
         {artifacts}
       </Stack>
-      <Stack flex={activityColumnFlex} minWidth={0}>
-        {activity}
-      </Stack>
+      <Stack sx={activityColumnSx}>{activity}</Stack>
     </Stack>
   );
 
   return (
     <Stack spacing={StackSpacing.default}>
-      <Stack alignItems="center" direction="row" justifyContent="space-between" spacing={StackSpacing.tight}>
-        <Typography color="text.secondary" component="h2" variant="h6">
+      <Stack direction="row" spacing={StackSpacing.tight} sx={headerRowSx}>
+        <Typography component="h2" variant="h6" color="text.secondary">
           {title}
         </Typography>
         {expandable && (

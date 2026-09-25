@@ -1,3 +1,4 @@
+import { Flex } from "@/shared/components/layout/flexStyles";
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import {
   Slider,
@@ -76,7 +77,7 @@ const RetentionValueLabel: React.FC<SliderValueLabelProps> = ({ children, value,
 };
 
 const RetentionControl: React.FC<RetentionControlProps> = ({ disabled, label, months, onChange }) => (
-  <Stack alignItems="center" direction="row" spacing={Forms.actionSpacing}>
+  <Stack direction="row" spacing={Forms.actionSpacing} sx={Flex.alignCenterSx}>
     <Typography id={`${label}-retention`} sx={retentionTitleSx}>
       {label}
     </Typography>

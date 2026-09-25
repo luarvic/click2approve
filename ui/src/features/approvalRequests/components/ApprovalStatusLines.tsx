@@ -2,12 +2,8 @@ import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approv
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { getApprovalRequestTaskCompletedActionLabel } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
-import {
-  StatusLineColor,
-  StatusLineColors,
-  StatusLineLabel,
-  StatusLineSection,
-} from "@/shared/components/status/StatusLines";
+import StatusLabel from "@/shared/components/status/StatusLabel";
+import { StatusLineColor, StatusLineColors, StatusLineSection } from "@/shared/components/status/StatusLines";
 import type { SxProps } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
@@ -129,7 +125,7 @@ export const ApprovalRequestStatusLineSection: React.FC<ApprovalRequestStatusLin
 );
 
 export const ApprovalRequestStatusLineLabel: React.FC<ApprovalRequestStatusLineLabelProps> = ({ result, status }) => (
-  <StatusLineLabel
+  <StatusLabel
     color={getApprovalRequestStatusLineColor(status, result)}
     label={getApprovalRequestStatusLabel(status, result)}
   />
@@ -140,7 +136,7 @@ export const ApprovalRequestTaskStatusLineLabel: React.FC<ApprovalRequestTaskSta
   result,
   status,
 }) => (
-  <StatusLineLabel
+  <StatusLabel
     color={getApprovalRequestTaskStatusLineColor(status, result)}
     label={getApprovalRequestTaskStatusLabel(status, action, result)}
   />

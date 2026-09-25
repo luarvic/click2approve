@@ -16,23 +16,21 @@ interface StatusIconProps {
 const StatusIcon: React.FC<StatusIconProps> = ({ result, status }) => {
   const statusColor = getApprovalRequestStatusColor(status, result);
 
+  const statusIconSx = { ...Icons.verticalAlignSx, color: statusColor };
+
   const renderStatus = () => {
     switch (status) {
       case ApprovalRequestStatus.Pending:
       case ApprovalRequestStatus.Started:
-        return <Loop sx={{ ...Icons.verticalAlignSx, color: statusColor }} />;
+        return <Loop sx={statusIconSx} />;
       case ApprovalRequestStatus.Completed:
-        return result === false ? (
-          <Close sx={{ ...Icons.verticalAlignSx, color: statusColor }} />
-        ) : (
-          <Check sx={{ ...Icons.verticalAlignSx, color: statusColor }} />
-        );
+        return result === false ? <Close sx={statusIconSx} /> : <Check sx={statusIconSx} />;
       case ApprovalRequestStatus.Canceled:
-        return <Close sx={{ ...Icons.verticalAlignSx, color: statusColor }} />;
+        return <Close sx={statusIconSx} />;
       case ApprovalRequestStatus.Superseded:
-        return <Replay sx={{ ...Icons.verticalAlignSx, color: statusColor }} />;
+        return <Replay sx={statusIconSx} />;
       default:
-        return <QuestionMark sx={{ ...Icons.verticalAlignSx, color: statusColor }} />;
+        return <QuestionMark sx={statusIconSx} />;
     }
   };
 

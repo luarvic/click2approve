@@ -21,7 +21,7 @@ describe("<PublicLayout />", () => {
       </MemoryRouter>,
     );
 
-    const colorModeSwitch = screen.getByRole("checkbox", { name: "Dark mode" }) as HTMLInputElement;
+    const colorModeSwitch = screen.getByRole("switch", { name: "Dark mode" }) as HTMLInputElement;
     expect(colorModeSwitch.checked).toBe(false);
 
     await act(async () => {

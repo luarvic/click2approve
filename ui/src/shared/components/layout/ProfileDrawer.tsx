@@ -40,9 +40,11 @@ const ProfileDrawer = () => {
       <Drawer
         anchor="right"
         ModalProps={{ hideBackdrop: true, sx: Shell.profileDrawerModalSx }}
-        PaperProps={{ sx: Shell.profileDrawerPaperSx }}
         open={stores.commonStore.profileDrawerIsOpen}
         onClose={() => stores.commonStore.setProfileDrawerIsOpen(false)}
+        slotProps={{
+          paper: { sx: Shell.profileDrawerPaperSx },
+        }}
       >
         <Box sx={Shell.profileDrawerContentSx}>
           <Toolbar disableGutters sx={Shell.profileDrawerToolbarSx}>

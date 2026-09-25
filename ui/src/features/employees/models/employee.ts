@@ -22,7 +22,7 @@ export interface Employee extends EmployeeListItem {
   teamGlobalIds?: string[];
 }
 
-export interface EmployeePickerItem extends EmployeeListItem {}
+export type EmployeePickerItem = EmployeeListItem;
 
 export interface CreateEmployeeRequest {
   email: string;

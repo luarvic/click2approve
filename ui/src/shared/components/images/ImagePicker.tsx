@@ -1,4 +1,3 @@
-import Cropper, { type Area } from "react-easy-crop";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { AddAPhoto } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
@@ -16,6 +15,7 @@ import {
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import { ChangeEvent, MouseEvent, ReactNode, useEffect, useRef, useState } from "react";
+import Cropper, { type Area } from "react-easy-crop";
 
 interface ImagePickerProps {
   alt: string;
@@ -117,8 +117,8 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
   onDelete,
   onSave,
 }) => {
-  const dialogFileSource = useRef<string>();
-  const dialogTrigger = useRef<HTMLElement>();
+  const dialogFileSource = useRef<string | undefined>(undefined);
+  const dialogTrigger = useRef<HTMLElement | undefined>(undefined);
   const fileInput = useRef<HTMLInputElement>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area>();
@@ -251,7 +251,9 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
         maxWidth="sm"
         open={isOpen}
         onClose={closeDialog}
-        TransitionProps={{ onExited: restoreDialogTriggerFocus }}
+        slotProps={{
+          transition: { onExited: restoreDialogTriggerFocus },
+        }}
       >
         <DialogTitle>{title}</DialogTitle>
         <DialogContent dividers>

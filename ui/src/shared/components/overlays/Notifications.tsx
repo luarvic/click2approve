@@ -44,7 +44,9 @@ const NotificationHost = () => {
           }}
           open
           sx={snackbarSx}
-          TransitionComponent={SlideTransition}
+          slots={{
+            transition: SlideTransition,
+          }}
         >
           <Alert
             action={

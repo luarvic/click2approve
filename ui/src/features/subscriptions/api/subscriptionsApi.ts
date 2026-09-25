@@ -154,3 +154,17 @@ export const cancelScheduledPlanChange = async (tenantGlobalId: string): Promise
     throw error;
   }
 };
+
+export const cancelPendingPlanChange = async (tenantGlobalId: string): Promise<BillingStatus> => {
+  try {
+    const { data } = await axios.post<BillingStatus>(
+      `${ApiPaths.tenants.subscriptionPlan(tenantGlobalId)}/cancelPendingChange`,
+      undefined,
+      { timeout: billingRefreshTimeoutMilliseconds },
+    );
+    return data;
+  } catch (error) {
+    notification.error(getApiErrorNotification(error));
+    throw error;
+  }
+};

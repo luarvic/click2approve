@@ -2,9 +2,9 @@ import { stores } from "@/app/rootStore";
 import { browserSupportsPasskeys } from "@/features/identity/api/passkeysApi";
 import AuthForm from "@/features/identity/components/AuthForm";
 import AuthFormActions from "@/features/identity/components/AuthFormActions";
+import AuthTextField from "@/features/identity/components/AuthTextField";
 import AuthTextLink from "@/features/identity/components/AuthTextLink";
 import AuthTextLinks from "@/features/identity/components/AuthTextLinks";
-import AuthTextField from "@/features/identity/components/AuthTextField";
 import MfaVerification from "@/features/identity/components/MfaVerification";
 import { AuthForms } from "@/features/identity/components/authFormStyles";
 import { Credentials, CredentialsData } from "@/features/identity/models/credentials";
@@ -19,7 +19,6 @@ import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { notification } from "@/shared/utils/notifications";
 import { validateEmail } from "@/shared/utils/validators";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Box,
   Container,
@@ -32,6 +31,7 @@ import {
   OutlinedInput,
   Typography,
 } from "@mui/material";
+import Button from "@mui/material/Button";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -186,10 +186,10 @@ const SignInPage = () => {
               </AuthTextLinks>
               {browserSupportsPasskeys() && (
                 <>
-                  <Typography color="text.secondary" component="div" variant="body2">
+                  <Typography component="div" variant="body2" color="text.secondary">
                     <Divider>OR</Divider>
                   </Typography>
-                  <LoadingButton
+                  <Button
                     disabled={isLoading}
                     fullWidth
                     loading={isPasskeyLoading}
@@ -198,7 +198,7 @@ const SignInPage = () => {
                     variant="outlined"
                   >
                     Sign in with a passkey
-                  </LoadingButton>
+                  </Button>
                 </>
               )}
             </AuthFormActions>

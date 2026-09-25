@@ -1,4 +1,5 @@
 import { ApprovalRequestFieldValueVariantContext } from "@/features/approvalRequests/components/ApprovalRequestFieldContext";
+import { Flex } from "@/shared/components/layout/flexStyles";
 import { StackSpacing } from "@/shared/theme/tokens";
 import type { TypographyProps } from "@mui/material";
 import { Stack, Typography } from "@mui/material";
@@ -30,15 +31,15 @@ const ApprovalRequestField: React.FC<ApprovalRequestFieldProps> = ({
 
   return (
     <Stack spacing={StackSpacing.tight}>
-      <Typography color="text.secondary" id={labelId} variant="caption">
+      <Typography id={labelId} variant="caption" color="text.secondary">
         {label}
       </Typography>
       {isEmpty ? (
-        <Typography color="text.secondary" variant={resolvedValueVariant}>
+        <Typography variant={resolvedValueVariant} color="text.secondary">
           None
         </Typography>
       ) : typeof value === "string" || typeof value === "number" ? (
-        <Stack direction="row" spacing={StackSpacing.tight} alignItems="center">
+        <Stack direction="row" spacing={StackSpacing.tight} sx={Flex.alignCenterSx}>
           <Stack sx={valueIconSx}>{valueIcon}</Stack>
           <Typography color={valueColor} variant={resolvedValueVariant}>
             {value}

@@ -25,8 +25,8 @@ vi.mock("@/app/rootStore", async () => {
       userAccountStore: observable(
         {
           currentUser: null,
-          isManualSignOut: false,
-          clearManualSignOut: vi.fn(),
+          isSessionSignOut: false,
+          clearSessionSignOut: vi.fn(),
           signIn: vi.fn(),
           signOut: vi.fn(),
           resetPassword: vi.fn(),
@@ -112,15 +112,15 @@ const authenticate = async () => {
 
 beforeEach(() => {
   localStorage.clear();
-  vi.mocked(stores.userAccountStore.signOut).mockImplementation((isManual = false) => {
+  vi.mocked(stores.userAccountStore.signOut).mockImplementation((isSessionSignOut = true) => {
     runInAction(() => {
-      stores.userAccountStore.isManualSignOut = isManual;
+      stores.userAccountStore.isSessionSignOut = isSessionSignOut;
       stores.userAccountStore.currentUser = null;
     });
   });
   runInAction(() => {
     stores.userAccountStore.currentUser = null;
-    stores.userAccountStore.isManualSignOut = false;
+    stores.userAccountStore.isSessionSignOut = false;
   });
   (
     stores.applicationConfigurationStore as unknown as {
@@ -236,7 +236,7 @@ test.each([false, true])(
   },
 );
 
-test("does not create a return destination after manual sign-out", async () => {
+test.each([false, true])("does not create a return destination after sign-out (manual=%s)", async (manual) => {
   runInAction(() => {
     stores.userAccountStore.currentUser = {
       isEmailConfirmed: true,
@@ -247,8 +247,7 @@ test("does not create a return destination after manual sign-out", async () => {
 
   await act(async () => {
     runInAction(() => {
-      stores.userAccountStore.currentUser = null;
-      stores.userAccountStore.isManualSignOut = true;
+      stores.userAccountStore.signOut(manual ? true : undefined);
     });
   });
 

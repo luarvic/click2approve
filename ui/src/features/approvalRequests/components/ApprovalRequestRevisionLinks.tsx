@@ -1,8 +1,8 @@
 import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
+import { Flex } from "@/shared/components/layout/flexStyles";
 import { Routes } from "@/shared/routing/routes";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { Divider, Link, Stack, Typography } from "@mui/material";
-import type { SxProps, Theme } from "@mui/material/styles";
 import { Link as RouterLink } from "react-router-dom";
 
 interface ApprovalRequestRevisionLinksProps {
@@ -11,10 +11,6 @@ interface ApprovalRequestRevisionLinksProps {
   previousRevisionApprovalRequestGlobalId?: string;
   tenantGlobalId?: string | null;
 }
-
-const revisionLinksSx: SxProps<Theme> = {
-  display: "inline-flex",
-};
 
 const ApprovalRequestRevisionLinks: React.FC<ApprovalRequestRevisionLinksProps> = ({
   leadingDivider = false,
@@ -29,10 +25,10 @@ const ApprovalRequestRevisionLinks: React.FC<ApprovalRequestRevisionLinksProps> 
   const getRequestPath = (globalId: string) => Routes.tenantPath(tenantGlobalId, `/requests/${globalId}`);
 
   return (
-    <Stack component="span" direction="row" spacing={StackSpacing.tight} alignItems="center" sx={revisionLinksSx}>
+    <Stack component="span" direction="row" spacing={StackSpacing.tight} sx={Flex.inlineCenterSx}>
       {leadingDivider && <Divider flexItem orientation="vertical" />}
       {previousRevisionApprovalRequestGlobalId && (
-        <Typography color="text.secondary" component="span" variant="body2">
+        <Typography component="span" variant="body2" color="text.secondary">
           Supersedes{" "}
           <Link component={RouterLink} to={getRequestPath(previousRevisionApprovalRequestGlobalId)}>
             {getApprovalRequestNumber(previousRevisionApprovalRequestGlobalId)}
@@ -43,7 +39,7 @@ const ApprovalRequestRevisionLinks: React.FC<ApprovalRequestRevisionLinksProps> 
         <Divider flexItem orientation="vertical" />
       )}
       {nextRevisionApprovalRequestGlobalId && (
-        <Typography color="text.secondary" component="span" variant="body2">
+        <Typography component="span" variant="body2" color="text.secondary">
           Superseded by{" "}
           <Link component={RouterLink} to={getRequestPath(nextRevisionApprovalRequestGlobalId)}>
             {getApprovalRequestNumber(nextRevisionApprovalRequestGlobalId)}

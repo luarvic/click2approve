@@ -1,4 +1,4 @@
-import { Box, Stack, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
 
@@ -8,12 +8,6 @@ interface StatusLineSectionProps {
   label: string;
   lineVariant?: "solid" | "dotted";
   sx?: SxProps<Theme>;
-}
-
-interface StatusLineLabelProps {
-  color: StatusLineColor;
-  label: string;
-  lineVariant?: "solid" | "dotted";
 }
 
 const statusLineWidth = "3px";
@@ -37,15 +31,6 @@ const statusLineSectionSx = (color: StatusLineColor, lineVariant?: "solid" | "do
   pl: statusLineOffset,
 });
 
-const statusLineLabelSx = (color: StatusLineColor, lineVariant?: "solid" | "dotted"): SxProps<Theme> => ({
-  borderLeft: `${statusLineWidth} ${lineVariant ?? (color === "started" ? "dotted" : "solid")}`,
-  borderLeftColor: StatusLineColors[color],
-  height: "100%",
-  justifyContent: "center",
-  minWidth: 0,
-  pl: statusLineOffset,
-});
-
 const statusBorderSx = (color: StatusLineColor): SxProps<Theme> => ({
   borderLeft: `${statusLineWidth} ${color === "started" ? "dotted" : "solid"}`,
   borderLeftColor: StatusLineColors[color],
@@ -65,10 +50,4 @@ export const StatusLineSection: React.FC<StatusLineSectionProps> = ({ children, 
   <Box aria-label={label} sx={getStatusLineSectionSx(color, lineVariant, sx)}>
     {children}
   </Box>
-);
-
-export const StatusLineLabel: React.FC<StatusLineLabelProps> = ({ color, label, lineVariant }) => (
-  <Stack sx={statusLineLabelSx(color, lineVariant)}>
-    <Typography variant="body2">{label}</Typography>
-  </Stack>
 );

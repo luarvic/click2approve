@@ -5,6 +5,7 @@ import { TeamListItem } from "@/features/teams/models/team";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import GridFilters from "@/shared/components/grids/GridFilters";
 import { DataGrids } from "@/shared/components/grids/dataGridSettings";
+import { FilterStyles } from "@/shared/components/grids/filterStyles";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
@@ -13,7 +14,6 @@ import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add, FilterList } from "@mui/icons-material";
-import type { SxProps, Theme } from "@mui/material";
 import { Box, Button, Link } from "@mui/material";
 import type { GridSortModel } from "@mui/x-data-grid";
 import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
@@ -24,7 +24,6 @@ import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-d
 interface TeamsGridProps {
   currentTeamGlobalId?: string;
 }
-const filterContainerSx: SxProps<Theme> = { mb: 2 };
 const filterKeys = ["name"];
 
 const TeamsGrid: React.FC<TeamsGridProps> = ({ currentTeamGlobalId }) => {
@@ -97,7 +96,7 @@ const TeamsGrid: React.FC<TeamsGridProps> = ({ currentTeamGlobalId }) => {
   return (
     <>
       {filtersAreVisible && (
-        <Box sx={filterContainerSx}>
+        <Box sx={FilterStyles.containerSx}>
           <GridFilters
             fields={[
               {
@@ -111,10 +110,14 @@ const TeamsGrid: React.FC<TeamsGridProps> = ({ currentTeamGlobalId }) => {
       )}
       <Box sx={DataGrids.containerSx}>
         <DataGrid
+          showToolbar
           rows={teams}
           getRowId={(row) => row.globalId}
           columns={columns}
-          rowSelectionModel={currentTeamGlobalId === undefined ? [] : [currentTeamGlobalId]}
+          rowSelectionModel={{
+            type: "include",
+            ids: new Set(currentTeamGlobalId === undefined ? [] : [currentTeamGlobalId]),
+          }}
           hideFooterSelectedRowCount
           onRowClick={(params) =>
             navigate(Routes.tenantPath(tenantGlobalId!, `/teams/${(params.row as TeamListItem).globalId}`))

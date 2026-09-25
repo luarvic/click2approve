@@ -97,7 +97,7 @@ describe("<ApprovalRequestSummaryBlock />", () => {
       />,
     );
 
-    expect(screen.getByTestId("PlayCircleOutlineIcon")).toBeTruthy();
+    expect(screen.getByTestId("PlayCircleOutlinedIcon")).toBeTruthy();
     expect(screen.queryByTestId("HourglassTopIcon")).toBeNull();
   });
 

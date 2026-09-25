@@ -20,8 +20,8 @@ import {
   showPersistenceSuccessNotification,
 } from "@/shared/utils/persistenceNotifications";
 import { Replay } from "@mui/icons-material";
-import LoadingButton from "@mui/lab/LoadingButton";
 import { Tab, Tabs } from "@mui/material";
+import Button from "@mui/material/Button";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -218,23 +218,23 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
             }
           />
           <ApprovalRequestActionBar onClose={handleClose}>
-            <LoadingButton
+            <Button
               color="error"
               loading={deleteAction.isRunning}
               variant="outlined"
               onClick={() => setDeleteDialogIsOpen(true)}
             >
               Delete
-            </LoadingButton>
+            </Button>
             {canCancel && (
-              <LoadingButton
+              <Button
                 color="warning"
                 loading={approvalRequestIsCanceling}
                 variant="outlined"
                 onClick={() => setCancelDialogIsOpen(true)}
               >
                 Cancel request
-              </LoadingButton>
+              </Button>
             )}
             {canResubmit && (
               <MainActionButton startIcon={<Replay />} onClick={() => void handleResubmit()}>

@@ -5,6 +5,7 @@ import ApprovalRequestFilesBox from "@/features/approvalRequests/components/Appr
 import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestRevisionLinks from "@/features/approvalRequests/components/ApprovalRequestRevisionLinks";
 import { ApprovalRequestFile } from "@/features/approvalRequests/models/approvalRequest";
+import { Flex } from "@/shared/components/layout/flexStyles";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
 import { StackSpacing } from "@/shared/theme/tokens";
 import type { TypographyProps } from "@mui/material";
@@ -45,10 +46,6 @@ interface ApprovalRequestSummaryProps {
   tenantGlobalId?: string | null;
   title?: string;
 }
-
-const revisionValueSx: SxProps<Theme> = {
-  display: "inline-flex",
-};
 
 const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   additionalContent,
@@ -96,13 +93,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
         <ApprovalRequestField
           label="Revision"
           value={
-            <Stack
-              component="span"
-              direction="row"
-              spacing={StackSpacing.tight}
-              alignItems="center"
-              sx={revisionValueSx}
-            >
+            <Stack component="span" direction="row" spacing={StackSpacing.tight} sx={Flex.inlineCenterSx}>
               <Typography component="span" variant="body1">
                 {revisionNumber ?? 1}
               </Typography>

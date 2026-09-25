@@ -7,10 +7,11 @@ import {
   type PublicReceiptFile,
 } from "@/features/receipts/models/publicReceipt";
 import { Files } from "@/shared/components/files/fileInputStyles";
+import { Flex } from "@/shared/components/layout/flexStyles";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { StackSpacing } from "@/shared/theme/tokens";
-import { CheckCircleOutline, ErrorOutline, UploadFileOutlined } from "@mui/icons-material";
+import { CheckCircleOutlined, ErrorOutlined, UploadFileOutlined } from "@mui/icons-material";
 import { Box, Button, Container, GlobalStyles, Stack, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { QRCodeSVG } from "qrcode.react";
@@ -225,8 +226,8 @@ const PublicReceiptPage = () => {
               <Box component="input" type="file" sx={Files.inputStyle} onChange={handleFileChange} />
             </Button>
             {fileMatch && (
-              <Stack direction="row" spacing={StackSpacing.default} alignItems="center">
-                {fileMatch.matchedFile ? <CheckCircleOutline color="success" /> : <ErrorOutline color="error" />}
+              <Stack direction="row" spacing={StackSpacing.default} sx={Flex.alignCenterSx}>
+                {fileMatch.matchedFile ? <CheckCircleOutlined color="success" /> : <ErrorOutlined color="error" />}
                 <Typography>
                   {fileMatch.matchedFile
                     ? `${fileMatch.fileName} matches ${fileMatch.matchedFile.fileName} attached to ${

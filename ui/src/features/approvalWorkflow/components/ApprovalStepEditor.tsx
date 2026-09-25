@@ -12,10 +12,11 @@ import {
 import { EditableApprovalStep } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { Employee } from "@/features/employees/models/employee";
 import { Icons } from "@/shared/components/icons/iconStyles";
+import { Flex } from "@/shared/components/layout/flexStyles";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { FieldLimits } from "@/shared/config/fieldLimits";
 import { textRule } from "@/shared/utils/formValidation";
-import { AccountTreeOutlined, Add, DeleteOutline, ExpandMore, North, South } from "@mui/icons-material";
+import { AccountTreeOutlined, Add, DeleteOutlined, ExpandMore, North, South } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import {
   Accordion,
@@ -90,7 +91,6 @@ interface ApprovalStepEditorProps {
   showOrganizationEmployeesVisibility?: boolean;
 }
 
-const stepContentSx: SxProps<Theme> = { pr: 0 };
 const stepLabelSx: SxProps<Theme> = {
   "& .MuiStepLabel-label, & .MuiStepLabel-label.Mui-active, & .MuiStepLabel-label.Mui-completed": {
     color: "text.primary",
@@ -108,7 +108,6 @@ const stepLabelActionsSx: SxProps<Theme> = {
   gap: ApprovalStepStyles.stepActionSpacing,
   marginLeft: "auto",
 };
-const addButtonSx: SxProps<Theme> = { alignSelf: "flex-start" };
 const stepAddButtonSx: SxProps<Theme> = {
   ...ApprovalStepStyles.addStepButtonSx,
   alignSelf: "flex-start",
@@ -124,9 +123,8 @@ const actionOptions = [
   { value: ApprovalRequestTaskAction.Complete, label: "Complete" },
 ];
 const accordionSx: SxProps<Theme> = { backgroundColor: "inherit" };
-const accordionSummarySx: SxProps<Theme> = { px: 0 };
-const accordionDetailsSx: SxProps<Theme> = { px: 0 };
-const getStepContentSx = (sx?: SxProps<Theme>): SxProps<Theme> => (sx ? (Array.isArray(sx) ? sx : [sx]) : []);
+const accordionHorizontalPaddingSx: SxProps<Theme> = { px: 0 };
+const getStepContentSx = (sx?: SxProps<Theme>): SxProps<Theme> => sx ?? [];
 
 const EditableStepIcon = () => <AccountTreeOutlined color={Icons.secondaryColor} fontSize="small" />;
 
@@ -168,7 +166,12 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
 
           return (
             <Step expanded key={step.globalId ?? `new-${step.sequence}`}>
-              <StepLabel StepIconComponent={EditableStepIcon} sx={stepLabelSx}>
+              <StepLabel
+                sx={stepLabelSx}
+                slots={{
+                  stepIcon: EditableStepIcon,
+                }}
+              >
                 <Box sx={stepLabelContentSx}>
                   <ApprovalStepTitle sequence={step.sequence} />
                   {state.isPassed && <Chip label="Locked" size="small" />}
@@ -216,14 +219,19 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                             onRemoveStep(stepIndex);
                           }}
                         >
-                          <DeleteOutline />
+                          <DeleteOutlined />
                         </IconButton>
                       </span>
                     </Tooltip>
                   </Box>
                 </Box>
               </StepLabel>
-              <StepContent sx={stepContentSx} TransitionProps={{ in: true, unmountOnExit: false }}>
+              <StepContent
+                sx={ApprovalStepStyles.contentSx}
+                slotProps={{
+                  transition: { in: true, unmountOnExit: false },
+                }}
+              >
                 <ApprovalRequestDetailsCard
                   ariaLabel={`Step ${step.sequence}`}
                   elevated
@@ -312,7 +320,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                           />
                         }
                         label={
-                          <Stack alignItems="center" direction="row">
+                          <Stack direction="row" sx={Flex.alignCenterSx}>
                             All assignees must complete
                             <HelpPopover helpText="When disabled, any assignee can complete this step." />
                           </Stack>
@@ -323,15 +331,15 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                       startIcon={<Add />}
                       disabled={!canAddAssignee}
                       onClick={() => onAddAssignee(stepIndex)}
-                      sx={addButtonSx}
+                      sx={Flex.alignSelfStartSx}
                     >
                       Add assignee
                     </Button>
                     <Accordion disableGutters elevation={0} sx={accordionSx}>
-                      <AccordionSummary expandIcon={<ExpandMore />} sx={accordionSummarySx}>
+                      <AccordionSummary expandIcon={<ExpandMore />} sx={accordionHorizontalPaddingSx}>
                         <Typography color="text.secondary">Additional requirements</Typography>
                       </AccordionSummary>
-                      <AccordionDetails sx={accordionDetailsSx}>
+                      <AccordionDetails sx={accordionHorizontalPaddingSx}>
                         <Stack>
                           <FormControlLabel
                             control={
@@ -381,10 +389,10 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                       </AccordionDetails>
                     </Accordion>
                     <Accordion disableGutters elevation={0} sx={accordionSx}>
-                      <AccordionSummary expandIcon={<ExpandMore />} sx={accordionSummarySx}>
+                      <AccordionSummary expandIcon={<ExpandMore />} sx={accordionHorizontalPaddingSx}>
                         <Typography color="text.secondary">Visibility</Typography>
                       </AccordionSummary>
-                      <AccordionDetails sx={accordionDetailsSx}>
+                      <AccordionDetails sx={accordionHorizontalPaddingSx}>
                         <FormControl disabled={disabled}>
                           <RadioGroup
                             value={step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants}

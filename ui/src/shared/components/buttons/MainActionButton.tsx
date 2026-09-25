@@ -1,7 +1,7 @@
-import LoadingButton, { type LoadingButtonProps } from "@mui/lab/LoadingButton";
+import Button, { type ButtonProps } from "@mui/material/Button";
 
-type MainActionButtonProps = Omit<LoadingButtonProps, "variant">;
+type MainActionButtonProps = Omit<ButtonProps, "variant">;
 
-const MainActionButton = (props: MainActionButtonProps) => <LoadingButton variant="contained" {...props} />;
+const MainActionButton = (props: MainActionButtonProps) => <Button variant="contained" {...props} />;
 
 export default MainActionButton;

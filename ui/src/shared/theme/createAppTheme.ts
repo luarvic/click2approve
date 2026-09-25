@@ -1,6 +1,7 @@
 import { ControlTokens, SurfaceTokens } from "@/shared/theme/tokens";
 import { PaletteMode, createTheme } from "@mui/material";
 import { alpha } from "@mui/material/styles";
+import type {} from "@mui/x-data-grid/themeAugmentation";
 
 const inputVariant = "standard";
 
@@ -38,6 +39,11 @@ export const createAppTheme = (colorMode: PaletteMode) =>
           }),
         },
       },
+      MuiDataGrid: {
+        styleOverrides: {
+          toolbar: { justifyContent: "flex-start" },
+        },
+      },
       MuiDialog: {
         styleOverrides: {
           paper: {
@@ -65,7 +71,9 @@ export const createAppTheme = (colorMode: PaletteMode) =>
       },
       MuiTablePagination: {
         defaultProps: {
-          SelectProps: { name: "rows-per-page" },
+          slotProps: {
+            select: { name: "rows-per-page" },
+          },
         },
       },
     },

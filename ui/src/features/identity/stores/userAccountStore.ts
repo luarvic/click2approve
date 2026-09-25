@@ -10,12 +10,13 @@ import { signInWithPasskey } from "@/features/identity/api/passkeysApi";
 import { CredentialsData } from "@/features/identity/models/credentials";
 import { EmailConfirmationRequired, MfaRequired } from "@/features/identity/models/mfa";
 import { UserAccount } from "@/features/identity/models/userAccount";
+import { clearPendingReturnUrl } from "@/features/identity/routing/returnUrl";
 import { deleteTokens, readTokens } from "@/shared/session/session";
 import { makeAutoObservable, runInAction } from "mobx";
 
 export class UserAccountStore {
   currentUser: UserAccount | null | undefined; // undefined means we don't know yet if it's authenticated or anonymous user
-  isManualSignOut = false;
+  isSessionSignOut = false;
   passkeyEnrollmentPending = false;
   private clearSession: () => void = () => undefined;
   private initializeSession: () => Promise<void> = async () => undefined;
@@ -71,7 +72,7 @@ export class UserAccountStore {
       this.clearSession();
       runInAction(() => {
         this.currentUser = undefined;
-        this.isManualSignOut = false;
+        this.isSessionSignOut = false;
       });
       const currentUser = await getUserAccountManageInfo();
       if (currentUser) {
@@ -86,15 +87,16 @@ export class UserAccountStore {
         return true;
       }
     }
-    this.signOut();
+    this.signOut(tokens !== null);
     return false;
   };
 
-  signOut = (isManual = false) => {
+  signOut = (isSessionSignOut = true) => {
+    if (isSessionSignOut) clearPendingReturnUrl();
     deleteTokens();
     this.clearSession();
     runInAction(() => {
-      this.isManualSignOut = isManual;
+      this.isSessionSignOut = isSessionSignOut;
       this.currentUser = null;
       this.passkeyEnrollmentPending = false;
     });
@@ -113,8 +115,8 @@ export class UserAccountStore {
     this.passkeyEnrollmentPending = false;
   };
 
-  clearManualSignOut = () => {
-    if (!this.isManualSignOut) return;
-    this.isManualSignOut = false;
+  clearSessionSignOut = () => {
+    if (!this.isSessionSignOut) return;
+    this.isSessionSignOut = false;
   };
 }

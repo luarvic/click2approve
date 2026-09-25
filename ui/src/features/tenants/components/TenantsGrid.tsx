@@ -1,11 +1,12 @@
 import { listTenantGrid } from "@/features/tenants/api/tenantsApi";
 import { TenantGridSettings } from "@/features/tenants/components/gridSettings";
 import { EmployeeRole, TenantListItem } from "@/features/tenants/models/tenant";
-import GridFilters from "@/shared/components/grids/GridFilters";
-import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import CompactGridCell from "@/shared/components/grids/CompactGridCell";
 import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGridSecondaryInformation";
 import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
+import GridFilters from "@/shared/components/grids/GridFilters";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
+import { FilterStyles } from "@/shared/components/grids/filterStyles";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
@@ -13,7 +14,6 @@ import { parseSimpleGridQuery, serializeSimpleGridQuery } from "@/shared/grids/s
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add, FilterList } from "@mui/icons-material";
-import type { SxProps, Theme } from "@mui/material";
 import { Box, Button, Link, useMediaQuery, useTheme } from "@mui/material";
 import type { GridSortModel } from "@mui/x-data-grid";
 import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
@@ -30,7 +30,6 @@ const roleOptions = [
   { label: "All roles", value: "" },
   ...Object.entries(roleLabels).map(([value, label]) => ({ label, value })),
 ];
-const filterContainerSx: SxProps<Theme> = { mb: 2 };
 const filterKeys = ["name", "role"];
 interface TenantsGridProps {
   currentTenantGlobalId?: string;
@@ -123,7 +122,7 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
   return (
     <>
       {filtersAreVisible && (
-        <Box sx={filterContainerSx}>
+        <Box sx={FilterStyles.containerSx}>
           <GridFilters
             fields={[
               {
@@ -144,13 +143,16 @@ const TenantsGrid: React.FC<TenantsGridProps> = ({ currentTenantGlobalId }) => {
       )}
       <Box sx={DataGrids.containerSx}>
         <DataGrid
+          showToolbar
           rows={tenants}
           getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
           getEstimatedRowHeight={() => (allColumnsAreVisible ? null : DataGrids.compactRowHeightEstimate)}
-          rowPositionsDebounceMs={DataGrids.compactRowPositionsDebounceMs}
           getRowId={(row) => row.globalId}
           columns={columns}
-          rowSelectionModel={currentTenantGlobalId === undefined ? [] : [currentTenantGlobalId]}
+          rowSelectionModel={{
+            type: "include",
+            ids: new Set(currentTenantGlobalId === undefined ? [] : [currentTenantGlobalId]),
+          }}
           hideFooterSelectedRowCount
           onRowClick={(params) => navigate(`/tenants/${(params.row as TenantListItem).globalId}`)}
           columnVisibilityModel={{ currentEmployeeRole: allColumnsAreVisible }}

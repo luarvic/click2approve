@@ -12,7 +12,7 @@ const renderGuard = (hasChanges = true) => {
       initialEntries: ["/before", "/edit"],
       initialIndex: 1,
     });
-    return <RouterProvider router={router} future={{ v7_startTransition: true }} />;
+    return <RouterProvider router={router} />;
   };
   const hook = renderHook(() => useUnsavedChanges(hasChanges), { wrapper });
   return { ...hook, router: router! };

@@ -2,6 +2,7 @@ import { stores } from "@/app/rootStore";
 import { getSubscriptionPlans, SubscriptionPlanConfiguration } from "@/features/subscriptions/api/subscriptionsApi";
 import PlanPriceCard from "@/features/subscriptions/components/PlanPriceCard";
 import { SubscriptionPlan } from "@/features/tenants/models/tenant";
+import { Flex } from "@/shared/components/layout/flexStyles";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
@@ -9,7 +10,6 @@ import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
-import LoadingButton from "@mui/lab/LoadingButton";
 import { Alert, Button, Grid, SxProps, Theme } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
@@ -21,7 +21,6 @@ const plans = [
   { plan: SubscriptionPlan.BusinessUltimate, name: "Business Ultimate" },
 ];
 const gridSpacing = 2;
-const gridItemSx: SxProps<Theme> = { display: "flex" };
 const backSx: SxProps<Theme> = { mt: 2 };
 
 interface OrganizationPlanSelectionPageProps {
@@ -89,10 +88,17 @@ const OrganizationPlanSelectionPage = () => {
           {plans.map(({ plan, name }) => {
             const configuration = limits.find((item) => item.plan === plan);
             return (
-              <Grid item key={plan} md={4} xs={12} sx={gridItemSx}>
+              <Grid
+                key={plan}
+                sx={Flex.displaySx}
+                size={{
+                  md: 4,
+                  xs: 12,
+                }}
+              >
                 <PlanPriceCard
                   actions={
-                    <LoadingButton
+                    <Button
                       variant="text"
                       aria-label={`Choose ${name}`}
                       disabled={action.isRunning || checkoutIsOpening}
@@ -100,7 +106,7 @@ const OrganizationPlanSelectionPage = () => {
                       onClick={() => void choose(plan)}
                     >
                       Choose
-                    </LoadingButton>
+                    </Button>
                   }
                   limits={configuration}
                   subtitle={plan === SubscriptionPlan.BusinessTrial ? "Available once per owner" : "Payment required"}

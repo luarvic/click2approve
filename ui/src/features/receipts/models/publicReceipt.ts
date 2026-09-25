@@ -58,7 +58,7 @@ export interface PublicReceiptParticipant {
   taskStatus?: ApprovalRequestTaskStatus;
 }
 
-export interface PublicReceiptParticipantFile extends PublicReceiptFile {}
+export type PublicReceiptParticipantFile = PublicReceiptFile;
 
 export enum PublicReceiptParticipantRole {
   Requester,

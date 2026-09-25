@@ -3,11 +3,12 @@ import { listApprovalDelegationGrid } from "@/features/delegations/api/approvalD
 import { DelegationGridSettings } from "@/features/delegations/components/gridSettings";
 import { ApprovalDelegation } from "@/features/delegations/models/approvalDelegation";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
-import GridFilters from "@/shared/components/grids/GridFilters";
-import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import CompactGridCell from "@/shared/components/grids/CompactGridCell";
 import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGridSecondaryInformation";
 import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
+import GridFilters from "@/shared/components/grids/GridFilters";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
+import { FilterStyles } from "@/shared/components/grids/filterStyles";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import type { SimpleGridQuery } from "@/shared/grids/simpleGridQuery";
@@ -17,7 +18,6 @@ import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
 import { Add, FilterList } from "@mui/icons-material";
-import type { SxProps, Theme } from "@mui/material";
 import { Box, Button, Link, useMediaQuery, useTheme } from "@mui/material";
 import type { GridSortModel } from "@mui/x-data-grid";
 import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
@@ -28,7 +28,6 @@ import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-d
 interface DelegationsGridProps {
   currentDelegationGlobalId?: string;
 }
-const filterContainerSx: SxProps<Theme> = { mb: 2 };
 const filterKeys = ["employee", "delegate"];
 
 const DelegationsGrid: React.FC<DelegationsGridProps> = ({ currentDelegationGlobalId }) => {
@@ -142,7 +141,7 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({ currentDelegationGlob
   return (
     <>
       {filtersAreVisible && (
-        <Box sx={filterContainerSx}>
+        <Box sx={FilterStyles.containerSx}>
           <GridFilters
             fields={[
               {
@@ -161,13 +160,16 @@ const DelegationsGrid: React.FC<DelegationsGridProps> = ({ currentDelegationGlob
       )}
       <Box sx={DataGrids.containerSx}>
         <DataGrid
+          showToolbar
           rows={delegations}
           getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
           getEstimatedRowHeight={() => (allColumnsAreVisible ? null : DataGrids.compactRowHeightEstimate)}
-          rowPositionsDebounceMs={DataGrids.compactRowPositionsDebounceMs}
           getRowId={(row) => row.globalId}
           columns={columns}
-          rowSelectionModel={currentDelegationGlobalId === undefined ? [] : [currentDelegationGlobalId]}
+          rowSelectionModel={{
+            type: "include",
+            ids: new Set(currentDelegationGlobalId === undefined ? [] : [currentDelegationGlobalId]),
+          }}
           hideFooterSelectedRowCount
           onRowClick={(params) =>
             navigate(Routes.tenantPath(tenantGlobalId!, `/delegations/${(params.row as ApprovalDelegation).globalId}`))

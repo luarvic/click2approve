@@ -15,9 +15,12 @@ test("defaults expiration to 30 days and submits an absolute date", async () => 
   const onCreate = vi.fn().mockResolvedValue(true);
   const onClose = vi.fn();
   render(<NewReceiptLinkDialog loading={false} onClose={onClose} onCreate={onCreate} />);
-  const input = screen.getByLabelText(/Expires/) as HTMLInputElement;
   expect(screen.getByRole("button", { name: /Choose date/ })).toBeTruthy();
-  const date = new Date(input.value);
+  const date = new Date(
+    Number(screen.getByRole("spinbutton", { name: "Year" }).getAttribute("aria-valuenow")),
+    Number(screen.getByRole("spinbutton", { name: "Month" }).getAttribute("aria-valuenow")) - 1,
+    Number(screen.getByRole("spinbutton", { name: "Day" }).getAttribute("aria-valuenow")),
+  );
   date.setHours(23, 59, 59, 999);
   const expected = new Date();
   expected.setDate(expected.getDate() + 30);
@@ -33,15 +36,13 @@ test("rejects past expiration and keeps the dialog open after API failure", asyn
   const onClose = vi.fn();
   render(<NewReceiptLinkDialog loading={false} onClose={onClose} onCreate={onCreate} />);
   const user = userEvent.setup();
-  await user.click(screen.getByLabelText(/Expires/));
-  await user.keyboard("{Control>}a{/Control}");
-  await user.paste("01/01/2000");
+  await user.click(screen.getByRole("spinbutton", { name: "Year" }));
+  await user.keyboard("2000");
   fireEvent.click(screen.getByRole("button", { name: "Create link" }));
   expect(await screen.findByText("Choose today or a future date.")).toBeTruthy();
   expect(onCreate).not.toHaveBeenCalled();
-  await user.click(screen.getByLabelText(/Expires/));
-  await user.keyboard("{Control>}a{/Control}");
-  await user.paste("01/01/2099");
+  await user.click(screen.getByRole("spinbutton", { name: "Year" }));
+  await user.keyboard("2099");
   fireEvent.click(screen.getByRole("button", { name: "Create link" }));
   await waitFor(() => expect(onCreate).toHaveBeenCalledOnce());
   expect(onClose).not.toHaveBeenCalled();

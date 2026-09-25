@@ -22,6 +22,7 @@ import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGr
 import CompactGridStatus from "@/shared/components/grids/CompactGridStatus";
 import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
 import { DataGrids } from "@/shared/components/grids/dataGridSettings";
+import { FilterStyles } from "@/shared/components/grids/filterStyles";
 import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
@@ -34,7 +35,7 @@ import { Delete, Done, FilterList } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
 import { Box, Button, Typography, useMediaQuery, useTheme } from "@mui/material";
 import type { GridSortModel } from "@mui/x-data-grid";
-import { DataGrid, GridColDef, GridRowSelectionModel, GridToolbarContainer } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridRowId, GridToolbarContainer } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -44,7 +45,6 @@ const notificationColumnMinWidth = 150;
 const detailsColumnFlex = 55;
 const receivedColumnFlex = 20;
 const unreadNotificationRowClassName = "notification-grid-unread";
-const filterContainerSx: SxProps<Theme> = { mb: 2 };
 const notificationGridSx: SxProps<Theme> = {
   ...DataGrids.sx,
   [`& .${unreadNotificationRowClassName} .MuiDataGrid-cell`]: {
@@ -70,7 +70,7 @@ const NotificationsGrid = () => {
   const [items, setItems] = useState<Notification[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [filtersAreVisible, setFiltersAreVisible] = useState(false);
-  const [selectedNotificationGlobalIds, setSelectedNotificationGlobalIds] = useState<GridRowSelectionModel>([]);
+  const [selectedNotificationGlobalIds, setSelectedNotificationGlobalIds] = useState<GridRowId[]>([]);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const gridLoader = ActionLoaders.grids.notifications(tenantId);
   const deleteLoader = ActionLoaders.notifications.delete(tenantId);
@@ -229,7 +229,7 @@ const NotificationsGrid = () => {
   return (
     <>
       {filtersAreVisible && (
-        <Box sx={filterContainerSx}>
+        <Box sx={FilterStyles.containerSx}>
           <NotificationsFilter
             details={query.details}
             receivedFrom={receivedFromFilter}
@@ -256,8 +256,10 @@ const NotificationsGrid = () => {
       )}
       <Box sx={DataGrids.containerSx}>
         <DataGrid
+          showToolbar
           autoHeight
           checkboxSelection
+          disableRowSelectionExcludeModel
           columns={columns}
           columnVisibilityModel={{
             occurredAt: allColumnsAreVisible,
@@ -269,16 +271,15 @@ const NotificationsGrid = () => {
           getRowId={(row) => row.globalId}
           getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
           getEstimatedRowHeight={() => (allColumnsAreVisible ? null : DataGrids.compactRowHeightEstimate)}
-          rowPositionsDebounceMs={DataGrids.compactRowPositionsDebounceMs}
           getRowClassName={(params) => (params.row.readAt ? "" : unreadNotificationRowClassName)}
           hideFooterSelectedRowCount
           loading={gridIsLoading || isDeleting || isMarkingRead}
           onRowClick={(params) => void open(params.row as Notification)}
-          onRowSelectionModelChange={setSelectedNotificationGlobalIds}
+          onRowSelectionModelChange={(selection) => setSelectedNotificationGlobalIds([...selection.ids])}
           paginationMode="server"
           paginationModel={paginationModel}
           pageSizeOptions={DataGrids.pageSizeOptions}
-          rowSelectionModel={selectedNotificationGlobalIds}
+          rowSelectionModel={{ type: "include", ids: new Set(selectedNotificationGlobalIds) }}
           rowCount={totalCount}
           rows={items}
           sortingMode="server"

@@ -32,7 +32,10 @@ interface ApprovalStepAssigneeRowProps {
 const getAssigneeRowSx = (muted: boolean): SxProps<Theme> => ({
   opacity: muted ? 0.65 : 1,
 });
-const assigneeControlsSx: SxProps<Theme> = { flexWrap: "nowrap" };
+const getAssigneeControlsSx = (stackOnSmallScreens: boolean): SxProps<Theme> => ({
+  alignItems: stackOnSmallScreens ? { xs: "stretch", sm: "center" } : "center",
+  flexWrap: "nowrap",
+});
 const assigneeFieldSx: SxProps<Theme> = { flexGrow: 1, minWidth: 0 };
 const assigneeFieldControlsSx: SxProps<Theme> = {
   alignItems: "center",
@@ -69,8 +72,7 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
       <Stack
         direction={stackControlsOnSmallScreens ? { xs: "column", sm: "row" } : "row"}
         spacing={ApprovalStepStyles.assigneeStackSpacing}
-        alignItems={stackControlsOnSmallScreens ? { xs: "stretch", sm: "center" } : "center"}
-        sx={assigneeControlsSx}
+        sx={getAssigneeControlsSx(stackControlsOnSmallScreens)}
       >
         <TextField
           select
@@ -110,6 +112,7 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
               fullWidth
               options={employees}
               getOptionDisabled={(employee) => employee.status === EmployeeStatus.Disabled}
+              getOptionKey={(option) => option.globalId}
               getOptionLabel={getEmployeeDisplayName}
               value={employees.find((user) => user.globalId === assignee.employeeGlobalId) ?? null}
               disabled={disabled}
@@ -121,21 +124,25 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
                     label="Employee"
                     error={Boolean(error)}
                     helperText={error}
-                    InputProps={{
-                      ...params.InputProps,
-                      startAdornment: employee ? (
-                        <InputAdornment position="start">
-                          {getAssigneeIcon(AssigneeType.Employee, employee.status, disabled)}
-                        </InputAdornment>
-                      ) : (
-                        params.InputProps.startAdornment
-                      ),
+                    slotProps={{
+                      ...params.slotProps,
+
+                      input: {
+                        ...params.slotProps.input,
+                        startAdornment: employee ? (
+                          <InputAdornment position="start">
+                            {getAssigneeIcon(AssigneeType.Employee, employee.status, disabled)}
+                          </InputAdornment>
+                        ) : (
+                          params.slotProps.input.startAdornment
+                        ),
+                      },
                     }}
                   />
                 );
               }}
-              renderOption={(props, option) => (
-                <li {...props}>
+              renderOption={({ key, ...props }, option) => (
+                <li key={key} {...props}>
                   <EmployeeDisplayName employee={option} />
                 </li>
               )}
@@ -153,6 +160,7 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
               disableClearable={assignee.teamGlobalId !== undefined}
               fullWidth
               options={teams}
+              getOptionKey={(option) => option.globalId}
               getOptionLabel={(option) => option.name}
               value={teams.find((team) => team.globalId === assignee.teamGlobalId) ?? null}
               disabled={disabled}
@@ -164,21 +172,25 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
                     label="Team"
                     error={Boolean(error)}
                     helperText={error}
-                    InputProps={{
-                      ...params.InputProps,
-                      startAdornment: team ? (
-                        <InputAdornment position="start">
-                          {getAssigneeIcon(AssigneeType.Team, undefined, disabled)}
-                        </InputAdornment>
-                      ) : (
-                        params.InputProps.startAdornment
-                      ),
+                    slotProps={{
+                      ...params.slotProps,
+
+                      input: {
+                        ...params.slotProps.input,
+                        startAdornment: team ? (
+                          <InputAdornment position="start">
+                            {getAssigneeIcon(AssigneeType.Team, undefined, disabled)}
+                          </InputAdornment>
+                        ) : (
+                          params.slotProps.input.startAdornment
+                        ),
+                      },
                     }}
                   />
                 );
               }}
-              renderOption={(props, option) => (
-                <li {...props}>
+              renderOption={({ key, ...props }, option) => (
+                <li key={key} {...props}>
                   <ApprovalRequestParticipantLine displayName={option.name} type={AssigneeType.Team} />
                 </li>
               )}

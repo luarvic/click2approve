@@ -116,14 +116,16 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           select
           label="Employee"
           value={delegatorEmployeeId}
-          SelectProps={{
-            renderValue: (selected) => renderEmployeeValue(selected as string),
-          }}
           onChange={(event) => setDelegatorEmployeeId(event.target.value)}
           {...validation.field("delegatorEmployeeId")}
           fullWidth
           required
           disabled={fieldsDisabled}
+          slotProps={{
+            select: {
+              renderValue: (selected) => renderEmployeeValue(selected as string),
+            },
+          }}
         >
           <MenuItem value={employeeSelectionDefault}>Select employee</MenuItem>
           {employees.map((employee) => (
@@ -140,14 +142,16 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           select
           label="Delegate"
           value={delegateEmployeeId}
-          SelectProps={{
-            renderValue: (selected) => renderEmployeeValue(selected as string),
-          }}
           onChange={(event) => setDelegateEmployeeId(event.target.value)}
           {...validation.field("delegateEmployeeId")}
           fullWidth
           required
           disabled={fieldsDisabled}
+          slotProps={{
+            select: {
+              renderValue: (selected) => renderEmployeeValue(selected as string),
+            },
+          }}
         >
           <MenuItem value={employeeSelectionDefault}>Select delegate</MenuItem>
           {employees.map((employee) => (
