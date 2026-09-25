@@ -1,6 +1,6 @@
 import { downloadApprovalRequestFileBase64 } from "@/features/approvalRequests/api/approvalRequestFilesApi";
-import { downloadApprovalRequestTaskFileBase64 } from "@/features/approvalRequests/api/approvalRequestTaskFilesApi";
 import { downloadApprovalRequestTaskAttachmentBase64 } from "@/features/approvalRequests/api/approvalRequestTaskAttachmentsApi";
+import { downloadApprovalRequestTaskFileBase64 } from "@/features/approvalRequests/api/approvalRequestTaskFilesApi";
 import { downloadDiscussionMessageFileBase64 } from "@/features/discussions/api/discussionsApi";
 import { UserFile } from "@/features/userFiles/models/userFile";
 
@@ -24,8 +24,29 @@ const browserOpenableExtensions = new Set([
   ".wav",
   ".webm",
   ".webp",
-  ".xml",
 ]);
+
+const browserOpenableContentTypes = new Set([
+  "application/pdf",
+  "audio/mpeg",
+  "audio/ogg",
+  "audio/wav",
+  "audio/x-wav",
+  "image/apng",
+  "image/avif",
+  "image/bmp",
+  "image/gif",
+  "image/jpeg",
+  "image/png",
+  "image/vnd.microsoft.icon",
+  "image/webp",
+  "image/x-icon",
+  "video/mp4",
+  "video/ogg",
+  "video/webm",
+]);
+
+const textContentTypes = new Set(["application/json", "text/csv", "text/markdown", "text/plain"]);
 
 export const downloadApprovalRequestFile = async (
   tenantGlobalId: string,
@@ -90,8 +111,11 @@ const downloadFile = async (userFile: UserFile, download: () => Promise<string |
 };
 
 const canOpenInBrowser = (userFile: UserFile) => {
-  const extension = userFile.type || getFileExtension(userFile.name);
-  return browserOpenableExtensions.has(extension.toLowerCase());
+  const extension = getFileExtension(userFile.name).toLowerCase();
+  return (
+    browserOpenableExtensions.has(extension) &&
+    (!userFile.type || browserOpenableExtensions.has(userFile.type.toLowerCase()))
+  );
 };
 
 const getFileExtension = (fileName: string) => {
@@ -122,11 +146,18 @@ const createObjectUrl = (base64String: string) => {
   }
 
   const [, contentType, base64Content] = match;
+  const normalizedContentType = contentType.toLowerCase();
+  // Never navigate to active document types, even when the file extension looks safe.
+  const previewContentType = textContentTypes.has(normalizedContentType) ? "text/plain" : normalizedContentType;
+  if (previewContentType !== "text/plain" && !browserOpenableContentTypes.has(previewContentType)) {
+    return null;
+  }
+
   const binaryContent = window.atob(base64Content);
   const bytes = new Uint8Array(binaryContent.length);
   for (let index = 0; index < binaryContent.length; index += 1) {
     bytes[index] = binaryContent.charCodeAt(index);
   }
 
-  return URL.createObjectURL(new Blob([bytes], { type: contentType }));
+  return URL.createObjectURL(new Blob([bytes], { type: previewContentType }));
 };

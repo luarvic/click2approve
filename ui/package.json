@@ -44,6 +44,7 @@
     "build-dev": "tsc && vite build --mode development",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "test": "vitest",
+    "test:browser:attachments": "node tests/browser/attachmentPreviews.mjs",
     "preview": "vite preview"
   },
   "eslintConfig": {
