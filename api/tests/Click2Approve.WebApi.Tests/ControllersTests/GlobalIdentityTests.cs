@@ -24,7 +24,8 @@ public sealed class GlobalIdentityTests
     [InlineData(true)]
     public async Task AccountFlow_UsesGlobalIdAndPreservesInternalAuditActor(bool activatePlaceholder)
     {
-        await using var factory = new CustomWebApplicationFactory<Program>();
+        await using var factory = new CustomWebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+            builder.UseSetting("Authentication:VerificationEnabled", "true"));
         using var client = factory.CreateClient();
         var credentials = new Credentials
         {

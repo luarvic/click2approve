@@ -3,8 +3,8 @@ using System.Text.Json;
 using Asp.Versioning;
 using Click2Approve.Domain.Models;
 using Click2Approve.WebApi.Extensions;
-using Click2Approve.WebApi.Identity.Passkeys;
 using Click2Approve.WebApi.Identity;
+using Click2Approve.WebApi.Identity.Passkeys;
 using Click2Approve.WebApi.Models.Requests.Passkeys;
 using Click2Approve.WebApi.Models.Responses.Passkeys;
 using Fido2NetLib;
@@ -152,7 +152,7 @@ public class PasskeyController(
     }
 
     /// <summary>
-    /// Verifies a passkey assertion and issues the standard bearer and refresh tokens.
+    /// Verifies a passkey assertion and applies Identity sign-in policy before issuing tokens.
     /// </summary>
     [HttpPost("authentication")]
     [AllowAnonymous]
@@ -196,8 +196,13 @@ public class PasskeyController(
             return TypedResults.Problem("Unable to update the passkey.", statusCode: StatusCodes.Status500InternalServerError);
         }
 
-        var principal = await _signInManager.CreateUserPrincipalAsync(user);
-        return TypedResults.SignIn(principal, authenticationScheme: IdentityConstants.BearerScheme);
+        // A user-verified passkey satisfies MFA; Identity still enforces account eligibility and lockout.
+        _signInManager.AuthenticationScheme = IdentityConstants.BearerScheme;
+        var signInResult = await _signInManager.ExternalLoginSignInAsync(
+            LoginProvider, credentialId, isPersistent: false, bypassTwoFactor: true);
+        return signInResult.Succeeded
+            ? TypedResults.Empty
+            : TypedResults.Problem(signInResult.ToString(), statusCode: StatusCodes.Status401Unauthorized);
     }
 
     /// <summary>
