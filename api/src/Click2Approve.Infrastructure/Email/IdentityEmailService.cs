@@ -3,6 +3,7 @@ using Click2Approve.Application.Models.Events;
 using Click2Approve.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Click2Approve.Infrastructure.Email;
 
@@ -10,15 +11,22 @@ namespace Click2Approve.Infrastructure.Email;
 /// Implements IEmailSender interface of Identity framework.
 /// </summary>
 public class IdentityEmailService(
-    IServiceScopeFactory scopeFactory) : IEmailSender<AppUser>
+    IServiceScopeFactory scopeFactory,
+    IOptions<IdentityOptions> identityOptions) : IEmailSender<AppUser>
 {
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
+    private readonly IOptions<IdentityOptions> _identityOptions = identityOptions;
 
     /// <summary>
     /// Sends an email confirmation link.
     /// </summary>
     public async Task SendConfirmationLinkAsync(AppUser user, string email, string confirmationLink)
     {
+        if (!_identityOptions.Value.SignIn.RequireConfirmedEmail)
+        {
+            return;
+        }
+
         await EnqueueAsync(new AccountEmailRequestedPayload(
             AccountEmailType.EmailConfirmation,
             email,
