@@ -4,6 +4,7 @@ using Asp.Versioning;
 using Click2Approve.Domain.Models;
 using Click2Approve.WebApi.Extensions;
 using Click2Approve.WebApi.Identity.Passkeys;
+using Click2Approve.WebApi.Identity;
 using Click2Approve.WebApi.Models.Requests.Passkeys;
 using Click2Approve.WebApi.Models.Responses.Passkeys;
 using Fido2NetLib;
@@ -41,7 +42,7 @@ public class PasskeyController(
     /// Lists the passkeys registered by the authenticated user.
     /// </summary>
     [HttpGet]
-    [Authorize]
+    [Authorize(Policy = AccountSecurityPolicies.Interactive)]
     public async Task<ActionResult<IReadOnlyList<PasskeyResponse>>> ListAsync()
     {
         var user = await _userManager.GetAppUserAsync(User);
@@ -57,7 +58,7 @@ public class PasskeyController(
     /// Creates WebAuthn registration options for the authenticated user.
     /// </summary>
     [HttpPost("registration/options")]
-    [Authorize]
+    [Authorize(Policy = AccountSecurityPolicies.Interactive)]
     public async Task<ActionResult<CredentialCreateOptions>> CreateRegistrationOptionsAsync()
     {
         var user = await _userManager.GetAppUserAsync(User);
@@ -86,7 +87,7 @@ public class PasskeyController(
     /// Verifies and stores a newly registered passkey.
     /// </summary>
     [HttpPost("registration")]
-    [Authorize]
+    [Authorize(Policy = AccountSecurityPolicies.Interactive)]
     public async Task<ActionResult<PasskeyResponse>> CompleteRegistrationAsync(
         [FromBody] PasskeyRegistrationRequest request,
         CancellationToken cancellationToken)
@@ -203,7 +204,7 @@ public class PasskeyController(
     /// Removes a passkey registered by the authenticated user.
     /// </summary>
     [HttpDelete("{credentialId}")]
-    [Authorize]
+    [Authorize(Policy = AccountSecurityPolicies.Interactive)]
     public async Task<IActionResult> DeleteAsync(string credentialId)
     {
         var user = await _userManager.GetAppUserAsync(User);

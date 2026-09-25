@@ -65,7 +65,9 @@ public static class ServiceCollectionExtensions
             options.BearerTokenExpiration = TimeSpan.FromMinutes(configuration.GetValue<int>("Authentication:Tokens:AccessTokenLifetimeMinutes"));
             options.RefreshTokenExpiration = TimeSpan.FromDays(configuration.GetValue<int>("Authentication:Tokens:RefreshTokenLifetimeDays"));
         });
-        services.AddAuthorization();
+        services.AddAuthorizationBuilder()
+            .AddPolicy(AccountSecurityPolicies.Interactive, policy => policy
+                .AddAuthenticationSchemes(IdentityConstants.BearerScheme).RequireAuthenticatedUser());
         services.AddIdentityApiEndpoints<AppUser>(options =>
             {
                 options.User.RequireUniqueEmail = true;

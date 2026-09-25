@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using Click2Approve.Domain.Models;
+using Click2Approve.WebApi.Identity;
 using Click2Approve.WebApi.Models.Responses.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -13,7 +14,7 @@ namespace Click2Approve.WebApi.Controllers;
 [ApiController]
 [ApiVersion(1.0)]
 [Route("api/v{version:apiVersion}/account/mfa")]
-[Authorize]
+[Authorize(Policy = AccountSecurityPolicies.Interactive)]
 public sealed class MfaController(UserManager<AppUser> users) : ControllerBase
 {
     /// <summary>
