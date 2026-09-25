@@ -8,7 +8,6 @@ using System.Text.Json;
 using Click2Approve.Domain.Models;
 using Click2Approve.WebApi.Models.Responses.Identity;
 using Microsoft.AspNetCore.Authentication.BearerToken;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -155,7 +154,10 @@ public sealed class AuthenticatorMfaTests
         var email = $"mfa-{Guid.NewGuid():N}@example.com";
         Assert.True((await users.CreateAsync(new AppUser
         {
-            Email = email, UserName = email, EmailConfirmed = emailConfirmed, LockoutEnabled = true
+            Email = email,
+            UserName = email,
+            EmailConfirmed = emailConfirmed,
+            LockoutEnabled = true
         }, Password)).Succeeded);
         return email;
     }

@@ -12,7 +12,9 @@ public class CommandValidationTests
     {
         var result = new CompleteApprovalRequestTaskCommandValidator().Validate(new CompleteApprovalRequestTaskCommand
         {
-            GlobalId = Guid.NewGuid(), Result = true, Comment = new string('x', 4001),
+            GlobalId = Guid.NewGuid(),
+            Result = true,
+            Comment = new string('x', 4001),
             AssigneeSignatureJson = "{\"points\":[]}"
         });
         Assert.Contains(result.Errors, error => error.PropertyName == "Comment");
@@ -24,7 +26,8 @@ public class CommandValidationTests
     {
         var result = new SubmitApprovalRequestCommandValidator().Validate(new SubmitApprovalRequestCommand
         {
-            Title = "Review", Steps = [new ApprovalRequestStepCommand
+            Title = "Review",
+            Steps = [new ApprovalRequestStepCommand
             {
                 Sequence = 1, Mode = ApprovalStepMode.All, Action = ApprovalRequestTaskAction.Approve,
                 Assignees = [new ApprovalRequestAssigneeCommand { Type = AssigneeType.Employee, EmployeeGlobalId = Guid.Empty }]

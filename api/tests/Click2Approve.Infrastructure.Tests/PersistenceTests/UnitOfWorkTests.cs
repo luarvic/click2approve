@@ -66,8 +66,10 @@ public sealed class UnitOfWorkTests
         await db.Database.EnsureCreatedAsync();
         db.Add(new Tenant
         {
-            Owner = new AppUser { Email = "owner@example.com" }, Type = TenantType.Personal,
-            SubscriptionPlan = SubscriptionPlan.PersonalFree, BusinessName = "Tenant"
+            Owner = new AppUser { Email = "owner@example.com" },
+            Type = TenantType.Personal,
+            SubscriptionPlan = SubscriptionPlan.PersonalFree,
+            BusinessName = "Tenant"
         });
         interceptor.Armed = true;
         await Assert.ThrowsAsync<TimeoutException>(() => db.SaveChangesAsync());
@@ -118,7 +120,10 @@ public sealed class UnitOfWorkTests
 
     private static EventOutboxMessage CreateEvent() => new()
     {
-        EventId = Guid.NewGuid(), EventType = "test.event.v1", OccurredAt = DateTime.UtcNow, Payload = "{}"
+        EventId = Guid.NewGuid(),
+        EventType = "test.event.v1",
+        OccurredAt = DateTime.UtcNow,
+        Payload = "{}"
     };
 
     private sealed class EnabledAuditContext : IAuditContext

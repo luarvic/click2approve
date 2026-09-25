@@ -1,5 +1,5 @@
-using Click2Approve.Domain.Validation;
 using Click2Approve.Application.Models.Commands.Notifications;
+using Click2Approve.Domain.Validation;
 
 namespace Click2Approve.WebApi.Mappers.Notifications;
 

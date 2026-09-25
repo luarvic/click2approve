@@ -1,7 +1,7 @@
-using Click2Approve.Domain.Validation;
 using Click2Approve.Application.Validation.ApprovalRequests;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
+using Click2Approve.Domain.Validation;
 using FluentValidation;
 
 namespace Click2Approve.Application.Services.ApprovalRequests;

@@ -44,8 +44,7 @@ export const useFormValidation = <T extends Record<string, string>>(
         if (!detail.label.startsWith("Validation error: ")) continue;
         const property = detail.label.slice("Validation error: ".length).toLowerCase();
         const key = Object.keys(values).find((key) => (serverFields[key] ?? key).toLowerCase() === property) as
-          | keyof T
-          | undefined;
+          keyof T | undefined;
         if (key) next[key] = { message: detail.value, value: values[key] };
       }
       if (Object.keys(next).length) setFailures((current) => ({ ...current, ...next }));
