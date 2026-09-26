@@ -139,8 +139,15 @@ axiosInstance.interceptors.response.use(
         const tokens = readTokens();
         if (tokens) {
           const newTokens = await refreshTokens(tokens.refreshToken);
-          if (newTokens && readTokens()?.refreshToken === tokens.refreshToken) {
-            writeTokens(newTokens);
+          const currentTokens = readTokens();
+          const sessionUnchanged = currentTokens?.refreshToken === tokens.refreshToken;
+          // Another request awaiting the same refresh may have already stored its result.
+          const refreshAlreadyApplied =
+            newTokens &&
+            currentTokens?.accessToken === newTokens.accessToken &&
+            currentTokens?.refreshToken === newTokens.refreshToken;
+          if (newTokens && (sessionUnchanged || refreshAlreadyApplied)) {
+            if (sessionUnchanged) writeTokens(newTokens);
             originalRequest.headers = originalRequest.headers ?? {};
             originalRequest.headers.Authorization = `Bearer ${newTokens.accessToken}`;
             return axiosInstance(originalRequest);

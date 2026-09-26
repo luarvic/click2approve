@@ -1,54 +1,14 @@
 name: Feature build
+
 on:
   push:
     branches:
       - "**"
       - "!main"
+
+permissions:
+  contents: read
+
 jobs:
-  build-test-api:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./api
-    permissions:
-      contents: read
-    strategy:
-      matrix:
-        dotnet-version: [10.0.x]
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v7
-      - name: Set up dotnet
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: ${{ matrix.dotnet-version }}
-      - name: Install dependencies
-        run: dotnet restore Click2Approve.Api.sln
-      - name: Build
-        run: dotnet build Click2Approve.Api.sln --configuration Release --no-restore
-      - name: Test
-        run: dotnet test
-        working-directory: ./api
-  build-test-ui:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./ui
-    permissions:
-      contents: read
-    strategy:
-      matrix:
-        node-version: [24.x]
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v7
-      - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v7
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "npm"
-          cache-dependency-path: ui/package-lock.json
-      - name: Install dependencies
-        run: npm ci
-      - name: Test
-        run: npm test -- --watch=false
+  build:
+    uses: ./.github/workflows/build.yml

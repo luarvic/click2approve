@@ -42,10 +42,6 @@ test("only the tab that signs in can prompt; refresh and shared-session restorat
 test("MFA does not trigger the prompt until verification completes in this tab", async () => {
   const challenge = {
     requiresTwoFactor: true as const,
-    challengeId: "challenge",
-    trustedDeviceDays: 30,
-    expiresAt: new Date().toISOString(),
-    resendAfter: new Date().toISOString(),
   };
   vi.mocked(loginUser).mockResolvedValue(challenge);
   const store = new UserAccountStore();

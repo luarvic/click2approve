@@ -220,6 +220,12 @@ public class UserFileService(
     {
         var userFile = await _userFileRepository.GetForDeleteAsync(user, globalId, cancellationToken)
             ?? throw new NotFoundException("File was not found.");
+        var unattachedFiles = await _userFileRepository.ListUnattachedAsync([userFile.GlobalId], cancellationToken);
+        if (unattachedFiles.Count == 0)
+        {
+            throw new BusinessRuleException("Attached files cannot be deleted.");
+        }
+
         _userFileRepository.Remove(userFile);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         await _fileStorage.DeleteAsync(userFile, cancellationToken);
