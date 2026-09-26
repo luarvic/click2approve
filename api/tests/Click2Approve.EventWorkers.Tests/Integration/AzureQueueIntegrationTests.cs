@@ -1,5 +1,4 @@
 using Azure.Storage.Queues;
-using Azure.Storage.Queues.Models;
 using Click2Approve.Application.Abstractions.Events;
 using Click2Approve.Application.Models.Events;
 using Click2Approve.EventConsumer.Services;
@@ -60,7 +59,9 @@ public sealed class AzureQueueIntegrationTests
             await queue.EnqueueAsync(EventPriority.High, new EventEnvelope(eventId, handler.EventType, DateTime.UtcNow, "{}"), default);
             await consumer.StartAsync(default);
             using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-            while ((await poison.GetPropertiesAsync(timeout.Token)).Value.ApproximateMessagesCount == 0)
+            // Poison publication precedes source deletion; stopping between them cancels the deletion.
+            while ((await poison.GetPropertiesAsync(timeout.Token)).Value.ApproximateMessagesCount == 0
+                || (await source.GetPropertiesAsync(timeout.Token)).Value.ApproximateMessagesCount != 0)
                 await Task.Delay(50, timeout.Token);
             await consumer.StopAsync(timeout.Token);
             Assert.Equal(2, handler.Attempts);
