@@ -2,11 +2,9 @@
 // Set CHROME_NO_SANDBOX=1 only on isolated test runners without a usable Chromium sandbox.
 // Bundles the real download helper; only the attachment API responses are replaced.
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
-import { mkdtemp, rm } from "node:fs/promises";
 import { createServer } from "node:http";
-import { tmpdir } from "node:os";
 import { resolve } from "node:path";
+import { chromium } from "@playwright/test";
 import { build } from "vite";
 
 const chrome = process.env.CHROME_BIN;
@@ -14,20 +12,20 @@ assert.ok(chrome, "Set CHROME_BIN to a Chrome/Chromium executable.");
 const entry = `
 import { downloadApprovalRequestFile } from ${JSON.stringify(resolve("src/features/userFiles/utils/downloaders.ts"))};
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
-const pause = () => new Promise(resolve => setTimeout(resolve, 100));
 const payload = '<html xmlns="http://www.w3.org/1999/xhtml"><script>localStorage.setItem("s01-executed", "yes")</' + 'script></html>';
 const xmlUrl = 'data:application/xml;base64,' + btoa(payload);
 const file = (name, type) => ({ name, type, globalId: 'file' });
 let opens = 0;
 let downloads = 0;
 let currentFrame;
-// Use actual browser document navigation in a same-origin frame so dump-dom
-// can observe completion. This retains the vulnerable Blob origin semantics.
+let previewLoaded;
+// Use actual navigation in a same-origin frame to retain the vulnerable Blob origin semantics.
 window.open = () => {
   opens++;
   const frame = document.createElement('iframe');
   document.body.append(frame);
   currentFrame = frame;
+  previewLoaded = new Promise(resolve => frame.onload = resolve);
   return { opener: null, location: frame.contentWindow.location, close: () => frame.remove() };
 };
 HTMLAnchorElement.prototype.click = function () {
@@ -52,12 +50,11 @@ try {
 
   await downloadApprovalRequestFile('tenant', file('payload.txt', '.txt'), 'request');
   assert(downloads === 2 && !currentFrame.isConnected, 'Disguised XML was not download-only');
-  await pause();
   assert(localStorage.getItem('s01-executed') === null, 'XML executed through the attachment helper');
 
   window.attachmentResponse = 'data:text/plain;base64,' + btoa(payload);
   await downloadApprovalRequestFile('tenant', file('payload.txt', '.txt'), 'request');
-  await pause();
+  await previewLoaded;
   assert(currentFrame.contentDocument.body.textContent.includes(payload), 'Text preview did not preserve literal markup');
   assert(localStorage.getItem('s01-executed') === null, 'Text preview executed markup');
   document.body.textContent = 'S01_BROWSER_PASS';
@@ -100,54 +97,33 @@ const server = createServer((_request, response) => {
   response.setHeader("Content-Type", "text/html");
   response.end('<!doctype html><body>Running<script type="module">' + code + "</script>");
 });
-const profile = await mkdtemp(resolve(tmpdir(), "s01-browser-"));
+let browser;
+let page;
+const pageErrors = [];
 try {
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
-  const result = await new Promise((resolve, reject) => {
-    const child = spawn(chrome, [
-      "--headless",
-      ...(process.env.CHROME_NO_SANDBOX === "1" ? ["--no-sandbox"] : []),
-      "--disable-gpu",
-      "--no-first-run",
-      "--disable-background-networking",
-      "--use-mock-keychain",
-      "--password-store=basic",
-      "--no-default-browser-check",
-      "--user-data-dir=" + profile,
-      "--dump-dom",
-      "--virtual-time-budget=5000",
-      "http://127.0.0.1:" + server.address().port,
-    ]);
-    let stdout = "";
-    let stderr = "";
-    let dumped = false;
-    child.stdout.on("data", (data) => {
-      stdout += data;
-      if (stdout.includes("</html>")) {
-        // Some Chrome builds keep background processes alive after dumping the DOM.
-        dumped = true;
-        child.kill();
-      }
-    });
-    child.stderr.on("data", (data) => (stderr += data));
-    const timeout = setTimeout(() => {
-      child.kill();
-      reject(new Error("Chrome timed out\n" + stdout + stderr));
-    }, 30000);
-    child.on("error", (error) => {
-      clearTimeout(timeout);
-      reject(error);
-    });
-    child.on("exit", (code) => {
-      clearTimeout(timeout);
-      resolve({ code, stdout, stderr, dumped });
-    });
+  browser = await chromium.launch({
+    executablePath: chrome,
+    headless: true,
+    chromiumSandbox: process.env.CHROME_NO_SANDBOX !== "1",
+    timeout: 30000,
   });
-  assert.ok(result.dumped || result.code === 0, result.stderr);
-  assert.match(result.stdout, /<body>S01_BROWSER_PASS<\/body>/, result.stdout);
+  page = await browser.newPage();
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  await page.goto("http://127.0.0.1:" + server.address().port, { timeout: 30000 });
+  // Wait for the fixture itself, independent of Chrome's DOM-dump or process-exit behavior.
+  await page.waitForFunction(() => document.body.textContent.startsWith("S01_BROWSER_"), undefined, { timeout: 30000 });
+  assert.equal(await page.locator("body").textContent(), "S01_BROWSER_PASS");
+  assert.deepEqual(pageErrors, []);
   console.log("S01 browser regression passed (including exploit positive control).");
+} catch (error) {
+  if (page) {
+    console.error("Attachment fixture:", await page.locator("body").textContent().catch(() => "unavailable"));
+    console.error("Browser page errors:", pageErrors);
+  }
+  throw error;
 } finally {
+  await browser?.close();
   server.closeAllConnections();
   await new Promise((resolve) => server.close(resolve));
-  await rm(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
 }
