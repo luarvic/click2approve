@@ -1,4 +1,5 @@
 // Run with CHROME_BIN=/path/to/chrome node tests/browser/attachmentPreviews.mjs.
+// Set CHROME_NO_SANDBOX=1 only on isolated test runners without a usable Chromium sandbox.
 // Bundles the real download helper; only the attachment API responses are replaced.
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
@@ -105,6 +106,7 @@ try {
   const result = await new Promise((resolve, reject) => {
     const child = spawn(chrome, [
       "--headless",
+      ...(process.env.CHROME_NO_SANDBOX === "1" ? ["--no-sandbox"] : []),
       "--disable-gpu",
       "--no-first-run",
       "--disable-background-networking",
