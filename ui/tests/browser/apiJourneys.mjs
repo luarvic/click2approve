@@ -105,8 +105,28 @@ try {
   await requester.getByRole("button", { name: "Choose Business Starter", exact: true }).click();
   await expect(requester.getByRole("heading", { name: "Test payment provider" })).toBeVisible();
   const paidTenant = new URL(requester.url()).searchParams.get("tenant");
-  await requester.getByRole("link", { name: "Return without paying" }).click();
-  await expect(requester.getByRole("button", { name: "Resolve payment", exact: true })).toBeVisible();
+  const returnFromCheckout = async (linkName, paymentResolutionRequired) => {
+    // Match the application's billing-refresh allowance before asserting the rendered payment action.
+    // Page action timeouts do not change Playwright's five-second expect timeout.
+    const [billingResponse] = await Promise.all([
+      requester.waitForResponse(
+        (response) =>
+          response.request().method() === "POST" &&
+          new URL(response.url()).pathname === `/api/v1/tenants/${paidTenant}/subscription/billing/refresh`,
+        { timeout: 60000 },
+      ),
+      requester.getByRole("link", { name: linkName, exact: true }).click(),
+    ]);
+    assert.equal(billingResponse.status(), 200, await billingResponse.text());
+    assert.equal((await billingResponse.json()).paymentResolutionRequired, paymentResolutionRequired);
+    await expect(
+      requester.getByRole("button", {
+        name: paymentResolutionRequired ? "Resolve payment" : "Manage billing",
+        exact: true,
+      }),
+    ).toBeVisible({ timeout: 10000 });
+  };
+  await returnFromCheckout("Return without paying", true);
   const access = await requester.evaluate(async (tenant) => {
     const token = JSON.parse(localStorage.getItem("tokens")).accessToken;
     return (await fetch(`/api/v1/tenants/${tenant}/requests`, { headers: { Authorization: `Bearer ${token}` } }))
@@ -114,8 +134,7 @@ try {
   }, paidTenant);
   assert.equal(access, 402);
   await requester.getByRole("button", { name: "Resolve payment", exact: true }).click();
-  await requester.getByRole("link", { name: "Pay", exact: true }).click();
-  await expect(requester.getByRole("button", { name: "Manage billing", exact: true })).toBeVisible();
+  await returnFromCheckout("Pay", false);
   await expect(requester.getByRole("button", { name: "Resolve payment", exact: true })).toHaveCount(0);
   const recovered = await requester.evaluate(async (tenant) => {
     const token = JSON.parse(localStorage.getItem("tokens")).accessToken;
