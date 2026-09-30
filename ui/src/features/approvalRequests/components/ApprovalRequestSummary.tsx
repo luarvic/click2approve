@@ -4,14 +4,18 @@ import ApprovalRequestFieldGroup from "@/features/approvalRequests/components/Ap
 import ApprovalRequestFilesBox from "@/features/approvalRequests/components/ApprovalRequestFilesBox";
 import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestRevisionLinks from "@/features/approvalRequests/components/ApprovalRequestRevisionLinks";
-import { ApprovalRequestFile } from "@/features/approvalRequests/models/approvalRequest";
+import {
+  ApprovalRequestFile,
+  ApprovalRequestFileRevisionAction,
+} from "@/features/approvalRequests/models/approvalRequest";
 import { Flex } from "@/shared/components/layout/flexStyles";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
 import { StackSpacing } from "@/shared/theme/tokens";
 import type { TypographyProps } from "@mui/material";
-import { Stack, Typography } from "@mui/material";
+import { FormControlLabel, Stack, Switch, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
-import type { ElementType, ReactNode } from "react";
+import { useState, type ElementType, type ReactNode } from "react";
 
 interface ApprovalRequestSummaryProps {
   additionalContent?: ReactNode;
@@ -47,6 +51,8 @@ interface ApprovalRequestSummaryProps {
   title?: string;
 }
 
+const revisionToggleSx: SxProps<Theme> = { mr: 0 };
+
 const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   additionalContent,
   activity,
@@ -77,6 +83,20 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
 }) => {
   const numberGlobalId = approvalRequestGlobalId ?? approvalRequestTaskGlobalId;
   const hasFiles = Boolean(requestFiles?.length);
+  const isRevision = (revisionNumber ?? 1) > 1;
+  const [showChanges, setShowChanges] = useState(false);
+  const hasCurrentFiles = requestFiles?.some(
+    (file) => file.revisionAction !== ApprovalRequestFileRevisionAction.Removed,
+  );
+  const files = hasFiles ? (
+    <ApprovalRequestFilesBox
+      approvalRequestGlobalId={approvalRequestGlobalId}
+      approvalRequestTaskGlobalId={approvalRequestTaskGlobalId}
+      compareWithPrevious={isRevision && showChanges}
+      requestFiles={requestFiles}
+      showFileStateIndicators={isRevision && showChanges && (showFileStateIndicators ?? true)}
+    />
+  ) : undefined;
 
   const details = (
     <ApprovalRequestFieldGroup title="Details">
@@ -123,15 +143,38 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
         <ApprovalRequestField
           label="Files to review"
           value={
-            hasFiles ? (
-              <ApprovalRequestFilesBox
-                approvalRequestGlobalId={approvalRequestGlobalId}
-                approvalRequestTaskGlobalId={approvalRequestTaskGlobalId}
-                compareWithPrevious={(revisionNumber ?? 1) > 1}
-                requestFiles={requestFiles}
-                showFileStateIndicators={showFileStateIndicators ?? (revisionNumber ?? 1) > 1}
-              />
-            ) : undefined
+            isRevision ? (
+              <Stack spacing={StackSpacing.tight} sx={Flex.alignStartSx}>
+                <Stack direction="row" spacing={StackSpacing.tight} sx={Flex.alignCenterSx}>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={showChanges}
+                        onChange={(event) => setShowChanges(event.target.checked)}
+                        size="small"
+                      />
+                    }
+                    label={
+                      <Typography color="text.secondary" variant="caption">
+                        Show revision changes
+                      </Typography>
+                    }
+                    sx={revisionToggleSx}
+                  />
+                  <HelpPopover
+                    compact
+                    helpText="Replaced and deleted files are shown for context only. They are not part of the files you are reviewing."
+                  />
+                </Stack>
+                {(showChanges || hasCurrentFiles) && files ? (
+                  files
+                ) : (
+                  <Typography color="text.secondary">None</Typography>
+                )}
+              </Stack>
+            ) : (
+              files
+            )
           }
         />
       )}

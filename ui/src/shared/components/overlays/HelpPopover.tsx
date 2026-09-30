@@ -5,8 +5,17 @@ import type { Theme } from "@mui/material/styles";
 import { useId, useState } from "react";
 
 interface HelpPopoverProps {
+  compact?: boolean;
   helpText: string;
 }
+
+const compactHelpButtonSx: SxProps<Theme> = {
+  height: 24,
+  p: 0,
+  width: 24,
+};
+
+const compactHelpIconSx: SxProps<Theme> = { fontSize: "1rem" };
 
 const helpPopoverPaperSx: SxProps<Theme> = {
   maxWidth: 320,
@@ -14,7 +23,7 @@ const helpPopoverPaperSx: SxProps<Theme> = {
 };
 
 /** Displays contextual help in a popover opened from a muted help icon. */
-const HelpPopover: React.FC<HelpPopoverProps> = ({ helpText }) => {
+const HelpPopover: React.FC<HelpPopoverProps> = ({ compact = false, helpText }) => {
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
   const popoverId = useId();
   const isOpen = Boolean(anchorElement);
@@ -27,8 +36,9 @@ const HelpPopover: React.FC<HelpPopoverProps> = ({ helpText }) => {
         aria-label="Show help"
         size="small"
         onClick={(event) => setAnchorElement(event.currentTarget)}
+        sx={compact ? compactHelpButtonSx : undefined}
       >
-        <InfoOutlined color="action" />
+        <InfoOutlined color="action" sx={compact ? compactHelpIconSx : undefined} />
       </IconButton>
       <Popover
         anchorEl={anchorElement}

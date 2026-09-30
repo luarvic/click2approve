@@ -123,8 +123,8 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
                   file.userFile,
                   `${file.globalId}-current`,
                   undefined,
-                  "warning",
-                  "Replacement",
+                  "default",
+                  undefined,
                   showFileStateIndicators ? "Replacement file" : undefined,
                 )}
                 {(previousRequestFile?.userFile ?? file.previousUserFile) && (
@@ -133,8 +133,8 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
                       previousRequestFile?.userFile ?? file.previousUserFile!,
                       `${file.globalId}-previous`,
                       showFileStateIndicators ? ApprovalRequestFileStyles.inactiveLinkSx : undefined,
-                      "default",
-                      undefined,
+                      "warning",
+                      "Replaced",
                       showFileStateIndicators ? "Replaced file" : undefined,
                     )}
                   </ReplacedFileGroup>
