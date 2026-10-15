@@ -18,6 +18,9 @@ export const getAssigneeError = (assignee: ApprovalStepAssignee): string | undef
   }
 };
 
+export const hasInvalidAssignees = (steps: EditableApprovalStep[]) =>
+  steps.some((step) => step.assignees.some((assignee) => Boolean(getAssigneeError(assignee))));
+
 export const getStepErrors = (steps: EditableApprovalStep[]) =>
   steps.map(
     (step) =>
@@ -25,9 +28,5 @@ export const getStepErrors = (steps: EditableApprovalStep[]) =>
       (step.assignees.length > CollectionLimits.stepAssignees
         ? `At most ${CollectionLimits.stepAssignees} assignees are allowed.`
         : undefined) ??
-      (step.assignees.length === 0
-        ? "Add at least one assignee."
-        : step.assignees.some((assignee) => getAssigneeError(assignee))
-          ? "Complete the highlighted assignees."
-          : undefined),
+      (step.assignees.length === 0 ? "Add at least one assignee." : undefined),
   );

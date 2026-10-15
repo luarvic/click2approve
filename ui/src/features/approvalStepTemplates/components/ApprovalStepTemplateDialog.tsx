@@ -1,6 +1,10 @@
 import { stores } from "@/app/rootStore";
 import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
-import { getAssigneeError, getStepErrors } from "@/features/approvalRequests/utils/submitValidation";
+import {
+  getAssigneeError,
+  getStepErrors,
+  hasInvalidAssignees,
+} from "@/features/approvalRequests/utils/submitValidation";
 import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
 import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
 import { useEditableApprovalSteps } from "@/features/approvalWorkflow/hooks/useEditableApprovalSteps";
@@ -119,7 +123,12 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
   const stepErrors = getStepErrors(steps);
   const validateSteps = () => {
     setStepsValidationAttempted(true);
-    if (!steps.length || steps.length > CollectionLimits.workflowSteps || stepErrors.some(Boolean)) {
+    if (
+      !steps.length ||
+      steps.length > CollectionLimits.workflowSteps ||
+      stepErrors.some(Boolean) ||
+      hasInvalidAssignees(steps)
+    ) {
       notification.warning("Complete the highlighted approval steps.");
       return false;
     }

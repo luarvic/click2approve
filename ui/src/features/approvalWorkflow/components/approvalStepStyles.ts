@@ -18,8 +18,9 @@ export const ApprovalStepStyles = {
     minWidth: AssigneeTypeFieldMinWidth,
   } as SxProps<Theme>,
   removeAssigneeButtonSx: {
-    alignSelf: { xs: "flex-end", sm: "center" },
+    alignSelf: "flex-start",
     height: 40,
+    mt: 1,
     width: 40,
   } as SxProps<Theme>,
   approvalStepSx: {

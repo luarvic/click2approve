@@ -137,14 +137,11 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
             onRestoreExisting={onRestoreExisting}
           />
           <Box sx={Forms.bottomSpacingSx}>
-            <FormHelperText
-              error={Boolean(filesError)}
-              role={filesError ? "alert" : undefined}
-              tabIndex={-1}
-              data-validation-error={filesError ? true : undefined}
-            >
-              {filesError ?? "Attach at least one file for approval."}
-            </FormHelperText>
+            {filesError && (
+              <FormHelperText error role="alert" tabIndex={-1} data-validation-error>
+                {filesError}
+              </FormHelperText>
+            )}
             <Button
               disabled={isFilesBusy}
               loading={isFilesUploading}

@@ -8,7 +8,7 @@ import {
 } from "@/features/approvalRequests/models/approvalRequest";
 import { getIncompleteParticipantNameWarning } from "@/features/approvalRequests/utils/incompleteParticipantNameWarning";
 import { hasIncompleteBusinessParticipantName } from "@/features/approvalRequests/utils/participantName";
-import { getStepErrors } from "@/features/approvalRequests/utils/submitValidation";
+import { getStepErrors, hasInvalidAssignees } from "@/features/approvalRequests/utils/submitValidation";
 import { useEditableApprovalSteps } from "@/features/approvalWorkflow/hooks/useEditableApprovalSteps";
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import {
@@ -226,7 +226,11 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
 
   const validateSteps = () => {
     setTemplateValidationAttempted(true);
-    const valid = steps.length > 0 && steps.length <= CollectionLimits.workflowSteps && !stepErrors.some(Boolean);
+    const valid =
+      steps.length > 0 &&
+      steps.length <= CollectionLimits.workflowSteps &&
+      !stepErrors.some(Boolean) &&
+      !hasInvalidAssignees(steps);
     if (!valid) {
       notification.warning("Complete the highlighted approval steps.");
       focusFirstError();
@@ -244,7 +248,8 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
       existingFiles.length + newFiles.length <= CollectionLimits.files &&
       steps.length > 0 &&
       steps.length <= CollectionLimits.workflowSteps &&
-      !stepErrors.some(Boolean);
+      !stepErrors.some(Boolean) &&
+      !hasInvalidAssignees(steps);
     if (!valid) {
       notification.warning("Complete the highlighted fields before submitting.");
       focusFirstError();

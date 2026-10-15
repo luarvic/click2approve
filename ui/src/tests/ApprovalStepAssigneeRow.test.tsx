@@ -16,11 +16,10 @@ const employee: Employee = {
 };
 
 describe("<ApprovalStepAssigneeRow />", () => {
-  test("greys out employee and team icons when the row is disabled", () => {
+  test("shows employee and team names without type icons", () => {
     const props = {
       canUseEmployees: true,
       canUseTeams: true,
-      disabled: true,
       employees: [employee],
       onChange: vi.fn(),
       onRemove: vi.fn(),
@@ -36,11 +35,17 @@ describe("<ApprovalStepAssigneeRow />", () => {
       />,
     );
 
-    expect(screen.getByTestId("PersonIcon").className).toContain("MuiSvgIcon-colorDisabled");
+    expect((screen.getByRole("combobox", { name: "Employee" }) as HTMLInputElement).value).toBe("Ada Lovelace");
+    fireEvent.click(screen.getByRole("button", { name: "Open" }));
+    expect(screen.getByRole("option", { name: "Ada Lovelace" })).toBeTruthy();
+    expect(screen.queryByTestId("PersonIcon")).toBeNull();
 
     rerender(<ApprovalStepAssigneeRow {...props} assignee={{ teamGlobalId: "team-id", type: AssigneeType.Team }} />);
 
-    expect(screen.getByTestId("GroupsIcon").className).toContain("MuiSvgIcon-colorDisabled");
+    expect((screen.getByRole("combobox", { name: "Team" }) as HTMLInputElement).value).toBe("Finance");
+    fireEvent.click(screen.getByRole("button", { name: "Open" }));
+    expect(screen.getByRole("option", { name: "Finance" })).toBeTruthy();
+    expect(screen.queryByTestId("GroupsIcon")).toBeNull();
   });
 
   test("renders employees with matching names without React key warnings", () => {
@@ -82,6 +87,9 @@ describe("<ApprovalStepAssigneeRow />", () => {
       />,
     );
 
-    expect(screen.getByTestId("PersonOffIcon")).toBeTruthy();
+    expect((screen.getByRole("combobox", { name: "Employee" }) as HTMLInputElement).value).toBe(
+      "Ada Lovelace (disabled)",
+    );
+    expect(screen.queryByTestId("PersonOffIcon")).toBeNull();
   });
 });

@@ -1,17 +1,13 @@
-import ApprovalRequestParticipantLine, {
-  getAssigneeIcon,
-} from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
 import {
   ApprovalStepStyles,
   AssigneeTypeFieldMinWidth,
 } from "@/features/approvalWorkflow/components/approvalStepStyles";
 import { ApprovalStepAssignee, AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
-import EmployeeDisplayName from "@/features/employees/components/EmployeeDisplayName";
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
 import { Close } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
-import { Autocomplete, IconButton, InputAdornment, MenuItem, Stack, TextField, Tooltip } from "@mui/material";
+import { Autocomplete, IconButton, MenuItem, Stack, TextField, Tooltip } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 
 interface ApprovalStepAssigneeRowProps {
@@ -33,12 +29,12 @@ const getAssigneeRowSx = (muted: boolean): SxProps<Theme> => ({
   opacity: muted ? 0.65 : 1,
 });
 const getAssigneeControlsSx = (stackOnSmallScreens: boolean): SxProps<Theme> => ({
-  alignItems: stackOnSmallScreens ? { xs: "stretch", sm: "center" } : "center",
+  alignItems: stackOnSmallScreens ? { xs: "stretch", sm: "flex-start" } : "flex-start",
   flexWrap: "nowrap",
 });
 const assigneeFieldSx: SxProps<Theme> = { flexGrow: 1, minWidth: 0 };
 const assigneeFieldControlsSx: SxProps<Theme> = {
-  alignItems: "center",
+  alignItems: "flex-start",
   flex: 1,
   minWidth: 0,
 };
@@ -46,6 +42,8 @@ const responsiveAssigneeTypeFieldSx: SxProps<Theme> = {
   minWidth: AssigneeTypeFieldMinWidth,
   width: { xs: "100%", sm: "auto" },
 };
+const getAssigneeEmployeeLabel = (employee: Employee) =>
+  `${getEmployeeDisplayName(employee)}${employee.status === EmployeeStatus.Disabled ? " (disabled)" : ""}`;
 
 const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
   assignee,
@@ -113,38 +111,11 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
               options={employees}
               getOptionDisabled={(employee) => employee.status === EmployeeStatus.Disabled}
               getOptionKey={(option) => option.globalId}
-              getOptionLabel={getEmployeeDisplayName}
+              getOptionLabel={getAssigneeEmployeeLabel}
               value={employees.find((user) => user.globalId === assignee.employeeGlobalId) ?? null}
               disabled={disabled}
-              renderInput={(params) => {
-                const employee = employees.find((item) => item.globalId === assignee.employeeGlobalId);
-                return (
-                  <TextField
-                    {...params}
-                    label="Employee"
-                    error={Boolean(error)}
-                    helperText={error}
-                    slotProps={{
-                      ...params.slotProps,
-
-                      input: {
-                        ...params.slotProps.input,
-                        startAdornment: employee ? (
-                          <InputAdornment position="start">
-                            {getAssigneeIcon(AssigneeType.Employee, employee.status, disabled)}
-                          </InputAdornment>
-                        ) : (
-                          params.slotProps.input.startAdornment
-                        ),
-                      },
-                    }}
-                  />
-                );
-              }}
-              renderOption={({ key, ...props }, option) => (
-                <li key={key} {...props}>
-                  <EmployeeDisplayName employee={option} />
-                </li>
+              renderInput={(params) => (
+                <TextField {...params} label="Employee" error={Boolean(error)} helperText={error} />
               )}
               onChange={(_, value) =>
                 onChange({
@@ -164,36 +135,7 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
               getOptionLabel={(option) => option.name}
               value={teams.find((team) => team.globalId === assignee.teamGlobalId) ?? null}
               disabled={disabled}
-              renderInput={(params) => {
-                const team = teams.find((item) => item.globalId === assignee.teamGlobalId);
-                return (
-                  <TextField
-                    {...params}
-                    label="Team"
-                    error={Boolean(error)}
-                    helperText={error}
-                    slotProps={{
-                      ...params.slotProps,
-
-                      input: {
-                        ...params.slotProps.input,
-                        startAdornment: team ? (
-                          <InputAdornment position="start">
-                            {getAssigneeIcon(AssigneeType.Team, undefined, disabled)}
-                          </InputAdornment>
-                        ) : (
-                          params.slotProps.input.startAdornment
-                        ),
-                      },
-                    }}
-                  />
-                );
-              }}
-              renderOption={({ key, ...props }, option) => (
-                <li key={key} {...props}>
-                  <ApprovalRequestParticipantLine displayName={option.name} type={AssigneeType.Team} />
-                </li>
-              )}
+              renderInput={(params) => <TextField {...params} label="Team" error={Boolean(error)} helperText={error} />}
               onChange={(_, value) =>
                 onChange({
                   ...assignee,

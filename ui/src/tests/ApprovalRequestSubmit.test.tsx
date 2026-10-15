@@ -34,10 +34,12 @@ describe("request composition", () => {
   test("shows inline requirements and focuses the title after invalid submission", async () => {
     const user = userEvent.setup();
     renderCompose();
+    expect(screen.queryByText("Attach at least one file for approval.")).toBeNull();
     await user.click(screen.getByRole("button", { name: "Submit" }));
     expect(screen.getByText("Title is required.")).toBeTruthy();
     expect(screen.getByText("Attach at least one file for approval.").getAttribute("role")).toBe("alert");
     expect(screen.getByText("Enter a valid email address.")).toBeTruthy();
+    expect(screen.queryByText("Complete the highlighted assignees.")).toBeNull();
     await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("textbox", { name: /Title/ })));
     await user.type(screen.getByRole("textbox", { name: /Title/ }), "Budget");
     expect(screen.queryByText("Title is required.")).toBeNull();
