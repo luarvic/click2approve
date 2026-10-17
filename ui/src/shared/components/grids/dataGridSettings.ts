@@ -15,5 +15,8 @@ export const DataGrids = {
     "& .MuiDataGrid-row": {
       cursor: "pointer",
     },
+    "& .MuiDataGrid-columnHeader--last .MuiDataGrid-columnSeparator": {
+      display: "none",
+    },
   } as SxProps<Theme>,
 } as const;

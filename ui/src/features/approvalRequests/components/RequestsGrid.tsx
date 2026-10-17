@@ -139,6 +139,7 @@ const RequestsGrid: React.FC<RequestsGridProps> = ({ currentApprovalRequestGloba
           <CompactGridTitle
             badge={!allColumnsAreVisible && <ApprovalRequestRevisionChip revisionNumber={params.row.revisionNumber} />}
           >
+            {!allColumnsAreVisible && <ApprovalRequestNumberText globalId={params.row.globalId} includeHash={false} />}
             <Link
               component={RouterLink}
               to={Routes.tenantPath(tenantGlobalId!, `/requests/${params.row.globalId}`)}

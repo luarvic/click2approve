@@ -129,6 +129,7 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
           <CompactGridTitle
             badge={!allColumnsAreVisible && <ApprovalRequestRevisionChip revisionNumber={params.row.revisionNumber} />}
           >
+            {!allColumnsAreVisible && <ApprovalRequestNumberText globalId={params.row.globalId} includeHash={false} />}
             <Link
               component={RouterLink}
               to={Routes.tenantPath(tenantGlobalId!, `/tasks/${params.row.globalId}`)}
