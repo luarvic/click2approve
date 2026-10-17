@@ -1,5 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
+using Click2Approve.Application.Models.Events;
 using Click2Approve.Domain.Models;
 using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.WebApi.Tests.Helpers;
@@ -12,6 +14,43 @@ namespace Click2Approve.WebApi.Tests.ControllersTests;
 public sealed class ApprovalWorkflowTests(CustomWebApplicationFactory<Program> factory)
     : IClassFixture<CustomWebApplicationFactory<Program>>
 {
+    [Fact]
+    public async Task NewEmailAssignee_TaskUsesTheirPersonalTenantBeforeRegistration()
+    {
+        using var owner = await ApiTestSession.CreateAsync(factory.CreateClient());
+        var email = $"new-assignee-{Guid.NewGuid():N}@example.com";
+        var requestId = await owner.SubmitAsync(new
+        {
+            Title = "New assignee",
+            RequestFiles = new[] { new { UserFileGlobalId = await owner.UploadAsync(), Sequence = 0 } },
+            Steps = new[] { Step(1, ApprovalStepMode.All, email) }
+        });
+
+        await using var scope = factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var task = await db.ApprovalRequestTasks.AsNoTracking()
+            .Include(item => item.AssigneeUser)
+            .SingleAsync(item => item.ApprovalRequest.GlobalId == requestId);
+        var tenant = await db.Tenants.AsNoTracking().Include(item => item.Owner)
+            .SingleAsync(item => item.Id == task.TenantId);
+
+        Assert.True(task.AssigneeUser.IsPlaceholder);
+        Assert.Equal(TenantType.Personal, tenant.Type);
+        Assert.Equal(task.AssigneeUserId, tenant.Owner.Id);
+        Assert.NotEqual(owner.TenantId, tenant.GlobalId);
+        var notification = await db.EventOutboxMessages.AsNoTracking()
+            .Where(item => item.EventType == EventTypes.NotificationRequestedV1)
+            .Select(item => item.Payload)
+            .ToListAsync();
+        Assert.Contains(notification, json =>
+        {
+            var payload = JsonSerializer.Deserialize<NotificationEventPayload>(json, EventJson.Options)!;
+            return payload.Type == NotificationType.ApprovalRequestTaskCreated
+                && payload.TargetResourceGlobalId == task.GlobalId
+                && payload.TenantId == tenant.Id;
+        });
+    }
+
     [Theory]
     [InlineData(ApprovalStepMode.Any, true)]
     [InlineData(ApprovalStepMode.All, true)]

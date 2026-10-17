@@ -11,10 +11,12 @@ namespace Click2Approve.Application.Services.ApprovalRequests;
 /// </summary>
 public class UserOnlyAssigneeResolver(
     ITenantRepository tenantRepository,
-    IUserProvisioningService userProvisioningService) : IAssigneeResolver
+    IUserProvisioningService userProvisioningService,
+    ITenantService tenantService) : IAssigneeResolver
 {
     private readonly ITenantRepository _tenantRepository = tenantRepository;
     private readonly IUserProvisioningService _userProvisioningService = userProvisioningService;
+    private readonly ITenantService _tenantService = tenantService;
 
     public async Task<Dictionary<ApprovalRequestStepAssignee, List<AssigneeResolution>>> ResolveAsync(
         ApprovalRequest approvalRequest,
@@ -31,11 +33,14 @@ public class UserOnlyAssigneeResolver(
                 [.. usersByEmail.Values.Select(user => user.Id)],
                 cancellationToken))
             .ToDictionary(tenant => tenant.Owner.Id);
+        foreach (var user in usersByEmail.Values.Where(user => !tenantByOwnerId.ContainsKey(user.Id)))
+        {
+            tenantByOwnerId[user.Id] = await _tenantService.GetRequiredDefaultAsync(user, cancellationToken);
+        }
 
         return assignees.ToDictionary(
             assignee => assignee.Assignee,
             assignee => ResolveUser(
-                approvalRequest,
                 assignee.Assignee,
                 usersByEmail[GetEmail(assignee)],
                 tenantByOwnerId));
@@ -52,12 +57,11 @@ public class UserOnlyAssigneeResolver(
             throw new BusinessRuleException("This product edition supports user assignees only.");
         }
 
-        var tenant = await _tenantRepository.GetPersonalAsync(assignee.User, cancellationToken);
+        var tenant = await _tenantService.GetRequiredDefaultAsync(assignee.User, cancellationToken);
         return ResolveUser(
-            approvalRequest,
             assignee,
             assignee.User,
-            tenant is null ? [] : new Dictionary<long, Tenant> { [assignee.User.Id] = tenant });
+            new Dictionary<long, Tenant> { [assignee.User.Id] = tenant });
     }
 
     private static string GetEmail(AssigneeResolveItem assignee)
@@ -71,7 +75,6 @@ public class UserOnlyAssigneeResolver(
     }
 
     private static List<AssigneeResolution> ResolveUser(
-        ApprovalRequest approvalRequest,
         ApprovalRequestStepAssignee assignee,
         AppUser assigneeUser,
         Dictionary<long, Tenant> tenantByOwnerId)
@@ -79,11 +82,11 @@ public class UserOnlyAssigneeResolver(
         assignee.User = assigneeUser;
         assignee.UserId = assigneeUser.Id;
         assignee.AssigneeDisplayName = assigneeUser.FormatParticipantDisplayName();
-        tenantByOwnerId.TryGetValue(assigneeUser.Id, out var assigneeTenant);
+        var assigneeTenant = tenantByOwnerId[assigneeUser.Id];
         return [new AssigneeResolution(
-            assigneeTenant?.Owner ?? assigneeUser,
+            assigneeTenant.Owner,
             null,
-            assigneeTenant?.Id ?? approvalRequest.TenantId,
+            assigneeTenant.Id,
             assignee.AssigneeDisplayName)];
     }
 }
