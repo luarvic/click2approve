@@ -1,5 +1,5 @@
 import { FieldRule } from "@/shared/utils/formValidation";
-import { notification, subscribeToNotifications } from "@/shared/utils/notifications";
+import { subscribeToNotifications } from "@/shared/utils/notifications";
 import { useEffect, useState } from "react";
 
 /** Submit-time errors disappear when their field is edited, matching identity forms. */
@@ -24,11 +24,7 @@ export const useFormValidation = <T extends Record<string, string>>(
       if (error) next[name] = { message: error, value: values[name] };
     }
     setFailures(next);
-    if (Object.keys(next).length) {
-      notification.warning("Invalid input.");
-      return false;
-    }
-    return true;
+    return Object.keys(next).length === 0;
   };
   // API stores report failures through the shared notification formatter. Listen only
   // while this form's save is running, retaining diagnostics in the usual Details action.

@@ -32,7 +32,7 @@ const ResendConfirmationEmailPage = () => {
     const email = data.get("email");
     if (!email || !validateEmail(email.toString())) {
       setEmailError(!email || !validateEmail(email.toString()));
-      notification.warning("Invalid input.");
+      notification.validationWarning();
     } else {
       await run(async () => {
         if (await stores.userAccountStore.resendConfirmationEmail(email.toString())) {

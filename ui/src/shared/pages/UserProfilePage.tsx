@@ -26,6 +26,7 @@ import { Routes, type UserProfileTab } from "@/shared/routing/routes";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { signatureRule, textRule } from "@/shared/utils/formValidation";
+import { notification } from "@/shared/utils/notifications";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
@@ -138,7 +139,10 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
   };
 
   const handleSave = async () => {
-    if (!validation.validate()) return;
+    if (!validation.validate()) {
+      notification.validationWarning();
+      return;
+    }
     await validation.run(() =>
       saveAction.run(async () => {
         const saved = await stores.userProfileStore.update({

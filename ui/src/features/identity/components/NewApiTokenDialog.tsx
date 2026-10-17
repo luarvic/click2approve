@@ -3,6 +3,7 @@ import { Forms } from "@/shared/components/dialogs/formStyles";
 import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { futureDateRule, textRule } from "@/shared/utils/formValidation";
+import { notification } from "@/shared/utils/notifications";
 import {
   Button,
   Dialog,
@@ -46,7 +47,10 @@ const NewApiTokenDialog: React.FC<NewApiTokenDialogProps> = ({ loading, open, on
   );
 
   const handleCreate = async () => {
-    if (!validation.validate()) return;
+    if (!validation.validate()) {
+      notification.validationWarning();
+      return;
+    }
     const created = await validation.run(() => onCreate(name.trim(), expiresAt?.toISOString() ?? null));
     if (created) handleClose();
   };

@@ -48,7 +48,11 @@ const SubscriptionRetentionPage = () => {
   }, [tenantGlobalId]);
 
   const save = () => {
-    if (!tenantGlobalId || !policy || !validation.validate()) return;
+    if (!tenantGlobalId || !policy) return;
+    if (!validation.validate()) {
+      notification.validationWarning();
+      return;
+    }
     setSaving(true);
     void saveRetentionPolicy(tenantGlobalId, {
       approvalRequestMonths,

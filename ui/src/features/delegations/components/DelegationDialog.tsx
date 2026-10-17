@@ -12,6 +12,7 @@ import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
+import { notification } from "@/shared/utils/notifications";
 import { Button, MenuItem, Stack, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -77,6 +78,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
 
   const handleSubmit = async () => {
     if (!validation.validate()) {
+      notification.validationWarning();
       return;
     }
 

@@ -30,7 +30,7 @@ const ForgotPasswordPage = () => {
     const email = data.get("email");
     if (!email || !validateEmail(email.toString())) {
       setEmailError(!email || !validateEmail(email.toString()));
-      notification.warning("Invalid input.");
+      notification.validationWarning();
     } else {
       setIsLoading(true);
       if (await stores.userAccountStore.sendResetPasswordLink(email.toString())) {

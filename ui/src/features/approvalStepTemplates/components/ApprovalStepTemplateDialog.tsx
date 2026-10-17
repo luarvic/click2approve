@@ -33,7 +33,7 @@ import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
 } from "@/shared/utils/persistenceNotifications";
-import { Button, Stack, TextField } from "@mui/material";
+import { Button, FormHelperText, Stack, TextField } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 
@@ -121,26 +121,31 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
   };
 
   const stepErrors = getStepErrors(steps);
+  const stepsError = !stepsValidationAttempted
+    ? undefined
+    : steps.length > CollectionLimits.workflowSteps
+      ? `At most ${CollectionLimits.workflowSteps} approval steps are allowed.`
+      : steps.length === 0
+        ? "Add at least one approval step."
+        : undefined;
   const validateSteps = () => {
     setStepsValidationAttempted(true);
-    if (
-      !steps.length ||
-      steps.length > CollectionLimits.workflowSteps ||
-      stepErrors.some(Boolean) ||
-      hasInvalidAssignees(steps)
-    ) {
-      notification.warning("Complete the highlighted approval steps.");
-      return false;
-    }
-    return true;
+    return (
+      steps.length > 0 &&
+      steps.length <= CollectionLimits.workflowSteps &&
+      !stepErrors.some(Boolean) &&
+      !hasInvalidAssignees(steps)
+    );
   };
 
   const handleSubmit = async () => {
-    if (!validation.validate()) return;
-    if (!tenantGlobalId) {
+    const fieldsValid = validation.validate();
+    const stepsValid = validateSteps();
+    if (!fieldsValid || !stepsValid) {
+      notification.validationWarning();
       return;
     }
-    if (!validateTemplate()) {
+    if (!tenantGlobalId) {
       return;
     }
 
@@ -163,15 +168,6 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
         }
       }),
     );
-  };
-
-  const validateTemplate = () => {
-    if (!name.trim()) {
-      notification.warning("Template name is required.");
-      return false;
-    }
-
-    return validateSteps();
   };
 
   return (
@@ -207,6 +203,11 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
             onChange={(event) => setDescription(event.target.value)}
           />
         </ApprovalRequestDetailsCard>
+        {stepsError && (
+          <FormHelperText error role="alert">
+            {stepsError}
+          </FormHelperText>
+        )}
         <ApprovalStepEditor
           stepErrors={stepsValidationAttempted ? stepErrors : undefined}
           getAssigneeError={stepsValidationAttempted ? getAssigneeError : undefined}

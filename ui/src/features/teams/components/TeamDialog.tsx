@@ -16,6 +16,7 @@ import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
 import { textRule } from "@/shared/utils/formValidation";
+import { notification } from "@/shared/utils/notifications";
 import { Autocomplete, Button, Stack, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -53,7 +54,10 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
   );
 
   const handleSubmit = async () => {
-    if (!validation.validate()) return;
+    if (!validation.validate()) {
+      notification.validationWarning();
+      return;
+    }
     if (!canEdit) {
       return;
     }

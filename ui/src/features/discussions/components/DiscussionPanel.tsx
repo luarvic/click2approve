@@ -7,6 +7,7 @@ import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { textRule } from "@/shared/utils/formValidation";
+import { notification } from "@/shared/utils/notifications";
 import { Stack } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import type { Dispatch, SetStateAction } from "react";
@@ -91,7 +92,10 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
       { body: textRule("Message", FieldLimits.text, !attachmentsAreEnabled || files.length === 0) },
     );
     const send = useCallback(async () => {
-      if (!validation.validate()) return;
+      if (!validation.validate()) {
+        notification.validationWarning();
+        return;
+      }
       const sent = await sendMessage(body, attachmentsAreEnabled ? files : []);
       if (sent) {
         onBodyChange("");

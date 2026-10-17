@@ -43,6 +43,7 @@ export const notification = {
     show(errorNotification.severity ?? "error", errorNotification.message, errorNotification.details);
   },
   success: (message: string): void => show("success", message),
+  validationWarning: (): void => show("warning", "Complete the highlighted fields."),
   warning: (message: string): void => show("warning", message),
 } as const;
 

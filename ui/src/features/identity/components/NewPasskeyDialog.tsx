@@ -3,6 +3,7 @@ import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { textRule } from "@/shared/utils/formValidation";
+import { notification } from "@/shared/utils/notifications";
 import {
   Button,
   Dialog,
@@ -39,7 +40,10 @@ const NewPasskeyDialog: React.FC<NewPasskeyDialogProps> = ({ loading, open, onCl
   };
 
   const handleCreate = async () => {
-    if (!validation.validate()) return;
+    if (!validation.validate()) {
+      notification.validationWarning();
+      return;
+    }
     if (await validation.run(() => onCreate(name.trim()))) handleClose();
   };
 

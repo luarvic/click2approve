@@ -22,6 +22,7 @@ import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
 import { emailRule, textRule } from "@/shared/utils/formValidation";
+import { notification } from "@/shared/utils/notifications";
 import {
   Autocomplete,
   Button,
@@ -135,7 +136,10 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
   );
 
   const handleSubmit = async () => {
-    if (!validation.validate()) return;
+    if (!validation.validate()) {
+      notification.validationWarning();
+      return;
+    }
     if (!canEdit) {
       return;
     }

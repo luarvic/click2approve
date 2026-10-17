@@ -11,6 +11,7 @@ import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { emailRule, textRule, urlRule } from "@/shared/utils/formValidation";
+import { notification } from "@/shared/utils/notifications";
 import { Business } from "@mui/icons-material";
 import { Button, Stack, TextField } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
@@ -87,7 +88,10 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
   );
 
   const handleSubmit = async () => {
-    if (!validation.validate()) return;
+    if (!validation.validate()) {
+      notification.validationWarning();
+      return;
+    }
     if (isNew && onNext) {
       onNext({
         details: {

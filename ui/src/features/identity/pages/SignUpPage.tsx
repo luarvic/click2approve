@@ -66,7 +66,7 @@ const SignUpPage = () => {
       setPasswordConfirmationError(
         !password || !passwordConfirmation || password.toString() !== passwordConfirmation.toString(),
       );
-      notification.warning("Invalid input.");
+      notification.validationWarning();
     } else {
       const credentials = new Credentials(email.toString(), password.toString(), passwordConfirmation.toString());
       setIsLoading(true);

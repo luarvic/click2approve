@@ -19,7 +19,7 @@ const NewReceiptLinkDialog = ({ loading, onClose, onCreate }: NewReceiptLinkDial
   const handleCreate = async () => {
     if (!expiration?.isValid() || expiration.endOf("day").valueOf() <= Date.now()) {
       setError(true);
-      notification.warning("Choose a valid expiration date.");
+      notification.validationWarning();
       return;
     }
     if (await onCreate(expiration.endOf("day").toDate())) onClose();

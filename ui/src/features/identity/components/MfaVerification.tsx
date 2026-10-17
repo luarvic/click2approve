@@ -40,16 +40,11 @@ const MfaVerification = ({ credentials, onVerified, onBack }: Props) => {
     },
   );
   const verify = async () => {
-    if (!validation.validate()) return;
-    const normalized = code.replace(/\s/g, "");
-    if (recovery ? !normalized : !authenticatorCodePattern.test(normalized)) {
-      notification.warning(
-        recovery
-          ? "Enter a recovery code."
-          : `Enter the ${IdentityValidation.authenticatorCodeLength}-digit code from your authenticator app.`,
-      );
+    if (!validation.validate()) {
+      notification.validationWarning();
       return;
     }
+    const normalized = code.replace(/\s/g, "");
     await action.run(async () => {
       const result = await loginUser(
         credentials,

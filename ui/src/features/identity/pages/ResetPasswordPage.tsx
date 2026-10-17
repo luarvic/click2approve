@@ -74,7 +74,7 @@ const ResetPasswordPage = () => {
       setPasswordConfirmationError(
         !password || !passwordConfirmation || password.toString() !== passwordConfirmation.toString(),
       );
-      notification.warning("Invalid input.");
+      notification.validationWarning();
     } else {
       setIsLoading(true);
       if (await stores.userAccountStore.resetPassword(email, code, password.toString())) {

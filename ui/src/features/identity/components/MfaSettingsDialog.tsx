@@ -72,11 +72,8 @@ const MfaSettingsDialog = ({ mode, onClose }: Props) => {
     },
   );
   const submit = async () => {
-    if (!validation.validate()) return;
-    if (sharedKey && !authenticatorCodePattern.test(code.replace(/\s/g, ""))) {
-      notification.warning(
-        `Enter the ${IdentityValidation.authenticatorCodeLength}-digit code from your authenticator app.`,
-      );
+    if (!validation.validate()) {
+      notification.validationWarning();
       return;
     }
     await action.run(async () => {

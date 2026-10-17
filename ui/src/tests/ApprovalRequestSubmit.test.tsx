@@ -1,5 +1,6 @@
 import { stores } from "@/app/rootStore";
 import ApprovalRequestSubmit from "@/features/approvalRequests/components/ApprovalRequestSubmit";
+import { notification } from "@/shared/utils/notifications";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { runInAction } from "mobx";
@@ -33,6 +34,8 @@ describe("request composition", () => {
 
   test("shows inline requirements and focuses the title after invalid submission", async () => {
     const user = userEvent.setup();
+    const validationWarning = vi.spyOn(notification, "validationWarning");
+    const otherWarning = vi.spyOn(notification, "warning");
     renderCompose();
     expect(screen.queryByText("Attach at least one file for approval.")).toBeNull();
     await user.click(screen.getByRole("button", { name: "Submit" }));
@@ -40,6 +43,8 @@ describe("request composition", () => {
     expect(screen.getByText("Attach at least one file for approval.").getAttribute("role")).toBe("alert");
     expect(screen.getByText("Enter a valid email address.")).toBeTruthy();
     expect(screen.queryByText("Complete the highlighted assignees.")).toBeNull();
+    expect(validationWarning).toHaveBeenCalledTimes(1);
+    expect(otherWarning).not.toHaveBeenCalled();
     await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("textbox", { name: /Title/ })));
     await user.type(screen.getByRole("textbox", { name: /Title/ }), "Budget");
     expect(screen.queryByText("Title is required.")).toBeNull();

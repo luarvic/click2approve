@@ -66,7 +66,7 @@ const SignInPage = () => {
     if (!email || !validateEmail(email.toString()) || !password) {
       setEmailError(!email || !validateEmail(email.toString()));
       setPasswordError(!password);
-      notification.warning("Invalid input.");
+      notification.validationWarning();
     } else {
       const credentials = new Credentials(email.toString(), password.toString());
       await signInAction.run(async () => {

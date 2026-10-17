@@ -9,6 +9,7 @@ import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { notification } from "@/shared/utils/notifications";
 import { FormControl, FormControlLabel, MenuItem, Radio, RadioGroup, Stack, TextField } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { FormEvent, useEffect, useState } from "react";
@@ -65,7 +66,10 @@ const ApprovalRequestStartPage = () => {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!validation.validate()) return;
+    if (!validation.validate()) {
+      notification.validationWarning();
+      return;
+    }
     navigate(composePath, {
       state: requestType === "template" ? { templateGlobalId } : undefined,
     });

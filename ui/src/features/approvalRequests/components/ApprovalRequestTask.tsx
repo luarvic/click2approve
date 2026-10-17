@@ -216,19 +216,19 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
   };
 
   const submit = async () => {
-    if (!validation.validate()) return;
     if (isCompleted) return;
-    if (result === undefined) {
-      setDecisionError(true);
-      notification.warning("Choose a decision.");
-      return;
-    }
     if (!currentTask || !stores.userAccountStore.currentUser) return;
     const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
     if (!tenantGlobalId) return;
-    if ((result === false || currentTask.isCommentRequired) && !comment.trim()) {
-      setCommentError(true);
-      notification.warning("Comment is required.");
+
+    const fieldsValid = validation.validate();
+    const decisionIsMissing = result === undefined;
+    const commentIsMissing = Boolean((result === false || currentTask.isCommentRequired) && !comment.trim());
+    const signatureValid = !requiresElectronicSignature || validateElectronicSignature();
+    setDecisionError(decisionIsMissing);
+    setCommentError(commentIsMissing);
+    if (!fieldsValid || decisionIsMissing || commentIsMissing || !signatureValid) {
+      notification.validationWarning();
       return;
     }
     if (
@@ -240,12 +240,6 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
       notification.warning("At least one attachment is required.");
       return;
     }
-    if (requiresElectronicSignature) {
-      if (!validateElectronicSignature()) {
-        return;
-      }
-    }
-
     await validation.run(() =>
       submitAction.run(async () => {
         const refreshedTask = await refreshTask();

@@ -226,16 +226,12 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
 
   const validateSteps = () => {
     setTemplateValidationAttempted(true);
-    const valid =
+    return (
       steps.length > 0 &&
       steps.length <= CollectionLimits.workflowSteps &&
       !stepErrors.some(Boolean) &&
-      !hasInvalidAssignees(steps);
-    if (!valid) {
-      notification.warning("Complete the highlighted approval steps.");
-      focusFirstError();
-    }
-    return valid;
+      !hasInvalidAssignees(steps)
+    );
   };
 
   const validateDraft = () => {
@@ -251,7 +247,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
       !stepErrors.some(Boolean) &&
       !hasInvalidAssignees(steps);
     if (!valid) {
-      notification.warning("Complete the highlighted fields before submitting.");
+      notification.validationWarning();
       focusFirstError();
     }
     return valid;
@@ -260,21 +256,18 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
   const getSubmittedSteps = () => toApprovalStepSubmissions(steps);
 
   const saveTemplate = async () => {
-    if (!validation.validate()) return;
+    const fieldsValid = validation.validate();
+    const stepsValid = validateSteps();
+    if (!fieldsValid || !stepsValid) {
+      notification.validationWarning();
+      focusFirstError();
+      return;
+    }
     if (!tenantGlobalId || !canUseTemplates) {
       return;
     }
 
-    setTemplateValidationAttempted(true);
     const trimmedTitle = title.trim();
-    if (!trimmedTitle) {
-      focusFirstError();
-      notification.warning("A title is required to save a template.");
-      return;
-    }
-    if (!validateSteps()) {
-      return;
-    }
 
     await validation.run(() =>
       saveTemplateAction.run(async () => {
@@ -299,9 +292,6 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
 
   const submit = async () => {
     const trimmedTitle = title.trim();
-    if (!validateDraft()) {
-      return;
-    }
     if (!tenantGlobalId) {
       return;
     }
@@ -471,6 +461,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
           title={nameWarning.title}
           onClose={() => setNameWarningDialogIsOpen(false)}
           onConfirm={async () => {
+            if (!validateDraft()) return false;
             await submit();
             return true;
           }}

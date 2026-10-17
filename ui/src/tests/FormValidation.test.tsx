@@ -3,7 +3,7 @@ import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { emailRule, futureDateRule, signatureRule, textRule, urlRule } from "@/shared/utils/formValidation";
 import { notification } from "@/shared/utils/notifications";
 import { act, renderHook } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 describe("form validation", () => {
   it("accepts limits and rejects whitespace and oversized values", () => {
@@ -20,6 +20,7 @@ describe("form validation", () => {
   });
 
   it("shows errors only after submit and clears them when edited", () => {
+    const warning = vi.spyOn(notification, "validationWarning");
     const { result, rerender } = renderHook(
       ({ name }) => useFormValidation({ name }, { name: textRule("Name", 255, true) }),
       { initialProps: { name: "" } },
@@ -29,8 +30,10 @@ describe("form validation", () => {
       expect(result.current.validate()).toBe(false);
     });
     expect(result.current.field("name").error).toBe(true);
+    expect(warning).not.toHaveBeenCalled();
     rerender({ name: "edited" });
     expect(result.current.field("name").error).toBe(false);
+    warning.mockRestore();
     rerender({ name: "" });
     expect(result.current.field("name").error).toBe(false);
   });
