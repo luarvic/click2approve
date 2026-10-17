@@ -39,6 +39,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
   const [delegateEmployeeId, setDelegateEmployeeId] = useState(employeeSelectionDefault);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const initializedDelegationGlobalId = useRef<string | null | undefined>(undefined);
+  const lastAvailableEmployees = useRef(employees);
   const saveLoader = ActionLoaders.delegations.save(delegation?.globalId);
   const saveAction = useAsyncAction(saveLoader);
   const isNew = delegation === null;
@@ -58,19 +59,24 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
     { delegatorEmployeeId: "DelegatorEmployeeGlobalId", delegateEmployeeId: "DelegateEmployeeGlobalId" },
   );
   const saveIsLoading = saveAction.isRunning || stores.commonStore.isActionLoading(saveLoader);
+  const displayedEmployees = employees.length ? employees : lastAvailableEmployees.current;
   const fieldsDisabled = !isNew && !canEdit;
   const delegationName = `${getEmployeeName(
-    employees,
+    displayedEmployees,
     delegatorEmployeeId,
-  )} to ${getEmployeeName(employees, delegateEmployeeId)}`;
+  )} to ${getEmployeeName(displayedEmployees, delegateEmployeeId)}`;
   const renderEmployeeValue = (employeeGlobalId: string) => {
-    const employee = employees.find((item) => item.globalId === employeeGlobalId);
+    const employee = displayedEmployees.find((item) => item.globalId === employeeGlobalId);
     return employee ? (
       <EmployeeDisplayName disabled={fieldsDisabled} employee={employee} />
     ) : (
-      getEmployeeName(employees, employeeGlobalId)
+      getEmployeeName(displayedEmployees, employeeGlobalId)
     );
   };
+
+  useEffect(() => {
+    if (employees.length > 0) lastAvailableEmployees.current = employees;
+  }, [employees]);
 
   useEffect(() => {
     if (initializedDelegationGlobalId.current === (delegation?.globalId ?? null)) return;
@@ -84,7 +90,6 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
       notification.validationWarning();
       return;
     }
-
     await validation.run(() =>
       saveAction.run(async () => {
         const savedDelegation = await onSubmit(
@@ -112,7 +117,9 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
             to: delegationsPath,
           },
           {
-            label: delegation ? getEmployeeName(employees, delegation.delegatorEmployeeGlobalId) : "New delegation",
+            label: delegation
+              ? getEmployeeName(displayedEmployees, delegation.delegatorEmployeeGlobalId)
+              : "New delegation",
           },
         ]}
       />
@@ -133,7 +140,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           }}
         >
           <MenuItem value={employeeSelectionDefault}>Select employee</MenuItem>
-          {employees.map((employee) => (
+          {displayedEmployees.map((employee) => (
             <MenuItem
               key={employee.globalId}
               value={employee.globalId}
@@ -159,7 +166,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
           }}
         >
           <MenuItem value={employeeSelectionDefault}>Select delegate</MenuItem>
-          {employees.map((employee) => (
+          {displayedEmployees.map((employee) => (
             <MenuItem
               key={employee.globalId}
               value={employee.globalId}
