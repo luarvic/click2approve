@@ -14,7 +14,7 @@ import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
 import { notification } from "@/shared/utils/notifications";
 import { Button, MenuItem, Stack, TextField } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface DelegationDialogProps {
   canEdit: boolean;
@@ -38,6 +38,7 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
   const [delegatorEmployeeId, setDelegatorEmployeeId] = useState(employeeSelectionDefault);
   const [delegateEmployeeId, setDelegateEmployeeId] = useState(employeeSelectionDefault);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
+  const initializedDelegationGlobalId = useRef<string | null | undefined>(undefined);
   const saveLoader = ActionLoaders.delegations.save(delegation?.globalId);
   const saveAction = useAsyncAction(saveLoader);
   const isNew = delegation === null;
@@ -72,6 +73,8 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
   };
 
   useEffect(() => {
+    if (initializedDelegationGlobalId.current === (delegation?.globalId ?? null)) return;
+    initializedDelegationGlobalId.current = delegation?.globalId ?? null;
     setDelegatorEmployeeId(delegation?.delegatorEmployeeGlobalId ?? employeeSelectionDefault);
     setDelegateEmployeeId(delegation?.delegateEmployeeGlobalId ?? employeeSelectionDefault);
   }, [delegation]);

@@ -103,6 +103,22 @@ describe("unsaved decisions", () => {
     expect(confirm).not.toHaveBeenCalled();
     expect(onClose).toHaveBeenCalledWith("task-a");
   });
+
+  test("keeps draft values when the same task is refreshed", async () => {
+    const user = userEvent.setup();
+    renderTask();
+    await user.click(screen.getByRole("radio", { name: "Reject" }));
+    await user.type(screen.getByRole("textbox", { name: "Comment" }), "Please update the totals.");
+
+    runInAction(() => {
+      stores.approvalRequestTaskStore.currentTask = { ...task, comment: "Older saved comment" };
+    });
+
+    expect((screen.getByRole("radio", { name: "Reject" }) as HTMLInputElement).checked).toBe(true);
+    expect((screen.getByRole("textbox", { name: "Comment" }) as HTMLInputElement).value).toBe(
+      "Please update the totals.",
+    );
+  });
 });
 
 describe("task form validation", () => {

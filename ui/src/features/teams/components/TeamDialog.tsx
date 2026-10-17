@@ -18,7 +18,7 @@ import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
 import { textRule } from "@/shared/utils/formValidation";
 import { notification } from "@/shared/utils/notifications";
 import { Autocomplete, Button, Stack, TextField } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface TeamDialogProps {
   canEdit: boolean;
@@ -35,6 +35,7 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
   const [name, setName] = useState("");
   const [members, setMembers] = useState<Employee[]>([]);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
+  const initializedTeamGlobalId = useRef<string | null | undefined>(undefined);
   const saveLoader = ActionLoaders.teams.save(team?.globalId);
   const saveAction = useAsyncAction(saveLoader);
   const isNew = team === null;
@@ -42,6 +43,8 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
   const teamsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/teams") : "/";
   const saveIsLoading = saveAction.isRunning || stores.commonStore.isActionLoading(saveLoader);
   useEffect(() => {
+    if (initializedTeamGlobalId.current === (team?.globalId ?? null)) return;
+    initializedTeamGlobalId.current = team?.globalId ?? null;
     setName(team?.name ?? "");
     setMembers(team?.members ?? []);
   }, [team]);

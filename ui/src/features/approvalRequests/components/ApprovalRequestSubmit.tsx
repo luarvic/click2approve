@@ -53,6 +53,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
   const submitAction = useAsyncAction(ActionLoaders.approvalRequests.submit());
   const saveTemplateAction = useAsyncAction(ActionLoaders.approvalStepTemplates.save(undefined));
   const initialTemplateHasBeenApplied = useRef(false);
+  const initializedRequestGlobalId = useRef<string | undefined>(undefined);
 
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const requestsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/requests") : "/";
@@ -92,7 +93,8 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
   });
 
   useEffect(() => {
-    if (requestToClone) {
+    if (requestToClone && initializedRequestGlobalId.current !== requestToClone.globalId) {
+      initializedRequestGlobalId.current = requestToClone.globalId;
       initialSnapshot.current = JSON.stringify({
         title: requestToClone.title,
         description: requestToClone.description ?? "",

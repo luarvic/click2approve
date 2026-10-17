@@ -76,6 +76,7 @@ const getDefaultLegalName = (isAssigneeEmployee: boolean | undefined): string =>
 const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab, taskGlobalId }) => {
   const navigate = useNavigate();
   const initialSnapshot = useRef<string | undefined>(undefined);
+  const initialTaskGlobalId = useRef<string | undefined>(undefined);
   const [decisionError, setDecisionError] = useState(false);
   const [attachmentError, setAttachmentError] = useState(false);
   const [result, setResult] = useState<boolean | undefined>(undefined);
@@ -115,6 +116,8 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
   );
 
   useEffect(() => {
+    if (initialTaskGlobalId.current === currentTask?.globalId) return;
+    initialTaskGlobalId.current = currentTask?.globalId;
     const values = {
       result: currentTask?.result ?? undefined,
       comment: currentTask?.comment ?? "",
@@ -211,9 +214,9 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
     const decisionIsMissing = typeof result !== "boolean";
     const attachmentIsMissing = Boolean(
       result === true &&
-        currentTask.isAttachmentRequired &&
-        taskAttachmentFiles.length === 0 &&
-        (currentTask.taskFiles?.length ?? 0) === 0,
+      currentTask.isAttachmentRequired &&
+      taskAttachmentFiles.length === 0 &&
+      (currentTask.taskFiles?.length ?? 0) === 0,
     );
     setDecisionError(decisionIsMissing);
     setAttachmentError(attachmentIsMissing);

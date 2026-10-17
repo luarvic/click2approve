@@ -14,7 +14,7 @@ import { emailRule, textRule, urlRule } from "@/shared/utils/formValidation";
 import { notification } from "@/shared/utils/notifications";
 import { Business } from "@mui/icons-material";
 import { Button, Stack, TextField } from "@mui/material";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export interface OrganizationDraft {
   details: UpdateTenantRequest;
@@ -57,6 +57,7 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoWasRemoved, setLogoWasRemoved] = useState(false);
+  const initializedTenantGlobalId = useRef<string | null | undefined>(undefined);
   const saveLoader = ActionLoaders.tenants.save(tenant?.globalId);
   const saveAction = useAsyncAction(saveLoader);
   const isNew = !tenant;
@@ -73,8 +74,12 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
   }, [draft, tenant]);
 
   useEffect(() => {
+    const tenantGlobalId = tenant?.globalId ?? null;
+    if (initializedTenantGlobalId.current === tenantGlobalId) return;
+    initializedTenantGlobalId.current = tenantGlobalId;
+    if (saveAction.isRunning) return;
     reset();
-  }, [reset]);
+  }, [reset, saveAction.isRunning, tenant?.globalId]);
 
   const validation = useFormValidation(
     { businessName, email, phone, address, websiteUrl },

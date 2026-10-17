@@ -35,7 +35,7 @@ import {
 } from "@/shared/utils/persistenceNotifications";
 import { Button, FormHelperText, Stack, TextField } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface ApprovalStepTemplateEditorProps {
   template: ApprovalStepTemplate | null;
@@ -47,6 +47,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
+  const initializedTemplateGlobalId = useRef<string | null | undefined>(undefined);
   const saveLoader = ActionLoaders.approvalStepTemplates.save(template?.globalId);
   const saveAction = useAsyncAction(saveLoader);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
@@ -80,9 +81,12 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
   );
 
   useEffect(() => {
-    setName(template?.name ?? "");
-    setDescription(template?.description ?? "");
-    setSteps(template ? createEditableSteps(template.steps) : [createEmptyStep(1, true, defaultAssigneeType)]);
+    if (initializedTemplateGlobalId.current !== (template?.globalId ?? null)) {
+      initializedTemplateGlobalId.current = template?.globalId ?? null;
+      setName(template?.name ?? "");
+      setDescription(template?.description ?? "");
+      setSteps(template ? createEditableSteps(template.steps) : [createEmptyStep(1, true, defaultAssigneeType)]);
+    }
 
     if (tenantGlobalId && businessTenantIsSelected) {
       if (canUseEmployees) {

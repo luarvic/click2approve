@@ -35,7 +35,7 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface EmployeeDialogProps {
   canEdit: boolean;
@@ -76,6 +76,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const [disableDialogIsOpen, setDisableDialogIsOpen] = useState(false);
   const [ownershipTransferDialogIsOpen, setOwnershipTransferDialogIsOpen] = useState(false);
+  const initializedEmployeeGlobalId = useRef<string | null | undefined>(undefined);
   const saveLoader = ActionLoaders.employees.save(employee?.globalId);
   const saveAction = useAsyncAction(saveLoader);
   const isNew = employee === null;
@@ -90,6 +91,8 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
   ];
 
   useEffect(() => {
+    if (initializedEmployeeGlobalId.current === (employee?.globalId ?? null)) return;
+    initializedEmployeeGlobalId.current = employee?.globalId ?? null;
     setEmail(employee?.email ?? "");
     setFirstName(employee?.firstName ?? "");
     setLastName(employee?.lastName ?? "");
