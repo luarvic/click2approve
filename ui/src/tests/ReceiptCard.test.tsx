@@ -39,6 +39,15 @@ const createAssignee = (isAssigneeEmployee: boolean, organizationDisplayName: st
 });
 
 describe("<ReceiptCard />", () => {
+  test.each([
+    [true, "Successful"],
+    [false, "Unsuccessful"],
+  ])("shows the request outcome on a receipt with result %s", (result, label) => {
+    render(<ReceiptCard receipt={{ ...receipt, approvalRequestResult: result }} />);
+    expect(screen.getByText("Status:")).toBeTruthy();
+    expect(screen.getByText(label)).toBeTruthy();
+  });
+
   test("distinguishes the requester from the submitting delegate", () => {
     render(<ReceiptCard receipt={{ ...receipt, submittedByDisplayName: "Submitting delegate" }} />);
     expect(screen.getByText("Requested by:")).toBeTruthy();

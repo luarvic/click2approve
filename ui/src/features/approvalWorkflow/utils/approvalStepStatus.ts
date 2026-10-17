@@ -9,17 +9,17 @@ export const getApprovalStepStatus = (step: ApprovalStep, tasks: ApprovalRequest
 
   if (step.mode === ApprovalStepMode.All) {
     if (tasks.some((task) => task.status === ApprovalRequestTaskStatus.Completed && task.result === false)) {
-      return "Completed unsuccessfully";
+      return "Unsuccessful";
     }
     if (tasks.every((task) => task.status === ApprovalRequestTaskStatus.Completed && task.result === true)) {
-      return "Completed successfully";
+      return "Successful";
     }
   } else {
     if (tasks.some((task) => task.status === ApprovalRequestTaskStatus.Completed && task.result === true)) {
-      return "Completed successfully";
+      return "Successful";
     }
     if (tasks.some((task) => task.status === ApprovalRequestTaskStatus.Completed && task.result === false)) {
-      return "Completed unsuccessfully";
+      return "Unsuccessful";
     }
   }
   if (tasks.every((task) => task.status === ApprovalRequestTaskStatus.Skipped)) {
@@ -33,9 +33,9 @@ export const getApprovalStepStatus = (step: ApprovalStep, tasks: ApprovalRequest
 
 export const getApprovalStepBorderLeftColor = (status: string) => {
   switch (status) {
-    case "Completed successfully":
+    case "Successful":
       return "success.main";
-    case "Completed unsuccessfully":
+    case "Unsuccessful":
       return "error.main";
     case "Skipped":
     case "Canceled":

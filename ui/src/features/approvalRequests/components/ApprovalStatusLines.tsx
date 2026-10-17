@@ -87,11 +87,11 @@ export const getApprovalRequestTaskStatusLineColor = (
 
 const getCompletedStatusLabel = (result?: boolean) => {
   if (result === true) {
-    return "Completed successfully";
+    return "Successful";
   }
 
   if (result === false) {
-    return "Completed unsuccessfully";
+    return "Unsuccessful";
   }
 
   return "Completed";

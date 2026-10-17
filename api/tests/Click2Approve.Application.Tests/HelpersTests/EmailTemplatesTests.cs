@@ -47,8 +47,8 @@ public sealed class EmailTemplatesTests
     }
 
     [Theory]
-    [InlineData(ApprovalRequestStatus.Completed, true, "Completed", "Request completed")]
-    [InlineData(ApprovalRequestStatus.Completed, false, "Declined", "Request declined")]
+    [InlineData(ApprovalRequestStatus.Completed, true, "Successful", "Request successful")]
+    [InlineData(ApprovalRequestStatus.Completed, false, "Failed", "Request failed")]
     [InlineData(ApprovalRequestStatus.Completed, null, "Completed", "Request completed")]
     [InlineData(ApprovalRequestStatus.Canceled, null, "Canceled", "Request canceled")]
     [InlineData(ApprovalRequestStatus.Superseded, true, "Replaced", "Request replaced")]
@@ -59,17 +59,19 @@ public sealed class EmailTemplatesTests
         Assert.Equal($"{subject}: Contract", model.Subject);
         Assert.Equal(heading, model.Heading);
         Assert.Equal("Contract", model.RequestTitle);
+        Assert.Equal("Your request titled ", model.Body);
+        Assert.Contains("Your request titled <strong>Contract</strong>", EmailLayout.Render(model));
         if (result != true || status != ApprovalRequestStatus.Completed) Assert.DoesNotContain("successfully", model.Body);
     }
 
     [Fact]
-    public void DeclinedStepWithoutActor_DoesNotClaimCompletion()
+    public void UnsuccessfulStepWithoutActor_DoesNotClaimCompletion()
     {
         var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestStepCompleted,
             Context() with { Actor = null, Result = false });
-        Assert.Equal("Request declined", model.Heading);
-        Assert.Contains("<strong>Contract</strong> were declined.", EmailLayout.Render(model));
-        Assert.DoesNotContain("has been completed", EmailLayout.Render(model));
+        Assert.Equal("Step unsuccessful", model.Heading);
+        Assert.Contains("A step in your request titled <strong>Contract</strong> was unsuccessful.", EmailLayout.Render(model));
+        Assert.DoesNotContain("declined", EmailLayout.Render(model));
     }
 
     [Fact]

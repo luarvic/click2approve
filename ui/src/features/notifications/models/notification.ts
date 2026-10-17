@@ -22,6 +22,6 @@ export const notificationTypes = Object.values(NotificationType).filter(
 );
 
 export const getNotificationTypeLabel = (type: NotificationType) =>
-  ["New task", "Task completed", "Step completed", "Request completed", "New message", "Notification", "New receipt"][
+  ["New task", "Task completed", "Step completed", "Request update", "New message", "Notification", "New receipt"][
     type
   ] ?? "Notification";

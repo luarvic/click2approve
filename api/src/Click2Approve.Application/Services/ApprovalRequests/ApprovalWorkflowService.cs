@@ -313,7 +313,7 @@ public class ApprovalWorkflowService(
                 approvalRequest.TenantId,
                 approvalRequest.GlobalId,
                 NotificationResourceType.ApprovalRequest,
-                CreateSummary(approvalRequest.Title),
+                CreateRequestCompletedSummary(approvalRequest),
                 [new NotificationRecipient(approvalRequest.RequesterUserId)],
                 SourceResourceGlobalId: approvalRequest.GlobalId,
                 SourceResourceType: NotificationResourceType.ApprovalRequest)],
@@ -366,4 +366,17 @@ public class ApprovalWorkflowService(
     }
 
     private static string CreateSummary(string title) => title;
+
+    private static string CreateRequestCompletedSummary(ApprovalRequest request)
+    {
+        var ending = request.Status switch
+        {
+            ApprovalRequestStatus.Canceled => " was canceled.",
+            ApprovalRequestStatus.Superseded => " was replaced by a newer revision.",
+            _ when request.Result == false => " failed.",
+            _ when request.Result == true => " was successful.",
+            _ => " was completed."
+        };
+        return $"Your request titled {request.Title}{ending}";
+    }
 }

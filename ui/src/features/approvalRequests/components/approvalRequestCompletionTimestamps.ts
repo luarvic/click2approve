@@ -8,8 +8,7 @@ import { getApprovalRequestTaskCompletedActionLabel } from "@/features/approvalR
 const getCompletedTimestampType = (result?: boolean): ApprovalRequestTimestampRowItem["type"] =>
   result === false ? "completedUnsuccessfully" : "completedSuccessfully";
 
-const getGenericCompletedTimestampLabel = (result?: boolean) =>
-  result === false ? "Completed unsuccessfully at" : "Completed successfully at";
+const getGenericCompletedTimestampLabel = (result?: boolean) => (result === false ? "Unsuccessful" : "Successful");
 
 export const getRequestCompletedTimestamp = (
   approvalRequest: ApprovalRequest,

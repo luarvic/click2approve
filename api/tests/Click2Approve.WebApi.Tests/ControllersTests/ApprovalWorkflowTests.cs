@@ -87,6 +87,7 @@ public sealed class ApprovalWorkflowTests(CustomWebApplicationFactory<Program> f
             Assert.Equal(ApprovalRequestTaskStatus.Skipped,
                 afterFirst.Steps.SelectMany(step => step.Tasks).Single(task => task.GlobalId == secondTask.GlobalId).Status);
             Assert.Equal(HttpStatusCode.BadRequest, (await CompleteAsync(second, secondTask.GlobalId, true)).StatusCode);
+            await AssertCompletionNotificationAsync(afterFirst, "Your request titled Two-step approval failed.");
             return;
         }
         Assert.Equal(ApprovalRequestStatus.Started, afterFirst.Status);
@@ -108,6 +109,7 @@ public sealed class ApprovalWorkflowTests(CustomWebApplicationFactory<Program> f
         Assert.Equal(ApprovalRequestStatus.Completed, completed.Status);
         Assert.True(completed.Result);
         Assert.NotNull(completed.CompletedAt);
+        await AssertCompletionNotificationAsync(completed, "Your request titled Two-step approval was successful.");
         Assert.Equal(HttpStatusCode.BadRequest, (await CompleteAsync(last, lastTask.GlobalId, true)).StatusCode);
         var replayed = await ReadAsync(id);
         Assert.Equal(completed.CompletedAt, replayed.CompletedAt);
@@ -151,6 +153,22 @@ public sealed class ApprovalWorkflowTests(CustomWebApplicationFactory<Program> f
         return await scope.ServiceProvider.GetRequiredService<ApiDbContext>().ApprovalRequests.AsNoTracking()
             .Include(request => request.Steps).ThenInclude(step => step.Tasks).ThenInclude(task => task.AssigneeUser)
             .SingleAsync(request => request.GlobalId == id);
+    }
+
+    private async Task AssertCompletionNotificationAsync(ApprovalRequest request, string expectedSummary)
+    {
+        await using var scope = factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var messages = await db.EventOutboxMessages.AsNoTracking()
+            .Where(item => item.EventType == EventTypes.NotificationRequestedV1)
+            .Select(item => item.Payload)
+            .ToListAsync();
+        var completion = Assert.Single(
+            messages.Select(json => JsonSerializer.Deserialize<NotificationEventPayload>(json, EventJson.Options)!),
+            payload => payload.Type == NotificationType.ApprovalRequestCompleted
+                && payload.TargetResourceGlobalId == request.GlobalId);
+        Assert.Equal(request.RequesterUserId, completion.UserId);
+        Assert.Equal(expectedSummary, completion.Summary);
     }
 
     private static object Step(int sequence, ApprovalStepMode mode, params string[] emails) => new

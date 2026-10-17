@@ -192,7 +192,7 @@ public class NotificationEmailService(
             return context with
             {
                 Reason = request.Result == false
-                    ? "This happened because the request was declined."
+                    ? "This happened because the request failed."
                     : "This happened because the request no longer requires your action."
             };
         }

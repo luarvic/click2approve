@@ -46,9 +46,8 @@ public static class NotificationEmailTemplates
             {
                 Subject = $"New receipt: {title}",
                 Heading = "New receipt",
-                Body = string.IsNullOrWhiteSpace(senderName)
-                    ? "A receipt is available for " : $"A receipt from {senderName} is available for ",
-                BodyAfterTitle = ".",
+                Body = "Your receipt for ",
+                BodyAfterTitle = " is available.",
                 PrimaryActionText = "View receipt"
             },
             NotificationType.DiscussionMessageCreated => model with
@@ -104,7 +103,7 @@ public static class NotificationEmailTemplates
 
     private static EmailTemplateModel StepCompleted(EmailTemplateModel model, NotificationEmailContext context, string name)
     {
-        var (heading, verb) = context.Result == false ? ("Request declined", "declined") : context.Action switch
+        var (heading, verb) = context.Result == false ? ("Step unsuccessful", "completed") : context.Action switch
         {
             ApprovalRequestTaskAction.Approve => ("Approval completed", "approved"),
             ApprovalRequestTaskAction.Sign => ("Signature completed", "signed"),
@@ -117,23 +116,24 @@ public static class NotificationEmailTemplates
         };
         // Older queued events have no source task. Do not invent a completing actor or action.
         var hasActor = context.Actor is { IsSystemGenerated: false } && !string.IsNullOrWhiteSpace(context.Actor.DisplayName);
-        var scope = string.IsNullOrWhiteSpace(context.SenderIdentity?.Name)
-            ? string.Empty : $" on a request from {context.SenderIdentity.Name}";
         var subject = context.Result == false
-            ? hasActor ? $"{name} declined {context.RequestTitle}" : $"Declined: {context.RequestTitle}"
+            ? $"Step unsuccessful: {context.RequestTitle}"
             : hasActor && context.Action is not null && context.Action != ApprovalRequestTaskAction.Complete
                 ? $"{name} {verb} {context.RequestTitle}" : $"{context.StepName ?? "Step"} completed: {context.RequestTitle}";
         return model with
         {
             Subject = subject,
             Heading = heading,
-            Body = hasActor
-                ? (context.Action is null or ApprovalRequestTaskAction.Complete) && context.Result != false
-                    ? $"{ActorLead(context.Actor, context.SenderIdentity)} completed a step in "
-                    : $"{ActorLead(context.Actor, context.SenderIdentity)} {verb} the documents titled "
-                : context.Result == false ? "The documents titled " : "A step in ",
-            BodyAfterTitle = hasActor ? "." : context.Result == false
-                ? $"{scope} were declined." : $"{scope} has been completed.",
+            Body = context.Result == false
+                ? hasActor ? $"{ActorLead(context.Actor, context.SenderIdentity)} had an unsuccessful outcome on your request titled "
+                    : "A step in your request titled "
+                : hasActor
+                    ? context.Action is null or ApprovalRequestTaskAction.Complete
+                        ? $"{ActorLead(context.Actor, context.SenderIdentity)} completed a step in your request titled "
+                        : $"{ActorLead(context.Actor, context.SenderIdentity)} {verb} the documents titled "
+                    : "A step in your request titled ",
+            BodyAfterTitle = context.Result == false ? hasActor ? "." : " was unsuccessful."
+                : hasActor ? "." : " was completed.",
             StepName = context.StepName
         };
     }
@@ -144,16 +144,15 @@ public static class NotificationEmailTemplates
         {
             ApprovalRequestStatus.Canceled => ("Canceled", "Request canceled", " was canceled."),
             ApprovalRequestStatus.Superseded => ("Replaced", "Request replaced", " was replaced by a newer revision."),
-            _ when context.Result == false => ("Declined", "Request declined", " was declined."),
-            _ when context.Result == true => ("Completed", "Request completed", " has been completed successfully."),
+            _ when context.Result == false => ("Failed", "Request failed", " failed."),
+            _ when context.Result == true => ("Successful", "Request successful", " was successful."),
             _ => ("Completed", "Request completed", " has been completed.")
         };
         return model with
         {
             Subject = $"{subject}: {context.RequestTitle}",
             Heading = heading,
-            Body = string.IsNullOrWhiteSpace(context.SenderIdentity?.Name)
-                ? "The request titled " : $"The request from {context.SenderIdentity.Name} titled ",
+            Body = "Your request titled ",
             BodyAfterTitle = ending
         };
     }

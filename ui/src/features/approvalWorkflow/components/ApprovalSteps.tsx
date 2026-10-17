@@ -45,16 +45,15 @@ const getActiveStepIndex = (steps: ApprovalStep[]) => {
   return activeStepIndex === -1 ? steps.length : activeStepIndex;
 };
 
-const stepIsCompleted = (status: string) =>
-  status === "Completed successfully" || status === "Skipped" || status === "Canceled";
+const stepIsCompleted = (status: string) => status === "Successful" || status === "Skipped" || status === "Canceled";
 
-const stepHasError = (status: string) => status === "Completed unsuccessfully";
+const stepHasError = (status: string) => status === "Unsuccessful";
 
 const getStepIcon = (status: string) => {
   switch (status) {
-    case "Completed successfully":
+    case "Successful":
       return <SuccessSnackbarIcon color="success" />;
-    case "Completed unsuccessfully":
+    case "Unsuccessful":
       return <CancelOutlined color="error" />;
     case "Skipped":
       return <DoNotDisturbOnOutlined color="warning" />;
