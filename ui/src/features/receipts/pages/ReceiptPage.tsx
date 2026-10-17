@@ -14,6 +14,7 @@ import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { Routes } from "@/shared/routing/routes";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
@@ -34,18 +35,22 @@ const ReceiptPage: React.FC<ReceiptPageProps> = ({ tab = "request" }) => {
   const [receipt, setReceipt] = useState<Receipt | null | undefined>(undefined);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const receiptsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/receipts") : "/";
+  const detailLoader = ActionLoaders.receipts.load(receiptGlobalId);
   useEffect(() => {
     let active = true;
     setReceipt(undefined);
     if (tenantGlobalId && receiptGlobalId) {
-      void getReceipt(tenantGlobalId, receiptGlobalId).then((value) => {
-        if (active) setReceipt(value);
-      });
+      stores.commonStore.updateActionLoadingCounter(detailLoader, 1);
+      void getReceipt(tenantGlobalId, receiptGlobalId)
+        .then((value) => {
+          if (active) setReceipt(value);
+        })
+        .finally(() => stores.commonStore.updateActionLoadingCounter(detailLoader, -1));
     }
     return () => {
       active = false;
     };
-  }, [receiptGlobalId, tenantGlobalId]);
+  }, [detailLoader, receiptGlobalId, tenantGlobalId]);
 
   if (receipt === null) return <NotFoundPage />;
   if (!receipt || !receiptGlobalId) return null;

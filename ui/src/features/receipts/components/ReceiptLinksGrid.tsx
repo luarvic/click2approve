@@ -7,6 +7,7 @@ import CompactGridCell from "@/shared/components/grids/CompactGridCell";
 import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGridSecondaryInformation";
 import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
 import { DataGrids } from "@/shared/components/grids/dataGridSettings";
+import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
 import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
@@ -154,7 +155,7 @@ const ReceiptLinksGrid = ({ receiptGlobalId, tenantGlobalId }: ReceiptLinksGridP
           slotProps={{
             baseCheckbox: { name: "receipt-link-selection" },
           }}
-          slots={{ noRowsOverlay: NoRowsOverlay, toolbar }}
+          slots={{ loadingOverlay: NoLoadingOverlay, noRowsOverlay: NoRowsOverlay, toolbar }}
           sx={DataGrids.sx}
         />
       </Box>

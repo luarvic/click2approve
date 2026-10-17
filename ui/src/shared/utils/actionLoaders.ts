@@ -45,6 +45,8 @@ export const ActionLoaderScopes = {
   subscriptionUsageLoad: "subscriptionUsage.load",
   passkeysAdd: "passkeys.add",
   passkeysRemove: "passkeys.remove",
+  receiptsLoad: "receipts.load",
+  receiptLinksLoad: "receiptLinks.load",
   receiptLinksCreateForRequest: "receiptLinks.createForRequest",
   receiptLinksCreateForTask: "receiptLinks.createForTask",
   receiptLinksDelete: "receiptLinks.delete",
@@ -68,6 +70,8 @@ export const GlobalLoadingActionLoaderScopes = [
   ActionLoaderScopes.gridsReceipts,
   ActionLoaderScopes.gridsTeams,
   ActionLoaderScopes.gridsTenants,
+  ActionLoaderScopes.receiptsLoad,
+  ActionLoaderScopes.receiptLinksLoad,
   ActionLoaderScopes.approvalRequestsLoad,
   ActionLoaderScopes.approvalRequestTasksLoad,
   ActionLoaderScopes.discussionsLoadForRequest,
@@ -203,13 +207,17 @@ export const ActionLoaders = {
   },
   receiptLinks: {
     create: (receiptGlobalId: string) => createActionLoaderKey("receiptLinks.create", receiptGlobalId),
-    load: (receiptGlobalId: string) => createActionLoaderKey("receiptLinks.load", receiptGlobalId),
+    load: (receiptGlobalId: string) => createActionLoaderKey(ActionLoaderScopes.receiptLinksLoad, receiptGlobalId),
     createForRequest: (approvalRequestGlobalId: string | undefined) =>
       createActionLoaderKey(ActionLoaderScopes.receiptLinksCreateForRequest, approvalRequestGlobalId),
     createForTask: (approvalRequestTaskGlobalId: string | undefined) =>
       createActionLoaderKey(ActionLoaderScopes.receiptLinksCreateForTask, approvalRequestTaskGlobalId),
     delete: (linkGlobalId: string | undefined) =>
       createActionLoaderKey(ActionLoaderScopes.receiptLinksDelete, linkGlobalId),
+  },
+  receipts: {
+    load: (receiptGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.receiptsLoad, receiptGlobalId),
   },
   subscriptionUsage: {
     load: (tenantGlobalId: string | undefined) =>
