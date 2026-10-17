@@ -27,16 +27,16 @@ interface FileMatch {
 }
 
 const baseUrl = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
-const logoSrc = `${baseUrl}logo.svg`;
+const logoSrc = `${baseUrl}logo-wall-to-wall.svg`;
 const qrCodeSize = 192;
-const qrPanelVerticalPadding = 2;
 const receiptLogoSize = 48;
 
 const pageSx: SxProps<Theme> = {
   display: "flex",
   flexDirection: "column",
   minHeight: "100vh",
-  py: { xs: 2, md: 4 },
+  pb: { xs: 2, md: 4 },
+  pt: { xs: 1, md: 2 },
   "@media print": {
     display: "block",
     minHeight: "auto",
@@ -64,9 +64,8 @@ const receiptViewSx: SxProps<Theme> = {
 };
 
 const receiptCardSx: SxProps<Theme> = {
-  "@media print": {
-    boxShadow: "none",
-  },
+  border: 0,
+  boxShadow: "none",
 };
 
 const verificationContentSx: SxProps<Theme> = {
@@ -77,8 +76,14 @@ const verificationContentSx: SxProps<Theme> = {
 
 const qrPanelSx: SxProps<Theme> = {
   alignItems: "center",
-  py: qrPanelVerticalPadding,
+  pb: 1,
   textAlign: "center",
+};
+
+const qrCodeFrameSx: SxProps<Theme> = {
+  bgcolor: "common.white",
+  display: "flex",
+  p: 2,
 };
 
 const qrLabelSx: SxProps<Theme> = {
@@ -88,21 +93,21 @@ const qrLabelSx: SxProps<Theme> = {
   maxWidth: qrCodeSize,
 };
 
-const receiptLogoSx: SxProps<Theme> = {
-  height: receiptLogoSize,
-  width: receiptLogoSize,
-};
-
 const receiptBrandSx: SxProps<Theme> = {
   alignItems: "center",
   justifyContent: "center",
-  py: qrPanelVerticalPadding,
+};
+
+const receiptLogoSx: SxProps<Theme> = {
+  display: "block",
+  flex: "0 0 auto",
+  height: receiptLogoSize,
+  minHeight: receiptLogoSize,
+  width: "auto",
 };
 
 const receiptBrandTextSx: SxProps<Theme> = {
-  fontSize: `${receiptLogoSize * 0.75}px`,
-  fontWeight: 500,
-  lineHeight: 1,
+  fontSize: "1.75rem",
 };
 
 const verificationFooterSx: SxProps<Theme> = {
@@ -200,18 +205,20 @@ const PublicReceiptPage = () => {
         <Box sx={contentContainerSx}>
           <Box sx={receiptViewSx}>
             <ReceiptView
-              cardSx={receiptCardSx}
-              footerContent={
+              afterTitleContent={
                 <Stack spacing={StackSpacing.tight} sx={qrPanelSx}>
-                  <QRCodeSVG level="H" size={qrCodeSize} value={verificationUrl} />
+                  <Box sx={qrCodeFrameSx}>
+                    <QRCodeSVG level="H" size={qrCodeSize} value={verificationUrl} />
+                  </Box>
                   <Typography sx={qrLabelSx}>Scan the QR code to verify this receipt</Typography>
                 </Stack>
               }
+              cardSx={receiptCardSx}
               receipt={receipt}
               titleContent={
                 <Stack direction="row" spacing={StackSpacing.tight} sx={receiptBrandSx}>
                   <Box component="img" src={logoSrc} alt="Click2Approve" sx={receiptLogoSx} />
-                  <Typography component="span" sx={receiptBrandTextSx}>
+                  <Typography component="span" variant="h6" sx={receiptBrandTextSx}>
                     Click2Approve
                   </Typography>
                 </Stack>

@@ -18,6 +18,7 @@ import type { SxProps, Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
 
 interface ReceiptCardProps {
+  afterTitleContent?: ReactNode;
   footerContent?: ReactNode;
   headerContent?: ReactNode;
   receipt: Receipt | PublicReceipt;
@@ -40,14 +41,13 @@ const headingSx: SxProps<Theme> = {
 
 const receiptHeaderStackSpacing = 1.5;
 
-const sectionHeadingVerticalPadding = 0.5;
-
 const receiptSectionSpacing = StackSpacing.loose;
 
 const sectionHeadingSx: SxProps<Theme> = {
   fontFamily: "inherit",
+  fontSize: "1.3125rem",
   fontWeight: 700,
-  py: sectionHeadingVerticalPadding,
+  pb: 1.5,
   textAlign: "center",
 };
 
@@ -105,12 +105,17 @@ const metadataSx: SxProps<Theme> = {
   textAlign: "center",
 };
 
-const printSectionSx: SxProps<Theme> = {
+const printSectionSx = {
   "@media print": {
     breakInside: "avoid",
     pageBreakInside: "avoid",
   },
-};
+} satisfies SxProps<Theme>;
+
+const receiptDetailSectionSx = {
+  ...printSectionSx,
+  pt: 2,
+} satisfies SxProps<Theme>;
 
 const formatBytes = (size: number): string => `${new Intl.NumberFormat().format(size)} bytes`;
 
@@ -133,7 +138,14 @@ const getReceiptTaskStatusColor = (taskStatus: ApprovalRequestTaskStatus | undef
 const getRequestCompletedAt = (receipt: Receipt | PublicReceipt): Date | undefined =>
   (receipt as Receipt).approvalRequestCompletedAt ?? (receipt as PublicReceipt).approvalRequestApprovedAt;
 
-const ReceiptCard: React.FC<ReceiptCardProps> = ({ footerContent, headerContent, receipt, sx, titleContent }) => {
+const ReceiptCard: React.FC<ReceiptCardProps> = ({
+  afterTitleContent,
+  footerContent,
+  headerContent,
+  receipt,
+  sx,
+  titleContent,
+}) => {
   const tasks = receipt.participants.filter((participant) => participant.role === ReceiptParticipantRole.Assignee);
   const requestStatusColor = getApprovalRequestStatusLineColor(
     receipt.approvalRequestStatus,
@@ -164,6 +176,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({ footerContent, headerContent,
                 {titleContent}
               </Typography>
             )}
+            {afterTitleContent}
             <Box sx={fieldSx}>
               <Typography component="span" sx={fieldLabelSx}>
                 Receipt ID:
@@ -182,7 +195,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({ footerContent, headerContent,
             </Box>
           </Stack>
         </Stack>
-        <Stack sx={printSectionSx}>
+        <Stack sx={receiptDetailSectionSx}>
           <Stack spacing={0.5}>
             <Typography sx={sectionHeadingSx}>Request</Typography>
             {requestFields
@@ -230,7 +243,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({ footerContent, headerContent,
               <Stack
                 key={`${task.email}-${task.completedAt?.toISOString() ?? index}`}
                 spacing={0.5}
-                sx={printSectionSx}
+                sx={receiptDetailSectionSx}
               >
                 <Typography sx={sectionHeadingSx}>Task</Typography>
                 {[
