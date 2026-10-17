@@ -9,6 +9,7 @@ public sealed record EmailTemplateModel
     public required string PrimaryActionText { get; init; }
     public required string PrimaryActionUrl { get; init; }
     public EmailActor? Actor { get; init; }
+    public EmailSenderIdentity? SenderIdentity { get; init; }
     public string? RequestTitle { get; init; }
     public string BodyAfterTitle { get; init; } = string.Empty;
     public string? StepName { get; init; }

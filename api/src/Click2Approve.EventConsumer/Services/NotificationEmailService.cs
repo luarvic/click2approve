@@ -26,14 +26,22 @@ public class NotificationEmailService(
     public async Task SendAsync(AppUser recipient, NotificationEventPayload payload, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(recipient.NormalizedEmail)) return;
-        var tenantGlobalId = await _db.Tenants.Where(tenant => tenant.Id == payload.TenantId)
-            .Select(tenant => (Guid?)tenant.GlobalId).SingleOrDefaultAsync(cancellationToken);
-        if (tenantGlobalId is null) return;
+        var tenant = await _db.Tenants.AsNoTracking()
+            .Include(item => item.LogoUserFile)
+            .Include(item => item.Owner).ThenInclude(owner => owner.AvatarUserFile)
+            .SingleOrDefaultAsync(item => item.Id == payload.TenantId, cancellationToken);
+        if (tenant is null) return;
         var context = payload.Type == NotificationType.DiscussionMessageCreated
-            ? await CreateDiscussionContextAsync(payload, tenantGlobalId.Value, cancellationToken)
-            : await CreateContextAsync(payload, tenantGlobalId.Value, cancellationToken);
+            ? await CreateDiscussionContextAsync(payload, tenant.GlobalId, cancellationToken)
+            : await CreateContextAsync(payload, tenant.GlobalId, cancellationToken);
         if (context is null) return;
-        var template = NotificationEmailTemplates.Create(payload.Type, context);
+        var senderIdentity = CreateSenderIdentity(tenant, payload.Type == NotificationType.ApprovalRequestTaskCompleted
+            ? null : context.Actor);
+        var content = NotificationEmailTemplates.Create(payload.Type, context with { SenderIdentity = senderIdentity });
+        var template = content with
+        {
+            SenderIdentity = senderIdentity
+        };
         await _emailService.SendAsync(new EmailMessage
         {
             ToAddress = recipient.NormalizedEmail,
@@ -93,6 +101,31 @@ public class NotificationEmailService(
         OrganizationDisplayName = request.Tenant.Type == TenantType.Business ? request.OrganizationDisplayName : null,
         OrganizationLogoUrl = request.Tenant.Type == TenantType.Business ? PublicImage(request.Tenant.LogoUserFile) : null
     };
+
+    private EmailSenderIdentity CreateSenderIdentity(Tenant tenant, EmailActor? actor)
+    {
+        if (tenant.Type == TenantType.Business)
+        {
+            return new EmailSenderIdentity
+            {
+                Name = tenant.BusinessName,
+                IsOrganization = true,
+                ImageUrl = PublicImage(tenant.LogoUserFile),
+                WebsiteUrl = tenant.WebsiteUrl
+            };
+        }
+
+        var owner = tenant.Owner;
+        return new EmailSenderIdentity
+        {
+            Name = actor is { IsSystemGenerated: false } && !string.IsNullOrWhiteSpace(actor.DisplayName)
+                ? actor.DisplayName
+                : DisplayNameHelpers.FormatParticipantDisplayName(
+                    owner.FirstName, owner.LastName, position: null, email: owner.Email ?? owner.NormalizedEmail),
+            ImageUrl = actor is { IsSystemGenerated: false } && !string.IsNullOrWhiteSpace(actor.DisplayName)
+                ? actor.AvatarUrl : PublicImage(owner.AvatarUserFile)
+        };
+    }
 
     /// <summary>Resolves the notification target while allowing commercial resource types.</summary>
     protected virtual async Task<NotificationEmailContext?> CreateContextAsync(

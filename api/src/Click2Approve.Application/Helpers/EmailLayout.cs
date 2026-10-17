@@ -10,7 +10,7 @@ public static class EmailLayout
     public static string Render(EmailTemplateModel model, string? logoUrl = null, string? logoLinkUrl = null)
     {
         var logo = SafeUrl(logoUrl) is { } url
-            ? $"<img src=\"{Encode(url)}\" alt=\"Click2Approve\" width=\"48\" height=\"48\" style=\"display:block;border:0;\">"
+            ? $"<img src=\"{Encode(url)}\" alt=\"Click2Approve\" height=\"48\" style=\"display:block;height:48px;border:0;\">"
             : "<span role=\"img\" aria-label=\"Click2Approve\" style=\"color:#15803d;font-size:40px;\">✓</span>";
         if (SafeUrl(logoLinkUrl) is { } linkUrl)
         {
@@ -23,7 +23,7 @@ public static class EmailLayout
             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#f3f4f6"><tr><td align="center" style="padding:24px 12px;">
             <!--[if mso]><table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0"><tr><td><![endif]-->
             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff" style="max-width:600px;background-color:#ffffff;">
-            <tr><td style="padding:32px 28px 36px;">
+            <tr><td style="padding:32px 28px 20px;">
             {{logo}}
             </td></tr>
             <tr><td style="padding:0 28px 32px;font-size:16px;line-height:1.6;overflow-wrap:anywhere;">
@@ -49,8 +49,11 @@ public static class EmailLayout
     private static string RenderBody(EmailTemplateModel model)
     {
         if (string.IsNullOrEmpty(model.RequestTitle)) return Paragraph(model.Body);
-        return $"<p style=\"margin:0 0 24px;font-size:16px;line-height:1.6;\">{Encode(model.Body)}"
-            + $"<strong>{Encode(model.RequestTitle)}</strong>{Encode(model.BodyAfterTitle)}</p>";
+        var body = RenderTextWithSenderImage(model.Body, model.SenderIdentity, out var imageInserted);
+        var ending = imageInserted ? Encode(model.BodyAfterTitle)
+            : RenderTextWithSenderImage(model.BodyAfterTitle, model.SenderIdentity, out _);
+        return $"<p style=\"margin:0 0 24px;font-size:16px;line-height:1.6;\">{body}"
+            + $"<strong>{Encode(model.RequestTitle)}</strong>{ending}</p>";
     }
 
     private static string RenderContext(EmailTemplateModel model) =>
@@ -67,6 +70,55 @@ public static class EmailLayout
             <a href="{{Encode(safeUrl)}}" style="display:inline-block;padding:12px 24px;border:1px solid #22C55E;border-radius:999px;color:#ffffff!important;-webkit-text-fill-color:#ffffff;font-size:16px;font-weight:bold;text-decoration:none;mso-padding-alt:0;"><!--[if mso]><font color="#ffffff">{{Encode(text)}}</font><![endif]--><!--[if !mso]><!--><span style="background:#ffffff;background-image:linear-gradient(#ffffff,#ffffff);background-clip:text;-webkit-background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;">{{Encode(text)}}</span><!--<![endif]--></a>
             </td></tr></table>
             """;
+    }
+
+    private static string RenderTextWithSenderImage(string text, EmailSenderIdentity? sender, out bool imageInserted)
+    {
+        imageInserted = false;
+        if (sender is null || string.IsNullOrWhiteSpace(sender.Name) || SafeUrl(sender.ImageUrl) is not { } imageUrl)
+        {
+            return Encode(text);
+        }
+        var index = FindSenderNameIndex(text, sender);
+        if (index < 0) return Encode(text);
+
+        var imageStyle = sender.IsOrganization
+            ? "box-sizing:border-box;padding:2px;object-fit:contain;border-radius:50%;"
+            : "object-fit:cover;border-radius:50%;";
+        var image = $"<img src=\"{Encode(imageUrl)}\" alt=\"\" width=\"28\" height=\"28\" style=\"display:block;width:28px;height:28px;{imageStyle}border:0;\">";
+        if (sender.IsOrganization && SafeUrl(sender.WebsiteUrl) is { } websiteUrl)
+        {
+            image = $"<a href=\"{Encode(websiteUrl)}\" aria-label=\"Visit {Encode(sender.Name)} website\" style=\"display:inline-block;vertical-align:middle;line-height:0;text-decoration:none;\">{image}</a>";
+        }
+        else
+        {
+            image = $"<span style=\"display:inline-block;vertical-align:middle;line-height:0;\">{image}</span>";
+        }
+        imageInserted = true;
+        return Encode(text[..index]) + image + "&nbsp;"
+            + $"<span style=\"display:inline-block;vertical-align:middle;line-height:1.4;\">{Encode(sender.Name)}</span>"
+            + Encode(text[(index + sender.Name.Length)..]);
+    }
+
+    private static int FindSenderNameIndex(string text, EmailSenderIdentity sender)
+    {
+        if (sender.IsOrganization)
+        {
+            var atIndex = text.IndexOf($" at {sender.Name}", StringComparison.Ordinal);
+            if (atIndex >= 0) return atIndex + 4;
+        }
+        var fromIndex = text.IndexOf($" from {sender.Name}", StringComparison.Ordinal);
+        if (fromIndex >= 0) return fromIndex + 6;
+
+        var index = text.IndexOf(sender.Name, StringComparison.Ordinal);
+        while (index >= 0)
+        {
+            var end = index + sender.Name.Length;
+            if ((index == 0 || !char.IsLetterOrDigit(text[index - 1]))
+                && (end == text.Length || !char.IsLetterOrDigit(text[end]))) return index;
+            index = text.IndexOf(sender.Name, end, StringComparison.Ordinal);
+        }
+        return -1;
     }
 
     private static string Paragraph(string? text, string style = "") => string.IsNullOrWhiteSpace(text)

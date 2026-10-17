@@ -99,12 +99,6 @@ const getStatusValueSx = (statusColor: StatusLineColor) => (theme: Theme) => ({
   textUnderlineOffset: "0.2em",
 });
 
-const metadataSx: SxProps<Theme> = {
-  color: "text.secondary",
-  fontFamily: "inherit",
-  textAlign: "center",
-};
-
 const printSectionSx = {
   "@media print": {
     breakInside: "avoid",
@@ -237,7 +231,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
           </Stack>
         </Stack>
         <Stack spacing={receiptSectionSpacing}>
-          {tasks.length === 0 && <Typography sx={metadataSx}>No completed tasks were recorded.</Typography>}
+          {tasks.length === 0 && <Typography sx={sectionHeadingSx}>No completed tasks were recorded</Typography>}
           <Stack spacing={receiptSectionSpacing}>
             {tasks.map((task, index) => (
               <Stack

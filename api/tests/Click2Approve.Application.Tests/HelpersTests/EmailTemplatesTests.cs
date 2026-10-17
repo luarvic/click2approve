@@ -25,7 +25,7 @@ public sealed class EmailTemplatesTests
         Assert.Equal($"{heading}: Contract", model.Subject);
         Assert.Equal(heading, model.Heading);
         Assert.Equal("Contract", model.RequestTitle);
-        Assert.Equal($"John Smith at Acme Inc., requested your {noun} on ", model.Body);
+        Assert.Equal($"John Smith at Acme Inc. requested your {noun} on ", model.Body);
         Assert.Equal("Review request", model.PrimaryActionText);
     }
 
@@ -86,7 +86,7 @@ public sealed class EmailTemplatesTests
 
     [Theory]
     [InlineData("John Smith", null, "John Smith requested your signature on ")]
-    [InlineData("John Smith, CEO", "Aurora", "John Smith, CEO at Aurora, requested your signature on ")]
+    [InlineData("John Smith, CEO", "Aurora", "John Smith, CEO at Aurora requested your signature on ")]
     [InlineData(null, "Aurora", "Aurora requested your signature on ")]
     public void SignatureRequest_UsesProseAndAnInlineBoldTitle(string? name, string? organization, string expected)
     {
@@ -137,7 +137,7 @@ public sealed class EmailTemplatesTests
     }
 
     [Fact]
-    public void Header_UsesOnlyPlatformLogoAndNoActorImages()
+    public void Body_ShowsLinkedOrganizationLogoBeforeItsName()
     {
         var actor = new EmailActor
         {
@@ -146,13 +146,79 @@ public sealed class EmailTemplatesTests
             OrganizationDisplayName = "Acme",
             OrganizationLogoUrl = "https://example.com/org.png"
         };
-        var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestTaskCreated, Context() with { Actor = actor });
-        var html = EmailLayout.Render(model, "https://example.com/logo.png");
+        var sender = new EmailSenderIdentity
+        {
+            Name = "Acme <Inc>",
+            IsOrganization = true,
+            ImageUrl = "https://example.com/org.png",
+            WebsiteUrl = "https://example.com/?a=1&b=2"
+        };
+        var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestTaskCreated,
+            Context() with { Actor = actor, SenderIdentity = sender });
+        var html = EmailLayout.Render(model with { SenderIdentity = sender }, "https://example.com/logo.png");
         Assert.Contains("https://example.com/logo.png", html);
         Assert.Contains("alt=\"Click2Approve\"", html);
+        Assert.Contains("alt=\"Click2Approve\" height=\"48\" style=\"display:block;height:48px;border:0;\"", html);
+        Assert.DoesNotContain("alt=\"Click2Approve\" width=", html);
         Assert.DoesNotContain("https://example.com/avatar.png", html);
-        Assert.DoesNotContain("https://example.com/org.png", html);
+        Assert.Contains("src=\"https://example.com/org.png\" alt=\"\" width=\"28\" height=\"28\"", html);
+        Assert.Contains("</a>&nbsp;<span style=\"display:inline-block;vertical-align:middle;line-height:1.4;\">Acme &lt;Inc&gt;</span> requested", html);
+        Assert.DoesNotContain("On behalf of", html);
+        Assert.True(html.IndexOf("src=\"https://example.com/logo.png\"", StringComparison.Ordinal)
+            < html.IndexOf("src=\"https://example.com/org.png\"", StringComparison.Ordinal));
+        Assert.DoesNotContain(">+</td>", html);
+        Assert.Contains("padding:2px;object-fit:contain;border-radius:50%", html);
+        Assert.Contains("href=\"https://example.com/?a=1&amp;b=2\"", html);
+        Assert.Contains("aria-label=\"Visit Acme &lt;Inc&gt; website\"", html);
+        Assert.DoesNotContain(">From</td>", html);
         Assert.DoesNotContain(">Click2Approve</td>", html);
+    }
+
+    [Fact]
+    public void SenderIdentity_OmitsMissingDetailsAndUnsafeLinks()
+    {
+        var sender = new EmailSenderIdentity
+        {
+            Name = "<Jane>",
+            IsOrganization = true,
+            ImageUrl = "https://example.com/logo.png",
+            WebsiteUrl = "javascript:alert(2)"
+        };
+        var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestTaskCreated,
+            Context() with { Actor = new EmailActor { DisplayName = "John" }, SenderIdentity = sender })
+            with { SenderIdentity = sender };
+
+        var html = EmailLayout.Render(model);
+
+        Assert.DoesNotContain("On behalf of", html);
+        Assert.DoesNotContain("javascript:", html);
+        Assert.Contains("src=\"https://example.com/logo.png\"", html);
+        Assert.DoesNotContain("Visit &lt;Jane&gt; website", html);
+        Assert.Contains("&nbsp;<span style=\"display:inline-block;vertical-align:middle;line-height:1.4;\">&lt;Jane&gt;</span> requested", html);
+    }
+
+    [Fact]
+    public void Body_ShowsPersonalAvatarBeforeUserName()
+    {
+        var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestTaskCreated,
+            Context() with { Actor = new EmailActor { DisplayName = "Jane" } }) with
+        {
+            SenderIdentity = new EmailSenderIdentity
+            {
+                Name = "Jane",
+                ImageUrl = "https://example.com/avatar.png"
+            }
+        };
+
+        var html = EmailLayout.Render(model, "https://example.com/platform.png");
+
+        Assert.Contains("src=\"https://example.com/platform.png\" alt=\"Click2Approve\" height=\"48\"", html);
+        Assert.Contains("src=\"https://example.com/avatar.png\" alt=\"\" width=\"28\" height=\"28\"", html);
+        Assert.Contains("</span>&nbsp;<span style=\"display:inline-block;vertical-align:middle;line-height:1.4;\">Jane</span> requested", html);
+        Assert.DoesNotContain("On behalf of", html);
+        Assert.True(html.IndexOf("src=\"https://example.com/platform.png\"", StringComparison.Ordinal)
+            < html.IndexOf("src=\"https://example.com/avatar.png\"", StringComparison.Ordinal));
+        Assert.DoesNotContain(">+</td>", html);
     }
 
     [Fact]
@@ -164,6 +230,39 @@ public sealed class EmailTemplatesTests
 
         Assert.Contains("<a href=\"https://click2approve.com/\"", html);
         Assert.Contains("<img src=\"https://example.com/logo.png\"", html);
+        Assert.DoesNotContain("On behalf of", html);
+    }
+
+    [Fact]
+    public void Body_ShowsSenderNameWhenImageIsMissing()
+    {
+        var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestTaskCreated,
+            Context() with { Actor = new EmailActor { DisplayName = "Jane Doe" } }) with
+        {
+            SenderIdentity = new EmailSenderIdentity { Name = "Jane Doe" }
+        };
+
+        var html = EmailLayout.Render(model);
+
+        Assert.Contains("Jane Doe requested", html);
+        Assert.DoesNotContain("On behalf of", html);
+    }
+
+    [Fact]
+    public void Body_PlacesLogoBeforeOrganizationNameWhenItAlsoOccursInsideActorName()
+    {
+        var sender = new EmailSenderIdentity
+        {
+            Name = "A", IsOrganization = true, ImageUrl = "https://example.com/org.png"
+        };
+        var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestTaskCreated,
+            Context() with { Actor = new EmailActor { DisplayName = "Alex" }, SenderIdentity = sender })
+            with { SenderIdentity = sender };
+
+        var html = EmailLayout.Render(model);
+
+        Assert.Contains("Alex at <span style=\"display:inline-block;vertical-align:middle;line-height:0;\"><img src=\"https://example.com/org.png\"", html);
+        Assert.Contains("&nbsp;<span style=\"display:inline-block;vertical-align:middle;line-height:1.4;\">A</span> requested", html);
     }
 
     [Fact]
@@ -175,7 +274,7 @@ public sealed class EmailTemplatesTests
             RequestTitle = "<John>"
         });
         var html = EmailLayout.Render(model);
-        Assert.Contains("&lt;John&gt; at &lt;Acme&gt;, requested", html);
+        Assert.Contains("&lt;John&gt; at &lt;Acme&gt; requested", html);
         Assert.Contains("on <strong>&lt;John&gt;</strong>.", html);
         Assert.DoesNotContain("<John>", html);
         Assert.DoesNotContain("<Acme>", html);

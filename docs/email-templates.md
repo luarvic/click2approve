@@ -1,8 +1,8 @@
 # Transactional email templates
 
 Account and notification emails use `EmailLayout` in the Application project. The layout
-renders encoded plain-text content with a 600px table shell, the existing Click2Approve
-logo-only header and large event heading, one rounded primary action in the logo green (`#22C55E`) with white text, and a contextual footer. Small builders in
+renders encoded plain-text content with a 600px table shell, the Click2Approve
+wordmark in the header, a large event heading, one rounded primary action in the logo green (`#22C55E`) with white text, and a contextual footer. Small builders in
 `AccountEmailTemplates` and `NotificationEmailTemplates` own the copy; the old
 `Email:Templates` configuration entries are no longer used.
 
@@ -13,17 +13,28 @@ logo-only header and large event heading, one rounded primary action in the logo
   Configure the provider's sender display name as `Click2Approve`. Actors are never used
   as sender addresses or reply-to addresses.
 - `Email:LogoUrl` optionally overrides the logo with an absolute HTTP(S) image URL.
-  By default the worker uses `UI:BaseUrl` + `UI:AppPath` + `/logo-email.png`.
-  The frontend asset is the email logo variant.
+  By default the worker uses `UI:BaseUrl` + `UI:AppPath` + `/logo-with-text.png`.
+  The frontend asset is the raster wordmark.
+- For Gmail testing from a local worker, use a publicly reachable HTTPS image URL in the
+  **event consumer's** `Email:LogoUrl` setting and send a new notification. The default
+  development URL (`http://localhost:3333/app/logo-with-text.png`) loads in the local browser
+  but cannot be fetched by Gmail's remote image service. Organization logos and avatars
+  likewise need publicly reachable URLs; local Azurite blob URLs cannot render in Gmail.
 - Deploy the frontend asset alongside the worker changes. The logo has a Click2Approve text alternative; the footer also names the platform.
 - Notifications use plain prose below the heading: personal user name, or employee name/position
   at the organization, followed by the requested action (for example, "John Smith requested
   your signature on **New car 1500**."). Missing name parts are omitted and
   email is the fallback. Employee snapshots use the same formatter as UI request data.
-- The request title is bold inline in that sentence, with no separate title or attribution card.
-  Actor avatars, organization logos, and a standalone `by` label are not rendered.
+- The request title is bold inline in that sentence. The header displays the 48px-tall
+  Click2Approve wordmark at its natural aspect ratio. A 28px circular business logo or
+  personal avatar appears immediately before the organization or user name in the prose.
+  The name remains visible when the image is absent. A business logo
+  links to the organization's HTTP(S) website when configured. The sender or organization
+  name appears in the message text, including neutral event copy where there is no actor.
+  Automatic or legacy personal events use the personal tenant owner's profile. Contact
+  email, phone, and address are not rendered. The verified platform sender address stays fixed.
 - Sentence text before and after the title is encoded separately from the bold title; callers
-  cannot inject markup. Identity emails also use the logo-only header and enlarged heading.
+cannot inject markup. Identity emails retain the platform-only header and enlarged heading.
 
 ## Rendering and event context
 
