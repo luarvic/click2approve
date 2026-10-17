@@ -17,7 +17,6 @@ interface ApprovalRequestElectronicSignatureFormProps {
   errors: ElectronicSignatureErrors;
   legalName: string;
   representationDetails: string;
-  onFieldErrorClear: (field: keyof ElectronicSignatureErrors) => void;
   onLegalNameChange: (value: string) => void;
   onRepresentationDetailsChange: (value: string) => void;
   onSignatureChange: (value: string) => void;
@@ -35,7 +34,6 @@ const ApprovalRequestElectronicSignatureForm: React.FC<ApprovalRequestElectronic
   errors,
   legalName,
   representationDetails,
-  onFieldErrorClear,
   onLegalNameChange,
   onRepresentationDetailsChange,
   onSignatureChange,
@@ -58,10 +56,7 @@ const ApprovalRequestElectronicSignatureForm: React.FC<ApprovalRequestElectronic
           label="Legal name"
           required
           value={legalName}
-          onChange={(event) => {
-            onLegalNameChange(event.target.value);
-            onFieldErrorClear("legalName");
-          }}
+          onChange={(event) => onLegalNameChange(event.target.value)}
         />
       </Stack>
       {showRepresentationDetails && (
