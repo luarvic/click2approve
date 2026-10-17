@@ -113,14 +113,14 @@ const stepAddButtonSx: SxProps<Theme> = {
   alignSelf: "flex-start",
 };
 const actionOptions = [
-  { value: ApprovalRequestTaskAction.Approve, label: "Approve" },
-  { value: ApprovalRequestTaskAction.Sign, label: "Sign" },
-  { value: ApprovalRequestTaskAction.Confirm, label: "Confirm" },
-  { value: ApprovalRequestTaskAction.Acknowledge, label: "Acknowledge" },
-  { value: ApprovalRequestTaskAction.Review, label: "Review" },
-  { value: ApprovalRequestTaskAction.Verify, label: "Verify" },
   { value: ApprovalRequestTaskAction.Accept, label: "Accept" },
+  { value: ApprovalRequestTaskAction.Acknowledge, label: "Acknowledge" },
+  { value: ApprovalRequestTaskAction.Approve, label: "Approve" },
   { value: ApprovalRequestTaskAction.Complete, label: "Complete" },
+  { value: ApprovalRequestTaskAction.Confirm, label: "Confirm" },
+  { value: ApprovalRequestTaskAction.Review, label: "Review" },
+  { value: ApprovalRequestTaskAction.Sign, label: "Sign" },
+  { value: ApprovalRequestTaskAction.Verify, label: "Verify" },
 ];
 const accordionSx: SxProps<Theme> = { backgroundColor: "inherit" };
 const accordionHorizontalPaddingSx: SxProps<Theme> = { px: 0 };
