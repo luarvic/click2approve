@@ -308,22 +308,16 @@ public class ApprovalWorkflowService(
         ApprovalRequest approvalRequest,
         CancellationToken cancellationToken) =>
         _notificationService.SendAsync(
-            [.. GetTasks(approvalRequest)
-                .Select(task => new NotificationRecipientIdentity(task.TenantId, task.AssigneeUserId))
-                .Append(new NotificationRecipientIdentity(approvalRequest.TenantId, approvalRequest.RequesterUserId))
-                .GroupBy(identity => identity.TenantId)
-                .Select(group => new NotificationCommand(
-                    NotificationType.ApprovalRequestCompleted,
-                    group.Key,
-                    approvalRequest.GlobalId,
-                    NotificationResourceType.ApprovalRequest,
-                    CreateSummary(approvalRequest.Title),
-                    [.. group.Select(identity => new NotificationRecipient(identity.UserId)).Distinct()],
-                    SourceResourceGlobalId: approvalRequest.GlobalId,
-                    SourceResourceType: NotificationResourceType.ApprovalRequest))],
+            [new NotificationCommand(
+                NotificationType.ApprovalRequestCompleted,
+                approvalRequest.TenantId,
+                approvalRequest.GlobalId,
+                NotificationResourceType.ApprovalRequest,
+                CreateSummary(approvalRequest.Title),
+                [new NotificationRecipient(approvalRequest.RequesterUserId)],
+                SourceResourceGlobalId: approvalRequest.GlobalId,
+                SourceResourceType: NotificationResourceType.ApprovalRequest)],
             cancellationToken);
-
-    private sealed record NotificationRecipientIdentity(long TenantId, long UserId);
 
     private async Task<List<ApprovalRequestTask>> CreateTasksForAssigneeAsync(
         ApprovalRequest approvalRequest,

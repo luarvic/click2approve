@@ -94,7 +94,8 @@ public class NotificationEmailService(
         OrganizationLogoUrl = request.Tenant.Type == TenantType.Business ? PublicImage(request.Tenant.LogoUserFile) : null
     };
 
-    private async Task<NotificationEmailContext?> CreateContextAsync(
+    /// <summary>Resolves the notification target while allowing commercial resource types.</summary>
+    protected virtual async Task<NotificationEmailContext?> CreateContextAsync(
         NotificationEventPayload payload,
         Guid tenantGlobalId,
         CancellationToken cancellationToken)

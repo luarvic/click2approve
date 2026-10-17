@@ -40,6 +40,14 @@ public static class NotificationEmailTemplates
             },
             NotificationType.ApprovalRequestStepCompleted => StepCompleted(model, context, name),
             NotificationType.ApprovalRequestCompleted => RequestCompleted(model, context),
+            NotificationType.ReceiptCreated => model with
+            {
+                Subject = $"New receipt: {title}",
+                Heading = "New receipt",
+                Body = "A receipt is available for ",
+                BodyAfterTitle = ".",
+                PrimaryActionText = "View receipt"
+            },
             NotificationType.DiscussionMessageCreated => model with
             {
                 Subject = actor.IsSystemGenerated || string.IsNullOrWhiteSpace(actor.DisplayName)

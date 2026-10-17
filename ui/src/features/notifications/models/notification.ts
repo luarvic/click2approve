@@ -3,6 +3,8 @@ import { NotificationType } from "@/shared/models/notifications";
 export enum NotificationResourceType {
   ApprovalRequest,
   ApprovalRequestTask,
+  DiscussionMessage,
+  Receipt,
 }
 
 export interface Notification {
@@ -20,4 +22,6 @@ export const notificationTypes = Object.values(NotificationType).filter(
 );
 
 export const getNotificationTypeLabel = (type: NotificationType) =>
-  ["New task", "Task completed", "Step completed", "Request completed", "New message"][type] ?? "Notification";
+  ["New task", "Task completed", "Step completed", "Request completed", "New message", "Notification", "New receipt"][
+    type
+  ] ?? "Notification";

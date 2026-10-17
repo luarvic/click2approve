@@ -7,5 +7,6 @@ public enum NotificationResourceType
 {
     ApprovalRequest,
     ApprovalRequestTask,
-    DiscussionMessage
+    DiscussionMessage,
+    Receipt
 }

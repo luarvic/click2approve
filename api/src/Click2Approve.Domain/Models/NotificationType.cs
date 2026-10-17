@@ -14,12 +14,15 @@ public enum NotificationType
     // Sent to the requester.
     ApprovalRequestStepCompleted = 2,
 
-    // Sent to the requester and assignees of the request tasks.
+    // Sent to the requester.
     ApprovalRequestCompleted = 3,
 
     // Sent to chat participants.
     DiscussionMessageCreated = 4,
 
     // Sent to tenant owners and administrators during payment recovery.
-    BillingRecovery = 5
+    BillingRecovery = 5,
+
+    // Sent to the user issued a receipt.
+    ReceiptCreated = 6
 }

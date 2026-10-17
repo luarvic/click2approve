@@ -55,7 +55,12 @@ const notificationGridSx: SxProps<Theme> = {
 const getPath = (item: Notification) => {
   if (item.targetResourceGlobalId === undefined || item.targetResourceType === undefined) return null;
   const isDiscussionNotification = item.type === NotificationType.DiscussionMessageCreated;
-  const resourcePath = item.targetResourceType === NotificationResourceType.ApprovalRequest ? "requests" : "tasks";
+  const resourcePath =
+    item.targetResourceType === NotificationResourceType.ApprovalRequest
+      ? "requests"
+      : item.targetResourceType === NotificationResourceType.Receipt
+        ? "receipts"
+        : "tasks";
   const chatPath = isDiscussionNotification ? "/chat" : "";
   return `/${resourcePath}/${item.targetResourceGlobalId}${chatPath}`;
 };
