@@ -5,10 +5,15 @@ import type {} from "@mui/x-data-grid/themeAugmentation";
 
 const inputVariant = "standard";
 
-export const createAppTheme = (colorMode: PaletteMode) =>
-  createTheme({
+export const createAppTheme = (colorMode: PaletteMode) => {
+  const baseTheme = createTheme({ palette: { mode: colorMode } });
+
+  return createTheme({
     typography: { fontFamily: "Sora, sans-serif" },
-    palette: { mode: colorMode },
+    palette: {
+      ...baseTheme.palette,
+      DataGrid: { bg: baseTheme.palette.background.default },
+    },
     components: {
       MuiAccordion: {
         styleOverrides: {
@@ -78,3 +83,4 @@ export const createAppTheme = (colorMode: PaletteMode) =>
       },
     },
   });
+};
