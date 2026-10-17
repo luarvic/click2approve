@@ -21,6 +21,7 @@ import * as tenantApi from "@/features/tenants/api/tenantsApi";
 import { EmployeeRole, Tenant, TenantType } from "@/features/tenants/models/tenant";
 import { TenantStore } from "@/features/tenants/stores/tenantStore";
 import { CommonStore } from "@/shared/stores/commonStore";
+import { ActionLoaders, GlobalLoadingActionLoaderScopes } from "@/shared/utils/actionLoaders";
 import { autorun, runInAction } from "mobx";
 import { describe, expect, test, vi } from "vitest";
 
@@ -201,6 +202,17 @@ describe("store architecture", () => {
     store.updateActionLoadingCounter(loader, -1);
     expect(store.isActionLoading(loader)).toBe(false);
     expect(store.actionLoadingCounter).toEqual({});
+  });
+
+  test("form submissions activate the page progress indicator until completion", () => {
+    const store = new CommonStore();
+    const loader = ActionLoaders.tenants.save("tenant-1");
+
+    expect(store.isAnyActionLoading(GlobalLoadingActionLoaderScopes)).toBe(false);
+    store.updateActionLoadingCounter(loader, 1);
+    expect(store.isAnyActionLoading(GlobalLoadingActionLoaderScopes)).toBe(true);
+    store.updateActionLoadingCounter(loader, -1);
+    expect(store.isAnyActionLoading(GlobalLoadingActionLoaderScopes)).toBe(false);
   });
 
   test("remembers the selected menu page until the session clears", () => {

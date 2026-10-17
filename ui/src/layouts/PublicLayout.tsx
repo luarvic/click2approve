@@ -2,7 +2,8 @@ import { stores } from "@/app/rootStore";
 import ColorModeSwitch from "@/shared/components/layout/ColorModeSwitch";
 import PublicAppBar from "@/shared/components/layout/PublicAppBar";
 import { Shell } from "@/shared/components/layout/shellStyles";
-import { Box, Container, Toolbar } from "@mui/material";
+import { GlobalLoadingActionLoaderScopes } from "@/shared/utils/actionLoaders";
+import { Box, Container, LinearProgress, Toolbar } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { ReactNode } from "react";
 import { Outlet } from "react-router-dom";
@@ -12,6 +13,7 @@ interface PublicLayoutProps {
 }
 
 const PublicLayout = ({ children }: PublicLayoutProps) => {
+  const isLoading = stores.commonStore.isAnyActionLoading(GlobalLoadingActionLoaderScopes);
   return (
     <Box sx={Shell.outerBackgroundSx}>
       <PublicAppBar showBrandTitle>
@@ -24,6 +26,7 @@ const PublicLayout = ({ children }: PublicLayoutProps) => {
       <Container maxWidth="xl" disableGutters sx={Shell.contentBackgroundSx}>
         <Box component="main">
           <Toolbar sx={Shell.appBarSpacerSx} />
+          {isLoading && <LinearProgress sx={Shell.loadingProgressSx} />}
           {children ?? <Outlet />}
         </Box>
       </Container>

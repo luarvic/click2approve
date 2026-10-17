@@ -10,9 +10,11 @@ import { Forms } from "@/shared/components/dialogs/formStyles";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { StackSpacing } from "@/shared/theme/tokens";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { notification } from "@/shared/utils/notifications";
 import { FormHelperText, Stack, type SxProps, type Theme } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -25,7 +27,7 @@ const SubscriptionRetentionPage = () => {
   const [policy, setPolicy] = useState<RetentionPolicy>();
   const [approvalRequestMonths, setApprovalRequestMonths] = useState(1);
   const [inAppNotificationMonths, setInAppNotificationMonths] = useState(1);
-  const [saving, setSaving] = useState(false);
+  const saveAction = useAsyncAction(ActionLoaders.subscriptionRetention.save(tenantGlobalId));
   const retentionRule = (value: string) =>
     Number.isInteger(Number(value)) &&
     Number(value) >= RetentionLimits.neverDeleteMonths &&
@@ -53,18 +55,16 @@ const SubscriptionRetentionPage = () => {
       notification.validationWarning();
       return;
     }
-    setSaving(true);
-    void saveRetentionPolicy(tenantGlobalId, {
-      approvalRequestMonths,
-      inAppNotificationMonths,
-    })
-      .then((savedPolicy) => {
-        setPolicy(savedPolicy);
-        setApprovalRequestMonths(savedPolicy.approvalRequestMonths);
-        setInAppNotificationMonths(savedPolicy.inAppNotificationMonths);
-        notification.success("Retention policy saved successfully.");
-      })
-      .finally(() => setSaving(false));
+    void saveAction.run(async () => {
+      const savedPolicy = await saveRetentionPolicy(tenantGlobalId, {
+        approvalRequestMonths,
+        inAppNotificationMonths,
+      });
+      setPolicy(savedPolicy);
+      setApprovalRequestMonths(savedPolicy.approvalRequestMonths);
+      setInAppNotificationMonths(savedPolicy.inAppNotificationMonths);
+      notification.success("Retention policy saved successfully.");
+    });
   };
 
   if (!policy) return null;
@@ -101,7 +101,7 @@ const SubscriptionRetentionPage = () => {
         </Stack>
         {policy.canManage && policy.approvalRequestMonthsCanBeChanged && (
           <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
-            <MainActionButton loading={saving} onClick={save}>
+            <MainActionButton loading={saveAction.isRunning} onClick={save}>
               Save
             </MainActionButton>
           </Stack>

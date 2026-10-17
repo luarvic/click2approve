@@ -1,5 +1,6 @@
 import { stores } from "@/app/rootStore";
 import PublicLayout from "@/layouts/PublicLayout";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
@@ -29,5 +30,22 @@ describe("<PublicLayout />", () => {
     });
 
     await waitFor(() => expect(colorModeSwitch.checked).toBe(true));
+  });
+
+  test("shows progress while a public form is submitting", () => {
+    const loader = ActionLoaders.identity.signUp();
+    render(
+      <MemoryRouter>
+        <PublicLayout>
+          <div />
+        </PublicLayout>
+      </MemoryRouter>,
+    );
+
+    expect(screen.queryByRole("progressbar")).toBeNull();
+    act(() => stores.commonStore.updateActionLoadingCounter(loader, 1));
+    expect(screen.getByRole("progressbar")).toBeTruthy();
+    act(() => stores.commonStore.updateActionLoadingCounter(loader, -1));
+    expect(screen.queryByRole("progressbar")).toBeNull();
   });
 });

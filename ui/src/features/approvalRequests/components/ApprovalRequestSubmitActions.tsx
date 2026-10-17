@@ -31,7 +31,7 @@ const ApprovalRequestSubmitActions: React.FC<ApprovalRequestSubmitActionsProps> 
       </Button>
     )}
     {onSaveTemplate && (
-      <Button disabled={isSavingTemplate} variant="outlined" onClick={onSaveTemplate}>
+      <Button loading={isSavingTemplate} variant="outlined" onClick={onSaveTemplate}>
         Save template
       </Button>
     )}

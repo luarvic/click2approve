@@ -9,7 +9,9 @@ import { authPath } from "@/features/identity/routing/returnUrl";
 import { useAuthReturnUrl } from "@/features/identity/routing/useAuthReturnUrl";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { notification } from "@/shared/utils/notifications";
 import { validateEmail } from "@/shared/utils/validators";
 import { Box, Container } from "@mui/material";
@@ -20,7 +22,7 @@ import { useNavigate } from "react-router-dom";
 const ForgotPasswordPage = () => {
   usePageTitle("Forgot password");
   const [emailError, setEmailError] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const action = useAsyncAction(ActionLoaders.identity.forgotPassword());
   const navigate = useNavigate();
   const returnUrl = useAuthReturnUrl();
 
@@ -32,11 +34,11 @@ const ForgotPasswordPage = () => {
       setEmailError(!email || !validateEmail(email.toString()));
       notification.validationWarning();
     } else {
-      setIsLoading(true);
-      if (await stores.userAccountStore.sendResetPasswordLink(email.toString())) {
-        navigate(authPath("/passwordResetEmailSent", returnUrl));
-      }
-      setIsLoading(false);
+      await action.run(async () => {
+        if (await stores.userAccountStore.sendResetPasswordLink(email.toString())) {
+          navigate(authPath("/passwordResetEmailSent", returnUrl));
+        }
+      });
     }
   };
 
@@ -57,7 +59,7 @@ const ForgotPasswordPage = () => {
             onChange={() => setEmailError(false)}
           />
           <AuthFormActions>
-            <MainActionButton loading={isLoading} type="submit" fullWidth>
+            <MainActionButton loading={action.isRunning} type="submit" fullWidth>
               Send password reset link
             </MainActionButton>
             <AuthTextLinks>

@@ -10,7 +10,9 @@ import { authPath } from "@/features/identity/routing/returnUrl";
 import { useAuthReturnUrl } from "@/features/identity/routing/useAuthReturnUrl";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { notification } from "@/shared/utils/notifications";
 import { Validation } from "@/shared/utils/validationRules";
 import { validateEmail, validatePassword } from "@/shared/utils/validators";
@@ -36,7 +38,7 @@ const SignUpPage = () => {
   const [emailError, setEmailError] = useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<boolean>(false);
   const [passwordConfirmationError, setPasswordConfirmationError] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const action = useAsyncAction(ActionLoaders.identity.signUp());
   const navigate = useNavigate();
   const returnUrl = useAuthReturnUrl();
 
@@ -69,17 +71,17 @@ const SignUpPage = () => {
       notification.validationWarning();
     } else {
       const credentials = new Credentials(email.toString(), password.toString(), passwordConfirmation.toString());
-      setIsLoading(true);
-      if (await stores.userAccountStore.signUp(credentials)) {
-        if (stores.applicationConfigurationStore.requiresConfirmedEmail) {
-          navigate(authPath("/confirmationEmailSent", returnUrl));
-        } else {
-          if ((await stores.userAccountStore.signIn(credentials)) === true) {
-            navigate(returnUrl, { replace: true });
+      await action.run(async () => {
+        if (await stores.userAccountStore.signUp(credentials)) {
+          if (stores.applicationConfigurationStore.requiresConfirmedEmail) {
+            navigate(authPath("/confirmationEmailSent", returnUrl));
+          } else {
+            if ((await stores.userAccountStore.signIn(credentials)) === true) {
+              navigate(returnUrl, { replace: true });
+            }
           }
         }
-      }
-      setIsLoading(false);
+      });
     }
   };
 
@@ -149,7 +151,7 @@ const SignUpPage = () => {
             </FormHelperText>
           </FormControl>
           <AuthFormActions>
-            <MainActionButton loading={isLoading} type="submit" fullWidth>
+            <MainActionButton loading={action.isRunning} type="submit" fullWidth>
               Sign up
             </MainActionButton>
             <AuthTextLinks>

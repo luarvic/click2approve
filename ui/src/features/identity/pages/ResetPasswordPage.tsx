@@ -8,7 +8,9 @@ import { authPath } from "@/features/identity/routing/returnUrl";
 import { useAuthReturnUrl } from "@/features/identity/routing/useAuthReturnUrl";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { notification } from "@/shared/utils/notifications";
 import { Validation } from "@/shared/utils/validationRules";
 import { validatePassword } from "@/shared/utils/validators";
@@ -35,7 +37,7 @@ const ResetPasswordPage = () => {
   const [code, setCode] = useState<string>("");
   const [passwordError, setPasswordError] = useState<boolean>(false);
   const [passwordConfirmationError, setPasswordConfirmationError] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const action = useAsyncAction(ActionLoaders.identity.resetPassword());
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const returnUrl = useAuthReturnUrl();
@@ -76,11 +78,11 @@ const ResetPasswordPage = () => {
       );
       notification.validationWarning();
     } else {
-      setIsLoading(true);
-      if (await stores.userAccountStore.resetPassword(email, code, password.toString())) {
-        navigate(authPath("/passwordResetComplete", returnUrl), { replace: true });
-      }
-      setIsLoading(false);
+      await action.run(async () => {
+        if (await stores.userAccountStore.resetPassword(email, code, password.toString())) {
+          navigate(authPath("/passwordResetComplete", returnUrl), { replace: true });
+        }
+      });
     }
   };
 
@@ -140,7 +142,7 @@ const ResetPasswordPage = () => {
             </FormHelperText>
           </FormControl>
           <AuthFormActions>
-            <MainActionButton loading={isLoading} type="submit" fullWidth>
+            <MainActionButton loading={action.isRunning} type="submit" fullWidth>
               Reset
             </MainActionButton>
             <AuthTextLinks>

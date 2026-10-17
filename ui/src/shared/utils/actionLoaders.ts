@@ -30,8 +30,16 @@ export const ActionLoaderScopes = {
   gridsReceipts: "grids.receipts",
   gridsTeams: "grids.teams",
   gridsTenants: "grids.tenants",
+  identityForgotPassword: "identity.forgotPassword",
+  identityResendConfirmationEmail: "identity.resendConfirmationEmail",
+  identityResetPassword: "identity.resetPassword",
+  identitySaveMfa: "identity.saveMfa",
+  identitySignIn: "identity.signIn",
+  identitySignUp: "identity.signUp",
+  identityVerifyMfa: "identity.verifyMfa",
   notificationsDelete: "notifications.delete",
   notificationsMarkRead: "notifications.markRead",
+  organizationCreationChoosePlan: "organizationCreation.choosePlan",
   pagesApprovalRequestStart: "pages.approvalRequestStart",
   pagesApprovalRequestSubmit: "pages.approvalRequestSubmit",
   pagesApprovalStepTemplateEditor: "pages.approvalStepTemplateEditor",
@@ -40,6 +48,7 @@ export const ActionLoaderScopes = {
   pagesTeamEditor: "pages.teamEditor",
   pagesTenantScope: "pages.tenantScope",
   pagesUserProfile: "pages.userProfile",
+  subscriptionRetentionSave: "subscriptionRetention.save",
   subscriptionPlanChange: "subscriptionPlan.change",
   subscriptionPlanLoad: "subscriptionPlan.load",
   subscriptionUsageLoad: "subscriptionUsage.load",
@@ -59,6 +68,19 @@ export const ActionLoaderScopes = {
 } as const;
 
 export const GlobalLoadingActionLoaderScopes = [
+  ActionLoaderScopes.approvalRequestsSubmit,
+  ActionLoaderScopes.approvalRequestTasksComplete,
+  ActionLoaderScopes.approvalStepTemplatesSave,
+  ActionLoaderScopes.delegationsSave,
+  ActionLoaderScopes.employeesSave,
+  ActionLoaderScopes.identityForgotPassword,
+  ActionLoaderScopes.identityResendConfirmationEmail,
+  ActionLoaderScopes.identityResetPassword,
+  ActionLoaderScopes.identitySaveMfa,
+  ActionLoaderScopes.identitySignIn,
+  ActionLoaderScopes.identitySignUp,
+  ActionLoaderScopes.identityVerifyMfa,
+  ActionLoaderScopes.organizationCreationChoosePlan,
   ActionLoaderScopes.gridsApprovalStepTemplates,
   ActionLoaderScopes.gridsApiTokens,
   ActionLoaderScopes.gridsDelegations,
@@ -87,19 +109,26 @@ export const GlobalLoadingActionLoaderScopes = [
   ActionLoaderScopes.subscriptionPlanChange,
   ActionLoaderScopes.subscriptionPlanLoad,
   ActionLoaderScopes.subscriptionUsageLoad,
+  ActionLoaderScopes.subscriptionRetentionSave,
+  ActionLoaderScopes.teamsSave,
+  ActionLoaderScopes.tenantsSave,
+  ActionLoaderScopes.userProfileSave,
 ] as const;
 
 export const ActionLoaders = {
   identity: {
-    resendConfirmationEmail: () => "identity.resendConfirmationEmail",
+    forgotPassword: () => ActionLoaderScopes.identityForgotPassword,
     loadMfa: () => "identity.loadMfa",
-    signIn: () => "identity.signIn",
     passkeySignIn: () => "identity.passkeySignIn",
-    saveMfa: () => "identity.saveMfa",
-    verifyMfa: () => "identity.verifyMfa",
+    resendConfirmationEmail: () => ActionLoaderScopes.identityResendConfirmationEmail,
+    resetPassword: () => ActionLoaderScopes.identityResetPassword,
+    saveMfa: () => ActionLoaderScopes.identitySaveMfa,
+    signIn: () => ActionLoaderScopes.identitySignIn,
+    signUp: () => ActionLoaderScopes.identitySignUp,
+    verifyMfa: () => ActionLoaderScopes.identityVerifyMfa,
   },
   organizationCreation: {
-    choosePlan: () => "organizationCreation.choosePlan",
+    choosePlan: () => ActionLoaderScopes.organizationCreationChoosePlan,
   },
   billing: {
     cancelPendingChange: (tenantGlobalId?: string) =>
@@ -222,6 +251,10 @@ export const ActionLoaders = {
   subscriptionUsage: {
     load: (tenantGlobalId: string | undefined) =>
       createActionLoaderKey(ActionLoaderScopes.subscriptionUsageLoad, tenantGlobalId),
+  },
+  subscriptionRetention: {
+    save: (tenantGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.subscriptionRetentionSave, tenantGlobalId),
   },
   subscriptionPlan: {
     change: (tenantGlobalId: string | undefined) =>
