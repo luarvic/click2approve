@@ -36,13 +36,13 @@ const CROP_ZOOM_MAX = 3;
 const CROP_ZOOM_MIN = 1;
 const CROP_ZOOM_STEP = 0.1;
 
-const pickerSx: SxProps<Theme> = {
+const pickerSx = (disabled: boolean): SxProps<Theme> => ({
   bgcolor: "action.selected",
   color: "text.secondary",
-  cursor: "pointer",
+  cursor: disabled ? "default" : "pointer",
   height: PICKER_SIZE,
   width: PICKER_SIZE,
-};
+});
 
 const pickerContainerSx: SxProps<Theme> = {
   position: "relative",
@@ -227,24 +227,24 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
   return (
     <>
       <Box sx={pickerContainerSx}>
-        <Tooltip title={title}>
-          <Avatar alt={alt} aria-label={title} onClick={openDialog} src={imagePreviewUrl} sx={pickerSx}>
+        <Tooltip title={disabled ? "" : title}>
+          <Avatar
+            alt={alt}
+            aria-label={disabled ? alt : title}
+            onClick={disabled ? undefined : openDialog}
+            src={imagePreviewUrl}
+            sx={pickerSx(disabled)}
+          >
             {fallback}
           </Avatar>
         </Tooltip>
-        <Tooltip title={title}>
-          <span>
-            <IconButton
-              aria-label={title}
-              disabled={disabled}
-              onClick={openDialog}
-              size="small"
-              sx={pickerChangeButtonSx}
-            >
+        {!disabled && (
+          <Tooltip title={title}>
+            <IconButton aria-label={title} onClick={openDialog} size="small" sx={pickerChangeButtonSx}>
               <AddAPhoto fontSize="small" />
             </IconButton>
-          </span>
-        </Tooltip>
+          </Tooltip>
+        )}
       </Box>
       <Dialog
         fullWidth
