@@ -16,6 +16,9 @@ export const Shell = {
     minHeight: "100vh",
   } as SxProps<Theme>,
   mainContentSx: (drawerIsVisible: boolean): SxProps<Theme> => ({
+    display: "flex",
+    flexDirection: "column",
+    minHeight: "100vh",
     ml: drawerIsVisible ? { lg: `${mainMenuDrawerWidth}px` } : 0,
     minWidth: 0,
     position: "relative",
@@ -28,6 +31,7 @@ export const Shell = {
       lg: drawerIsVisible ? `calc(100% - ${mainMenuDrawerWidth}px)` : "100%",
     },
   }),
+  pageBodySx: { flex: 1, minWidth: 0 } as SxProps<Theme>,
   loadingProgressSx: {
     left: 0,
     position: "absolute",

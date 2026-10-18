@@ -28,6 +28,8 @@ Employees and delegates must belong to the same organization. Membership in one 
 
 Use the profile menu for your account settings and notifications. The navigation drawer can be opened from the menu button on smaller screens. The color-mode switch changes the appearance of both the app and Docs on the same site.
 
+The footer includes Home, App, Docs, Contact, Terms, and Privacy links. Each opens in a new tab.
+
 ## Open a shared link
 
 Sign in with the intended account when following an email or shared resource link. A link does not grant additional permissions. If the resource is unavailable, check the workspace, account, employee access, and whether the record was deleted. See [Troubleshooting](troubleshooting.md).

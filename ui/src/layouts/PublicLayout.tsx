@@ -2,6 +2,7 @@ import { stores } from "@/app/rootStore";
 import ColorModeSwitch from "@/shared/components/layout/ColorModeSwitch";
 import PublicAppBar from "@/shared/components/layout/PublicAppBar";
 import { Shell } from "@/shared/components/layout/shellStyles";
+import SiteFooter from "@/shared/components/layout/SiteFooter";
 import { GlobalLoadingActionLoaderScopes } from "@/shared/utils/actionLoaders";
 import { Box, Container, LinearProgress, Toolbar } from "@mui/material";
 import { observer } from "mobx-react-lite";
@@ -24,10 +25,13 @@ const PublicLayout = ({ children }: PublicLayoutProps) => {
         />
       </PublicAppBar>
       <Container maxWidth="xl" disableGutters sx={Shell.contentBackgroundSx}>
-        <Box component="main">
-          <Toolbar sx={Shell.appBarSpacerSx} />
-          {isLoading && <LinearProgress sx={Shell.loadingProgressSx} />}
-          {children ?? <Outlet />}
+        <Box sx={Shell.mainContentSx(false)}>
+          <Box component="main" sx={Shell.pageBodySx}>
+            <Toolbar sx={Shell.appBarSpacerSx} />
+            {isLoading && <LinearProgress sx={Shell.loadingProgressSx} />}
+            {children ?? <Outlet />}
+          </Box>
+          <SiteFooter />
         </Box>
       </Container>
     </Box>

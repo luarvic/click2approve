@@ -3,6 +3,7 @@ import MainAppBar from "@/shared/components/layout/MainAppBar";
 import MainMenuDrawer from "@/shared/components/layout/MainMenuDrawer";
 import ProfileDrawer from "@/shared/components/layout/ProfileDrawer";
 import { Shell } from "@/shared/components/layout/shellStyles";
+import SiteFooter from "@/shared/components/layout/SiteFooter";
 import { AppBarOptions } from "@/shared/models/appBarOptions";
 import { GlobalLoadingActionLoaderScopes } from "@/shared/utils/actionLoaders";
 import { Box, Container, LinearProgress, Toolbar } from "@mui/material";
@@ -27,11 +28,14 @@ const MainLayout = ({ appBarOptions: configuredAppBarOptions, children }: MainLa
       <Container maxWidth="xl" disableGutters sx={Shell.contentBackgroundSx}>
         <MainAppBar {...appBarOptions} />
         {showMainMenuButton && <MainMenuDrawer />}
-        <Box component="main" sx={Shell.mainContentSx(drawerIsVisible)}>
-          <Toolbar sx={Shell.appBarSpacerSx} />
-          {isLoading && <LinearProgress sx={Shell.loadingProgressSx} />}
-          <ProfileDrawer />
-          {children ?? <Outlet />}
+        <Box sx={Shell.mainContentSx(drawerIsVisible)}>
+          <Box component="main" sx={Shell.pageBodySx}>
+            <Toolbar sx={Shell.appBarSpacerSx} />
+            {isLoading && <LinearProgress sx={Shell.loadingProgressSx} />}
+            <ProfileDrawer />
+            {children ?? <Outlet />}
+          </Box>
+          <SiteFooter />
         </Box>
       </Container>
     </Box>
