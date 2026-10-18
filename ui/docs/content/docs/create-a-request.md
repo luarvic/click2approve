@@ -4,12 +4,14 @@ A request gives participants the files, instructions, and decision rules they ne
 
 ## Compose the request
 
-1. [Open the app](/app/), select your workspace, and choose **New request**.
+1. [Open the app](/app/), select your workspace, and choose **New request** above the **Work** group in the main menu.
 2. In an organization, choose **Custom** or **From template**. For a template, select it and continue to the request editor.
 3. Enter a specific **Title**, such as “Approve the updated supplier agreement.”
 4. Add a **Description** explaining the purpose, context, and expected outcome.
 5. Attach the [files participants should review](files.md).
 6. Add and configure the [workflow steps](workflow-steps.md).
+
+**New request** stays highlighted in the main menu while you compose a request.
 
 Personal requests use email assignees.
 

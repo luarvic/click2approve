@@ -1,4 +1,5 @@
 import type { SxProps, Theme } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 const appBarHeight = 72;
 const appBarLogoSize = 42;
 const mainMenuLogoSize = 36;
@@ -194,9 +195,6 @@ export const Shell = {
     pl: 2,
     pr: 1,
   } as SxProps<Theme>,
-  mainMenuDrawerFirstListSx: {
-    pt: 1,
-  } as SxProps<Theme>,
   mainMenuDrawerContentSx: {
     borderRight: 1,
     borderColor: "divider",
@@ -204,6 +202,37 @@ export const Shell = {
     minHeight: 0,
     overflowY: "auto",
     overscrollBehavior: "contain",
+    pt: 1,
+    "& > .MuiList-root": {
+      pt: 0,
+      pb: 1.5,
+    },
+    "& .MuiListItemButton-root.Mui-selected": {
+      bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === "dark" ? 0.24 : 0.16),
+      boxShadow: (theme) => `inset 3px 0 0 ${theme.palette.primary.main}`,
+      color: "primary.main",
+      "& .MuiListItemIcon-root": {
+        color: "inherit",
+      },
+      "&:hover": {
+        bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === "dark" ? 0.3 : 0.22),
+      },
+    },
+    "& .MuiListSubheader-root": {
+      alignItems: "center",
+      bgcolor: "action.hover",
+      color: "text.secondary",
+      display: "flex",
+      fontSize: "0.6875rem",
+      fontWeight: 700,
+      letterSpacing: "0.08em",
+      lineHeight: "20px",
+      minHeight: 36,
+      position: "static",
+      px: 2,
+      py: 0.5,
+      textTransform: "uppercase",
+    },
   } as SxProps<Theme>,
   drawerPaperSx: {
     "& .MuiDrawer-paper": {

@@ -27,7 +27,6 @@ import type { SxProps, Theme } from "@mui/material";
 import {
   Badge,
   Box,
-  Button,
   Drawer,
   Link,
   List,
@@ -37,7 +36,6 @@ import {
   ListItemText,
   ListSubheader,
   Toolbar,
-  Tooltip,
   Typography,
   useMediaQuery,
   useTheme,
@@ -108,8 +106,14 @@ const MainMenuDrawer = () => {
     selectedMenuPath === undefined
       ? location.pathname === "/" || location.pathname.startsWith(tasksPath)
       : selectedMenuPath === Routes.tasksPath;
+  const newRequestPath = `${requestsPath}/new`;
+  const newRequestIsSelected =
+    selectedMenuPath === undefined
+      ? location.pathname === newRequestPath || location.pathname.startsWith(`${newRequestPath}/`)
+      : selectedMenuPath === "/requests/new";
   const requestsAreSelected =
-    selectedMenuPath === undefined ? location.pathname.startsWith(requestsPath) : selectedMenuPath === "/requests";
+    !newRequestIsSelected &&
+    (selectedMenuPath === undefined ? location.pathname.startsWith(requestsPath) : selectedMenuPath === "/requests");
   const numberOfUncompletedTasks = stores.approvalRequestTaskStore.numberOfUncompletedTasks;
   const organizationsIsSelected =
     selectedMenuPath === undefined
@@ -188,29 +192,22 @@ const MainMenuDrawer = () => {
         </Link>
       </Toolbar>
       <Box sx={Shell.mainMenuDrawerContentSx}>
-        <List
-          sx={Shell.mainMenuDrawerFirstListSx}
-          subheader={
-            <ListSubheader component="div" sx={Lists.actionSubheaderSx}>
-              <span>Work</span>
-              <Tooltip title="Compose request">
-                <Button
-                  aria-label="Compose request"
-                  color="primary"
-                  size="small"
-                  startIcon={<AddTwoTone />}
-                  onClick={() => {
-                    stores.commonStore.setCurrentMenuPath("/requests");
-                    navigate(`${requestsPath}/new`);
-                    closeTemporaryDrawer();
-                  }}
-                >
-                  New request
-                </Button>
-              </Tooltip>
-            </ListSubheader>
-          }
-        >
+        <List>
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={newRequestIsSelected}
+              onClick={() => {
+                navigateWorkspaceMenu("/requests/new");
+              }}
+            >
+              <ListItemIcon sx={Lists.itemIconSx}>
+                <AddTwoTone />
+              </ListItemIcon>
+              <ListItemText primary="New request" />
+            </ListItemButton>
+          </ListItem>
+        </List>
+        <List subheader={<ListSubheader component="div">Work</ListSubheader>}>
           <ListItem key="incoming" disablePadding>
             <ListItemButton
               selected={tasksAreSelected}

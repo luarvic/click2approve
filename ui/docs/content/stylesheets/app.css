@@ -48,6 +48,9 @@
   --app-divider: rgba(0, 0, 0, 0.12);
   --app-input-border: rgba(0, 0, 0, 0.23);
   --app-selected: rgba(25, 118, 210, 0.08);
+  --app-menu-heading-bg: rgba(0, 0, 0, 0.04);
+  --app-menu-selected-bg: rgba(25, 118, 210, 0.16);
+  --app-menu-selected-hover-bg: rgba(25, 118, 210, 0.22);
 }
 
 [data-md-color-scheme="slate"] {
@@ -61,6 +64,9 @@
   --app-divider: rgba(255, 255, 255, 0.12);
   --app-input-border: rgba(255, 255, 255, 0.23);
   --app-selected: rgba(144, 202, 249, 0.16);
+  --app-menu-heading-bg: rgba(255, 255, 255, 0.08);
+  --app-menu-selected-bg: rgba(144, 202, 249, 0.24);
+  --app-menu-selected-hover-bg: rgba(144, 202, 249, 0.3);
 }
 
 .md-header {
@@ -546,6 +552,7 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+  padding-top: 8px;
 }
 
 .docs-drawer-toolbar {
@@ -558,17 +565,24 @@
 }
 
 .docs-menu-section {
+  align-items: center;
+  background: var(--app-menu-heading-bg);
+  box-sizing: border-box;
   color: var(--md-default-fg-color--light);
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 48px;
-  padding: 8px 16px 0;
+  display: flex;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 20px;
+  min-height: 36px;
+  padding: 4px 16px;
+  text-transform: uppercase;
 }
 
 .docs-menu-list {
   list-style: none;
   margin: 0;
-  padding: 0 0 8px;
+  padding: 0 0 12px;
 }
 
 .docs-menu-list .docs-menu-list {
@@ -586,11 +600,17 @@
 }
 
 .docs-menu-link--active {
-  background: var(--app-selected);
+  background: var(--app-menu-selected-bg);
+  box-shadow: inset 3px 0 0 var(--md-accent-fg-color);
+  color: var(--md-accent-fg-color);
 }
 
 .docs-menu-link:hover {
   background: var(--app-selected);
+}
+
+.docs-menu-link--active:hover {
+  background: var(--app-menu-selected-hover-bg);
 }
 
 .docs-menu-link:focus-visible {
