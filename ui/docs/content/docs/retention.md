@@ -8,7 +8,9 @@ Choose how long to keep requests and notifications in each workspace. Deletion c
 2. Review the **Requests** and **Notifications** periods.
 3. If your plan and permissions allow changes, choose a period for each and select **Save**.
 
-Personal users manage their own settings. Organization Owners and Admins manage the organization's policy. Free-plan retention is fixed at one month. Other plans can allow different periods, including **Never delete** where offered.
+Personal users manage their own settings. Organization Owners and Admins manage the organization's policy. Personal Free and Business Trial retention is fixed at one month for both requests and notifications. Paid plans allow different periods, including **Never delete**.
+
+When Personal Free or Business Trial becomes active, both periods automatically change to one month, including a previous **Never delete** setting. A scheduled downgrade keeps your current retention settings until the paid period ends. Records older than one month then become eligible for background cleanup.
 
 !!! warning "Retention is not a backup"
     Records can be removed by background cleanup after their retention period. Choose a policy that supports your recordkeeping needs before accumulating important workflow history.

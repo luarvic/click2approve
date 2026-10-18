@@ -16,6 +16,8 @@ The current plan card shows its status. During a pending upgrade, the existing p
 
 A scheduled change appears as **Planned** with its effective date. Use **Cancel** on a scheduled plan card, when offered, to keep the current paid plan renewing before the change takes effect. Wait for billing confirmation before assuming the schedule has cleared.
 
+Switching to Personal Free or Business Trial sets request and notification retention to one month when the plan becomes active. For a scheduled downgrade, your current retention settings remain until the paid period ends. See [Retention and deletion](retention.md).
+
 ## Manage billing
 
 Choose **Manage billing** from the current-plan card to open the billing portal. Use it for supported payment-method updates and invoice history. Plan selection and scheduled-change controls remain on the app's Plans page.
