@@ -15,6 +15,7 @@ import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirma
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useFormValidation } from "@/shared/hooks/useFormValidation";
@@ -169,7 +170,15 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
             state: employee ? { currentEmployeeGlobalId: employee.globalId } : undefined,
             to: employeesPath,
           },
-          { label: employee ? getEmployeeDisplayName(employee) : "New employee" },
+          {
+            label: employee ? getEmployeeDisplayName(employee) : "New employee",
+            titleAction: (
+              <HelpPopover
+                docsHref="/docs/employees/"
+                helpText="Review employee details, role, teams, and access; owners and admins can save changes."
+              />
+            ),
+          },
         ]}
       />
       <Stack spacing={Forms.formStackSpacing}>

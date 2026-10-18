@@ -72,7 +72,10 @@ const ApprovalRequestElectronicSignatureForm: React.FC<ApprovalRequestElectronic
             input: {
               endAdornment: (
                 <InputAdornment position="end">
-                  <HelpPopover helpText="Add an organization name, address, or other context about who or what you represent when signing." />
+                  <HelpPopover
+                    docsHref="/docs/complete-a-task/"
+                    helpText="Identify the organization or person you represent when signing."
+                  />
                 </InputAdornment>
               ),
             },

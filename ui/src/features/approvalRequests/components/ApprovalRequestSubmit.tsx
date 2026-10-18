@@ -20,6 +20,7 @@ import { TenantType } from "@/features/tenants/models/tenant";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { CollectionLimits } from "@/shared/config/collectionLimits";
 import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
@@ -403,6 +404,16 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
           },
           {
             label: isRevision ? "Resubmit request" : "New request",
+            titleAction: (
+              <HelpPopover
+                docsHref={isRevision ? "/docs/track-requests/" : "/docs/create-a-request/"}
+                helpText={
+                  isRevision
+                    ? "Update editable content, then submit a new revision to replace the previous request."
+                    : "Add request details, files, and workflow steps, then review and submit."
+                }
+              />
+            ),
           },
         ]}
       />

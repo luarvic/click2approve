@@ -10,6 +10,7 @@ import { authPath } from "@/features/identity/routing/returnUrl";
 import { useAuthReturnUrl } from "@/features/identity/routing/useAuthReturnUrl";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
@@ -88,7 +89,19 @@ const SignUpPage = () => {
   return (
     <Container component="main" maxWidth={AuthForms.maxWidth}>
       <Box sx={AuthForms.containerSx}>
-        <PageBreadcrumbs items={[{ label: "Sign up" }]} />
+        <PageBreadcrumbs
+          items={[
+            {
+              label: "Sign up",
+              titleAction: (
+                <HelpPopover
+                  docsHref="/docs/sign-in/"
+                  helpText="Create your account and Personal workspace with your email and a password."
+                />
+              ),
+            },
+          ]}
+        />
         <AuthForm onSubmit={handleSubmit} noValidate>
           <AuthTextField
             required

@@ -26,6 +26,7 @@ import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useFormValidation } from "@/shared/hooks/useFormValidation";
@@ -292,7 +293,15 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
             state: currentTask ? { currentTaskGlobalId: currentTask.globalId } : undefined,
             to: tasksPath,
           },
-          { label: currentTask?.title ?? "Task" },
+          {
+            label: currentTask?.title ?? "Task",
+            titleAction: (
+              <HelpPopover
+                docsHref="/docs/complete-a-task/"
+                helpText="Review the files and instructions, provide required responses, then submit your decision."
+              />
+            ),
+          },
         ]}
       />
       <Tabs

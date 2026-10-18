@@ -12,6 +12,7 @@ import { authPath } from "@/features/identity/routing/returnUrl";
 import { useAuthReturnUrl } from "@/features/identity/routing/useAuthReturnUrl";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import InlineNotice from "@/shared/components/status/InlineNotice";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
@@ -96,7 +97,19 @@ const SignInPage = () => {
   return (
     <Container component="main" maxWidth={AuthForms.maxWidth}>
       <Box sx={AuthForms.containerSx}>
-        <PageBreadcrumbs items={[{ label: "Sign in" }]} />
+        <PageBreadcrumbs
+          items={[
+            {
+              label: "Sign in",
+              titleAction: (
+                <HelpPopover
+                  docsHref="/docs/sign-in/"
+                  helpText="Sign in with your password or passkey; complete MFA if prompted."
+                />
+              ),
+            },
+          ]}
+        />
         {pendingCredentials ? (
           <MfaVerification
             credentials={pendingCredentials}

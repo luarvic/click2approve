@@ -186,7 +186,10 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
           {
             label: "User profile",
             titleAction: (
-              <HelpPopover helpText="Update your profile, authenticator MFA, passkeys, signature, and notification preferences." />
+              <HelpPopover
+                docsHref="/docs/profile/"
+                helpText="Manage your profile, security, saved signature, API tokens, and notification preferences."
+              />
             ),
           },
         ]}

@@ -21,7 +21,10 @@ const DelegationsPage = () => {
           {
             label: "Delegations",
             titleAction: (
-              <HelpPopover helpText="Allow one employee to act on another's assigned tasks and created requests." />
+              <HelpPopover
+                docsHref="/docs/delegations/"
+                helpText="View who can act on another employee’s tasks and requests."
+              />
             ),
           },
         ]}

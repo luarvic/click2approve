@@ -9,6 +9,7 @@ import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirma
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useFormValidation } from "@/shared/hooks/useFormValidation";
@@ -91,7 +92,15 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
             state: team ? { currentTeamGlobalId: team.globalId } : undefined,
             to: teamsPath,
           },
-          { label: team?.name ?? "New team" },
+          {
+            label: team?.name ?? "New team",
+            titleAction: (
+              <HelpPopover
+                docsHref="/docs/teams/"
+                helpText="Review team membership; owners and admins can save changes."
+              />
+            ),
+          },
         ]}
       />
       <Stack spacing={Forms.formStackSpacing}>

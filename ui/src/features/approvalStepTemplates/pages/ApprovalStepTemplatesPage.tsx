@@ -20,7 +20,10 @@ const ApprovalStepTemplatesPage = () => {
           {
             label: "Templates",
             titleAction: (
-              <HelpPopover helpText="Create reusable request step templates and choose their participants." />
+              <HelpPopover
+                docsHref="/docs/templates/"
+                helpText="Reuse organization workflow steps and participants in new requests."
+              />
             ),
           },
         ]}

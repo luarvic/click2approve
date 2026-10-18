@@ -73,7 +73,10 @@ const OrganizationPlanSelectionPage = () => {
           {
             label: "Choose plan",
             titleAction: (
-              <HelpPopover helpText="Choosing a plan creates your organization. Paid workspaces remain restricted until payment succeeds. Business Trial is available once per owner; selecting it again fails validation. Use Back to edit your organization details." />
+              <HelpPopover
+                docsHref="/docs/plans-and-billing/"
+                helpText="Choose a plan to create your organization; paid access starts after payment."
+              />
             ),
           },
         ]}

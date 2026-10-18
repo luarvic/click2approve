@@ -22,7 +22,12 @@ const TasksPage = () => {
         items={[
           {
             label: "Tasks",
-            titleAction: <HelpPopover helpText="Review and complete tasks assigned to you." />,
+            titleAction: (
+              <HelpPopover
+                docsHref="/docs/complete-a-task/"
+                helpText="Find and complete tasks in the selected workspace."
+              />
+            ),
           },
         ]}
       />

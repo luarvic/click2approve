@@ -8,6 +8,7 @@ import { authPath } from "@/features/identity/routing/returnUrl";
 import { useAuthReturnUrl } from "@/features/identity/routing/useAuthReturnUrl";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
@@ -89,7 +90,19 @@ const ResetPasswordPage = () => {
   return (
     <Container component="main" maxWidth={AuthForms.maxWidth}>
       <Box sx={AuthForms.containerSx}>
-        <PageBreadcrumbs items={[{ label: "Reset password" }]} />
+        <PageBreadcrumbs
+          items={[
+            {
+              label: "Reset password",
+              titleAction: (
+                <HelpPopover
+                  docsHref="/docs/sign-in/"
+                  helpText="Choose and confirm a new password that meets the listed requirements."
+                />
+              ),
+            },
+          ]}
+        />
         <AuthForm onSubmit={handleSubmit} noValidate>
           <FormControl margin="normal" fullWidth variant={AuthForms.inputVariant} required>
             <InputLabel error={passwordError}>Password</InputLabel>

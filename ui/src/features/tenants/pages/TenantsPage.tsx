@@ -19,7 +19,9 @@ const TenantsPage = () => {
         items={[
           {
             label: "Organizations",
-            titleAction: <HelpPopover helpText="Manage your organizations and their settings." />,
+            titleAction: (
+              <HelpPopover docsHref="/docs/organizations/" helpText="Create organizations and manage their details." />
+            ),
           },
         ]}
       />

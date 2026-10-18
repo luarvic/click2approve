@@ -3,6 +3,7 @@ import { getReceiptByLink } from "@/features/receipts/api/receiptLinksApi";
 import ReceiptView from "@/features/receipts/components/ReceiptView";
 import ReceiptFileVerification from "@/features/receipts/components/verification/ReceiptFileVerification";
 import type { PublicReceipt } from "@/features/receipts/models/publicReceipt";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { StackSpacing } from "@/shared/theme/tokens";
@@ -86,6 +87,10 @@ const receiptLogoSx: SxProps<Theme> = {
   width: "auto",
 };
 
+const receiptHelpSx: SxProps<Theme> = {
+  "@media print": { display: "none" },
+};
+
 const receiptBrandTextSx: SxProps<Theme> = {
   fontSize: "1.75rem",
 };
@@ -156,6 +161,12 @@ const PublicReceiptPage = () => {
                   <Typography component="span" variant="h6" sx={receiptBrandTextSx}>
                     Click2Approve
                   </Typography>
+                  <Box component="span" sx={receiptHelpSx}>
+                    <HelpPopover
+                      docsHref="/docs/receipts/"
+                      helpText="Review this receipt or verify that your file matches a recorded attachment."
+                    />
+                  </Box>
                 </Stack>
               }
             />

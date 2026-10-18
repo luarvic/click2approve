@@ -1,11 +1,12 @@
 import { InfoOutlined } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
-import { IconButton, Popover, Typography } from "@mui/material";
+import { IconButton, Link, Popover, Typography } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import { useId, useState } from "react";
 
 interface HelpPopoverProps {
   compact?: boolean;
+  docsHref?: string;
   helpText: string;
 }
 
@@ -22,8 +23,13 @@ const helpPopoverPaperSx: SxProps<Theme> = {
   p: 2,
 };
 
+const documentationLinkSx: SxProps<Theme> = {
+  display: "inline-block",
+  mt: 1,
+};
+
 /** Displays contextual help in a popover opened from a muted help icon. */
-const HelpPopover: React.FC<HelpPopoverProps> = ({ compact = false, helpText }) => {
+const HelpPopover: React.FC<HelpPopoverProps> = ({ compact = false, docsHref, helpText }) => {
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
   const popoverId = useId();
   const isOpen = Boolean(anchorElement);
@@ -52,6 +58,17 @@ const HelpPopover: React.FC<HelpPopoverProps> = ({ compact = false, helpText }) 
         }}
       >
         <Typography>{helpText}</Typography>
+        {docsHref && (
+          <Link
+            aria-label="Read documentation (opens in a new tab)"
+            href={docsHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={documentationLinkSx}
+          >
+            Read documentation
+          </Link>
+        )}
       </Popover>
     </>
   );

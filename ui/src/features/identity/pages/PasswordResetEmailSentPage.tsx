@@ -11,6 +11,8 @@ const PasswordResetEmailSentPage = () => {
   const returnUrl = useAuthReturnUrl();
   return (
     <ActionResult
+      docsHref="/docs/sign-in/"
+      helpText="Follow the link in your reset email to choose a new password."
       title={Information.passwordResetTitle}
       message={Information.passwordResetMessage}
       action={

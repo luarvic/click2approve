@@ -1,6 +1,7 @@
 import { stores } from "@/app/rootStore";
 import { Pages } from "@/shared/components/layout/pageStyles";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { Routes } from "@/shared/routing/routes";
 import { Box, Container, Typography } from "@mui/material";
@@ -37,7 +38,20 @@ const NotFoundPage = () => {
         >
           <Box component="img" src={logoSrc} alt="Click2Approve" sx={Pages.centeredMessageLogoSx} />
         </Box>
-        <PageBreadcrumbs items={[{ label: "Home", to: Routes.defaultPath }, { label: "Page not found" }]} />
+        <PageBreadcrumbs
+          items={[
+            { label: "Home", to: Routes.defaultPath },
+            {
+              label: "Page not found",
+              titleAction: (
+                <HelpPopover
+                  docsHref="/docs/troubleshooting/"
+                  helpText="Check the link, account, and workspace if this page is unavailable."
+                />
+              ),
+            },
+          ]}
+        />
         <Typography sx={notFoundMessageSx}>Sorry, but the page you are looking for has not been found.</Typography>
       </Box>
     </Container>

@@ -322,7 +322,10 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                         label={
                           <Stack direction="row" sx={Flex.alignCenterSx}>
                             All assignees must complete
-                            <HelpPopover helpText="When disabled, any assignee can complete this step." />
+                            <HelpPopover
+                              docsHref="/docs/workflow-steps/"
+                              helpText="Require every assignee to act; when disabled, any assignee can satisfy the step."
+                            />
                           </Stack>
                         }
                       />

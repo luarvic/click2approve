@@ -118,7 +118,10 @@ const SubscriptionUsagePage = () => {
           {
             label: "Usage",
             titleAction: (
-              <HelpPopover helpText="Review request, task, and storage usage for the current billing period." />
+              <HelpPopover
+                docsHref="/docs/usage/"
+                helpText="Check workspace request, task, and storage usage against plan limits."
+              />
             ),
           },
         ]}

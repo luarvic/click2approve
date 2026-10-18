@@ -19,7 +19,12 @@ const TeamsPage = () => {
         items={[
           {
             label: "Teams",
-            titleAction: <HelpPopover helpText="Group employees to assign request steps to multiple people." />,
+            titleAction: (
+              <HelpPopover
+                docsHref="/docs/teams/"
+                helpText="Group organization employees to assign workflow steps to teams."
+              />
+            ),
           },
         ]}
       />

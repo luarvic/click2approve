@@ -19,7 +19,12 @@ const ReceiptsPage = () => {
         items={[
           {
             label: "Receipts",
-            titleAction: <HelpPopover helpText="View completed request snapshots." />,
+            titleAction: (
+              <HelpPopover
+                docsHref="/docs/receipts/"
+                helpText="View completed request snapshots and recorded decisions."
+              />
+            ),
           },
         ]}
       />

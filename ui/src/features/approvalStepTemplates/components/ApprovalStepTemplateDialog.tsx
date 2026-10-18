@@ -20,6 +20,7 @@ import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirma
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { CollectionLimits } from "@/shared/config/collectionLimits";
 import { FieldLimits } from "@/shared/config/fieldLimits";
@@ -185,6 +186,12 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
           },
           {
             label: template?.name ?? "New template",
+            titleAction: (
+              <HelpPopover
+                docsHref="/docs/templates/"
+                helpText="Configure reusable steps, instructions, participants, and completion rules."
+              />
+            ),
           },
         ]}
       />

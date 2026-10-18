@@ -1,6 +1,6 @@
 import App from "@/app/App";
 import { Routes } from "@/shared/routing/routes";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeAll, describe, expect, test, vi } from "vitest";
 
 vi.mock("@/features/applicationConfiguration/api/applicationConfigurationApi", () => ({
@@ -25,6 +25,9 @@ describe("<App />", () => {
     const heading = await screen.findByRole("heading", { level: 1 });
     expect(heading.textContent).toBe("Sign in");
     expect(screen.getByRole("button", { name: "Click2Approve home" })).toBeTruthy();
-    expect(screen.getByRole("heading", { level: 6, name: "Click2Approve" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Show help" }));
+    expect(screen.getByRole("link", { name: "Read documentation (opens in a new tab)" }).getAttribute("href")).toBe(
+      "/docs/sign-in/",
+    );
   });
 });

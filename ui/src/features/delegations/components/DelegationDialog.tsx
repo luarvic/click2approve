@@ -7,6 +7,7 @@ import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirma
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { Routes } from "@/shared/routing/routes";
@@ -120,6 +121,12 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
             label: delegation
               ? getEmployeeName(displayedEmployees, delegation.delegatorEmployeeGlobalId)
               : "New delegation",
+            titleAction: (
+              <HelpPopover
+                docsHref="/docs/delegations/"
+                helpText="Choose whose work needs coverage and who can act for them."
+              />
+            ),
           },
         ]}
       />

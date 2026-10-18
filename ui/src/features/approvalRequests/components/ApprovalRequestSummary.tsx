@@ -162,8 +162,9 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
                     sx={revisionToggleSx}
                   />
                   <HelpPopover
+                    docsHref="/docs/track-requests/"
                     compact
-                    helpText="Replaced and deleted files are shown for context only. They are not part of the files you are reviewing."
+                    helpText="Show replaced and deleted files for context alongside the current files."
                   />
                 </Stack>
                 {(showChanges || hasCurrentFiles) && files ? (

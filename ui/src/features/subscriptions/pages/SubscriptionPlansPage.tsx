@@ -318,7 +318,10 @@ const SubscriptionPlansPage = () => {
             label: "Plans",
             titleAction: (
               <>
-                <HelpPopover helpText="Owners and administrators can change plans and manage billing. Paid plans activate after verified payment. Cancel an unpaid plan change to keep your current plan. Resolve failed payments before the recovery deadline to retain your workspace data." />
+                <HelpPopover
+                  docsHref="/docs/plans-and-billing/"
+                  helpText="Compare workspace plans, change your subscription, and manage billing."
+                />
               </>
             ),
           },

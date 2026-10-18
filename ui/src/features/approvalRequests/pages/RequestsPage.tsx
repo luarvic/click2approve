@@ -19,7 +19,12 @@ const RequestsPage = () => {
         items={[
           {
             label: "Requests",
-            titleAction: <HelpPopover helpText="Track requests you created and their progress." />,
+            titleAction: (
+              <HelpPopover
+                docsHref="/docs/track-requests/"
+                helpText="Track accessible requests and their progress in the selected workspace."
+              />
+            ),
           },
         ]}
       />

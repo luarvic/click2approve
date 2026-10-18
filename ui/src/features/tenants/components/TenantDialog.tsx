@@ -170,10 +170,11 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
             label: tenant?.businessName ?? "New organization",
             titleAction: (
               <HelpPopover
+                docsHref="/docs/organizations/"
                 helpText={
                   isNew
-                    ? "Enter your organization details, then choose a plan. Paid workspaces remain restricted until payment succeeds. Business Trial is available once per owner."
-                    : "Update your organization details and logo. Only the owner can delete the organization."
+                    ? "Enter your organization details, then continue to choose a plan."
+                    : "Review organization details and logo; owners and admins can save changes."
                 }
               />
             ),

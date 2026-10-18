@@ -74,7 +74,12 @@ const SubscriptionRetentionPage = () => {
         items={[
           {
             label: "Retention",
-            titleAction: <HelpPopover helpText="Set how long your workspace data is retained." />,
+            titleAction: (
+              <HelpPopover
+                docsHref="/docs/retention/"
+                helpText="Choose how long requests and notifications are kept before automatic deletion."
+              />
+            ),
           },
         ]}
       />

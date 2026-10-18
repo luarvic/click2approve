@@ -87,7 +87,10 @@ const ReceiptPage: React.FC<ReceiptPageProps> = ({ tab = "request" }) => {
             {
               label: receipt.approvalRequestTitle,
               titleAction: (
-                <HelpPopover helpText="Use Verify file to compare a local document with the attachments recorded on this receipt. Manage verification links for your own receipts in Personal. In organizations, only owners and admins can manage links." />
+                <HelpPopover
+                  docsHref="/docs/receipts/"
+                  helpText="Review this receipt, verify a file, or manage sharing links."
+                />
               ),
             },
           ]}

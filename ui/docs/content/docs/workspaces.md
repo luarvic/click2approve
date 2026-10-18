@@ -28,6 +28,8 @@ Employees and delegates must belong to the same organization. Membership in one 
 
 Use the profile menu for your account settings and notifications. The navigation drawer can be opened from the menu button on smaller screens. The color-mode switch changes the appearance of both the app and Docs on the same site.
 
+Use the **Show help** info button beside a page title for a short explanation of that screen. Choose **Read documentation** in the popover to open the corresponding guide in a new tab without leaving your current work.
+
 The footer includes Home, App, Docs, Contact, Terms, and Privacy links. Each opens in a new tab.
 
 ## Open a shared link

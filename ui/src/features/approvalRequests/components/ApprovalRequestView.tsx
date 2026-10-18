@@ -10,6 +10,7 @@ import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { Routes } from "@/shared/routing/routes";
@@ -196,6 +197,12 @@ const ApprovalRequestView: React.FC<ApprovalRequestViewProps> = ({ approvalReque
           },
           {
             label: approvalRequest?.title ?? "Request",
+            titleAction: (
+              <HelpPopover
+                docsHref="/docs/track-requests/"
+                helpText="Review request progress, files, participants, and recorded actions."
+              />
+            ),
           },
         ]}
       />
