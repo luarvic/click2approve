@@ -1,10 +1,10 @@
 import { NotificationType } from "@/shared/models/notifications";
 
 export enum NotificationResourceType {
-  ApprovalRequest,
-  ApprovalRequestTask,
-  DiscussionMessage,
-  Receipt,
+  ApprovalRequest = "ApprovalRequest",
+  ApprovalRequestTask = "ApprovalRequestTask",
+  DiscussionMessage = "DiscussionMessage",
+  Receipt = "Receipt",
 }
 
 export interface Notification {
@@ -17,11 +17,16 @@ export interface Notification {
   readAt?: string;
 }
 
-export const notificationTypes = Object.values(NotificationType).filter(
-  (type): type is NotificationType => typeof type === "number",
-);
+export const notificationTypes = Object.values(NotificationType);
 
-export const getNotificationTypeLabel = (type: NotificationType) =>
-  ["New task", "Task completed", "Step completed", "Request update", "New message", "Notification", "New receipt"][
-    type
-  ] ?? "Notification";
+const notificationTypeLabels: Record<NotificationType, string> = {
+  [NotificationType.ApprovalRequestTaskCreated]: "New task",
+  [NotificationType.ApprovalRequestTaskCompleted]: "Task completed",
+  [NotificationType.ApprovalRequestStepCompleted]: "Step completed",
+  [NotificationType.ApprovalRequestCompleted]: "Request update",
+  [NotificationType.DiscussionMessageCreated]: "New message",
+  [NotificationType.BillingRecovery]: "Notification",
+  [NotificationType.ReceiptCreated]: "New receipt",
+};
+
+export const getNotificationTypeLabel = (type: NotificationType) => notificationTypeLabels[type] ?? "Notification";

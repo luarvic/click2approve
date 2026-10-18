@@ -49,8 +49,13 @@ public class PasskeyController(
         var credentialIds = (await _userManager.GetLoginsAsync(user))
             .Where(login => login.LoginProvider == LoginProvider)
             .ToArray();
-        var passkeys = await Task.WhenAll(credentialIds.Select(async login =>
-            ToPasskeyResponse(login.ProviderKey, await GetStoredPasskeyAsync(user, login.ProviderKey))));
+        var passkeys = new List<PasskeyResponse>(credentialIds.Length);
+        foreach (var login in credentialIds)
+        {
+            var storedPasskey = await GetStoredPasskeyAsync(user, login.ProviderKey);
+            passkeys.Add(ToPasskeyResponse(login.ProviderKey, storedPasskey));
+        }
+
         return Ok(passkeys);
     }
 
@@ -80,12 +85,15 @@ public class PasskeyController(
             AttestationPreference = AttestationConveyancePreference.None
         });
         WriteState(new PasskeyCeremonyState { OptionsJson = options.ToJson(), UserId = user.GlobalId.ToString() });
-        return Ok(options);
+        // The MVC enum converter would turn COSE algorithm IDs into strings, which WebAuthn clients reject.
+        return Content(options.ToJson(), "application/json");
     }
 
     /// <summary>
     /// Verifies and stores a newly registered passkey.
     /// </summary>
+    /// <param name="request">The passkey attestation and display name.</param>
+    /// <param name="cancellationToken">Cancels the operation.</param>
     [HttpPost("registration")]
     [Authorize(Policy = AccountSecurityPolicies.Interactive)]
     public async Task<ActionResult<PasskeyResponse>> CompleteRegistrationAsync(
@@ -154,6 +162,8 @@ public class PasskeyController(
     /// <summary>
     /// Verifies a passkey assertion and applies Identity sign-in policy before issuing tokens.
     /// </summary>
+    /// <param name="response">The passkey assertion to verify.</param>
+    /// <param name="cancellationToken">Cancels the operation.</param>
     [HttpPost("authentication")]
     [AllowAnonymous]
     public async Task<IResult> CompleteAuthenticationAsync(
@@ -208,6 +218,7 @@ public class PasskeyController(
     /// <summary>
     /// Removes a passkey registered by the authenticated user.
     /// </summary>
+    /// <param name="credentialId">The passkey credential ID.</param>
     [HttpDelete("{credentialId}")]
     [Authorize(Policy = AccountSecurityPolicies.Interactive)]
     public async Task<IActionResult> DeleteAsync(string credentialId)

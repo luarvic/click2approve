@@ -1,24 +1,24 @@
 export enum NotificationType {
-  ApprovalRequestTaskCreated = 0,
-  ApprovalRequestTaskCompleted = 1,
-  ApprovalRequestStepCompleted = 2,
-  ApprovalRequestCompleted = 3,
-  DiscussionMessageCreated = 4,
-  BillingRecovery = 5,
-  ReceiptCreated = 6,
+  ApprovalRequestTaskCreated = "ApprovalRequestTaskCreated",
+  ApprovalRequestTaskCompleted = "ApprovalRequestTaskCompleted",
+  ApprovalRequestStepCompleted = "ApprovalRequestStepCompleted",
+  ApprovalRequestCompleted = "ApprovalRequestCompleted",
+  DiscussionMessageCreated = "DiscussionMessageCreated",
+  BillingRecovery = "BillingRecovery",
+  ReceiptCreated = "ReceiptCreated",
 }
 
 export enum NotificationChannel {
-  InApp = 0,
-  Email = 1,
+  InApp = "InApp",
+  Email = "Email",
 }
 
 export enum NotificationPreferenceType {
-  Requests = 0,
-  Tasks = 1,
-  Chat = 2,
-  Billing = 3,
-  Receipts = 4,
+  Requests = "Requests",
+  Tasks = "Tasks",
+  Chat = "Chat",
+  Billing = "Billing",
+  Receipts = "Receipts",
 }
 
 export const notificationPreferenceTypeLabels: Record<NotificationPreferenceType, string> = {

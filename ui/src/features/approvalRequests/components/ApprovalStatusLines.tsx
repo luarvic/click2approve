@@ -98,7 +98,7 @@ const getCompletedStatusLabel = (result?: boolean) => {
 };
 
 export const getApprovalRequestStatusLabel = (status: ApprovalRequestStatus, result?: boolean) =>
-  status === ApprovalRequestStatus.Completed ? getCompletedStatusLabel(result) : ApprovalRequestStatus[status];
+  status === ApprovalRequestStatus.Completed ? getCompletedStatusLabel(result) : status;
 
 export const getApprovalRequestTaskStatusLabel = (
   status: ApprovalRequestTaskStatus,
@@ -107,7 +107,7 @@ export const getApprovalRequestTaskStatusLabel = (
 ) =>
   status === ApprovalRequestTaskStatus.Completed
     ? getApprovalRequestTaskCompletedActionLabel(action, result)
-    : ApprovalRequestTaskStatus[status];
+    : status;
 
 export const ApprovalRequestStatusLineSection: React.FC<ApprovalRequestStatusLineSectionProps> = ({
   children,

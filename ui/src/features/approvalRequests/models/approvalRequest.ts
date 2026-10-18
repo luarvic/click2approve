@@ -28,10 +28,10 @@ export interface ApprovalRequest extends ApprovalRequestListItem {
 }
 
 export enum ApprovalRequestFileRevisionAction {
-  Unchanged = 0,
-  Added = 1,
-  Removed = 2,
-  Replaced = 3,
+  Unchanged = "Unchanged",
+  Added = "Added",
+  Removed = "Removed",
+  Replaced = "Replaced",
 }
 
 export interface ApprovalRequestFile {

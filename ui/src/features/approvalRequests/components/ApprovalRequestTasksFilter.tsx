@@ -16,9 +16,7 @@ interface ApprovalRequestTasksFilterProps {
   title: string;
 }
 
-const statusOptions = Object.values(ApprovalRequestTaskStatus).filter(
-  (status): status is ApprovalRequestTaskStatus => typeof status === "number",
-);
+const statusOptions = Object.values(ApprovalRequestTaskStatus);
 
 const ApprovalRequestTasksFilter: React.FC<ApprovalRequestTasksFilterProps> = ({
   createdFrom,
@@ -45,8 +43,8 @@ const ApprovalRequestTasksFilter: React.FC<ApprovalRequestTasksFilterProps> = ({
         },
         {
           label: "Status",
-          onChange: (values) => onStatusesChange(values.map((value) => Number(value) as ApprovalRequestTaskStatus)),
-          options: statusOptions.map((value) => ({ label: ApprovalRequestTaskStatus[value], value: String(value) })),
+          onChange: (values) => onStatusesChange(values as ApprovalRequestTaskStatus[]),
+          options: statusOptions.map((value) => ({ label: value, value })),
           type: "multiSelect",
           value: statuses.map(String),
         },

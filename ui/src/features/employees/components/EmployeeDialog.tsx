@@ -212,7 +212,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
             labelId="tenant-user-role-label"
             label="Role"
             value={role}
-            onChange={(event) => setRole(Number(event.target.value))}
+            onChange={(event) => setRole(event.target.value as EmployeeRole)}
             disabled={!canEdit || (!isNew && employee.role === EmployeeRole.Owner)}
           >
             {availableRoleOptions.map((option) => (

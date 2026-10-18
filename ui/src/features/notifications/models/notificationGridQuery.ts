@@ -26,6 +26,7 @@ export const defaultNotificationGridQuery: NotificationGridQuery = {
 };
 
 const notificationStatusValues = new Set<NotificationStatus>(["read", "unread"]);
+const notificationTypeValues = new Set<string>(Object.values(NotificationType));
 
 const getNonNegativeInteger = (value: string | null, fallback: number): number => {
   const parsedValue = Number(value);
@@ -36,8 +37,7 @@ export const parseNotificationGridQuery = (parameters: URLSearchParams): Notific
   const pageSize = getNonNegativeInteger(parameters.get("pageSize"), defaultNotificationGridQuery.pageSize);
   const types = parameters
     .getAll("type")
-    .map(Number)
-    .filter((type): type is NotificationType => Number.isInteger(type) && type in NotificationType);
+    .filter((type): type is NotificationType => notificationTypeValues.has(type));
 
   return {
     page: getNonNegativeInteger(parameters.get("page"), defaultNotificationGridQuery.page),

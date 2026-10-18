@@ -1,9 +1,9 @@
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 
 export enum EmployeeStatus {
-  Pending = 0,
-  Active = 1,
-  Disabled = 2,
+  Pending = "Pending",
+  Active = "Active",
+  Disabled = "Disabled",
 }
 
 export interface EmployeeListItem {

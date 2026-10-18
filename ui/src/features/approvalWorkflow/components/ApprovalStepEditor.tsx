@@ -248,7 +248,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                       onChange={(event) =>
                         onUpdateStep(stepIndex, (current) => ({
                           ...current,
-                          action: Number(event.target.value) as ApprovalRequestTaskAction,
+                          action: event.target.value as ApprovalRequestTaskAction,
                         }))
                       }
                     >
@@ -399,7 +399,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                             onChange={(event) =>
                               onUpdateStep(stepIndex, (current) => ({
                                 ...current,
-                                visibilityMode: Number(event.target.value) as ApprovalStepVisibilityMode,
+                                visibilityMode: event.target.value as ApprovalStepVisibilityMode,
                               }))
                             }
                           >

@@ -63,6 +63,6 @@ export const serializeReceiptGridQuery = (query: ReceiptGridQuery): URLSearchPar
   if (query.requestedBy) parameters.set("requestedBy", query.requestedBy);
   if (query.createdFrom) parameters.set("createdFrom", query.createdFrom);
   if (query.createdTo) parameters.set("createdTo", query.createdTo);
-  query.status.forEach((status) => parameters.append("status", ApprovalRequestStatus[status]));
+  query.status.forEach((status) => parameters.append("status", status));
   return parameters;
 };

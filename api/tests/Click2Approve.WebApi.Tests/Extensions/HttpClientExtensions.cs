@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Click2Approve.WebApi.Models.Responses.Grids;
 using Click2Approve.WebApi.Tests.Helpers;
 using Click2Approve.WebApi.Tests.Models;
@@ -13,6 +14,11 @@ namespace Click2Approve.WebApi.Tests.Extensions;
 /// </summary>
 public static class HttpClientExtensions
 {
+    public static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        Converters = { new JsonStringEnumConverter() }
+    };
+
     /// <summary>
     /// Sends an HTTP request.
     /// </summary>
@@ -63,7 +69,7 @@ public static class HttpClientExtensions
         var httpContent = await httpClient.SendAsync(method, url, headers, queryParameters, body, cancellationToken);
         return typeof(T) == typeof(string) ?
             (T)(object)await httpContent.ReadAsStringAsync(cancellationToken) :
-            await httpContent.ReadFromJsonAsync<T>(cancellationToken)
+            await httpContent.ReadFromJsonAsync<T>(JsonOptions, cancellationToken)
                 ?? throw new Exception($"Failed sending {method} request to {url}.");
     }
 

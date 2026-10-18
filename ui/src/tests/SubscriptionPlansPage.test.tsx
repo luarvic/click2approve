@@ -17,8 +17,8 @@ const mocks = vi.hoisted(() => ({
   usage: vi.fn(),
   tenant: {
     globalId: "test",
-    type: 0,
-    subscriptionPlan: 0,
+    type: "Personal" as string,
+    subscriptionPlan: "PersonalFree" as string,
     businessName: "Workspace",
   },
 }));

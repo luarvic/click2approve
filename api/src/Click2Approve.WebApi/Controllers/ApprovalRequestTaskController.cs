@@ -88,6 +88,8 @@ public class ApprovalRequestTaskController(
     /// <summary>
     /// Gets an approval request task with the request data the assignee can view.
     /// </summary>
+    /// <param name="globalId">The approval request task ID.</param>
+    /// <param name="cancellationToken">Cancels the operation.</param>
     [HttpGet("{globalId:guid}")]
     public async Task<ActionResult<ApprovalRequestTaskDetailsResponse>> GetAsync(Guid globalId, CancellationToken cancellationToken)
     {
@@ -98,6 +100,9 @@ public class ApprovalRequestTaskController(
     /// <summary>
     /// Downloads a base64 representation of an approval-request attachment visible through a task.
     /// </summary>
+    /// <param name="approvalRequestTaskGlobalId">The approval request task ID.</param>
+    /// <param name="globalId">The approval request task ID.</param>
+    /// <param name="cancellationToken">Cancels the operation.</param>
     [HttpGet("{approvalRequestTaskGlobalId:guid}/requestAttachments/{globalId:guid}/downloadBase64")]
     public async Task<ActionResult<string>> DownloadRequestAttachmentBase64Async(
         Guid approvalRequestTaskGlobalId,

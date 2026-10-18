@@ -26,6 +26,10 @@ public class InAppNotificationController(
     ITenantContext tenantContext,
     UserManager<AppUser> userManager) : ControllerBase
 {
+    /// <summary>
+    /// Counts unread in-app notifications.
+    /// </summary>
+    /// <param name="cancellationToken">Cancels the operation.</param>
     [HttpGet("unread/count")]
     public async Task<ActionResult<long>> CountUnreadInAppAsync(CancellationToken cancellationToken)
     {
@@ -34,6 +38,11 @@ public class InAppNotificationController(
         return Ok(await notificationService.CountInAppUnreadAsync(user, tenantId, cancellationToken));
     }
 
+    /// <summary>
+    /// Lists in-app notifications.
+    /// </summary>
+    /// <param name="query">Pagination, sorting, and filter options.</param>
+    /// <param name="cancellationToken">Cancels the operation.</param>
     [HttpGet]
     public async Task<ActionResult<GridPageResponse<InAppNotificationResponse>>> ListInAppAsync(
         [FromQuery] InAppNotificationListQueryRequest query,
@@ -49,6 +58,11 @@ public class InAppNotificationController(
         return Ok(GridPageResponseMapper.Map(page, InAppNotificationResponseMapper.Map));
     }
 
+    /// <summary>
+    /// Marks an in-app notification as read.
+    /// </summary>
+    /// <param name="notificationGlobalId">The notification ID.</param>
+    /// <param name="cancellationToken">Cancels the operation.</param>
     [HttpPost("{notificationGlobalId:guid}/read")]
     public async Task<IActionResult> MarkInAppReadAsync(Guid notificationGlobalId, CancellationToken cancellationToken)
     {
@@ -58,6 +72,11 @@ public class InAppNotificationController(
         return Ok();
     }
 
+    /// <summary>
+    /// Marks selected in-app notifications as read.
+    /// </summary>
+    /// <param name="payload">The notification IDs to update.</param>
+    /// <param name="cancellationToken">Cancels the operation.</param>
     [HttpPost("readSelected")]
     public async Task<IActionResult> MarkInAppReadAsync(
         [FromBody] ReadInAppNotificationsRequest payload,
@@ -78,6 +97,11 @@ public class InAppNotificationController(
         return Ok();
     }
 
+    /// <summary>
+    /// Deletes selected in-app notifications.
+    /// </summary>
+    /// <param name="payload">The notification IDs to delete.</param>
+    /// <param name="cancellationToken">Cancels the operation.</param>
     [HttpDelete]
     public async Task<IActionResult> DeleteInAppAsync(
         [FromBody] DeleteInAppNotificationsRequest payload,

@@ -2,20 +2,20 @@ import { ApprovalRequestTask } from "@/features/approvalRequests/models/approval
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 
 export enum ApprovalStepMode {
-  Any = 0,
-  All = 1,
+  Any = "Any",
+  All = "All",
 }
 
 export enum ApprovalStepVisibilityMode {
-  AllParticipants = 0,
-  OrganizationEmployees = 1,
-  AssigneesOnly = 2,
+  AllParticipants = "AllParticipants",
+  OrganizationEmployees = "OrganizationEmployees",
+  AssigneesOnly = "AssigneesOnly",
 }
 
 export enum AssigneeType {
-  User = 0,
-  Employee = 1,
-  Team = 2,
+  User = "User",
+  Employee = "Employee",
+  Team = "Team",
 }
 
 export interface ApprovalStepAssignee {

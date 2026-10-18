@@ -80,7 +80,7 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
           onChange={(event) =>
             onChange({
               globalId: assignee.globalId,
-              type: Number(event.target.value) as AssigneeType,
+              type: event.target.value as AssigneeType,
             })
           }
           sx={stackControlsOnSmallScreens ? responsiveAssigneeTypeFieldSx : ApprovalStepStyles.assigneeTypeFieldSx}

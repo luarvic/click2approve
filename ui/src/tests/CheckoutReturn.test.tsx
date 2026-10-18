@@ -23,8 +23,8 @@ vi.mock("@/app/rootStore", async () => {
       {
         globalId: "paid",
         businessName: "Acme",
-        type: 1,
-        subscriptionPlan: 3,
+        type: "Business",
+        subscriptionPlan: "BusinessStarter",
         currentEmployeeGlobalId: "owner",
       },
     ],

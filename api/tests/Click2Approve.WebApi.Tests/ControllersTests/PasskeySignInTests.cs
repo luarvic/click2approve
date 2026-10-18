@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Click2Approve.Domain.Models;
@@ -69,6 +70,43 @@ public sealed class PasskeySignInTests
         var response = await AuthenticateAsync(client);
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         Assert.DoesNotContain("accessToken", await response.Content.ReadAsStringAsync());
+    }
+
+    [Fact]
+    public async Task ListPasskeys_WithMultipleCredentials_ReturnsAll()
+    {
+        await using var factory = CreateFactory(verificationEnabled: false);
+        var email = await CreateUserAsync(factory, confirmed: true, mfa: false);
+        const string secondCredentialId = "BAUG";
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var users = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+            var user = (await users.FindByEmailAsync(email))!;
+            Assert.True((await users.AddLoginAsync(user,
+                new UserLoginInfo(Provider, secondCredentialId, Provider))).Succeeded);
+            var passkey = new StoredPasskeyCredential
+            {
+                CredentialId = secondCredentialId,
+                Name = "Second device",
+                PublicKey = "AQID"
+            };
+            Assert.True((await users.SetAuthenticationTokenAsync(
+                user, Provider, secondCredentialId, JsonSerializer.Serialize(passkey))).Succeeded);
+        }
+
+        using var client = factory.CreateClient();
+        var authentication = await AuthenticateAsync(client);
+        authentication.EnsureSuccessStatusCode();
+        var tokens = (await authentication.Content.ReadFromJsonAsync<AccessTokenResponse>())!;
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokens.AccessToken);
+
+        var response = await client.GetAsync("api/v1/account/passkeys");
+        response.EnsureSuccessStatusCode();
+        var passkeys = (await response.Content.ReadFromJsonAsync<JsonElement>()).EnumerateArray()
+            .Select(passkey => passkey.GetProperty("credentialId").GetString())
+            .ToArray();
+        Assert.Contains(CredentialId, passkeys);
+        Assert.Contains(secondCredentialId, passkeys);
     }
 
     private static WebApplicationFactory<Program> CreateFactory(bool verificationEnabled) =>

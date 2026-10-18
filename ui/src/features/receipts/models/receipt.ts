@@ -74,8 +74,8 @@ export interface ReceiptParticipant {
 export type ReceiptParticipantFile = ReceiptFile;
 
 export enum ReceiptParticipantRole {
-  Requester,
-  Assignee,
+  Requester = "Requester",
+  Assignee = "Assignee",
 }
 
 export interface ReceiptLink {

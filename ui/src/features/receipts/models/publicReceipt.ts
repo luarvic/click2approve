@@ -61,6 +61,6 @@ export interface PublicReceiptParticipant {
 export type PublicReceiptParticipantFile = PublicReceiptFile;
 
 export enum PublicReceiptParticipantRole {
-  Requester,
-  Assignee,
+  Requester = "Requester",
+  Assignee = "Assignee",
 }

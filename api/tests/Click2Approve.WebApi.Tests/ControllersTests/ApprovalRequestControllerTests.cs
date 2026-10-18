@@ -124,6 +124,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         Assert.True(approvalRequestListResponse.IsSuccessStatusCode, await approvalRequestListResponse.Content.ReadAsStringAsync());
         using var approvalRequestListDocument = JsonDocument.Parse(await approvalRequestListResponse.Content.ReadAsStringAsync());
         var approvalRequestListItem = approvalRequestListDocument.RootElement.GetProperty("items")[0];
+        Assert.Equal("Pending", approvalRequestListItem.GetProperty("status").GetString());
         Assert.False(approvalRequestListItem.TryGetProperty("completedAt", out _));
         Assert.False(approvalRequestListItem.TryGetProperty("requesterEmail", out _));
         Assert.False(approvalRequestListItem.TryGetProperty("organizationDisplayName", out _));
@@ -131,6 +132,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         Assert.True(approvalRequestResponse.IsSuccessStatusCode, await approvalRequestResponse.Content.ReadAsStringAsync());
         var approvalRequestJson = await approvalRequestResponse.Content.ReadAsStringAsync();
         using var approvalRequestDocument = JsonDocument.Parse(approvalRequestJson);
+        Assert.Equal("Pending", approvalRequestDocument.RootElement.GetProperty("status").GetString());
         Assert.False(approvalRequestDocument.RootElement.TryGetProperty("tasks", out _));
 
         var approvalRequest = await client.GetApprovalRequestAsync(
@@ -162,7 +164,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         Assert.DoesNotContain("\"taskLogEntries\"", taskJson);
         Assert.DoesNotContain("\"visibilityMode\"", taskJson);
 
-        var task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailsResponse>();
+        var task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailsResponse>(HttpClientExtensions.JsonOptions);
         Assert.NotNull(task);
         Assert.Equal(requester.Email, task.RequestedByDisplayName);
         Assert.Equal(string.Empty, task.OrganizationDisplayName);
@@ -196,7 +198,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
 
         taskResponse = await assigneeClient.GetAsync($"api/v1/tenants/{assigneeTenantId}/tasks/{task.GlobalId}");
         Assert.True(taskResponse.IsSuccessStatusCode, await taskResponse.Content.ReadAsStringAsync());
-        task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailsResponse>();
+        task = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailsResponse>(HttpClientExtensions.JsonOptions);
         Assert.NotNull(task);
         Assert.Equal(ApprovalRequestTaskStatus.Completed, task.Status);
         Assert.True(task.Result);
@@ -265,7 +267,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
         var assigneeTenantId = await assigneeClient.GetCurrentTenantIdAsync(assigneeLogin.AccessToken, CancellationToken.None);
         var taskResponse = await assigneeClient.GetAsync($"api/v1/tenants/{assigneeTenantId}/tasks/{task.GlobalId}");
         Assert.True(taskResponse.IsSuccessStatusCode, await taskResponse.Content.ReadAsStringAsync());
-        var taskDetail = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailsResponse>();
+        var taskDetail = await taskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailsResponse>(HttpClientExtensions.JsonOptions);
         Assert.NotNull(taskDetail);
         Assert.Equal(requester.Email, taskDetail.RequestedByDisplayName);
         Assert.NotNull(taskDetail.ApprovalRequest);
@@ -393,7 +395,7 @@ public class ApprovalRequestControllerTests(CustomWebApplicationFactory<Program>
 
         var completedTaskResponse = await assigneeClient.GetAsync($"api/v1/tenants/{assigneeTenantId}/tasks/{task.GlobalId}");
         Assert.True(completedTaskResponse.IsSuccessStatusCode, await completedTaskResponse.Content.ReadAsStringAsync());
-        var completedTask = await completedTaskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailsResponse>();
+        var completedTask = await completedTaskResponse.Content.ReadFromJsonAsync<ApprovalRequestTaskDetailsResponse>(HttpClientExtensions.JsonOptions);
         Assert.NotNull(completedTask);
         Assert.NotNull(completedTask.AssigneeBrowserData);
 

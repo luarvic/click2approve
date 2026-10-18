@@ -36,7 +36,7 @@ const NotificationsFilter: React.FC<NotificationsFilterProps> = ({
     items={[
       {
         label: "Notification",
-        onChange: (values) => onTypesChange(values.map((value) => Number(value) as NotificationType)),
+        onChange: (values) => onTypesChange(values as NotificationType[]),
         options: notificationTypes.map((value) => ({ label: getNotificationTypeLabel(value), value: String(value) })),
         type: "multiSelect",
         value: types.map(String),

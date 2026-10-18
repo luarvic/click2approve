@@ -38,8 +38,8 @@ public class ApprovalRequestController(
     /// <summary>
     /// Submits an approval request.
     /// </summary>
-    /// <param name="payload">The payload that contains the approval request properties.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="payload">The request details, steps, and assignees to submit.</param>
+    /// <param name="cancellationToken">Cancels the operation.</param>
     [HttpPost()]
     public async Task<IActionResult> SubmitAsync([FromBody] SubmitApprovalRequestRequest payload, CancellationToken cancellationToken)
     {
@@ -50,6 +50,8 @@ public class ApprovalRequestController(
     /// <summary>
     /// Cancels an approval request.
     /// </summary>
+    /// <param name="globalId">The approval request ID.</param>
+    /// <param name="cancellationToken">Cancels the operation.</param>
     [HttpPost("{globalId:guid}/cancel")]
     public async Task<IActionResult> CancelAsync(Guid globalId, CancellationToken cancellationToken)
     {
@@ -58,6 +60,11 @@ public class ApprovalRequestController(
         return Ok();
     }
 
+    /// <summary>
+    /// Deletes an approval request.
+    /// </summary>
+    /// <param name="globalId">The approval request ID.</param>
+    /// <param name="cancellationToken">Cancels the operation.</param>
     [HttpDelete("{globalId:guid}")]
     public async Task<IActionResult> DeleteAsync(Guid globalId, CancellationToken cancellationToken)
     {
@@ -85,6 +92,8 @@ public class ApprovalRequestController(
     /// <summary>
     /// Gets an approval request with all data required by its editor.
     /// </summary>
+    /// <param name="globalId">The approval request ID.</param>
+    /// <param name="cancellationToken">Cancels the operation.</param>
     [HttpGet("{globalId:guid}")]
     public async Task<ActionResult<ApprovalRequestDetailsResponse>> GetAsync(Guid globalId, CancellationToken cancellationToken)
     {
@@ -95,6 +104,9 @@ public class ApprovalRequestController(
     /// <summary>
     /// Downloads a base64 representation of an attachment belonging to an approval request.
     /// </summary>
+    /// <param name="approvalRequestGlobalId">The approval request ID.</param>
+    /// <param name="globalId">The attachment ID.</param>
+    /// <param name="cancellationToken">Cancels the operation.</param>
     [HttpGet("{approvalRequestGlobalId:guid}/attachments/{globalId:guid}/downloadBase64")]
     public async Task<ActionResult<string>> DownloadAttachmentBase64Async(
         Guid approvalRequestGlobalId,

@@ -1,3 +1,4 @@
+using System.Reflection;
 using Click2Approve.Application.Abstractions.FileStorage;
 using Click2Approve.Application.Abstractions.Identity;
 using Click2Approve.Application.Models.Results.Identity;
@@ -101,11 +102,22 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Adds and configures Swagger services to the service collection.
     /// </summary>
-    public static IServiceCollection AddSwagger(this IServiceCollection services)
+    /// <param name="services">The service collection.</param>
+    /// <param name="additionalDocumentationAssemblies">Assemblies whose XML documentation should also appear in Swagger.</param>
+    /// <returns>The service collection.</returns>
+    public static IServiceCollection AddSwagger(
+        this IServiceCollection services,
+        params Assembly[] additionalDocumentationAssemblies)
     {
         services.AddSwaggerGen(options =>
         {
-            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "ApiSpecification.XML"));
+            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Click2Approve.WebApi.xml"));
+            foreach (var assembly in additionalDocumentationAssemblies)
+            {
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{assembly.GetName().Name}.xml"));
+            }
+            options.OperationFilter<TenantRouteParameterOperationFilter>();
+            options.OperationFilter<IdentityAccountOperationFilter>();
             options.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
             {
                 Type = SecuritySchemeType.Http,

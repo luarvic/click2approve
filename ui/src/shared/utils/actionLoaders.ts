@@ -31,6 +31,7 @@ export const ActionLoaderScopes = {
   gridsTeams: "grids.teams",
   gridsTenants: "grids.tenants",
   identityForgotPassword: "identity.forgotPassword",
+  identityLoadMfa: "identity.loadMfa",
   identityResendConfirmationEmail: "identity.resendConfirmationEmail",
   identityResetPassword: "identity.resetPassword",
   identitySaveMfa: "identity.saveMfa",
@@ -74,6 +75,7 @@ export const GlobalLoadingActionLoaderScopes = [
   ActionLoaderScopes.delegationsSave,
   ActionLoaderScopes.employeesSave,
   ActionLoaderScopes.identityForgotPassword,
+  ActionLoaderScopes.identityLoadMfa,
   ActionLoaderScopes.identityResendConfirmationEmail,
   ActionLoaderScopes.identityResetPassword,
   ActionLoaderScopes.identitySaveMfa,
@@ -118,7 +120,7 @@ export const GlobalLoadingActionLoaderScopes = [
 export const ActionLoaders = {
   identity: {
     forgotPassword: () => ActionLoaderScopes.identityForgotPassword,
-    loadMfa: () => "identity.loadMfa",
+    loadMfa: () => ActionLoaderScopes.identityLoadMfa,
     passkeySignIn: () => "identity.passkeySignIn",
     resendConfirmationEmail: () => ActionLoaderScopes.identityResendConfirmationEmail,
     resetPassword: () => ActionLoaderScopes.identityResetPassword,

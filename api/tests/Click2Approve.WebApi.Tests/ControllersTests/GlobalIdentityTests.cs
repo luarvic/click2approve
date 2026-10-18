@@ -83,6 +83,12 @@ public sealed class GlobalIdentityTests
         var json = await options.Content.ReadFromJsonAsync<JsonElement>();
         var userHandle = WebEncoders.Base64UrlDecode(json.GetProperty("user").GetProperty("id").GetString()!);
         Assert.Equal(globalId.ToString(), Encoding.UTF8.GetString(userHandle));
+        var algorithms = json.GetProperty("pubKeyCredParams").EnumerateArray()
+            .Select(parameter => parameter.GetProperty("alg"))
+            .ToArray();
+        Assert.All(algorithms, algorithm => Assert.Equal(JsonValueKind.Number, algorithm.ValueKind));
+        Assert.Contains(algorithms, algorithm => algorithm.GetInt32() == -7);
+        Assert.Contains(algorithms, algorithm => algorithm.GetInt32() == -257);
 
         var refresh = await client.PostAsJsonAsync("api/v1/account/refresh", new { tokens.RefreshToken });
         refresh.EnsureSuccessStatusCode();

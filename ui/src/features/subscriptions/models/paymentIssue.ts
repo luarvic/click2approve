@@ -1,7 +1,7 @@
 export enum PaymentIssue {
-  PaymentMethodRequired,
-  Declined,
-  AuthenticationRequired,
-  Processing,
-  PaymentRequired,
+  PaymentMethodRequired = "PaymentMethodRequired",
+  Declined = "Declined",
+  AuthenticationRequired = "AuthenticationRequired",
+  Processing = "Processing",
+  PaymentRequired = "PaymentRequired",
 }

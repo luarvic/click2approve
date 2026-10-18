@@ -1,21 +1,21 @@
 export enum EmployeeRole {
-  User = 0,
-  Admin = 1,
-  Owner = 3,
+  User = "User",
+  Admin = "Admin",
+  Owner = "Owner",
 }
 
 export enum TenantType {
-  Personal = 0,
-  Business = 1,
+  Personal = "Personal",
+  Business = "Business",
 }
 
 export enum SubscriptionPlan {
-  PersonalFree = 0,
-  PersonalPro = 1,
-  BusinessTrial = 2,
-  BusinessStarter = 3,
-  BusinessStandard = 4,
-  BusinessUltimate = 5,
+  PersonalFree = "PersonalFree",
+  PersonalPro = "PersonalPro",
+  BusinessTrial = "BusinessTrial",
+  BusinessStarter = "BusinessStarter",
+  BusinessStandard = "BusinessStandard",
+  BusinessUltimate = "BusinessUltimate",
 }
 
 export interface Tenant {

@@ -24,6 +24,7 @@ public class CurrentTenantController(ITenantService tenantService, UserManager<A
     /// <summary>
     /// Gets the personal tenant that is always available to the authenticated user.
     /// </summary>
+    /// <param name="cancellationToken">Cancels the operation.</param>
     [HttpGet("current")]
     public async Task<ActionResult<CurrentTenantResponse>> GetCurrentAsync(CancellationToken cancellationToken)
     {

@@ -36,7 +36,7 @@ const MfaSettings = () => {
         Unable to load security settings.
       </Alert>
     );
-  if (!status) return <Typography>Loading security settings…</Typography>;
+  if (!status) return null;
   return (
     <Stack spacing={Forms.formStackSpacing}>
       <Typography color="text.secondary">
