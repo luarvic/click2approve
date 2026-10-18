@@ -57,6 +57,8 @@ export const Shell = {
     display: mainMenuDrawerIsOpen ? "none" : "inline-flex",
   }),
   appBarBrandContainerSx: {
+    alignItems: "center",
+    alignSelf: "stretch",
     display: "flex",
     flex: "1 0 auto",
     justifyContent: "flex-start",
