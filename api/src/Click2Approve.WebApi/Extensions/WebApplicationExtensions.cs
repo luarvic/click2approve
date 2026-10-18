@@ -43,12 +43,10 @@ public static class WebApplicationExtensions
     }
 
     /// <summary>
-    /// Enables development-only API tooling.
+    /// Enables the API reference and Swagger UI in every environment.
     /// </summary>
-    public static WebApplication UseDevelopmentTooling(this WebApplication app)
+    public static WebApplication UseApiDocumentation(this WebApplication app)
     {
-        if (!app.Environment.IsDevelopment()) return app;
-
         app.UseSwagger();
         app.UseSwaggerUI(options =>
         {

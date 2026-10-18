@@ -92,6 +92,13 @@ URLs (or pass `--build-arg DOCS_SITE_URL=https://your-domain.example/` to
 The build generates `site/index.html`, `site/docs/index.html`, and the supporting
 pages. Nginx serves this output at the root and the React output from `/app/`.
 
+The Swagger link uses `http://localhost:5555/swagger/` during `mkdocs serve`.
+Static builds use `/swagger/` on the public site's origin, matching the current
+production API base URL. If the API runs on a separate host or under a path prefix,
+set `DOCS_API_BASE_URI` to that base URL when serving or building the docs (or pass
+`--build-arg DOCS_API_BASE_URI=https://api.your-domain.example` to `docker build`).
+For a local static build, use `DOCS_API_BASE_URI=http://localhost:5555`.
+
 ## Style and settings ownership
 
 | Responsibility                                     | Location                                                | Examples                                                         |

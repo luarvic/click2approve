@@ -1,8 +1,21 @@
-"""Include the app's existing branding assets without maintaining duplicate files."""
+"""Include shared branding assets and resolve environment-specific API links."""
 
+import os
 from pathlib import Path
 
 from mkdocs.structure.files import File
+
+_api_base_uri = ""
+
+
+def on_startup(command, dirty):
+    global _api_base_uri
+    default = "http://localhost:5555" if command == "serve" else ""
+    _api_base_uri = os.environ.get("DOCS_API_BASE_URI", default).rstrip("/")
+
+
+def on_page_markdown(markdown, page, config, files):
+    return markdown.replace("{{ api_reference_url }}", f"{_api_base_uri}/swagger/")
 
 
 def on_files(files, config):

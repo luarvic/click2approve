@@ -95,7 +95,7 @@ var app = builder.Build();
 
 app.InitializeDatabase<ApiDbContext>();
 app.UseConfiguredCors();
-app.UseDevelopmentTooling();
+app.UseApiDocumentation();
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();

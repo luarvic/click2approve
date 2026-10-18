@@ -139,7 +139,8 @@ for sender configuration, branding, and event compatibility.
 
 The development profile listens on
 [http://localhost:5555/](http://localhost:5555/). Swagger is available at
-[http://localhost:5555/swagger](http://localhost:5555/swagger).
+[http://localhost:5555/swagger](http://localhost:5555/swagger). The API reference is
+available at `/swagger/` on the API host in every environment.
 
 The API reads its local development settings from
 `api/src/Click2Approve.WebApi/appsettings.Development.json`. The Docker profile

@@ -2,6 +2,8 @@
 
 Use Personal for your own work and organizations for shared business workflows. Your selected workspace, role, and plan determine which actions you can take.
 
+You can also connect your own tools through the Click2Approve API. See [API tokens](api-tokens.md) to create credentials and authenticate integration requests.
+
 !!! info "Organization only"
     Employees, teams, delegations, and workflow templates belong to organizations. Select an organization in the workspace picker to use them. Other features in this guide are also available in Personal.
 
