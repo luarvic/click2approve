@@ -1,22 +1,31 @@
 # Create a request
 
-A good request gives participants the context and documents they need to act.
+A request gives participants the files, instructions, and decision rules they need to act. Choose the correct workspace first: it determines the request's ownership and available assignee types.
 
-## Prepare the request
+## Compose the request
 
-1. [Open Click2Approve](/app/) and select the relevant workspace, if applicable.
-2. Open **Requests** and start a new request.
-3. Enter a descriptive title and explain the outcome you need.
-4. Attach the files participants should review.
+1. [Open the app](/app/), select your workspace, and choose **New request**.
+2. In an organization, choose **Custom** or **From template**. For a template, select it and continue to the request editor.
+3. Enter a specific **Title**, such as “Approve the updated supplier agreement.”
+4. Add a **Description** explaining the purpose, context, and expected outcome.
+5. Attach the [files participants should review](files.md).
+6. Add and configure the [workflow steps](workflow-steps.md).
 
-## Define the workflow
+Personal requests use email assignees.
 
-Add steps, select the required action, and choose the assignees. Steps can request actions such as approval, review, or signature. Use serial steps when one decision depends on another, or parallel participants when people can work at the same time.
+!!! info "Organization assignees"
+    In an organization, you can also assign steps to employees and teams from that organization.
 
-Include instructions when a participant needs to check something specific. Before submitting, review the assignees, step order, and attachments.
+## Review and submit
 
-## Follow progress
+Check the files, step order, action, instructions, participants, completion rule, visibility, and additional requirements. Then choose **Submit** and wait for confirmation before leaving the page.
 
-After submitting, open the request from **Requests** to inspect its state, participant decisions, and discussion. Notification delivery depends on the deployment and your notification preferences.
+If fields are highlighted, correct them and submit again. If a plan limit blocks submission, inspect [Usage](usage.md) or ask an organization Owner or Admin for help.
 
-[Learn how participants complete a task](complete-a-task.md).
+In an organization, **Save template** saves reusable step configuration. It does not replace submitting the request. See [Workflow templates](templates.md).
+
+## After submission
+
+Open **Requests** and select the request to follow its progress. Participants act as the workflow reaches their steps. Notification delivery follows each recipient's preferences.
+
+Use [Track and revise requests](track-requests.md) to understand outcomes, cancellation, and revisions. Closing or canceling the compose screen should not be treated as saving a reusable draft.

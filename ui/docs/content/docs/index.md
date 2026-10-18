@@ -1,28 +1,45 @@
-# Getting started
+# Table of contents
 
-Click2Approve helps you send documents through a workflow and collect decisions from the people involved.
+Click2Approve helps you route documents through approval workflows, collect decisions and signatures, and track the outcome. These guides explain how to send requests, complete tasks, manage organization workspaces, and configure your account.
+
+## Getting started
+
+- [Getting started](getting-started.md)
+- [Features and availability](features.md)
+- [Workspaces and navigation](workspaces.md)
 
 ## Requests and tasks
 
-A **request** is the workflow you send: its documents, description, and the steps people need to complete. A **task** is an action assigned to a participant in that workflow.
+- [Create a request](create-a-request.md)
+- [Configure workflow steps](workflow-steps.md)
+- [Complete a task](complete-a-task.md)
+- [Track and revise requests](track-requests.md)
+- [Files and attachments](files.md)
+- [Discussions](discussions.md)
+- [Receipts and verification](receipts.md)
 
-Use **Requests** to follow the work you sent. Use **Tasks** to find work waiting for you.
+## Business workspaces
 
-## Send your first request
+- [Manage organizations](organizations.md)
+- [Employees and roles](employees.md)
+- [Teams](teams.md)
+- [Delegations](delegations.md)
+- [Workflow templates](templates.md)
 
-1. [Open Click2Approve](/app/) and sign in, or create an account if registration is available.
-2. Open **Requests** and create a request.
-3. Add a title, context, and the files participants need.
-4. Define the steps and assignees, then submit the request.
+## Account and security
 
-[Follow the request guide](create-a-request.md).
+- [Registration and sign-in](sign-in.md)
+- [Profile and signature](profile.md)
+- [MFA and passkeys](security.md)
+- [API tokens](api-tokens.md)
+- [Notifications](notifications.md)
 
-## Complete an assigned task
+## Plans and data
 
-Open **Tasks**, choose an outstanding task, and review the documents and instructions before recording your decision.
+- [Plans and billing](plans-and-billing.md)
+- [Usage and limits](usage.md)
+- [Retention and deletion](retention.md)
 
-[Follow the task guide](complete-a-task.md).
+## Help
 
-## Working in an organization
-
-If your deployment supports organizations, select the relevant workspace before looking for its requests and tasks. Available actions depend on your workspace and role.
+- [Troubleshooting](troubleshooting.md)

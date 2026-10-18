@@ -28,15 +28,15 @@
     </a>
   </div>
   <div class="docs-drawer-content">
-    <div class="docs-menu-section">Documentation</div>
     {% for item in nav.items if item.title == "Documentation" %}
-      {{ render_items(item.children) }}
+      {% for group in item.children %}
+        {% if group.children %}
+          <div class="docs-menu-section">{{ group.title }}</div>
+          {{ render_items(group.children) }}
+        {% else %}
+          {{ render_items([group]) }}
+        {% endif %}
+      {% endfor %}
     {% endfor %}
-    <div class="docs-menu-section">Click2Approve</div>
-    <ul class="docs-menu-list">
-      <li><a class="docs-menu-link" href="{{ '.' | url }}">Home</a></li>
-      <li><a class="docs-menu-link" href="{{ 'contact/' | url }}">Contact</a></li>
-      <li><a class="docs-menu-link" href="/app/">Open app</a></li>
-    </ul>
   </div>
 </nav>

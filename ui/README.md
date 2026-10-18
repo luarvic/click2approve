@@ -17,7 +17,8 @@ do not bypass peer dependency checks with `--force` or `--legacy-peer-deps`.
 
 The UI Docker image builds one MkDocs Material site at `/`, with a prototype
 landing page, `/contact/`, `/terms/`, `/privacy/`, and user documentation under
-`/docs/`. The Docs menu opens `/docs/`; `/docs` redirects to `/docs/`. The React
+`/docs/`. The documentation root is a table of contents; Getting started lives at
+`/docs/getting-started/`. The Docs menu opens `/docs/`; `/docs` redirects to `/docs/`. The React
 application is served separately at `/app/`. Terms and privacy are explicitly
 marked placeholders and need final content before release.
 
@@ -43,8 +44,15 @@ provide these tasks. Stop it through **Tasks: Terminate Task**.
 The homepage metadata in `docs/content/index.md` selects `docs/overrides/landing.html`.
 Supporting pages use `template: marketing.html`; their content stays in Markdown.
 User guides live in `docs/content/docs/` and retain the documentation shell. Add
-new guides under the Documentation entry in `mkdocs.yml`; only that section appears
-in the documentation drawer. Marketing presentation lives in
+new guides under the appropriate group within Documentation in `mkdocs.yml`; only
+those guide groups appear in the documentation drawer. The groups cover getting
+started, requests and tasks, business workspaces, account and security, plans and
+data, and help. These user guides describe the business service: explain workspace,
+role, and plan restrictions without deployment or capability-configuration language.
+Use Markdown admonitions for organization-only guidance and important cautions.
+Keep the table of contents in `docs/content/docs/index.md` in sidebar order.
+The shared `partials/docs-pagination.html` adds Previous, Table of contents, and
+Next links to guides automatically using that order. Marketing presentation lives in
 `docs/content/stylesheets/marketing.css`; shared public links are in
 `docs/overrides/partials/site-footer.html`. The documentation theme uses the app's logo and locally
 served Sora font files through `docs/hooks.py`; no external font service is needed.

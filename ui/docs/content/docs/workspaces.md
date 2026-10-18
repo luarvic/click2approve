@@ -1,0 +1,33 @@
+# Workspaces and navigation
+
+Your selected workspace determines which requests, tasks, and settings you see. Use the workspace picker to switch between **Personal** and organizations you belong to. Set a preferred starting workspace in [User profile](profile.md).
+
+## Personal
+
+Use Personal for requests you send personally and tasks addressed to your account's email address. Personal has no employee or team directory.
+
+An organization may send a task to your email address. You receive that task in Personal; this does not make you an employee or give you access to the organization's workspace. Personal task lists show the originating organization so you can distinguish senders.
+
+## Organizations
+
+Organization work stays within the selected organization. Employee and team tasks appear in that organization's Tasks view. Its Requests view includes work available through your requester identity, team relationships, and authorized delegation.
+
+Employees and delegates must belong to the same organization. Membership in one organization does not grant access to another organization's requests or tasks.
+
+## Main menu
+
+| Area | Purpose |
+| --- | --- |
+| Tasks | Review actions assigned to you or available through your organization role in the workflow |
+| Requests | Follow requests you can access; use New request to send work |
+| Receipts | Open your own receipts in Personal; Owners and Admins manage organization receipts |
+| Templates | Reuse organization workflow steps |
+| Employees, Teams, Delegations | Work with organization membership and delegated work |
+| Plans, Usage, Retention | Review subscription, limits, and data settings |
+| Organizations | Create and manage business workspaces |
+
+Use the profile menu for your account settings and notifications. The navigation drawer can be opened from the menu button on smaller screens. The color-mode switch changes the appearance of both the app and Docs on the same site.
+
+## Open a shared link
+
+Sign in with the intended account when following an email or shared resource link. A link does not grant additional permissions. If the resource is unavailable, check the workspace, account, employee access, and whether the record was deleted. See [Troubleshooting](troubleshooting.md).

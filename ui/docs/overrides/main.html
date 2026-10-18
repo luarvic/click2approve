@@ -4,6 +4,13 @@
   <title>{% if page and not page.is_homepage %}{{ page.title | striptags | e }} · {% endif %}{{ config.site_name }}</title>
 {% endblock %}
 
+{% block content %}
+  {{ super() }}
+  {% if page and page.file.src_uri.startswith("docs/") %}
+    {% include "partials/docs-pagination.html" %}
+  {% endif %}
+{% endblock %}
+
 {% block footer %}
   {% include "partials/site-footer.html" %}
 {% endblock %}

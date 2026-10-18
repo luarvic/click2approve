@@ -34,6 +34,7 @@
 :root {
   --md-text-font: Sora, sans-serif;
   --md-code-font: ui-monospace, monospace;
+  --app-bar-height: 72px;
 }
 
 [data-md-color-scheme="default"] {
@@ -64,9 +65,18 @@
 
 .md-header {
   box-sizing: border-box;
-  height: 72px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--app-bar-height);
   border-bottom: 1px solid var(--app-divider);
   box-shadow: none;
+}
+
+/* Reserve the fixed app bar's space for both guides and marketing pages. */
+.md-container {
+  padding-top: var(--app-bar-height);
 }
 
 .md-header__inner {
@@ -633,4 +643,38 @@
 }
 @media (max-width: 700px) {
   .site-footer-inner { padding: 24px 20px; }
+}
+
+/* Reading order follows the documentation navigation. */
+.docs-page-navigation {
+  border-top: 1px solid var(--app-divider);
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  margin-top: 32px;
+  padding-top: 16px;
+}
+
+.docs-page-navigation a {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 48px;
+}
+
+.docs-page-navigation a:hover { text-decoration: underline; }
+.docs-page-navigation a:focus-visible {
+  outline: 2px solid var(--md-accent-fg-color);
+  outline-offset: 4px;
+}
+
+.docs-page-navigation-next { text-align: right; }
+
+@media (max-width: 600px) {
+  .docs-page-navigation { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .docs-page-navigation-contents {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    text-align: center;
+  }
 }
