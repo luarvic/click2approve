@@ -4,6 +4,7 @@ import { getApprovalRequestNumber } from "@/features/approvalRequests/components
 import { deleteReceipt, getReceipt } from "@/features/receipts/api/receiptsApi";
 import ReceiptLinksGrid from "@/features/receipts/components/ReceiptLinksGrid";
 import ReceiptView from "@/features/receipts/components/ReceiptView";
+import ReceiptFileVerification from "@/features/receipts/components/verification/ReceiptFileVerification";
 import type { Receipt } from "@/features/receipts/models/receipt";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import { Forms } from "@/shared/components/dialogs/formStyles";
@@ -86,7 +87,7 @@ const ReceiptPage: React.FC<ReceiptPageProps> = ({ tab = "request" }) => {
             {
               label: receipt.approvalRequestTitle,
               titleAction: (
-                <HelpPopover helpText="Manage verification links for your own receipts in Personal. In organizations, only owners and admins can manage links." />
+                <HelpPopover helpText="Use Verify file to compare a local document with the attachments recorded on this receipt. Manage verification links for your own receipts in Personal. In organizations, only owners and admins can manage links." />
               ),
             },
           ]}
@@ -103,13 +104,20 @@ const ReceiptPage: React.FC<ReceiptPageProps> = ({ tab = "request" }) => {
         {tab === "request" && (
           <Stack sx={Forms.tabContentSx}>
             <ReceiptView receipt={receipt} />
-            <ApprovalRequestActionBar onClose={handleClose}>
-              {receipt.canDelete && (
-                <Button color="error" variant="outlined" onClick={() => setDeleteDialogIsOpen(true)}>
-                  Delete
-                </Button>
+            <ReceiptFileVerification
+              key={receiptGlobalId}
+              receipt={receipt}
+              renderActions={(verifyButton) => (
+                <ApprovalRequestActionBar onClose={handleClose}>
+                  {receipt.canDelete && (
+                    <Button color="error" variant="outlined" onClick={() => setDeleteDialogIsOpen(true)}>
+                      Delete
+                    </Button>
+                  )}
+                  {verifyButton}
+                </ApprovalRequestActionBar>
               )}
-            </ApprovalRequestActionBar>
+            />
           </Stack>
         )}
         {tab === "share" && (

@@ -23,7 +23,9 @@ A receipt preserves the recorded context of the completed work. Participant-spec
 
 ## Verify a file
 
-Open an active verification link and choose **Verify file**. Select your copy of the document. Click2Approve compares its SHA-256 hash with the files recorded on the receipt and shows whether it matches a request file or a participant's response attachment.
+Open a receipt in your workspace or an active verification link and choose **Verify file**. Select your copy of the document. Click2Approve compares its SHA-256 hash with the files recorded on the receipt and shows whether it matches a request file or a participant's response attachment.
+
+The result spans the receipt's width above **Verify file**. In the workspace receipt view, **Verify file** is grouped with the other actions below the receipt. A green **File verified** alert identifies the matching attachment and its request or task. A red **File does not match** alert means no recorded file has the same hash; check that you selected the correct version and try again.
 
 A match confirms that the file contents match a recorded file. It does not assess the document's claims or independently verify the signer's identity.
 

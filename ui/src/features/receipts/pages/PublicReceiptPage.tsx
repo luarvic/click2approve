@@ -1,30 +1,16 @@
 import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import { getReceiptByLink } from "@/features/receipts/api/receiptLinksApi";
 import ReceiptView from "@/features/receipts/components/ReceiptView";
-import {
-  PublicReceiptParticipantRole,
-  type PublicReceipt,
-  type PublicReceiptFile,
-} from "@/features/receipts/models/publicReceipt";
-import { Files } from "@/shared/components/files/fileInputStyles";
-import { Flex } from "@/shared/components/layout/flexStyles";
+import ReceiptFileVerification from "@/features/receipts/components/verification/ReceiptFileVerification";
+import type { PublicReceipt } from "@/features/receipts/models/publicReceipt";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { StackSpacing } from "@/shared/theme/tokens";
-import { CheckCircleOutlined, ErrorOutlined, UploadFileOutlined } from "@mui/icons-material";
-import { Box, Button, Container, GlobalStyles, Stack, Typography } from "@mui/material";
+import { Box, Container, GlobalStyles, Stack, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { QRCodeSVG } from "qrcode.react";
-import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-
-interface FileMatch {
-  fileName: string;
-  hashValue: string;
-  matchedFile?: PublicReceiptFile;
-  taskGlobalId?: string;
-}
 
 const baseUrl = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const logoSrc = `${baseUrl}logo-wall-to-wall.svg`;
@@ -68,12 +54,6 @@ const receiptCardSx: SxProps<Theme> = {
   boxShadow: "none",
 };
 
-const verificationContentSx: SxProps<Theme> = {
-  maxWidth: 600,
-  mx: "auto",
-  width: "100%",
-};
-
 const qrPanelSx: SxProps<Theme> = {
   alignItems: "center",
   pb: 1,
@@ -110,17 +90,6 @@ const receiptBrandTextSx: SxProps<Theme> = {
   fontSize: "1.75rem",
 };
 
-const verificationFooterSx: SxProps<Theme> = {
-  pt: 2,
-  "@media print": {
-    display: "none",
-  },
-};
-
-const verifyFileButtonSx: SxProps<Theme> = {
-  alignSelf: "center",
-};
-
 const printStyles = (
   <GlobalStyles
     styles={{
@@ -141,19 +110,9 @@ const printStyles = (
   />
 );
 
-const computeSha256 = async (file: File): Promise<string> => {
-  const buffer = await file.arrayBuffer();
-  const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
-
-  return Array.from(new Uint8Array(hashBuffer))
-    .map((value) => value.toString(16).padStart(2, "0"))
-    .join("");
-};
-
 const PublicReceiptPage = () => {
   const { linkGlobalId } = useParams<{ linkGlobalId: string }>();
   const [receipt, setReceipt] = useState<PublicReceipt | null | undefined>(undefined);
-  const [fileMatch, setFileMatch] = useState<FileMatch | null>(null);
   usePageTitle(`Receipt Verification ${getApprovalRequestNumber(linkGlobalId)}`);
 
   useEffect(() => {
@@ -165,30 +124,6 @@ const PublicReceiptPage = () => {
   }, [linkGlobalId]);
 
   const verificationUrl = useMemo(() => window.location.href, []);
-
-  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !receipt) {
-      return;
-    }
-
-    const hashValue = await computeSha256(file);
-    const matchedFile = receipt.files.find((receiptFile) => receiptFile.hashValue.toLowerCase() === hashValue);
-    const matchedTask = matchedFile
-      ? undefined
-      : receipt.participants.find(
-          (participant) =>
-            participant.role === PublicReceiptParticipantRole.Assignee &&
-            participant.files.some((taskFile) => taskFile.hashValue.toLowerCase() === hashValue),
-        );
-    setFileMatch({
-      fileName: file.name,
-      hashValue,
-      matchedFile: matchedFile ?? matchedTask?.files.find((taskFile) => taskFile.hashValue.toLowerCase() === hashValue),
-      taskGlobalId: matchedTask?.taskGlobalId,
-    });
-    event.target.value = "";
-  };
 
   if (receipt === null) {
     return <NotFoundPage />;
@@ -226,27 +161,8 @@ const PublicReceiptPage = () => {
             />
           </Box>
         </Box>
-        <Container disableGutters maxWidth="md" sx={verificationFooterSx}>
-          <Stack spacing={StackSpacing.default} sx={verificationContentSx}>
-            <Button component="label" startIcon={<UploadFileOutlined />} sx={verifyFileButtonSx} variant="outlined">
-              Verify file
-              <Box component="input" type="file" sx={Files.inputStyle} onChange={handleFileChange} />
-            </Button>
-            {fileMatch && (
-              <Stack direction="row" spacing={StackSpacing.default} sx={Flex.alignCenterSx}>
-                {fileMatch.matchedFile ? <CheckCircleOutlined color="success" /> : <ErrorOutlined color="error" />}
-                <Typography>
-                  {fileMatch.matchedFile
-                    ? `${fileMatch.fileName} matches ${fileMatch.matchedFile.fileName} attached to ${
-                        fileMatch.taskGlobalId
-                          ? `task # ${fileMatch.taskGlobalId}`
-                          : `request # ${receipt.approvalRequestGlobalId}`
-                      }.`
-                    : `${fileMatch.fileName} does not match any attached file hash.`}
-                </Typography>
-              </Stack>
-            )}
-          </Stack>
+        <Container disableGutters maxWidth={false} sx={receiptViewSx}>
+          <ReceiptFileVerification key={linkGlobalId} receipt={receipt} />
         </Container>
       </Box>
     </>
