@@ -90,7 +90,8 @@ public sealed class UserFileControllerTests(CustomWebApplicationFactory<Program>
         {
             ApprovalRequestId = task.ApprovalRequestId,
             UserFileId = (await db.UserFiles.SingleAsync(item => item.GlobalId == unrelated)).Id,
-            Sequence = 1, RevisionAction = ApprovalRequestFileRevisionAction.Unchanged
+            Sequence = 1,
+            RevisionAction = ApprovalRequestFileRevisionAction.Unchanged
         });
         await db.SaveChangesAsync();
         Assert.Equal(expected, await assignee.Client.GetStringAsync($"{assignee.Root}/tasks/{task.GlobalId}/requestAttachments/{unrelated}/downloadBase64"));
@@ -125,7 +126,8 @@ public sealed class UserFileControllerTests(CustomWebApplicationFactory<Program>
 
     private static object Payload(Guid file, string email) => new
     {
-        Title = "File access approval", RequestFiles = new[] { new { UserFileGlobalId = file, Sequence = 0 } },
+        Title = "File access approval",
+        RequestFiles = new[] { new { UserFileGlobalId = file, Sequence = 0 } },
         Steps = new[] { new { Sequence = 1, Mode = ApprovalStepMode.Any, Action = ApprovalRequestTaskAction.Approve,
             Assignees = new[] { new { Type = AssigneeType.User, Email = email } } } }
     };

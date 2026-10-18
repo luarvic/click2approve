@@ -173,13 +173,17 @@ public sealed class ApprovalWorkflowTests(CustomWebApplicationFactory<Program> f
 
     private static object Step(int sequence, ApprovalStepMode mode, params string[] emails) => new
     {
-        Sequence = sequence, Mode = mode, Action = ApprovalRequestTaskAction.Approve,
+        Sequence = sequence,
+        Mode = mode,
+        Action = ApprovalRequestTaskAction.Approve,
         Assignees = emails.Select(email => new { Type = AssigneeType.User, Email = email }).ToArray()
     };
 
     private static Task<HttpResponseMessage> CompleteAsync(ApiTestSession session, Guid id, bool result) =>
         session.Client.PostAsJsonAsync($"{session.Root}/tasks/complete", new
         {
-            GlobalId = id, Result = result, Comment = result ? null : "Changes required"
+            GlobalId = id,
+            Result = result,
+            Comment = result ? null : "Changes required"
         });
 }

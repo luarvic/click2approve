@@ -47,9 +47,10 @@ const receivedColumnFlex = 20;
 const unreadNotificationRowClassName = "notification-grid-unread";
 const notificationGridSx: SxProps<Theme> = {
   ...DataGrids.sx,
-  [`& .${unreadNotificationRowClassName} .MuiDataGrid-cell, & .${unreadNotificationRowClassName} .MuiDataGrid-cell .MuiTypography-root`]: {
-    fontWeight: "bold",
-  },
+  [`& .${unreadNotificationRowClassName} .MuiDataGrid-cell, & .${unreadNotificationRowClassName} .MuiDataGrid-cell .MuiTypography-root`]:
+    {
+      fontWeight: "bold",
+    },
 };
 
 const getPath = (item: Notification) => {

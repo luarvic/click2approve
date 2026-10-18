@@ -105,9 +105,7 @@ export const getApprovalRequestTaskStatusLabel = (
   action: ApprovalRequestTaskAction,
   result?: boolean,
 ) =>
-  status === ApprovalRequestTaskStatus.Completed
-    ? getApprovalRequestTaskCompletedActionLabel(action, result)
-    : status;
+  status === ApprovalRequestTaskStatus.Completed ? getApprovalRequestTaskCompletedActionLabel(action, result) : status;
 
 export const ApprovalRequestStatusLineSection: React.FC<ApprovalRequestStatusLineSectionProps> = ({
   children,

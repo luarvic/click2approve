@@ -35,9 +35,7 @@ const getNonNegativeInteger = (value: string | null, fallback: number): number =
 
 export const parseNotificationGridQuery = (parameters: URLSearchParams): NotificationGridQuery => {
   const pageSize = getNonNegativeInteger(parameters.get("pageSize"), defaultNotificationGridQuery.pageSize);
-  const types = parameters
-    .getAll("type")
-    .filter((type): type is NotificationType => notificationTypeValues.has(type));
+  const types = parameters.getAll("type").filter((type): type is NotificationType => notificationTypeValues.has(type));
 
   return {
     page: getNonNegativeInteger(parameters.get("page"), defaultNotificationGridQuery.page),

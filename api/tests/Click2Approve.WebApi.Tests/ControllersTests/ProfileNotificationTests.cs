@@ -22,7 +22,9 @@ public sealed class ProfileNotificationTests(CustomWebApplicationFactory<Program
         Assert.Equal(HttpStatusCode.Unauthorized, (await anonymous.GetAsync("api/v1/userProfiles")).StatusCode);
         using var updated = await user.Client.PutAsJsonAsync("api/v1/userProfiles", new
         {
-            FirstName = "Ada", LastName = "Lovelace", NotificationPreferences = Array.Empty<object>()
+            FirstName = "Ada",
+            LastName = "Lovelace",
+            NotificationPreferences = Array.Empty<object>()
         });
         updated.EnsureSuccessStatusCode();
         var profile = await user.Client.GetFromJsonAsync<JsonElement>("api/v1/userProfiles");
@@ -32,7 +34,8 @@ public sealed class ProfileNotificationTests(CustomWebApplicationFactory<Program
         Assert.NotEqual("Ada", otherProfile.GetProperty("firstName").GetString());
         Assert.Equal(HttpStatusCode.BadRequest, (await user.Client.PutAsJsonAsync("api/v1/userProfiles", new
         {
-            FirstName = new string('x', 1000), NotificationPreferences = Array.Empty<object>()
+            FirstName = new string('x', 1000),
+            NotificationPreferences = Array.Empty<object>()
         })).StatusCode);
         Assert.Equal("Ada", (await user.Client.GetFromJsonAsync<JsonElement>("api/v1/userProfiles")).GetProperty("firstName").GetString());
     }
@@ -48,7 +51,9 @@ public sealed class ProfileNotificationTests(CustomWebApplicationFactory<Program
         {
             TenantId = (await db.Tenants.SingleAsync(item => item.GlobalId == recipient.TenantId)).Id,
             UserId = (await db.Users.SingleAsync(item => item.Email == recipient.Email)).Id,
-            EventId = Guid.NewGuid(), OccurredAt = DateTime.UtcNow, Summary = "Private notification",
+            EventId = Guid.NewGuid(),
+            OccurredAt = DateTime.UtcNow,
+            Summary = "Private notification",
             Type = NotificationType.ApprovalRequestTaskCreated
         };
         db.InAppNotifications.Add(notification);

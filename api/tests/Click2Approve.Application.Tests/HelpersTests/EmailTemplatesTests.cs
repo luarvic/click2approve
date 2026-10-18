@@ -188,7 +188,8 @@ public sealed class EmailTemplatesTests
         };
         var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestTaskCreated,
             Context() with { Actor = new EmailActor { DisplayName = "John" }, SenderIdentity = sender })
-            with { SenderIdentity = sender };
+            with
+        { SenderIdentity = sender };
 
         var html = EmailLayout.Render(model);
 
@@ -255,11 +256,14 @@ public sealed class EmailTemplatesTests
     {
         var sender = new EmailSenderIdentity
         {
-            Name = "A", IsOrganization = true, ImageUrl = "https://example.com/org.png"
+            Name = "A",
+            IsOrganization = true,
+            ImageUrl = "https://example.com/org.png"
         };
         var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestTaskCreated,
             Context() with { Actor = new EmailActor { DisplayName = "Alex" }, SenderIdentity = sender })
-            with { SenderIdentity = sender };
+            with
+        { SenderIdentity = sender };
 
         var html = EmailLayout.Render(model);
 
