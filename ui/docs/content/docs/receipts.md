@@ -21,6 +21,12 @@ A receipt preserves the recorded context of the completed work. Participant-spec
 !!! warning "Anyone with the link can view the receipt"
     An active verification link opens the receipt without requiring workspace membership. Review it before sharing: its contents may include names, decisions, and signatures.
 
+## Verify a file
+
+Open an active verification link and choose **Verify file**. Select your copy of the document. Click2Approve compares its SHA-256 hash with the files recorded on the receipt and shows whether it matches a request file or a participant's response attachment.
+
+A match confirms that the file contents match a recorded file. It does not assess the document's claims or independently verify the signer's identity.
+
 ## Stop sharing
 
 On **Share**, select the link, choose **Remove**, and confirm when access is no longer needed. An expired or revoked link no longer provides the receipt. Creating another link does not extend an existing link's expiry.

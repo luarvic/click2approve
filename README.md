@@ -41,7 +41,7 @@ decisions and discussion, and tracking request history.
   including account, task, cancellation, deletion, and review notifications.
 - Review in-app notifications with Received-date sorting, pagination, and filters for notification type, read status,
   details, and Received date range.
-- Browse the prototype public site at `/`, with contact and legal placeholder
+- Browse the product site at `/`, with contact and legal placeholder
   pages, and user guides at `/docs/` using a theme matching the application. See the [documentation development guide](ui/README.md#user-documentation).
 
 ## Demo

@@ -15,7 +15,7 @@ do not bypass peer dependency checks with `--force` or `--legacy-peer-deps`.
 
 ## User documentation
 
-The UI Docker image builds one MkDocs Material site at `/`, with a prototype
+The UI Docker image builds one MkDocs Material site at `/`, with a product
 landing page, `/contact/`, `/terms/`, `/privacy/`, and user documentation under
 `/docs/`. The documentation root is a table of contents; Getting started lives at
 `/docs/getting-started/`. The Docs menu opens `/docs/`; `/docs` redirects to `/docs/`. The React
@@ -42,6 +42,10 @@ the preview on port 8000. Both the business and public repository workspaces
 provide these tasks. Stop it through **Tasks: Terminate Task**.
 
 The homepage metadata in `docs/content/index.md` selects `docs/overrides/landing.html`.
+The landing page walks through creating, signing, and verifying a proposal using
+responsive HTML example cards. The cards use the current theme and readable text
+at every screen size. Keep the examples explicitly labeled as illustrative and
+use fictional people and details; they are explanations rather than app controls.
 Supporting pages use `template: marketing.html`; their content stays in Markdown.
 User guides live in `docs/content/docs/` and retain the documentation shell. Add
 new guides under the appropriate group within Documentation in `mkdocs.yml`; only

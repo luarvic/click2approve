@@ -1,34 +1,120 @@
 {% extends "marketing.html" %}
+{% block htmltitle %}<title>Document approvals, electronic signatures &amp; verification · Click2Approve</title>{% endblock %}
+{% block extrahead %}
+  {{ super() }}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Document approvals, electronic signatures &amp; verification · Click2Approve" />
+  <meta property="og:description" content="{{ page.meta.description | e }}" />
+  <meta property="og:url" content="{{ page.canonical_url | e }}" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Send it. Sign it. Verify it. · Click2Approve" />
+  <meta name="twitter:description" content="{{ page.meta.description | e }}" />
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Click2Approve",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "url": {{ config.site_url | tojson }},
+      "description": {{ page.meta.description | tojson }}
+    }
+  </script>
+{% endblock %}
 {% block marketing_content %}
 <section class="site-hero" aria-labelledby="hero-title">
   <div class="site-hero-copy">
-    <p class="site-eyebrow"><span></span> DOCUMENT WORKFLOWS, WITHOUT THE CHASE</p>
-    <h1 id="hero-title">Less following up.<br />More moving <em>forward.</em></h1>
-    <p class="site-lead">Turn a document into a clear next step. Send it for approval, collect decisions, and keep the conversation together.</p>
+    <p class="site-eyebrow"><span></span> DOCUMENT APPROVALS &amp; ELECTRONIC SIGNATURES</p>
+    <h1 id="hero-title">Send it. Sign it.<br /><em>Verify it.</em></h1>
+    <p class="site-lead">Click2Approve brings document approvals and electronic signatures into one workflow. Send a request, collect a decision, and share a receipt others can verify.</p>
     <div class="site-actions">
-      <a class="site-button" href="/app/" target="_blank" rel="noopener noreferrer">Open Click2Approve <span aria-hidden="true">↗</span></a>
-      <a class="site-text-link" href="{{ 'docs/' | url }}" target="_blank" rel="noopener noreferrer">See how it works <span aria-hidden="true">→</span></a>
+      <a class="site-button" href="/app/" target="_blank" rel="noopener noreferrer">Create your first request <span aria-hidden="true">↗</span></a>
+      <a class="site-text-link" href="#how-it-works">See how it works <span aria-hidden="true">↓</span></a>
     </div>
-    <p class="site-hero-note">From a quick review to a multi-step approval.</p>
+    <p class="site-hero-note">For proposals, agreements, and everyday sign-offs.</p>
   </div>
-  <figure class="workflow-preview" aria-label="Example document approval workflow">
-    <figcaption><span class="preview-dot"></span> EXAMPLE WORKFLOW <span class="preview-state">In progress</span></figcaption>
-    <div class="preview-document"><span class="document-icon" aria-hidden="true">↳</span><div><strong>Website launch proposal</strong><span>1 document · 3 steps</span></div></div>
+  <figure class="workflow-preview" aria-label="Example: a proposal goes from request to signature to verification">
+    <figcaption><span class="preview-dot"></span> ONE PROPOSAL, A SHARED RECORD</figcaption>
+    <div class="preview-document"><span class="document-icon" aria-hidden="true">↳</span><div><strong>Website design proposal</strong><span>Alex sends a proposal to Jamie.</span></div></div>
     <ol class="preview-steps">
-      <li class="step-complete"><span class="step-number" aria-hidden="true">✓</span><div><strong>Review the details</strong><span>Project team</span></div><span class="step-status">Reviewed</span></li>
-      <li class="step-current"><span class="step-number" aria-hidden="true">2</span><div><strong>Approve the proposal</strong><span>Project lead</span></div><span class="step-status">Up next</span></li>
-      <li><span class="step-number" aria-hidden="true">3</span><div><strong>Sign off and go</strong><span>Requester</span></div><span class="step-status">Waiting</span></li>
+      <li class="step-complete"><span class="step-number" aria-hidden="true">1</span><div><strong>Create a request</strong><span>Alex adds the scope, fee, and document.</span></div></li>
+      <li class="step-current"><span class="step-number" aria-hidden="true">2</span><div><strong>Review and sign</strong><span>Jamie reviews the proposal and signs.</span></div></li>
+      <li><span class="step-number" aria-hidden="true">3</span><div><strong>Verify the receipt</strong><span>Taylor checks the record and file.</span></div></li>
     </ol>
-    <div class="preview-footer"><span class="preview-avatar" aria-hidden="true">JD</span><p><strong>One place for the whole decision.</strong><br />Documents, discussion, and request history.</p></div>
+    <div class="preview-footer"><span class="preview-avatar" aria-hidden="true">✓</span><p><strong>From a request to a record you can share.</strong><br />Who acted, what they decided, and when.</p></div>
   </figure>
 </section>
-<section class="site-process" aria-labelledby="process-title">
-  <div class="site-section-heading"><p class="site-eyebrow">FROM SENT TO SETTLED</p><h2 id="process-title">A clear path for every request.</h2><p>Everyone knows what needs to happen next.</p></div>
-  <div class="site-process-grid">
-    <article><span class="process-number">01 / PREPARE</span><h3>Bring the context.</h3><p>Attach your documents, add a description, and give people the information they need to decide.</p></article>
-    <article><span class="process-number">02 / ROUTE</span><h3>Set the next step.</h3><p>Choose who takes action and in what order. Use serial or parallel steps to match your workflow.</p></article>
-    <article><span class="process-number">03 / FOLLOW THROUGH</span><h3>Keep the full picture.</h3><p>See request progress, follow the discussion, and review completed decisions in one place.</p></article>
+<section class="site-process" id="how-it-works" aria-labelledby="process-title">
+  <div class="site-section-heading"><p class="site-eyebrow">A SIMPLE EXAMPLE</p><h2 id="process-title">One proposal. Three people. A clear outcome.</h2><p>Alex is a freelance designer. Jamie is the client. Taylor handles the accounts and needs a record of the agreement.</p></div>
+  <div class="site-story">
+    <article class="site-story-step" aria-labelledby="create-title">
+      <div class="site-story-copy"><span class="process-number">01 / CREATE A REQUEST</span><h3 id="create-title">Alex sends the proposal.</h3><p>Alex attaches the website proposal and describes the scope, fee, and delivery date. Alex adds Jamie’s email, chooses <strong>Sign</strong>, enables <strong>Require an electronic signature</strong>, and submits the request.</p><p>Jamie has the document and instructions together, ready to review.</p><a class="site-text-link" href="{{ 'docs/create-a-request/' | url }}" target="_blank" rel="noopener noreferrer">How to create a request <span aria-hidden="true">→</span></a></div>
+      <figure class="site-example" aria-labelledby="request-example-title">
+        <div class="example-card">
+          <div class="example-card-header"><span class="process-number">THE REQUEST</span><span class="example-badge">Signature requested</span></div>
+          <h4 id="request-example-title">Website design proposal</h4>
+          <p class="example-summary">A clear scope. A fixed fee. A person to sign.</p>
+          <dl class="example-details">
+            <div><dt>Scope</dt><dd>Design a five-page website</dd></div>
+            <div><dt>Project fee</dt><dd>$2,400</dd></div>
+            <div><dt>Delivery</dt><dd>November 6, 2026</dd></div>
+            <div><dt>Send to</dt><dd>Jamie Chen<span>jamie@example.com</span></dd></div>
+            <div><dt>Ask for</dt><dd>An electronic signature</dd></div>
+          </dl>
+          <div class="example-card-footer"><span>Alex sends</span><span aria-hidden="true">→</span><span>Jamie reviews</span></div>
+        </div>
+        <figcaption>Illustrative example · Fictional people and details.</figcaption>
+      </figure>
+    </article>
+    <article class="site-story-step" aria-labelledby="sign-title">
+      <div class="site-story-copy"><span class="process-number">02 / REVIEW AND SIGN</span><h3 id="sign-title">Jamie signs with the context in view.</h3><p>Jamie signs in with the email Alex used and opens the task in <strong>Personal</strong>. After reviewing the proposal, Jamie selects <strong>Sign</strong>, checks the legal name, draws a signature, and chooses <strong>Complete</strong>.</p><p>The completed action becomes part of the request history.</p><a class="site-text-link" href="{{ 'docs/complete-a-task/' | url }}" target="_blank" rel="noopener noreferrer">How to complete a signing task <span aria-hidden="true">→</span></a></div>
+      <figure class="site-example" aria-labelledby="signature-example-title">
+        <div class="example-card">
+          <div class="example-card-header"><span class="process-number">THE DECISION</span><span class="example-badge"><span aria-hidden="true">✓</span> Signed</span></div>
+          <h4 id="signature-example-title">Jamie signs the proposal.</h4>
+          <p class="example-summary">The decision stays with the request.</p>
+          <dl class="example-details">
+            <div><dt>Document</dt><dd>Website design proposal</dd></div>
+            <div><dt>Signed by</dt><dd>Jamie Chen</dd></div>
+            <div><dt>Recorded</dt><dd>October 15, 2026<span>10:30 a.m. Eastern Time</span></dd></div>
+          </dl>
+          <div class="example-signature">
+            <span>Sample electronic signature</span>
+            <svg viewBox="0 0 320 90" role="img" aria-label="Illustrative drawn signature for Jamie Chen">
+              <path d="M28 62 C34 41 47 10 49 18 C52 28 30 81 41 71 L67 58 L76 44 L72 65 L92 49 L90 64 L109 43 L104 65 L127 51 L151 64 C162 44 171 20 172 25 L160 68 L188 45 L183 67 L207 54 L220 65 L242 44 L258 65 M43 77 Q145 65 274 73" />
+            </svg>
+          </div>
+        </div>
+        <figcaption>Illustrative example · Fictional people and details.</figcaption>
+      </figure>
+    </article>
+    <article class="site-story-step" aria-labelledby="verify-title">
+      <div class="site-story-copy"><span class="process-number">03 / SHARE AND VERIFY</span><h3 id="verify-title">Taylor checks what was agreed.</h3><p>Alex opens the completed receipt, chooses <strong>Share</strong>, and creates a verification link with an expiry date. Taylor opens the link to review the recorded decision, signer, and signature without joining Alex’s workspace.</p><p>With a copy of the proposal, Taylor can use <strong>Verify file</strong> to check that it matches a file recorded on the receipt.</p><p class="site-story-note">Anyone with an active link can view that receipt. Alex can remove the link to stop sharing.</p><a class="site-text-link" href="{{ 'docs/receipts/' | url }}" target="_blank" rel="noopener noreferrer">How receipt verification works <span aria-hidden="true">→</span></a></div>
+      <figure class="site-example" aria-labelledby="receipt-example-title">
+        <div class="example-card">
+          <div class="example-card-header"><span class="process-number">THE RECEIPT</span><span class="example-badge"><span aria-hidden="true">✓</span> Succeeded</span></div>
+          <h4 id="receipt-example-title">A record Taylor can check.</h4>
+          <p class="example-summary">Shared through a verification link.</p>
+          <dl class="example-details">
+            <div><dt>Request</dt><dd>Website design proposal</dd></div>
+            <div><dt>Requested by</dt><dd>Alex Morgan</dd></div>
+            <div><dt>Signed by</dt><dd>Jamie Chen</dd></div>
+            <div><dt>Recorded</dt><dd>October 15, 2026<span>10:30 a.m. Eastern Time</span></dd></div>
+          </dl>
+          <div class="example-file-match"><span class="example-match-icon" aria-hidden="true">✓</span><div><strong>Document matches the recorded file.</strong><span>website-proposal.txt · SHA-256 match</span></div></div>
+        </div>
+        <figcaption>Illustrative example · Fictional people and details.</figcaption>
+      </figure>
+    </article>
   </div>
 </section>
-<section class="site-guide" aria-labelledby="guide-title"><div><p class="site-eyebrow">YOUR FIRST WORKFLOW</p><h2 id="guide-title">Start with one document.</h2><p>Our guides take you from creating a request to completing your first task.</p></div><a class="site-text-link" href="{{ 'docs/' | url }}" target="_blank" rel="noopener noreferrer">Read the getting started guide <span aria-hidden="true">→</span></a></section>
+<section class="site-process" aria-labelledby="workflows-title">
+  <div class="site-section-heading"><p class="site-eyebrow">WHEN YOUR WORKFLOW GROWS</p><h2 id="workflows-title">Start simple. Add the steps you need.</h2></div>
+  <div class="site-process-grid">
+    <article><h3>Review before signing.</h3><p>Add a review or approval step before the signature. Steps run in order; each step can require everyone or any one assignee to act.</p></article>
+    <article><h3>Keep the context together.</h3><p>Use request discussions to clarify details. Follow progress and recorded decisions alongside the documents.</p></article>
+    <article><h3>Repeat what works.</h3><p>In an organization, assign work to employees or teams and save workflow templates for recurring requests.</p></article>
+  </div>
+</section>
+<section class="site-guide" aria-labelledby="guide-title"><div><p class="site-eyebrow">YOUR FIRST REQUEST</p><h2 id="guide-title">Give your next agreement a clear record.</h2><p>Start with a document and the person who needs to act.</p><a class="site-text-link" href="{{ 'docs/getting-started/' | url }}" target="_blank" rel="noopener noreferrer">Read the getting started guide <span aria-hidden="true">→</span></a></div><a class="site-button" href="/app/" target="_blank" rel="noopener noreferrer">Open Click2Approve <span aria-hidden="true">↗</span></a></section>
 {% endblock %}
