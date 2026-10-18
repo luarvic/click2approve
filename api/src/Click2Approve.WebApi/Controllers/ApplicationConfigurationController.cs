@@ -27,6 +27,7 @@ public class ApplicationConfigurationController(IConfiguration configuration) : 
             Edition = edition,
             LogoImageSize = _configuration.GetValue<int>("Limitations:LogoImageSize"),
             RequiresConfirmedEmail = _configuration.GetValue<bool>("Authentication:VerificationEnabled"),
+            RegistrationLegal = _configuration.GetSection("RegistrationLegal").Get<RegistrationLegalResponse>(),
             Capabilities = new ProductCapabilitiesResponse
             {
                 Tenants = _configuration.GetValue<bool>("Product:Capabilities:Tenants"),

@@ -14,6 +14,10 @@ Start a conversation in [GitHub Discussions](https://github.com/luarvic/click2ap
 
 [Open an issue](https://github.com/luarvic/click2approve/issues) with the steps to reproduce the problem, what you expected, and what happened. Leave passwords, private documents, and other sensitive information out of public reports.
 
+## Private account and privacy questions
+
+Email [click2approve@gmail.com](mailto:click2approve@gmail.com) for account, security, legal, or privacy requests. Do not send passwords or unnecessary identity documents.
+
 ## Need a starting point?
 
 [Read the getting started guide](docs/index.md) for the basics of requests and tasks.

@@ -20,12 +20,15 @@ import { validateEmail, validatePassword } from "@/shared/utils/validators";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Box,
+  Checkbox,
   Container,
   FormControl,
+  FormControlLabel,
   FormHelperText,
   IconButton,
   InputAdornment,
   InputLabel,
+  Link,
   OutlinedInput,
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
@@ -39,6 +42,11 @@ const SignUpPage = () => {
   const [emailError, setEmailError] = useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<boolean>(false);
   const [passwordConfirmationError, setPasswordConfirmationError] = useState<boolean>(false);
+  const [acknowledgedVersion, setAcknowledgedVersion] = useState<string | null>(null);
+  const [legalError, setLegalError] = useState(false);
+  const legal = stores.applicationConfigurationStore.registrationLegal;
+  const legalVersion = legal ? `${legal.termsVersion}\n${legal.privacyVersion}` : null;
+  const legalAcknowledged = legalVersion !== null && acknowledgedVersion === legalVersion;
   const action = useAsyncAction(ActionLoaders.identity.signUp());
   const navigate = useNavigate();
   const returnUrl = useAuthReturnUrl();
@@ -57,6 +65,7 @@ const SignUpPage = () => {
     const password = data.get("password");
     const passwordConfirmation = data.get("passwordConfirmation");
     if (
+      (legal && !legalAcknowledged) ||
       !email ||
       !validateEmail(email.toString()) ||
       !password ||
@@ -64,6 +73,7 @@ const SignUpPage = () => {
       !passwordConfirmation ||
       password.toString() !== passwordConfirmation.toString()
     ) {
+      setLegalError(Boolean(legal && !legalAcknowledged));
       setEmailError(!email || !validateEmail(email.toString()));
       setPasswordError(!password || !validatePassword(password.toString()));
       setPasswordConfirmationError(
@@ -73,7 +83,7 @@ const SignUpPage = () => {
     } else {
       const credentials = new Credentials(email.toString(), password.toString(), passwordConfirmation.toString());
       await action.run(async () => {
-        if (await stores.userAccountStore.signUp(credentials)) {
+        if (await stores.userAccountStore.signUp(credentials, legal)) {
           if (stores.applicationConfigurationStore.requiresConfirmedEmail) {
             navigate(authPath("/confirmationEmailSent", returnUrl));
           } else {
@@ -163,8 +173,51 @@ const SignUpPage = () => {
               {!passwordError && passwordConfirmationError && "Does not match password"}
             </FormHelperText>
           </FormControl>
+          {legal && (
+            <FormControl error={legalError} fullWidth margin="normal">
+              <FormControlLabel
+                required={false}
+                sx={AuthForms.acknowledgementSx}
+                control={
+                  <Checkbox
+                    checked={legalAcknowledged}
+                    required
+                    name="legalAcknowledgement"
+                    slotProps={{ input: { "aria-describedby": legalError ? "legalAcknowledgementError" : undefined } }}
+                    onChange={(_, checked) => {
+                      setAcknowledgedVersion(checked ? legalVersion : null);
+                      setLegalError(false);
+                    }}
+                  />
+                }
+                label={
+                  <>
+                    I agree to the{" "}
+                    <Link href={legal.termsUrl} target="_blank" rel="noopener noreferrer">
+                      Terms
+                    </Link>
+                    {" and acknowledge the "}
+                    <Link href={legal.privacyUrl} target="_blank" rel="noopener noreferrer">
+                      Privacy Policy
+                    </Link>
+                    .
+                  </>
+                }
+              />
+              {legalError && (
+                <FormHelperText id="legalAcknowledgementError">
+                  Agree to the Terms and acknowledge the Privacy Policy to continue.
+                </FormHelperText>
+              )}
+            </FormControl>
+          )}
           <AuthFormActions>
-            <MainActionButton loading={action.isRunning} type="submit" fullWidth>
+            <MainActionButton
+              disabled={Boolean(legal && !legalAcknowledged)}
+              loading={action.isRunning}
+              type="submit"
+              fullWidth
+            >
               Sign up
             </MainActionButton>
             <AuthTextLinks>

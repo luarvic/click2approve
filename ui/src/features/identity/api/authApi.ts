@@ -1,3 +1,4 @@
+import { RegistrationLegal } from "@/features/applicationConfiguration/models/applicationConfiguration";
 import { AuthResponse } from "@/features/identity/models/authResponse";
 import { CredentialsData } from "@/features/identity/models/credentials";
 import { EmailConfirmationRequired, MfaRequired, TwoFactorCredentials } from "@/features/identity/models/mfa";
@@ -9,12 +10,24 @@ import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
 import { isAxiosError } from "axios";
 
-export const registerUser = async (credentials: CredentialsData): Promise<boolean> => {
+export const registerUser = async (
+  credentials: CredentialsData,
+  legal?: RegistrationLegal | null,
+): Promise<boolean> => {
   try {
-    await axios.post(ApiPaths.account.register, {
-      email: credentials.email,
-      password: credentials.password,
-    });
+    await axios.post(
+      ApiPaths.account.register,
+      { email: credentials.email, password: credentials.password },
+      legal
+        ? {
+            headers: {
+              "X-Click2Approve-Legal-Acknowledged": "true",
+              "X-Click2Approve-Terms-Version": legal.termsVersion,
+              "X-Click2Approve-Privacy-Version": legal.privacyVersion,
+            },
+          }
+        : undefined,
+    );
     return true;
   } catch (e) {
     notification.error(getApiErrorNotification(e));

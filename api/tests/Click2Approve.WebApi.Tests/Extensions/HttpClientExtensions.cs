@@ -78,9 +78,18 @@ public static class HttpClientExtensions
     /// </summary>
     public static async Task RegisterAsync(this HttpClient httpClient, Credentials credentials, CancellationToken cancellationToken)
     {
+        var configuration = await httpClient.GetFromJsonAsync<JsonElement>("api/v1/products/info", cancellationToken);
+        Dictionary<string, string>? headers = null;
+        if (configuration.TryGetProperty("registrationLegal", out var legal) && legal.ValueKind == JsonValueKind.Object)
+            headers = new Dictionary<string, string>
+            {
+                ["X-Click2Approve-Legal-Acknowledged"] = "true",
+                ["X-Click2Approve-Terms-Version"] = legal.GetProperty("termsVersion").GetString()!,
+                ["X-Click2Approve-Privacy-Version"] = legal.GetProperty("privacyVersion").GetString()!
+            };
         await httpClient.SendAsync(HttpMethod.Post,
             "api/v1/account/register",
-            null,
+            headers,
             null,
             new StringContent(JsonSerializer.Serialize(credentials), Encoding.UTF8, "application/json"),
             cancellationToken);

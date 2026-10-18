@@ -8,6 +8,7 @@ export const AuthForms = {
   } as SxProps<Theme>,
   maxWidth: "xs",
   authFormSx: { width: "100%" } as SxProps<Theme>,
+  acknowledgementSx: { ml: 0, alignItems: "flex-start", color: "text.secondary" } as SxProps<Theme>,
   authActionsSx: { mt: 2 } as SxProps<Theme>,
   formSx: { mt: 1 } as SxProps<Theme>,
   inputVariant: "outlined",

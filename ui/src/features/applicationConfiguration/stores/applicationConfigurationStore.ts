@@ -54,6 +54,10 @@ export class ApplicationConfigurationStore {
     return this.applicationConfiguration?.capabilities.taskAttachments === true;
   }
 
+  get registrationLegal() {
+    return this.applicationConfiguration?.registrationLegal ?? null;
+  }
+
   get requiresConfirmedEmail(): boolean {
     return this.applicationConfiguration?.requiresConfirmedEmail === true;
   }

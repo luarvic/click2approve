@@ -6,9 +6,11 @@ Your user account can access Personal and any organizations where you have emplo
 
 1. [Open the app](/app/) and choose the registration option.
 2. Enter your email and a password that satisfies the form's requirements.
-3. Confirm the password and submit.
+3. Confirm the password. Review the [Terms](../terms.md) and [Privacy Policy](../privacy.md), then check **I agree to the Terms and acknowledge the Privacy Policy** and submit.
 4. If email confirmation is required, open the confirmation message and follow its link.
 5. Sign in and complete your [profile](profile.md).
+
+**Sign up** stays disabled until you check the agreement box.
 
 Registration creates your Personal workspace. Organization membership is managed separately through [Employees](employees.md).
 

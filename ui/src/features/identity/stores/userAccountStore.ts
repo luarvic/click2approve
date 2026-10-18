@@ -1,3 +1,4 @@
+import { RegistrationLegal } from "@/features/applicationConfiguration/models/applicationConfiguration";
 import {
   getUserAccountManageInfo,
   loginUser,
@@ -31,8 +32,8 @@ export class UserAccountStore {
     this.clearSession = clearSession;
   };
 
-  signUp = async (credentials: CredentialsData): Promise<boolean> => {
-    return await registerUser(credentials);
+  signUp = async (credentials: CredentialsData, legal?: RegistrationLegal | null): Promise<boolean> => {
+    return await registerUser(credentials, legal);
   };
 
   signIn = async (credentials: CredentialsData): Promise<boolean | EmailConfirmationRequired | MfaRequired> => {
