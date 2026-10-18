@@ -5,5 +5,6 @@ namespace Click2Approve.WebApi.Models.Requests.Notifications;
 /// </summary>
 public class ReadInAppNotificationsRequest
 {
+    /// <summary>Global identifiers of the notifications to mark as read.</summary>
     public required List<Guid> NotificationGlobalIds { get; set; }
 }

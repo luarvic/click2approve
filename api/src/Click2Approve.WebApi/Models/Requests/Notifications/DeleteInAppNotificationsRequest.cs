@@ -5,5 +5,6 @@ namespace Click2Approve.WebApi.Models.Requests.Notifications;
 /// </summary>
 public class DeleteInAppNotificationsRequest
 {
+    /// <summary>Global identifiers of the notifications to delete.</summary>
     public required List<Guid> NotificationGlobalIds { get; set; }
 }

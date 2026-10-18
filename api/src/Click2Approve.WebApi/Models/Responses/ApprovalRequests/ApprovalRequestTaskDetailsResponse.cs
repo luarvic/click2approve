@@ -17,6 +17,8 @@ public class ApprovalRequestTaskDetailsResponse : ApprovalRequestTaskResponse
         RequestFiles = [];
     }
 
+    /// <summary>Files attached to the approval request.</summary>
     public required List<ApprovalRequestFileResponse> RequestFiles { get; init; }
+    /// <summary>Approval request associated with this task.</summary>
     public ApprovalRequestDetailsResponse? ApprovalRequest { get; init; }
 }

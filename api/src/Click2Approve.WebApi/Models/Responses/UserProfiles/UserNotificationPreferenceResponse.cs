@@ -7,7 +7,10 @@ namespace Click2Approve.WebApi.Models.Responses.UserProfiles;
 /// </summary>
 public class UserNotificationPreferenceResponse
 {
+    /// <summary>Notification type controlled by this preference.</summary>
     public required NotificationType Type { get; set; }
+    /// <summary>Delivery channel for this notification preference.</summary>
     public required NotificationChannel Channel { get; set; }
+    /// <summary>Whether this notification preference is enabled.</summary>
     public required bool IsEnabled { get; set; }
 }

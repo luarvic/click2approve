@@ -5,5 +5,6 @@ namespace Click2Approve.WebApi.Models.Responses;
 /// </summary>
 public class CurrentTenantResponse
 {
+    /// <summary>Global identifier of the current organization.</summary>
     public Guid GlobalId { get; init; }
 }
