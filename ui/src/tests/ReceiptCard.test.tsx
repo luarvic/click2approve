@@ -40,8 +40,8 @@ const createAssignee = (isAssigneeEmployee: boolean, organizationDisplayName: st
 
 describe("<ReceiptCard />", () => {
   test.each([
-    [true, "Successful"],
-    [false, "Unsuccessful"],
+    [true, "Succeeded"],
+    [false, "Failed"],
   ])("shows the request outcome on a receipt with result %s", (result, label) => {
     render(<ReceiptCard receipt={{ ...receipt, approvalRequestResult: result }} />);
     expect(screen.getByText("Status:")).toBeTruthy();

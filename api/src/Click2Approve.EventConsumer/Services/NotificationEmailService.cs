@@ -40,7 +40,7 @@ public class NotificationEmailService(
         var content = NotificationEmailTemplates.Create(payload.Type, context with { SenderIdentity = senderIdentity });
         var template = content with
         {
-            SenderIdentity = senderIdentity
+            SenderIdentity = payload.Type == NotificationType.ApprovalRequestCompleted ? null : senderIdentity
         };
         await _emailService.SendAsync(new EmailMessage
         {

@@ -47,7 +47,7 @@ public sealed class EmailTemplatesTests
     }
 
     [Theory]
-    [InlineData(ApprovalRequestStatus.Completed, true, "Successful", "Request successful")]
+    [InlineData(ApprovalRequestStatus.Completed, true, "Succeeded", "Request succeeded")]
     [InlineData(ApprovalRequestStatus.Completed, false, "Failed", "Request failed")]
     [InlineData(ApprovalRequestStatus.Completed, null, "Completed", "Request completed")]
     [InlineData(ApprovalRequestStatus.Canceled, null, "Canceled", "Request canceled")]
@@ -65,13 +65,41 @@ public sealed class EmailTemplatesTests
     }
 
     [Fact]
-    public void UnsuccessfulStepWithoutActor_DoesNotClaimCompletion()
+    public void FailedStepWithoutActor_DoesNotClaimCompletion()
     {
         var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestStepCompleted,
             Context() with { Actor = null, Result = false });
-        Assert.Equal("Step unsuccessful", model.Heading);
-        Assert.Contains("A step in your request titled <strong>Contract</strong> was unsuccessful.", EmailLayout.Render(model));
+        Assert.Equal("Step failed", model.Heading);
+        Assert.Contains("A step in your request titled <strong>Contract</strong> failed.", EmailLayout.Render(model));
         Assert.DoesNotContain("declined", EmailLayout.Render(model));
+    }
+
+    [Fact]
+    public void SucceededStepWithoutActor_UsesOutcomeWording()
+    {
+        var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestStepCompleted,
+            Context() with { Actor = null, Result = true });
+        Assert.Equal("Step succeeded", model.Heading);
+        Assert.Contains("A step in your request titled <strong>Contract</strong> succeeded.", EmailLayout.Render(model));
+    }
+
+    [Theory]
+    [InlineData(true, "Request succeeded", "succeeded.")]
+    [InlineData(false, "Request failed", "failed.")]
+    public void RequestCompleted_IncludesOrganizationAsText(bool result, string heading, string ending)
+    {
+        var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestCompleted,
+            Context() with
+            {
+                Status = ApprovalRequestStatus.Completed,
+                Result = result,
+                SenderIdentity = new EmailSenderIdentity
+                {
+                    Name = "Aurora <2026>", IsOrganization = true, ImageUrl = "https://example.com/aurora.png"
+                }
+            });
+        Assert.Equal(heading, model.Heading);
+        Assert.Contains($"<strong>Contract</strong> at Aurora &lt;2026&gt; {ending}", EmailLayout.Render(model));
     }
 
     [Fact]

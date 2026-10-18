@@ -260,7 +260,7 @@ public class ApprovalWorkflowService(
                 task.TenantId,
                 task.GlobalId,
                 NotificationResourceType.ApprovalRequestTask,
-                CreateSummary(task.Title),
+                CreateSummary(NotificationType.ApprovalRequestTaskCreated, task.ApprovalRequest),
                 [new NotificationRecipient(task.AssigneeUserId)],
                 SourceResourceGlobalId: task.GlobalId,
                 SourceResourceType: NotificationResourceType.ApprovalRequestTask))],
@@ -279,7 +279,7 @@ public class ApprovalWorkflowService(
                     group.Key.TenantId,
                     approvalRequest.GlobalId,
                     NotificationResourceType.ApprovalRequest,
-                    CreateSummary(approvalRequest.Title),
+                    CreateSummary(NotificationType.ApprovalRequestTaskCompleted, approvalRequest),
                     [new NotificationRecipient(group.Key.AssigneeUserId)],
                     SourceResourceGlobalId: group.OrderBy(task => task.Id).First().GlobalId,
                     SourceResourceType: NotificationResourceType.ApprovalRequestTask))],
@@ -297,7 +297,7 @@ public class ApprovalWorkflowService(
                 approvalRequest.TenantId,
                 approvalRequest.GlobalId,
                 NotificationResourceType.ApprovalRequest,
-                CreateSummary(approvalRequest.Title),
+                CreateSummary(NotificationType.ApprovalRequestStepCompleted, approvalRequest, approvalRequestTask.Result),
                 [new NotificationRecipient(approvalRequest.RequesterUserId)],
                 SourceResourceGlobalId: approvalRequestTask.GlobalId,
                 SourceResourceType: NotificationResourceType.ApprovalRequestTask)],
@@ -313,7 +313,7 @@ public class ApprovalWorkflowService(
                 approvalRequest.TenantId,
                 approvalRequest.GlobalId,
                 NotificationResourceType.ApprovalRequest,
-                CreateRequestCompletedSummary(approvalRequest),
+                CreateSummary(NotificationType.ApprovalRequestCompleted, approvalRequest),
                 [new NotificationRecipient(approvalRequest.RequesterUserId)],
                 SourceResourceGlobalId: approvalRequest.GlobalId,
                 SourceResourceType: NotificationResourceType.ApprovalRequest)],
@@ -365,18 +365,25 @@ public class ApprovalWorkflowService(
         return tasks;
     }
 
-    private static string CreateSummary(string title) => title;
-
-    private static string CreateRequestCompletedSummary(ApprovalRequest request)
+    private static string CreateSummary(NotificationType type, ApprovalRequest request, bool? stepResult = null)
     {
-        var ending = request.Status switch
+        var requestEnding = request.Status switch
         {
             ApprovalRequestStatus.Canceled => " was canceled.",
             ApprovalRequestStatus.Superseded => " was replaced by a newer revision.",
             _ when request.Result == false => " failed.",
-            _ when request.Result == true => " was successful.",
+            _ when request.Result == true => " succeeded.",
             _ => " was completed."
         };
-        return $"Your request titled {request.Title}{ending}";
+        return type switch
+        {
+            NotificationType.ApprovalRequestTaskCreated => request.Title,
+            NotificationType.ApprovalRequestTaskCompleted =>
+                $"Your task for the request titled {request.Title} was completed automatically.",
+            NotificationType.ApprovalRequestStepCompleted =>
+                $"A step in your request titled {request.Title} " + (stepResult == false ? "failed." : "succeeded."),
+            NotificationType.ApprovalRequestCompleted => $"Your request titled {request.Title}{requestEnding}",
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unsupported workflow notification type.")
+        };
     }
 }

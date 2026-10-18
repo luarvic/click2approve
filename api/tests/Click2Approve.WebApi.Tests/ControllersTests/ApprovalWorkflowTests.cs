@@ -109,7 +109,7 @@ public sealed class ApprovalWorkflowTests(CustomWebApplicationFactory<Program> f
         Assert.Equal(ApprovalRequestStatus.Completed, completed.Status);
         Assert.True(completed.Result);
         Assert.NotNull(completed.CompletedAt);
-        await AssertCompletionNotificationAsync(completed, "Your request titled Two-step approval was successful.");
+        await AssertCompletionNotificationAsync(completed, "Your request titled Two-step approval succeeded.");
         Assert.Equal(HttpStatusCode.BadRequest, (await CompleteAsync(last, lastTask.GlobalId, true)).StatusCode);
         var replayed = await ReadAsync(id);
         Assert.Equal(completed.CompletedAt, replayed.CompletedAt);
