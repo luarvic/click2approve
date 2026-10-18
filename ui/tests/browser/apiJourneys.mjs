@@ -50,6 +50,10 @@ try {
   const approver = await approverContext.newPage();
   requester.setDefaultTimeout(10000);
   approver.setDefaultTimeout(10000);
+  // A cold Vite server may still be bundling dependencies during the first page load in CI.
+  // Give navigation its own allowance without slowing down failures for page actions.
+  requester.setDefaultNavigationTimeout(60000);
+  approver.setDefaultNavigationTimeout(60000);
   const signIn = async (page, email, tenant) => {
     await page.addInitScript(
       (email) =>
@@ -91,18 +95,20 @@ try {
     await approver.getByText(title, { exact: true }).click();
     await approver.getByRole("radio", { name: approve ? "Approve" : "Reject", exact: true }).check();
     if (!approve) await approver.getByRole("textbox", { name: /^Comment/ }).fill("Please revise the document");
-    const completed = approver.waitForResponse(
-      (response) => response.request().method() === "POST" && response.url().includes("/tasks/complete"),
-    );
-    await approver.getByRole("button", { name: "Submit", exact: true }).click();
-    assert.equal((await completed).status(), 200);
+    const [completed] = await Promise.all([
+      approver.waitForResponse(
+        (response) => response.request().method() === "POST" && response.url().includes("/tasks/complete"),
+      ),
+      approver.getByRole("button", { name: "Complete", exact: true }).click(),
+    ]);
+    assert.equal(completed.status(), 200);
     await requester.goto(`${config.uiUrl}/app/tenants/${config.ownerTenant}/requests/${requestId}`);
-    await expect(requester.getByText(approve ? "Approved" : "Rejected", { exact: true }).first()).toBeVisible();
+    await expect(requester.getByText(approve ? "Succeeded" : "Failed", { exact: true }).first()).toBeVisible();
   }
   await requester.goto(`${config.uiUrl}/app/tenants/new`);
   await requester.getByRole("textbox", { name: /^Business name/ }).fill("Browser paid organization");
   await requester.getByRole("button", { name: "Next", exact: true }).click();
-  await requester.getByRole("button", { name: "Choose Business Starter", exact: true }).click();
+  await requester.getByRole("button", { name: "Subscribe to Business Starter", exact: true }).click();
   await expect(requester.getByRole("heading", { name: "Test payment provider" })).toBeVisible();
   const paidTenant = new URL(requester.url()).searchParams.get("tenant");
   const returnFromCheckout = async (linkName, paymentResolutionRequired) => {
