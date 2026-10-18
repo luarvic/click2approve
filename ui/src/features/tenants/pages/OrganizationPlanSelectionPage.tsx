@@ -100,12 +100,12 @@ const OrganizationPlanSelectionPage = () => {
                   actions={
                     <Button
                       variant="text"
-                      aria-label={`Choose ${name}`}
+                      aria-label={`Subscribe to ${name}`}
                       disabled={action.isRunning || checkoutIsOpening}
                       loading={(action.isRunning || checkoutIsOpening) && selectedPlan === plan}
                       onClick={() => void choose(plan)}
                     >
-                      Choose
+                      Subscribe
                     </Button>
                   }
                   limits={configuration}

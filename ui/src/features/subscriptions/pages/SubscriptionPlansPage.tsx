@@ -381,7 +381,7 @@ const SubscriptionPlansPage = () => {
                     <Button
                       size="small"
                       variant="text"
-                      aria-label={`Choose ${planNames[plan]}`}
+                      aria-label={`Subscribe to ${planNames[plan]}`}
                       loading={(changePlanAction.isRunning && changingPlan === plan) || checkoutOpeningPlan === plan}
                       disabled={changesDisabled}
                       onClick={() =>
@@ -390,7 +390,7 @@ const SubscriptionPlansPage = () => {
                         })
                       }
                     >
-                      Choose
+                      Subscribe
                     </Button>
                   )}
                   {billing.scheduledPlan === plan && !billing.cleanupStarted && !billing.paymentResolutionRequired && (

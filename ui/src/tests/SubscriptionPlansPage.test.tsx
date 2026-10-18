@@ -92,7 +92,7 @@ describe("plans and billing", () => {
     fireEvent.click(cancel);
     await waitFor(() => expect(mocks.cancelPending).toHaveBeenCalledWith("test"));
     await waitFor(() => expect(screen.queryByRole("button", { name: "Cancel change" })).toBeNull());
-    expect(screen.getByRole("button", { name: "Choose Personal Pro" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Subscribe to Personal Pro" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Personal Free" }).closest(".MuiCard-root")?.textContent).toContain(
       "Active",
     );
@@ -297,7 +297,7 @@ describe("plans and billing", () => {
       expect(screen.getByRole("button", { name: "Manage billing" }).hasAttribute("disabled")).toBe(false),
     );
   });
-  it("keeps the existing cards and Choose spinner visible until Checkout opens", async () => {
+  it("keeps the existing cards and Subscribe spinner visible until Checkout opens", async () => {
     mocks.change.mockResolvedValue({
       ...active,
       pendingPlan: SubscriptionPlan.PersonalPro,
@@ -305,7 +305,7 @@ describe("plans and billing", () => {
     });
     const assign = vi.spyOn(window.location, "assign").mockImplementation(() => undefined);
     showPage();
-    const choose = await screen.findByRole("button", { name: "Choose Personal Pro" });
+    const choose = await screen.findByRole("button", { name: "Subscribe to Personal Pro" });
     fireEvent.click(choose);
     await waitFor(() => expect(assign).toHaveBeenCalledWith("https://checkout.stripe.com/test"));
     expect(within(choose).getByRole("progressbar")).toBeTruthy();
@@ -321,7 +321,7 @@ describe("plans and billing", () => {
     fireEvent(window, pageShowEvent);
     await waitFor(() => expect(mocks.refresh).toHaveBeenCalledTimes(2));
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: "Choose Personal Pro" }).hasAttribute("disabled")).toBe(false),
+      expect(screen.getByRole("button", { name: "Subscribe to Personal Pro" }).hasAttribute("disabled")).toBe(false),
     );
   });
   it("restores pending payment actions if Checkout navigation fails", async () => {
@@ -332,7 +332,7 @@ describe("plans and billing", () => {
       throw new Error("Navigation failed");
     });
     showPage();
-    fireEvent.click(await screen.findByRole("button", { name: "Choose Personal Pro" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Subscribe to Personal Pro" }));
     expect(await screen.findByRole("button", { name: "Resolve payment" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Cancel change" }).hasAttribute("disabled")).toBe(false);
   });
@@ -394,7 +394,7 @@ describe("plans and billing", () => {
     fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
     expect(mocks.cancel).not.toHaveBeenCalled();
   });
-  it("shows the scheduled effective date and explicit Choose buttons only for other plans", async () => {
+  it("shows the scheduled effective date and explicit Subscribe buttons only for other plans", async () => {
     mocks.tenant.type = TenantType.Business;
     mocks.tenant.subscriptionPlan = SubscriptionPlan.BusinessStandard;
     const effectiveAt = "2026-10-08T14:30:00Z";
@@ -408,11 +408,11 @@ describe("plans and billing", () => {
     expect(await screen.findByText(`Effective ${new Date(effectiveAt).toLocaleString()}`)).toBeTruthy();
     const scheduledCard = screen.getByRole("heading", { name: "Business Starter" }).closest(".MuiCard-root");
     expect(scheduledCard?.textContent).toContain("Planned");
-    expect(screen.getAllByRole("button", { name: /^Choose / })).toHaveLength(2);
-    expect(screen.queryByRole("button", { name: "Choose Business Standard" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Choose Business Starter" })).toBeNull();
+    expect(screen.getAllByRole("button", { name: /^Subscribe to / })).toHaveLength(2);
+    expect(screen.queryByRole("button", { name: "Subscribe to Business Standard" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Subscribe to Business Starter" })).toBeNull();
   });
-  it("shows a spinner only on the selected Choose button while disabling the others", async () => {
+  it("shows a spinner only on the selected Subscribe button while disabling the others", async () => {
     mocks.tenant.type = TenantType.Business;
     mocks.tenant.subscriptionPlan = SubscriptionPlan.BusinessTrial;
     let rejectChange!: (error: Error) => void;
@@ -423,10 +423,10 @@ describe("plans and billing", () => {
     );
     showPage();
     const selected = await screen.findByRole("button", {
-      name: "Choose Business Starter",
+      name: "Subscribe to Business Starter",
     });
     const other = screen.getByRole("button", {
-      name: "Choose Business Standard",
+      name: "Subscribe to Business Standard",
     });
     fireEvent.click(selected);
     expect(within(selected).getByRole("progressbar")).toBeTruthy();
