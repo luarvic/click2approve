@@ -3,7 +3,7 @@ import { TenantType } from "@/features/tenants/models/tenant";
 import { getTenantCapabilities } from "@/features/tenants/utils/tenantCapabilities";
 import { Shell } from "@/shared/components/layout/shellStyles";
 import { Lists } from "@/shared/components/lists/listStyles";
-import { Api, Refresh } from "@/shared/config/application";
+import { Refresh } from "@/shared/config/application";
 import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
@@ -11,12 +11,14 @@ import {
   AssignmentTurnedInTwoTone,
   AssignmentTwoTone,
   AutoDeleteTwoTone,
+  BugReportTwoTone,
   BusinessTwoTone,
   ContentCopyTwoTone,
   GroupsTwoTone,
-  HelpCenterTwoTone,
+  MenuBookTwoTone,
   PeopleAltTwoTone,
   PersonTwoTone,
+  QuestionAnswerTwoTone,
   ReceiptLongTwoTone,
   ShowChartTwoTone,
   StyleTwoTone,
@@ -167,7 +169,7 @@ const MainMenuDrawer = () => {
   };
 
   const drawerContent = (
-    <Box>
+    <Box sx={Shell.mainMenuDrawerContainerSx}>
       <Toolbar disableGutters sx={Shell.mainMenuDrawerToolbarSx}>
         <Link
           component="button"
@@ -177,8 +179,11 @@ const MainMenuDrawer = () => {
           onClick={() => navigateWorkspaceMenu(Routes.tasksPath)}
         >
           <Box component="img" src={logoSrc} alt="" aria-hidden="true" sx={Shell.mainMenuLogoSx} />
-          <Typography variant="h6" sx={Shell.appBarBrandTitleSx}>
+          <Typography component="span" variant="h6" sx={Shell.appBarBrandTitleSx}>
             Click2Approve
+            <Typography component="span" sx={Shell.appBarBrandSubtitleSx}>
+              App
+            </Typography>
           </Typography>
         </Link>
       </Toolbar>
@@ -421,11 +426,45 @@ const MainMenuDrawer = () => {
         )}
         <List subheader={<ListSubheader component="div">Support</ListSubheader>}>
           <ListItem key="help" disablePadding>
-            <ListItemButton component="a" href={Api.uiBaseUri} onClick={closeTemporaryDrawer}>
+            <ListItemButton
+              component="a"
+              href="/docs/"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={closeTemporaryDrawer}
+            >
               <ListItemIcon sx={Lists.itemIconSx}>
-                <HelpCenterTwoTone />
+                <MenuBookTwoTone />
               </ListItemIcon>
-              <ListItemText primary="Help" />
+              <ListItemText primary="Docs" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem key="reportBug" disablePadding>
+            <ListItemButton
+              component="a"
+              href="https://github.com/luarvic/click2approve/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={closeTemporaryDrawer}
+            >
+              <ListItemIcon sx={Lists.itemIconSx}>
+                <BugReportTwoTone />
+              </ListItemIcon>
+              <ListItemText primary="Report a bug" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem key="askQuestion" disablePadding>
+            <ListItemButton
+              component="a"
+              href="https://github.com/luarvic/click2approve/discussions"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={closeTemporaryDrawer}
+            >
+              <ListItemIcon sx={Lists.itemIconSx}>
+                <QuestionAnswerTwoTone />
+              </ListItemIcon>
+              <ListItemText primary="Ask question" />
             </ListItemButton>
           </ListItem>
         </List>

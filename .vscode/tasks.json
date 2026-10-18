@@ -48,6 +48,23 @@
       "isBackground": true
     },
     {
+      "label": "setup-docs",
+      "type": "shell",
+      "command": "python3 -m venv .venv-docs && .venv-docs/bin/python -m pip install -r docs/requirements.txt",
+      "options": {"cwd": "${workspaceFolder}/ui"},
+      "problemMatcher": []
+    },
+    {
+      "label": "run-docs",
+      "type": "process",
+      "command": "${workspaceFolder}/ui/.venv-docs/bin/python",
+      "args": ["-m", "mkdocs", "serve", "--dev-addr", "127.0.0.1:8000"],
+      "options": {"cwd": "${workspaceFolder}/ui"},
+      "dependsOn": "setup-docs",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
       "label": "run-webapi",
       "type": "shell",
       "command": "dotnet",

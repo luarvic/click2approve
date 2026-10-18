@@ -97,10 +97,26 @@ export const Shell = {
   appBarBrandTitleSx: {
     display: "block",
     color: "inherit",
-    overflow: "hidden",
+    fontSize: "19px",
+    fontWeight: 600,
+    letterSpacing: "normal",
+    position: "relative",
     textDecoration: "none",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
+    "@media (max-width: 700px)": {
+      fontSize: "18px",
+    },
+  } as SxProps<Theme>,
+  appBarBrandSubtitleSx: {
+    color: "text.secondary",
+    fontSize: "12px",
+    fontWeight: 400,
+    letterSpacing: "normal",
+    left: 0,
+    lineHeight: "12px",
+    position: "absolute",
+    top: "calc(100% - 4px)",
   } as SxProps<Theme>,
   tenantPickerSx: {
     flex: "0 1 auto",
@@ -159,12 +175,20 @@ export const Shell = {
         duration: theme.transitions.duration.leavingScreen,
       }),
   }),
+  mainMenuDrawerContainerSx: {
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+    minHeight: 0,
+    overflow: "hidden",
+  } as SxProps<Theme>,
   mainMenuDrawerToolbarSx: {
     borderBottom: 1,
     borderColor: "divider",
     boxSizing: "border-box",
     height: appBarHeight,
     minHeight: appBarHeight,
+    flexShrink: 0,
     pl: 2,
     pr: 1,
   } as SxProps<Theme>,
@@ -174,7 +198,10 @@ export const Shell = {
   mainMenuDrawerContentSx: {
     borderRight: 1,
     borderColor: "divider",
-    minHeight: `calc(100vh - ${appBarHeight}px)`,
+    flex: 1,
+    minHeight: 0,
+    overflowY: "auto",
+    overscrollBehavior: "contain",
   } as SxProps<Theme>,
   drawerPaperSx: {
     "& .MuiDrawer-paper": {

@@ -2,7 +2,7 @@ import { AuthResponse } from "@/features/identity/models/authResponse";
 import { PaletteMode } from "@mui/material";
 
 export const TOKENS_STORAGE_KEY = "tokens";
-const COLOR_MODE_KEY: string = "colorMode";
+export const COLOR_MODE_KEY = "colorMode";
 const CURRENT_TENANT_GLOBAL_ID_KEY: string = "currentTenantGlobalId";
 const CURRENT_WORK_EMPLOYEE_GLOBAL_ID_KEY: string = "currentWorkEmployeeGlobalId";
 const PASSKEY_ENROLLMENT_PROMPT_DISMISSED_KEY: string = "passkeyEnrollmentPromptDismissed";
@@ -33,7 +33,7 @@ export const writeColorMode = (colorMode: PaletteMode) => {
 
 export const readColorMode = (): PaletteMode => {
   const colorMode = localStorage.getItem(COLOR_MODE_KEY);
-  if (colorMode) return colorMode as PaletteMode;
+  if (colorMode === "light" || colorMode === "dark") return colorMode;
 
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 };

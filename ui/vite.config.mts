@@ -6,6 +6,11 @@ export default defineConfig(() => {
   return {
     server: {
       port: 3333,
+      proxy: {
+        "^/$": "http://127.0.0.1:8000",
+        "^/(?:docs|contact|terms|privacy|assets|stylesheets|javascripts|search|livereload)(?:/|$)":
+          "http://127.0.0.1:8000",
+      },
     },
     base: "/app",
     plugins: [react()],

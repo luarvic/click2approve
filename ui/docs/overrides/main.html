@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block htmltitle %}
+  <title>{% if page and not page.is_homepage %}{{ page.title | striptags | e }} · {% endif %}{{ config.site_name }}</title>
+{% endblock %}
+
+{% block footer %}
+  {% include "partials/site-footer.html" %}
+{% endblock %}

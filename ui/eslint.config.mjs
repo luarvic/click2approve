@@ -5,7 +5,7 @@ import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
 
 export default [
-  { ignores: ["dist/**", "node_modules/**"] },
+  { ignores: ["dist/**", "site/**", ".venv-docs/**", "node_modules/**"] },
   {
     files: ["**/*.{ts,tsx}"],
     languageOptions: {

@@ -1,0 +1,34 @@
+{% extends "marketing.html" %}
+{% block marketing_content %}
+<section class="site-hero" aria-labelledby="hero-title">
+  <div class="site-hero-copy">
+    <p class="site-eyebrow"><span></span> DOCUMENT WORKFLOWS, WITHOUT THE CHASE</p>
+    <h1 id="hero-title">Less following up.<br />More moving <em>forward.</em></h1>
+    <p class="site-lead">Turn a document into a clear next step. Send it for approval, collect decisions, and keep the conversation together.</p>
+    <div class="site-actions">
+      <a class="site-button" href="/app/" target="_blank" rel="noopener noreferrer">Open Click2Approve <span aria-hidden="true">↗</span></a>
+      <a class="site-text-link" href="{{ 'docs/' | url }}" target="_blank" rel="noopener noreferrer">See how it works <span aria-hidden="true">→</span></a>
+    </div>
+    <p class="site-hero-note">From a quick review to a multi-step approval.</p>
+  </div>
+  <figure class="workflow-preview" aria-label="Example document approval workflow">
+    <figcaption><span class="preview-dot"></span> EXAMPLE WORKFLOW <span class="preview-state">In progress</span></figcaption>
+    <div class="preview-document"><span class="document-icon" aria-hidden="true">↳</span><div><strong>Website launch proposal</strong><span>1 document · 3 steps</span></div></div>
+    <ol class="preview-steps">
+      <li class="step-complete"><span class="step-number" aria-hidden="true">✓</span><div><strong>Review the details</strong><span>Project team</span></div><span class="step-status">Reviewed</span></li>
+      <li class="step-current"><span class="step-number" aria-hidden="true">2</span><div><strong>Approve the proposal</strong><span>Project lead</span></div><span class="step-status">Up next</span></li>
+      <li><span class="step-number" aria-hidden="true">3</span><div><strong>Sign off and go</strong><span>Requester</span></div><span class="step-status">Waiting</span></li>
+    </ol>
+    <div class="preview-footer"><span class="preview-avatar" aria-hidden="true">JD</span><p><strong>One place for the whole decision.</strong><br />Documents, discussion, and request history.</p></div>
+  </figure>
+</section>
+<section class="site-process" aria-labelledby="process-title">
+  <div class="site-section-heading"><p class="site-eyebrow">FROM SENT TO SETTLED</p><h2 id="process-title">A clear path for every request.</h2><p>Everyone knows what needs to happen next.</p></div>
+  <div class="site-process-grid">
+    <article><span class="process-number">01 / PREPARE</span><h3>Bring the context.</h3><p>Attach your documents, add a description, and give people the information they need to decide.</p></article>
+    <article><span class="process-number">02 / ROUTE</span><h3>Set the next step.</h3><p>Choose who takes action and in what order. Use serial or parallel steps to match your workflow.</p></article>
+    <article><span class="process-number">03 / FOLLOW THROUGH</span><h3>Keep the full picture.</h3><p>See request progress, follow the discussion, and review completed decisions in one place.</p></article>
+  </div>
+</section>
+<section class="site-guide" aria-labelledby="guide-title"><div><p class="site-eyebrow">YOUR FIRST WORKFLOW</p><h2 id="guide-title">Start with one document.</h2><p>Our guides take you from creating a request to completing your first task.</p></div><a class="site-text-link" href="{{ 'docs/' | url }}" target="_blank" rel="noopener noreferrer">Read the getting started guide <span aria-hidden="true">→</span></a></section>
+{% endblock %}

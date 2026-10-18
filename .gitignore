@@ -29,6 +29,11 @@ build/
 dist/
 coverage/
 
+# User documentation build and Python tooling
+/ui/site/
+/ui/.venv-docs/
+__pycache__/
+
 # Local environment and logs
 .env
 .env.*

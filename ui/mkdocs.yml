@@ -1,0 +1,54 @@
+site_name: Click2Approve
+site_description: Document workflows, clear decisions, and a shared record of what happens next.
+site_url: !ENV [DOCS_SITE_URL, "https://click2approve.com/"]
+docs_dir: docs/content
+site_dir: site
+strict: true
+
+nav:
+  - Home: index.md
+  - Documentation:
+      - Getting started: docs/index.md
+      - Create a request: docs/create-a-request.md
+      - Complete a task: docs/complete-a-task.md
+  - Contact: contact.md
+  - Terms: terms.md
+  - Privacy: privacy.md
+
+theme:
+  name: material
+  custom_dir: docs/overrides
+  font: false
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+plugins:
+  - search
+
+hooks:
+  - docs/hooks.py
+
+extra_css:
+  - stylesheets/app.css
+
+extra_javascript:
+  - javascripts/app-bar.js
+
+extra:
+  homepage: /
+  generator: false

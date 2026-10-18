@@ -13,6 +13,73 @@ TypeScript is held at 6.0.x because `@typescript-eslint` 8.70.1 requires
 TypeScript below 6.1. Upgrade to TypeScript 7 when the lint tooling supports it;
 do not bypass peer dependency checks with `--force` or `--legacy-peer-deps`.
 
+## User documentation
+
+The UI Docker image builds one MkDocs Material site at `/`, with a prototype
+landing page, `/contact/`, `/terms/`, `/privacy/`, and user documentation under
+`/docs/`. The Docs menu opens `/docs/`; `/docs` redirects to `/docs/`. The React
+application is served separately at `/app/`. Terms and privacy are explicitly
+marked placeholders and need final content before release.
+
+From `ui/`, install the app dependencies (`npm ci`) and the documentation tools:
+
+```sh
+python3 -m venv .venv-docs
+.venv-docs/bin/python -m pip install -r docs/requirements.txt
+.venv-docs/bin/python -m mkdocs serve --dev-addr 127.0.0.1:8000
+```
+
+Preview the landing page at `http://127.0.0.1:8000/` and guides at
+`http://127.0.0.1:8000/docs/`. With the Vite development server running,
+`http://localhost:3333/` and the public-site paths proxy to MkDocs, while `/app/`
+serves React. Use port 3333 to try the complete navigation. Restart an existing
+MkDocs preview after changing `site_url`, since its mount path is set at startup.
+
+In VS Code, choose **Tasks: Run Task → run-docs**. This task runs `setup-docs`
+first to create the virtual environment and install dependencies, then starts
+the preview on port 8000. Both the business and public repository workspaces
+provide these tasks. Stop it through **Tasks: Terminate Task**.
+
+The homepage metadata in `docs/content/index.md` selects `docs/overrides/landing.html`.
+Supporting pages use `template: marketing.html`; their content stays in Markdown.
+User guides live in `docs/content/docs/` and retain the documentation shell. Add
+new guides under the Documentation entry in `mkdocs.yml`; only that section appears
+in the documentation drawer. Marketing presentation lives in
+`docs/content/stylesheets/marketing.css`; shared public links are in
+`docs/overrides/partials/site-footer.html`. The documentation theme uses the app's logo and locally
+served Sora font files through `docs/hooks.py`; no external font service is needed.
+Keep `docs/content/stylesheets/app.css` aligned with the app theme and shell.
+The header and palette overrides in `docs/overrides/partials/` mirror
+`PublicAppBar` and `ColorModeSwitch`, including their dimensions, icons, and
+colors. `docs/content/javascripts/app-bar.js` connects the accessible switch and
+toolbar buttons to Material's existing theme, search, and navigation controls.
+The navigation override mirrors the app's 240px left drawer, including its brand
+header, section labels, and selected menu rows. It stays open from 1200px and
+becomes an overlay menu on smaller screens. Both app and docs drawers keep the
+branding row fixed while only the navigation items scroll. Pages use the app's 16px content
+padding and compact page titles, without a surrounding article card.
+The drawer's right divider starts below its branding row. The app bar uses the
+compact app logo without brand text when the main menu is closed; opening the
+menu hides the app-bar logo, matching `/app`. Search uses the app's outlined
+input styling and a matching results popup, with a visible field at all widths.
+The app and docs share the `colorMode` browser preference, including live updates
+across tabs on the same origin. For local development, open docs through Vite's
+`/docs/` proxy to share storage with `/app/`.
+
+Build static documentation into `ui/site/` with:
+
+```sh
+.venv-docs/bin/python -m mkdocs build --strict
+```
+
+Both repositories' CI workflows validate this build. When publishing, optionally
+set `DOCS_SITE_URL=https://your-domain.example/` for canonical and sitemap
+URLs (or pass `--build-arg DOCS_SITE_URL=https://your-domain.example/` to
+`docker build`). The default is `https://click2approve.com/`. Despite the retained variable name,
+`DOCS_SITE_URL` now specifies the whole public site origin, not its `/docs/` section.
+The build generates `site/index.html`, `site/docs/index.html`, and the supporting
+pages. Nginx serves this output at the root and the React output from `/app/`.
+
 ## Style and settings ownership
 
 | Responsibility                                     | Location                                                | Examples                                                         |

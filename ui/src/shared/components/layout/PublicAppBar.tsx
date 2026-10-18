@@ -46,8 +46,11 @@ const PublicAppBar = ({
                 sx={showBrandTitle ? Shell.mainMenuLogoSx : Shell.appBarLogoSx}
               />
               {showBrandTitle && (
-                <Typography variant="h6" sx={Shell.appBarBrandTitleSx}>
+                <Typography component="span" variant="h6" sx={Shell.appBarBrandTitleSx}>
                   Click2Approve
+                  <Typography component="span" sx={Shell.appBarBrandSubtitleSx}>
+                    App
+                  </Typography>
                 </Typography>
               )}
             </Link>
