@@ -21,37 +21,52 @@ const plan: SubscriptionPlanConfiguration = {
 
 afterEach(cleanup);
 
-describe("plan token explanation", () => {
-  it("shows the published price, capacity, expiry, and a priced workload example", () => {
+describe("plan pricing summary", () => {
+  it("shows the paid price and capacity without detailed token explanations", () => {
     render(<PlanPriceCard title="Business Pro" limits={plan} actions={null} />);
     expect(screen.getByText("$100 USD / month")).toBeTruthy();
     expect(screen.getByText("Excluding taxes")).toBeTruthy();
     expect(screen.getByText("300,000 tokens included")).toBeTruthy();
     expect(screen.getByText("100 GB storage")).toBeTruthy();
     expect(screen.getByText("Configurable retention")).toBeTruthy();
-    expect(screen.getByText(/Unused tokens expire/)).toBeTruthy();
-    expect(screen.getByText(/use 75 tokens/)).toBeTruthy();
-    expect(screen.getByText("Submit or resubmit request: 10 tokens")).toBeTruthy();
+    expect(screen.queryByText(/Tokens renew/)).toBeNull();
+    expect(screen.queryByText(/Unused tokens expire/)).toBeNull();
+    expect(screen.queryByText(/Example:/)).toBeNull();
+    expect(screen.queryByText(/Submit or resubmit request:/)).toBeNull();
     expect(screen.queryByText(/Complete task:/)).toBeNull();
     expect(screen.queryByText(/Cancel request:/)).toBeNull();
     expect(screen.queryByText("Unlimited requests")).toBeNull();
   });
 
-  it("calculates examples from server rates and explains the trial is one month only", () => {
+  it("shows the trial duration without a monthly price or tax disclaimer", () => {
     render(
       <PlanPriceCard
         title="Business Trial"
         limits={{
           ...plan,
           plan: SubscriptionPlan.BusinessTrial,
+          monthlyPriceUsd: 0,
           configurableRetention: false,
-          tokenPrices: { ...plan.tokenPrices, FileUpload: 2 },
         }}
         actions={null}
       />,
     );
     expect(screen.getByText("1 month retention")).toBeTruthy();
-    expect(screen.getByText(/One month only. Tokens are granted once/)).toBeTruthy();
-    expect(screen.getByText(/use 85 tokens/)).toBeTruthy();
+    expect(screen.getByText("Free for 1 month")).toBeTruthy();
+    expect(screen.queryByText(/USD \/ month/)).toBeNull();
+    expect(screen.queryByText("Excluding taxes")).toBeNull();
+  });
+
+  it("shows Personal Free without a monthly price or tax disclaimer", () => {
+    render(
+      <PlanPriceCard
+        title="Personal Free"
+        limits={{ ...plan, plan: SubscriptionPlan.PersonalFree, monthlyPriceUsd: 0 }}
+        actions={null}
+      />,
+    );
+    expect(screen.getByText("Free")).toBeTruthy();
+    expect(screen.queryByText(/USD \/ month/)).toBeNull();
+    expect(screen.queryByText("Excluding taxes")).toBeNull();
   });
 });

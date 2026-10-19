@@ -15,7 +15,7 @@ Each plan includes tokens. Personal Free renews monthly from its initial period 
 
 ## What uses tokens
 
-The current rates appear on **Plans**. Initial rates are:
+Token rates are:
 
 | Action | Tokens |
 | --- | --- |
@@ -29,9 +29,22 @@ Reading request and task details or lists, completing tasks, and cancelling requ
 
 Transfers use decimal MB (1,000,000 bytes). Small files consume fractional tokens, rather than rounding up each file to one MB. File previews also transfer data. Viewing a copy already cached by your browser does not cause another server transfer. Successful file transfers are charged for document bytes, without the data-URL encoding overhead.
 
-For example, 10 MB uploaded, 10 MB downloaded, five emails, one request, and five tasks created use **75 tokens** at these rates.
-
 Requests and tasks are charged to the originating workflow workspace, even when an approver uses a personal inbox. Uploads from task and discussion pages belong to the request's workspace, which pays for their upload, storage, and downloads. Uploads made while preparing a new request belong to the selected workspace. Account verification, password resets, security notices, billing emails, and public branding assets do not consume workspace tokens.
+
+## Example workflow
+
+A workflow with 10 MB uploaded, 10 MB viewed or downloaded, five workflow email recipient deliveries, one request submitted, and five tasks created uses **75 tokens**:
+
+| Activity | Calculation | Tokens used |
+| --- | --- | --- |
+| Upload 10 MB | 10 × 1 | 10 |
+| View or download 10 MB | 10 × 2 | 20 |
+| Deliver five workflow emails to one recipient each | 5 × 5 | 25 |
+| Submit one request | 1 × 10 | 10 |
+| Create five tasks | 5 × 2 | 10 |
+| **Total** | | **75** |
+
+Completing those tasks does not itself consume tokens. Further file transfers, emails, resubmissions, or tasks created by later workflow steps are charged separately at the rates above.
 
 ## Charging and insufficient tokens
 

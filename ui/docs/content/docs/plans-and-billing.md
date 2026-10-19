@@ -2,15 +2,25 @@
 
 Personal workspaces offer **Personal Free** ($0/month, 1 GB) and **Personal Pro** ($20/month, 10 GB). Organizations offer **Business Trial** ($0 for one month only, 1 GB) and **Business Pro** ($100/month, 100 GB). All prices are in USD excluding taxes.
 
-Plans include a token allowance for uploads, file viewing and downloads, workflow emails, requests, and tasks. Plan cards show current rates and an example. Unused tokens expire at the end of the period. See [Usage and tokens](usage.md) for allowances and spending rules.
+Plans include a token allowance for uploads, file viewing and downloads, workflow emails, requests, and tasks. Plan cards show the price followed by a bulleted list of included tokens, storage, and retention. Personal Free is labeled **Free**, and Business Trial is labeled **Free for 1 month**. See [Usage and tokens](usage.md) for renewal and expiry rules, token rates, and a worked example.
 
 Personal Free and Business Trial retain requests and notifications for one month. Paid plans allow configurable retention.
+
+## Included tokens and storage
+
+- **Personal Free:** tokens renew each month from the workspace's initial period date.
+- **Personal Pro and Business Pro:** tokens renew each verified paid billing period.
+- **Business Trial:** the trial lasts one month, and tokens are granted once. The trial allowance does not renew.
+
+Unused tokens expire at the end of their period and do not roll over. Storage is a separate limit: it measures files currently stored, rather than the amount you can upload each month. Keeping a file uses storage capacity without spending additional tokens.
+
+Uploads, file viewing and downloads, workflow email recipient deliveries, request submission or resubmission, and task creation spend tokens. See [token rates](usage.md#what-uses-tokens) for the cost of each action and a [worked example](usage.md#example-workflow).
 
 ## Choose a plan
 
 Select the workspace and open **Plans**. Personal users manage their own subscription; organization Owners and Admins manage the organization's subscription. Ordinary organization members cannot perform plan-card management actions.
 
-Use **Choose** on the desired plan. A paid plan activates only after payment is verified. Follow Checkout and return to Plans to check the result. Closing Checkout or returning from it does not by itself confirm successful payment.
+Use **Subscribe** on the desired plan. A paid plan activates only after payment is verified. Follow Checkout and return to Plans to check the result. Closing Checkout or returning from it does not by itself confirm successful payment.
 
 For new organizations, choosing a plan creates the workspace. Paid organizations remain restricted until payment succeeds. Business Trial can be used only once per owner.
 
