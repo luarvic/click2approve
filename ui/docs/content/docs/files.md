@@ -25,3 +25,7 @@ A revision can add, remove, or replace request files. Review the current file li
 ## Upload problems
 
 Wait for uploads to finish before submitting. If an upload is rejected, read the error and check the file and workspace's [usage limits](usage.md). Avoid repeatedly submitting while a request is still processing. See [Troubleshooting](troubleshooting.md) for failed actions.
+
+## Tokens and storage
+
+Uploads and file viewing/downloads consume tokens; file size also counts toward a separate storage allowance. Task and discussion uploads carry their workflow context so the originating workspace pays. Generic uploads use the selected workspace. Uploads are charged after success; failed uploads are not charged. Concurrent transfers can overdraw the token balance; an interrupted download is charged for document bytes transferred. See [Usage and tokens](usage.md).

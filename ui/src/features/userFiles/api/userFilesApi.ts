@@ -5,7 +5,11 @@ import { ApiPaths } from "@/shared/api/apiPaths";
 import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
 
-export const uploadUserFiles = async (tenantGlobalId: string, files: FileList | File[]): Promise<UserFile[]> => {
+export const uploadUserFiles = async (
+  tenantGlobalId: string,
+  files: FileList | File[],
+  context?: { taskGlobalId?: string; requestGlobalId?: string },
+): Promise<UserFile[]> => {
   try {
     const formData = new FormData();
     Array.from(files).forEach((file) => {
@@ -13,6 +17,7 @@ export const uploadUserFiles = async (tenantGlobalId: string, files: FileList | 
     });
     const { data } = await axios.post<UserFile[]>(ApiPaths.tenants.fileUpload(tenantGlobalId), formData, {
       headers: { "Content-Type": "multipart/form-data" },
+      params: context,
     });
     return data.map(normalizeUserFileDates);
   } catch (e) {

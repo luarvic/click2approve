@@ -22,3 +22,7 @@ Billing's in-app option is disabled; billing email preferences are managed separ
 Check your email address, spam folder, notification preferences, selected workspace, and whether you are an eligible recipient. Email delivery can take time.
 
 If you need to act now, open Tasks or Requests directly rather than waiting for an email. For a delivery failure, provide support with the event time and resource context without sharing credentials.
+
+## Email tokens
+
+Workflow emails consume tokens per recipient, charged to the originating workflow workspace. Tokens are checked before sending and charged when the email provider accepts the send. Queuing a notification does not consume tokens. Disabled email deliveries are not charged. Security, account recovery, and billing emails are included without a workspace token charge. See [Usage and tokens](usage.md).

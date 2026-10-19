@@ -10,10 +10,17 @@ import { useCallback, useRef } from "react";
 
 interface UseUserFileUploadOptions {
   onUploaded: (files: UserFile[]) => void;
+  taskGlobalId?: string;
+  requestGlobalId?: string;
   tenantGlobalId: string | null;
 }
 
-export const useUserFileUpload = ({ onUploaded, tenantGlobalId }: UseUserFileUploadOptions) => {
+export const useUserFileUpload = ({
+  onUploaded,
+  tenantGlobalId,
+  taskGlobalId,
+  requestGlobalId,
+}: UseUserFileUploadOptions) => {
   const fileInput = useRef<HTMLInputElement>(null);
   const uploadAction = useAsyncAction(ActionLoaders.userFiles.upload(tenantGlobalId ?? undefined));
 
@@ -38,12 +45,14 @@ export const useUserFileUpload = ({ onUploaded, tenantGlobalId }: UseUserFileUpl
         );
         return;
       }
-      const uploadedFiles = await uploadAction.run(() => uploadUserFiles(tenantGlobalId, selectedFiles));
+      const uploadedFiles = await uploadAction.run(() =>
+        uploadUserFiles(tenantGlobalId, selectedFiles, { taskGlobalId, requestGlobalId }),
+      );
       if (uploadedFiles?.length) {
         onUploaded(uploadedFiles);
       }
     },
-    [onUploaded, tenantGlobalId, uploadAction],
+    [onUploaded, tenantGlobalId, uploadAction, taskGlobalId, requestGlobalId],
   );
 
   return {

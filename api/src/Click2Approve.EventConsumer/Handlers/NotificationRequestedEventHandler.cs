@@ -46,7 +46,7 @@ public sealed class NotificationRequestedEventHandler(
 
         if (isEmailEnabled)
         {
-            await _notificationEmailService.SendAsync(recipient, payload, cancellationToken);
+            await _notificationEmailService.SendAsync(recipient, payload, envelope.EventId, cancellationToken);
         }
     }
 }

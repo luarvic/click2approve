@@ -108,7 +108,7 @@ try {
   await requester.goto(`${config.uiUrl}/app/tenants/new`);
   await requester.getByRole("textbox", { name: /^Business name/ }).fill("Browser paid organization");
   await requester.getByRole("button", { name: "Next", exact: true }).click();
-  await requester.getByRole("button", { name: "Subscribe to Business Starter", exact: true }).click();
+  await requester.getByRole("button", { name: "Subscribe to Business Pro", exact: true }).click();
   await expect(requester.getByRole("heading", { name: "Test payment provider" })).toBeVisible();
   const paidTenant = new URL(requester.url()).searchParams.get("tenant");
   const returnFromCheckout = async (linkName, paymentResolutionRequired) => {

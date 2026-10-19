@@ -93,15 +93,9 @@ const SubscriptionUsagePage = () => {
   };
   const items = [
     {
-      label: "Requests",
-      used: usage.requestsThisMonth,
-      limit: usage.limits.requestsPerMonth,
-      suffix: "",
-    },
-    {
-      label: "Tasks",
-      used: usage.tasksThisMonth,
-      limit: usage.limits.tasksPerMonth,
+      label: "Tokens",
+      used: usage.tokenAllowance - usage.tokenBalance,
+      limit: usage.tokenAllowance,
       suffix: "",
     },
     {
@@ -120,7 +114,7 @@ const SubscriptionUsagePage = () => {
             titleAction: (
               <HelpPopover
                 docsHref="/docs/usage/"
-                helpText="Check workspace request, task, and storage usage against plan limits."
+                helpText="Check your token balance, renewal date, and total workspace storage."
               />
             ),
           },
@@ -143,7 +137,7 @@ const SubscriptionUsagePage = () => {
             <Grid
               key={item.label}
               size={{
-                md: 4,
+                md: 6,
                 xs: 12,
               }}
             >
@@ -195,6 +189,18 @@ const SubscriptionUsagePage = () => {
           );
         })}
       </Grid>
+      <Typography sx={usageSummarySx}>
+        {usage.tokenBalance.toLocaleString()} tokens available. Unused tokens expire at the end of this period.
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        Uploads, file viewing and downloads, emails, requests, and tasks consume tokens. Stored files count against your
+        storage allowance separately.
+      </Typography>
+      {(usage.actions ?? []).map((action) => (
+        <Typography key={action.action} sx={usageSummarySx}>
+          {action.action.replace(/([a-z])([A-Z])/g, "$1 $2")}: {action.tokens.toLocaleString()} tokens
+        </Typography>
+      ))}
     </NarrowContent>
   );
 };

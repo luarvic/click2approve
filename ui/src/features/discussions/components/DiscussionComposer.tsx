@@ -13,6 +13,8 @@ import { useCallback } from "react";
 
 interface DiscussionComposerProps {
   error?: string;
+  taskGlobalId?: string;
+  requestGlobalId?: string;
   attachmentsAreEnabled: boolean;
   body: string;
   files: UserFile[];
@@ -24,6 +26,8 @@ interface DiscussionComposerProps {
 
 const DiscussionComposer: React.FC<DiscussionComposerProps> = ({
   attachmentsAreEnabled,
+  taskGlobalId,
+  requestGlobalId,
   error,
   body,
   files,
@@ -37,7 +41,7 @@ const DiscussionComposer: React.FC<DiscussionComposerProps> = ({
     (uploadedFiles: UserFile[]) => onFilesChange((currentFiles) => [...currentFiles, ...uploadedFiles]),
     [onFilesChange],
   );
-  const fileUpload = useUserFileUpload({ onUploaded: onFilesUploaded, tenantGlobalId });
+  const fileUpload = useUserFileUpload({ onUploaded: onFilesUploaded, tenantGlobalId, taskGlobalId, requestGlobalId });
   const isManagingFiles = fileDeletion.isDeleting || fileUpload.isUploading;
   const removeFile = async (index: number) => {
     const file = files[index];

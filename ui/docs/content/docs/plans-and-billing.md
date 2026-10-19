@@ -1,6 +1,10 @@
 # Plans and billing
 
-Personal and organization workspaces have different plan choices. Open **Plans** to compare the available plans and limits.
+Personal workspaces offer **Personal Free** ($0/month, 1 GB) and **Personal Pro** ($20/month, 10 GB). Organizations offer **Business Trial** ($0 for one month only, 1 GB) and **Business Pro** ($100/month, 100 GB). All prices are in USD excluding taxes.
+
+Plans include a token allowance for uploads, file viewing and downloads, workflow emails, requests, and tasks. Plan cards show current rates and an example. Unused tokens expire at the end of the period. See [Usage and tokens](usage.md) for allowances and spending rules.
+
+Personal Free and Business Trial retain requests and notifications for one month. Paid plans allow configurable retention.
 
 ## Choose a plan
 

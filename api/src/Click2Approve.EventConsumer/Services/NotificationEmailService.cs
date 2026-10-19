@@ -23,7 +23,11 @@ public class NotificationEmailService(
     private readonly IUserFileStorage _fileStorage = fileStorage;
 
     /// <summary>Composes and sends a notification for its selected recipient.</summary>
-    public async Task SendAsync(AppUser recipient, NotificationEventPayload payload, CancellationToken cancellationToken)
+    public Task SendAsync(AppUser recipient, NotificationEventPayload payload, CancellationToken cancellationToken) =>
+        SendAsync(recipient, payload, eventId: Guid.NewGuid(), cancellationToken);
+
+    /// <summary>Uses the stable event identity for retry-safe delivery extensions.</summary>
+    public virtual async Task SendAsync(AppUser recipient, NotificationEventPayload payload, Guid eventId, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(recipient.NormalizedEmail)) return;
         var tenant = await _db.Tenants.AsNoTracking()
@@ -42,7 +46,7 @@ public class NotificationEmailService(
         {
             SenderIdentity = payload.Type == NotificationType.ApprovalRequestCompleted ? null : senderIdentity
         };
-        await _emailService.SendAsync(new EmailMessage
+        await SendMessageAsync(payload, eventId, new EmailMessage
         {
             ToAddress = recipient.NormalizedEmail,
             Subject = template.Subject.ReplaceLineEndings(" "),
@@ -52,6 +56,10 @@ public class NotificationEmailService(
                 _configuration.GetValue<Uri>("UI:BaseUrl")?.ToString())
         }, cancellationToken);
     }
+
+    /// <summary>Allows delivery accounting around the final provider call.</summary>
+    protected virtual Task SendMessageAsync(NotificationEventPayload payload, Guid eventId, EmailMessage message,
+        CancellationToken cancellationToken) => _emailService.SendAsync(message, cancellationToken);
 
     /// <summary>Allows the commercial worker to resolve its discussion data without a shared dependency.</summary>
     protected virtual async Task<NotificationEmailContext?> CreateDiscussionContextAsync(

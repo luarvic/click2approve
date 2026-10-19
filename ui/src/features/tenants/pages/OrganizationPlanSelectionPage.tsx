@@ -16,9 +16,7 @@ import { useOutletContext } from "react-router-dom";
 
 const plans = [
   { plan: SubscriptionPlan.BusinessTrial, name: "Business Trial" },
-  { plan: SubscriptionPlan.BusinessStarter, name: "Business Starter" },
-  { plan: SubscriptionPlan.BusinessStandard, name: "Business Standard" },
-  { plan: SubscriptionPlan.BusinessUltimate, name: "Business Ultimate" },
+  { plan: SubscriptionPlan.BusinessPro, name: "Business Pro" },
 ];
 const gridSpacing = 2;
 const backSx: SxProps<Theme> = { mt: 2 };
@@ -95,7 +93,7 @@ const OrganizationPlanSelectionPage = () => {
                 key={plan}
                 sx={Flex.displaySx}
                 size={{
-                  md: 4,
+                  md: 6,
                   xs: 12,
                 }}
               >

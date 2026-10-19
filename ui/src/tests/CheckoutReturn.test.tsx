@@ -24,7 +24,7 @@ vi.mock("@/app/rootStore", async () => {
         globalId: "paid",
         businessName: "Acme",
         type: "Business",
-        subscriptionPlan: "BusinessStarter",
+        subscriptionPlan: "BusinessPro",
         currentEmployeeGlobalId: "owner",
       },
     ],
@@ -129,7 +129,7 @@ describe("return from Stripe", () => {
         return;
       }
       expect(await screen.findByText("Active")).toBeTruthy();
-      expect(stores.tenantStore.currentTenant?.subscriptionPlan).toBe(SubscriptionPlan.BusinessStarter);
+      expect(stores.tenantStore.currentTenant?.subscriptionPlan).toBe(SubscriptionPlan.BusinessPro);
       expect(mocks.count).not.toHaveBeenCalled();
       fireEvent.click(screen.getByRole("link", { name: "Open workspace" }));
       await screen.findByText("Workspace requests");

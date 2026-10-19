@@ -127,6 +127,8 @@ const DiscussionPanel = forwardRef<DiscussionPanelHandle, DiscussionPanelProps>(
         />
         {canSend && (
           <DiscussionComposer
+            taskGlobalId={taskGlobalId}
+            requestGlobalId={taskGlobalId ? undefined : requestGlobalId}
             error={validation.message("body")}
             attachmentsAreEnabled={attachmentsAreEnabled}
             body={body}

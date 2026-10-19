@@ -56,6 +56,7 @@ const ApprovalRequestTaskAttachments = forwardRef<
     const fileDeletion = useUserFileDelete(tenantGlobalId);
     const removeAttachmentAction = useAsyncAction();
     const fileUpload = useUserFileUpload({
+      taskGlobalId,
       onUploaded: (uploadedFiles) => onNewFilesChange((currentFiles) => [...currentFiles, ...uploadedFiles]),
       tenantGlobalId,
     });

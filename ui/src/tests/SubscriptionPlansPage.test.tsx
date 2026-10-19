@@ -145,7 +145,7 @@ describe("plans and billing", () => {
   );
   it("loads trial usage after billing refresh changes the current plan to Business Trial", async () => {
     mocks.tenant.type = TenantType.Business;
-    mocks.tenant.subscriptionPlan = SubscriptionPlan.BusinessStarter;
+    mocks.tenant.subscriptionPlan = SubscriptionPlan.BusinessPro;
     mocks.refresh.mockImplementation(async () => {
       mocks.tenant.subscriptionPlan = SubscriptionPlan.BusinessTrial;
       return active;
@@ -230,23 +230,23 @@ describe("plans and billing", () => {
     );
     expect(screen.getByRole("button", { name: "Resolve payment" })).toBeTruthy();
   });
-  it("keeps the trial active and puts payment recovery on the pending Starter card", async () => {
+  it("keeps the trial active and puts payment recovery on the pending Pro card", async () => {
     mocks.tenant.type = TenantType.Business;
     mocks.tenant.subscriptionPlan = SubscriptionPlan.BusinessTrial;
     mocks.refresh.mockResolvedValue({
       ...active,
-      pendingPlan: SubscriptionPlan.BusinessStarter,
+      pendingPlan: SubscriptionPlan.BusinessPro,
     });
     showPage();
     expect(
       (await screen.findByRole("heading", { name: "Business Trial" })).closest(".MuiCard-root")?.textContent,
     ).toContain("Active");
-    expect(screen.getByRole("heading", { name: "Business Starter" }).closest(".MuiCard-root")?.textContent).toContain(
+    expect(screen.getByRole("heading", { name: "Business Pro" }).closest(".MuiCard-root")?.textContent).toContain(
       "Pending",
     );
     expect(screen.getAllByText("Pending")).toHaveLength(1);
     const recoveryCard = screen.getByRole("button", { name: "Resolve payment" }).closest(".MuiCard-root");
-    expect(recoveryCard?.textContent).toContain("Business Starter");
+    expect(recoveryCard?.textContent).toContain("Business Pro");
     expect(recoveryCard?.textContent).not.toContain("Business Trial");
   });
   it("shows that an expired Business Trial needs a paid plan", async () => {
@@ -396,21 +396,21 @@ describe("plans and billing", () => {
   });
   it("shows the scheduled effective date and explicit Subscribe buttons only for other plans", async () => {
     mocks.tenant.type = TenantType.Business;
-    mocks.tenant.subscriptionPlan = SubscriptionPlan.BusinessStandard;
+    mocks.tenant.subscriptionPlan = SubscriptionPlan.BusinessPro;
     const effectiveAt = "2026-10-08T14:30:00Z";
     mocks.refresh.mockResolvedValue({
       ...active,
       hasSubscription: true,
-      scheduledPlan: SubscriptionPlan.BusinessStarter,
+      scheduledPlan: SubscriptionPlan.BusinessTrial,
       scheduledPlanEffectiveAt: effectiveAt,
     });
     showPage();
     expect(await screen.findByText(`Effective ${new Date(effectiveAt).toLocaleString()}`)).toBeTruthy();
-    const scheduledCard = screen.getByRole("heading", { name: "Business Starter" }).closest(".MuiCard-root");
+    const scheduledCard = screen.getByRole("heading", { name: "Business Trial" }).closest(".MuiCard-root");
     expect(scheduledCard?.textContent).toContain("Planned");
-    expect(screen.getAllByRole("button", { name: /^Subscribe to / })).toHaveLength(2);
-    expect(screen.queryByRole("button", { name: "Subscribe to Business Standard" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Subscribe to Business Starter" })).toBeNull();
+    expect(screen.queryAllByRole("button", { name: /^Subscribe to / })).toHaveLength(0);
+    expect(screen.queryByRole("button", { name: "Subscribe to Business Pro" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Subscribe to Business Pro" })).toBeNull();
   });
   it("shows a spinner only on the selected Subscribe button while disabling the others", async () => {
     mocks.tenant.type = TenantType.Business;
@@ -423,21 +423,18 @@ describe("plans and billing", () => {
     );
     showPage();
     const selected = await screen.findByRole("button", {
-      name: "Subscribe to Business Starter",
+      name: "Subscribe to Business Pro",
     });
-    const other = screen.getByRole("button", {
-      name: "Subscribe to Business Standard",
-    });
+    const currentCard = screen.getByRole("heading", { name: "Business Trial" }).closest(".MuiCard-root")!;
     fireEvent.click(selected);
     expect(within(selected).getByRole("progressbar")).toBeTruthy();
-    expect(other.hasAttribute("disabled")).toBe(true);
-    expect(within(other).queryByRole("progressbar")).toBeNull();
-    fireEvent.click(other);
+    expect(selected.hasAttribute("disabled")).toBe(true);
+    expect(within(currentCard as HTMLElement).queryByRole("progressbar")).toBeNull();
     expect(mocks.change).toHaveBeenCalledTimes(1);
     rejectChange(new Error("Request failed"));
     await waitFor(() => expect(selected.hasAttribute("disabled")).toBe(false));
     expect(within(selected).queryByRole("progressbar")).toBeNull();
-    expect(other.hasAttribute("disabled")).toBe(false);
+    expect(screen.queryByRole("button", { name: "Subscribe to Business Trial" })).toBeNull();
   });
   it("shows disabled payment recovery for ordinary members", async () => {
     mocks.refresh.mockResolvedValue({

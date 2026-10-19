@@ -55,6 +55,9 @@ public class ApprovalRequestTaskService(
     public async Task CompleteAsync(AppUser user, CompleteApprovalRequestTaskCommand payload, CancellationToken cancellationToken)
     {
         await _completeApprovalRequestTaskCommandValidator.ValidateAndThrowAsync(payload, cancellationToken);
+        // Workflow hooks can save token charges and provision assignees before completion finishes.
+        // Keep task/workflow changes, notifications, and receipts atomic while holding the mutation lock.
+        await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
         var approvalRequestTask = await _approvalRequestTaskRepository.GetForCompletionAsync(user, payload.GlobalId, cancellationToken)
             ?? throw new NotFoundException("Approval request task was not found.");
         await _taskCompletionValidator.ValidateAndThrowAsync(
@@ -70,6 +73,7 @@ public class ApprovalRequestTaskService(
 
         await _workflowService.CompleteTaskAsync(approvalRequestTask, now, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
     }
 
     /// <summary>

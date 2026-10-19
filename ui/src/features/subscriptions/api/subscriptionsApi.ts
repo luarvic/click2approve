@@ -9,13 +9,20 @@ import { notification } from "@/shared/utils/notifications";
 // Refresh may include a Stripe payment attempt and verification.
 const billingRefreshTimeoutMilliseconds = 60000;
 
+export interface TokenActionUsage {
+  action: string;
+  quantity: number;
+  tokens: number;
+}
+
 export interface SubscriptionUsage {
+  tokenAllowance: number;
+  tokenBalance: number;
+  actions: TokenActionUsage[];
   plan: SubscriptionPlan;
   limits: {
-    requestsPerMonth: number;
-    tasksPerMonth: number;
     storageGigabytes: number;
-    aiTokensPerMonth: number;
+    tokensPerMonth: number;
   };
   requestsThisMonth: number;
   tasksThisMonth: number;
@@ -25,10 +32,12 @@ export interface SubscriptionUsage {
 }
 
 export interface SubscriptionPlanConfiguration {
+  monthlyPriceUsd: number;
+  tokensPerMonth: number;
+  configurableRetention: boolean;
+  tokenPrices: Record<string, number>;
   plan: SubscriptionPlan;
-  requestsPerMonth: number;
   storageGigabytes: number;
-  tasksPerMonth: number;
 }
 
 export interface RetentionPolicy {

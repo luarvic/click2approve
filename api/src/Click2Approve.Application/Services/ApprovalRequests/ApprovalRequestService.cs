@@ -42,6 +42,8 @@ public class ApprovalRequestService(
     public virtual async Task<Guid> SubmitAsync(AppUser user, SubmitApprovalRequestCommand payload, CancellationToken cancellationToken)
     {
         await _submitApprovalRequestCommandValidator.ValidateAndThrowAsync(payload, cancellationToken);
+        // Assignee provisioning and commercial token hooks can save before request initialization finishes.
+        // Commit the request, attachments, workflow, notifications, and any token charges together.
         await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
         var approvalRequest = await BuildRequestAsync(user, payload, cancellationToken);
         var userFiles = await AttachFilesAsync(
@@ -58,6 +60,9 @@ public class ApprovalRequestService(
     /// </summary>
     public async Task CancelAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
+        // Commercial workflow hooks can save token usage before task cancellation and receipt creation finish.
+        // Keep those saves atomic and hold the mutation lock until the entire cancellation commits.
+        await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
         var approvalRequest = await _approvalRequestRepository.GetForUpdateAsync(user, globalId, cancellationToken)
             ?? throw new NotFoundException("Approval request was not found.");
         if (approvalRequest.Status is not (ApprovalRequestStatus.Pending or ApprovalRequestStatus.Started))
@@ -71,6 +76,7 @@ public class ApprovalRequestService(
         await _completionAttributor.AttributeAsync(user, approvalRequest, cancellationToken);
         await _workflowService.CancelRequestAsync(approvalRequest, now, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
     }
 
     public virtual async Task DeleteAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
@@ -154,7 +160,7 @@ public class ApprovalRequestService(
     /// <summary>
     /// Tracks a fully assembled request and creates its initial tasks without committing.
     /// </summary>
-    protected async Task InitializeRequestAsync(
+    protected virtual async Task InitializeRequestAsync(
         ApprovalRequest approvalRequest,
         List<ApprovalRequestStepCommand> steps,
         CancellationToken cancellationToken)

@@ -138,9 +138,7 @@ describe("organization creation", () => {
     next();
     fireEvent.click(await screen.findByRole("button", { name: "Subscribe to Business Trial" }));
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: "Subscribe to Business Starter" }).hasAttribute("disabled")).toBe(
-        false,
-      ),
+      expect(screen.getByRole("button", { name: "Subscribe to Business Pro" }).hasAttribute("disabled")).toBe(false),
     );
     expect(mocks.create).toHaveBeenCalledWith(
       expect.objectContaining({ subscriptionPlan: SubscriptionPlan.BusinessTrial }),
@@ -158,14 +156,14 @@ describe("organization creation", () => {
     });
     showPage();
     next();
-    fireEvent.click(await screen.findByRole("button", { name: "Subscribe to Business Starter" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Subscribe to Business Pro" }));
     await waitFor(() => expect(assign).toHaveBeenCalledWith("https://checkout.stripe.com/test"));
     expect(mocks.recover).toHaveBeenCalledWith("created");
     expect(screen.queryByText("Organization billing")).toBeNull();
     expect(mocks.success).not.toHaveBeenCalled();
     expect(mocks.select).not.toHaveBeenCalled();
     expect(mocks.create).toHaveBeenCalledWith(
-      expect.objectContaining({ subscriptionPlan: SubscriptionPlan.BusinessStarter }),
+      expect.objectContaining({ subscriptionPlan: SubscriptionPlan.BusinessPro }),
       false,
     );
   });
@@ -174,20 +172,20 @@ describe("organization creation", () => {
     mocks.recover.mockReturnValue(new Promise(() => undefined));
     showPage();
     next();
-    fireEvent.click(await screen.findByRole("button", { name: "Subscribe to Business Starter" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Subscribe to Business Pro" }));
     await waitFor(() => expect(mocks.recover).toHaveBeenCalledWith("created"));
     expect(mocks.success).not.toHaveBeenCalled();
     expect(mocks.select).not.toHaveBeenCalled();
     expect(screen.queryByText("Organization billing")).toBeNull();
     expect(screen.getByRole("button", { name: "Back" }).hasAttribute("disabled")).toBe(true);
-    expect(screen.getByRole("button", { name: "Subscribe to Business Starter" }).hasAttribute("disabled")).toBe(true);
+    expect(screen.getByRole("button", { name: "Subscribe to Business Pro" }).hasAttribute("disabled")).toBe(true);
   });
 
   it("opens Organizations with the created organization selected if Checkout cannot start", async () => {
     mocks.recover.mockRejectedValue(new Error("Payment unavailable"));
     showPage();
     next();
-    fireEvent.click(await screen.findByRole("button", { name: "Subscribe to Business Standard" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Subscribe to Business Pro" }));
     await screen.findByText("Organizations list");
     expect(mocks.create).toHaveBeenCalledTimes(1);
     expect(mocks.recover).toHaveBeenCalledWith("created");
@@ -200,7 +198,7 @@ describe("organization creation", () => {
     mocks.create.mockReturnValue(new Promise(() => undefined));
     showPage();
     next();
-    fireEvent.click(await screen.findByRole("button", { name: "Subscribe to Business Ultimate" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Subscribe to Business Pro" }));
     expect(screen.getByRole("button", { name: "Back" }).hasAttribute("disabled")).toBe(true);
     const other = screen.getByRole("button", { name: "Subscribe to Business Trial" });
     expect(other.hasAttribute("disabled")).toBe(true);

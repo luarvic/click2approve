@@ -127,7 +127,7 @@ public class ApprovalWorkflowService(
         }
     }
 
-    private async Task<List<ApprovalRequestTask>> CreateTasksForStepAsync(
+    protected virtual async Task<List<ApprovalRequestTask>> CreateTasksForStepAsync(
         ApprovalRequest approvalRequest,
         ApprovalRequestStep step,
         IReadOnlyDictionary<ApprovalRequestStepAssignee, List<AssigneeResolution>>? assigneeResolutions,

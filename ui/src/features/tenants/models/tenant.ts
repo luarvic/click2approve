@@ -13,9 +13,7 @@ export enum SubscriptionPlan {
   PersonalFree = "PersonalFree",
   PersonalPro = "PersonalPro",
   BusinessTrial = "BusinessTrial",
-  BusinessStarter = "BusinessStarter",
-  BusinessStandard = "BusinessStandard",
-  BusinessUltimate = "BusinessUltimate",
+  BusinessPro = "BusinessPro",
 }
 
 export interface Tenant {

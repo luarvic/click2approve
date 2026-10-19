@@ -48,19 +48,12 @@ const paymentIssueMessages: Record<PaymentIssue, string> = {
   [PaymentIssue.PaymentRequired]: "Complete payment to activate your selected plan.",
 };
 const personalPlans = [SubscriptionPlan.PersonalFree, SubscriptionPlan.PersonalPro];
-const businessPlans = [
-  SubscriptionPlan.BusinessTrial,
-  SubscriptionPlan.BusinessStarter,
-  SubscriptionPlan.BusinessStandard,
-  SubscriptionPlan.BusinessUltimate,
-];
+const businessPlans = [SubscriptionPlan.BusinessTrial, SubscriptionPlan.BusinessPro];
 const planNames: Record<SubscriptionPlan, string> = {
   [SubscriptionPlan.PersonalFree]: "Personal Free",
   [SubscriptionPlan.PersonalPro]: "Personal Pro",
   [SubscriptionPlan.BusinessTrial]: "Business Trial",
-  [SubscriptionPlan.BusinessStarter]: "Business Starter",
-  [SubscriptionPlan.BusinessStandard]: "Business Standard",
-  [SubscriptionPlan.BusinessUltimate]: "Business Ultimate",
+  [SubscriptionPlan.BusinessPro]: "Business Pro",
 };
 const planHeaderSpacing = 1;
 const planGridSpacing = 2;
@@ -373,7 +366,7 @@ const SubscriptionPlansPage = () => {
             key={plan}
             sx={Flex.displaySx}
             size={{
-              md: 4,
+              md: 6,
               xs: 12,
             }}
           >

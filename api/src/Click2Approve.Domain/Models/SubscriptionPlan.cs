@@ -6,7 +6,5 @@ public enum SubscriptionPlan
     PersonalFree,
     PersonalPro,
     BusinessTrial,
-    BusinessStarter,
-    BusinessStandard,
-    BusinessUltimate
+    BusinessPro
 }

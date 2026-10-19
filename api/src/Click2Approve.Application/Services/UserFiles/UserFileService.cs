@@ -53,6 +53,7 @@ public class UserFileService(
                     Type = Path.GetExtension(file.FileName)
                 }, cancellationToken);
                 userFiles.Add(userFile);
+                await ConfigureAsync(userFile, cancellationToken);
 
                 await _fileStorage.SaveAsync(userFile, file.Bytes, cancellationToken);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -66,6 +67,9 @@ public class UserFileService(
 
         return [.. userFiles.Select(UserFileMapper.MapUserFile)];
     }
+
+    /// <summary>Allows an extension to associate metadata before storing a new file.</summary>
+    protected virtual Task ConfigureAsync(UserFile file, CancellationToken cancellationToken) => Task.CompletedTask;
 
     public async Task<List<UserFile>> AttachAsync(AppUser user, IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken)
     {
@@ -174,7 +178,7 @@ public class UserFileService(
         return await ReadAsync(userFile, cancellationToken);
     }
 
-    private async Task<(string Filename, byte[] Bytes)> ReadAsync(UserFile userFile, CancellationToken cancellationToken)
+    protected virtual async Task<(string Filename, byte[] Bytes)> ReadAsync(UserFile userFile, CancellationToken cancellationToken)
     {
         return
         (
