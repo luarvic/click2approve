@@ -129,7 +129,7 @@ const ReceiptLinksGrid = ({ receiptGlobalId, tenantGlobalId }: ReceiptLinksGridP
   if (unavailable) return <NotFoundPage />;
   return (
     <Stack spacing={StackSpacing.loose}>
-      <Typography color="text.secondary">
+      <Typography color="textSecondary">
         Anyone with a public link can view this receipt until the link expires or is removed.
       </Typography>
       <Box sx={DataGrids.containerSx}>

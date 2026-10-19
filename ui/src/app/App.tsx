@@ -26,19 +26,21 @@ const App = () => {
     load();
   }, []);
 
-  return stores.userAccountStore.currentUser === undefined ||
-    stores.applicationConfigurationStore.applicationConfiguration === null ? (
-    <LoadingOverlay />
-  ) : (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <ThemeProvider theme={stores.userPreferencesStore.theme}>
-        <CssBaseline>
-          <AppRouter />
-          <Notifications />
-          <PasskeyEnrollmentDialog />
-        </CssBaseline>
-      </ThemeProvider>
-    </LocalizationProvider>
+  return (
+    <ThemeProvider theme={stores.userPreferencesStore.theme}>
+      <CssBaseline>
+        {stores.userAccountStore.currentUser === undefined ||
+        stores.applicationConfigurationStore.applicationConfiguration === null ? (
+          <LoadingOverlay />
+        ) : (
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <AppRouter />
+            <Notifications />
+            <PasskeyEnrollmentDialog />
+          </LocalizationProvider>
+        )}
+      </CssBaseline>
+    </ThemeProvider>
   );
 };
 

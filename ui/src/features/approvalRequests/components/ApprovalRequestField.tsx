@@ -16,6 +16,30 @@ interface ApprovalRequestFieldProps {
   value?: ReactNode;
 }
 
+const fieldRowSx: SxProps<Theme> = {
+  borderTop: 1,
+  borderColor: "divider",
+  display: "grid",
+  gridTemplateColumns: "minmax(90px, 1fr) minmax(0, 2fr)",
+  alignItems: "start",
+  columnGap: 2,
+  rowGap: 0.75,
+  py: 1.5,
+  "& > *": { minWidth: 0, overflowWrap: "anywhere" },
+};
+const fieldLabelSx: SxProps<Theme> = {
+  color: "text.secondary",
+  fontWeight: 400,
+  lineHeight: 1.7,
+};
+const fieldValueSx: SxProps<Theme> = {
+  color: "text.primary",
+  minWidth: 0,
+  fontWeight: 400,
+};
+
+const valueColorSx = (color: TypographyProps["color"]): SxProps<Theme> => ({ color });
+
 const ApprovalRequestField: React.FC<ApprovalRequestFieldProps> = ({
   labelId,
   label,
@@ -27,27 +51,28 @@ const ApprovalRequestField: React.FC<ApprovalRequestFieldProps> = ({
 }) => {
   const defaultValueVariant = useContext(ApprovalRequestFieldValueVariantContext);
   const resolvedValueVariant = valueVariant ?? defaultValueVariant;
-  const isEmpty = value === undefined || value === null || value === "";
+  const isEmpty =
+    value === undefined || value === null || value === false || (typeof value === "string" && !value.trim());
+
+  if (isEmpty) return null;
 
   return (
-    <Stack spacing={StackSpacing.tight}>
-      <Typography id={labelId} variant="caption" color="text.secondary">
+    <Stack className="approval-request-field" sx={fieldRowSx}>
+      <Typography id={labelId} variant={resolvedValueVariant} color="textSecondary" sx={fieldLabelSx}>
         {label}
       </Typography>
-      {isEmpty ? (
-        <Typography variant={resolvedValueVariant} color="text.secondary">
-          None
-        </Typography>
-      ) : typeof value === "string" || typeof value === "number" ? (
-        <Stack direction="row" spacing={StackSpacing.tight} sx={Flex.alignCenterSx}>
-          <Stack sx={valueIconSx}>{valueIcon}</Stack>
-          <Typography color={valueColor} variant={resolvedValueVariant}>
-            {value}
-          </Typography>
-        </Stack>
-      ) : (
-        value
-      )}
+      <Stack sx={fieldValueSx}>
+        {typeof value === "string" || typeof value === "number" ? (
+          <Stack direction="row" spacing={StackSpacing.tight} sx={Flex.alignCenterSx}>
+            <Stack sx={valueIconSx}>{valueIcon}</Stack>
+            <Typography sx={valueColorSx(valueColor)} variant={resolvedValueVariant}>
+              {value}
+            </Typography>
+          </Stack>
+        ) : (
+          value
+        )}
+      </Stack>
     </Stack>
   );
 };

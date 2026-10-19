@@ -11,7 +11,6 @@ import { Forms } from "@/shared/components/dialogs/formStyles";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { Routes } from "@/shared/routing/routes";
@@ -86,12 +85,6 @@ const ReceiptPage: React.FC<ReceiptPageProps> = ({ tab = "request" }) => {
             },
             {
               label: receipt.approvalRequestTitle,
-              titleAction: (
-                <HelpPopover
-                  docsHref="/docs/receipts/"
-                  helpText="Review this receipt, verify a file, or manage sharing links."
-                />
-              ),
             },
           ]}
         />
@@ -113,7 +106,7 @@ const ReceiptPage: React.FC<ReceiptPageProps> = ({ tab = "request" }) => {
               renderActions={(verifyButton) => (
                 <ApprovalRequestActionBar onClose={handleClose}>
                   {receipt.canDelete && (
-                    <Button color="error" variant="outlined" onClick={() => setDeleteDialogIsOpen(true)}>
+                    <Button color="error" variant="text" onClick={() => setDeleteDialogIsOpen(true)}>
                       Delete
                     </Button>
                   )}

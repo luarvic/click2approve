@@ -11,6 +11,8 @@ A request gives participants the files, instructions, and decision rules they ne
 5. Attach the [files participants should review](files.md).
 6. Add and configure the [workflow steps](workflow-steps.md).
 
+The **Request details** card groups the title, **Files to review**, and description. Configure the workflow steps below it.
+
 **New request** stays highlighted in the main menu while you compose a request.
 
 Personal requests use email assignees.
@@ -30,4 +32,4 @@ In an organization, **Save template** saves reusable step configuration. It does
 
 Open **Requests** and select the request to follow its progress. Participants act as the workflow reaches their steps. Notification delivery follows each recipient's preferences.
 
-Use [Track and revise requests](track-requests.md) to understand outcomes, cancellation, and revisions. Closing or canceling the compose screen should not be treated as saving a reusable draft.
+Use [Track and revise requests](track-requests.md) to understand outcomes, cancellation, and revisions. Leaving or canceling the compose screen discards edits without asking for confirmation. Request drafts are not saved.

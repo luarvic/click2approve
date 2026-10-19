@@ -60,20 +60,24 @@ Next links to guides automatically using that order. Marketing presentation live
 `docs/content/stylesheets/marketing.css`; shared public links are in
 `docs/overrides/partials/site-footer.html`. The documentation theme uses the app's logo and locally
 served Sora font files through `docs/hooks.py`; no external font service is needed.
-Keep `docs/content/stylesheets/app.css` aligned with the app theme and shell.
+`docs/content/stylesheets/app.css` owns the shared shell and public-site color
+tokens. Guide presentation lives in `docs/content/stylesheets/docs.css`, loaded
+only for `/docs/` pages. It follows the landing page's green accents, muted text,
+light borders, medium-weight headings, and open spacing in both color modes.
 The header and palette overrides in `docs/overrides/partials/` mirror
 `PublicAppBar` and `ColorModeSwitch`, including their dimensions, icons, and
 colors. `docs/content/javascripts/app-bar.js` connects the accessible switch and
 toolbar buttons to Material's existing theme, search, and navigation controls.
-The navigation override mirrors the app's 240px left drawer, including its brand
-header, section labels, and selected menu rows. It stays open from 1200px and
+The navigation override retains the app's 240px left drawer and brand header,
+with quiet section labels and softly highlighted green selected links. It stays open from 1200px and
 becomes an overlay menu on smaller screens. Both app and docs drawers keep the
-branding row fixed while only the navigation items scroll. Pages use the app's 16px content
-padding and compact page titles, without a surrounding article card.
+branding row fixed while only the navigation items scroll. Guides fill the available content width and align with the app
+using the same responsive gutters, without a centered article column or a
+surrounding article card.
 The drawer's right divider starts below its branding row. The app bar uses the
 compact app logo without brand text when the main menu is closed; opening the
-menu hides the app-bar logo, matching `/app`. Search uses the app's outlined
-input styling and a matching results popup, with a visible field at all widths.
+menu hides the app-bar logo, matching `/app`. Search uses a lightly outlined
+input and a matching results popup, with a visible field at all widths.
 The app and docs share the `colorMode` browser preference, including live updates
 across tabs on the same origin. For local development, open docs through Vite's
 `/docs/` proxy to share storage with `/app/`.
@@ -123,17 +127,83 @@ component-specific names rather than generic names such as `constants.ts`.
 For styles used in one component, keep the constant in that file unless the
 size or complexity warrants a companion file.
 
+The app theme follows the public landing page and Docs portal: Sora typography,
+green accents, muted secondary text, light borders, and medium-weight headings.
+Structural headings are uppercase with 1px letter spacing and muted color.
+`CardHeading` uses the theme’s `cardTitle` variant (12px, weight 600) for whole-card
+titles and its default `sectionLabel` variant (10px, weight 500) for sections.
+Request/task/upcoming headers, form-card titles, and Usage card titles use
+`cardTitle`; Details, Activity, Artifacts, nested form sections, workflow steps,
+receipt sections, and discussion headings use `sectionLabel`. Select the visual
+role independently of the semantic heading element. Breadcrumbs and menu groups
+retain the theme’s `overline` typography (10px, weight 600).
+Page and dialog titles, content, plan names, tabs, buttons, and field labels use
+sentence case; preserve proper names and abbreviations.
+`SitePaletteTokens` in `tokens.ts` mirrors the light and dark public-site colors
+in `docs/content/stylesheets/app.css`. Keep those palettes aligned when changing
+shared brand colors. Buttons and tabs use sentence case; menu groups use small,
+semibold uppercase labels with extra space above them. Page gutters adapt to
+mobile and desktop widths through `pageStyles.ts`.
+
+Shared tabs use compact sentence-case labels and scroll controls on narrow screens.
+Cards and tables use open spacing, muted labels, and light dividers. Receipt details
+follow the same label/value layout; file hashes retain monospace text, and printing
+uses dark ink on white regardless of the selected theme.
+
+Workflow editors and read-only workflows share `ApprovalStepList`, `ApprovalStepSection`,
+and `ApprovalStepHeader` in `features/approvalWorkflow/components`. These own the flat
+step layout, spacing, status/edit icons, and header actions. Keep task and editor
+cards flat and aligned with the request card; use step headings and spacing for grouping.
+
+Request and task summaries use a single outer card with equal responsive padding
+on all sides (20px on small screens and 28px on desktop). Their headers compact
+control-generated vertical space without shrinking hit areas, and the final
+summary row omits extra bottom padding. Interior rows and the 32px section gaps
+retain their spacing. A 16px gap separates the summary header from its content,
+without a divider; the status and chevron remain visible when collapsed.
+Keep these adjustments in the shared summary layout;
+form cards, chat headings, and printed receipts retain their own presentation.
+Details, Artifacts, and Activity are always visible and stacked vertically,
+with no inner panel borders; their fields use light divider rows like the landing-page example
+cards. Keep this presentation in the approval request components so editor
+cards and unrelated forms retain their own layout.
+Request submission and task response forms share `FormCard` and `FormSection` from
+`shared/components/forms`, standard MUI labeled inputs, and `Forms.cardStackSpacing`
+for separating cards. Both form and summary cards use shared `CardHeading` labels
+with small uppercase muted text. Green identifies links, actions, and selected
+navigation; brand and success accents retain their semantic colors. Read-only
+detail rows stay in summary cards; editable forms
+use the shared input presentation, including the full-width signature pad.
+Secondary page and dialog actions use text buttons; the main action stays filled.
+Horizontal action rows share `shared/components/buttons/actionRowStyles.ts` to
+balance visible gaps: adjacent text buttons have no extra gap, and text/filled
+pairs have 16px. Form actions retain their standard vertical spacing on mobile.
+Request and task chats share `DiscussionThread`: an open section with a small muted
+heading whose chevron expands an alphabetical participant list. Request cards and
+chat steps share `ExpandableSection`, including its control and transition. The list starts collapsed;
+messages stay visible below it. Participants flow horizontally and wrap on narrow
+screens. The chat composer uses a MUI input adornment for its attachment button,
+with selected files shown below the input. Keep the
+conversation free of outer card frames.
+Neutral incoming bubbles contrast with green outgoing bubbles.
+
+Status chips sit in request and task card headers and remain visible when a
+card is collapsed. Their rounded, softly tinted styling follows the landing
+page badges, while their labels, icons, and colors reflect the workflow state.
+Empty fields are omitted. Summary and timeline dates use the viewer's locale
+and local time, with a readable date and hours/minutes only.
+
 ## Cards and intentional variants
 
 All cards use the default themed background without per-card background overrides.
-All MUI `Card` instances receive their standard border, radius, default shadow,
+All MUI `Card` instances receive their standard border, radius, no default shadow,
 and zero outer padding through the theme. Change `SurfaceTokens.borderRadius` to
 adjust card, accordion, and chat bubble corners together. Accordion rounding is
 owned by the theme; chat bubble rounding is applied in `DiscussionMessageList`. Do not repeat these defaults through call-site `sx`.
 
 Use `AppCard` with `elevated` for the shared stronger shadow. `AppCardContent`
 provides compact content padding, including the last child; ordinary
-`CardContent` retains MUI's default bottom padding. These shared components own
+`CardContent` uses responsive padding of 20px on small screens and 28px on desktop. These shared components own
 their presentation. Status borders, selected-plan border colors, and content-specific
 layout remain explicit call-site overrides. Focus styling must preserve the
 card's themed radius.

@@ -7,7 +7,6 @@ import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirma
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { Routes } from "@/shared/routing/routes";
@@ -121,12 +120,6 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
             label: delegation
               ? getEmployeeName(displayedEmployees, delegation.delegatorEmployeeGlobalId)
               : "New delegation",
-            titleAction: (
-              <HelpPopover
-                docsHref="/docs/delegations/"
-                helpText="Choose whose work needs coverage and who can act for them."
-              />
-            ),
           },
         ]}
       />
@@ -185,11 +178,11 @@ const DelegationDialog: React.FC<DelegationDialogProps> = ({
         </TextField>
       </Stack>
       <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
-        <Button variant="outlined" onClick={() => onClose(delegation?.globalId)}>
+        <Button variant="text" onClick={() => onClose(delegation?.globalId)}>
           Cancel
         </Button>
         {!isNew && canEdit && (
-          <Button color="error" variant="outlined" onClick={() => setDeleteDialogIsOpen(true)}>
+          <Button color="error" variant="text" onClick={() => setDeleteDialogIsOpen(true)}>
             Delete
           </Button>
         )}

@@ -20,12 +20,10 @@ import { TenantType } from "@/features/tenants/models/tenant";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { CollectionLimits } from "@/shared/config/collectionLimits";
 import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useFormValidation } from "@/shared/hooks/useFormValidation";
-import { useUnsavedChanges } from "@/shared/hooks/useUnsavedChanges";
 import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { textRule } from "@/shared/utils/formValidation";
@@ -96,15 +94,6 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
   useEffect(() => {
     if (requestToClone && initializedRequestGlobalId.current !== requestToClone.globalId) {
       initializedRequestGlobalId.current = requestToClone.globalId;
-      initialSnapshot.current = JSON.stringify({
-        title: requestToClone.title,
-        description: requestToClone.description ?? "",
-        steps: createEditableSteps(requestToClone.steps),
-        existingFiles: requestToClone.requestFiles
-          .filter((file) => file.revisionAction !== ApprovalRequestFileRevisionAction.Removed)
-          .map((file) => ({ file: file.userFile, requestFileGlobalId: file.globalId })),
-        newFiles: [],
-      });
       setTitle(requestToClone.title);
       setExistingFiles(
         (requestToClone.requestFiles?.length ? requestToClone.requestFiles : [])
@@ -139,13 +128,6 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
           }
 
           if (template) {
-            initialSnapshot.current = JSON.stringify({
-              title: template.name,
-              description: template.description ?? "",
-              steps: createEditableSteps(template.steps),
-              existingFiles: [],
-              newFiles: [],
-            });
             setTitle(template.name);
             setDescription(template.description ?? "");
             setSteps(createEditableSteps(template.steps));
@@ -181,9 +163,6 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
       description: textRule("Description", FieldLimits.text),
     },
   );
-  const formValues = { title, description, steps, existingFiles, newFiles };
-  const initialSnapshot = useRef(JSON.stringify(formValues));
-  const hasChanges = JSON.stringify(formValues) !== initialSnapshot.current;
   const filesAreBusy = fileDeletion.isDeleting || addedFilesUpload.isUploading || replacementFilesUpload.isUploading;
   const stepErrors = getStepErrors(steps);
   const titleError =
@@ -204,11 +183,6 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
           : undefined
       : undefined;
 
-  const unsavedChanges = useUnsavedChanges(
-    hasChanges,
-    filesAreBusy || submitAction.isRunning || saveTemplateAction.isRunning,
-  );
-
   const focusFirstError = () => {
     requestAnimationFrame(() => {
       const field = formContainer.current?.querySelector<HTMLElement>('[aria-invalid="true"], [data-validation-error]');
@@ -222,8 +196,6 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
   };
 
   const handleClose = () => {
-    if (!unsavedChanges.confirmDiscard()) return;
-    unsavedChanges.markSaved();
     onClose();
   };
 
@@ -361,7 +333,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
               );
         if (approvalRequestGlobalId) {
           showPersistenceSuccessNotification(PersistenceSuccessMessages.approvalRequestSubmitted);
-          unsavedChanges.markSaved();
+
           onClose(approvalRequestGlobalId);
           stores.approvalRequestStore.clear();
           void Promise.all([
@@ -404,16 +376,6 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
           },
           {
             label: isRevision ? "Resubmit request" : "New request",
-            titleAction: (
-              <HelpPopover
-                docsHref={isRevision ? "/docs/track-requests/" : "/docs/create-a-request/"}
-                helpText={
-                  isRevision
-                    ? "Update editable content, then submit a new revision to replace the previous request."
-                    : "Add request details, files, and workflow steps, then review and submit."
-                }
-              />
-            ),
           },
         ]}
       />

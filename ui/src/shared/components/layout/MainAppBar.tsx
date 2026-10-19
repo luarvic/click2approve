@@ -8,7 +8,6 @@ import PublicAppBar from "@/shared/components/layout/PublicAppBar";
 import { Shell } from "@/shared/components/layout/shellStyles";
 import { AppBarOptions } from "@/shared/models/appBarOptions";
 import { Routes } from "@/shared/routing/routes";
-import { confirmUnsavedChanges } from "@/shared/routing/unsavedChanges";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
 import { getEmailInitials } from "@/shared/utils/email";
@@ -114,7 +113,7 @@ const MainAppBar = ({
                     `${candidate.tenant.globalId}:${candidate.employeeGlobalId ?? ""}` === event.target.value,
                 );
                 if (!option) return;
-                if (!confirmUnsavedChanges()) return;
+
                 const tenantGlobalId = option.tenant.globalId;
                 const currentMenuPath = stores.commonStore.currentMenuPath ?? Routes.tasksPath;
                 const loader = ActionLoaders.pages.tenantScope();

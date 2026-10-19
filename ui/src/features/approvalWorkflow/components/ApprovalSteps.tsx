@@ -1,6 +1,6 @@
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
-import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
-import { ApprovalStepStyles } from "@/features/approvalWorkflow/components/approvalStepStyles";
+import ApprovalStepList from "@/features/approvalWorkflow/components/ApprovalStepList";
+import ApprovalStepSection from "@/features/approvalWorkflow/components/ApprovalStepSection";
 import { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
 import { getApprovalStepStatus } from "@/features/approvalWorkflow/utils/approvalStepStatus";
 import SuccessSnackbarIcon from "@/shared/components/icons/SuccessSnackbarIcon";
@@ -14,11 +14,10 @@ import {
   VisibilityOffOutlined,
 } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
-import { Stack, Step, StepContent, StepLabel, Stepper } from "@mui/material";
+import { Stack } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
 import ApprovalStepBlock, { ApprovalStepMetadata } from "./ApprovalStepBlock";
-import ApprovalStepTitle from "./ApprovalStepTitle";
 
 interface ApprovalStepsProps {
   approvalRequest: ApprovalRequest;
@@ -38,17 +37,7 @@ const getStepTasks = (step: ApprovalStep) => {
     .filter((task, index, tasks) => tasks.findIndex((item) => item.globalId === task.globalId) === index);
 };
 
-const getActiveStepIndex = (steps: ApprovalStep[]) => {
-  const activeStepIndex = steps.findIndex((step) =>
-    getStepTasks(step).some((task) => task.status === ApprovalRequestTaskStatus.Pending),
-  );
-  return activeStepIndex === -1 ? steps.length : activeStepIndex;
-};
-
-const stepIsCompleted = (status: string) => status === "Succeeded" || status === "Skipped" || status === "Canceled";
-
-const stepHasError = (status: string) => status === "Failed";
-
+const workflowSpacing = 3;
 const getStepIcon = (status: string) => {
   switch (status) {
     case "Succeeded":
@@ -60,7 +49,7 @@ const getStepIcon = (status: string) => {
     case "Canceled":
       return <BlockOutlined color="warning" />;
     case "Pending":
-      return <HourglassTop color="primary" />;
+      return <HourglassTop color="disabled" />;
     default:
       return <PendingOutlined color={Icons.secondaryColor} />;
   }
@@ -80,49 +69,25 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
   taskAttachmentsTenantGlobalId,
 }) => {
   const steps = (approvalRequest.steps ?? []).filter(Boolean).sort((a, b) => a.sequence - b.sequence);
-  const activeStepIndex = getActiveStepIndex(steps);
 
   return (
-    <Stack spacing={ApprovalStepStyles.stepStackSpacing} sx={sx}>
+    <Stack spacing={workflowSpacing} sx={sx}>
       {leadingItem}
-      <Stepper activeStep={activeStepIndex} nonLinear orientation="vertical">
+      <ApprovalStepList>
         {steps.map((step) => {
           const tasks = getStepTasks(step);
           const stepStatus = getApprovalStepStatus(step, tasks);
-          const stepIcon = () => getStepIcon(stepStatus);
-
-          if (step.isVisible === false) {
-            return (
-              <Step key={step.globalId ?? step.sequence} completed={stepIsCompleted(stepStatus)}>
-                <StepLabel
-                  error={stepHasError(stepStatus)}
-                  slots={{
-                    stepIcon: HiddenStepIcon,
-                  }}
-                >
-                  <ApprovalStepTitle sequence={step.sequence} />
-                </StepLabel>
-              </Step>
-            );
-          }
+          const isHidden = step.isVisible === false;
 
           return (
-            <Step key={step.globalId ?? step.sequence} completed={stepIsCompleted(stepStatus)}>
-              <StepLabel
-                error={stepHasError(stepStatus)}
-                slots={{
-                  stepIcon: stepIcon,
-                }}
-              >
-                <ApprovalStepTitle sequence={step.sequence} />
-              </StepLabel>
-              <StepContent
-                sx={ApprovalStepStyles.contentSx}
-                slotProps={{
-                  transition: { in: true, unmountOnExit: false },
-                }}
-              >
-                <Stack spacing={ApprovalStepStyles.stepHeaderSpacing}>
+            <ApprovalStepSection
+              key={step.globalId ?? step.sequence}
+              icon={isHidden ? <HiddenStepIcon /> : getStepIcon(stepStatus)}
+              iconLabel={isHidden ? "Hidden step" : stepStatus}
+              sequence={step.sequence}
+            >
+              {!isHidden && (
+                <>
                   <ApprovalStepMetadata showVisibility={showVisibleStepVisibility} step={step} />
                   <ApprovalStepBlock
                     collapseCards={collapseCards}
@@ -136,12 +101,12 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
                     taskAttachmentsTenantGlobalId={taskAttachmentsTenantGlobalId}
                     tasks={tasks}
                   />
-                </Stack>
-              </StepContent>
-            </Step>
+                </>
+              )}
+            </ApprovalStepSection>
           );
         })}
-      </Stepper>
+      </ApprovalStepList>
     </Stack>
   );
 };

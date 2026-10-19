@@ -1,7 +1,6 @@
 import { stores } from "@/app/rootStore";
 import TasksGrid from "@/features/approvalRequests/components/TasksGrid";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
@@ -22,12 +21,6 @@ const TasksPage = () => {
         items={[
           {
             label: "Tasks",
-            titleAction: (
-              <HelpPopover
-                docsHref="/docs/complete-a-task/"
-                helpText="Find and complete tasks in the selected workspace."
-              />
-            ),
           },
         ]}
       />

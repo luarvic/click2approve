@@ -1,11 +1,12 @@
+import ExpandableSection from "@/shared/components/layout/ExpandableSection";
 import { StackSpacing } from "@/shared/theme/tokens";
-import { ExpandMore } from "@mui/icons-material";
-import { Collapse, IconButton, Stack, Typography } from "@mui/material";
-import { useState, type ReactNode } from "react";
+import { Stack, type SxProps, type Theme } from "@mui/material";
+import type { ReactNode } from "react";
 
-const cardColumnSpacing = 2;
-const activityColumnFlex = 1;
-const detailsColumnFlex = 2;
+const cardColumnSpacing = 4;
+const cardSectionsSx: SxProps<Theme> = {
+  "& > section:last-child > .approval-request-field:last-child": { pb: 0 },
+};
 
 interface ApprovalRequestCardLayoutProps {
   activity: ReactNode;
@@ -13,21 +14,9 @@ interface ApprovalRequestCardLayoutProps {
   defaultExpanded?: boolean;
   details: ReactNode;
   expandable?: boolean;
+  status?: ReactNode;
   title: string;
 }
-
-const detailsColumnSx = {
-  flex: detailsColumnFlex,
-  minWidth: 0,
-} as const;
-const activityColumnSx = {
-  flex: activityColumnFlex,
-  minWidth: 0,
-} as const;
-const headerRowSx = {
-  alignItems: "center",
-  justifyContent: "space-between",
-} as const;
 
 const ApprovalRequestCardLayout: React.FC<ApprovalRequestCardLayoutProps> = ({
   activity,
@@ -35,47 +24,24 @@ const ApprovalRequestCardLayout: React.FC<ApprovalRequestCardLayoutProps> = ({
   defaultExpanded = true,
   details,
   expandable = false,
+  status,
   title,
-}) => {
-  const [expanded, setExpanded] = useState(defaultExpanded);
-  const content = (
-    <Stack direction={{ xs: "column", md: "row" }} spacing={cardColumnSpacing}>
-      <Stack spacing={cardColumnSpacing} sx={detailsColumnSx}>
-        {details}
-        {artifacts}
-      </Stack>
-      <Stack sx={activityColumnSx}>{activity}</Stack>
+}) => (
+  <ExpandableSection
+    actions={status}
+    compactHeader
+    defaultExpanded={defaultExpanded}
+    expandable={expandable}
+    headerSpacing={StackSpacing.loose}
+    headingVariant="cardTitle"
+    title={title}
+  >
+    <Stack spacing={cardColumnSpacing} sx={cardSectionsSx}>
+      {details}
+      {artifacts}
+      {activity}
     </Stack>
-  );
-
-  return (
-    <Stack spacing={StackSpacing.default}>
-      <Stack direction="row" spacing={StackSpacing.tight} sx={headerRowSx}>
-        <Typography component="h2" variant="h6" color="text.secondary">
-          {title}
-        </Typography>
-        {expandable && (
-          <IconButton
-            aria-expanded={expanded}
-            aria-label={`${expanded ? "Collapse" : "Expand"} ${title}`}
-            onClick={(event) => {
-              event.stopPropagation();
-              setExpanded((current) => !current);
-            }}
-          >
-            <ExpandMore />
-          </IconButton>
-        )}
-      </Stack>
-      {expandable ? (
-        <Collapse in={expanded} unmountOnExit>
-          {content}
-        </Collapse>
-      ) : (
-        content
-      )}
-    </Stack>
-  );
-};
+  </ExpandableSection>
+);
 
 export default ApprovalRequestCardLayout;

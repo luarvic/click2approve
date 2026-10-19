@@ -6,8 +6,7 @@ import { Files } from "@/shared/components/files/fileInputStyles";
 import { Flex } from "@/shared/components/layout/flexStyles";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { AttachFile } from "@mui/icons-material";
-import { Stack, TextField } from "@mui/material";
-import Button from "@mui/material/Button";
+import { IconButton, InputAdornment, Stack, TextField } from "@mui/material";
 import type { Dispatch, SetStateAction } from "react";
 import { useCallback } from "react";
 
@@ -23,6 +22,8 @@ interface DiscussionComposerProps {
   onSend: () => Promise<void>;
   tenantGlobalId: string | null;
 }
+
+const attachmentAdornmentSx = { alignSelf: "flex-end", mb: 0.5 } as const;
 
 const DiscussionComposer: React.FC<DiscussionComposerProps> = ({
   attachmentsAreEnabled,
@@ -63,10 +64,31 @@ const DiscussionComposer: React.FC<DiscussionComposerProps> = ({
         error={Boolean(error)}
         helperText={error}
         multiline
+        slotProps={{
+          input: {
+            endAdornment: attachmentsAreEnabled ? (
+              <InputAdornment position="end" sx={attachmentAdornmentSx}>
+                <IconButton
+                  aria-label="Attach files"
+                  color="primary"
+                  disabled={isManagingFiles}
+                  loading={fileUpload.isUploading}
+                  onClick={fileUpload.openFileDialog}
+                  size="small"
+                  title="Attach files"
+                >
+                  <AttachFile fontSize="small" />
+                </IconButton>
+              </InputAdornment>
+            ) : undefined,
+          },
+        }}
         value={body}
         onChange={(event) => onBodyChange(event.target.value)}
         onKeyDown={(event) => {
-          if (event.key === "Enter" && !event.shiftKey) {
+          const isMessageInput =
+            event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLInputElement;
+          if (isMessageInput && event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
             event.preventDefault();
             void onSend();
           }
@@ -81,23 +103,13 @@ const DiscussionComposer: React.FC<DiscussionComposerProps> = ({
         />
       )}
       {attachmentsAreEnabled && (
-        <>
-          <Button
-            disabled={isManagingFiles}
-            loading={fileUpload.isUploading}
-            startIcon={<AttachFile />}
-            onClick={fileUpload.openFileDialog}
-          >
-            Attach files
-          </Button>
-          <input
-            multiple
-            ref={fileUpload.fileInput}
-            style={Files.inputStyle}
-            type="file"
-            onChange={fileUpload.handleFilesChange}
-          />
-        </>
+        <input
+          multiple
+          ref={fileUpload.fileInput}
+          style={Files.inputStyle}
+          type="file"
+          onChange={fileUpload.handleFilesChange}
+        />
       )}
     </Stack>
   );

@@ -1,11 +1,11 @@
-import { Typography } from "@mui/material";
+import CardHeading from "@/shared/components/papers/CardHeading";
 
 interface ApprovalStepTitleProps {
   sequence: number;
 }
 
 const ApprovalStepTitle: React.FC<ApprovalStepTitleProps> = ({ sequence }) => (
-  <Typography variant="subtitle1">Step {sequence}</Typography>
+  <CardHeading>Step {sequence}</CardHeading>
 );
 
 export default ApprovalStepTitle;

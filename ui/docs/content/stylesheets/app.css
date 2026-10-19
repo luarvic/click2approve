@@ -38,6 +38,10 @@
 }
 
 [data-md-color-scheme="default"] {
+  --site-green: #15803d;
+  --site-soft: #f2f7f3;
+  --site-muted: #52645a;
+  --site-ink: #162b20;
   --md-default-bg-color: #fff;
   --md-default-fg-color: rgba(0, 0, 0, 0.87);
   --md-default-fg-color--light: rgba(0, 0, 0, 0.6);
@@ -54,6 +58,10 @@
 }
 
 [data-md-color-scheme="slate"] {
+  --site-green: #4ade80;
+  --site-soft: #19251e;
+  --site-muted: #a6baad;
+  --site-ink: #edf7f0;
   --md-default-bg-color: #121212;
   --md-default-fg-color: #fff;
   --md-default-fg-color--light: rgba(255, 255, 255, 0.7);

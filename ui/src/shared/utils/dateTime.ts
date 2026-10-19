@@ -5,7 +5,7 @@ export const getHumanReadableRelativeDate = (date: Date): string => {
 };
 
 export const getLocaleDateTimeString = (date: Date | undefined): string => {
-  return date ? `${date.toLocaleDateString()} ${date.toLocaleTimeString()}` : "";
+  return date ? date.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "";
 };
 
 export const getLocaleDateTimeWithSecondsString = (date: Date | undefined): string | undefined =>

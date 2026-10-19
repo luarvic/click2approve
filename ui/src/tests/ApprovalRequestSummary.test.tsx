@@ -49,11 +49,7 @@ describe("<ApprovalRequestSummary />", () => {
     expect(screen.queryByText("Added")).toBeNull();
 
     await userEvent.click(screen.getByRole("button", { name: "Show help" }));
-    expect(
-      screen.getByText(
-        "Replaced and deleted files are shown for context only. They are not part of the files you are reviewing.",
-      ),
-    ).toBeTruthy();
+    expect(screen.getByText("Show replaced and deleted files for context alongside the current files.")).toBeTruthy();
     await userEvent.keyboard("{Escape}");
 
     await userEvent.click(toggle);
@@ -167,7 +163,7 @@ describe("<ApprovalRequestSummary />", () => {
     expect(screen.queryByText("Added")).toBeNull();
   });
 
-  test("keeps regular task detail fields visible by default", () => {
+  test("shows populated task detail fields and omits missing files", () => {
     render(
       <ApprovalRequestSummary
         description="Task description"
@@ -179,10 +175,10 @@ describe("<ApprovalRequestSummary />", () => {
       />,
     );
 
-    expect(screen.getByText("Status")).toBeTruthy();
+    expect(screen.getByLabelText("Status: Pending")).toBeTruthy();
     expect(screen.getByText("Description")).toBeTruthy();
     expect(screen.getByText("Instructions")).toBeTruthy();
     expect(screen.getByText("Revision")).toBeTruthy();
-    expect(screen.getByText("Files to review")).toBeTruthy();
+    expect(screen.queryByText("Files to review")).toBeNull();
   });
 });

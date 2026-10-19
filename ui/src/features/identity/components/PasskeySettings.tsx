@@ -138,7 +138,7 @@ const PasskeySettings = () => {
 
   return (
     <Stack spacing={StackSpacing.loose}>
-      <Typography color="text.secondary">
+      <Typography color="textSecondary">
         Sign in using your device’s biometric, PIN, or security key. Keep your password for account recovery.
       </Typography>
       <Box sx={DataGrids.containerSx}>

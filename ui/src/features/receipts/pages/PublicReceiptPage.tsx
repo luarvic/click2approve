@@ -3,7 +3,7 @@ import { getReceiptByLink } from "@/features/receipts/api/receiptLinksApi";
 import ReceiptView from "@/features/receipts/components/ReceiptView";
 import ReceiptFileVerification from "@/features/receipts/components/verification/ReceiptFileVerification";
 import type { PublicReceipt } from "@/features/receipts/models/publicReceipt";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
+import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { StackSpacing } from "@/shared/theme/tokens";
@@ -16,7 +16,7 @@ import { useParams } from "react-router-dom";
 const baseUrl = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const logoSrc = `${baseUrl}logo-wall-to-wall.svg`;
 const qrCodeSize = 192;
-const receiptLogoSize = 48;
+const receiptLogoSize = 36;
 
 const pageSx: SxProps<Theme> = {
   display: "flex",
@@ -32,7 +32,7 @@ const pageSx: SxProps<Theme> = {
 };
 
 const contentContainerSx: SxProps<Theme> = {
-  alignItems: "center",
+  alignItems: "flex-start",
   display: "flex",
   flex: "1 0 auto",
   justifyContent: "center",
@@ -51,8 +51,7 @@ const receiptViewSx: SxProps<Theme> = {
 };
 
 const receiptCardSx: SxProps<Theme> = {
-  border: 0,
-  boxShadow: "none",
+  "@media print": { backgroundColor: "#fff", border: 0, boxShadow: "none" },
 };
 
 const qrPanelSx: SxProps<Theme> = {
@@ -76,7 +75,12 @@ const qrLabelSx: SxProps<Theme> = {
 
 const receiptBrandSx: SxProps<Theme> = {
   alignItems: "center",
-  justifyContent: "center",
+  justifyContent: "flex-start",
+  mb: 2,
+  "@media print": {
+    breakAfter: "avoid",
+    color: "#162b20",
+  },
 };
 
 const receiptLogoSx: SxProps<Theme> = {
@@ -87,12 +91,9 @@ const receiptLogoSx: SxProps<Theme> = {
   width: "auto",
 };
 
-const receiptHelpSx: SxProps<Theme> = {
-  "@media print": { display: "none" },
-};
-
 const receiptBrandTextSx: SxProps<Theme> = {
-  fontSize: "1.75rem",
+  fontSize: "1.1875rem",
+  fontWeight: 600,
 };
 
 const printStyles = (
@@ -118,24 +119,38 @@ const printStyles = (
 const PublicReceiptPage = () => {
   const { linkGlobalId } = useParams<{ linkGlobalId: string }>();
   const [receipt, setReceipt] = useState<PublicReceipt | null | undefined>(undefined);
-  usePageTitle(`Receipt Verification ${getApprovalRequestNumber(linkGlobalId)}`);
+  usePageTitle(`Receipt verification ${getApprovalRequestNumber(linkGlobalId)}`);
 
   useEffect(() => {
+    let active = true;
+    setReceipt(undefined);
     const load = async () => {
-      setReceipt(linkGlobalId ? await getReceiptByLink(linkGlobalId) : null);
+      const loadedReceipt = linkGlobalId ? await getReceiptByLink(linkGlobalId) : null;
+      if (active) setReceipt(loadedReceipt);
     };
 
     void load();
+    return () => {
+      active = false;
+    };
   }, [linkGlobalId]);
 
   const verificationUrl = useMemo(() => window.location.href, []);
 
   if (receipt === null) {
-    return <NotFoundPage />;
+    return (
+      <Box component="main" sx={pageSx}>
+        <NotFoundPage />
+      </Box>
+    );
   }
 
   if (receipt === undefined) {
-    return null;
+    return (
+      <Box component="main" aria-label="Receipt verification" aria-busy sx={pageSx}>
+        <LoadingOverlay />
+      </Box>
+    );
   }
 
   return (
@@ -144,6 +159,12 @@ const PublicReceiptPage = () => {
       <Box component="main" sx={pageSx}>
         <Box sx={contentContainerSx}>
           <Box sx={receiptViewSx}>
+            <Stack direction="row" spacing={StackSpacing.tight} sx={receiptBrandSx}>
+              <Box component="img" src={logoSrc} alt="Click2Approve" sx={receiptLogoSx} />
+              <Typography component="span" variant="h6" sx={receiptBrandTextSx}>
+                Click2Approve
+              </Typography>
+            </Stack>
             <ReceiptView
               afterTitleContent={
                 <Stack spacing={StackSpacing.tight} sx={qrPanelSx}>
@@ -155,20 +176,6 @@ const PublicReceiptPage = () => {
               }
               cardSx={receiptCardSx}
               receipt={receipt}
-              titleContent={
-                <Stack direction="row" spacing={StackSpacing.tight} sx={receiptBrandSx}>
-                  <Box component="img" src={logoSrc} alt="Click2Approve" sx={receiptLogoSx} />
-                  <Typography component="span" variant="h6" sx={receiptBrandTextSx}>
-                    Click2Approve
-                  </Typography>
-                  <Box component="span" sx={receiptHelpSx}>
-                    <HelpPopover
-                      docsHref="/docs/receipts/"
-                      helpText="Review this receipt or verify that your file matches a recorded attachment."
-                    />
-                  </Box>
-                </Stack>
-              }
             />
           </Box>
         </Box>

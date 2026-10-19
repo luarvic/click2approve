@@ -1,7 +1,7 @@
 import { useSignatureCanvas } from "@/features/approvalRequests/hooks/useSignatureCanvas";
-import { StackSpacing } from "@/shared/theme/tokens";
+import { ControlTokens, StackSpacing } from "@/shared/theme/tokens";
 import ClearIcon from "@mui/icons-material/Clear";
-import { FormHelperText, IconButton, Stack, Tooltip } from "@mui/material";
+import { FormHelperText, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { useTheme } from "@mui/material/styles";
 import type { CSSProperties } from "react";
@@ -17,18 +17,15 @@ const signaturePadContainerSx =
   (error: boolean): SxProps<Theme> =>
   (theme) => ({
     border: "1px solid",
-    borderColor: error
-      ? theme.palette.error.main
-      : theme.palette.mode === "dark"
-        ? "rgba(255, 255, 255, 0.23)"
-        : "rgba(0, 0, 0, 0.23)",
-    borderRadius: 1,
+    borderColor: error ? theme.palette.error.main : theme.palette.divider,
+    borderRadius: ControlTokens.borderRadius,
     overflow: "hidden",
     position: "relative",
     width: "100%",
     "&:focus-within": {
       borderColor: error ? theme.palette.error.main : theme.palette.primary.main,
-      borderWidth: 2,
+      outline: `2px solid ${error ? theme.palette.error.main : theme.palette.primary.main}`,
+      outlineOffset: -2,
     },
   });
 
@@ -37,6 +34,14 @@ const signatureCanvasStyle: CSSProperties = {
   height: 180,
   touchAction: "none",
   width: "100%",
+};
+
+const signatureHintSx: SxProps<Theme> = {
+  bottom: 12,
+  color: "text.secondary",
+  left: 16,
+  pointerEvents: "none",
+  position: "absolute",
 };
 
 const signatureActionsSx: SxProps<Theme> = {
@@ -81,6 +86,11 @@ const ApprovalRequestSignatureField: React.FC<ApprovalRequestSignatureFieldProps
           </IconButton>
         </Tooltip>
         <canvas ref={canvasRef} aria-label="Signature" style={signatureCanvasStyle} />
+        {!value && (
+          <Typography aria-hidden="true" variant="caption" sx={signatureHintSx}>
+            Draw your signature
+          </Typography>
+        )}
       </Stack>
       {helperText && <FormHelperText error={error}>{helperText}</FormHelperText>}
     </Stack>

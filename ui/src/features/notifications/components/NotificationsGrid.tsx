@@ -49,7 +49,7 @@ const notificationGridSx: SxProps<Theme> = {
   ...DataGrids.sx,
   [`& .${unreadNotificationRowClassName} .MuiDataGrid-cell, & .${unreadNotificationRowClassName} .MuiDataGrid-cell .MuiTypography-root`]:
     {
-      fontWeight: "bold",
+      fontWeight: 500,
     },
 };
 

@@ -7,6 +7,6 @@ describe("<ApprovalRequestParticipantLine />", () => {
   test("greys out its icon when disabled", () => {
     render(<ApprovalRequestParticipantLine disabled displayName="Ada Lovelace" type={AssigneeType.Employee} />);
 
-    expect(screen.getByTestId("PersonIcon").className).toContain("MuiSvgIcon-colorDisabled");
+    expect(screen.getByTestId("PersonOutlinedIcon").className).toContain("MuiSvgIcon-colorDisabled");
   });
 });

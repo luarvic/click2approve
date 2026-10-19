@@ -1,16 +1,4 @@
-/* Marketing pages share the app's font, palette, branding, and theme switch. */
-body:has(.site-header) {
-  --site-green: #15803d;
-  --site-soft: #f2f7f3;
-  --site-muted: #52645a;
-  --site-ink: #162b20;
-}
-body[data-md-color-scheme="slate"]:has(.site-header) {
-  --site-green: #4ade80;
-  --site-soft: #19251e;
-  --site-muted: #a6baad;
-  --site-ink: #edf7f0;
-}
+/* Public-site colors and fonts are shared through app.css. */
 .site-header.md-header {
   padding: 0;
   overflow-x: auto;

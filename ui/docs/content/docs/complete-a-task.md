@@ -9,9 +9,13 @@ A task records your action on one step of a request. Review the current request 
 3. Open **Tasks** and select the task waiting for your action.
 4. Read the title, requester, description, step instructions, and current files.
 
+Use the **Tasks** breadcrumb above the task title to return to the list.
+
 Email-addressed tasks from an organization arrive in Personal. They do not give you access to that organization's workspace. Organization delegates can also act on authorized tasks; see [Delegations](delegations.md).
 
 ## Provide the required information
+
+Below the task summary, use **Your response** to choose your decision and provide attachments, a comment, and a signature when needed.
 
 Use the action offered for your task. The workflow may require a comment, response attachment, electronic signature, or a combination of these. Fill in all required fields before submitting. A negative decision requires a comment explaining the outcome.
 
@@ -27,4 +31,8 @@ Your recorded action becomes part of the request history. Depending on its compl
 
 ## Return later
 
+Leaving the task page discards an unsubmitted response without asking for confirmation. Complete the task to record your decision.
+
 Reopen the task to review the recorded action and context. Tasks can become unavailable for completion when canceled, skipped, superseded by a revision, or completed by another eligible participant. Refresh the task before retrying an action after an error.
+
+The status chip in the task card's header shows its current state or recorded action, such as Pending, Signed, or Rejected.

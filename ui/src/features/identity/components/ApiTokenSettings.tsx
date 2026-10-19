@@ -128,7 +128,7 @@ const ApiTokenSettings = () => {
 
   return (
     <Stack spacing={StackSpacing.loose}>
-      <Typography color="text.secondary">
+      <Typography color="textSecondary">
         Create revocable tokens for API access. A token is shown only once, so copy it before closing the dialog.
       </Typography>
       <Box sx={DataGrids.containerSx}>

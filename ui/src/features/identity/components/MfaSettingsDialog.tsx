@@ -148,7 +148,7 @@ const MfaSettingsDialog = ({ mode, onClose }: Props) => {
                   />
                 }
               />
-              <Typography color="text.secondary">
+              <Typography color="textSecondary">
                 Sign in again to continue with your updated security settings.
               </Typography>
             </>
@@ -156,13 +156,13 @@ const MfaSettingsDialog = ({ mode, onClose }: Props) => {
             <>
               {sharedKey ? (
                 <>
-                  <Typography color="text.secondary">
+                  <Typography color="textSecondary">
                     Scan this QR code with Microsoft Authenticator, Google Authenticator, or another compatible app.
                   </Typography>
                   <Box sx={qrCodeSx}>
                     <QRCodeSVG value={authenticatorUri} size={qrCodeSize} title="Authenticator setup QR code" />
                   </Box>
-                  <Typography color="text.secondary">
+                  <Typography color="textSecondary">
                     Can’t scan the QR code? Enter this setup key in your authenticator app.
                   </Typography>
                   <CopyableCodeField label="Setup key" value={sharedKey} />
@@ -180,7 +180,7 @@ const MfaSettingsDialog = ({ mode, onClose }: Props) => {
                   />
                 </>
               ) : (
-                <Typography color="text.secondary">
+                <Typography color="textSecondary">
                   {mode === "setup"
                     ? "Connect an authenticator app, verify a code, and save your recovery codes. Once you start setup, you will need to sign in again when you finish or cancel."
                     : mode === "disable"

@@ -1,7 +1,6 @@
 import { stores } from "@/app/rootStore";
 import { Pages } from "@/shared/components/layout/pageStyles";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { Routes } from "@/shared/routing/routes";
 import { Box, Container, Typography } from "@mui/material";
@@ -28,7 +27,7 @@ const NotFoundPage = () => {
   }, []);
 
   return (
-    <Container component="main" maxWidth={Pages.centeredMessageMaxWidth}>
+    <Container maxWidth={Pages.centeredMessageMaxWidth}>
       <Box sx={Pages.centeredMessageContainerSx}>
         <Box
           component={RouterLink}
@@ -43,12 +42,6 @@ const NotFoundPage = () => {
             { label: "Home", to: Routes.defaultPath },
             {
               label: "Page not found",
-              titleAction: (
-                <HelpPopover
-                  docsHref="/docs/troubleshooting/"
-                  helpText="Check the link, account, and workspace if this page is unavailable."
-                />
-              ),
             },
           ]}
         />

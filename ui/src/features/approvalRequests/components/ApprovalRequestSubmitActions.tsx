@@ -26,12 +26,12 @@ const ApprovalRequestSubmitActions: React.FC<ApprovalRequestSubmitActionsProps> 
         Back
       </Button>
     ) : (
-      <Button variant="outlined" onClick={onCancel}>
+      <Button variant="text" onClick={onCancel}>
         Cancel
       </Button>
     )}
     {onSaveTemplate && (
-      <Button loading={isSavingTemplate} variant="outlined" onClick={onSaveTemplate}>
+      <Button loading={isSavingTemplate} variant="text" onClick={onSaveTemplate}>
         Save template
       </Button>
     )}

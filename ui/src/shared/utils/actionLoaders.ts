@@ -47,8 +47,10 @@ export const ActionLoaderScopes = {
   pagesDelegationEditor: "pages.delegationEditor",
   pagesEmployeeEditor: "pages.employeeEditor",
   pagesTeamEditor: "pages.teamEditor",
+  pagesTenantEditor: "pages.tenantEditor",
   pagesTenantScope: "pages.tenantScope",
   pagesUserProfile: "pages.userProfile",
+  subscriptionRetentionLoad: "subscriptionRetention.load",
   subscriptionRetentionSave: "subscriptionRetention.save",
   subscriptionPlanChange: "subscriptionPlan.change",
   subscriptionPlanLoad: "subscriptionPlan.load",
@@ -106,11 +108,13 @@ export const GlobalLoadingActionLoaderScopes = [
   ActionLoaderScopes.pagesDelegationEditor,
   ActionLoaderScopes.pagesEmployeeEditor,
   ActionLoaderScopes.pagesTeamEditor,
+  ActionLoaderScopes.pagesTenantEditor,
   ActionLoaderScopes.pagesTenantScope,
   ActionLoaderScopes.pagesUserProfile,
   ActionLoaderScopes.subscriptionPlanChange,
   ActionLoaderScopes.subscriptionPlanLoad,
   ActionLoaderScopes.subscriptionUsageLoad,
+  ActionLoaderScopes.subscriptionRetentionLoad,
   ActionLoaderScopes.subscriptionRetentionSave,
   ActionLoaderScopes.teamsSave,
   ActionLoaderScopes.tenantsSave,
@@ -212,6 +216,8 @@ export const ActionLoaders = {
       createActionLoaderKey(ActionLoaderScopes.pagesEmployeeEditor, employeeGlobalId),
     teamEditor: (teamGlobalId: string | undefined) =>
       createActionLoaderKey(ActionLoaderScopes.pagesTeamEditor, teamGlobalId),
+    tenantEditor: (tenantGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.pagesTenantEditor, tenantGlobalId),
     tenantScope: () => ActionLoaderScopes.pagesTenantScope,
     userProfile: () => ActionLoaderScopes.pagesUserProfile,
   },
@@ -255,6 +261,8 @@ export const ActionLoaders = {
       createActionLoaderKey(ActionLoaderScopes.subscriptionUsageLoad, tenantGlobalId),
   },
   subscriptionRetention: {
+    load: (tenantGlobalId: string | undefined) =>
+      createActionLoaderKey(ActionLoaderScopes.subscriptionRetentionLoad, tenantGlobalId),
     save: (tenantGlobalId: string | undefined) =>
       createActionLoaderKey(ActionLoaderScopes.subscriptionRetentionSave, tenantGlobalId),
   },

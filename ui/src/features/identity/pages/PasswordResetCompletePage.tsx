@@ -10,8 +10,6 @@ const PasswordResetCompletePage = () => {
   const returnUrl = useAuthReturnUrl();
   return (
     <ActionResult
-      docsHref="/docs/sign-in/"
-      helpText="Return to Sign in and use your new password."
       title="Password reset"
       message={
         <>

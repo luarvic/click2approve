@@ -11,8 +11,6 @@ const ConfirmationEmailSentPage = () => {
   const returnUrl = useAuthReturnUrl();
   return (
     <ActionResult
-      docsHref="/docs/sign-in/"
-      helpText="Follow the link in your confirmation email to verify your account."
       title={Information.emailVerificationTitle}
       message={Information.emailVerificationMessage}
       action={

@@ -15,7 +15,6 @@ import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirma
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useFormValidation } from "@/shared/hooks/useFormValidation";
@@ -172,12 +171,6 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
           },
           {
             label: employee ? getEmployeeDisplayName(employee) : "New employee",
-            titleAction: (
-              <HelpPopover
-                docsHref="/docs/employees/"
-                helpText="Review employee details, role, teams, and access; owners and admins can save changes."
-              />
-            ),
           },
         ]}
       />
@@ -270,11 +263,11 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
         )}
       </Stack>
       <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
-        <Button variant="outlined" onClick={() => onClose(employee?.globalId)}>
+        <Button variant="text" onClick={() => onClose(employee?.globalId)}>
           Cancel
         </Button>
         {!isNew && canEdit && employee?.role !== EmployeeRole.Owner && (
-          <Button color="error" variant="outlined" onClick={() => setDeleteDialogIsOpen(true)}>
+          <Button color="error" variant="text" onClick={() => setDeleteDialogIsOpen(true)}>
             Delete
           </Button>
         )}

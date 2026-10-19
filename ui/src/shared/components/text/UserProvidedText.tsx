@@ -8,16 +8,17 @@ interface UserProvidedTextProps {
   text?: string | null;
 }
 
-const userProvidedTextSx: SxProps<Theme> = {
+const userProvidedTextSx = (color?: string): SxProps<Theme> => ({
+  color,
   overflowWrap: "anywhere",
   whiteSpace: "pre-wrap",
-};
+});
 
 const UserProvidedText: React.FC<UserProvidedTextProps> = ({ color, sx, text }) => {
   const trimmedText = text?.trim();
 
   return trimmedText ? (
-    <Typography color={color} sx={[userProvidedTextSx, ...(Array.isArray(sx) ? sx : [sx])]} variant="body1">
+    <Typography sx={[userProvidedTextSx(color), ...(Array.isArray(sx) ? sx : [sx])]} variant="body1">
       {trimmedText}
     </Typography>
   ) : null;

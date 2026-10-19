@@ -1,4 +1,3 @@
-import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
 import ApprovalRequestFilesList, {
   RevisionExistingFile,
 } from "@/features/approvalRequests/components/ApprovalRequestFilesList";
@@ -12,6 +11,8 @@ import { Team } from "@/features/teams/models/team";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import { Files } from "@/shared/components/files/fileInputStyles";
+import FormCard from "@/shared/components/forms/FormCard";
+import FormSection from "@/shared/components/forms/FormSection";
 import { Add, AttachFile } from "@mui/icons-material";
 import { Box, Button, FormHelperText, Stack, TextField } from "@mui/material";
 import type { ChangeEventHandler, FormEventHandler, RefObject } from "react";
@@ -110,21 +111,20 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
   onUploadClick,
 }) => (
   <Box component="form" noValidate onSubmit={onSubmit}>
-    <Stack spacing={Forms.formStackSpacing} sx={Forms.tabContentSx}>
-      <ApprovalRequestDetailsCard ariaLabel="Request details" elevated mode="edit" showStatusBorder={false}>
-        <Stack spacing={Forms.formStackSpacing}>
-          <TextField
-            autoFocus
-            disabled={isRevision}
-            fullWidth
-            label="Title"
-            error={Boolean(titleError)}
-            helperText={titleError}
-            margin="normal"
-            required
-            value={title}
-            onChange={(event) => onTitleChange(event.target.value)}
-          />
+    <Stack spacing={Forms.cardStackSpacing}>
+      <FormCard title="Request details">
+        <TextField
+          autoFocus
+          disabled={isRevision}
+          fullWidth
+          label="Title"
+          error={Boolean(titleError)}
+          helperText={titleError}
+          required
+          value={title}
+          onChange={(event) => onTitleChange(event.target.value)}
+        />
+        <FormSection title="Files to review">
           <ApprovalRequestFilesList
             existingFiles={existingFiles}
             isActionsDisabled={isFilesBusy}
@@ -136,7 +136,7 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
             onReplaceExisting={isRevision ? onReplaceExisting : undefined}
             onRestoreExisting={onRestoreExisting}
           />
-          <Box sx={Forms.bottomSpacingSx}>
+          <Box>
             {filesError && (
               <FormHelperText error role="alert" tabIndex={-1} data-validation-error>
                 {filesError}
@@ -166,18 +166,17 @@ const ApprovalRequestSubmitCompose: React.FC<ApprovalRequestSubmitComposeProps> 
               onChange={onReplacementFilesChange}
             />
           </Box>
-          <TextField
-            fullWidth
-            label="Description"
-            margin="normal"
-            multiline
-            value={description}
-            error={Boolean(descriptionError)}
-            helperText={descriptionError}
-            onChange={(event) => onDescriptionChange(event.target.value)}
-          />
-        </Stack>
-      </ApprovalRequestDetailsCard>
+        </FormSection>
+        <TextField
+          fullWidth
+          label="Description"
+          multiline
+          value={description}
+          error={Boolean(descriptionError)}
+          helperText={descriptionError}
+          onChange={(event) => onDescriptionChange(event.target.value)}
+        />
+      </FormCard>
       <Stack spacing={Forms.formStackSpacing}>
         {stepsError && (
           <FormHelperText error role="alert" tabIndex={-1} data-validation-error>

@@ -24,8 +24,8 @@ afterEach(cleanup);
 describe("plan pricing summary", () => {
   it("shows the paid price and capacity without detailed token explanations", () => {
     render(<PlanPriceCard title="Business Pro" limits={plan} actions={null} />);
-    expect(screen.getByText("$100 USD / month")).toBeTruthy();
-    expect(screen.getByText("Excluding taxes")).toBeTruthy();
+    expect(screen.getByText("$100 / month")).toBeTruthy();
+    expect(screen.getByText("Taxes may apply")).toBeTruthy();
     expect(screen.getByText("300,000 tokens included")).toBeTruthy();
     expect(screen.getByText("100 GB storage")).toBeTruthy();
     expect(screen.getByText("Configurable retention")).toBeTruthy();
@@ -53,8 +53,8 @@ describe("plan pricing summary", () => {
     );
     expect(screen.getByText("1 month retention")).toBeTruthy();
     expect(screen.getByText("Free for 1 month")).toBeTruthy();
-    expect(screen.queryByText(/USD \/ month/)).toBeNull();
-    expect(screen.queryByText("Excluding taxes")).toBeNull();
+    expect(screen.queryByText(/\$.*\/ month/)).toBeNull();
+    expect(screen.queryByText("Taxes may apply")).toBeNull();
   });
 
   it("shows Personal Free without a monthly price or tax disclaimer", () => {
@@ -66,7 +66,7 @@ describe("plan pricing summary", () => {
       />,
     );
     expect(screen.getByText("Free")).toBeTruthy();
-    expect(screen.queryByText(/USD \/ month/)).toBeNull();
-    expect(screen.queryByText("Excluding taxes")).toBeNull();
+    expect(screen.queryByText(/\$.*\/ month/)).toBeNull();
+    expect(screen.queryByText("Taxes may apply")).toBeNull();
   });
 });

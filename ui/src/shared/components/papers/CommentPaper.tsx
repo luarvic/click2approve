@@ -22,7 +22,7 @@ const CommentPaper: React.FC<CommentProps> = ({ children, text, label, sx }) => 
   return (
     <Box sx={[contentSx, ...(Array.isArray(sx) ? sx : [sx])]}>
       {label && (
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" color="textSecondary">
           {label}
         </Typography>
       )}

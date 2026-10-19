@@ -1,4 +1,5 @@
 import { stores } from "@/app/rootStore";
+import { summaryCardContentSx } from "@/features/approvalRequests/components/approvalRequestSummaryStyles";
 import { getRequestCompletedTimestamp } from "@/features/approvalRequests/components/approvalRequestCompletionTimestamps";
 import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
 import ApprovalRequestField from "@/features/approvalRequests/components/ApprovalRequestField";
@@ -192,7 +193,8 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
       ariaLabel={getApprovalRequestStatusLabel(approvalRequest.status, approvalRequest.result)}
       borderLeftColor={requestStatusColor}
       borderLeftStyle={approvalRequest.status === ApprovalRequestStatus.Started ? "dotted" : "solid"}
-      elevated
+      contentSx={summaryCardContentSx}
+      showStatusBorder={false}
     >
       <ApprovalRequestSummary
         activity={activity}
@@ -219,7 +221,6 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
         showTitle={!approvalRequestTaskGlobalId}
         statusLabel={getApprovalRequestStatusLabel(approvalRequest.status, approvalRequest.result)}
         statusColor={requestStatusColor}
-        statusIconSx={getStatusIconSx(requestStatusColor)}
         statusIcon={
           approvalRequest.status === ApprovalRequestStatus.Started ? (
             <PlayCircleOutlined fontSize="inherit" sx={getStatusIconSx(requestStatusColor)} />
@@ -234,7 +235,7 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
                     : approvalRequest.result === false
                       ? "completedUnsuccessfully"
                       : "completedSuccessfully",
-              "primary",
+              "inherit",
             )
           )
         }

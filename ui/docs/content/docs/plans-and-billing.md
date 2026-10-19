@@ -22,7 +22,7 @@ Select the workspace and open **Plans**. Personal users manage their own subscri
 
 Use **Subscribe** on the desired plan. A paid plan activates only after payment is verified. Follow Checkout and return to Plans to check the result. Closing Checkout or returning from it does not by itself confirm successful payment.
 
-For new organizations, choosing a plan creates the workspace. Paid organizations remain restricted until payment succeeds. Business Trial can be used only once per owner.
+For new organizations, select **Choose Business Trial** or **Choose Business Pro**, then press **Subscribe** below the cards to create the workspace. Paid organizations remain restricted until payment succeeds. Business Trial can be used only once per owner.
 
 ## Understand plan changes
 

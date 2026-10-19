@@ -38,14 +38,14 @@ describe("<ApprovalStepAssigneeRow />", () => {
     expect((screen.getByRole("combobox", { name: "Employee" }) as HTMLInputElement).value).toBe("Ada Lovelace");
     fireEvent.click(screen.getByRole("button", { name: "Open" }));
     expect(screen.getByRole("option", { name: "Ada Lovelace" })).toBeTruthy();
-    expect(screen.queryByTestId("PersonIcon")).toBeNull();
+    expect(screen.queryByTestId("PersonOutlinedIcon")).toBeNull();
 
     rerender(<ApprovalStepAssigneeRow {...props} assignee={{ teamGlobalId: "team-id", type: AssigneeType.Team }} />);
 
     expect((screen.getByRole("combobox", { name: "Team" }) as HTMLInputElement).value).toBe("Finance");
     fireEvent.click(screen.getByRole("button", { name: "Open" }));
     expect(screen.getByRole("option", { name: "Finance" })).toBeTruthy();
-    expect(screen.queryByTestId("GroupsIcon")).toBeNull();
+    expect(screen.queryByTestId("GroupsOutlinedIcon")).toBeNull();
   });
 
   test("renders employees with matching names without React key warnings", () => {
@@ -90,6 +90,6 @@ describe("<ApprovalStepAssigneeRow />", () => {
     expect((screen.getByRole("combobox", { name: "Employee" }) as HTMLInputElement).value).toBe(
       "Ada Lovelace (disabled)",
     );
-    expect(screen.queryByTestId("PersonOffIcon")).toBeNull();
+    expect(screen.queryByTestId("PersonOffOutlinedIcon")).toBeNull();
   });
 });

@@ -18,7 +18,7 @@ export const StatusLineColors = {
   completedSuccessfully: "success.main",
   completedUnsuccessfully: "error.main",
   other: "text.disabled",
-  pending: "primary.main",
+  pending: "text.disabled",
   started: "success.main",
 } as const;
 

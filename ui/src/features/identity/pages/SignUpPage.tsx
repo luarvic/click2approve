@@ -1,16 +1,15 @@
 import { stores } from "@/app/rootStore";
 import AuthForm from "@/features/identity/components/AuthForm";
 import AuthFormActions from "@/features/identity/components/AuthFormActions";
+import AuthTextField from "@/features/identity/components/AuthTextField";
 import AuthTextLink from "@/features/identity/components/AuthTextLink";
 import AuthTextLinks from "@/features/identity/components/AuthTextLinks";
-import AuthTextField from "@/features/identity/components/AuthTextField";
 import { AuthForms } from "@/features/identity/components/authFormStyles";
 import { Credentials } from "@/features/identity/models/credentials";
 import { authPath } from "@/features/identity/routing/returnUrl";
 import { useAuthReturnUrl } from "@/features/identity/routing/useAuthReturnUrl";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
@@ -97,18 +96,12 @@ const SignUpPage = () => {
   };
 
   return (
-    <Container component="main" maxWidth={AuthForms.maxWidth}>
+    <Container maxWidth={AuthForms.maxWidth}>
       <Box sx={AuthForms.containerSx}>
         <PageBreadcrumbs
           items={[
             {
               label: "Sign up",
-              titleAction: (
-                <HelpPopover
-                  docsHref="/docs/sign-in/"
-                  helpText="Create your account and Personal workspace with your email and a password."
-                />
-              ),
             },
           ]}
         />

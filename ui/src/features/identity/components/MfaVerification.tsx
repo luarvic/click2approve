@@ -60,7 +60,7 @@ const MfaVerification = ({ credentials, onVerified, onBack }: Props) => {
         void verify();
       }}
     >
-      <Typography color="text.secondary">
+      <Typography color="textSecondary">
         {recovery
           ? "Enter one of your saved recovery codes. Each code can be used once."
           : `Enter the ${IdentityValidation.authenticatorCodeLength}-digit code from your authenticator app.`}

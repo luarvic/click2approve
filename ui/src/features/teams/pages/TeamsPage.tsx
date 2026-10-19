@@ -1,6 +1,5 @@
 import TeamsGrid from "@/features/teams/components/TeamsGrid";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
@@ -19,12 +18,6 @@ const TeamsPage = () => {
         items={[
           {
             label: "Teams",
-            titleAction: (
-              <HelpPopover
-                docsHref="/docs/teams/"
-                helpText="Group organization employees to assign workflow steps to teams."
-              />
-            ),
           },
         ]}
       />

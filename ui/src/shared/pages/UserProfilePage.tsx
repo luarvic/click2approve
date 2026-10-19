@@ -9,7 +9,6 @@ import { Forms } from "@/shared/components/dialogs/formStyles";
 import ImagePicker from "@/shared/components/images/ImagePicker";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useFormValidation } from "@/shared/hooks/useFormValidation";
@@ -44,6 +43,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableRow,
   Tabs,
@@ -54,7 +54,7 @@ import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const profileFormSx = { mt: 1 };
+const profileTabContentSx = { minWidth: 0, pt: 1 };
 const profileContainerSx = { display: "flex", flexDirection: "column" } as const;
 
 const notificationChannels = [NotificationChannel.InApp, NotificationChannel.Email];
@@ -130,13 +130,10 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
   const handleNotificationToggle = (type: NotificationPreferenceType, channel: NotificationChannel) => {
     const notificationTypes = notificationPreferenceTypeToNotificationTypes[type];
     const isEnabled = isNotificationCategoryEnabled(type, channel);
-    setNotificationPreferences((current) =>
-      current.map((preference) =>
-        notificationTypes.includes(preference.type) && preference.channel === channel
-          ? { ...preference, isEnabled: !isEnabled }
-          : preference,
-      ),
-    );
+    setNotificationPreferences((current) => [
+      ...current.filter((preference) => !notificationTypes.includes(preference.type) || preference.channel !== channel),
+      ...notificationTypes.map((notificationType) => ({ type: notificationType, channel, isEnabled: !isEnabled })),
+    ]);
   };
 
   const handleSave = async () => {
@@ -185,18 +182,13 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
         items={[
           {
             label: "User profile",
-            titleAction: (
-              <HelpPopover
-                docsHref="/docs/profile/"
-                helpText="Manage your profile, security, saved signature, API tokens, and notification preferences."
-              />
-            ),
           },
         ]}
       />
       <NarrowContent>
-        <Stack component="form" noValidate spacing={StackSpacing.loose} sx={profileFormSx}>
+        <Stack component="form" noValidate spacing={StackSpacing.loose}>
           <Tabs
+            aria-label="Profile sections"
             value={selectedTab}
             onChange={(_, value: UserProfileTab) => navigate(Routes.userProfileTabPath(value))}
             variant="scrollable"
@@ -208,121 +200,127 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
             <Tab label="Signature" value="signature" />
             <Tab label="Notifications" value="notifications" />
           </Tabs>
-          {selectedTab === "profile" && (
-            <Stack spacing={Forms.formStackSpacing} sx={Forms.tabContentSx}>
-              <ImagePicker
-                alt="User avatar"
-                fallback={<Person fontSize="large" />}
-                imageSize={stores.applicationConfigurationStore.applicationConfiguration?.avatarImageSize ?? 256}
-                imageUrl={getPublicApiUrl(profile.avatar)}
-                onDelete={handleRemoveAvatar}
-                onSave={setSelectedAvatar}
-                selectedFile={selectedAvatar}
-                title="Edit avatar"
-              />
-              <TextField
-                label="First name"
-                value={firstName}
-                {...validation.field("firstName")}
-                onChange={(event) => setFirstName(event.target.value)}
-              />
-              <TextField
-                label="Last name"
-                value={lastName}
-                {...validation.field("lastName")}
-                onChange={(event) => setLastName(event.target.value)}
-              />
-              {stores.tenantStore.tenants.length > 0 && (
-                <FormControl>
-                  <InputLabel id="default-workspace-label">Default workspace</InputLabel>
-                  <Select
-                    labelId="default-workspace-label"
-                    label="Default workspace"
-                    value={defaultTenantGlobalId}
-                    onChange={(event) => setDefaultTenantGlobalId(event.target.value === "" ? "" : event.target.value)}
-                  >
-                    <MenuItem value="">No default workspace</MenuItem>
-                    {stores.tenantStore.tenants.map((tenant) => (
-                      <MenuItem key={tenant.globalId} value={tenant.globalId}>
-                        {tenant.businessName}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
-            </Stack>
-          )}
-          {selectedTab === "notifications" && (
-            <Stack spacing={Forms.formStackSpacing} sx={Forms.tabContentSx}>
-              <Table aria-label="Notification preferences">
-                <TableHead>
-                  <TableRow>
-                    <TableCell />
-                    {notificationChannels.map((channel) => (
-                      <TableCell key={channel} align="center">
-                        {notificationChannelLabels[channel]}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {notificationPreferenceTypes
-                    .filter(
-                      (type) =>
-                        (type !== NotificationPreferenceType.Billing ||
-                          stores.applicationConfigurationStore.subscriptionsAreEnabled) &&
-                        (type !== NotificationPreferenceType.Receipts ||
-                          stores.applicationConfigurationStore.receiptsAreEnabled),
-                    )
-                    .map((type) => (
-                      <TableRow key={type}>
-                        <TableCell component="th" scope="row">
-                          {notificationPreferenceTypeLabels[type]}
-                        </TableCell>
+          <Box sx={profileTabContentSx}>
+            {selectedTab === "profile" && (
+              <Stack spacing={Forms.formStackSpacing}>
+                <ImagePicker
+                  alt="User avatar"
+                  fallback={<Person fontSize="large" />}
+                  imageSize={stores.applicationConfigurationStore.applicationConfiguration?.avatarImageSize ?? 256}
+                  imageUrl={getPublicApiUrl(profile.avatar)}
+                  onDelete={handleRemoveAvatar}
+                  onSave={setSelectedAvatar}
+                  selectedFile={selectedAvatar}
+                  title="Edit avatar"
+                />
+                <TextField
+                  label="First name"
+                  value={firstName}
+                  {...validation.field("firstName")}
+                  onChange={(event) => setFirstName(event.target.value)}
+                />
+                <TextField
+                  label="Last name"
+                  value={lastName}
+                  {...validation.field("lastName")}
+                  onChange={(event) => setLastName(event.target.value)}
+                />
+                {stores.tenantStore.tenants.length > 0 && (
+                  <FormControl>
+                    <InputLabel id="default-workspace-label">Default workspace</InputLabel>
+                    <Select
+                      labelId="default-workspace-label"
+                      label="Default workspace"
+                      value={defaultTenantGlobalId}
+                      onChange={(event) =>
+                        setDefaultTenantGlobalId(event.target.value === "" ? "" : event.target.value)
+                      }
+                    >
+                      <MenuItem value="">No default workspace</MenuItem>
+                      {stores.tenantStore.tenants.map((tenant) => (
+                        <MenuItem key={tenant.globalId} value={tenant.globalId}>
+                          {tenant.businessName}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
+              </Stack>
+            )}
+            {selectedTab === "notifications" && (
+              <Stack spacing={Forms.formStackSpacing}>
+                <TableContainer>
+                  <Table aria-label="Notification preferences">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Notification</TableCell>
                         {notificationChannels.map((channel) => (
                           <TableCell key={channel} align="center">
-                            <Switch
-                              disabled={
-                                type === NotificationPreferenceType.Billing && channel === NotificationChannel.InApp
-                              }
-                              checked={
-                                type === NotificationPreferenceType.Billing && channel === NotificationChannel.InApp
-                                  ? false
-                                  : isNotificationCategoryEnabled(type, channel)
-                              }
-                              onChange={() => handleNotificationToggle(type, channel)}
-                              slotProps={{
-                                input: {
-                                  "aria-label": `${notificationPreferenceTypeLabels[type]} ${notificationChannelLabels[channel]}`,
-                                },
-                              }}
-                            />
+                            {notificationChannelLabels[channel]}
                           </TableCell>
                         ))}
                       </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            </Stack>
-          )}
-          {selectedTab === "security" && <MfaSettings />}
-          {selectedTab === "passkeys" && <PasskeySettings />}
-          {selectedTab === "apiTokens" && stores.applicationConfigurationStore.apiTokensAreEnabled && (
-            <ApiTokenSettings />
-          )}
-          {selectedTab === "signature" && (
-            <Stack spacing={Forms.formStackSpacing} sx={Forms.tabContentSx}>
-              <Typography color="text.secondary">
-                Your saved signature will be prefilled when you sign an approval request.
-              </Typography>
-              <ApprovalRequestSignatureField
-                error={Boolean(validation.message("defaultSignatureJson"))}
-                helperText={validation.message("defaultSignatureJson")}
-                onChange={handleSignatureChange}
-                value={defaultSignatureJson}
-              />
-            </Stack>
-          )}
+                    </TableHead>
+                    <TableBody>
+                      {notificationPreferenceTypes
+                        .filter(
+                          (type) =>
+                            (type !== NotificationPreferenceType.Billing ||
+                              stores.applicationConfigurationStore.subscriptionsAreEnabled) &&
+                            (type !== NotificationPreferenceType.Receipts ||
+                              stores.applicationConfigurationStore.receiptsAreEnabled),
+                        )
+                        .map((type) => (
+                          <TableRow key={type}>
+                            <TableCell component="th" scope="row">
+                              {notificationPreferenceTypeLabels[type]}
+                            </TableCell>
+                            {notificationChannels.map((channel) => (
+                              <TableCell key={channel} align="center">
+                                <Switch
+                                  disabled={
+                                    type === NotificationPreferenceType.Billing && channel === NotificationChannel.InApp
+                                  }
+                                  checked={
+                                    type === NotificationPreferenceType.Billing && channel === NotificationChannel.InApp
+                                      ? false
+                                      : isNotificationCategoryEnabled(type, channel)
+                                  }
+                                  onChange={() => handleNotificationToggle(type, channel)}
+                                  slotProps={{
+                                    input: {
+                                      "aria-label": `${notificationPreferenceTypeLabels[type]} ${notificationChannelLabels[channel]}`,
+                                    },
+                                  }}
+                                />
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Stack>
+            )}
+            {selectedTab === "security" && <MfaSettings />}
+            {selectedTab === "passkeys" && <PasskeySettings />}
+            {selectedTab === "apiTokens" && stores.applicationConfigurationStore.apiTokensAreEnabled && (
+              <ApiTokenSettings />
+            )}
+            {selectedTab === "signature" && (
+              <Stack spacing={Forms.formStackSpacing}>
+                <Typography color="textSecondary">
+                  Your saved signature will be prefilled when you sign an approval request.
+                </Typography>
+                <ApprovalRequestSignatureField
+                  error={Boolean(validation.message("defaultSignatureJson"))}
+                  helperText={validation.message("defaultSignatureJson")}
+                  onChange={handleSignatureChange}
+                  value={defaultSignatureJson}
+                />
+              </Stack>
+            )}
+          </Box>
           {["profile", "signature", "notifications"].includes(selectedTab) && (
             <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
               <MainActionButton loading={saveAction.isRunning} onClick={handleSave}>

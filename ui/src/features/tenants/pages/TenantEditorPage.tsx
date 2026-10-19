@@ -6,6 +6,7 @@ import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirma
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
@@ -37,12 +38,22 @@ const TenantEditorPage = () => {
       return;
     }
 
+    let active = true;
+    const loader = ActionLoaders.pages.tenantEditor(tenantGlobalId);
     setTenant(null);
     setTenantHasLoaded(false);
-    void getTenant(tenantGlobalId).then((loadedTenant) => {
-      setTenant(loadedTenant);
-      setTenantHasLoaded(true);
-    });
+    stores.commonStore.updateActionLoadingCounter(loader, 1);
+    void getTenant(tenantGlobalId)
+      .then((loadedTenant) => {
+        if (active) {
+          setTenant(loadedTenant);
+          setTenantHasLoaded(true);
+        }
+      })
+      .finally(() => stores.commonStore.updateActionLoadingCounter(loader, -1));
+    return () => {
+      active = false;
+    };
   }, [isNewTenant, tenantGlobalId]);
 
   if (!stores.tenantStore.hasLoaded) return null;

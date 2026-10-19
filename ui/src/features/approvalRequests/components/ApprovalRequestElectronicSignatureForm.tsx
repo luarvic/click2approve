@@ -1,11 +1,7 @@
 import ApprovalRequestSignatureField from "@/features/approvalRequests/components/ApprovalRequestSignatureField";
-import { Forms } from "@/shared/components/dialogs/formStyles";
-import { Flex } from "@/shared/components/layout/flexStyles";
+import FormSection from "@/shared/components/forms/FormSection";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
-import DrawOutlinedIcon from "@mui/icons-material/DrawOutlined";
-import { Box, InputAdornment, Stack, TextField, Typography } from "@mui/material";
-import type { SxProps, Theme } from "@mui/material/styles";
-import { alpha } from "@mui/material/styles";
+import { InputAdornment, TextField } from "@mui/material";
 
 export interface ElectronicSignatureErrors {
   legalName: string;
@@ -24,12 +20,6 @@ interface ApprovalRequestElectronicSignatureFormProps {
   signatureJson: string;
 }
 
-const electronicSignatureFormSx: SxProps<Theme> = (theme) => ({
-  backgroundColor: alpha(theme.palette.secondary.main, theme.palette.mode === "dark" ? 0.12 : 0.04),
-  borderRadius: 1,
-  p: Forms.formStackSpacing,
-});
-
 const ApprovalRequestElectronicSignatureForm: React.FC<ApprovalRequestElectronicSignatureFormProps> = ({
   errors,
   legalName,
@@ -40,56 +30,46 @@ const ApprovalRequestElectronicSignatureForm: React.FC<ApprovalRequestElectronic
   showRepresentationDetails,
   signatureJson,
 }) => (
-  <Box sx={electronicSignatureFormSx}>
-    <Stack spacing={Forms.formStackSpacing}>
-      <Stack direction="row" spacing={Forms.actionSpacing} sx={Flex.alignCenterSx}>
-        <DrawOutlinedIcon color="secondary" />
-        <Typography color="secondary" variant="subtitle1">
-          Electronic signature
-        </Typography>
-      </Stack>
-      <Stack direction="row" spacing={Forms.formStackSpacing}>
-        <TextField
-          error={Boolean(errors.legalName)}
-          fullWidth
-          helperText={errors.legalName}
-          label="Legal name"
-          required
-          value={legalName}
-          onChange={(event) => onLegalNameChange(event.target.value)}
-        />
-      </Stack>
-      {showRepresentationDetails && (
-        <TextField
-          fullWidth
-          label="Representation details"
-          error={Boolean(errors.representationDetails)}
-          helperText={errors.representationDetails}
-          multiline
-          value={representationDetails}
-          onChange={(event) => onRepresentationDetailsChange(event.target.value)}
-          slotProps={{
-            input: {
-              endAdornment: (
-                <InputAdornment position="end">
-                  <HelpPopover
-                    docsHref="/docs/complete-a-task/"
-                    helpText="Identify the organization or person you represent when signing."
-                  />
-                </InputAdornment>
-              ),
-            },
-          }}
-        />
-      )}
-      <ApprovalRequestSignatureField
-        error={Boolean(errors.signature)}
-        helperText={errors.signature}
-        onChange={onSignatureChange}
-        value={signatureJson}
+  <FormSection title="Electronic signature">
+    <TextField
+      error={Boolean(errors.legalName)}
+      fullWidth
+      helperText={errors.legalName}
+      label="Legal name"
+      required
+      value={legalName}
+      onChange={(event) => onLegalNameChange(event.target.value)}
+    />
+    {showRepresentationDetails && (
+      <TextField
+        fullWidth
+        label="Representation details"
+        error={Boolean(errors.representationDetails)}
+        helperText={errors.representationDetails}
+        multiline
+        value={representationDetails}
+        onChange={(event) => onRepresentationDetailsChange(event.target.value)}
+        slotProps={{
+          input: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <HelpPopover
+                  docsHref="/docs/complete-a-task/"
+                  helpText="Identify the organization or person you represent when signing."
+                />
+              </InputAdornment>
+            ),
+          },
+        }}
       />
-    </Stack>
-  </Box>
+    )}
+    <ApprovalRequestSignatureField
+      error={Boolean(errors.signature)}
+      helperText={errors.signature}
+      onChange={onSignatureChange}
+      value={signatureJson}
+    />
+  </FormSection>
 );
 
 export default ApprovalRequestElectronicSignatureForm;

@@ -3,6 +3,7 @@ import ApprovalRequestSubmit from "@/features/approvalRequests/components/Approv
 import { TenantType } from "@/features/tenants/models/tenant";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { observer } from "mobx-react-lite";
@@ -26,6 +27,7 @@ const ApprovalRequestSubmitPage = () => {
   const canUseEmployees = businessTenantIsSelected && stores.applicationConfigurationStore.employeeAssigneesAreEnabled;
   const canUseTeams = businessTenantIsSelected && stores.applicationConfigurationStore.teamAssigneesAreEnabled;
   const requestsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/requests") : "/";
+  const [revisionRequestExists, setRevisionRequestExists] = useState(false);
   const [loadedApprovalRequestGlobalId, setLoadedApprovalRequestGlobalId] = useState<string | null>(null);
   const [templateAssigneeOptionsAreLoaded, setTemplateAssigneeOptionsAreLoaded] = useState(
     initialTemplateGlobalId === undefined,
@@ -41,6 +43,7 @@ const ApprovalRequestSubmitPage = () => {
     let active = true;
     const loader = ActionLoaders.pages.approvalRequestSubmit(approvalRequestGlobalId);
     setLoadedApprovalRequestGlobalId(null);
+    setRevisionRequestExists(false);
     if (tenantGlobalId && approvalRequestGlobalId) {
       stores.commonStore.updateActionLoadingCounter(loader, 1);
       const approvalRequestLoad = stores.approvalRequestStore.loadDetails(tenantGlobalId, approvalRequestGlobalId);
@@ -52,6 +55,7 @@ const ApprovalRequestSubmitPage = () => {
       void Promise.all([approvalRequestLoad, assigneeOptionsLoad])
         .then(([approvalRequest]) => {
           if (active) {
+            setRevisionRequestExists(approvalRequest !== null);
             stores.approvalRequestStore.setRequestToClone(approvalRequest);
             setLoadedApprovalRequestGlobalId(approvalRequestGlobalId);
           }
@@ -98,6 +102,10 @@ const ApprovalRequestSubmitPage = () => {
 
   if (isResubmit && loadedApprovalRequestGlobalId !== approvalRequestGlobalId) {
     return null;
+  }
+
+  if (isResubmit && !revisionRequestExists) {
+    return <NotFoundPage />;
   }
 
   if (!isResubmit && !templateAssigneeOptionsAreLoaded) {

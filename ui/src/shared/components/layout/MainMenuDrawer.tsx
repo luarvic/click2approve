@@ -7,21 +7,21 @@ import { Refresh } from "@/shared/config/application";
 import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import {
-  AddTwoTone,
-  AssignmentTurnedInTwoTone,
-  AssignmentTwoTone,
-  AutoDeleteTwoTone,
-  BugReportTwoTone,
-  BusinessTwoTone,
-  ContentCopyTwoTone,
-  GroupsTwoTone,
-  MenuBookTwoTone,
-  PeopleAltTwoTone,
-  PersonTwoTone,
-  QuestionAnswerTwoTone,
-  ReceiptLongTwoTone,
-  ShowChartTwoTone,
-  StyleTwoTone,
+  AddOutlined,
+  AssignmentOutlined,
+  AssignmentTurnedInOutlined,
+  AutoDeleteOutlined,
+  BugReportOutlined,
+  BusinessOutlined,
+  ContentCopyOutlined,
+  CreditCardOutlined,
+  GroupsOutlined,
+  MenuBookOutlined,
+  PersonOutlined,
+  QuestionAnswerOutlined,
+  ReceiptLongOutlined,
+  ShowChartOutlined,
+  SwapHorizOutlined,
 } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
 import {
@@ -201,7 +201,7 @@ const MainMenuDrawer = () => {
               }}
             >
               <ListItemIcon sx={Lists.itemIconSx}>
-                <AddTwoTone />
+                <AddOutlined />
               </ListItemIcon>
               <ListItemText primary="New request" />
             </ListItemButton>
@@ -219,7 +219,7 @@ const MainMenuDrawer = () => {
               }}
             >
               <ListItemIcon sx={Lists.itemIconSx}>
-                <AssignmentTurnedInTwoTone />
+                <AssignmentTurnedInOutlined />
               </ListItemIcon>
               <ListItemText
                 primary={
@@ -242,7 +242,7 @@ const MainMenuDrawer = () => {
               }}
             >
               <ListItemIcon sx={Lists.itemIconSx}>
-                <AssignmentTwoTone />
+                <AssignmentOutlined />
               </ListItemIcon>
               <ListItemText primary="Requests" />
             </ListItemButton>
@@ -260,7 +260,7 @@ const MainMenuDrawer = () => {
                 }}
               >
                 <ListItemIcon sx={Lists.itemIconSx}>
-                  <ReceiptLongTwoTone />
+                  <ReceiptLongOutlined />
                 </ListItemIcon>
                 <ListItemText primary="Receipts" />
               </ListItemButton>
@@ -279,7 +279,7 @@ const MainMenuDrawer = () => {
                 }}
               >
                 <ListItemIcon sx={Lists.itemIconSx}>
-                  <ContentCopyTwoTone />
+                  <ContentCopyOutlined />
                 </ListItemIcon>
                 <ListItemText primary="Templates" />
               </ListItemButton>
@@ -298,7 +298,7 @@ const MainMenuDrawer = () => {
                 }}
               >
                 <ListItemIcon sx={Lists.itemIconSx}>
-                  <BusinessTwoTone />
+                  <BusinessOutlined />
                 </ListItemIcon>
                 <ListItemText primary="Organizations" />
               </ListItemButton>
@@ -320,7 +320,7 @@ const MainMenuDrawer = () => {
                   }}
                 >
                   <ListItemIcon sx={Lists.itemIconSx}>
-                    <PersonTwoTone />
+                    <PersonOutlined />
                   </ListItemIcon>
                   <ListItemText primary="Employees" />
                 </ListItemButton>
@@ -339,7 +339,7 @@ const MainMenuDrawer = () => {
                   }}
                 >
                   <ListItemIcon sx={Lists.itemIconSx}>
-                    <GroupsTwoTone />
+                    <GroupsOutlined />
                   </ListItemIcon>
                   <ListItemText primary="Teams" />
                 </ListItemButton>
@@ -358,7 +358,7 @@ const MainMenuDrawer = () => {
                   }}
                 >
                   <ListItemIcon sx={Lists.itemIconSx}>
-                    <PeopleAltTwoTone />
+                    <SwapHorizOutlined />
                   </ListItemIcon>
                   <ListItemText primary="Delegations" />
                 </ListItemButton>
@@ -380,7 +380,7 @@ const MainMenuDrawer = () => {
                 }}
               >
                 <ListItemIcon sx={Lists.itemIconSx}>
-                  <StyleTwoTone />
+                  <CreditCardOutlined />
                 </ListItemIcon>
                 <ListItemText primary="Plans" />
               </ListItemButton>
@@ -397,7 +397,7 @@ const MainMenuDrawer = () => {
                 }}
               >
                 <ListItemIcon sx={Lists.itemIconSx}>
-                  <ShowChartTwoTone />
+                  <ShowChartOutlined />
                 </ListItemIcon>
                 <ListItemText primary="Usage" />
               </ListItemButton>
@@ -414,7 +414,7 @@ const MainMenuDrawer = () => {
                 }}
               >
                 <ListItemIcon sx={Lists.itemIconSx}>
-                  <AutoDeleteTwoTone />
+                  <AutoDeleteOutlined />
                 </ListItemIcon>
                 <ListItemText primary="Retention" />
               </ListItemButton>
@@ -431,7 +431,7 @@ const MainMenuDrawer = () => {
               onClick={closeTemporaryDrawer}
             >
               <ListItemIcon sx={Lists.itemIconSx}>
-                <MenuBookTwoTone />
+                <MenuBookOutlined />
               </ListItemIcon>
               <ListItemText primary="Docs" />
             </ListItemButton>
@@ -445,7 +445,7 @@ const MainMenuDrawer = () => {
               onClick={closeTemporaryDrawer}
             >
               <ListItemIcon sx={Lists.itemIconSx}>
-                <BugReportTwoTone />
+                <BugReportOutlined />
               </ListItemIcon>
               <ListItemText primary="Report a bug" />
             </ListItemButton>
@@ -459,7 +459,7 @@ const MainMenuDrawer = () => {
               onClick={closeTemporaryDrawer}
             >
               <ListItemIcon sx={Lists.itemIconSx}>
-                <QuestionAnswerTwoTone />
+                <QuestionAnswerOutlined />
               </ListItemIcon>
               <ListItemText primary="Ask question" />
             </ListItemButton>

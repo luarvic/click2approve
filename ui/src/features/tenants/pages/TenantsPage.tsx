@@ -1,6 +1,5 @@
 import TenantsGrid from "@/features/tenants/components/TenantsGrid";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
@@ -19,9 +18,6 @@ const TenantsPage = () => {
         items={[
           {
             label: "Organizations",
-            titleAction: (
-              <HelpPopover docsHref="/docs/organizations/" helpText="Create organizations and manage their details." />
-            ),
           },
         ]}
       />

@@ -1,4 +1,5 @@
 import { stores } from "@/app/rootStore";
+import { summaryCardContentSx } from "@/features/approvalRequests/components/approvalRequestSummaryStyles";
 import { getTaskCompletedTimestamp } from "@/features/approvalRequests/components/approvalRequestCompletionTimestamps";
 import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
 import ApprovalRequestElectronicSignatureView from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureView";
@@ -308,7 +309,8 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
     <ApprovalRequestDetailsCard
       ariaLabel={getApprovalRequestTaskStatusLabel(task.status, task.action, task.result)}
       borderLeftColor={stepperBorderLeftColor ?? taskStatusColor}
-      elevated
+      contentSx={summaryCardContentSx}
+      showStatusBorder={false}
       onClick={onClick}
     >
       <ApprovalRequestSummary
@@ -335,7 +337,6 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
         showTitle={showTitle}
         statusLabel={getApprovalRequestTaskStatusLabel(task.status, task.action, task.result)}
         statusColor={taskStatusColor}
-        statusIconSx={{ color: taskStatusColor }}
         statusIcon={getApprovalRequestTimestampIcon(
           task.status === ApprovalRequestTaskStatus.Skipped
             ? "skipped"
@@ -346,7 +347,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
                 : task.result === false
                   ? "completedUnsuccessfully"
                   : "completedSuccessfully",
-          "primary",
+          "inherit",
         )}
       />
     </ApprovalRequestDetailsCard>

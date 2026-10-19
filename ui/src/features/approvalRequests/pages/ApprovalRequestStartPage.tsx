@@ -5,7 +5,6 @@ import { Forms } from "@/shared/components/dialogs/formStyles";
 import { Flex } from "@/shared/components/layout/flexStyles";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { Routes } from "@/shared/routing/routes";
@@ -91,12 +90,6 @@ const ApprovalRequestStartPage = () => {
           { label: "Requests", to: requestsPath },
           {
             label: "New request",
-            titleAction: (
-              <HelpPopover
-                docsHref="/docs/create-a-request/"
-                helpText="Start a custom request or use an organization template."
-              />
-            ),
           },
         ]}
       />

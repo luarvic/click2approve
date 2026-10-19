@@ -1,11 +1,14 @@
+import { stores } from "@/app/rootStore";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import ApprovalSteps from "@/features/approvalWorkflow/components/ApprovalSteps";
 import { ApprovalStepVisibilityMode, AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
-import { render, screen } from "@testing-library/react";
+import { EmployeeRole, TenantType } from "@/features/tenants/models/tenant";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { runInAction } from "mobx";
 import { describe, expect, test, vi } from "vitest";
 
 const createdAt = "2026-07-29T12:00:00Z";
@@ -81,6 +84,33 @@ const approvalRequest: ApprovalRequest = {
 };
 
 describe("<ApprovalSteps />", () => {
+  test("does not present the Personal workspace as an upcoming task's organization", () => {
+    const previousTenants = stores.tenantStore.tenants;
+    const previousTenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+    runInAction(() => {
+      stores.tenantStore.tenants = [
+        {
+          globalId: "personal-workspace",
+          businessName: "Personal",
+          type: TenantType.Personal,
+          currentEmployeeRole: EmployeeRole.Owner,
+        },
+      ];
+      stores.tenantStore.currentTenantGlobalId = "personal-workspace";
+    });
+    try {
+      render(<ApprovalSteps approvalRequest={approvalRequest} limitWorkflowFields />);
+      const upcomingTask = within(screen.getByLabelText("Upcoming task"));
+      expect(upcomingTask.getByText("visible@example.com")).toBeTruthy();
+      expect(upcomingTask.queryByText("From organization")).toBeNull();
+      expect(upcomingTask.queryByText("Personal")).toBeNull();
+    } finally {
+      runInAction(() => {
+        stores.tenantStore.tenants = previousTenants;
+        stores.tenantStore.currentTenantGlobalId = previousTenantGlobalId;
+      });
+    }
+  });
   test("shows hidden steps without leaking their details", () => {
     render(<ApprovalSteps approvalRequest={approvalRequest} limitWorkflowFields />);
 
@@ -90,12 +120,12 @@ describe("<ApprovalSteps />", () => {
     expect(screen.getByLabelText("Step 1 visibility Organization employees")).toBeTruthy();
     expect(screen.getByText("visible@example.com")).toBeTruthy();
     expect(screen.getByLabelText("Upcoming task")).toBeTruthy();
-    expect(screen.getByText("Details")).toBeTruthy();
+    expect(screen.queryByText("Details")).toBeNull();
     expect(screen.getByText("Activity")).toBeTruthy();
     expect(screen.getByText("Assignee")).toBeTruthy();
-    expect(screen.getByText("Status")).toBeTruthy();
+    expect(screen.queryByText("Status")).toBeNull();
     const upcomingTaskCard = screen.getByLabelText("Upcoming task");
-    expect(screen.getAllByText("None")).toHaveLength(2);
+    expect(screen.queryByText("None")).toBeNull();
     expect(upcomingTaskCard.querySelector("[data-testid='PendingOutlinedIcon']")).toBeNull();
     expect(screen.getByText("Step 2")).toBeTruthy();
     expect(screen.getByTestId("hidden-step-icon")).toBeTruthy();

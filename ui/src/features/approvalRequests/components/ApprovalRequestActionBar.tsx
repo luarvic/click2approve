@@ -14,7 +14,7 @@ const ApprovalRequestActionBar: React.FC<ApprovalRequestActionBarProps> = ({
   onClose,
 }) => (
   <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.actionBarSx}>
-    <Button variant="outlined" onClick={onClose}>
+    <Button variant="text" onClick={onClose}>
       {closeLabel}
     </Button>
     {children}

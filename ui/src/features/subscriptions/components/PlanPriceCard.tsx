@@ -14,12 +14,19 @@ interface PlanPriceCardProps {
   title: string;
 }
 
-const cardSx: SxProps<Theme> = { display: "flex", flex: 1, flexDirection: "column", minHeight: 280, minWidth: 0 };
+const cardSx: SxProps<Theme> = { display: "flex", flex: 1, minWidth: 0 };
 const highlightedCardSx: SxProps<Theme> = { borderColor: "primary.main" };
-const contentSx: SxProps<Theme> = { flex: 1 };
-const limitsSx: SxProps<Theme> = { mt: 1 };
-const limitsSpacing = 1;
-const taxSx: SxProps<Theme> = { minHeight: "1lh" };
+const contentSx: SxProps<Theme> = { display: "flex", flex: 1, flexDirection: "column", minWidth: 0 };
+const limitsSx: SxProps<Theme> = { mt: 3 };
+const actionsSx: SxProps<Theme> = {
+  p: 0,
+  pt: 3,
+  mt: "auto",
+  flexWrap: "wrap",
+  rowGap: 1,
+};
+const priceSx: SxProps<Theme> = { fontSize: "1.3125rem", fontWeight: 500 };
+const limitsSpacing = 2;
 const includedFeaturesSx: SxProps<Theme> = {
   display: "flex",
   flexDirection: "column",
@@ -30,22 +37,24 @@ const includedFeaturesSx: SxProps<Theme> = {
 const numberFormat = new Intl.NumberFormat(undefined, { maximumFractionDigits: 3 });
 /** Displays a subscription plan's price limits, status, and available actions. */
 const PlanPriceCard = ({ actions, highlighted = false, limits, status, subtitle, title }: PlanPriceCardProps) => (
-  <AppCard elevated sx={[cardSx, ...(highlighted ? [highlightedCardSx] : [])]}>
+  <AppCard sx={[cardSx, ...(highlighted ? [highlightedCardSx] : [])]}>
     <CardContent sx={contentSx}>
       <PlanCardHeader status={status} subtitle={subtitle} title={title} />
       {limits && (
         <Stack spacing={limitsSpacing} sx={limitsSx}>
           <Box>
-            <Typography variant="h5">
+            <Typography variant="h5" sx={priceSx}>
               {limits.monthlyPriceUsd === 0
                 ? limits.plan === SubscriptionPlan.BusinessTrial
                   ? "Free for 1 month"
                   : "Free"
-                : `$${limits.monthlyPriceUsd} USD / month`}
+                : `$${limits.monthlyPriceUsd} / month`}
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={taxSx}>
-              {limits.monthlyPriceUsd > 0 ? "Excluding taxes" : null}
-            </Typography>
+            {limits.monthlyPriceUsd > 0 && (
+              <Typography variant="body2" color="textSecondary">
+                Taxes may apply
+              </Typography>
+            )}
           </Box>
           <Box component="ul" sx={includedFeaturesSx}>
             <Typography component="li">{numberFormat.format(limits.tokensPerMonth)} tokens included</Typography>
@@ -56,8 +65,10 @@ const PlanPriceCard = ({ actions, highlighted = false, limits, status, subtitle,
           </Box>
         </Stack>
       )}
+      <CardActions disableSpacing sx={actionsSx}>
+        {actions}
+      </CardActions>
     </CardContent>
-    <CardActions>{actions}</CardActions>
   </AppCard>
 );
 

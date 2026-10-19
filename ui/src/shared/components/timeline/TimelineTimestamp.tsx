@@ -16,6 +16,8 @@ interface TimelineTimestampProps {
   text?: string;
 }
 
+const timestampColorSx = (color: string): SxProps<Theme> => ({ color });
+
 const smallIconSx: SxProps<Theme> = {
   alignItems: "center",
   display: "inline-flex",
@@ -43,7 +45,7 @@ const TimelineTimestamp: React.FC<TimelineTimestampProps> = ({
       ) : (
         icon
       ))}
-    <Typography color={color} sx={sx} variant="caption">
+    <Typography sx={[timestampColorSx(color), ...(Array.isArray(sx) ? sx : [sx])]} variant="caption">
       {text ?? (date ? getLocaleDateTimeString(date) : "")}
     </Typography>
   </Stack>

@@ -42,15 +42,7 @@ const SiteFooter = () => (
       </Typography>
       <Box component="nav" aria-label="Footer navigation" sx={navigationSx}>
         {links.map(({ label, href }) => (
-          <Link
-            key={href}
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            color="inherit"
-            underline="hover"
-            sx={linkSx}
-          >
+          <Link key={href} href={href} color="inherit" underline="hover" sx={linkSx}>
             {label}
           </Link>
         ))}

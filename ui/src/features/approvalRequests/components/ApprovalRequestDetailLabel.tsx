@@ -6,7 +6,7 @@ interface ApprovalRequestDetailLabelProps {
 }
 
 const ApprovalRequestDetailLabel: React.FC<ApprovalRequestDetailLabelProps> = ({ children, id }) => (
-  <Typography id={id} variant="caption" color="text.secondary">
+  <Typography id={id} variant="caption" color="textSecondary">
     {children}
   </Typography>
 );

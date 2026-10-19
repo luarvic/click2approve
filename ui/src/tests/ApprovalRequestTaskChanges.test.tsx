@@ -48,10 +48,10 @@ const renderTask = (onClose = vi.fn()) => {
       element: <ApprovalRequestTask tab="task" taskGlobalId="task-a" onClose={onClose} />,
     },
   ]);
-  return render(<RouterProvider router={router} />);
+  return { ...render(<RouterProvider router={router} />), router };
 };
 
-describe("unsaved decisions", () => {
+describe("task response state", () => {
   afterEach(() => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
@@ -73,21 +73,19 @@ describe("unsaved decisions", () => {
       stores.approvalRequestTaskStore.currentTask = task;
     });
   });
-  test("keeps a decision when discard is cancelled, and never restores it after leaving", async () => {
+  test.each(["Cancel", "Escape"])("%s leaves an edited decision immediately without restoring it", async (action) => {
     const user = userEvent.setup();
     const confirm = vi.mocked(window.confirm);
     const onClose = vi.fn();
     const view = renderTask(onClose);
     await user.click(screen.getByRole("radio", { name: "Reject" }));
     await user.type(screen.getByRole("textbox", { name: "Comment" }), "Please update the totals.");
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
-    expect(onClose).not.toHaveBeenCalled();
-    expect(confirm).toHaveBeenCalledOnce();
-    expect((screen.getByRole("textbox", { name: "Comment" }) as HTMLInputElement).value).toBe(
-      "Please update the totals.",
-    );
-    confirm.mockReturnValue(true);
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    if (action === "Escape") {
+      await user.keyboard("{Escape}");
+    } else {
+      await user.click(screen.getByRole("button", { name: "Cancel" }));
+    }
+    expect(confirm).not.toHaveBeenCalled();
     expect(onClose).toHaveBeenCalledWith("task-a");
     expect(sessionStorage.length).toBe(0);
     view.unmount();
@@ -95,6 +93,19 @@ describe("unsaved decisions", () => {
     expect((screen.getByRole("textbox", { name: "Comment" }) as HTMLInputElement).value).toBe("");
     expect((screen.getByRole("radio", { name: "Reject" }) as HTMLInputElement).checked).toBe(false);
   });
+  test("allows tab navigation and browser unload with an edited decision", async () => {
+    const user = userEvent.setup();
+    const { router } = renderTask();
+    await user.click(screen.getByRole("radio", { name: "Reject" }));
+    await user.type(screen.getByRole("textbox", { name: "Comment" }), "Please revise.");
+    const unload = new Event("beforeunload", { cancelable: true });
+    window.dispatchEvent(unload);
+    expect(unload.defaultPrevented).toBe(false);
+    await user.click(screen.getByRole("tab", { name: "Workflow" }));
+    expect(router.state.location.pathname).toContain("/tasks/task-a/workflow");
+    expect(window.confirm).not.toHaveBeenCalled();
+  });
+
   test("does not warn for an untouched decision", async () => {
     const confirm = vi.mocked(window.confirm);
     const onClose = vi.fn();

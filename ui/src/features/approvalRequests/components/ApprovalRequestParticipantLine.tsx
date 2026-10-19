@@ -2,13 +2,14 @@ import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { EmployeeStatus } from "@/features/employees/models/employee";
 import { Flex } from "@/shared/components/layout/flexStyles";
 import { StackSpacing } from "@/shared/theme/tokens";
-import { Email, Groups, Person, PersonOff } from "@mui/icons-material";
+import { EmailOutlined, GroupsOutlined, PersonOffOutlined, PersonOutlined } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import { Box, Stack, Tooltip, Typography } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
 
 interface ApprovalRequestParticipantLineProps {
+  allowDisplayNameWrap?: boolean;
   disabled?: boolean;
   displayName?: string | null;
   email?: string | null;
@@ -20,6 +21,13 @@ interface ApprovalRequestParticipantLineProps {
   variant?: "body1" | "body2";
 }
 
+const participantLineSx = {
+  ...Flex.alignCenterSx,
+  minWidth: 0,
+  "& .MuiSvgIcon-root": { flexShrink: 0 },
+} as const;
+const wrappedLabelSx = { minWidth: 0, overflowWrap: "anywhere" } as const;
+
 export const disabledEmployeeMessage = "This employee is disabled and no longer has access to this organization.";
 export const getAssigneeIcon = (type: AssigneeType, employeeStatus?: EmployeeStatus, disabled = false) => {
   const color = disabled ? "disabled" : "action";
@@ -27,18 +35,19 @@ export const getAssigneeIcon = (type: AssigneeType, employeeStatus?: EmployeeSta
   switch (type) {
     case AssigneeType.Employee:
       return employeeStatus === EmployeeStatus.Disabled ? (
-        <PersonOff color={color} fontSize="small" />
+        <PersonOffOutlined color={color} fontSize="small" />
       ) : (
-        <Person color={color} fontSize="small" />
+        <PersonOutlined color={color} fontSize="small" />
       );
     case AssigneeType.Team:
-      return <Groups color={color} fontSize="small" />;
+      return <GroupsOutlined color={color} fontSize="small" />;
     default:
-      return <Email color={color} fontSize="small" />;
+      return <EmailOutlined color={color} fontSize="small" />;
   }
 };
 
 const ApprovalRequestParticipantLine: React.FC<ApprovalRequestParticipantLineProps> = ({
+  allowDisplayNameWrap = false,
   disabled = false,
   displayName,
   email,
@@ -67,10 +76,14 @@ const ApprovalRequestParticipantLine: React.FC<ApprovalRequestParticipantLinePro
     );
 
   return (
-    <Stack direction="row" spacing={StackSpacing.tight} sx={[Flex.alignCenterSx, ...(Array.isArray(sx) ? sx : [sx])]}>
+    <Stack direction="row" spacing={StackSpacing.tight} sx={[participantLineSx, ...(Array.isArray(sx) ? sx : [sx])]}>
       {displayedIcon}
       {typeof participantLabel === "string" || typeof participantLabel === "number" ? (
-        <Typography noWrap variant={variant}>
+        <Typography
+          noWrap={!allowDisplayNameWrap}
+          variant={variant}
+          sx={allowDisplayNameWrap ? wrappedLabelSx : undefined}
+        >
           {participantLabel}
         </Typography>
       ) : (

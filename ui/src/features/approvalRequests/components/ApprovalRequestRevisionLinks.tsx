@@ -28,7 +28,7 @@ const ApprovalRequestRevisionLinks: React.FC<ApprovalRequestRevisionLinksProps> 
     <Stack component="span" direction="row" spacing={StackSpacing.tight} sx={Flex.inlineCenterSx}>
       {leadingDivider && <Divider flexItem orientation="vertical" />}
       {previousRevisionApprovalRequestGlobalId && (
-        <Typography component="span" variant="body2" color="text.secondary">
+        <Typography component="span" variant="body2" color="textSecondary">
           Supersedes{" "}
           <Link component={RouterLink} to={getRequestPath(previousRevisionApprovalRequestGlobalId)}>
             {getApprovalRequestNumber(previousRevisionApprovalRequestGlobalId)}
@@ -39,7 +39,7 @@ const ApprovalRequestRevisionLinks: React.FC<ApprovalRequestRevisionLinksProps> 
         <Divider flexItem orientation="vertical" />
       )}
       {nextRevisionApprovalRequestGlobalId && (
-        <Typography component="span" variant="body2" color="text.secondary">
+        <Typography component="span" variant="body2" color="textSecondary">
           Superseded by{" "}
           <Link component={RouterLink} to={getRequestPath(nextRevisionApprovalRequestGlobalId)}>
             {getApprovalRequestNumber(nextRevisionApprovalRequestGlobalId)}

@@ -7,7 +7,13 @@ Receipts preserve completed request snapshots and let you share them through ver
 
 ## Open a receipt
 
-Open **Receipts** in the relevant workspace and select a completed request snapshot. Review its request details, outcome, participants, recorded task actions, and signatures where present.
+Open **Receipts** in the relevant workspace and select a completed request snapshot. The **Receipt** card header includes its short number, matching request and task card headers. The card shows its full ID and date, followed by **Request** and **Task** sections with the recorded details, outcomes, participants, actions, and signatures where present.
+
+The **Request** and **Task** section headings include their short numbers in both workspace receipts and shared verification pages. Full request and task IDs remain in the recorded details when available.
+
+Receipt dates use your local date and time without seconds. Empty fields and the first revision number are hidden.
+
+When printing, Request and Task sections can continue across pages. Section headings stay with their first row, and individual detail rows and signatures stay together when they fit on a page.
 
 A receipt preserves the recorded context of the completed work. Participant-specific visibility can limit the steps included in a receipt. A receipt is separate from the live request.
 
@@ -17,6 +23,8 @@ A receipt preserves the recorded context of the completed work. Participant-spec
 2. Select **Share**.
 3. Choose **New link**, set **Expires**, and create the link.
 4. Select the created link in the list to open its verification URL, then copy and share it with the intended recipient.
+
+Shared verification pages show the Click2Approve logo above the receipt card, aligned to its left edge. The QR code inside the card opens the same verification link.
 
 !!! warning "Anyone with the link can view the receipt"
     An active verification link opens the receipt without requiring workspace membership. Review it before sharing: its contents may include names, decisions, and signatures.

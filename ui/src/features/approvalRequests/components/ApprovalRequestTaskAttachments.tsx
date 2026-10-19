@@ -9,7 +9,6 @@ import { useUserFileUpload } from "@/features/userFiles/hooks/useUserFileUpload"
 import { UserFile } from "@/features/userFiles/models/userFile";
 import { downloadApprovalRequestTaskAttachment } from "@/features/userFiles/utils/downloaders";
 import { Files } from "@/shared/components/files/fileInputStyles";
-import { Flex } from "@/shared/components/layout/flexStyles";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
@@ -33,6 +32,8 @@ interface ApprovalRequestTaskAttachmentsProps {
 export interface ApprovalRequestTaskAttachmentsHandle {
   attach: () => Promise<boolean>;
 }
+
+const attachButtonSx = { alignSelf: "flex-start" } as const;
 
 const ApprovalRequestTaskAttachments = forwardRef<
   ApprovalRequestTaskAttachmentsHandle,
@@ -115,38 +116,17 @@ const ApprovalRequestTaskAttachments = forwardRef<
     const isManagingFiles =
       attachAction.isRunning || fileDeletion.isDeleting || removeAttachmentAction.isRunning || fileUpload.isUploading;
 
-    return (
-      <Stack spacing={StackSpacing.default} sx={Flex.alignStartSx}>
-        {showLabel ? (
-          <ApprovalRequestField
-            label={label}
-            value={
-              <ApprovalRequestFilesList
-                existingFiles={files.map((file) => ({ file }))}
-                isActionsDisabled={isManagingFiles}
-                linkVariant="body1"
-                newFiles={newFiles}
-                onDownloadExisting={(file) =>
-                  void downloadApprovalRequestTaskAttachment(tenantGlobalId, file, taskGlobalId)
-                }
-                onRemoveExisting={canManageFiles ? (index) => void removeAttachedFile(index) : undefined}
-                onRemoveNew={(index) => void removeNewFile(index)}
-              />
-            }
-          />
-        ) : (
-          <ApprovalRequestFilesList
-            existingFiles={files.map((file) => ({ file }))}
-            isActionsDisabled={isManagingFiles}
-            linkVariant="body1"
-            newFiles={newFiles}
-            onDownloadExisting={(file) =>
-              void downloadApprovalRequestTaskAttachment(tenantGlobalId, file, taskGlobalId)
-            }
-            onRemoveExisting={canManageFiles ? (index) => void removeAttachedFile(index) : undefined}
-            onRemoveNew={(index) => void removeNewFile(index)}
-          />
-        )}
+    const fileControls = (
+      <Stack spacing={StackSpacing.default}>
+        <ApprovalRequestFilesList
+          existingFiles={files.map((file) => ({ file }))}
+          isActionsDisabled={isManagingFiles}
+          linkVariant="body1"
+          newFiles={newFiles}
+          onDownloadExisting={(file) => void downloadApprovalRequestTaskAttachment(tenantGlobalId, file, taskGlobalId)}
+          onRemoveExisting={canManageFiles ? (index) => void removeAttachedFile(index) : undefined}
+          onRemoveNew={(index) => void removeNewFile(index)}
+        />
         {canManageFiles && (
           <>
             <Button
@@ -154,6 +134,7 @@ const ApprovalRequestTaskAttachments = forwardRef<
               loading={fileUpload.isUploading}
               startIcon={<AttachFile />}
               onClick={fileUpload.openFileDialog}
+              sx={attachButtonSx}
             >
               Attach files
             </Button>
@@ -168,6 +149,8 @@ const ApprovalRequestTaskAttachments = forwardRef<
         )}
       </Stack>
     );
+
+    return showLabel ? <ApprovalRequestField label={label} value={fileControls} /> : fileControls;
   },
 );
 

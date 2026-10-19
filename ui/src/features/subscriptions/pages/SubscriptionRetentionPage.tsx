@@ -1,3 +1,4 @@
+import { stores } from "@/app/rootStore";
 import {
   getRetentionPolicy,
   RetentionPolicy,
@@ -9,12 +10,13 @@ import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
+import InlineNotice from "@/shared/components/status/InlineNotice";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useFormValidation } from "@/shared/hooks/useFormValidation";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { getApiErrorNotification } from "@/shared/utils/apiErrorNotifications";
 import { notification } from "@/shared/utils/notifications";
 import { FormHelperText, Stack, type SxProps, type Theme } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -24,6 +26,7 @@ const retentionControlsSx: SxProps<Theme> = { maxWidth: "40rem", py: 2, width: "
 
 const SubscriptionRetentionPage = () => {
   const { tenantGlobalId } = useParams<{ tenantGlobalId: string }>();
+  const [loadFailed, setLoadFailed] = useState(false);
   const [policy, setPolicy] = useState<RetentionPolicy>();
   const [approvalRequestMonths, setApprovalRequestMonths] = useState(1);
   const [inAppNotificationMonths, setInAppNotificationMonths] = useState(1);
@@ -42,11 +45,29 @@ const SubscriptionRetentionPage = () => {
 
   useEffect(() => {
     if (!tenantGlobalId) return;
-    void getRetentionPolicy(tenantGlobalId).then((loadedPolicy) => {
-      setPolicy(loadedPolicy);
-      setApprovalRequestMonths(loadedPolicy.approvalRequestMonths);
-      setInAppNotificationMonths(loadedPolicy.inAppNotificationMonths);
-    });
+    let active = true;
+    const loader = ActionLoaders.subscriptionRetention.load(tenantGlobalId);
+    setPolicy(undefined);
+    setLoadFailed(false);
+    stores.commonStore.updateActionLoadingCounter(loader, 1);
+    void getRetentionPolicy(tenantGlobalId)
+      .then((loadedPolicy) => {
+        if (active) {
+          setPolicy(loadedPolicy);
+          setApprovalRequestMonths(loadedPolicy.approvalRequestMonths);
+          setInAppNotificationMonths(loadedPolicy.inAppNotificationMonths);
+        }
+      })
+      .catch((error) => {
+        if (active) {
+          setLoadFailed(true);
+          notification.error(getApiErrorNotification(error));
+        }
+      })
+      .finally(() => stores.commonStore.updateActionLoadingCounter(loader, -1));
+    return () => {
+      active = false;
+    };
   }, [tenantGlobalId]);
 
   const save = () => {
@@ -67,6 +88,9 @@ const SubscriptionRetentionPage = () => {
     });
   };
 
+  if (loadFailed) {
+    return <InlineNotice severity="error">Unable to load retention settings. Refresh to try again.</InlineNotice>;
+  }
   if (!policy) return null;
   return (
     <NarrowContent>
@@ -74,16 +98,10 @@ const SubscriptionRetentionPage = () => {
         items={[
           {
             label: "Retention",
-            titleAction: (
-              <HelpPopover
-                docsHref="/docs/retention/"
-                helpText="Choose how long requests and notifications are kept before automatic deletion."
-              />
-            ),
           },
         ]}
       />
-      <Stack component="form" noValidate spacing={StackSpacing.loose} sx={Forms.contentStackSx}>
+      <Stack component="form" noValidate spacing={StackSpacing.loose}>
         <Stack spacing={StackSpacing.extraLoose} sx={retentionControlsSx}>
           <RetentionControl
             disabled={!policy.canManage || !policy.approvalRequestMonthsCanBeChanged}

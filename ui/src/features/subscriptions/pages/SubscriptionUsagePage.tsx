@@ -1,38 +1,50 @@
 import { stores } from "@/app/rootStore";
 import { getSubscriptionUsage, SubscriptionUsage } from "@/features/subscriptions/api/subscriptionsApi";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
-import { Flex } from "@/shared/components/layout/flexStyles";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import AppCard from "@/shared/components/papers/AppCard";
+import CardHeading from "@/shared/components/papers/CardHeading";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { parseUtcDateTime } from "@/shared/utils/dateTime";
 import type { SxProps, Theme } from "@mui/material";
-import { Box, CardContent, Grid, Stack, Typography, useTheme } from "@mui/material";
-import { yellow } from "@mui/material/colors";
-import { BarChart } from "@mui/x-charts/BarChart";
+import {
+  Box,
+  CardContent,
+  Grid,
+  LinearProgress,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
 import prettyBytes from "pretty-bytes";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
-const usageChartHeight = 40;
 const usageGridSpacing = 2;
 const lowQuotaThreshold = 0.25;
 const criticalQuotaThreshold = 0.1;
-const usageChartMargin = { bottom: 2.5, left: 0, right: 0, top: 2.5 };
 const bytesPerGigabyte = 1000 * 1000 * 1000;
-const usageLegendMarkerSize = 16;
-const usageLegendSpacing = 1;
-const usageLegendSx: SxProps<Theme> = { mt: 0, justifyContent: "flex-start" };
-const usageSummarySx: SxProps<Theme> = { mt: 1 };
-const usageLegendMarkerSx = (color: string): SxProps<Theme> => ({
-  backgroundColor: color,
-  borderRadius: "50%",
-  flexShrink: 0,
-  height: usageLegendMarkerSize,
-  width: usageLegendMarkerSize,
-});
+const usageDetailSpacing = 1;
+const usageDetailsSx: SxProps<Theme> = { mt: 2 };
+const usageDetailRowSx: SxProps<Theme> = {
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 2,
+  flexWrap: "wrap",
+};
+const usageProgressSx: SxProps<Theme> = {
+  my: 2,
+  height: 8,
+  borderRadius: 1,
+  backgroundColor: "action.selected",
+  "& .MuiLinearProgress-bar": { borderRadius: "inherit" },
+};
 
 const getBillingPeriodSubtitle = (startsAt: string, endsAt: string) => {
   const periodStart = parseUtcDateTime(startsAt);
@@ -52,7 +64,6 @@ const getBillingPeriodSubtitle = (startsAt: string, endsAt: string) => {
 
 const SubscriptionUsagePage = () => {
   const { tenantGlobalId } = useParams<{ tenantGlobalId: string }>();
-  const theme = useTheme();
   const [usage, setUsage] = useState<SubscriptionUsage | null>(null);
   const [usageHasLoaded, setUsageHasLoaded] = useState(false);
   const usageLoader = ActionLoaders.subscriptionUsage.load(tenantGlobalId);
@@ -85,12 +96,9 @@ const SubscriptionUsagePage = () => {
   }, [tenantGlobalId, usageLoader]);
 
   if (!usage || !usageHasLoaded) return null;
-  const usageChartColors = {
-    available: theme.palette.mode === "dark" ? theme.palette.grey[800] : "#D5DEE2",
-    healthy: theme.palette.success.main,
-    low: yellow[700],
-    critical: theme.palette.error.main,
-  };
+  const sortedActions = [...(usage.actions ?? [])].sort(
+    (left, right) => right.tokens - left.tokens || left.action.localeCompare(right.action),
+  );
   const items = [
     {
       label: "Tokens",
@@ -111,12 +119,6 @@ const SubscriptionUsagePage = () => {
         items={[
           {
             label: "Usage",
-            titleAction: (
-              <HelpPopover
-                docsHref="/docs/usage/"
-                helpText="Check your token balance, renewal date, and total workspace storage."
-              />
-            ),
           },
         ]}
         subtitle={getBillingPeriodSubtitle(usage.usagePeriodStartsAt, usage.usagePeriodEndsAt)}
@@ -126,13 +128,13 @@ const SubscriptionUsagePage = () => {
           const limit = item.limit || Math.max(item.used, 1);
           const remaining = Math.max(limit - item.used, 0);
           const remainingRatio = remaining / limit;
-          const usedColor =
+          const color =
             remainingRatio < criticalQuotaThreshold
-              ? usageChartColors.critical
+              ? "error"
               : remainingRatio <= lowQuotaThreshold
-                ? usageChartColors.low
-                : usageChartColors.healthy;
-          const format = (value: number) => (item.suffix ? prettyBytes(value) : value.toLocaleString());
+                ? "warning"
+                : "success";
+          const format = (value: number) => (item.suffix ? prettyBytes(value) : Math.floor(value).toLocaleString());
           return (
             <Grid
               key={item.label}
@@ -141,66 +143,61 @@ const SubscriptionUsagePage = () => {
                 xs: 12,
               }}
             >
-              <AppCard elevated>
+              <AppCard>
                 <CardContent>
-                  <Typography component="h2" variant="h6" color="text.primary">
-                    {item.label}
-                  </Typography>
-                  <BarChart
-                    aria-label={`${item.label}: ${format(item.used)} used, ${format(remaining)} available`}
-                    axisHighlight={{ y: "none" }}
-                    height={usageChartHeight}
-                    layout="horizontal"
-                    margin={usageChartMargin}
-                    series={[
-                      { color: usedColor, data: [item.used], label: "Used", stack: "quota" },
-                      { color: usageChartColors.available, data: [remaining], label: "Available", stack: "quota" },
-                    ]}
-                    hideLegend
-                    slotProps={{ tooltip: { trigger: "none" } }}
-                    xAxis={[{ min: 0, max: Math.max(limit, item.used), position: "none" }]}
-                    yAxis={[{ data: [item.label], scaleType: "band", position: "none" }]}
+                  <CardHeading variant="cardTitle">{item.label}</CardHeading>
+                  <LinearProgress
+                    aria-label={`${item.label} usage`}
+                    aria-valuetext={`${format(item.used)} used, ${format(remaining)} available`}
+                    color={color}
+                    variant="determinate"
+                    value={Math.min(Math.max((item.used / limit) * 100, 0), 100)}
+                    sx={usageProgressSx}
                   />
-                  <Stack direction="row" spacing={usageLegendSpacing} sx={usageLegendSx}>
-                    {[
-                      { color: usedColor, label: "Used" },
-                      { color: usageChartColors.available, label: "Available" },
-                    ].map((legendItem) => (
-                      <Stack
-                        direction="row"
-                        key={legendItem.label}
-                        spacing={usageLegendSpacing}
-                        sx={Flex.alignCenterSx}
-                      >
-                        <Box sx={usageLegendMarkerSx(legendItem.color)} />
-                        <Typography>{legendItem.label}</Typography>
-                      </Stack>
-                    ))}
+                  <Stack spacing={usageDetailSpacing}>
+                    <Box sx={usageDetailRowSx}>
+                      <Typography color="textSecondary">Used</Typography>
+                      <Typography>
+                        {item.limit ? `${format(item.used)} of ${format(item.limit)}` : format(item.used)}
+                      </Typography>
+                    </Box>
+                    <Box sx={usageDetailRowSx}>
+                      <Typography color="textSecondary">Available</Typography>
+                      <Typography>{format(remaining)}</Typography>
+                    </Box>
                   </Stack>
-                  <Typography sx={usageSummarySx}>
-                    {item.limit ? `${format(item.used)} of ${format(item.limit)}` : `${format(item.used)} used`}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {format(remaining)} available
-                  </Typography>
                 </CardContent>
               </AppCard>
             </Grid>
           );
         })}
       </Grid>
-      <Typography sx={usageSummarySx}>
-        {usage.tokenBalance.toLocaleString()} tokens available. Unused tokens expire at the end of this period.
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        Uploads, file viewing and downloads, emails, requests, and tasks consume tokens. Stored files count against your
-        storage allowance separately.
-      </Typography>
-      {(usage.actions ?? []).map((action) => (
-        <Typography key={action.action} sx={usageSummarySx}>
-          {action.action.replace(/([a-z])([A-Z])/g, "$1 $2")}: {action.tokens.toLocaleString()} tokens
-        </Typography>
-      ))}
+      {!!usage.actions?.length && (
+        <Box sx={usageDetailsSx}>
+          <TableContainer>
+            <Table aria-label="Token usage details" size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Action</TableCell>
+                  <TableCell align="right" sortDirection="desc">
+                    Tokens used
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {sortedActions.map((action) => (
+                  <TableRow key={action.action}>
+                    <TableCell component="th" scope="row">
+                      {action.action.replace(/([a-z])([A-Z])/g, "$1 $2")}
+                    </TableCell>
+                    <TableCell align="right">{Math.floor(action.tokens).toLocaleString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      )}
     </NarrowContent>
   );
 };

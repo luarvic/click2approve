@@ -3,7 +3,7 @@ import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/ap
 import DiscussionMessageList from "@/features/discussions/components/DiscussionMessageList";
 import { getDiscussionMessageSender } from "@/features/discussions/components/DiscussionPanel";
 import type { DiscussionMessage } from "@/features/discussions/models/discussionMessage";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { createElement } from "react";
 import { describe, expect, test } from "vitest";
 
@@ -56,7 +56,11 @@ describe("<DiscussionMessageList />", () => {
       }),
     );
 
-    expect(screen.getByText("Participants · 2")).toBeTruthy();
+    const toggle = screen.getByRole("button", { name: "Expand Step · Approve" });
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByRole("list", { name: "Participants" })).toBeTruthy();
     expect(screen.getByText("Requester")).toBeTruthy();
     expect(screen.getByText("Approver")).toBeTruthy();
   });

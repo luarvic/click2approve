@@ -1,7 +1,8 @@
 import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import ApprovalStepAssigneeRow from "@/features/approvalWorkflow/components/ApprovalStepAssigneeRow";
-import ApprovalStepTitle from "@/features/approvalWorkflow/components/ApprovalStepTitle";
+import ApprovalStepList from "@/features/approvalWorkflow/components/ApprovalStepList";
+import ApprovalStepSection from "@/features/approvalWorkflow/components/ApprovalStepSection";
 import { ApprovalStepStyles } from "@/features/approvalWorkflow/components/approvalStepStyles";
 import {
   ApprovalStepAssignee,
@@ -22,7 +23,6 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Box,
   Button,
   Chip,
   FormControl,
@@ -33,10 +33,6 @@ import {
   Radio,
   RadioGroup,
   Stack,
-  Step,
-  StepContent,
-  StepLabel,
-  Stepper,
   Switch,
   TextField,
   Tooltip,
@@ -91,23 +87,6 @@ interface ApprovalStepEditorProps {
   showOrganizationEmployeesVisibility?: boolean;
 }
 
-const stepLabelSx: SxProps<Theme> = {
-  "& .MuiStepLabel-label, & .MuiStepLabel-label.Mui-active, & .MuiStepLabel-label.Mui-completed": {
-    color: "text.primary",
-  },
-};
-const stepLabelContentSx: SxProps<Theme> = {
-  alignItems: "center",
-  display: "flex",
-  flex: 1,
-  flexWrap: "wrap",
-  gap: ApprovalStepStyles.stepHeaderSpacing,
-};
-const stepLabelActionsSx: SxProps<Theme> = {
-  display: "flex",
-  gap: ApprovalStepStyles.stepActionSpacing,
-  marginLeft: "auto",
-};
 const stepAddButtonSx: SxProps<Theme> = {
   ...ApprovalStepStyles.addStepButtonSx,
   alignSelf: "flex-start",
@@ -122,11 +101,26 @@ const actionOptions = [
   { value: ApprovalRequestTaskAction.Sign, label: "Sign" },
   { value: ApprovalRequestTaskAction.Verify, label: "Verify" },
 ];
-const accordionSx: SxProps<Theme> = { backgroundColor: "inherit" };
-const accordionHorizontalPaddingSx: SxProps<Theme> = { px: 0 };
+const accordionSx: SxProps<Theme> = {
+  backgroundColor: "transparent",
+  borderTop: 1,
+  borderColor: "divider",
+  borderRadius: 0,
+  "&:first-of-type, &:last-of-type": { borderRadius: 0 },
+};
+const accordionSummarySx: SxProps<Theme> = {
+  minHeight: 48,
+  px: 1.5,
+  "& .MuiAccordionSummary-content": { my: 1 },
+  "&:hover": { bgcolor: "action.hover" },
+};
+const accordionDetailsSx: SxProps<Theme> = {
+  px: 1.5,
+  pt: 0.5,
+  pb: 2,
+  "& .MuiFormControlLabel-root": { ml: 0, mr: 0, minHeight: 44 },
+};
 const getStepContentSx = (sx?: SxProps<Theme>): SxProps<Theme> => sx ?? [];
-
-const EditableStepIcon = () => <AccountTreeOutlined color={Icons.secondaryColor} fontSize="small" />;
 
 const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
   steps,
@@ -153,7 +147,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
 }) => (
   <>
     {steps.length > 0 && (
-      <Stepper activeStep={-1} nonLinear orientation="vertical">
+      <ApprovalStepList>
         {steps.map((step, stepIndex) => {
           const state = getStepState?.(step, stepIndex) ?? {};
           const disabled = state.disabled ?? false;
@@ -165,276 +159,268 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
             step.assignees.length > 1 || step.assignees.some((assignee) => assignee.type === AssigneeType.Team);
 
           return (
-            <Step expanded key={step.globalId ?? `new-${step.sequence}`}>
-              <StepLabel
-                sx={stepLabelSx}
-                slots={{
-                  stepIcon: EditableStepIcon,
-                }}
-              >
-                <Box sx={stepLabelContentSx}>
-                  <ApprovalStepTitle sequence={step.sequence} />
+            <ApprovalStepSection
+              key={step.globalId ?? `new-${step.sequence}`}
+              icon={<AccountTreeOutlined color={Icons.secondaryColor} fontSize="small" />}
+              sequence={step.sequence}
+              accessory={
+                <>
                   {state.isPassed && <Chip label="Locked" size="small" />}
                   {state.isCurrent && <Chip label="Current" size="small" color="warning" />}
-                  <Box sx={stepLabelActionsSx}>
-                    {(canMoveUp || canMoveDown) && (
-                      <>
-                        <Tooltip title="Move step up">
-                          <span>
-                            <IconButton
-                              color="primary"
-                              disabled={!canMoveUp}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                onMoveStep(stepIndex, -1);
-                              }}
-                            >
-                              <North />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                        <Tooltip title="Move step down">
-                          <span>
-                            <IconButton
-                              color="primary"
-                              disabled={!canMoveDown}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                onMoveStep(stepIndex, 1);
-                              }}
-                            >
-                              <South />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                      </>
-                    )}
-                    <Tooltip title="Remove step">
-                      <span>
-                        <IconButton
-                          aria-label={`Remove step ${step.sequence}`}
-                          disabled={!canRemove}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            onRemoveStep(stepIndex);
-                          }}
-                        >
-                          <DeleteOutlined />
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                  </Box>
-                </Box>
-              </StepLabel>
-              <StepContent
-                sx={ApprovalStepStyles.contentSx}
-                slotProps={{
-                  transition: { in: true, unmountOnExit: false },
-                }}
+                </>
+              }
+              actions={
+                <>
+                  {(canMoveUp || canMoveDown) && (
+                    <>
+                      <Tooltip title="Move step up">
+                        <span>
+                          <IconButton
+                            color="primary"
+                            disabled={!canMoveUp}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              onMoveStep(stepIndex, -1);
+                            }}
+                          >
+                            <North />
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+                      <Tooltip title="Move step down">
+                        <span>
+                          <IconButton
+                            color="primary"
+                            disabled={!canMoveDown}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              onMoveStep(stepIndex, 1);
+                            }}
+                          >
+                            <South />
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+                    </>
+                  )}
+                  <Tooltip title="Remove step">
+                    <span>
+                      <IconButton
+                        aria-label={`Remove step ${step.sequence}`}
+                        disabled={!canRemove}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          onRemoveStep(stepIndex);
+                        }}
+                      >
+                        <DeleteOutlined />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                </>
+              }
+            >
+              <ApprovalRequestDetailsCard
+                ariaLabel={`Step ${step.sequence}`}
+                showStatusBorder={false}
+                sx={getStepContentSx(state.sx)}
               >
-                <ApprovalRequestDetailsCard
-                  ariaLabel={`Step ${step.sequence}`}
-                  elevated
-                  showStatusBorder={false}
-                  sx={getStepContentSx(state.sx)}
-                >
-                  <Stack spacing={ApprovalStepStyles.stepStackSpacing}>
-                    <TextField
-                      select
-                      fullWidth
-                      label="Action"
-                      value={step.action ?? ApprovalRequestTaskAction.Approve}
-                      disabled={disabled}
-                      onChange={(event) =>
-                        onUpdateStep(stepIndex, (current) => ({
-                          ...current,
-                          action: event.target.value as ApprovalRequestTaskAction,
-                        }))
+                <Stack spacing={ApprovalStepStyles.stepStackSpacing}>
+                  <TextField
+                    select
+                    fullWidth
+                    label="Action"
+                    value={step.action ?? ApprovalRequestTaskAction.Approve}
+                    disabled={disabled}
+                    onChange={(event) =>
+                      onUpdateStep(stepIndex, (current) => ({
+                        ...current,
+                        action: event.target.value as ApprovalRequestTaskAction,
+                      }))
+                    }
+                  >
+                    {actionOptions.map((action) => (
+                      <MenuItem key={action.value} value={action.value}>
+                        {action.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                  <TextField
+                    fullWidth
+                    label="Instructions"
+                    error={Boolean(stepErrors && textRule("Instructions", FieldLimits.text)(step.instructions ?? ""))}
+                    helperText={
+                      stepErrors ? textRule("Instructions", FieldLimits.text)(step.instructions ?? "") : undefined
+                    }
+                    multiline
+                    value={step.instructions ?? ""}
+                    disabled={disabled}
+                    onChange={(event) =>
+                      onUpdateStep(stepIndex, (current) => ({ ...current, instructions: event.target.value }))
+                    }
+                  />
+                  <Stack spacing={ApprovalStepStyles.assigneeStackSpacing}>
+                    {stepErrors?.[stepIndex] && (
+                      <FormHelperText
+                        error
+                        role="alert"
+                        tabIndex={-1}
+                        data-validation-error={step.assignees.length === 0 ? true : undefined}
+                      >
+                        {stepErrors[stepIndex]}
+                      </FormHelperText>
+                    )}
+                    {step.assignees.map((assignee, assigneeIndex) => {
+                      const assigneeState = getAssigneeState?.(step, stepIndex, assignee, assigneeIndex) ?? {};
+
+                      return (
+                        <ApprovalStepAssigneeRow
+                          assignee={assignee}
+                          error={getAssigneeError?.(assignee)}
+                          canUseEmployees={canUseEmployees}
+                          canUseTeams={canUseTeams}
+                          disabled={assigneeState.disabled ?? disabled}
+                          employees={employees}
+                          key={assignee.globalId ?? assigneeIndex}
+                          muted={assigneeState.muted ?? state.isPassed ?? false}
+                          removeDisabled={assigneeState.removeDisabled ?? disabled}
+                          teams={teams}
+                          stackControlsOnSmallScreens={stackAssigneeControlsOnSmallScreens}
+                          onChange={(nextAssignee) => onUpdateAssignee(stepIndex, assigneeIndex, nextAssignee)}
+                          onRemove={() => onRemoveAssignee(stepIndex, assigneeIndex)}
+                        />
+                      );
+                    })}
+                  </Stack>
+                  {showCompletionRule && (
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={(step.mode ?? ApprovalStepMode.Any) === ApprovalStepMode.All}
+                          disabled={disabled}
+                          onChange={(_, checked) =>
+                            onUpdateStep(stepIndex, (current) => ({
+                              ...current,
+                              mode: checked ? ApprovalStepMode.All : ApprovalStepMode.Any,
+                            }))
+                          }
+                        />
                       }
-                    >
-                      {actionOptions.map((action) => (
-                        <MenuItem key={action.value} value={action.value}>
-                          {action.label}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                    <TextField
-                      fullWidth
-                      label="Instructions"
-                      error={Boolean(stepErrors && textRule("Instructions", FieldLimits.text)(step.instructions ?? ""))}
-                      helperText={
-                        stepErrors ? textRule("Instructions", FieldLimits.text)(step.instructions ?? "") : undefined
-                      }
-                      multiline
-                      value={step.instructions ?? ""}
-                      disabled={disabled}
-                      onChange={(event) =>
-                        onUpdateStep(stepIndex, (current) => ({ ...current, instructions: event.target.value }))
+                      label={
+                        <Stack direction="row" sx={Flex.alignCenterSx}>
+                          All assignees must complete
+                          <HelpPopover
+                            docsHref="/docs/workflow-steps/"
+                            helpText="Require every assignee to act; when disabled, any assignee can satisfy the step."
+                          />
+                        </Stack>
                       }
                     />
-                    <Stack spacing={ApprovalStepStyles.assigneeStackSpacing}>
-                      {stepErrors?.[stepIndex] && (
-                        <FormHelperText
-                          error
-                          role="alert"
-                          tabIndex={-1}
-                          data-validation-error={step.assignees.length === 0 ? true : undefined}
-                        >
-                          {stepErrors[stepIndex]}
-                        </FormHelperText>
-                      )}
-                      {step.assignees.map((assignee, assigneeIndex) => {
-                        const assigneeState = getAssigneeState?.(step, stepIndex, assignee, assigneeIndex) ?? {};
-
-                        return (
-                          <ApprovalStepAssigneeRow
-                            assignee={assignee}
-                            error={getAssigneeError?.(assignee)}
-                            canUseEmployees={canUseEmployees}
-                            canUseTeams={canUseTeams}
-                            disabled={assigneeState.disabled ?? disabled}
-                            employees={employees}
-                            key={assignee.globalId ?? assigneeIndex}
-                            muted={assigneeState.muted ?? state.isPassed ?? false}
-                            removeDisabled={assigneeState.removeDisabled ?? disabled}
-                            teams={teams}
-                            stackControlsOnSmallScreens={stackAssigneeControlsOnSmallScreens}
-                            onChange={(nextAssignee) => onUpdateAssignee(stepIndex, assigneeIndex, nextAssignee)}
-                            onRemove={() => onRemoveAssignee(stepIndex, assigneeIndex)}
-                          />
-                        );
-                      })}
-                    </Stack>
-                    {showCompletionRule && (
-                      <FormControlLabel
-                        control={
-                          <Switch
-                            checked={(step.mode ?? ApprovalStepMode.Any) === ApprovalStepMode.All}
-                            disabled={disabled}
-                            onChange={(_, checked) =>
-                              onUpdateStep(stepIndex, (current) => ({
-                                ...current,
-                                mode: checked ? ApprovalStepMode.All : ApprovalStepMode.Any,
-                              }))
-                            }
-                          />
-                        }
-                        label={
-                          <Stack direction="row" sx={Flex.alignCenterSx}>
-                            All assignees must complete
-                            <HelpPopover
-                              docsHref="/docs/workflow-steps/"
-                              helpText="Require every assignee to act; when disabled, any assignee can satisfy the step."
+                  )}
+                  <Button
+                    startIcon={<Add />}
+                    disabled={!canAddAssignee}
+                    onClick={() => onAddAssignee(stepIndex)}
+                    sx={Flex.alignSelfStartSx}
+                  >
+                    Add assignee
+                  </Button>
+                  <Accordion disableGutters elevation={0} sx={accordionSx}>
+                    <AccordionSummary expandIcon={<ExpandMore />} sx={accordionSummarySx}>
+                      <Typography color="textSecondary">Additional requirements</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails sx={accordionDetailsSx}>
+                      <Stack>
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={step.isCommentRequired ?? false}
+                              disabled={disabled}
+                              onChange={(_, checked) =>
+                                onUpdateStep(stepIndex, (current) => ({ ...current, isCommentRequired: checked }))
+                              }
                             />
-                          </Stack>
-                        }
-                      />
-                    )}
-                    <Button
-                      startIcon={<Add />}
-                      disabled={!canAddAssignee}
-                      onClick={() => onAddAssignee(stepIndex)}
-                      sx={Flex.alignSelfStartSx}
-                    >
-                      Add assignee
-                    </Button>
-                    <Accordion disableGutters elevation={0} sx={accordionSx}>
-                      <AccordionSummary expandIcon={<ExpandMore />} sx={accordionHorizontalPaddingSx}>
-                        <Typography color="text.secondary">Additional requirements</Typography>
-                      </AccordionSummary>
-                      <AccordionDetails sx={accordionHorizontalPaddingSx}>
-                        <Stack>
+                          }
+                          label="Require a comment"
+                        />
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={step.isElectronicSignatureRequired ?? false}
+                              disabled={disabled}
+                              onChange={(_, checked) =>
+                                onUpdateStep(stepIndex, (current) => ({
+                                  ...current,
+                                  isElectronicSignatureRequired: checked,
+                                }))
+                              }
+                            />
+                          }
+                          label="Require an electronic signature"
+                        />
+                        {showAttachmentRequirement && (
                           <FormControlLabel
                             control={
                               <Switch
-                                checked={step.isCommentRequired ?? false}
-                                disabled={disabled}
-                                onChange={(_, checked) =>
-                                  onUpdateStep(stepIndex, (current) => ({ ...current, isCommentRequired: checked }))
-                                }
-                              />
-                            }
-                            label="Require a comment"
-                          />
-                          <FormControlLabel
-                            control={
-                              <Switch
-                                checked={step.isElectronicSignatureRequired ?? false}
+                                checked={step.isAttachmentRequired ?? false}
                                 disabled={disabled}
                                 onChange={(_, checked) =>
                                   onUpdateStep(stepIndex, (current) => ({
                                     ...current,
-                                    isElectronicSignatureRequired: checked,
+                                    isAttachmentRequired: checked,
                                   }))
                                 }
                               />
                             }
-                            label="Require an electronic signature"
+                            label="Require an attachment"
                           />
-                          {showAttachmentRequirement && (
+                        )}
+                      </Stack>
+                    </AccordionDetails>
+                  </Accordion>
+                  <Accordion disableGutters elevation={0} sx={accordionSx}>
+                    <AccordionSummary expandIcon={<ExpandMore />} sx={accordionSummarySx}>
+                      <Typography color="textSecondary">Visibility</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails sx={accordionDetailsSx}>
+                      <FormControl disabled={disabled}>
+                        <RadioGroup
+                          value={step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants}
+                          onChange={(event) =>
+                            onUpdateStep(stepIndex, (current) => ({
+                              ...current,
+                              visibilityMode: event.target.value as ApprovalStepVisibilityMode,
+                            }))
+                          }
+                        >
+                          <FormControlLabel
+                            control={<Radio />}
+                            label="All participants"
+                            value={ApprovalStepVisibilityMode.AllParticipants}
+                          />
+                          {showOrganizationEmployeesVisibility && (
                             <FormControlLabel
-                              control={
-                                <Switch
-                                  checked={step.isAttachmentRequired ?? false}
-                                  disabled={disabled}
-                                  onChange={(_, checked) =>
-                                    onUpdateStep(stepIndex, (current) => ({
-                                      ...current,
-                                      isAttachmentRequired: checked,
-                                    }))
-                                  }
-                                />
-                              }
-                              label="Require an attachment"
+                              control={<Radio />}
+                              label="Organization employees"
+                              value={ApprovalStepVisibilityMode.OrganizationEmployees}
                             />
                           )}
-                        </Stack>
-                      </AccordionDetails>
-                    </Accordion>
-                    <Accordion disableGutters elevation={0} sx={accordionSx}>
-                      <AccordionSummary expandIcon={<ExpandMore />} sx={accordionHorizontalPaddingSx}>
-                        <Typography color="text.secondary">Visibility</Typography>
-                      </AccordionSummary>
-                      <AccordionDetails sx={accordionHorizontalPaddingSx}>
-                        <FormControl disabled={disabled}>
-                          <RadioGroup
-                            value={step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants}
-                            onChange={(event) =>
-                              onUpdateStep(stepIndex, (current) => ({
-                                ...current,
-                                visibilityMode: event.target.value as ApprovalStepVisibilityMode,
-                              }))
-                            }
-                          >
-                            <FormControlLabel
-                              control={<Radio />}
-                              label="All participants"
-                              value={ApprovalStepVisibilityMode.AllParticipants}
-                            />
-                            {showOrganizationEmployeesVisibility && (
-                              <FormControlLabel
-                                control={<Radio />}
-                                label="Organization employees"
-                                value={ApprovalStepVisibilityMode.OrganizationEmployees}
-                              />
-                            )}
-                            <FormControlLabel
-                              control={<Radio />}
-                              label="Assignees only"
-                              value={ApprovalStepVisibilityMode.AssigneesOnly}
-                            />
-                          </RadioGroup>
-                        </FormControl>
-                      </AccordionDetails>
-                    </Accordion>
-                    {renderStepFooter?.(step, stepIndex)}
-                  </Stack>
-                </ApprovalRequestDetailsCard>
-              </StepContent>
-            </Step>
+                          <FormControlLabel
+                            control={<Radio />}
+                            label="Assignees only"
+                            value={ApprovalStepVisibilityMode.AssigneesOnly}
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </AccordionDetails>
+                  </Accordion>
+                  {renderStepFooter?.(step, stepIndex)}
+                </Stack>
+              </ApprovalRequestDetailsCard>
+            </ApprovalStepSection>
           );
         })}
-      </Stepper>
+      </ApprovalStepList>
     )}
     {showAddStep && (
       <Button startIcon={<Add />} onClick={onAddStep} sx={stepAddButtonSx}>

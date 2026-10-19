@@ -2,6 +2,8 @@
 
 Steps run in sequence. Put dependent decisions in separate steps; put participants who can act at the same stage in the same step.
 
+Each step has a heading and a flat, full-width editor card. Use **Add step** to create another step, the arrow controls to change its order, and the remove button to delete it.
+
 ## Choose an action and participants
 
 For each step, select an **Action** and add clear **Instructions**. Supported actions are Approve, Sign, Confirm, Acknowledge, Review, Verify, Accept, and Complete. Choose the action that matches the decision you need recorded.

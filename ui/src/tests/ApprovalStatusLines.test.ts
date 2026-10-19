@@ -13,7 +13,7 @@ import { describe, expect, test } from "vitest";
 describe("approval status line styles", () => {
   test.each([
     [ApprovalRequestStatus.Draft, undefined, "text.disabled"],
-    [ApprovalRequestStatus.Pending, undefined, "primary.main"],
+    [ApprovalRequestStatus.Pending, undefined, "text.disabled"],
     [ApprovalRequestStatus.Started, undefined, "success.main"],
     [ApprovalRequestStatus.Completed, true, "success.main"],
     [ApprovalRequestStatus.Completed, false, "error.main"],
@@ -24,7 +24,7 @@ describe("approval status line styles", () => {
   });
 
   test.each([
-    [ApprovalRequestTaskStatus.Pending, undefined, "primary.main"],
+    [ApprovalRequestTaskStatus.Pending, undefined, "text.disabled"],
     [ApprovalRequestTaskStatus.Completed, true, "success.main"],
     [ApprovalRequestTaskStatus.Completed, false, "error.main"],
     [ApprovalRequestTaskStatus.Skipped, undefined, "warning.main"],

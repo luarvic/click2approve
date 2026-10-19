@@ -11,8 +11,9 @@ const narrowContentWidth = 960;
 
 const narrowContentSx: SxProps<Theme> = {
   alignSelf: "flex-start",
-  maxWidth: "100%",
-  width: { sm: narrowContentWidth },
+  minWidth: 0,
+  maxWidth: narrowContentWidth,
+  width: "100%",
 };
 
 /** Provides a responsive, narrow content area for forms and focused pages. */

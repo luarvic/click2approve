@@ -25,7 +25,7 @@ import {
   ChecklistRtlOutlined,
   CommentOutlined,
   DrawOutlined,
-  Person,
+  PersonOutlined,
   RuleOutlined,
   VisibilityOffOutlined,
   VisibilityOutlined,
@@ -137,7 +137,7 @@ const renderStepMetadataPiece = (key: string, icon: ReactNode, label: string, to
   <Tooltip key={key} title={tooltip}>
     <Box aria-label={ariaLabel} sx={stepMetadataPieceSx}>
       {icon}
-      <Typography variant="caption" color="text.secondary" sx={stepMetadataTextSx}>
+      <Typography variant="caption" color="textSecondary" sx={stepMetadataTextSx}>
         {label}
       </Typography>
     </Box>
@@ -311,7 +311,6 @@ const renderAssigneeWithoutTasks = (
     compact={setupFutureTasks}
     defaultExpanded={!collapseCards}
     instructions={instructions}
-    showStatusBorder={!setupFutureTasks}
     title={setupFutureTasks ? "Task setup" : undefined}
   />
 );
@@ -342,7 +341,7 @@ const renderTeamAssignee = (
         {assigneeTasks.map((task) =>
           renderTaskDetails(
             task,
-            <Person color="action" fontSize="small" />,
+            <PersonOutlined color="action" fontSize="small" />,
             AssigneeType.Employee,
             task.globalId === highlightedTaskGlobalId,
             collapseCards,

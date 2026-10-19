@@ -2,15 +2,16 @@ import { stores } from "@/app/rootStore";
 import { getSubscriptionPlans, SubscriptionPlanConfiguration } from "@/features/subscriptions/api/subscriptionsApi";
 import PlanPriceCard from "@/features/subscriptions/components/PlanPriceCard";
 import { SubscriptionPlan } from "@/features/tenants/models/tenant";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
+import { Forms } from "@/shared/components/dialogs/formStyles";
 import { Flex } from "@/shared/components/layout/flexStyles";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
-import { Alert, Button, Grid, SxProps, Theme } from "@mui/material";
+import { Alert, Button, FormControlLabel, Grid, Radio, RadioGroup, Stack } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 
@@ -19,7 +20,6 @@ const plans = [
   { plan: SubscriptionPlan.BusinessPro, name: "Business Pro" },
 ];
 const gridSpacing = 2;
-const backSx: SxProps<Theme> = { mt: 2 };
 
 interface OrganizationPlanSelectionPageProps {
   businessName: string;
@@ -55,12 +55,12 @@ const OrganizationPlanSelectionPage = () => {
     };
   }, [subscriptionPlansLoader]);
 
-  const choose = async (plan: SubscriptionPlan) => {
-    await action.run(async () => {
-      setSelectedPlan(plan);
-      await onChoose(plan);
-    });
+  const choose = async () => {
+    if (!selectedPlan) return;
+    await action.run(() => onChoose(selectedPlan));
   };
+  const busy = action.isRunning || checkoutIsOpening;
+  const selectedPlanName = plans.find(({ plan }) => plan === selectedPlan)?.name;
 
   return (
     <NarrowContent>
@@ -70,12 +70,6 @@ const OrganizationPlanSelectionPage = () => {
           { label: "New organization", to: "/tenants/new" },
           {
             label: "Choose plan",
-            titleAction: (
-              <HelpPopover
-                docsHref="/docs/plans-and-billing/"
-                helpText="Choose a plan to create your organization; paid access starts after payment."
-              />
-            ),
           },
         ]}
         subtitle={`Plans for ${businessName}`}
@@ -85,42 +79,53 @@ const OrganizationPlanSelectionPage = () => {
       ) : !limits ? (
         <LoadingOverlay />
       ) : (
-        <Grid container spacing={gridSpacing}>
-          {plans.map(({ plan, name }) => {
-            const configuration = limits.find((item) => item.plan === plan);
-            return (
-              <Grid
-                key={plan}
-                sx={Flex.displaySx}
-                size={{
-                  md: 6,
-                  xs: 12,
-                }}
-              >
-                <PlanPriceCard
-                  actions={
-                    <Button
-                      variant="text"
-                      aria-label={`Subscribe to ${name}`}
-                      disabled={action.isRunning || checkoutIsOpening}
-                      loading={(action.isRunning || checkoutIsOpening) && selectedPlan === plan}
-                      onClick={() => void choose(plan)}
-                    >
-                      Subscribe
-                    </Button>
-                  }
-                  limits={configuration}
-                  subtitle={plan === SubscriptionPlan.BusinessTrial ? "Available once per owner" : "Payment required"}
-                  title={name}
-                />
-              </Grid>
-            );
-          })}
-        </Grid>
+        <RadioGroup
+          aria-label="Organization plan"
+          value={selectedPlan ?? ""}
+          onChange={(event) => setSelectedPlan(event.target.value as SubscriptionPlan)}
+        >
+          <Grid container spacing={gridSpacing}>
+            {plans.map(({ plan, name }) => {
+              const configuration = limits.find((item) => item.plan === plan);
+              return (
+                <Grid
+                  key={plan}
+                  sx={Flex.displaySx}
+                  size={{
+                    md: 6,
+                    xs: 12,
+                  }}
+                >
+                  <PlanPriceCard
+                    actions={
+                      <FormControlLabel control={<Radio />} disabled={busy} label={`Choose ${name}`} value={plan} />
+                    }
+                    highlighted={selectedPlan === plan}
+                    limits={configuration}
+                    subtitle={plan === SubscriptionPlan.BusinessTrial ? "Available once per owner" : "Payment required"}
+                    title={name}
+                  />
+                </Grid>
+              );
+            })}
+          </Grid>
+        </RadioGroup>
       )}
-      <Button sx={backSx} variant="outlined" disabled={action.isRunning || checkoutIsOpening} onClick={onBack}>
-        Back
-      </Button>
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
+        <Button variant="text" disabled={busy} onClick={onBack}>
+          Back
+        </Button>
+        {limits && !failed && (
+          <MainActionButton
+            aria-label={selectedPlanName ? `Subscribe to ${selectedPlanName}` : "Subscribe"}
+            disabled={!selectedPlan || busy}
+            loading={busy}
+            onClick={() => void choose()}
+          >
+            Subscribe
+          </MainActionButton>
+        )}
+      </Stack>
     </NarrowContent>
   );
 };

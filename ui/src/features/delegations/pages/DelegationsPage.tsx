@@ -1,6 +1,5 @@
 import DelegationsGrid from "@/features/delegations/components/DelegationsGrid";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
@@ -20,12 +19,6 @@ const DelegationsPage = () => {
         items={[
           {
             label: "Delegations",
-            titleAction: (
-              <HelpPopover
-                docsHref="/docs/delegations/"
-                helpText="View who can act on another employee’s tasks and requests."
-              />
-            ),
           },
         ]}
       />

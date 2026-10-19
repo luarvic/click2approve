@@ -1,5 +1,3 @@
-import { Flex } from "@/shared/components/layout/flexStyles";
-import { Forms } from "@/shared/components/dialogs/formStyles";
 import {
   Slider,
   SliderValueLabel,
@@ -37,8 +35,11 @@ const getRetentionLabel = (months: number) => {
 const getRetentionValue = (months: number) => Math.max(0, retentionOptions.indexOf(months));
 const retentionSliderSx: SxProps<Theme> = {
   flexGrow: 1,
+  minWidth: 0,
+  mx: 1,
+  width: "auto",
   "& .MuiSlider-valueLabel": {
-    fontSize: "0.625rem",
+    fontSize: "0.75rem",
     px: 0.5,
     py: 0.25,
   },
@@ -46,14 +47,22 @@ const retentionSliderSx: SxProps<Theme> = {
     color: "text.secondary",
     display: "inline-block",
   },
-  "& .retention-first-mark-label": {
-    transform: "translateX(50%)",
+  '& .MuiSlider-markLabel[data-index="0"]': {
+    transform: "none",
   },
-  "& .retention-last-mark-label": {
-    transform: "translateX(-50%)",
+  [`& .MuiSlider-markLabel[data-index="${retentionOptions.length - 1}"]`]: {
+    transform: "translateX(-100%)",
   },
 };
-const retentionTitleSx: SxProps<Theme> = { flexShrink: 0, width: "8rem" };
+const retentionControlSx: SxProps<Theme> = {
+  alignItems: { xs: "stretch", sm: "center" },
+  gap: { xs: 3, sm: 2 },
+};
+const retentionTitleSx: SxProps<Theme> = {
+  color: "text.secondary",
+  flexShrink: 0,
+  width: { sm: "8rem" },
+};
 
 interface RetentionControlProps {
   disabled: boolean;
@@ -77,7 +86,7 @@ const RetentionValueLabel: React.FC<SliderValueLabelProps> = ({ children, value,
 };
 
 const RetentionControl: React.FC<RetentionControlProps> = ({ disabled, label, months, onChange }) => (
-  <Stack direction="row" spacing={Forms.actionSpacing} sx={Flex.alignCenterSx}>
+  <Stack direction={{ xs: "column", sm: "row" }} sx={retentionControlSx}>
     <Typography id={`${label}-retention`} sx={retentionTitleSx}>
       {label}
     </Typography>

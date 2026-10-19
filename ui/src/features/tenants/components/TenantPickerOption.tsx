@@ -12,7 +12,7 @@ const TenantPickerOption: React.FC<TenantPickerOptionProps> = ({ employeeDisplay
     <Typography noWrap variant="body1">
       {tenant.businessName}
       {employeeDisplayName && (
-        <Typography component="span" variant="body1" color="text.secondary">
+        <Typography component="span" variant="body1" color="textSecondary">
           {` • ${employeeDisplayName}`}
         </Typography>
       )}

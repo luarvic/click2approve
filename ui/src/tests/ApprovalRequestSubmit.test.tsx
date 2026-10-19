@@ -1,15 +1,21 @@
 import { stores } from "@/app/rootStore";
 import ApprovalRequestSubmit from "@/features/approvalRequests/components/ApprovalRequestSubmit";
 import { notification } from "@/shared/utils/notifications";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { runInAction } from "mobx";
 import { RouterProvider, createMemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 const renderCompose = (onClose = vi.fn()) => {
-  const router = createMemoryRouter([{ path: "*", element: <ApprovalRequestSubmit onClose={onClose} /> }]);
-  return render(<RouterProvider router={router} />);
+  const router = createMemoryRouter(
+    [
+      { path: "/away", element: <div>Another page</div> },
+      { path: "*", element: <ApprovalRequestSubmit onClose={onClose} /> },
+    ],
+    { initialEntries: ["/away", "/compose"] },
+  );
+  return { ...render(<RouterProvider router={router} />), router };
 };
 
 describe("request composition", () => {
@@ -50,24 +56,49 @@ describe("request composition", () => {
     expect(screen.queryByText("Title is required.")).toBeNull();
   });
 
-  test("warns before discarding edits without saving or restoring a draft", async () => {
+  test.each(["Cancel", "Escape"])(
+    "%s leaves edited composition immediately without restoring a draft",
+    async (action) => {
+      const user = userEvent.setup();
+      const confirm = vi.mocked(window.confirm);
+      const onClose = vi.fn();
+      const view = renderCompose(onClose);
+      await user.type(screen.getByRole("textbox", { name: /Title/ }), "Quarterly budget");
+      if (action === "Escape") {
+        await user.keyboard("{Escape}");
+      } else {
+        await user.click(screen.getByRole("button", { name: "Cancel" }));
+      }
+      expect(confirm).not.toHaveBeenCalled();
+      expect(onClose).toHaveBeenCalledOnce();
+      expect(sessionStorage.length).toBe(0);
+      view.unmount();
+      renderCompose();
+      expect((screen.getByRole("textbox", { name: /Title/ }) as HTMLInputElement).value).toBe("");
+    },
+  );
+  test("allows navigation, Back, and browser unload with edits", async () => {
     const user = userEvent.setup();
-    const confirm = vi.mocked(window.confirm);
-    const onClose = vi.fn();
-    const view = renderCompose(onClose);
+    const { router } = renderCompose();
     await user.type(screen.getByRole("textbox", { name: /Title/ }), "Quarterly budget");
-    await user.keyboard("{Escape}");
-    expect(confirm).toHaveBeenCalledOnce();
-    expect(onClose).not.toHaveBeenCalled();
-    expect((screen.getByRole("textbox", { name: /Title/ }) as HTMLInputElement).value).toBe("Quarterly budget");
-    confirm.mockReturnValue(true);
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
-    expect(onClose).toHaveBeenCalledOnce();
-    expect(sessionStorage.length).toBe(0);
-    view.unmount();
-    renderCompose();
-    expect((screen.getByRole("textbox", { name: /Title/ }) as HTMLInputElement).value).toBe("");
+    const unload = new Event("beforeunload", { cancelable: true });
+    window.dispatchEvent(unload);
+    expect(unload.defaultPrevented).toBe(false);
+    await act(async () => {
+      await router.navigate("/away");
+    });
+    expect(screen.getByText("Another page")).toBeTruthy();
+    await act(async () => {
+      await router.navigate(-1);
+    });
+    await user.type(screen.getByRole("textbox", { name: /Title/ }), "Updated budget");
+    await act(async () => {
+      await router.navigate(-1);
+    });
+    expect(screen.getByText("Another page")).toBeTruthy();
+    expect(window.confirm).not.toHaveBeenCalled();
   });
+
   test("leaves an untouched form without a warning", async () => {
     const user = userEvent.setup();
     const confirm = vi.mocked(window.confirm);

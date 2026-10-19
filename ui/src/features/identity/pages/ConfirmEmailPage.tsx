@@ -66,12 +66,7 @@ const ConfirmEmailPage = () => {
 
   return (
     <>
-      <ActionResult
-        docsHref="/docs/sign-in/"
-        helpText="Sign in after verification succeeds, or request a new confirmation link."
-        title={Information.emailVerificationResultTitle}
-        message={message}
-      />
+      <ActionResult title={Information.emailVerificationResultTitle} message={message} />
       <Backdrop sx={Pages.backdropLoadingSx} open={isLoading}>
         <CircularProgress color="inherit" />
       </Backdrop>

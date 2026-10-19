@@ -1,8 +1,7 @@
 import { ApprovalRequestFieldValueVariantContext } from "@/features/approvalRequests/components/ApprovalRequestFieldContext";
-import { StackSpacing } from "@/shared/theme/tokens";
-import { ExpandMore } from "@mui/icons-material";
+import CardHeading from "@/shared/components/papers/CardHeading";
 import type { TypographyProps } from "@mui/material";
-import { Accordion, AccordionDetails, AccordionSummary, Stack, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
 
@@ -12,28 +11,18 @@ interface ApprovalRequestFieldGroupProps {
   valueVariant?: TypographyProps["variant"];
 }
 
-const fieldGroupSx: SxProps<Theme> = {
-  backgroundColor: "transparent",
-  backgroundImage: "none",
-  border: 1,
-  borderColor: "divider",
-  boxShadow: "none",
-  overflow: "hidden",
-  "&::before": {
-    display: "none",
-  },
+const fieldGroupTitleSx: SxProps<Theme> = {
+  mb: 2,
 };
 
 const ApprovalRequestFieldGroup: React.FC<ApprovalRequestFieldGroupProps> = ({ children, title, valueVariant }) => (
   <ApprovalRequestFieldValueVariantContext.Provider value={valueVariant ?? "body1"}>
-    <Accordion defaultExpanded disableGutters sx={fieldGroupSx}>
-      <AccordionSummary expandIcon={<ExpandMore />}>
-        <Typography variant="h6">{title}</Typography>
-      </AccordionSummary>
-      <AccordionDetails>
-        <Stack spacing={StackSpacing.default}>{children}</Stack>
-      </AccordionDetails>
-    </Accordion>
+    <Stack component="section">
+      <CardHeading component="h3" sx={fieldGroupTitleSx}>
+        {title}
+      </CardHeading>
+      {children}
+    </Stack>
   </ApprovalRequestFieldValueVariantContext.Provider>
 );
 

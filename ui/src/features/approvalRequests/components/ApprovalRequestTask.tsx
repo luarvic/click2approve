@@ -4,7 +4,6 @@ import ApprovalRequestActionBar from "@/features/approvalRequests/components/App
 import ApprovalRequestDetails from "@/features/approvalRequests/components/ApprovalRequestDetails";
 import ApprovalRequestDiscussionSection from "@/features/approvalRequests/components/ApprovalRequestDiscussionSection";
 import ApprovalRequestElectronicSignatureForm from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureForm";
-import ApprovalRequestField from "@/features/approvalRequests/components/ApprovalRequestField";
 import ApprovalRequestTaskAttachmentList from "@/features/approvalRequests/components/ApprovalRequestTaskAttachmentList";
 import ApprovalRequestTaskAttachments, {
   ApprovalRequestTaskAttachmentsHandle,
@@ -24,16 +23,15 @@ import { UserFile } from "@/features/userFiles/models/userFile";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import { Forms } from "@/shared/components/dialogs/formStyles";
+import FormCard from "@/shared/components/forms/FormCard";
+import FormSection from "@/shared/components/forms/FormSection";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useFormValidation } from "@/shared/hooks/useFormValidation";
-import { useUnsavedChanges } from "@/shared/hooks/useUnsavedChanges";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
 import { Routes } from "@/shared/routing/routes";
-import { StackSpacing } from "@/shared/theme/tokens";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { signatureRule, textRule } from "@/shared/utils/formValidation";
 import { notification } from "@/shared/utils/notifications";
@@ -76,7 +74,6 @@ const getDefaultLegalName = (isAssigneeEmployee: boolean | undefined): string =>
 
 const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab, taskGlobalId }) => {
   const navigate = useNavigate();
-  const initialSnapshot = useRef<string | undefined>(undefined);
   const initialTaskGlobalId = useRef<string | undefined>(undefined);
   const [decisionError, setDecisionError] = useState(false);
   const [attachmentError, setAttachmentError] = useState(false);
@@ -126,9 +123,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
       representationDetails: currentTask?.assigneeRepresentationDetails ?? "",
       signatureJson:
         currentTask?.assigneeSignatureJson?.trim() || stores.userProfileStore.profile?.defaultSignatureJson || "",
-      taskAttachmentFiles: [],
     };
-    initialSnapshot.current = JSON.stringify(values);
     setResult(values.result);
     setComment(values.comment);
     setLegalName(values.legalName);
@@ -159,17 +154,6 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
       signatureJson: "AssigneeSignatureJson",
     },
   );
-  const formValues = {
-    result,
-    comment,
-    legalName,
-    representationDetails,
-    signatureJson,
-    taskAttachmentFiles,
-  };
-  const hasChanges =
-    !isCompleted && initialSnapshot.current !== undefined && JSON.stringify(formValues) !== initialSnapshot.current;
-  const unsavedChanges = useUnsavedChanges(hasChanges, taskIsSubmitting || filesAreUploading);
 
   const navigateToTab = (value: ApprovalRequestTaskProps["tab"]) => {
     if (!tenantGlobalId) return;
@@ -178,8 +162,6 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
   };
 
   const handleClose = () => {
-    if (!unsavedChanges.confirmDiscard()) return;
-    unsavedChanges.markSaved();
     onClose(currentTask?.globalId);
   };
 
@@ -253,7 +235,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
         );
         if (didComplete) {
           showPersistenceSuccessNotification(PersistenceSuccessMessages.approvalDecisionSubmitted);
-          unsavedChanges.markSaved();
+
           onClose(currentTask.globalId);
           stores.approvalRequestTaskStore.clear();
           stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
@@ -293,15 +275,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
             state: currentTask ? { currentTaskGlobalId: currentTask.globalId } : undefined,
             to: tasksPath,
           },
-          {
-            label: currentTask?.title ?? "Task",
-            titleAction: (
-              <HelpPopover
-                docsHref="/docs/complete-a-task/"
-                helpText="Review the files and instructions, provide required responses, then submit your decision."
-              />
-            ),
-          },
+          { label: currentTask?.title ?? "Task" },
         ]}
       />
       <Tabs
@@ -317,7 +291,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
       </Tabs>
       {tab === "task" && (
         <Stack sx={Forms.tabContentSx}>
-          <Stack spacing={Forms.formStackSpacing}>
+          <Stack spacing={Forms.cardStackSpacing}>
             {currentTask && (
               <ApprovalRequestTaskSummaryBlock
                 additionalMetadata={
@@ -340,46 +314,43 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
               />
             )}
             {!isCompleted && (
-              <Stack spacing={StackSpacing.default}>
-                <FormControl key="decision" error={decisionError}>
-                  <ApprovalRequestField
-                    label="Your decision"
-                    labelId="decision-label"
-                    value={
-                      <RadioGroup
-                        aria-labelledby="decision-label"
-                        row
-                        name="decision"
-                        value={typeof result === "boolean" ? String(result) : ""}
-                        onChange={(event) => {
-                          setResult(event.target.value === "true");
-                          setDecisionError(false);
-                          setAttachmentError(false);
-                        }}
-                      >
-                        <FormControlLabel value="true" control={<Radio />} label={actionLabels.positive} />
-                        <FormControlLabel value="false" control={<Radio />} label={actionLabels.negative} />
-                      </RadioGroup>
-                    }
-                  />
+              <FormCard title="Your response">
+                <FormControl key="decision" fullWidth error={decisionError}>
+                  <RadioGroup
+                    aria-label="Your decision"
+                    row
+                    name="decision"
+                    value={typeof result === "boolean" ? String(result) : ""}
+                    onChange={(event) => {
+                      setResult(event.target.value === "true");
+                      setDecisionError(false);
+                      setAttachmentError(false);
+                    }}
+                  >
+                    <FormControlLabel value="true" control={<Radio />} label={actionLabels.positive} />
+                    <FormControlLabel value="false" control={<Radio />} label={actionLabels.negative} />
+                  </RadioGroup>
                   {decisionError && (
                     <FormHelperText sx={Forms.fieldHelperTextSx}>{actionLabels.missing}</FormHelperText>
                   )}
                 </FormControl>
                 {taskAttachmentsAreEnabled && currentTask && tenantGlobalId && (
-                  <ApprovalRequestTaskAttachments
-                    canManageFiles={!isCompleted}
-                    label="Files attached to this decision"
-                    newFiles={taskAttachmentFiles}
-                    onNewFilesChange={(files) => {
-                      setTaskAttachmentFiles(files);
-                      setAttachmentError(false);
-                    }}
-                    ref={taskAttachments}
-                    taskFiles={currentTask.taskFiles ?? []}
-                    taskGlobalId={currentTask.globalId}
-                    tenantGlobalId={tenantGlobalId}
-                  />
+                  <FormSection title="Files attached to this decision">
+                    <ApprovalRequestTaskAttachments
+                      showLabel={false}
+                      canManageFiles={!isCompleted}
+                      label="Files attached to this decision"
+                      newFiles={taskAttachmentFiles}
+                      onNewFilesChange={(files) => {
+                        setTaskAttachmentFiles(files);
+                        setAttachmentError(false);
+                      }}
+                      ref={taskAttachments}
+                      taskFiles={currentTask.taskFiles ?? []}
+                      taskGlobalId={currentTask.globalId}
+                      tenantGlobalId={tenantGlobalId}
+                    />
+                  </FormSection>
                 )}
                 {attachmentError && (
                   <FormHelperText error sx={Forms.fieldHelperTextSx}>
@@ -387,7 +358,6 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
                   </FormHelperText>
                 )}
                 <TextField
-                  key="comment"
                   id="comment"
                   name="comment"
                   fullWidth
@@ -414,7 +384,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
                     showRepresentationDetails={canEnterRepresentationDetails}
                   />
                 )}
-              </Stack>
+              </FormCard>
             )}
           </Stack>
           <ApprovalRequestActionBar onClose={handleClose}>

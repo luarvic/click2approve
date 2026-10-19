@@ -1,7 +1,7 @@
 import ApprovalRequestSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestSummaryBlock";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, test } from "vitest";
 
@@ -57,11 +57,21 @@ describe("<ApprovalRequestSummaryBlock />", () => {
 
     expect(screen.getByText("Request #reque")).toBeTruthy();
     expect(screen.queryByText("Request description")).toBeNull();
+    expect(screen.queryByRole("separator")).toBeNull();
+    expect(screen.getByLabelText("Status: Pending")).toBeTruthy();
 
     await user.click(screen.getByRole("button", { name: "Expand Request #reque" }));
 
     expect(screen.getByText("Request description")).toBeTruthy();
+    expect(screen.queryByRole("separator")).toBeNull();
     expect(screen.getByRole("button", { name: "Collapse Request #reque" })).toBeTruthy();
+    expect(screen.getByLabelText("Status: Pending")).toBeTruthy();
+
+    await user.click(screen.getByRole("button", { name: "Collapse Request #reque" }));
+    await waitFor(() => expect(screen.queryByText("Request description")).toBeNull());
+    expect(screen.queryByRole("separator")).toBeNull();
+    expect(screen.getByRole("button", { name: "Expand Request #reque" })).toBeTruthy();
+    expect(screen.getByLabelText("Status: Pending")).toBeTruthy();
   });
 
   test("shows only the request number and participant status in a task workflow", () => {
@@ -82,9 +92,9 @@ describe("<ApprovalRequestSummaryBlock />", () => {
   test("shows an email icon for a public user requester", () => {
     render(<ApprovalRequestSummaryBlock approvalRequest={approvalRequest} />);
 
-    expect(screen.getByTestId("EmailIcon")).toBeTruthy();
+    expect(screen.getByTestId("EmailOutlinedIcon")).toBeTruthy();
     expect(screen.getByText("Request description")).toBeTruthy();
-    expect(screen.queryByTestId("PersonIcon")).toBeNull();
+    expect(screen.queryByTestId("PersonOutlinedIcon")).toBeNull();
   });
 
   test("shows a play icon for a started request", () => {
@@ -111,8 +121,8 @@ describe("<ApprovalRequestSummaryBlock />", () => {
       />,
     );
 
-    expect(screen.getByTestId("PersonIcon")).toBeTruthy();
-    expect(screen.queryByTestId("EmailIcon")).toBeNull();
+    expect(screen.getByTestId("PersonOutlinedIcon")).toBeTruthy();
+    expect(screen.queryByTestId("EmailOutlinedIcon")).toBeNull();
   });
 
   test("shows a person icon for an employee completer", () => {
@@ -132,7 +142,7 @@ describe("<ApprovalRequestSummaryBlock />", () => {
       />,
     );
 
-    expect(screen.getByTestId("PersonIcon")).toBeTruthy();
-    expect(screen.getByTestId("EmailIcon")).toBeTruthy();
+    expect(screen.getByTestId("PersonOutlinedIcon")).toBeTruthy();
+    expect(screen.getByTestId("EmailOutlinedIcon")).toBeTruthy();
   });
 });

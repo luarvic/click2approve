@@ -9,7 +9,7 @@ interface CompactGridSecondaryInformationProps {
 const compactGridSecondaryInformationSx: SxProps<Theme> = { overflowWrap: "anywhere", whiteSpace: "normal" };
 
 const CompactGridSecondaryInformation: React.FC<CompactGridSecondaryInformationProps> = ({ children }) => (
-  <Typography variant="body2" color="text.secondary" sx={compactGridSecondaryInformationSx}>
+  <Typography variant="body2" color="textSecondary" sx={compactGridSecondaryInformationSx}>
     {children}
   </Typography>
 );

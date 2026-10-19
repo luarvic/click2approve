@@ -1,6 +1,6 @@
+import { SubscriptionPlan } from "@/features/tenants/models/tenant";
 import OrganizationCreationPage from "@/features/tenants/pages/OrganizationCreationPage";
 import OrganizationPlanSelectionPage from "@/features/tenants/pages/OrganizationPlanSelectionPage";
-import { SubscriptionPlan } from "@/features/tenants/models/tenant";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -68,6 +68,10 @@ const next = () => {
   fireEvent.change(screen.getByRole("textbox", { name: /Business name/ }), { target: { value: "Acme" } });
   fireEvent.click(screen.getByRole("button", { name: "Next" }));
 };
+const selectPlan = async (name: string) => {
+  fireEvent.click(await screen.findByRole("radio", { name: `Choose ${name}` }));
+  return screen.getByRole("button", { name: `Subscribe to ${name}` });
+};
 afterEach(() => {
   cleanup();
   sessionStorage.clear();
@@ -82,6 +86,19 @@ beforeEach(() => {
 });
 
 describe("organization creation", () => {
+  it("requires selecting a plan before the single Subscribe action can create an organization", async () => {
+    showPage();
+    next();
+    const subscribe = await screen.findByRole("button", { name: "Subscribe" });
+    expect((subscribe as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getAllByRole("button", { name: /Subscribe/ })).toHaveLength(1);
+    expect(mocks.create).not.toHaveBeenCalled();
+    fireEvent.click(await screen.findByRole("radio", { name: "Choose Business Pro" }));
+    expect((screen.getByRole("button", { name: "Subscribe to Business Pro" }) as HTMLButtonElement).disabled).toBe(
+      false,
+    );
+    expect(mocks.create).not.toHaveBeenCalled();
+  });
   it("tracks the plan-list request with the shared subscription-plan loader", async () => {
     let resolvePlans: (plans: []) => void = () => undefined;
     mocks.loadPlans.mockReturnValueOnce(
@@ -96,7 +113,7 @@ describe("organization creation", () => {
     expect(mocks.updateActionLoadingCounter).toHaveBeenCalledWith("subscriptionPlan.load", 1);
 
     resolvePlans([]);
-    await screen.findByRole("button", { name: "Subscribe to Business Trial" });
+    await selectPlan("Business Trial");
     expect(mocks.updateActionLoadingCounter).toHaveBeenLastCalledWith("subscriptionPlan.load", -1);
   });
 
@@ -108,7 +125,7 @@ describe("organization creation", () => {
     fireEvent.change(screen.getByLabelText("Logo"), { target: { files: [logo] } });
     fireEvent.change(screen.getByRole("textbox", { name: "Email" }), { target: { value: "team@example.com" } });
     next();
-    await screen.findByRole("button", { name: "Subscribe to Business Trial" });
+    await selectPlan("Business Trial");
     expect(mocks.create).not.toHaveBeenCalled();
     expect(mocks.createWithLogo).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Back" }));
@@ -116,7 +133,7 @@ describe("organization creation", () => {
     expect((screen.getByRole("textbox", { name: "Email" }) as HTMLInputElement).value).toBe("team@example.com");
     expect(screen.getByText("logo.png")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
-    fireEvent.click(await screen.findByRole("button", { name: "Subscribe to Business Trial" }));
+    fireEvent.click(await selectPlan("Business Trial"));
     await screen.findByText("Organizations list");
     expect(mocks.createWithLogo).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -136,9 +153,9 @@ describe("organization creation", () => {
     mocks.create.mockResolvedValueOnce(null);
     showPage();
     next();
-    fireEvent.click(await screen.findByRole("button", { name: "Subscribe to Business Trial" }));
+    fireEvent.click(await selectPlan("Business Trial"));
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: "Subscribe to Business Pro" }).hasAttribute("disabled")).toBe(false),
+      expect(screen.getByRole("radio", { name: "Choose Business Pro" }).hasAttribute("disabled")).toBe(false),
     );
     expect(mocks.create).toHaveBeenCalledWith(
       expect.objectContaining({ subscriptionPlan: SubscriptionPlan.BusinessTrial }),
@@ -156,7 +173,7 @@ describe("organization creation", () => {
     });
     showPage();
     next();
-    fireEvent.click(await screen.findByRole("button", { name: "Subscribe to Business Pro" }));
+    fireEvent.click(await selectPlan("Business Pro"));
     await waitFor(() => expect(assign).toHaveBeenCalledWith("https://checkout.stripe.com/test"));
     expect(mocks.recover).toHaveBeenCalledWith("created");
     expect(screen.queryByText("Organization billing")).toBeNull();
@@ -172,7 +189,7 @@ describe("organization creation", () => {
     mocks.recover.mockReturnValue(new Promise(() => undefined));
     showPage();
     next();
-    fireEvent.click(await screen.findByRole("button", { name: "Subscribe to Business Pro" }));
+    fireEvent.click(await selectPlan("Business Pro"));
     await waitFor(() => expect(mocks.recover).toHaveBeenCalledWith("created"));
     expect(mocks.success).not.toHaveBeenCalled();
     expect(mocks.select).not.toHaveBeenCalled();
@@ -185,7 +202,7 @@ describe("organization creation", () => {
     mocks.recover.mockRejectedValue(new Error("Payment unavailable"));
     showPage();
     next();
-    fireEvent.click(await screen.findByRole("button", { name: "Subscribe to Business Pro" }));
+    fireEvent.click(await selectPlan("Business Pro"));
     await screen.findByText("Organizations list");
     expect(mocks.create).toHaveBeenCalledTimes(1);
     expect(mocks.recover).toHaveBeenCalledWith("created");
@@ -198,9 +215,9 @@ describe("organization creation", () => {
     mocks.create.mockReturnValue(new Promise(() => undefined));
     showPage();
     next();
-    fireEvent.click(await screen.findByRole("button", { name: "Subscribe to Business Pro" }));
+    fireEvent.click(await selectPlan("Business Pro"));
     expect(screen.getByRole("button", { name: "Back" }).hasAttribute("disabled")).toBe(true);
-    const other = screen.getByRole("button", { name: "Subscribe to Business Trial" });
+    const other = screen.getByRole("radio", { name: "Choose Business Trial" });
     expect(other.hasAttribute("disabled")).toBe(true);
     fireEvent.click(other);
     expect(mocks.create).toHaveBeenCalledTimes(1);

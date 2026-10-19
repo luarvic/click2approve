@@ -1,4 +1,6 @@
 import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
+import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
+import ApprovalRequestStatusChip from "@/features/approvalRequests/components/ApprovalRequestStatusChip";
 import {
   getApprovalRequestStatusLabel,
   getApprovalRequestStatusLineColor,
@@ -10,9 +12,10 @@ import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/ap
 import ReceiptSignature from "@/features/receipts/components/ReceiptSignature";
 import type { PublicReceipt } from "@/features/receipts/models/publicReceipt";
 import { ReceiptParticipantRole, type Receipt } from "@/features/receipts/models/receipt";
-import type { StatusLineColor } from "@/shared/components/status/StatusLines";
+import CardHeading from "@/shared/components/papers/CardHeading";
+import { StatusLineColors } from "@/shared/components/status/StatusLines";
 import { StackSpacing } from "@/shared/theme/tokens";
-import { getLocaleDateTimeWithSecondsString } from "@/shared/utils/dateTime";
+import { getLocaleDateTimeString } from "@/shared/utils/dateTime";
 import { Box, Stack, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
@@ -27,77 +30,46 @@ interface ReceiptCardProps {
 }
 
 const receiptContentSx: SxProps<Theme> = {
-  fontFamily: "monospace",
-  "& *": {
-    fontFamily: "inherit",
+  p: { xs: 2.5, md: 3.5 },
+  "&:last-child": { pb: { xs: 2.5, md: 3.5 } },
+  "@media print": {
+    backgroundColor: "#fff",
+    color: "#162b20",
+    "& .MuiTypography-root, & .MuiBox-root": { color: "#162b20" },
   },
 };
-
-const headingSx: SxProps<Theme> = {
-  fontFamily: "inherit",
-  fontWeight: 700,
-  textAlign: "center",
-};
-
-const receiptHeaderStackSpacing = 1.5;
-
-const receiptSectionSpacing = StackSpacing.loose;
-
+const headingSx: SxProps<Theme> = { fontWeight: 500, textAlign: "left" };
+const receiptHeaderStackSpacing = StackSpacing.loose;
+const receiptSectionSpacing = StackSpacing.extraLoose;
 const sectionHeadingSx: SxProps<Theme> = {
-  fontFamily: "inherit",
-  fontSize: "1.3125rem",
-  fontWeight: 700,
   pb: 1.5,
-  textAlign: "center",
+  "@media print": {
+    breakAfter: "avoid",
+    pageBreakAfter: "avoid",
+  },
 };
-
 const fieldSx: SxProps<Theme> = {
-  alignItems: "stretch",
+  alignItems: "start",
+  borderTop: 1,
+  borderColor: "divider",
+  columnGap: 2,
   display: "grid",
-  gridTemplateColumns: "minmax(0, 1fr) minmax(0, 3fr)",
+  gridTemplateColumns: "minmax(90px, 1fr) minmax(0, 2fr)",
+  py: 1.5,
+  "@media print": {
+    borderColor: "rgba(0, 0, 0, 0.12)",
+    breakInside: "avoid",
+    pageBreakInside: "avoid",
+  },
 };
-
 const fieldLabelSx: SxProps<Theme> = {
   color: "text.secondary",
-  fontFamily: "monospace",
   overflowWrap: "anywhere",
-  textAlign: "right",
+  "@media print": { color: "#52645a" },
 };
-
-const fieldValueOffset = "0.75rem";
-
-const fieldValueSx = {
-  fontFamily: "monospace",
-  minWidth: 0,
-  overflowWrap: "anywhere",
-  pl: fieldValueOffset,
-  textAlign: "left",
-} satisfies SxProps<Theme>;
-
-const signatureValueSx: SxProps<Theme> = { minWidth: 0, pl: fieldValueOffset };
-
-const getStatusColor = (theme: Theme, statusColor: StatusLineColor): string => {
-  switch (statusColor) {
-    case "canceled":
-      return theme.palette.warning.main;
-    case "completedSuccessfully":
-    case "started":
-      return theme.palette.success.main;
-    case "pending":
-      return theme.palette.primary.main;
-    case "completedUnsuccessfully":
-      return theme.palette.error.main;
-    case "other":
-      return theme.palette.text.disabled;
-  }
-};
-
-const getStatusValueSx = (statusColor: StatusLineColor) => (theme: Theme) => ({
-  textDecorationColor: getStatusColor(theme, statusColor),
-  textDecorationLine: "underline",
-  textDecorationThickness: "2px",
-  textUnderlineOffset: "0.2em",
-});
+const fieldValueSx: SxProps<Theme> = { minWidth: 0, overflowWrap: "anywhere" };
+const hashValueSx: SxProps<Theme> = { fontFamily: "ui-monospace, monospace", fontSize: "0.75rem" };
+const signatureValueSx: SxProps<Theme> = { minWidth: 0 };
 
 const printSectionSx = {
   "@media print": {
@@ -107,7 +79,6 @@ const printSectionSx = {
 } satisfies SxProps<Theme>;
 
 const receiptDetailSectionSx = {
-  ...printSectionSx,
   pt: 2,
 } satisfies SxProps<Theme>;
 
@@ -147,14 +118,14 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
   );
   const requestFields = [
     ["Request ID", receipt.approvalRequestGlobalId],
-    ["Date", getLocaleDateTimeWithSecondsString(receipt.approvalRequestCreatedAt)],
+    ["Date", getLocaleDateTimeString(receipt.approvalRequestCreatedAt)],
     ["Organization", receipt.organizationDisplayName || receipt.tenantDisplayName],
     ["Title", receipt.approvalRequestTitle],
-    ["Revision", String(receipt.revisionNumber)],
+    ["Revision", receipt.revisionNumber > 1 ? String(receipt.revisionNumber) : undefined],
     ["Description", receipt.approvalRequestDescription],
     ["Requested by", receipt.requesterDisplayName],
     ["Submitted by", receipt.submittedByDisplayName],
-    ["Completed at", getLocaleDateTimeWithSecondsString(getRequestCompletedAt(receipt))],
+    ["Completed at", getLocaleDateTimeString(getRequestCompletedAt(receipt))],
     ["Completed by", receipt.approvalRequestCompletedByDisplayName],
     ["Status", getApprovalRequestStatusLabel(receipt.approvalRequestStatus, receipt.approvalRequestResult)],
   ];
@@ -164,7 +135,8 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
       <Stack spacing={receiptSectionSpacing}>
         <Stack spacing={receiptHeaderStackSpacing} sx={printSectionSx}>
           {headerContent}
-          <Stack spacing={0.5}>
+          <CardHeading variant="cardTitle">Receipt {getApprovalRequestNumber(receipt.globalId)}</CardHeading>
+          <Stack spacing={StackSpacing.tight}>
             {titleContent && (
               <Typography component="h1" sx={headingSx} variant="h6">
                 {titleContent}
@@ -184,14 +156,16 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
                 Date:
               </Typography>
               <Typography component="span" sx={fieldValueSx}>
-                {getLocaleDateTimeWithSecondsString(receipt.createdAt)}
+                {getLocaleDateTimeString(receipt.createdAt)}
               </Typography>
             </Box>
           </Stack>
         </Stack>
         <Stack sx={receiptDetailSectionSx}>
-          <Stack spacing={0.5}>
-            <Typography sx={sectionHeadingSx}>Request</Typography>
+          <Stack spacing={StackSpacing.tight}>
+            <CardHeading sx={sectionHeadingSx}>
+              Request {getApprovalRequestNumber(receipt.approvalRequestGlobalId)}
+            </CardHeading>
             {requestFields
               .filter(([, value]) => hasText(value))
               .map(([label, value]) => (
@@ -200,18 +174,18 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
                     {label}:
                   </Typography>
                   {label === "Status" ? (
-                    <Typography component="span" sx={[fieldValueSx, getStatusValueSx(requestStatusColor)]}>
-                      {value}
-                    </Typography>
+                    <Box sx={fieldValueSx}>
+                      <ApprovalRequestStatusChip color={StatusLineColors[requestStatusColor]} label={value!} />
+                    </Box>
                   ) : (
-                    <Typography component="span" sx={fieldValueSx}>
+                    <Typography component="span" sx={label === "SHA-256" ? [fieldValueSx, hashValueSx] : fieldValueSx}>
                       {value}
                     </Typography>
                   )}
                 </Box>
               ))}
             {receipt.files.map((file) => (
-              <Stack key={file.globalId} spacing={0.5}>
+              <Stack key={file.globalId} spacing={StackSpacing.tight}>
                 {[
                   ["Attached file", file.fileName],
                   ["SHA-256", formatSha256(file.hashValue)],
@@ -221,7 +195,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
                     <Typography component="span" sx={fieldLabelSx}>
                       {label}:
                     </Typography>
-                    <Typography component="span" sx={fieldValueSx}>
+                    <Typography component="span" sx={label === "SHA-256" ? [fieldValueSx, hashValueSx] : fieldValueSx}>
                       {value}
                     </Typography>
                   </Box>
@@ -231,23 +205,23 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
           </Stack>
         </Stack>
         <Stack spacing={receiptSectionSpacing}>
-          {tasks.length === 0 && <Typography sx={sectionHeadingSx}>No completed tasks were recorded</Typography>}
+          {tasks.length === 0 && <Typography color="textSecondary">No completed tasks were recorded</Typography>}
           <Stack spacing={receiptSectionSpacing}>
             {tasks.map((task, index) => (
               <Stack
                 key={`${task.email}-${task.completedAt?.toISOString() ?? index}`}
-                spacing={0.5}
+                spacing={StackSpacing.tight}
                 sx={receiptDetailSectionSx}
               >
-                <Typography sx={sectionHeadingSx}>Task</Typography>
+                <CardHeading sx={sectionHeadingSx}>Task {getApprovalRequestNumber(task.taskGlobalId)}</CardHeading>
                 {[
                   ["Task ID", task.taskGlobalId],
-                  ["Date", getLocaleDateTimeWithSecondsString(task.assignedAt)],
+                  ["Date", getLocaleDateTimeString(task.assignedAt)],
                   ["Organization", task.isAssigneeEmployee ? task.organizationDisplayName : undefined],
                   ["Action", task.action],
                   ["Instructions", task.instructions],
                   ["Assigned to", task.displayName],
-                  ["Completed at", getLocaleDateTimeWithSecondsString(task.completedAt)],
+                  ["Completed at", getLocaleDateTimeString(task.completedAt)],
                   ["Completed by", task.completedByDisplayName],
                   [
                     "Status",
@@ -264,21 +238,24 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
                         {label}:
                       </Typography>
                       {label === "Status" ? (
+                        <Box sx={fieldValueSx}>
+                          <ApprovalRequestStatusChip
+                            color={StatusLineColors[getReceiptTaskStatusColor(task.taskStatus, task.result)]}
+                            label={value!}
+                          />
+                        </Box>
+                      ) : (
                         <Typography
                           component="span"
-                          sx={[fieldValueSx, getStatusValueSx(getReceiptTaskStatusColor(task.taskStatus, task.result))]}
+                          sx={label === "SHA-256" ? [fieldValueSx, hashValueSx] : fieldValueSx}
                         >
-                          {value}
-                        </Typography>
-                      ) : (
-                        <Typography component="span" sx={fieldValueSx}>
                           {value}
                         </Typography>
                       )}
                     </Box>
                   ))}
                 {task.electronicSignatureJson && (
-                  <Stack spacing={0.5}>
+                  <Stack spacing={StackSpacing.tight}>
                     <Box sx={fieldSx}>
                       <Typography component="span" sx={fieldLabelSx}>
                         Legal name:
@@ -308,7 +285,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
                   </Stack>
                 )}
                 {task.files.map((file) => (
-                  <Stack key={file.globalId} spacing={0.5}>
+                  <Stack key={file.globalId} spacing={StackSpacing.tight}>
                     {[
                       ["Attached file", file.fileName],
                       ["SHA-256", formatSha256(file.hashValue)],
@@ -318,7 +295,10 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
                         <Typography component="span" sx={fieldLabelSx}>
                           {label}:
                         </Typography>
-                        <Typography component="span" sx={fieldValueSx}>
+                        <Typography
+                          component="span"
+                          sx={label === "SHA-256" ? [fieldValueSx, hashValueSx] : fieldValueSx}
+                        >
                           {value}
                         </Typography>
                       </Box>

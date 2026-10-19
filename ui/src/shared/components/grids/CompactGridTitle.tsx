@@ -1,3 +1,4 @@
+import { StackSpacing } from "@/shared/theme/tokens";
 import type { SxProps, Theme } from "@mui/material";
 import { Stack } from "@mui/material";
 import type { ReactNode } from "react";
@@ -19,7 +20,7 @@ const compactGridTitleSx: SxProps<Theme> = {
 };
 
 const CompactGridTitle: React.FC<CompactGridTitleProps> = ({ badge, children }) => (
-  <Stack direction="row" spacing={0.5} sx={compactGridTitleSx}>
+  <Stack direction="row" spacing={StackSpacing.tight} sx={compactGridTitleSx}>
     {children}
     {badge}
   </Stack>

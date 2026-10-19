@@ -15,7 +15,7 @@ interface DisplayNameProps {
 }
 
 const primaryNameSx = {
-  fontWeight: 600,
+  fontWeight: 400,
 } as const;
 
 const DisplayName: React.FC<DisplayNameProps> = ({
@@ -40,7 +40,7 @@ const DisplayName: React.FC<DisplayNameProps> = ({
         {primary}
       </Typography>
       {showEmailAddress && secondaryIsVisible && (
-        <Typography noWrap variant="body2" color="text.secondary" sx={Text.overflowEllipsisSx}>
+        <Typography noWrap variant="caption" color="textSecondary" sx={Text.overflowEllipsisSx}>
           {secondary}
         </Typography>
       )}

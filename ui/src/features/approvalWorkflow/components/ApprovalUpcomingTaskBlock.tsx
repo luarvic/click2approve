@@ -1,13 +1,11 @@
-import { stores } from "@/app/rootStore";
+import { summaryCardContentSx } from "@/features/approvalRequests/components/approvalRequestSummaryStyles";
 import ApprovalRequestCardLayout from "@/features/approvalRequests/components/ApprovalRequestCardLayout";
 import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
 import ApprovalRequestField from "@/features/approvalRequests/components/ApprovalRequestField";
 import ApprovalRequestFieldGroup from "@/features/approvalRequests/components/ApprovalRequestFieldGroup";
 import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
 import { ApprovalStepAssignee } from "@/features/approvalWorkflow/models/approvalStep";
-import { TenantType } from "@/features/tenants/models/tenant";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
-import { Business } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 
@@ -16,7 +14,6 @@ interface ApprovalUpcomingTaskBlockProps {
   compact?: boolean;
   defaultExpanded?: boolean;
   instructions?: string;
-  showStatusBorder?: boolean;
   title?: string;
 }
 
@@ -32,13 +29,8 @@ const ApprovalUpcomingTaskBlock: React.FC<ApprovalUpcomingTaskBlockProps> = ({
   compact = false,
   defaultExpanded,
   instructions,
-  showStatusBorder = true,
   title = "Upcoming task",
 }) => {
-  const organizationIsVisible = stores.tenantStore.currentTenant?.type === TenantType.Personal;
-  const organizationDisplayName = stores.tenantStore.currentTenant?.businessName;
-  const visibleOrganizationDisplayName =
-    organizationIsVisible && organizationDisplayName ? organizationDisplayName : undefined;
   const assigneeParticipant = (
     <ApprovalRequestParticipant
       displayName={assignee.displayName}
@@ -51,33 +43,22 @@ const ApprovalUpcomingTaskBlock: React.FC<ApprovalUpcomingTaskBlockProps> = ({
   return (
     <ApprovalRequestDetailsCard
       ariaLabel={title}
-      borderLeftColor="action.disabled"
-      contentSx={compact ? compactTaskCardContentSx : undefined}
-      elevated
-      showStatusBorder={showStatusBorder}
+      contentSx={compact ? compactTaskCardContentSx : summaryCardContentSx}
+      showStatusBorder={false}
     >
       <ApprovalRequestCardLayout
         activity={
           <ApprovalRequestFieldGroup title="Activity" valueVariant="body2">
-            {visibleOrganizationDisplayName && (
-              <ApprovalRequestField
-                label="From organization"
-                value={visibleOrganizationDisplayName}
-                valueIcon={<Business color="action" fontSize="small" />}
-              />
-            )}
             <ApprovalRequestField label="Assignee" value={assigneeParticipant} />
           </ApprovalRequestFieldGroup>
         }
         defaultExpanded={defaultExpanded}
         details={
-          <ApprovalRequestFieldGroup title="Details">
-            <ApprovalRequestField label="Status" />
-            <ApprovalRequestField
-              label="Instructions"
-              value={instructions?.trim() ? <UserProvidedText text={instructions} /> : undefined}
-            />
-          </ApprovalRequestFieldGroup>
+          instructions?.trim() ? (
+            <ApprovalRequestFieldGroup title="Details">
+              <ApprovalRequestField label="Instructions" value={<UserProvidedText text={instructions} />} />
+            </ApprovalRequestFieldGroup>
+          ) : undefined
         }
         expandable
         title={title}

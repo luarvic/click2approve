@@ -1,17 +1,17 @@
 import ApprovalRequestFilesList from "@/features/approvalRequests/components/ApprovalRequestFilesList";
-import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
+import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
 import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
 import type { ApprovalStep, AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import DiscussionParticipants from "@/features/discussions/components/DiscussionParticipants";
+import DiscussionThread from "@/features/discussions/components/DiscussionThread";
 import type { DiscussionMessage } from "@/features/discussions/models/discussionMessage";
 import { downloadDiscussionMessageFile } from "@/features/userFiles/utils/downloaders";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
 import TimelineTimestamp from "@/shared/components/timeline/TimelineTimestamp";
 import { StackSpacing, SurfaceTokens } from "@/shared/theme/tokens";
 import { parseUtcDateTime } from "@/shared/utils/dateTime";
-import { Box, Divider, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import { alpha, type SxProps, type Theme } from "@mui/material/styles";
-import { Fragment } from "react";
 
 interface DiscussionMessageListProps {
   attachmentsAreEnabled: boolean;
@@ -42,7 +42,10 @@ const messageBubbleSx = (isOutgoing: boolean): SxProps<Theme> => ({
   },
   alignSelf: isOutgoing ? "flex-end" : "flex-start",
   animation: "discussion-message-entrance 220ms cubic-bezier(0.2, 0, 0, 1) both",
-  backgroundColor: (theme) => (isOutgoing ? alpha(theme.palette.primary.main, 0.1) : theme.palette.action.selected),
+  backgroundColor: (theme) =>
+    isOutgoing
+      ? alpha(theme.palette.primary.main, theme.palette.mode === "dark" ? 0.18 : 0.12)
+      : alpha(theme.palette.text.primary, theme.palette.mode === "dark" ? 0.06 : 0.04),
   borderRadius: SurfaceTokens.borderRadius,
   color: "text.primary",
   maxWidth: "80%",
@@ -83,7 +86,7 @@ const DiscussionMessageList: React.FC<DiscussionMessageListProps> = ({
       <Box key={message.globalId} sx={messageBubbleSx(isOutgoing)}>
         <Stack spacing={StackSpacing.default}>
           <Stack spacing={StackSpacing.tight}>
-            <ApprovalRequestParticipantLine displayName={sender} type={message.sentByType} variant="body2" />
+            <ApprovalRequestParticipant displayName={sender} type={message.sentByType} variant="body2" />
             {message.isDelegated && representedSender && (
               <Typography variant="caption" color="inherit" sx={delegatedSenderSx}>
                 On behalf of {representedSender}
@@ -105,37 +108,30 @@ const DiscussionMessageList: React.FC<DiscussionMessageListProps> = ({
     );
   };
 
+  const visibleSteps = taskGlobalId ? (taskStep ? [taskStep] : []) : discussionSteps;
+
   return (
-    <>
-      {taskGlobalId && taskStep && (
-        <DiscussionParticipants
-          assignees={taskStep.assignees}
-          requesterDisplayName={requesterDisplayName}
-          requesterEmail={requesterEmail}
-          requesterType={requesterType}
-        />
-      )}
-      {!taskGlobalId &&
-        discussionSteps.map((step) => (
-          <Fragment key={step.globalId ?? step.sequence}>
-            <Divider>
-              <Typography variant="body2" color="text.secondary">
-                {`${step.globalId ? (stepLabels[step.globalId] ?? "Step") : "Step"} · ${
-                  getApprovalRequestTaskActionLabels(step.action).positive
-                }`}
-              </Typography>
-            </Divider>
+    <Stack spacing={StackSpacing.extraLoose}>
+      {visibleSteps.map((step) => (
+        <DiscussionThread
+          key={step.globalId ?? step.sequence}
+          title={`${step.globalId ? (stepLabels[step.globalId] ?? "Step") : "Step"} · ${getApprovalRequestTaskActionLabels(step.action).positive}`}
+          participants={
             <DiscussionParticipants
               assignees={step.assignees}
               requesterDisplayName={requesterDisplayName}
               requesterEmail={requesterEmail}
               requesterType={requesterType}
             />
-            {messages?.filter((message) => message.approvalRequestStepGlobalId === step.globalId).map(renderMessage)}
-          </Fragment>
-        ))}
-      {taskGlobalId && messages?.map(renderMessage)}
-    </>
+          }
+        >
+          {messages
+            ?.filter((message) => taskGlobalId || message.approvalRequestStepGlobalId === step.globalId)
+            .map(renderMessage)}
+        </DiscussionThread>
+      ))}
+      {taskGlobalId && !taskStep && messages?.map(renderMessage)}
+    </Stack>
   );
 };
 

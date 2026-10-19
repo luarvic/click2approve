@@ -39,7 +39,7 @@ const MfaSettings = () => {
   if (!status) return null;
   return (
     <Stack spacing={Forms.formStackSpacing}>
-      <Typography color="text.secondary">
+      <Typography color="textSecondary">
         Protect your account with a code from an authenticator app in addition to your password.
       </Typography>
       <FormControlLabel

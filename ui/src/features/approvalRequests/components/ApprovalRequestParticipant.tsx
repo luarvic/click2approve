@@ -8,6 +8,7 @@ import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
 
 interface ApprovalRequestParticipantProps {
+  allowDisplayNameWrap?: boolean;
   displayName?: string | null;
   email?: string | null;
   fallback?: string;
@@ -21,6 +22,7 @@ interface ApprovalRequestParticipantProps {
 }
 
 const ApprovalRequestParticipant: React.FC<ApprovalRequestParticipantProps> = ({
+  allowDisplayNameWrap = false,
   displayName,
   email,
   fallback = "Unknown user",
@@ -38,6 +40,7 @@ const ApprovalRequestParticipant: React.FC<ApprovalRequestParticipantProps> = ({
   return (
     <Stack spacing={organizationIsVisible ? StackSpacing.tight : undefined} sx={sx}>
       <ApprovalRequestParticipantLine
+        allowDisplayNameWrap={allowDisplayNameWrap}
         icon={isSystemParticipant ? <Terminal color="action" fontSize="small" /> : icon}
         displayName={displayName}
         email={email}

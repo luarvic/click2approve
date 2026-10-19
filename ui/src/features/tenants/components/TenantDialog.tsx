@@ -5,7 +5,6 @@ import { Forms } from "@/shared/components/dialogs/formStyles";
 import ImagePicker from "@/shared/components/images/ImagePicker";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useFormValidation } from "@/shared/hooks/useFormValidation";
@@ -168,16 +167,6 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
           },
           {
             label: tenant?.businessName ?? "New organization",
-            titleAction: (
-              <HelpPopover
-                docsHref="/docs/organizations/"
-                helpText={
-                  isNew
-                    ? "Enter your organization details, then continue to choose a plan."
-                    : "Review organization details and logo; owners and admins can save changes."
-                }
-              />
-            ),
           },
         ]}
       />
@@ -231,11 +220,11 @@ const TenantDialog: React.FC<TenantDialogProps> = ({
         />
       </Stack>
       <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
-        <Button variant="outlined" onClick={() => onClose(tenant?.globalId)}>
+        <Button variant="text" onClick={() => onClose(tenant?.globalId)}>
           Cancel
         </Button>
         {!isNew && canScheduleDeletion && (
-          <Button color="error" disabled={saveIsLoading} variant="outlined" onClick={onScheduleDeletion}>
+          <Button color="error" disabled={saveIsLoading} variant="text" onClick={onScheduleDeletion}>
             Delete
           </Button>
         )}

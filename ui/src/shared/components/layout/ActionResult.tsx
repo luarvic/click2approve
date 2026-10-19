@@ -1,6 +1,5 @@
 import { Pages } from "@/shared/components/layout/pageStyles";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { Routes } from "@/shared/routing/routes";
 import { Box, Container, Typography } from "@mui/material";
 import type { ReactNode } from "react";
@@ -11,15 +10,13 @@ const logoSrc = `${baseUrl}logo.svg`;
 
 interface ActionResultProps {
   title: string;
-  helpText: string;
-  docsHref: string;
   message: ReactNode;
   action?: ReactNode;
 }
 
-const ActionResult = ({ message, title, action, helpText, docsHref }: ActionResultProps) => {
+const ActionResult = ({ message, title, action }: ActionResultProps) => {
   return (
-    <Container component="main" maxWidth={Pages.centeredMessageMaxWidth}>
+    <Container maxWidth={Pages.centeredMessageMaxWidth}>
       <Box sx={Pages.centeredMessageContainerSx}>
         <Box
           component={RouterLink}
@@ -29,12 +26,7 @@ const ActionResult = ({ message, title, action, helpText, docsHref }: ActionResu
         >
           <Box component="img" src={logoSrc} alt="Click2Approve" sx={Pages.centeredMessageLogoSx} />
         </Box>
-        <PageBreadcrumbs
-          items={[
-            { label: "Home", to: Routes.defaultPath },
-            { label: title, titleAction: <HelpPopover helpText={helpText} docsHref={docsHref} /> },
-          ]}
-        />
+        <PageBreadcrumbs items={[{ label: "Home", to: Routes.defaultPath }, { label: title }]} />
         <Typography>{message}</Typography>
         {action}
       </Box>

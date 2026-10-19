@@ -4,6 +4,10 @@ Open **Requests** in the workspace that owns the request. Use the available filt
 
 ## Read progress and outcomes
 
+Workflow steps appear below the request summary. Each step has a status icon, its requirements, and full-width task cards. An **Upcoming task** shows an assignee whose task has not started yet. **From organization**, when present on an existing task, identifies its recorded organization; Personal is a workspace, not an organization.
+
+The status chip in each request or task card's header shows its current state, including when the card is collapsed.
+
 | State | Meaning |
 | --- | --- |
 | Pending | Submitted work is waiting to progress |

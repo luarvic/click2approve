@@ -4,6 +4,7 @@ import ApprovalRequestFieldGroup from "@/features/approvalRequests/components/Ap
 import ApprovalRequestFilesBox from "@/features/approvalRequests/components/ApprovalRequestFilesBox";
 import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
 import ApprovalRequestRevisionLinks from "@/features/approvalRequests/components/ApprovalRequestRevisionLinks";
+import ApprovalRequestStatusChip from "@/features/approvalRequests/components/ApprovalRequestStatusChip";
 import {
   ApprovalRequestFile,
   ApprovalRequestFileRevisionAction,
@@ -46,7 +47,6 @@ interface ApprovalRequestSummaryProps {
   statusLabel?: string;
   statusColor?: TypographyProps["color"];
   statusIcon?: ReactNode;
-  statusIconSx?: SxProps<Theme>;
   tenantGlobalId?: string | null;
   title?: string;
 }
@@ -78,7 +78,6 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   statusLabel,
   statusColor,
   statusIcon,
-  statusIconSx,
   tenantGlobalId,
 }) => {
   const numberGlobalId = approvalRequestGlobalId ?? approvalRequestTaskGlobalId;
@@ -98,18 +97,14 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
     />
   ) : undefined;
 
-  const details = (
+  const hasDetails =
+    (showRevision && isRevision) ||
+    (showDescription && Boolean(description?.trim())) ||
+    (showInstructions && Boolean(instructions?.trim())) ||
+    (showFiles && hasFiles);
+  const details = hasDetails ? (
     <ApprovalRequestFieldGroup title="Details">
-      {showStatus && (
-        <ApprovalRequestField
-          label="Status"
-          value={statusLabel}
-          valueColor={statusColor}
-          valueIcon={statusIcon}
-          valueIconSx={statusIconSx}
-        />
-      )}
-      {showRevision && (
+      {showRevision && isRevision && (
         <ApprovalRequestField
           label="Revision"
           value={
@@ -139,7 +134,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
           value={instructions?.trim() ? <UserProvidedText text={instructions} /> : undefined}
         />
       )}
-      {showFiles && (
+      {showFiles && hasFiles && (
         <ApprovalRequestField
           label="Files to review"
           value={
@@ -155,7 +150,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
                       />
                     }
                     label={
-                      <Typography color="text.secondary" variant="caption">
+                      <Typography color="textSecondary" variant="caption">
                         Show revision changes
                       </Typography>
                     }
@@ -170,7 +165,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
                 {(showChanges || hasCurrentFiles) && files ? (
                   files
                 ) : (
-                  <Typography color="text.secondary">None</Typography>
+                  <Typography color="textSecondary">None</Typography>
                 )}
               </Stack>
             ) : (
@@ -180,7 +175,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
         />
       )}
     </ApprovalRequestFieldGroup>
-  );
+  ) : undefined;
 
   return (
     <ApprovalRequestCardLayout
@@ -189,6 +184,11 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
       defaultExpanded={defaultExpanded}
       details={details}
       expandable={expandable}
+      status={
+        showStatus && statusLabel ? (
+          <ApprovalRequestStatusChip color={statusColor} icon={statusIcon} label={statusLabel} />
+        ) : undefined
+      }
       title={`${_numberPrefix} ${getApprovalRequestNumber(numberGlobalId)}`}
     />
   );

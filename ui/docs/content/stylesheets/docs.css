@@ -1,0 +1,212 @@
+/* Guides use the landing page's palette and quiet, open presentation. */
+body[data-md-color-scheme] {
+  --md-default-fg-color: var(--site-ink);
+  --md-default-fg-color--light: var(--site-muted);
+  --md-primary-bg-color: var(--site-ink);
+  --md-accent-fg-color: var(--site-green);
+  --md-typeset-a-color: var(--site-green);
+  --app-selected: var(--site-soft);
+  --app-input-border: var(--app-divider);
+}
+
+/* Match Pages.containerSx and keep guides aligned with the app content. */
+.md-content {
+  max-width: none;
+  margin: 0;
+  padding: 24px 20px;
+}
+
+@media (min-width: 900px) {
+  .md-content {
+    padding: 32px;
+  }
+}
+
+.md-typeset {
+  color: var(--site-muted);
+  font-size: 14px;
+  line-height: 1.85;
+}
+
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3,
+.md-typeset h4,
+.md-typeset strong {
+  color: var(--site-ink);
+  font-weight: 500;
+}
+
+.md-typeset h1 {
+  font-size: 36px;
+  letter-spacing: -1.2px;
+  line-height: 1.25;
+  margin-bottom: 24px;
+}
+
+.md-typeset h2 {
+  font-size: 23px;
+  letter-spacing: -0.6px;
+  line-height: 1.4;
+  margin: 40px 0 16px;
+}
+
+.md-typeset h3 {
+  font-size: 18px;
+  letter-spacing: -0.3px;
+  line-height: 1.5;
+  margin: 28px 0 12px;
+}
+
+.md-typeset h4 {
+  font-size: 15px;
+}
+
+.md-typeset a:hover {
+  text-decoration: underline;
+}
+
+.md-typeset a:focus-visible {
+  outline: 2px solid var(--site-green);
+  outline-offset: 4px;
+}
+
+.md-typeset :is(h1, h2, h3, h4) {
+  scroll-margin-top: calc(var(--app-bar-height) + 24px);
+}
+
+.md-typeset li {
+  margin-bottom: 8px;
+}
+
+.md-typeset table:not([class]) {
+  border: 1px solid var(--app-divider);
+  border-radius: 8px;
+  box-shadow: none;
+  font-size: 13px;
+}
+
+.md-typeset table:not([class]) th {
+  background: var(--site-soft);
+  color: var(--site-ink);
+  font-weight: 500;
+  min-width: 0;
+}
+
+.md-typeset table:not([class]) :is(th, td) {
+  border-color: var(--app-divider);
+  padding: 12px 16px;
+}
+
+.md-typeset table:not([class]) tbody tr:hover {
+  background: var(--site-soft);
+  box-shadow: none;
+}
+
+.md-content .md-typeset :is(.admonition, details) {
+  background: transparent;
+  border: 1px solid var(--app-divider);
+  border-left: 2px solid var(--site-green);
+  border-radius: 6px;
+  box-shadow: none;
+  color: var(--site-muted);
+  font-size: 13px;
+  margin: 24px 0;
+}
+
+.md-content .md-typeset :is(.admonition-title, summary) {
+  background: var(--site-soft);
+  color: var(--site-ink);
+  font-weight: 500;
+}
+
+.md-content .md-typeset :is(.admonition-title, summary)::before {
+  background-color: var(--site-green);
+}
+
+/* Cautions retain their warning icon and a distinct warm accent. */
+.md-content .md-typeset :is(.admonition, details):is(.warning, .danger) {
+  border-left-color: #b45309;
+}
+
+.md-content .md-typeset :is(.warning, .danger) > :is(.admonition-title, summary)::before {
+  background-color: #b45309;
+}
+
+.md-typeset blockquote {
+  border-color: var(--site-green);
+  color: var(--site-muted);
+}
+
+.docs-drawer-content {
+  padding: 24px 12px;
+}
+
+.docs-menu-section {
+  background: transparent;
+  color: var(--site-muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-top: 8px;
+  min-height: 32px;
+  padding: 6px 12px;
+}
+
+.docs-menu-list {
+  padding-bottom: 20px;
+}
+
+.docs-menu-link {
+  border-radius: 6px;
+  color: var(--site-muted);
+  font-size: 13px;
+  line-height: 1.6;
+  min-height: 40px;
+  padding: 9px 12px;
+}
+
+.docs-menu-link--active,
+.docs-menu-link--active:hover {
+  background: var(--site-soft);
+  box-shadow: none;
+  color: var(--site-green);
+  font-weight: 500;
+}
+
+.md-header .md-search__input {
+  font-size: 14px;
+}
+
+.docs-page-navigation {
+  font-size: 12px;
+  gap: 24px;
+  margin-top: 48px;
+  padding-top: 24px;
+}
+
+.docs-page-navigation a[rel] > span:first-child {
+  color: var(--site-muted);
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+@media (max-width: 700px) {
+  .md-typeset h1 {
+    font-size: 30px;
+    letter-spacing: -0.8px;
+  }
+
+  .md-typeset h2 {
+    font-size: 21px;
+    margin-top: 32px;
+  }
+
+  .docs-menu-link {
+    min-height: 44px;
+  }
+
+  .docs-page-navigation {
+    gap: 16px;
+  }
+}

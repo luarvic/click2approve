@@ -15,6 +15,8 @@ Email links target the relevant task, request, receipt, or Plans page. Sign in w
 3. Set the **In-app** and **Email** switches for each supported category.
 4. Choose **Save**.
 
+Categories without saved preferences start enabled. Change a switch and choose **Save** to store your preference.
+
 Billing's in-app option is disabled; billing email preferences are managed separately from other categories. Preferences do not expand your access or add you to a discussion's audience.
 
 ## Missing messages

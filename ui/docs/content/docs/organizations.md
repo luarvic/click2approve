@@ -10,7 +10,7 @@ An organization holds its own requests, employees, teams, templates, and delegat
 1. Open **Organizations** and start a new organization.
 2. Enter its details and add a logo if needed.
 3. Continue to plan selection. Use **Back** to edit the details while preserving the creation draft.
-4. Choose an available plan to create the organization.
+4. Select **Choose Business Trial** or **Choose Business Pro**, then use **Subscribe** below the cards to create the organization.
 5. For a paid plan, complete Checkout. Workspace access remains restricted until payment is verified.
 
 Business Trial is available once per owner. Selecting it again fails validation. See [Plans and billing](plans-and-billing.md) for payment and recovery behavior.

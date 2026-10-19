@@ -1,6 +1,5 @@
 import ReceiptsGrid from "@/features/receipts/components/ReceiptsGrid";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { useLocation } from "react-router-dom";
 
@@ -19,12 +18,6 @@ const ReceiptsPage = () => {
         items={[
           {
             label: "Receipts",
-            titleAction: (
-              <HelpPopover
-                docsHref="/docs/receipts/"
-                helpText="View completed request snapshots and recorded decisions."
-              />
-            ),
           },
         ]}
       />

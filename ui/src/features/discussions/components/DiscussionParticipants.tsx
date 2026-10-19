@@ -1,10 +1,7 @@
-import ApprovalRequestParticipantLabel from "@/features/approvalRequests/components/ApprovalRequestParticipantLabel";
-import ApprovalRequestParticipantLine from "@/features/approvalRequests/components/ApprovalRequestParticipantLine";
+import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
 import { AssigneeType, type ApprovalStepAssignee } from "@/features/approvalWorkflow/models/approvalStep";
-import { Flex } from "@/shared/components/layout/flexStyles";
-import { StackSpacing } from "@/shared/theme/tokens";
 import { stripInlineEmail } from "@/shared/utils/displayNameHelpers";
-import { Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 
 interface DiscussionParticipantsProps {
   assignees: ApprovalStepAssignee[];
@@ -12,6 +9,17 @@ interface DiscussionParticipantsProps {
   requesterEmail: string;
   requesterType: AssigneeType;
 }
+
+const participantListSx = {
+  columnGap: 2,
+  flexWrap: "wrap",
+  listStyle: "none",
+  m: 0,
+  px: 0,
+  pb: 1,
+  rowGap: 1,
+} as const;
+const participantItemSx = { maxWidth: "100%", minWidth: 0 } as const;
 
 const getParticipantLabel = (displayName?: string, email?: string): string => {
   const name = stripInlineEmail(displayName);
@@ -40,18 +48,17 @@ const DiscussionParticipants: React.FC<DiscussionParticipantsProps> = ({
     .sort((first, second) => first.label.localeCompare(second.label));
 
   return (
-    <Stack spacing={StackSpacing.default}>
-      <ApprovalRequestParticipantLabel>{`Participants · ${participants.length}`}</ApprovalRequestParticipantLabel>
-      <Stack direction="row" spacing={StackSpacing.default} useFlexGap sx={Flex.wrapSx}>
-        {participants.map((participant) => (
-          <ApprovalRequestParticipantLine
-            key={participant.key}
+    <Stack component="ul" aria-label="Participants" direction="row" sx={participantListSx}>
+      {participants.map((participant) => (
+        <Box component="li" key={participant.key} sx={participantItemSx}>
+          <ApprovalRequestParticipant
+            allowDisplayNameWrap
             displayName={participant.label}
             type={participant.type}
-            variant="body2"
+            variant="body1"
           />
-        ))}
-      </Stack>
+        </Box>
+      ))}
     </Stack>
   );
 };

@@ -1,14 +1,20 @@
 import type { SxProps, Theme } from "@mui/material";
 export const Pages = {
-  containerSx: { p: 2 } as SxProps<Theme>,
-  titleSx: { mb: 2 } as SxProps<Theme>,
+  containerSx: { px: { xs: 2.5, md: 4 }, py: { xs: 3, md: 4 } } as SxProps<Theme>,
+  titleSx: { mb: 1 } as SxProps<Theme>,
   breadcrumbCurrentSx: {
     color: "text.primary",
-    fontWeight: 600,
+    fontWeight: 500,
+    alignItems: "center",
+    display: "flex",
+    gap: 0.5,
+    minWidth: 0,
   } as SxProps<Theme>,
   breadcrumbLinkSx: {
-    color: "text.secondary",
-    textDecoration: "none",
+    color: "primary.main",
+    fontWeight: 600,
+    textDecoration: "underline",
+    textUnderlineOffset: "3px",
     "&:hover": {
       color: "text.primary",
       textDecoration: "underline",

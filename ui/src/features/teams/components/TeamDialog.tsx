@@ -9,7 +9,6 @@ import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirma
 import { Forms } from "@/shared/components/dialogs/formStyles";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
 import { useFormValidation } from "@/shared/hooks/useFormValidation";
@@ -94,12 +93,6 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
           },
           {
             label: team?.name ?? "New team",
-            titleAction: (
-              <HelpPopover
-                docsHref="/docs/teams/"
-                helpText="Review team membership; owners and admins can save changes."
-              />
-            ),
           },
         ]}
       />
@@ -150,11 +143,11 @@ const TeamDialog: React.FC<TeamDialogProps> = ({ team, employees, canEdit, onClo
         />
       </Stack>
       <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
-        <Button variant="outlined" onClick={() => onClose(team?.globalId)}>
+        <Button variant="text" onClick={() => onClose(team?.globalId)}>
           Cancel
         </Button>
         {!isNew && canEdit && (
-          <Button color="error" variant="outlined" onClick={() => setDeleteDialogIsOpen(true)}>
+          <Button color="error" variant="text" onClick={() => setDeleteDialogIsOpen(true)}>
             Delete
           </Button>
         )}

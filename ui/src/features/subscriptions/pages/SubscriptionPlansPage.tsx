@@ -17,10 +17,10 @@ import {
 import PlanPriceCard from "@/features/subscriptions/components/PlanPriceCard";
 import { PaymentIssue } from "@/features/subscriptions/models/paymentIssue";
 import { SubscriptionPlan, TenantType } from "@/features/tenants/models/tenant";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { Flex } from "@/shared/components/layout/flexStyles";
 import NarrowContent from "@/shared/components/layout/NarrowContent";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import InlineNotice from "@/shared/components/status/InlineNotice";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
@@ -292,6 +292,15 @@ const SubscriptionPlansPage = () => {
     cancelAction.isRunning ||
     cancelPendingAction.isRunning;
 
+  const canChoosePlan =
+    canManage &&
+    !billing.paymentResolutionRequired &&
+    !billing.cleanupStarted &&
+    billing.pendingPlan === null &&
+    billing.scheduledPlan === null;
+  const SubscribeButton = canChoosePlan ? MainActionButton : Button;
+  const BillingButton = canManage && !billing.cleanupStarted && !canChoosePlan ? MainActionButton : Button;
+
   const hasPaymentIssue = !billing.cleanupStarted && billing.paymentIssue != null;
   const hasBillingNotice =
     hasPaymentIssue ||
@@ -309,14 +318,6 @@ const SubscriptionPlansPage = () => {
         items={[
           {
             label: "Plans",
-            titleAction: (
-              <>
-                <HelpPopover
-                  docsHref="/docs/plans-and-billing/"
-                  helpText="Compare workspace plans, change your subscription, and manage billing."
-                />
-              </>
-            ),
           },
         ]}
         subtitle={subtitle}
@@ -374,9 +375,8 @@ const SubscriptionPlansPage = () => {
               actions={
                 <>
                   {!isCurrentPlan && billing.pendingPlan !== plan && billing.scheduledPlan !== plan && (
-                    <Button
+                    <SubscribeButton
                       size="small"
-                      variant="text"
                       aria-label={`Subscribe to ${planNames[plan]}`}
                       loading={(changePlanAction.isRunning && changingPlan === plan) || checkoutOpeningPlan === plan}
                       disabled={changesDisabled}
@@ -387,7 +387,7 @@ const SubscriptionPlansPage = () => {
                       }
                     >
                       Subscribe
-                    </Button>
+                    </SubscribeButton>
                   )}
                   {billing.scheduledPlan === plan && !billing.cleanupStarted && !billing.paymentResolutionRequired && (
                     <Button
@@ -427,9 +427,8 @@ const SubscriptionPlansPage = () => {
                   {(billing.pendingPlan !== null ? billing.pendingPlan === plan : isCurrentPlan) &&
                     !billing.cleanupStarted &&
                     (billing.hasSubscription || billing.pendingPlan !== null) && (
-                      <Button
+                      <BillingButton
                         size="small"
-                        variant="text"
                         loading={paymentAction.isRunning || billingPortalIsOpening}
                         disabled={
                           !canManage ||
@@ -448,7 +447,7 @@ const SubscriptionPlansPage = () => {
                         {billing.paymentResolutionRequired || billing.pendingPlan !== null
                           ? "Resolve payment"
                           : "Manage billing"}
-                      </Button>
+                      </BillingButton>
                     )}
                 </>
               }

@@ -8,11 +8,28 @@ import { Alert, Button, IconButton, Slide, Snackbar } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import { useEffect, useState } from "react";
 
-const notificationAlertSx: SxProps<Theme> = { width: "100%" };
+const notificationAlertSx: SxProps<Theme> = {
+  width: "100%",
+  display: "grid",
+  gridTemplateColumns: { xs: "auto minmax(0, 1fr)", sm: "auto minmax(0, 1fr) auto" },
+  alignItems: "center",
+  columnGap: 1.5,
+  px: 2,
+  py: 1,
+  "& .MuiAlert-icon": { m: 0, p: 0 },
+  "& .MuiAlert-message": { minWidth: 0, overflowWrap: "anywhere", py: 1 },
+  "& .MuiAlert-action": {
+    alignItems: "center",
+    gap: 1,
+    gridColumn: { xs: "2 / -1", sm: "auto" },
+    justifySelf: "end",
+    m: 0,
+    p: 0,
+  },
+};
 const snackbarSx: SxProps<Theme> = {
   left: "auto",
   maxWidth: { xs: "calc(100vw - 16px)", sm: "calc(100vw - 48px)" },
-  opacity: 0.9,
   right: { xs: "8px", sm: "24px" },
 };
 const closeButtonAriaLabel = "Close";

@@ -1,5 +1,4 @@
 import { stores } from "@/app/rootStore";
-import ApprovalRequestDetailsCard from "@/features/approvalRequests/components/ApprovalRequestDetailsCard";
 import {
   getAssigneeError,
   getStepErrors,
@@ -18,9 +17,9 @@ import { TenantType } from "@/features/tenants/models/tenant";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import { Forms } from "@/shared/components/dialogs/formStyles";
+import FormCard from "@/shared/components/forms/FormCard";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
-import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { CollectionLimits } from "@/shared/config/collectionLimits";
 import { FieldLimits } from "@/shared/config/fieldLimits";
@@ -186,17 +185,11 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
           },
           {
             label: template?.name ?? "New template",
-            titleAction: (
-              <HelpPopover
-                docsHref="/docs/templates/"
-                helpText="Configure reusable steps, instructions, participants, and completion rules."
-              />
-            ),
           },
         ]}
       />
-      <Stack spacing={Forms.formStackSpacing}>
-        <ApprovalRequestDetailsCard ariaLabel="Template details" elevated showStatusBorder={false}>
+      <Stack spacing={Forms.cardStackSpacing}>
+        <FormCard title="Template details">
           <TextField
             label="Name"
             value={name}
@@ -213,7 +206,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
             {...validation.field("description")}
             onChange={(event) => setDescription(event.target.value)}
           />
-        </ApprovalRequestDetailsCard>
+        </FormCard>
         {stepsError && (
           <FormHelperText error role="alert">
             {stepsError}
@@ -239,11 +232,11 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
         />
       </Stack>
       <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
-        <Button variant="outlined" onClick={() => onClose(template?.globalId)}>
+        <Button variant="text" onClick={() => onClose(template?.globalId)}>
           Cancel
         </Button>
         {template && (
-          <Button color="error" variant="outlined" onClick={() => setDeleteDialogIsOpen(true)}>
+          <Button color="error" variant="text" onClick={() => setDeleteDialogIsOpen(true)}>
             Delete
           </Button>
         )}
