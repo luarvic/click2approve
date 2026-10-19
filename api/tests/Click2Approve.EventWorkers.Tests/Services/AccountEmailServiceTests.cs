@@ -46,6 +46,7 @@ public sealed class AccountEmailServiceTests
         var payload = new NotificationEventPayload(
             NotificationType.ApprovalRequestStepCompleted,
             1,
+            1,
             Guid.NewGuid(),
             NotificationResourceType.ApprovalRequest,
             "Contract",

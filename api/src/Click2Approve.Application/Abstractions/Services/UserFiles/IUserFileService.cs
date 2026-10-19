@@ -1,4 +1,4 @@
-using Click2Approve.Application.Models.Files;
+using Click2Approve.Application.Models.Commands.UserFiles;
 using Click2Approve.Domain.Models;
 
 namespace Click2Approve.Application.Abstractions.Services.UserFiles;
@@ -8,7 +8,7 @@ namespace Click2Approve.Application.Abstractions.Services.UserFiles;
 /// </summary>
 public interface IUserFileService
 {
-    Task<IList<UserFileResult>> UploadAsync(AppUser user, IReadOnlyCollection<UploadedFile> files, CancellationToken cancellationToken);
+    Task<IList<UserFileResult>> UploadAsync(AppUser user, UploadUserFilesCommand command, CancellationToken cancellationToken);
     Task<List<UserFile>> AttachAsync(AppUser user, IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken);
     Task ScheduleUnattachedForDeletionAsync(IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken);
     Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestAttachmentAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken);

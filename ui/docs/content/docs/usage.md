@@ -24,14 +24,14 @@ The current rates appear on **Plans**. Initial rates are:
 | Workflow email | 5 per recipient |
 | Submit or resubmit a request | 10 |
 | Create a task | 2 per task |
-| Complete a task | 1 |
-| Cancel a request or read a request/task | 0 |
+
+Reading request and task details or lists, completing tasks, and cancelling requests are not metered and do not consume tokens. Submission and resubmission use the same rate.
 
 Transfers use decimal MB (1,000,000 bytes). Small files consume fractional tokens, rather than rounding up each file to one MB. File previews also transfer data. Viewing a copy already cached by your browser does not cause another server transfer. Successful file transfers are charged for document bytes, without the data-URL encoding overhead.
 
-For example, 10 MB uploaded, 10 MB downloaded, five emails, one request, and five tasks created and completed use **80 tokens** at these rates.
+For example, 10 MB uploaded, 10 MB downloaded, five emails, one request, and five tasks created use **75 tokens** at these rates.
 
-Requests and tasks are charged to the originating workflow workspace, even when an approver uses a personal inbox. Workflow-context uploads from task and discussion pages are also billed to that workflow workspace. Generic uploads without a workflow context use the selected workspace. Account verification, password resets, security notices, billing emails, and public branding assets do not consume workspace tokens.
+Requests and tasks are charged to the originating workflow workspace, even when an approver uses a personal inbox. Uploads from task and discussion pages belong to the request's workspace, which pays for their upload, storage, and downloads. Uploads made while preparing a new request belong to the selected workspace. Account verification, password resets, security notices, billing emails, and public branding assets do not consume workspace tokens.
 
 ## Charging and insufficient tokens
 
@@ -41,7 +41,7 @@ Simultaneous actions can take the balance below zero; further charged actions ar
 
 Burst and concurrency limits also protect the service. A temporarily rate-limited action can be retried later.
 
-When tokens are insufficient, new charged actions are blocked. Existing records remain accessible when their read price is zero; file viewing and task completion still require tokens. Open **Plans** to review your allowance. Deleting a record does not refund tokens already consumed.
+When tokens are insufficient, new charged actions are blocked. Existing request and task records remain accessible; file viewing still requires tokens. Completing a task may create tasks for the next step, which requires tokens at the task creation rate. Open **Plans** to review your allowance. Deleting a record does not refund tokens already consumed.
 
 ## Storage is a separate limit
 

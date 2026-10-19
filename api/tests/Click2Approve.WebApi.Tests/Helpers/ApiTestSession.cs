@@ -29,11 +29,14 @@ public sealed record ApiTestSession(HttpClient Client, string Email, string Acce
         return await response.Content.ReadFromJsonAsync<Guid>();
     }
 
-    public async Task<Guid> UploadAsync(Guid? tenantId = null)
+    public async Task<Guid> UploadAsync(Guid? tenantId = null, Guid? taskGlobalId = null, Guid? requestGlobalId = null)
     {
         using var content = new MultipartFormDataContent();
         content.Add(new StringContent("Approval document"), "files", "approval.txt");
-        using var response = await Client.PostAsync($"api/v1/tenants/{tenantId ?? TenantId}/files/upload", content);
+        var path = $"api/v1/tenants/{tenantId ?? TenantId}/files/upload";
+        if (taskGlobalId is { } taskId) path += $"?taskGlobalId={taskId}";
+        else if (requestGlobalId is { } requestId) path += $"?requestGlobalId={requestId}";
+        using var response = await Client.PostAsync(path, content);
         response.EnsureSuccessStatusCode();
         var files = await response.Content.ReadFromJsonAsync<JsonElement>();
         return files[0].GetProperty("globalId").GetGuid();

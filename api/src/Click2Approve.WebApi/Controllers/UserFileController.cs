@@ -30,14 +30,22 @@ public class UserFileController(
     /// Uploads the files.
     /// </summary>
     /// <param name="files">The files to upload.</param>
+    /// <param name="requestGlobalId">The request receiving the files, when already created.</param>
+    /// <param name="taskGlobalId">The task receiving the files, when uploading from a task.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The list of uploaded files.</returns>
     [HttpPost("upload")]
     [RequestSizeLimit(128 * 1024 * 1024)]
-    public async Task<ActionResult<List<UserFileResponse>>> UploadAsync(IFormFileCollection files, CancellationToken cancellationToken)
+    public async Task<ActionResult<List<UserFileResponse>>> UploadAsync(
+        IFormFileCollection files,
+        [FromQuery] Guid? requestGlobalId,
+        [FromQuery] Guid? taskGlobalId,
+        CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        var userFiles = await _userFileService.UploadAsync(user, await files.ToUploadedFilesAsync(cancellationToken), cancellationToken);
+        var command = UserFileRequestMapper.Map(
+            await files.ToUploadedFilesAsync(cancellationToken), requestGlobalId, taskGlobalId);
+        var userFiles = await _userFileService.UploadAsync(user, command, cancellationToken);
         return Ok(UserFileResponseMapper.Map(userFiles));
     }
 

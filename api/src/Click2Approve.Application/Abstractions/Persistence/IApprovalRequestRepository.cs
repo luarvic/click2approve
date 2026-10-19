@@ -7,6 +7,7 @@ namespace Click2Approve.Application.Abstractions.Persistence;
 /// </summary>
 public interface IApprovalRequestRepository
 {
+    Task<ApprovalRequest?> GetForAttachmentUploadAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task<ApprovalRequest> AddAsync(ApprovalRequest approvalRequest, CancellationToken cancellationToken);
     Task<ApprovalRequest?> GetForUpdateAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
     Task<ApprovalRequest?> GetAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);

@@ -31,6 +31,7 @@ public class NotificationService(
                 var payload = new NotificationEventPayload(
                     notification.Type,
                     notification.TenantId,
+                    notification.OriginTenantId,
                     notification.TargetResourceGlobalId,
                     notification.TargetResourceType,
                     notification.Summary,

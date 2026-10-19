@@ -258,6 +258,7 @@ public class ApprovalWorkflowService(
             [.. tasks.Select(task => new NotificationCommand(
                 NotificationType.ApprovalRequestTaskCreated,
                 task.TenantId,
+                task.ApprovalRequest.TenantId,
                 task.GlobalId,
                 NotificationResourceType.ApprovalRequestTask,
                 CreateSummary(NotificationType.ApprovalRequestTaskCreated, task.ApprovalRequest),
@@ -277,6 +278,7 @@ public class ApprovalWorkflowService(
                 .Select(group => new NotificationCommand(
                     NotificationType.ApprovalRequestTaskCompleted,
                     group.Key.TenantId,
+                    approvalRequest.TenantId,
                     approvalRequest.GlobalId,
                     NotificationResourceType.ApprovalRequest,
                     CreateSummary(NotificationType.ApprovalRequestTaskCompleted, approvalRequest),
@@ -295,6 +297,7 @@ public class ApprovalWorkflowService(
             [new NotificationCommand(
                 NotificationType.ApprovalRequestStepCompleted,
                 approvalRequest.TenantId,
+                approvalRequest.TenantId,
                 approvalRequest.GlobalId,
                 NotificationResourceType.ApprovalRequest,
                 CreateSummary(NotificationType.ApprovalRequestStepCompleted, approvalRequest, approvalRequestTask.Result),
@@ -310,6 +313,7 @@ public class ApprovalWorkflowService(
         _notificationService.SendAsync(
             [new NotificationCommand(
                 NotificationType.ApprovalRequestCompleted,
+                approvalRequest.TenantId,
                 approvalRequest.TenantId,
                 approvalRequest.GlobalId,
                 NotificationResourceType.ApprovalRequest,

@@ -24,19 +24,13 @@ const exampleTokens = (prices: Record<string, number> = {}) =>
   10 * (prices.FileDownload ?? 0) +
   5 * (prices.WorkflowEmail ?? 0) +
   (prices.RequestSubmission ?? 0) +
-  5 * (prices.TaskCreation ?? 0) +
-  5 * (prices.TaskCompletion ?? 0);
+  5 * (prices.TaskCreation ?? 0);
 const priceLabels: Record<string, string> = {
   FileUpload: "Upload / MB",
   FileDownload: "View or download / MB",
   WorkflowEmail: "Email / recipient",
-  RequestSubmission: "Submit request",
-  RequestResubmission: "Resubmit request",
+  RequestSubmission: "Submit or resubmit request",
   TaskCreation: "Create task",
-  TaskCompletion: "Complete task",
-  RequestCancellation: "Cancel request",
-  RequestRead: "Request read",
-  TaskRead: "Task read",
 };
 
 /** Displays a subscription plan's price limits, status, and available actions. */
@@ -59,20 +53,14 @@ const PlanPriceCard = ({ actions, highlighted = false, limits, status, subtitle,
               : "Tokens renew each billing period."}{" "}
             Unused tokens expire. Storage is a separate limit.
           </Typography>
-          {Object.entries(priceLabels)
-            .filter(
-              ([action]) =>
-                !["RequestCancellation", "RequestRead", "TaskRead"].includes(action) ||
-                (limits.tokenPrices?.[action] ?? 0) > 0,
-            )
-            .map(([action, label]) => (
-              <Typography key={action} variant="body2" color="text.secondary">
-                {label}: {numberFormat.format(limits.tokenPrices?.[action] ?? 0)} tokens
-              </Typography>
-            ))}
+          {Object.entries(priceLabels).map(([action, label]) => (
+            <Typography key={action} variant="body2" color="text.secondary">
+              {label}: {numberFormat.format(limits.tokenPrices?.[action] ?? 0)} tokens
+            </Typography>
+          ))}
           <Typography variant="body2" color="text.secondary">
-            Example: 10 MB uploaded, 10 MB downloaded, five emails, one request, and five tasks created and completed
-            use {numberFormat.format(exampleTokens(limits.tokenPrices))} tokens.
+            Example: 10 MB uploaded, 10 MB downloaded, five emails, one request, and five tasks created use{" "}
+            {numberFormat.format(exampleTokens(limits.tokenPrices))} tokens.
           </Typography>
         </Stack>
       )}

@@ -23,6 +23,15 @@ public class ApprovalRequestRepository(
     protected readonly IAccessScopeProvider AccessScopeProvider = accessScopeProvider;
     protected readonly IAccessPolicy AccessPolicy = accessPolicy;
 
+    /// <inheritdoc />
+    public virtual async Task<ApprovalRequest?> GetForAttachmentUploadAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    {
+        var scope = await AccessScopeProvider.GetAsync(user, cancellationToken);
+        return await Db.ApprovalRequests
+            .Where(AccessPolicy.CanManageRequest(scope))
+            .SingleOrDefaultAsync(item => item.GlobalId == globalId, cancellationToken);
+    }
+
     public virtual async Task<ApprovalRequest> AddAsync(ApprovalRequest approvalRequest, CancellationToken cancellationToken)
     {
         var entry = await Db.ApprovalRequests.AddAsync(approvalRequest, cancellationToken);

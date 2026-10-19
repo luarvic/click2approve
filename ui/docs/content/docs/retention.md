@@ -21,6 +21,8 @@ Use the delete action offered for a request, task, receipt, employee, team, temp
 
 A relationship from another record can prevent deletion. Resolve the identified relationship where appropriate. Repeated retries do not remove the dependency.
 
+Deleting a request makes it immediately eligible for background cleanup, regardless of its age. Previously consumed tokens are not refunded.
+
 Files associated with deleted workflow records can be scheduled for later cleanup, so their stored content and usage may not disappear immediately. Profile avatars and organization logos can be removed immediately when replaced or deleted.
 
 ## Delete an organization

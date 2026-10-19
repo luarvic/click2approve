@@ -15,9 +15,7 @@ const plan: SubscriptionPlanConfiguration = {
     FileDownload: 2,
     WorkflowEmail: 5,
     RequestSubmission: 10,
-    RequestResubmission: 10,
     TaskCreation: 2,
-    TaskCompletion: 1,
   },
 };
 
@@ -32,7 +30,10 @@ describe("plan token explanation", () => {
     expect(screen.getByText("100 GB storage")).toBeTruthy();
     expect(screen.getByText("Configurable retention")).toBeTruthy();
     expect(screen.getByText(/Unused tokens expire/)).toBeTruthy();
-    expect(screen.getByText(/use 80 tokens/)).toBeTruthy();
+    expect(screen.getByText(/use 75 tokens/)).toBeTruthy();
+    expect(screen.getByText("Submit or resubmit request: 10 tokens")).toBeTruthy();
+    expect(screen.queryByText(/Complete task:/)).toBeNull();
+    expect(screen.queryByText(/Cancel request:/)).toBeNull();
     expect(screen.queryByText("Unlimited requests")).toBeNull();
   });
 
@@ -51,6 +52,6 @@ describe("plan token explanation", () => {
     );
     expect(screen.getByText("1 month retention")).toBeTruthy();
     expect(screen.getByText(/One month only. Tokens are granted once/)).toBeTruthy();
-    expect(screen.getByText(/use 90 tokens/)).toBeTruthy();
+    expect(screen.getByText(/use 85 tokens/)).toBeTruthy();
   });
 });

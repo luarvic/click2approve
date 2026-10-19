@@ -4,10 +4,12 @@ namespace Click2Approve.Application.Models.Commands.Notifications;
 
 /// <summary>
 /// Contains the information required to send one notification to one or more recipients.
+/// TenantId identifies the recipient workspace; OriginTenantId identifies the approval request workspace.
 /// </summary>
 public record NotificationCommand(
     NotificationType Type,
     long TenantId,
+    long OriginTenantId,
     Guid? TargetResourceGlobalId,
     NotificationResourceType? TargetResourceType,
     string Summary,

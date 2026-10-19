@@ -47,7 +47,7 @@ public class ApprovalRequestService(
         await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
         var approvalRequest = await BuildRequestAsync(user, payload, cancellationToken);
         var userFiles = await AttachFilesAsync(
-            user, payload.RequestFiles.Select(file => file.UserFileGlobalId), cancellationToken);
+            user, payload.RequestFiles.Select(file => file.UserFileGlobalId), approvalRequest.TenantId, cancellationToken);
         approvalRequest.RequestFiles = [.. BuildRequestFiles(payload.RequestFiles, userFiles)];
         await InitializeRequestAsync(approvalRequest, payload.Steps, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -180,11 +180,17 @@ public class ApprovalRequestService(
             approvalRequest, steps, approvalRequest.CreatedAt, cancellationToken);
     }
 
-    protected Task<List<UserFile>> AttachFilesAsync(
+    protected async Task<List<UserFile>> AttachFilesAsync(
         AppUser user,
         IEnumerable<Guid> userFileGlobalIds,
-        CancellationToken cancellationToken) =>
-        _userFileService.AttachAsync(user, [.. userFileGlobalIds], cancellationToken);
+        long tenantId,
+        CancellationToken cancellationToken)
+    {
+        var files = await _userFileService.AttachAsync(user, [.. userFileGlobalIds], cancellationToken);
+        if (files.Any(file => file.TenantId != tenantId))
+            throw new BusinessRuleException("Files must belong to the request's workspace.");
+        return files;
+    }
 
     protected virtual Task<ApprovalRequestParticipant> ResolveRequesterAsync(
         AppUser user,
