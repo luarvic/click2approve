@@ -28,7 +28,7 @@ Employees, teams, and delegates must belong to this organization. Work in anothe
 
 ## Update organization details
 
-Open the organization from **Organizations** to edit details your role permits. Keep the business name and logo recognizable so participants can identify the organization in request context and notifications.
+Open the organization from **Organizations** to edit details your role permits. Logo images can be up to **4 MiB** (4,194,304 bytes). Keep the business name and logo recognizable so participants can identify the organization in request context and notifications.
 
 ## Delete an organization
 

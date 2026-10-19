@@ -2,6 +2,8 @@
 
 Files can belong to the request, a participant's decision, or a discussion message. Check where you attach a file so it is part of the intended record.
 
+Each attachment can be up to **50 MiB** (52,428,800 bytes). This applies to request, decision, and discussion attachments. Workspace storage and token limits also apply.
+
 ## Request files
 
 Add the documents participants must review when [creating a request](create-a-request.md). Use recognizable filenames and check the selected files before submitting.

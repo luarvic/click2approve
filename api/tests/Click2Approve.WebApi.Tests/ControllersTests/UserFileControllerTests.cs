@@ -52,6 +52,25 @@ public sealed class UserFileControllerTests(CustomWebApplicationFactory<Program>
         Assert.True(file.ScheduledForDeletionAt > file.CreatedAt);
     }
 
+    [Theory]
+    [InlineData(52428800, HttpStatusCode.OK)]
+    [InlineData(52428801, HttpStatusCode.BadRequest)]
+    public async Task Upload_EnforcesThe50MiBPerAttachmentBoundary(int size, HttpStatusCode expectedStatus)
+    {
+        using var session = await ApiTestSession.CreateAsync(factory.CreateClient());
+        using var body = new MultipartFormDataContent();
+        body.Add(new ByteArrayContent(new byte[size]), "files", "large.pdf");
+        using var response = await session.Client.PostAsync($"{session.Root}/files/upload", body);
+        Assert.Equal(expectedStatus, response.StatusCode);
+        if (expectedStatus == HttpStatusCode.BadRequest)
+            Assert.Contains("52428800 bytes", await response.Content.ReadAsStringAsync());
+
+        await using var scope = factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+        Assert.Equal(expectedStatus == HttpStatusCode.OK,
+            await db.UserFiles.AnyAsync(file => file.Owner.Email == session.Email && file.Name == "large.pdf"));
+    }
+
     [Fact]
     public async Task UnattachedDelete_RequiresOwnershipAndRemovesOnlyTheSelectedFile()
     {

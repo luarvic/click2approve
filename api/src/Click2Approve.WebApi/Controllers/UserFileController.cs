@@ -33,6 +33,7 @@ public class UserFileController(
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The list of uploaded files.</returns>
     [HttpPost("upload")]
+    [RequestSizeLimit(128 * 1024 * 1024)]
     public async Task<ActionResult<List<UserFileResponse>>> UploadAsync(IFormFileCollection files, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);

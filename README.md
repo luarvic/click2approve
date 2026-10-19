@@ -147,6 +147,15 @@ The API reads its local development settings from
 uses `appsettings.Docker.json`, which points the API at the Compose `db` service
 and `azurite` service and disables email delivery by default.
 
+Upload limits are configured independently under `Limitations`: `MaxAttachmentFileSizeBytes`
+(default 52,428,800 bytes / 50 MiB), `MaxAvatarFileSizeBytes`, and `MaxLogoFileSizeBytes`
+(both default 4,194,304 bytes / 4 MiB). The former `MaxFileSizeBytes` setting is removed.
+Use the corresponding `Limitations__...` environment variables to override them.
+The attachment upload endpoint accepts HTTP request bodies up to 128 MiB, including
+multipart overhead; split larger batches across requests. When increasing file limits,
+also adjust this endpoint limit and the multipart form limit as needed. Any reverse
+proxy or IIS request filtering must allow the intended upload request size.
+
 ### UI
 
 The UI is a React 18 and TypeScript application in `ui`.

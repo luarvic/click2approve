@@ -234,7 +234,7 @@ public class UserProfileService(
             throw new BusinessRuleException("Avatar image is required.");
         }
 
-        var maxFileSizeBytes = _configuration.GetValue<int>("Limitations:MaxFileSizeBytes");
+        var maxFileSizeBytes = _configuration.GetValue<int>("Limitations:MaxAvatarFileSizeBytes");
         if (maxFileSizeBytes > 0 && avatar.Length > maxFileSizeBytes)
         {
             throw new LimitExceededException($"The maximum file size ({maxFileSizeBytes} bytes) has been exceeded.");

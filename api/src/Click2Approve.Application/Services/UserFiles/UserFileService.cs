@@ -241,7 +241,7 @@ public class UserFileService(
     /// </summary>
     private async Task CheckLimitations(AppUser user, IReadOnlyCollection<UploadedFile> files, CancellationToken cancellationToken)
     {
-        var maxFileSizeBytes = _configuration.GetValue<int>("Limitations:MaxFileSizeBytes");
+        var maxFileSizeBytes = _configuration.GetValue<int>("Limitations:MaxAttachmentFileSizeBytes");
         if (files.Any(file => file.Length > maxFileSizeBytes))
         {
             throw new LimitExceededException($"The maximum file size ({maxFileSizeBytes} bytes) has been exceeded.");

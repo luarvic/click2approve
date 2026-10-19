@@ -6,6 +6,8 @@ Open **User profile** from the profile menu. These settings belong to your accou
 
 On **Profile**, update your first name, last name, avatar, and default workspace as needed. Choose **Save** after editing profile fields or selecting an avatar. The default workspace controls where you prefer to start; it does not move requests or tasks between workspaces.
 
+Avatar images can be up to **4 MiB** (4,194,304 bytes).
+
 Organization employee names and positions are managed separately in [Employees](employees.md). If organization attribution is incorrect, ask an Owner or Admin to review the employee record.
 
 ## Saved signature
