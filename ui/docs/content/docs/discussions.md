@@ -9,7 +9,7 @@ Use discussions to ask questions and share supporting files about a request. Cha
 3. Read the existing messages for context.
 4. Enter your message. Use the paperclip inside **Message** to attach supporting files, then choose **Send**.
 
-Incoming messages appear on the left in neutral bubbles; your messages appear on the right in green bubbles. Each workflow step has a muted uppercase heading with an expand control. Use the chevron beside it to show an alphabetically sorted list of participants, then use the chevron again to hide the list. Participants are listed alphabetically across the row and wrap when needed. The participant list starts collapsed; messages stay visible. Request chats group conversations by workflow step; task chats show the current step.
+Incoming messages appear on the left in neutral bubbles; your messages appear on the right in green bubbles. Each workflow step has a muted uppercase heading with an expand control. Use the chevron beside it to show an alphabetically sorted list of participants, then use the chevron again to hide the list. Participants are listed alphabetically across the row and wrap when needed. The participant list starts collapsed; messages stay visible. Request chats group conversations by workflow step, with a light divider between step chats; task chats show the current step.
 
 Use Chat for questions and clarification. Record the actual decision through the task's action controls so it becomes a workflow outcome.
 

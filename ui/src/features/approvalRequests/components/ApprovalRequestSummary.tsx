@@ -158,7 +158,6 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
                   />
                   <HelpPopover
                     docsHref="/docs/track-requests/"
-                    compact
                     helpText="Show replaced and deleted files for context alongside the current files."
                   />
                 </Stack>

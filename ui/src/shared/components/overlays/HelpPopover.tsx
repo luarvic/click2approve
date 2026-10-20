@@ -1,3 +1,4 @@
+import { ControlTokens, SurfaceTokens } from "@/shared/theme/tokens";
 import { InfoOutlined } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import { IconButton, Link, Popover, Typography } from "@mui/material";
@@ -5,20 +6,40 @@ import type { Theme } from "@mui/material/styles";
 import { useId, useState } from "react";
 
 interface HelpPopoverProps {
-  compact?: boolean;
   docsHref?: string;
   helpText: string;
 }
 
-const compactHelpButtonSx: SxProps<Theme> = {
-  height: 24,
+const helpButtonSx: SxProps<Theme> = {
+  borderRadius: ControlTokens.borderRadius,
+  color: "text.secondary",
+  flexShrink: 0,
+  height: 32,
   p: 0,
-  width: 24,
+  width: 32,
+  "&:hover": {
+    bgcolor: "action.hover",
+    color: "primary.main",
+  },
+  "&.Mui-focusVisible": {
+    color: "primary.main",
+    outline: "2px solid",
+    outlineColor: "primary.main",
+    outlineOffset: 2,
+  },
+  "@media (pointer: coarse)": {
+    height: 44,
+    width: 44,
+  },
 };
 
-const compactHelpIconSx: SxProps<Theme> = { fontSize: "1rem" };
+const helpIconSx: SxProps<Theme> = { fontSize: 18 };
 
 const helpPopoverPaperSx: SxProps<Theme> = {
+  border: 1,
+  borderColor: "divider",
+  borderRadius: SurfaceTokens.borderRadius,
+  boxShadow: "none",
   maxWidth: 320,
   p: 2,
 };
@@ -29,7 +50,7 @@ const documentationLinkSx: SxProps<Theme> = {
 };
 
 /** Displays contextual help in a popover opened from a muted help icon. */
-const HelpPopover: React.FC<HelpPopoverProps> = ({ compact = false, docsHref, helpText }) => {
+const HelpPopover: React.FC<HelpPopoverProps> = ({ docsHref, helpText }) => {
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
   const popoverId = useId();
   const isOpen = Boolean(anchorElement);
@@ -42,9 +63,9 @@ const HelpPopover: React.FC<HelpPopoverProps> = ({ compact = false, docsHref, he
         aria-label="Show help"
         size="small"
         onClick={(event) => setAnchorElement(event.currentTarget)}
-        sx={compact ? compactHelpButtonSx : undefined}
+        sx={helpButtonSx}
       >
-        <InfoOutlined color="action" sx={compact ? compactHelpIconSx : undefined} />
+        <InfoOutlined sx={helpIconSx} />
       </IconButton>
       <Popover
         anchorEl={anchorElement}
@@ -57,9 +78,10 @@ const HelpPopover: React.FC<HelpPopoverProps> = ({ compact = false, docsHref, he
           paper: { sx: helpPopoverPaperSx },
         }}
       >
-        <Typography>{helpText}</Typography>
+        <Typography variant="body2">{helpText}</Typography>
         {docsHref && (
           <Link
+            variant="body2"
             aria-label="Read documentation (opens in a new tab)"
             href={docsHref}
             target="_blank"

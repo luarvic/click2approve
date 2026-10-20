@@ -14,7 +14,6 @@ public static class NotificationEmailTemplates
     {
         var title = context.RequestTitle;
         var actor = context.Actor ?? new EmailActor { IsSystemGenerated = true };
-        var name = actor.Name;
         var senderName = context.SenderIdentity?.Name;
         var model = new EmailTemplateModel
         {
@@ -32,7 +31,7 @@ public static class NotificationEmailTemplates
             NotificationType.ApprovalRequestTaskCreated => TaskCreated(model, context),
             NotificationType.ApprovalRequestTaskCompleted => model with
             {
-                Subject = $"Task completed automatically: {title}",
+                Subject = $"Task completed: {title}",
                 Heading = "Task completed automatically",
                 Body = "Your task for ",
                 BodyAfterTitle = string.IsNullOrWhiteSpace(senderName)
@@ -40,7 +39,7 @@ public static class NotificationEmailTemplates
                 Actor = new EmailActor { IsSystemGenerated = true },
                 Details = context.Reason
             },
-            NotificationType.ApprovalRequestStepCompleted => StepCompleted(model, context, name),
+            NotificationType.ApprovalRequestStepCompleted => StepCompleted(model, context),
             NotificationType.ApprovalRequestCompleted => RequestCompleted(model, context),
             NotificationType.ReceiptCreated => model with
             {
@@ -52,11 +51,10 @@ public static class NotificationEmailTemplates
             },
             NotificationType.DiscussionMessageCreated => model with
             {
-                Subject = actor.IsSystemGenerated || string.IsNullOrWhiteSpace(actor.DisplayName)
-                    ? $"New message: {title}" : $"{name} commented on {title}",
+                Subject = $"New message: {title}",
                 Heading = "New message",
                 Body = context.Actor is null || actor.IsSystemGenerated
-                    ? "There is a new message about " : $"{ActorLead(actor, context.SenderIdentity)} commented on ",
+                    ? "There is a new message about " : $"{ActorLead(actor, context.SenderIdentity).TrimEnd(',')} commented on ",
                 BodyAfterTitle = context.Actor is null || actor.IsSystemGenerated
                     ? string.IsNullOrWhiteSpace(senderName) ? "." : $" on a request from {senderName}."
                     : ".",
@@ -93,7 +91,7 @@ public static class NotificationEmailTemplates
         var requester = context.Requester is null ? null : ActorLead(context.Requester).TrimEnd(',');
         return model with
         {
-            Subject = $"{heading}: {context.RequestTitle}",
+            Subject = $"New task: {context.RequestTitle}",
             Body = $"{actor} requested your {action} on ",
             BodyAfterTitle = requester is null ? "." : $" for {requester}.",
             Heading = heading,
@@ -101,7 +99,7 @@ public static class NotificationEmailTemplates
         };
     }
 
-    private static EmailTemplateModel StepCompleted(EmailTemplateModel model, NotificationEmailContext context, string name)
+    private static EmailTemplateModel StepCompleted(EmailTemplateModel model, NotificationEmailContext context)
     {
         var verb = context.Action switch
         {
@@ -117,13 +115,9 @@ public static class NotificationEmailTemplates
         var heading = context.Result switch { false => "Step failed", true => "Step succeeded", _ => "Step completed" };
         // Older queued events have no source task. Do not invent a completing actor or action.
         var hasActor = context.Actor is { IsSystemGenerated: false } && !string.IsNullOrWhiteSpace(context.Actor.DisplayName);
-        var subject = context.Result == false
-            ? $"Step failed: {context.RequestTitle}"
-            : hasActor && context.Action is not null && context.Action != ApprovalRequestTaskAction.Complete
-                ? $"{name} {verb} {context.RequestTitle}" : $"{heading}: {context.RequestTitle}";
         return model with
         {
-            Subject = subject,
+            Subject = $"{heading}: {context.RequestTitle}",
             Heading = heading,
             Body = context.Result == false
                 ? hasActor ? $"{ActorLead(context.Actor, context.SenderIdentity).TrimEnd(',')} failed a step in your request titled "
@@ -141,19 +135,19 @@ public static class NotificationEmailTemplates
 
     private static EmailTemplateModel RequestCompleted(EmailTemplateModel model, NotificationEmailContext context)
     {
-        var (subject, heading, ending) = context.Status switch
+        var (heading, ending) = context.Status switch
         {
-            ApprovalRequestStatus.Canceled => ("Canceled", "Request canceled", " was canceled."),
-            ApprovalRequestStatus.Superseded => ("Replaced", "Request replaced", " was replaced by a newer revision."),
-            _ when context.Result == false => ("Failed", "Request failed", " failed."),
-            _ when context.Result == true => ("Succeeded", "Request succeeded", " succeeded."),
-            _ => ("Completed", "Request completed", " has been completed.")
+            ApprovalRequestStatus.Canceled => ("Request canceled", " was canceled."),
+            ApprovalRequestStatus.Superseded => ("Request replaced", " was replaced by a newer revision."),
+            _ when context.Result == false => ("Request failed", " failed."),
+            _ when context.Result == true => ("Request succeeded", " succeeded."),
+            _ => ("Request completed", " has been completed.")
         };
         var organization = context.SenderIdentity is { IsOrganization: true } sender
             && !string.IsNullOrWhiteSpace(sender.Name) ? $" at {sender.Name}" : string.Empty;
         return model with
         {
-            Subject = $"{subject}: {context.RequestTitle}",
+            Subject = $"{heading}: {context.RequestTitle}",
             Heading = heading,
             Body = "Your request titled ",
             BodyAfterTitle = organization + ending

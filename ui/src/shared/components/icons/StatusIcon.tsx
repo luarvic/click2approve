@@ -4,7 +4,7 @@ import {
 } from "@/features/approvalRequests/components/ApprovalStatusLines";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { Icons } from "@/shared/components/icons/iconStyles";
-import { Check, Close, Loop, QuestionMark, Replay } from "@mui/icons-material";
+import { Check, Close, Loop, PlayArrow, QuestionMark, Replay } from "@mui/icons-material";
 import { Tooltip } from "@mui/material";
 import React from "react";
 
@@ -21,8 +21,9 @@ const StatusIcon: React.FC<StatusIconProps> = ({ result, status }) => {
   const renderStatus = () => {
     switch (status) {
       case ApprovalRequestStatus.Pending:
-      case ApprovalRequestStatus.Started:
         return <Loop sx={statusIconSx} />;
+      case ApprovalRequestStatus.Started:
+        return <PlayArrow sx={statusIconSx} />;
       case ApprovalRequestStatus.Completed:
         return result === false ? <Close sx={statusIconSx} /> : <Check sx={statusIconSx} />;
       case ApprovalRequestStatus.Canceled:

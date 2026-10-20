@@ -12,12 +12,11 @@ import {
 } from "@/features/approvalWorkflow/models/approvalStep";
 import { EditableApprovalStep } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { Employee } from "@/features/employees/models/employee";
-import { Icons } from "@/shared/components/icons/iconStyles";
 import { Flex } from "@/shared/components/layout/flexStyles";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { FieldLimits } from "@/shared/config/fieldLimits";
 import { textRule } from "@/shared/utils/formValidation";
-import { AccountTreeOutlined, Add, DeleteOutlined, ExpandMore, North, South } from "@mui/icons-material";
+import { Add, DeleteOutlined, ExpandMore, North, South } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import {
   Accordion,
@@ -161,7 +160,6 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
           return (
             <ApprovalStepSection
               key={step.globalId ?? `new-${step.sequence}`}
-              icon={<AccountTreeOutlined color={Icons.secondaryColor} fontSize="small" />}
               sequence={step.sequence}
               accessory={
                 <>

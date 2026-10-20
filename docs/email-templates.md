@@ -2,7 +2,7 @@
 
 Account and notification emails use `EmailLayout` in the Application project. The layout
 renders encoded plain-text content with a 600px table shell, the Click2Approve
-wordmark in the header, a large event heading, one rounded primary action in the logo green (`#22C55E`) with white text, and a contextual footer. Small builders in
+wordmark in the header, a medium-weight event heading, one rounded primary action in the logo green (`#22C55E`) with white text, and a contextual footer. Small builders in
 `AccountEmailTemplates` and `NotificationEmailTemplates` own the copy; the old
 `Email:Templates` configuration entries are no longer used.
 
@@ -25,22 +25,28 @@ wordmark in the header, a large event heading, one rounded primary action in the
   at the organization, followed by the requested action (for example, "John Smith requested
   your signature on **New car 1500**."). Missing name parts are omitted and
   email is the fallback. Employee snapshots use the same formatter as UI request data.
-- The request title is bold inline in that sentence. The header displays the 48px-tall
-  Click2Approve wordmark at its natural aspect ratio. A 28px circular business logo or
-  personal avatar appears immediately before the organization or user name in the prose.
-  The name remains visible when the image is absent. A business logo
-  links to the organization's HTTP(S) website when configured. The sender or organization
-  name appears in the message text, including neutral event copy where there is no actor.
-  Automatic or legacy personal events use the personal tenant owner's profile. Contact
-  email, phone, and address are not rendered. The verified platform sender address stays fixed.
+- The request title is bold inline in that sentence. The header displays the Click2Approve wordmark at its natural aspect ratio, up to 48px tall and shrinking
+  to fit narrow screens. Sender and organization names use
+  encoded prose without inline avatars or logos. Contact email, phone, address, and
+  organization website links are not rendered. The verified platform sender address stays fixed.
+- The shared shell uses the app's light green background, dark green ink, muted text,
+  a flat 12px-radius bordered card, and 6px-radius controls. Sora is preferred with Arial
+  and Helvetica fallbacks for email clients that do not have it installed. Account and
+  commercial emails inherit the same shell.
+- Workflow subjects match the in-app notification category followed by the request title:
+  `New task: …`, `Task completed: …`, `Step succeeded: …` / `Step failed: …`,
+  `Request succeeded: …` / `Request failed: …`, `New message: …`, and `New receipt: …`.
+  Canceled and replaced requests use their specific outcome. An unknown outcome uses
+  `Step completed` or `Request completed` without claiming success. Headings and body copy
+  explain the requested action or actual outcome; subjects do not vary by actor or action.
 - Sentence text before and after the title is encoded separately from the bold title; callers
 cannot inject markup. Identity emails retain the platform-only header and enlarged heading.
 
 ## Rendering and event context
 
-All five notification types have templates. Action wording covers approve, sign,
+All six workflow notification types have templates. Action wording covers approve, sign,
 confirm, acknowledge, review, verify, accept, and complete. Final request wording
-separates declined, canceled, replaced, and successful results; an unknown result
+separates failed, canceled, replaced, and succeeded results; an unknown result
 never claims success. Automatic task completion is always attributed to Click2Approve.
 Discussion previews normalize whitespace and contain at most 200 Unicode text elements.
 

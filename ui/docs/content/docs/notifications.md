@@ -6,6 +6,8 @@ Notifications help you return to assigned tasks, request outcomes, discussions, 
 
 Open the app's notifications view to inspect in-app events. Follow a notification to the associated resource and check the current state before acting. An older notification can refer to a task that has since completed, been canceled, or been superseded.
 
+Notifications and email subjects show **Step succeeded** or **Step failed**, and **Request succeeded** or **Request failed**, when the outcome is known. Email subjects append the request title. Canceled and replaced requests have distinct email subjects. Other events use **New task**, **Task completed** (for automatic completion), **New message**, and **New receipt**.
+
 Email links target the relevant task, request, receipt, or Plans page. Sign in with the intended account when prompted.
 
 ## Set delivery preferences

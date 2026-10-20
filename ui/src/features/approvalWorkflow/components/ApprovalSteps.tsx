@@ -2,17 +2,8 @@ import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequ
 import ApprovalStepList from "@/features/approvalWorkflow/components/ApprovalStepList";
 import ApprovalStepSection from "@/features/approvalWorkflow/components/ApprovalStepSection";
 import { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
-import { getApprovalStepStatus } from "@/features/approvalWorkflow/utils/approvalStepStatus";
-import SuccessSnackbarIcon from "@/shared/components/icons/SuccessSnackbarIcon";
 import { Icons } from "@/shared/components/icons/iconStyles";
-import {
-  BlockOutlined,
-  CancelOutlined,
-  DoNotDisturbOnOutlined,
-  HourglassTop,
-  PendingOutlined,
-  VisibilityOffOutlined,
-} from "@mui/icons-material";
+import { VisibilityOffOutlined } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import { Stack } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
@@ -38,23 +29,6 @@ const getStepTasks = (step: ApprovalStep) => {
 };
 
 const workflowSpacing = 3;
-const getStepIcon = (status: string) => {
-  switch (status) {
-    case "Succeeded":
-      return <SuccessSnackbarIcon color="success" />;
-    case "Failed":
-      return <CancelOutlined color="error" />;
-    case "Skipped":
-      return <DoNotDisturbOnOutlined color="warning" />;
-    case "Canceled":
-      return <BlockOutlined color="warning" />;
-    case "Pending":
-      return <HourglassTop color="disabled" />;
-    default:
-      return <PendingOutlined color={Icons.secondaryColor} />;
-  }
-};
-
 const HiddenStepIcon = () => <VisibilityOffOutlined color={Icons.secondaryColor} data-testid="hidden-step-icon" />;
 
 const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
@@ -76,14 +50,13 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
       <ApprovalStepList>
         {steps.map((step) => {
           const tasks = getStepTasks(step);
-          const stepStatus = getApprovalStepStatus(step, tasks);
           const isHidden = step.isVisible === false;
 
           return (
             <ApprovalStepSection
               key={step.globalId ?? step.sequence}
-              icon={isHidden ? <HiddenStepIcon /> : getStepIcon(stepStatus)}
-              iconLabel={isHidden ? "Hidden step" : stepStatus}
+              icon={isHidden ? <HiddenStepIcon /> : undefined}
+              iconLabel={isHidden ? "Hidden step" : undefined}
               sequence={step.sequence}
             >
               {!isHidden && (

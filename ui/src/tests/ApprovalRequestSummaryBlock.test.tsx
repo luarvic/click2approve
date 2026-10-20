@@ -97,7 +97,7 @@ describe("<ApprovalRequestSummaryBlock />", () => {
     expect(screen.queryByTestId("PersonOutlinedIcon")).toBeNull();
   });
 
-  test("shows a play icon for a started request", () => {
+  test("shows a play arrow for a started request", () => {
     render(
       <ApprovalRequestSummaryBlock
         approvalRequest={{
@@ -107,7 +107,7 @@ describe("<ApprovalRequestSummaryBlock />", () => {
       />,
     );
 
-    expect(screen.getByTestId("PlayCircleOutlinedIcon")).toBeTruthy();
+    expect(screen.getByTestId("PlayArrowIcon")).toBeTruthy();
     expect(screen.queryByTestId("HourglassTopIcon")).toBeNull();
   });
 

@@ -22,7 +22,7 @@ public sealed class EmailTemplatesTests
     public void TaskCreated_ExplainsRequestedAction(ApprovalRequestTaskAction action, string heading, string noun)
     {
         var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestTaskCreated, Context() with { Action = action });
-        Assert.Equal($"{heading}: Contract", model.Subject);
+        Assert.Equal("New task: Contract", model.Subject);
         Assert.Equal(heading, model.Heading);
         Assert.Equal("Contract", model.RequestTitle);
         Assert.Equal($"John Smith at Acme Inc. requested your {noun} on ", model.Body);
@@ -41,7 +41,8 @@ public sealed class EmailTemplatesTests
     {
         var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestStepCompleted,
             Context() with { Action = action, Result = true });
-        Assert.Equal($"John Smith {verb} Contract", model.Subject);
+        Assert.Equal("Step succeeded: Contract", model.Subject);
+        Assert.Contains(verb, model.Body);
         Assert.Equal("Contract", model.RequestTitle);
         Assert.Contains("John Smith at Acme Inc.", model.Body);
     }
@@ -56,7 +57,8 @@ public sealed class EmailTemplatesTests
     {
         var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestCompleted,
             Context() with { Status = status, Result = result });
-        Assert.Equal($"{subject}: Contract", model.Subject);
+        Assert.Equal($"{heading}: Contract", model.Subject);
+        Assert.Contains(subject, heading, StringComparison.OrdinalIgnoreCase);
         Assert.Equal(heading, model.Heading);
         Assert.Equal("Contract", model.RequestTitle);
         Assert.Equal("Your request titled ", model.Body);
@@ -131,8 +133,8 @@ public sealed class EmailTemplatesTests
         Assert.DoesNotContain(">by</p>", html);
         Assert.DoesNotContain("via Click2Approve", html);
         Assert.DoesNotContain("From:", html);
-        Assert.Contains("font-size:36px", html);
-        Assert.Contains("border-radius:999px;color:#ffffff!important;-webkit-text-fill-color:#ffffff", html);
+        Assert.Contains("font-size:28px", html);
+        Assert.Contains("border-radius:6px;color:#ffffff!important;-webkit-text-fill-color:#ffffff", html);
         Assert.Contains("<!--[if mso]><font color=\"#ffffff\">Review request</font><![endif]-->", html);
         Assert.Contains("background-image:linear-gradient(#ffffff,#ffffff);background-clip:text;-webkit-background-clip:text", html);
     }
@@ -166,90 +168,28 @@ public sealed class EmailTemplatesTests
         Assert.Contains("max-width:600px", html);
     }
 
-    [Fact]
-    public void Body_ShowsLinkedOrganizationLogoBeforeItsName()
-    {
-        var actor = new EmailActor
-        {
-            DisplayName = "John",
-            AvatarUrl = "https://example.com/avatar.png",
-            OrganizationDisplayName = "Acme",
-            OrganizationLogoUrl = "https://example.com/org.png"
-        };
-        var sender = new EmailSenderIdentity
-        {
-            Name = "Acme <Inc>",
-            IsOrganization = true,
-            ImageUrl = "https://example.com/org.png",
-            WebsiteUrl = "https://example.com/?a=1&b=2"
-        };
-        var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestTaskCreated,
-            Context() with { Actor = actor, SenderIdentity = sender });
-        var html = EmailLayout.Render(model with { SenderIdentity = sender }, "https://example.com/logo.png");
-        Assert.Contains("https://example.com/logo.png", html);
-        Assert.Contains("alt=\"Click2Approve\"", html);
-        Assert.Contains("alt=\"Click2Approve\" height=\"48\" style=\"display:block;height:48px;border:0;\"", html);
-        Assert.DoesNotContain("alt=\"Click2Approve\" width=", html);
-        Assert.DoesNotContain("https://example.com/avatar.png", html);
-        Assert.Contains("src=\"https://example.com/org.png\" alt=\"\" width=\"28\" height=\"28\"", html);
-        Assert.Contains("</a>&nbsp;<span style=\"display:inline-block;vertical-align:middle;line-height:1.4;\">Acme &lt;Inc&gt;</span> requested", html);
-        Assert.DoesNotContain("On behalf of", html);
-        Assert.True(html.IndexOf("src=\"https://example.com/logo.png\"", StringComparison.Ordinal)
-            < html.IndexOf("src=\"https://example.com/org.png\"", StringComparison.Ordinal));
-        Assert.DoesNotContain(">+</td>", html);
-        Assert.Contains("padding:2px;object-fit:contain;border-radius:50%", html);
-        Assert.Contains("href=\"https://example.com/?a=1&amp;b=2\"", html);
-        Assert.Contains("aria-label=\"Visit Acme &lt;Inc&gt; website\"", html);
-        Assert.DoesNotContain(">From</td>", html);
-        Assert.DoesNotContain(">Click2Approve</td>", html);
-    }
-
-    [Fact]
-    public void SenderIdentity_OmitsMissingDetailsAndUnsafeLinks()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Body_KeepsSenderAttributionAsEncodedText(bool isOrganization)
     {
         var sender = new EmailSenderIdentity
         {
             Name = "<Jane>",
-            IsOrganization = true,
-            ImageUrl = "https://example.com/logo.png",
+            IsOrganization = isOrganization,
+            ImageUrl = "https://example.com/sender.png",
             WebsiteUrl = "javascript:alert(2)"
         };
         var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestTaskCreated,
-            Context() with { Actor = new EmailActor { DisplayName = "John" }, SenderIdentity = sender })
-            with
-        { SenderIdentity = sender };
-
-        var html = EmailLayout.Render(model);
-
-        Assert.DoesNotContain("On behalf of", html);
-        Assert.DoesNotContain("javascript:", html);
-        Assert.Contains("src=\"https://example.com/logo.png\"", html);
-        Assert.DoesNotContain("Visit &lt;Jane&gt; website", html);
-        Assert.Contains("&nbsp;<span style=\"display:inline-block;vertical-align:middle;line-height:1.4;\">&lt;Jane&gt;</span> requested", html);
-    }
-
-    [Fact]
-    public void Body_ShowsPersonalAvatarBeforeUserName()
-    {
-        var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestTaskCreated,
-            Context() with { Actor = new EmailActor { DisplayName = "Jane" } }) with
-        {
-            SenderIdentity = new EmailSenderIdentity
-            {
-                Name = "Jane",
-                ImageUrl = "https://example.com/avatar.png"
-            }
-        };
-
+            Context() with { Actor = new EmailActor { DisplayName = "<Jane>" }, SenderIdentity = sender })
+            with { SenderIdentity = sender };
         var html = EmailLayout.Render(model, "https://example.com/platform.png");
 
-        Assert.Contains("src=\"https://example.com/platform.png\" alt=\"Click2Approve\" height=\"48\"", html);
-        Assert.Contains("src=\"https://example.com/avatar.png\" alt=\"\" width=\"28\" height=\"28\"", html);
-        Assert.Contains("</span>&nbsp;<span style=\"display:inline-block;vertical-align:middle;line-height:1.4;\">Jane</span> requested", html);
-        Assert.DoesNotContain("On behalf of", html);
-        Assert.True(html.IndexOf("src=\"https://example.com/platform.png\"", StringComparison.Ordinal)
-            < html.IndexOf("src=\"https://example.com/avatar.png\"", StringComparison.Ordinal));
-        Assert.DoesNotContain(">+</td>", html);
+        Assert.Contains("&lt;Jane&gt;", html);
+        Assert.DoesNotContain("<Jane>", html);
+        Assert.DoesNotContain("sender.png", html);
+        Assert.DoesNotContain("javascript:", html);
+        Assert.Contains("src=\"https://example.com/platform.png\"", html);
     }
 
     [Fact]
@@ -280,26 +220,6 @@ public sealed class EmailTemplatesTests
     }
 
     [Fact]
-    public void Body_PlacesLogoBeforeOrganizationNameWhenItAlsoOccursInsideActorName()
-    {
-        var sender = new EmailSenderIdentity
-        {
-            Name = "A",
-            IsOrganization = true,
-            ImageUrl = "https://example.com/org.png"
-        };
-        var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestTaskCreated,
-            Context() with { Actor = new EmailActor { DisplayName = "Alex" }, SenderIdentity = sender })
-            with
-        { SenderIdentity = sender };
-
-        var html = EmailLayout.Render(model);
-
-        Assert.Contains("Alex at <span style=\"display:inline-block;vertical-align:middle;line-height:0;\"><img src=\"https://example.com/org.png\"", html);
-        Assert.Contains("&nbsp;<span style=\"display:inline-block;vertical-align:middle;line-height:1.4;\">A</span> requested", html);
-    }
-
-    [Fact]
     public void InlineTitle_EncodesAllPartsAndDoesNotBoldMatchingActorText()
     {
         var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestTaskCreated, Context() with
@@ -322,7 +242,7 @@ public sealed class EmailTemplatesTests
         Assert.EndsWith("…", preview);
         Assert.Equal("Hello world", NotificationEmailTemplates.TruncatePreview("  Hello\r\n world  "));
         var model = NotificationEmailTemplates.Create(NotificationType.DiscussionMessageCreated, Context() with { Message = "<script>Hi</script>" });
-        Assert.Equal("John Smith commented on Contract", model.Subject);
+        Assert.Equal("New message: Contract", model.Subject);
         Assert.Equal("View conversation", model.PrimaryActionText);
         Assert.DoesNotContain("<script>", EmailLayout.Render(model));
     }

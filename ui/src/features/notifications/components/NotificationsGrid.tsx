@@ -7,7 +7,7 @@ import {
 } from "@/features/notifications/api/notificationsApi";
 import NotificationsFilter from "@/features/notifications/components/NotificationsFilter";
 import {
-  getNotificationTypeLabel,
+  getNotificationLabel,
   NotificationResourceType,
   type Notification,
 } from "@/features/notifications/models/notification";
@@ -199,7 +199,7 @@ const NotificationsGrid = () => {
       renderCell: (params) => (
         <CompactGridCell>
           <CompactGridTitle>
-            <Typography variant="body2">{getNotificationTypeLabel(params.row.type)}</Typography>
+            <Typography variant="body2">{getNotificationLabel(params.row)}</Typography>
           </CompactGridTitle>
           {!allColumnsAreVisible && (
             <>
@@ -214,7 +214,7 @@ const NotificationsGrid = () => {
           )}
         </CompactGridCell>
       ),
-      valueGetter: (_value, row) => getNotificationTypeLabel(row.type),
+      valueGetter: (_value, row) => getNotificationLabel(row),
     },
     {
       field: "summary",

@@ -10,7 +10,7 @@ import UserProvidedText from "@/shared/components/text/UserProvidedText";
 import TimelineTimestamp from "@/shared/components/timeline/TimelineTimestamp";
 import { StackSpacing, SurfaceTokens } from "@/shared/theme/tokens";
 import { parseUtcDateTime } from "@/shared/utils/dateTime";
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Divider, Stack, Typography } from "@mui/material";
 import { alpha, type SxProps, type Theme } from "@mui/material/styles";
 
 interface DiscussionMessageListProps {
@@ -111,7 +111,7 @@ const DiscussionMessageList: React.FC<DiscussionMessageListProps> = ({
   const visibleSteps = taskGlobalId ? (taskStep ? [taskStep] : []) : discussionSteps;
 
   return (
-    <Stack spacing={StackSpacing.extraLoose}>
+    <Stack spacing={StackSpacing.loose} divider={<Divider />}>
       {visibleSteps.map((step) => (
         <DiscussionThread
           key={step.globalId ?? step.sequence}
