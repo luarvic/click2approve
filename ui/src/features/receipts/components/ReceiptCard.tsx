@@ -205,7 +205,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
           </Stack>
         </Stack>
         <Stack spacing={receiptSectionSpacing}>
-          {tasks.length === 0 && <Typography color="textSecondary">No completed tasks were recorded</Typography>}
+          {tasks.length === 0 && <Typography color="textSecondary">No tasks were recorded</Typography>}
           <Stack spacing={receiptSectionSpacing}>
             {tasks.map((task, index) => (
               <Stack

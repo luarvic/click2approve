@@ -28,7 +28,8 @@ export const getTenantCapabilities = (
     canViewDelegations: isBusinessMember,
     canViewEmployees: Boolean(applicationConfiguration?.capabilities.employeeAssignees) && isBusinessMember,
     canViewReceipts:
-      Boolean(applicationConfiguration?.capabilities.receipts) && (tenant?.type === TenantType.Personal || canManage),
+      Boolean(applicationConfiguration?.capabilities.receipts) &&
+      (tenant?.type === TenantType.Personal || isBusinessMember),
     canViewTemplates: Boolean(applicationConfiguration?.capabilities.approvalStepTemplates) && isBusinessMember,
     canViewTeams: Boolean(applicationConfiguration?.capabilities.teamAssignees) && isBusinessMember,
   };

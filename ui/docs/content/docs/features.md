@@ -20,13 +20,13 @@ You can also connect your own tools through the Click2Approve API. See [API toke
 | Teams and team assignees | — | Available |
 | Delegations | — | Available |
 | Workflow templates | — | Available |
-| Receipts and verification links | Manage your own receipts | Owners and Admins manage receipts and links |
+| Receipts and verification links | View, share, and delete receipts issued to you | Every member can view, share, and delete receipts issued to them |
 | Plans, usage, and retention | Manage your own plan and settings | Owners and Admins manage the plan and settings |
 | Profile, saved signature, MFA, passkeys, and API tokens | Account settings | The same account settings across workspaces |
 
 ## Organization permissions
 
-Members can view employee, team, and delegation directories. Owners and Admins manage employees, teams, delegations, billing, retention, and organization receipts. Only the Owner can schedule organization deletion.
+Members can view employee, team, and delegation directories. Owners and Admins manage employees, teams, delegations, billing, and retention. Receipt access is limited to the user each receipt is issued to. Only the Owner can schedule organization deletion.
 
 Access to a request or task depends on participation, team relationships, and delegation. Organization membership alone does not expose every workflow or grant access to another organization's records.
 

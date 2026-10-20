@@ -20,7 +20,7 @@ Employees and delegates must belong to the same organization. Membership in one 
 | --- | --- |
 | Tasks | Review actions assigned to you or available through your organization role in the workflow |
 | Requests | Follow requests you can access; use New request to send work |
-| Receipts | Open your own receipts in Personal; Owners and Admins manage organization receipts |
+| Receipts | View, share, and delete receipts issued to you in either workspace type |
 | Templates | Reuse organization workflow steps |
 | Employees, Teams, Delegations | Work with organization membership and delegated work |
 | Plans, Usage, Retention | Review subscription, limits, and data settings |

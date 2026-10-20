@@ -10,5 +10,6 @@ public enum DeletionTargetType
     EventOutboxMessage,
     InAppNotification,
     Tenant,
-    UserFile
+    UserFile,
+    Receipt
 }

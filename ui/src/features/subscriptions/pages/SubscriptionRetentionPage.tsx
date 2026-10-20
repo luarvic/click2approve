@@ -105,12 +105,15 @@ const SubscriptionRetentionPage = () => {
         <Stack spacing={StackSpacing.extraLoose} sx={retentionControlsSx}>
           <RetentionControl
             disabled={!policy.canManage || !policy.approvalRequestMonthsCanBeChanged}
-            label="Requests"
+            label={policy.approvalRequestMonthsCanBeChanged ? "Requests and receipts" : "Requests"}
             months={approvalRequestMonths}
             onChange={setApprovalRequestMonths}
           />
           {validation.message("approvalRequestMonths") && (
             <FormHelperText error>{validation.message("approvalRequestMonths")}</FormHelperText>
+          )}
+          {!policy.approvalRequestMonthsCanBeChanged && (
+            <RetentionControl disabled label="Receipts" months={policy.receiptMonths} onChange={() => {}} />
           )}
           <RetentionControl
             disabled={!policy.canManage || !policy.approvalRequestMonthsCanBeChanged}

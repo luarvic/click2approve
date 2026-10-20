@@ -16,10 +16,12 @@ The email identifies the account that should receive employee access. Check it b
 | Role | Organization permissions |
 | --- | --- |
 | Member | Participate in authorized workflows and view employee, team, and delegation directories |
-| Admin | Manage employees, teams, delegations, billing, retention, and organization receipts |
+| Admin | Manage employees, teams, delegations, billing, and retention |
 | Owner | Administrative management plus the authority to schedule organization deletion |
 
 Roles do not grant access to other organizations. Request and task visibility also follows participation, team relationships, and delegation. Template controls follow your workspace permissions.
+
+Receipt access follows receipt ownership, regardless of employee role. Owners and Admins can view, share, and delete only receipts issued to themselves. See [Receipts and verification](receipts.md).
 
 ## Employee status
 

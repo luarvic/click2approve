@@ -4,7 +4,7 @@ Personal workspaces offer **Personal Free** ($0/month, 1 GB) and **Personal Pro*
 
 Plans include a token allowance for uploads, file viewing and downloads, workflow emails, requests, and tasks. Plan cards show the price followed by a bulleted list of included tokens, storage, and retention. Personal Free is labeled **Free**, and Business Trial is labeled **Free for 1 month**. See [Usage and tokens](usage.md) for renewal and expiry rules, token rates, and a worked example.
 
-Personal Free and Business Trial retain requests and notifications for one month. Paid plans allow configurable retention.
+Personal Free and Business Trial retain requests and notifications for one month. Personal Free retains receipts for five years; Business Trial retains receipts for one month. Paid plans allow configurable retention, with receipts following the request retention period.
 
 ## Included tokens and storage
 

@@ -45,6 +45,7 @@ export interface RetentionPolicy {
   approvalRequestMonthsCanBeChanged: boolean;
   canManage: boolean;
   inAppNotificationMonths: number;
+  receiptMonths: number;
 }
 
 export const getRetentionPolicy = async (tenantGlobalId: string): Promise<RetentionPolicy> => {

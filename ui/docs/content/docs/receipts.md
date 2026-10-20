@@ -3,7 +3,9 @@
 A **receipt** is a record Click2Approve creates when a request finishes. It preserves the request details, outcome, and participants' recorded actions, including signatures where provided. You can share it through a verification link so someone else can review the record and check a copy of a document against its recorded file.
 
 !!! info "Who can manage receipts?"
-    Manage your own receipts in Personal. In an organization, Owners and Admins manage receipts and verification links.
+    Only the user a receipt is issued to can open or delete it in the workspace and manage its verification links. This applies in both Personal and organizations; Owners and Admins cannot open other people's receipts through their role.
+
+The requester and every assignee who received a task get a receipt when the request completes, is canceled, or is replaced by a new revision. Each person receives one receipt per workspace and request revision, even if they have several tasks or are also the requester. A task does not have to be completed to receive a receipt; its recorded status distinguishes an assignment from a completed action. Steps that never produced a task do not issue assignee receipts.
 
 ## Open a receipt
 
@@ -35,6 +37,8 @@ Open a receipt in your workspace or an active verification link and choose **Ver
 
 The result spans the receipt's width above **Verify file**. In the workspace receipt view, **Verify file** is grouped with the other actions below the receipt. A green **File verified** alert identifies the matching attachment and its request or task. A red **File does not match** alert means no recorded file has the same hash; check that you selected the correct version and try again.
 
+Verification uses the file metadata and hashes preserved in the receipt. It still works after the original attachments have been removed; retaining a receipt does not keep those stored attachments.
+
 A match confirms that the file contents match a recorded file. It does not assess the document's claims or independently verify the signer's identity.
 
 ## Stop sharing
@@ -43,6 +47,22 @@ On **Share**, select the link, choose **Remove**, and confirm when access is no 
 
 If verification fails, ask the receipt owner for a current link. Public verification links provide access to that receipt, not to the organization's requests, tasks, or directories.
 
-## Deleting receipts
+## Receipt retention
 
-Use **Delete receipt** only when you intend to remove the snapshot. Check your organization's recordkeeping needs and [retention settings](retention.md) first. A verification link is not an independent backup of its receipt.
+Background cleanup removes receipts and their verification links according to the receipt workspace's [retention policy](retention.md), measured from receipt creation:
+
+| Plan | Receipt retention |
+| --- | --- |
+| Personal Free | Five years |
+| Business Trial | One month |
+| Paid plans | The configured **Requests and receipts** period, including **Never delete** |
+
+A personal assignee's receipt follows their Personal workspace's policy, independently of the requesting organization's plan. Changing plans changes the policy for existing receipts that have not yet been removed. Deleting the original request does not delete its receipts. Workspace removal and payment-related cleanup can still remove receipts earlier.
+
+A verification link is not an independent backup of its receipt. Revoking a link stops sharing without deleting the receipt.
+
+## Delete your receipt
+
+Select **Delete** on your receipt, then confirm in **Delete receipt**. This permanently removes your receipt and all its verification links. It does not delete the original request or receipts issued to other participants. Owners and Admins can delete only receipts issued to themselves.
+
+To stop sharing while keeping your receipt, revoke its verification links instead.
