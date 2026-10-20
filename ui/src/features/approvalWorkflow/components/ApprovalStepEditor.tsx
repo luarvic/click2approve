@@ -12,16 +12,14 @@ import {
 } from "@/features/approvalWorkflow/models/approvalStep";
 import { EditableApprovalStep } from "@/features/approvalWorkflow/models/editableApprovalStep";
 import { Employee } from "@/features/employees/models/employee";
+import FormSection from "@/shared/components/forms/FormSection";
 import { Flex } from "@/shared/components/layout/flexStyles";
 import HelpPopover from "@/shared/components/overlays/HelpPopover";
 import { FieldLimits } from "@/shared/config/fieldLimits";
 import { textRule } from "@/shared/utils/formValidation";
-import { Add, DeleteOutlined, ExpandMore, North, South } from "@mui/icons-material";
+import { Add, DeleteOutlined, North, South } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Button,
   Chip,
   FormControl,
@@ -35,7 +33,6 @@ import {
   Switch,
   TextField,
   Tooltip,
-  Typography,
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
@@ -100,23 +97,7 @@ const actionOptions = [
   { value: ApprovalRequestTaskAction.Sign, label: "Sign" },
   { value: ApprovalRequestTaskAction.Verify, label: "Verify" },
 ];
-const accordionSx: SxProps<Theme> = {
-  backgroundColor: "transparent",
-  borderTop: 1,
-  borderColor: "divider",
-  borderRadius: 0,
-  "&:first-of-type, &:last-of-type": { borderRadius: 0 },
-};
-const accordionSummarySx: SxProps<Theme> = {
-  minHeight: 48,
-  px: 1.5,
-  "& .MuiAccordionSummary-content": { my: 1 },
-  "&:hover": { bgcolor: "action.hover" },
-};
-const accordionDetailsSx: SxProps<Theme> = {
-  px: 1.5,
-  pt: 0.5,
-  pb: 2,
+const stepOptionsSx: SxProps<Theme> = {
   "& .MuiFormControlLabel-root": { ml: 0, mr: 0, minHeight: 44 },
 };
 const getStepContentSx = (sx?: SxProps<Theme>): SxProps<Theme> => sx ?? [];
@@ -323,95 +304,85 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                   >
                     Add assignee
                   </Button>
-                  <Accordion disableGutters elevation={0} sx={accordionSx}>
-                    <AccordionSummary expandIcon={<ExpandMore />} sx={accordionSummarySx}>
-                      <Typography color="textSecondary">Additional requirements</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails sx={accordionDetailsSx}>
-                      <Stack>
+                  <FormSection title="Additional requirements">
+                    <Stack sx={stepOptionsSx}>
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={step.isCommentRequired ?? false}
+                            disabled={disabled}
+                            onChange={(_, checked) =>
+                              onUpdateStep(stepIndex, (current) => ({ ...current, isCommentRequired: checked }))
+                            }
+                          />
+                        }
+                        label="Require a comment"
+                      />
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={step.isElectronicSignatureRequired ?? false}
+                            disabled={disabled}
+                            onChange={(_, checked) =>
+                              onUpdateStep(stepIndex, (current) => ({
+                                ...current,
+                                isElectronicSignatureRequired: checked,
+                              }))
+                            }
+                          />
+                        }
+                        label="Require an electronic signature"
+                      />
+                      {showAttachmentRequirement && (
                         <FormControlLabel
                           control={
                             <Switch
-                              checked={step.isCommentRequired ?? false}
-                              disabled={disabled}
-                              onChange={(_, checked) =>
-                                onUpdateStep(stepIndex, (current) => ({ ...current, isCommentRequired: checked }))
-                              }
-                            />
-                          }
-                          label="Require a comment"
-                        />
-                        <FormControlLabel
-                          control={
-                            <Switch
-                              checked={step.isElectronicSignatureRequired ?? false}
+                              checked={step.isAttachmentRequired ?? false}
                               disabled={disabled}
                               onChange={(_, checked) =>
                                 onUpdateStep(stepIndex, (current) => ({
                                   ...current,
-                                  isElectronicSignatureRequired: checked,
+                                  isAttachmentRequired: checked,
                                 }))
                               }
                             />
                           }
-                          label="Require an electronic signature"
+                          label="Require an attachment"
                         />
-                        {showAttachmentRequirement && (
+                      )}
+                    </Stack>
+                  </FormSection>
+                  <FormSection title="Visibility">
+                    <FormControl disabled={disabled} sx={stepOptionsSx}>
+                      <RadioGroup
+                        value={step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants}
+                        onChange={(event) =>
+                          onUpdateStep(stepIndex, (current) => ({
+                            ...current,
+                            visibilityMode: event.target.value as ApprovalStepVisibilityMode,
+                          }))
+                        }
+                      >
+                        <FormControlLabel
+                          control={<Radio />}
+                          label="All participants"
+                          value={ApprovalStepVisibilityMode.AllParticipants}
+                        />
+                        {showOrganizationEmployeesVisibility && (
                           <FormControlLabel
-                            control={
-                              <Switch
-                                checked={step.isAttachmentRequired ?? false}
-                                disabled={disabled}
-                                onChange={(_, checked) =>
-                                  onUpdateStep(stepIndex, (current) => ({
-                                    ...current,
-                                    isAttachmentRequired: checked,
-                                  }))
-                                }
-                              />
-                            }
-                            label="Require an attachment"
+                            control={<Radio />}
+                            label="Organization employees"
+                            value={ApprovalStepVisibilityMode.OrganizationEmployees}
                           />
                         )}
-                      </Stack>
-                    </AccordionDetails>
-                  </Accordion>
-                  <Accordion disableGutters elevation={0} sx={accordionSx}>
-                    <AccordionSummary expandIcon={<ExpandMore />} sx={accordionSummarySx}>
-                      <Typography color="textSecondary">Visibility</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails sx={accordionDetailsSx}>
-                      <FormControl disabled={disabled}>
-                        <RadioGroup
-                          value={step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants}
-                          onChange={(event) =>
-                            onUpdateStep(stepIndex, (current) => ({
-                              ...current,
-                              visibilityMode: event.target.value as ApprovalStepVisibilityMode,
-                            }))
-                          }
-                        >
-                          <FormControlLabel
-                            control={<Radio />}
-                            label="All participants"
-                            value={ApprovalStepVisibilityMode.AllParticipants}
-                          />
-                          {showOrganizationEmployeesVisibility && (
-                            <FormControlLabel
-                              control={<Radio />}
-                              label="Organization employees"
-                              value={ApprovalStepVisibilityMode.OrganizationEmployees}
-                            />
-                          )}
-                          <FormControlLabel
-                            control={<Radio />}
-                            label="Assignees only"
-                            value={ApprovalStepVisibilityMode.AssigneesOnly}
-                          />
-                        </RadioGroup>
-                      </FormControl>
-                    </AccordionDetails>
-                  </Accordion>
+                        <FormControlLabel
+                          control={<Radio />}
+                          label="Assignees only"
+                          value={ApprovalStepVisibilityMode.AssigneesOnly}
+                        />
+                      </RadioGroup>
+                    </FormControl>
+                  </FormSection>
                   {renderStepFooter?.(step, stepIndex)}
                 </Stack>
               </ApprovalRequestDetailsCard>

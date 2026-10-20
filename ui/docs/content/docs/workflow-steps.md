@@ -21,6 +21,8 @@ For example, use one step for two reviewers who must both act, followed by a sep
 
 ## Additional requirements
 
+The **Additional requirements** and **Visibility** sections stay visible in each step while creating or revising a request or editing a template. Review their settings before saving or submitting.
+
 Enable the requirements the participant must satisfy:
 
 - **Require a comment** to collect an explanation.
