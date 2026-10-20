@@ -7,18 +7,39 @@ using Microsoft.EntityFrameworkCore;
 namespace Click2Approve.EventPublisher.Services;
 
 /// <summary>Publishes low-priority requests for permanently deleting due user files.</summary>
-public class DeletionEventPublisherService(
-    IEventQueue eventQueue,
-    IEventPriorityResolver eventPriorityResolver,
-    IServiceScopeFactory scopeFactory,
-    IConfiguration configuration,
-    ILogger logger) : BackgroundService
+public class DeletionEventPublisherService : BackgroundService
 {
-    private readonly IEventQueue _eventQueue = eventQueue;
-    private readonly IEventPriorityResolver _eventPriorityResolver = eventPriorityResolver;
-    private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
-    private readonly IConfiguration _configuration = configuration;
-    private readonly ILogger _logger = logger;
+    private readonly IEventQueue _eventQueue;
+    private readonly IEventPriorityResolver _eventPriorityResolver;
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IConfiguration _configuration;
+    private readonly ILogger _logger;
+
+    /// <summary>Creates the shared deletion publisher with its registered logger category.</summary>
+    public DeletionEventPublisherService(
+        IEventQueue eventQueue,
+        IEventPriorityResolver eventPriorityResolver,
+        IServiceScopeFactory scopeFactory,
+        IConfiguration configuration,
+        ILogger<DeletionEventPublisherService> logger)
+        : this(eventQueue, eventPriorityResolver, scopeFactory, configuration, (ILogger)logger)
+    {
+    }
+
+    /// <summary>Allows edition-specific publishers to supply their own logger category.</summary>
+    protected DeletionEventPublisherService(
+        IEventQueue eventQueue,
+        IEventPriorityResolver eventPriorityResolver,
+        IServiceScopeFactory scopeFactory,
+        IConfiguration configuration,
+        ILogger logger)
+    {
+        _eventQueue = eventQueue;
+        _eventPriorityResolver = eventPriorityResolver;
+        _scopeFactory = scopeFactory;
+        _configuration = configuration;
+        _logger = logger;
+    }
 
     /// <summary>Represents a scheduled domain object selected for deletion-event publication.</summary>
     protected sealed record DeletionCandidate(
