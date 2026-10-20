@@ -5,7 +5,7 @@ Choose how long to keep requests and notifications in each workspace. Deletion c
 ## Set retention
 
 1. Select the workspace and open **Retention**.
-2. Review the **Requests** and **Notifications** periods.
+2. Review the **Requests** and **Notifications** periods. Intermediate slider values appear in a small bubble above the thumb; the endpoints are **1 month** and **Never delete**.
 3. If your plan and permissions allow changes, choose a period for each and select **Save**.
 
 Personal users manage their own settings. Organization Owners and Admins manage the organization's policy. Personal Free and Business Trial retention is fixed at one month for both requests and notifications. Paid plans allow different periods, including **Never delete**.

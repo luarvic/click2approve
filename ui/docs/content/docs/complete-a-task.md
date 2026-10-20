@@ -9,6 +9,8 @@ A task records your action on one step of a request. Review the current request 
 3. Open **Tasks** and select the task waiting for your action.
 4. Read the title, requester, description, step instructions, and current files.
 
+For a team assignment, **Assigned to** shows the individual employee receiving the task with an employee icon. In the **Workflow** tab, expand a step heading to review its original assignees and settings. Task cards stay visible below the heading. Expand a team-created task to see **Assigned via**, which identifies the team.
+
 Use the **Tasks** breadcrumb above the task title to return to the list.
 
 Email-addressed tasks from an organization arrive in Personal. They do not give you access to that organization's workspace. Organization delegates can also act on authorized tasks; see [Delegations](delegations.md).

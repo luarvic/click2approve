@@ -18,7 +18,7 @@ import {
 import { ApprovalRequestTask } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
 import { getApprovalRequestTaskCompletedActionLabel } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
-import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
+import { ApprovalStepAssignee, AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { TenantType } from "@/features/tenants/models/tenant";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
 import { StackSpacing } from "@/shared/theme/tokens";
@@ -30,6 +30,7 @@ import type { ElementType, ReactNode } from "react";
 
 interface ApprovalRequestTaskSummaryBlockProps {
   additionalMetadata?: ReactNode;
+  assignedVia?: ApprovalStepAssignee;
   defaultExpanded?: boolean;
   expandable?: boolean;
   icon?: ReactNode;
@@ -72,6 +73,7 @@ const getTaskCompletionLabel = (task: ApprovalRequestTask): string | undefined =
 
 const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockProps> = ({
   additionalMetadata,
+  assignedVia,
   defaultExpanded,
   expandable,
   icon,
@@ -253,6 +255,20 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
               variant="body2"
             />
           )
+        }
+      />
+      <ApprovalRequestField
+        label="Assigned via"
+        value={
+          assignedVia ? (
+            <ApprovalRequestParticipant
+              allowDisplayNameWrap
+              displayName={assignedVia.displayName}
+              email={assignedVia.email}
+              type={assignedVia.type}
+              variant="body2"
+            />
+          ) : undefined
         }
       />
       <ApprovalRequestField label="Assigned at" value={getLocaleDateTimeString(task.createdAtDate)} />

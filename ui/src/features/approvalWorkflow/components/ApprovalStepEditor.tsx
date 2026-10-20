@@ -174,7 +174,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                       <Tooltip title="Move step up">
                         <span>
                           <IconButton
-                            color="primary"
+                            aria-label={`Move step ${step.sequence} up`}
                             disabled={!canMoveUp}
                             onClick={(event) => {
                               event.stopPropagation();
@@ -188,7 +188,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                       <Tooltip title="Move step down">
                         <span>
                           <IconButton
-                            color="primary"
+                            aria-label={`Move step ${step.sequence} down`}
                             disabled={!canMoveDown}
                             onClick={(event) => {
                               event.stopPropagation();

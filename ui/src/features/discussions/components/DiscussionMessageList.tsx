@@ -1,9 +1,10 @@
 import ApprovalRequestFilesList from "@/features/approvalRequests/components/ApprovalRequestFilesList";
 import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
 import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
+import ApprovalStepDetails from "@/features/approvalWorkflow/components/ApprovalStepDetails";
+import ApprovalStepSection from "@/features/approvalWorkflow/components/ApprovalStepSection";
 import type { ApprovalStep, AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import DiscussionParticipants from "@/features/discussions/components/DiscussionParticipants";
-import DiscussionThread from "@/features/discussions/components/DiscussionThread";
 import type { DiscussionMessage } from "@/features/discussions/models/discussionMessage";
 import { downloadDiscussionMessageFile } from "@/features/userFiles/utils/downloaders";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
@@ -113,22 +114,35 @@ const DiscussionMessageList: React.FC<DiscussionMessageListProps> = ({
   return (
     <Stack spacing={StackSpacing.loose} divider={<Divider />}>
       {visibleSteps.map((step) => (
-        <DiscussionThread
+        <ApprovalStepSection
+          component="section"
+          sequence={step.sequence}
           key={step.globalId ?? step.sequence}
-          title={`${step.globalId ? (stepLabels[step.globalId] ?? "Step") : "Step"} · ${getApprovalRequestTaskActionLabels(step.action).positive}`}
-          participants={
-            <DiscussionParticipants
-              assignees={step.assignees}
-              requesterDisplayName={requesterDisplayName}
-              requesterEmail={requesterEmail}
-              requesterType={requesterType}
+          label={step.globalId ? (stepLabels[step.globalId] ?? "Step") : "Step"}
+          actionLabel={getApprovalRequestTaskActionLabels(step.action).positive}
+          expandedDetails={
+            <ApprovalStepDetails
+              step={step}
+              attributes={["participants"]}
+              participants={
+                <DiscussionParticipants
+                  assignees={step.assignees}
+                  requesterDisplayName={requesterDisplayName}
+                  requesterEmail={requesterEmail}
+                  requesterType={requesterType}
+                />
+              }
             />
           }
         >
-          {messages
-            ?.filter((message) => taskGlobalId || message.approvalRequestStepGlobalId === step.globalId)
-            .map(renderMessage)}
-        </DiscussionThread>
+          {messages?.some((message) => taskGlobalId || message.approvalRequestStepGlobalId === step.globalId) && (
+            <Stack spacing={StackSpacing.loose}>
+              {messages
+                .filter((message) => taskGlobalId || message.approvalRequestStepGlobalId === step.globalId)
+                .map(renderMessage)}
+            </Stack>
+          )}
+        </ApprovalStepSection>
       ))}
       {taskGlobalId && !taskStep && messages?.map(renderMessage)}
     </Stack>

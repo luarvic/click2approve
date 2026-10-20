@@ -8,8 +8,8 @@ strict: true
 nav:
   - Home: index.md
   - Documentation:
-      - Table of contents: docs/index.md
       - Getting started:
+          - Table of contents: docs/index.md
           - Getting started: docs/getting-started.md
           - Features and availability: docs/features.md
           - Workspaces and navigation: docs/workspaces.md

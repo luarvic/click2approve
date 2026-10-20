@@ -369,11 +369,15 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
     <CloseOnEscape onClose={handleClose}>
       <PageBreadcrumbs
         items={[
-          {
-            label: "Requests",
-            state: requestToClone ? { currentApprovalRequestGlobalId: requestToClone.globalId } : undefined,
-            to: requestsPath,
-          },
+          ...(isRevision
+            ? [
+                {
+                  label: "Requests",
+                  state: requestToClone ? { currentApprovalRequestGlobalId: requestToClone.globalId } : undefined,
+                  to: requestsPath,
+                },
+              ]
+            : []),
           {
             label: isRevision ? "Resubmit request" : "New request",
           },

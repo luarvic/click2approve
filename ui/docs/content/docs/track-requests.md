@@ -4,7 +4,7 @@ Open **Requests** in the workspace that owns the request. Use the available filt
 
 ## Read progress and outcomes
 
-Workflow steps appear below the request summary. Each step has a status icon, its requirements, and full-width task cards. An **Upcoming task** shows an assignee whose task has not started yet. **From organization**, when present on an existing task, identifies its recorded organization; Personal is a workspace, not an organization.
+Workflow steps appear below the request summary. Each step heading shows its number and action, such as **Step 1 · Approve**. Use its expand control to show a wrapping row of icons and values for the completion rule, visibility, any requirements, and original assignees. These details start collapsed. Full-width task cards remain visible when the step details are collapsed. Assignee icons identify the original teams, employees, and email addresses. Tasks appear in one list without team groups; expand a task to see **Assigned via** when it was created from a team assignment. An **Upcoming task** shows an assignee whose task has not started yet. **From organization**, when present on an existing task, identifies its recorded organization; Personal is a workspace, not an organization.
 
 The status chip in each request or task card's header shows its current state, including when the card is collapsed.
 

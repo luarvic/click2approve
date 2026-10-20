@@ -201,7 +201,7 @@ const SignInPage = () => {
                     loading={isPasskeyLoading}
                     onClick={handlePasskeySignIn}
                     type="button"
-                    variant="text"
+                    variant="outlined"
                   >
                     Sign in with a passkey
                   </Button>

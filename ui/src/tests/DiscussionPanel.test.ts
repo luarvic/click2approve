@@ -25,43 +25,53 @@ describe("getDiscussionMessageSender", () => {
 });
 
 describe("<DiscussionMessageList />", () => {
-  test("shows participants while messages are loading", () => {
-    const steps: ApprovalStep[] = [
-      {
-        action: ApprovalRequestTaskAction.Approve,
-        assignees: [
-          {
-            displayName: "Approver",
-            globalId: "assignee-1",
-            type: AssigneeType.Employee,
-          },
-        ],
-        globalId: "step-1",
-        sequence: 1,
-      },
-    ];
+  test.each([null, [{ ...message, approvalRequestStepGlobalId: "step-1" }]])(
+    "shares the step header and participant attributes while keeping messages visible (%j)",
+    (messages) => {
+      const steps: ApprovalStep[] = [
+        {
+          action: ApprovalRequestTaskAction.Approve,
+          assignees: [
+            {
+              displayName: "Approver",
+              globalId: "assignee-1",
+              type: AssigneeType.Employee,
+            },
+          ],
+          globalId: "step-1",
+          sequence: 1,
+        },
+      ];
 
-    render(
-      createElement(DiscussionMessageList, {
-        attachmentsAreEnabled: false,
-        messages: null,
-        requesterDisplayName: "Requester",
-        requesterEmail: "requester@example.com",
-        requesterType: AssigneeType.Employee,
-        stepLabels: {},
-        steps,
-        taskApprovalRequestStepGlobalId: "step-1",
-        taskGlobalId: "task-1",
-        tenantGlobalId: "tenant-1",
-      }),
-    );
+      render(
+        createElement(DiscussionMessageList, {
+          attachmentsAreEnabled: false,
+          messages,
+          requesterDisplayName: "Requester",
+          requesterEmail: "requester@example.com",
+          requesterType: AssigneeType.Employee,
+          stepLabels: {},
+          steps,
+          taskApprovalRequestStepGlobalId: "step-1",
+          taskGlobalId: "task-1",
+          tenantGlobalId: "tenant-1",
+        }),
+      );
 
-    const toggle = screen.getByRole("button", { name: "Expand Step · Approve" });
-    expect(toggle.getAttribute("aria-expanded")).toBe("false");
-    fireEvent.click(toggle);
-    expect(toggle.getAttribute("aria-expanded")).toBe("true");
-    expect(screen.getByRole("list", { name: "Participants" })).toBeTruthy();
-    expect(screen.getByText("Requester")).toBeTruthy();
-    expect(screen.getByText("Approver")).toBeTruthy();
-  });
+      const toggle = screen.getByRole("button", { name: "Expand Step · Approve" });
+      expect(toggle.getAttribute("aria-expanded")).toBe("false");
+      if (messages) expect(screen.getByText("Hello")).toBeTruthy();
+      fireEvent.click(toggle);
+      expect(toggle.getAttribute("aria-expanded")).toBe("true");
+      expect(screen.getByRole("list", { name: "Participants" })).toBeTruthy();
+      expect(screen.getByText("Requester")).toBeTruthy();
+      expect(screen.getByText("Approver")).toBeTruthy();
+      expect(screen.getByTestId("AccountTreeOutlinedIcon")).toBeTruthy();
+      expect(screen.queryByText("Any assignee")).toBeNull();
+      expect(screen.queryByText("All participants")).toBeNull();
+      fireEvent.click(toggle);
+      expect(toggle.getAttribute("aria-expanded")).toBe("false");
+      if (messages) expect(screen.getByText("Hello")).toBeTruthy();
+    },
+  );
 });

@@ -157,6 +157,10 @@ body[data-md-color-scheme] {
   padding-bottom: 20px;
 }
 
+.docs-menu-section:first-child {
+  margin-top: 0;
+}
+
 .docs-menu-link {
   border-radius: 6px;
   color: var(--site-muted);

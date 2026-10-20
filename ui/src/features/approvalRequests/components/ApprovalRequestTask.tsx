@@ -19,6 +19,7 @@ import {
   getParticipantName,
   hasIncompleteBusinessParticipantName,
 } from "@/features/approvalRequests/utils/participantName";
+import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { UserFile } from "@/features/userFiles/models/userFile";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
@@ -90,9 +91,10 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
   const nameWarning = getIncompleteParticipantNameWarning(stores.tenantStore.currentTenant?.type);
   const tasksPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/tasks") : "/";
   const currentTask = stores.approvalRequestTaskStore.currentTask;
-  const currentTaskAssigneeType = approvalRequest?.steps
+  const currentTaskStepAssignee = approvalRequest?.steps
     .find((step) => step.globalId === currentTask?.approvalRequestStepGlobalId)
-    ?.assignees.find((assignee) => assignee.globalId === currentTask?.approvalRequestStepAssigneeGlobalId)?.type;
+    ?.assignees.find((assignee) => assignee.globalId === currentTask?.approvalRequestStepAssigneeGlobalId);
+  const currentTaskAssigneeType = currentTask?.isAssigneeEmployee ? AssigneeType.Employee : AssigneeType.User;
   const discussionStep = approvalRequest?.steps.find(
     (step) => step.globalId === currentTask?.approvalRequestStepGlobalId,
   );
@@ -304,6 +306,7 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
                     />
                   ) : undefined
                 }
+                assignedVia={currentTaskStepAssignee?.type === AssigneeType.Team ? currentTaskStepAssignee : undefined}
                 expandable
                 participant="assignee"
                 participantType={currentTaskAssigneeType}

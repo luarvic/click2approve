@@ -22,7 +22,6 @@ const ApprovalRequestStartPage = () => {
   const navigate = useNavigate();
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const composePath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/requests/new/compose") : "/";
-  const requestsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/requests") : "/";
   const tenantScopeIsReady = stores.tenantStore.hasLoaded;
   const canUseTemplates =
     stores.tenantStore.currentTenant?.type === TenantType.Business &&
@@ -87,7 +86,6 @@ const ApprovalRequestStartPage = () => {
     <>
       <PageBreadcrumbs
         items={[
-          { label: "Requests", to: requestsPath },
           {
             label: "New request",
           },

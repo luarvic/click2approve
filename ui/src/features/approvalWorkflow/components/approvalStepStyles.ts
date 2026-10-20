@@ -1,11 +1,8 @@
-import type { SxProps, Theme } from "@mui/material";
+import { alpha, type SxProps, type Theme } from "@mui/material";
 export const AssigneeTypeFieldMinWidth = 130;
 const stepHeaderSpacing = 1;
 
 export const ApprovalStepStyles = {
-  assigneeAccordionSx: { bgcolor: "transparent", boxShadow: "none", "&::before": { display: "none" } } as const,
-  assigneeSummarySx: { minHeight: 0, px: 0, py: 0, "& .MuiAccordionSummary-content": { my: 0 } } as const,
-  assigneeDetailsSx: { px: 0, pb: 0, pt: stepHeaderSpacing } as const,
   addStepButtonSx: { mt: 2 } as SxProps<Theme>,
   stepHeaderSpacing,
   stepStackSpacing: 2,
@@ -18,9 +15,7 @@ export const ApprovalStepStyles = {
   } as SxProps<Theme>,
   removeAssigneeButtonSx: {
     alignSelf: "flex-start",
-    height: 40,
     mt: 1,
-    width: 40,
   } as SxProps<Theme>,
   approvalStepSx: {
     border: "1px solid",
@@ -34,3 +29,7 @@ export const ApprovalStepStyles = {
     p: 2,
   } as SxProps<Theme>,
 } as const;
+
+export const approvalStepIconSx: SxProps<Theme> = (theme) => ({
+  color: alpha(theme.palette.text.secondary, 0.65),
+});

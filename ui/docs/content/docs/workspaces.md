@@ -30,6 +30,8 @@ Use the profile menu for your account settings and notifications. The navigation
 
 Small uppercase labels identify navigation groups, cards, sections, and workflow steps. Page titles and controls use sentence case. Use the breadcrumb links above a page title to return to its parent pages. Choose **Docs** in the main menu to open the user guides.
 
+In grids, green titles and names are links. They show an underline when hovered or focused with the keyboard; keyboard focus also has a visible outline.
+
 The footer includes Home, App, Docs, Contact, Terms, and Privacy links. Each opens in the current tab.
 
 ## Open a shared link

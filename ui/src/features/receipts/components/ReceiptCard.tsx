@@ -145,7 +145,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
             {afterTitleContent}
             <Box sx={fieldSx}>
               <Typography component="span" sx={fieldLabelSx}>
-                Receipt ID:
+                Receipt ID
               </Typography>
               <Typography component="span" sx={fieldValueSx}>
                 {receipt.globalId}
@@ -153,7 +153,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
             </Box>
             <Box sx={fieldSx}>
               <Typography component="span" sx={fieldLabelSx}>
-                Date:
+                Date
               </Typography>
               <Typography component="span" sx={fieldValueSx}>
                 {getLocaleDateTimeString(receipt.createdAt)}
@@ -171,7 +171,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
               .map(([label, value]) => (
                 <Box key={label} sx={fieldSx}>
                   <Typography component="span" sx={fieldLabelSx}>
-                    {label}:
+                    {label}
                   </Typography>
                   {label === "Status" ? (
                     <Box sx={fieldValueSx}>
@@ -193,7 +193,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
                 ].map(([label, value]) => (
                   <Box key={label} sx={fieldSx}>
                     <Typography component="span" sx={fieldLabelSx}>
-                      {label}:
+                      {label}
                     </Typography>
                     <Typography component="span" sx={label === "SHA-256" ? [fieldValueSx, hashValueSx] : fieldValueSx}>
                       {value}
@@ -235,7 +235,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
                   .map(([label, value]) => (
                     <Box key={label} sx={fieldSx}>
                       <Typography component="span" sx={fieldLabelSx}>
-                        {label}:
+                        {label}
                       </Typography>
                       {label === "Status" ? (
                         <Box sx={fieldValueSx}>
@@ -258,7 +258,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
                   <Stack spacing={StackSpacing.tight}>
                     <Box sx={fieldSx}>
                       <Typography component="span" sx={fieldLabelSx}>
-                        Legal name:
+                        Legal name
                       </Typography>
                       <Typography component="span" sx={fieldValueSx}>
                         {task.assigneeLegalName || "Not provided"}
@@ -267,7 +267,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
                     {task.assigneeRepresentationDetails && (
                       <Box sx={fieldSx}>
                         <Typography component="span" sx={fieldLabelSx}>
-                          Representation details:
+                          Representation details
                         </Typography>
                         <Typography component="span" sx={fieldValueSx}>
                           {task.assigneeRepresentationDetails}
@@ -276,7 +276,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
                     )}
                     <Box sx={fieldSx}>
                       <Typography component="span" sx={fieldLabelSx}>
-                        Electronic signature:
+                        Electronic signature
                       </Typography>
                       <Box sx={signatureValueSx}>
                         <ReceiptSignature signatureJson={task.electronicSignatureJson} />
@@ -293,7 +293,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
                     ].map(([label, value]) => (
                       <Box key={label} sx={fieldSx}>
                         <Typography component="span" sx={fieldLabelSx}>
-                          {label}:
+                          {label}
                         </Typography>
                         <Typography
                           component="span"

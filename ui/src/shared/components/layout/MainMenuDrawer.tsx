@@ -192,7 +192,7 @@ const MainMenuDrawer = () => {
         </Link>
       </Toolbar>
       <Box sx={Shell.mainMenuDrawerContentSx}>
-        <List>
+        <List subheader={<ListSubheader component="div">Work</ListSubheader>}>
           <ListItem disablePadding>
             <ListItemButton
               selected={newRequestIsSelected}
@@ -206,8 +206,6 @@ const MainMenuDrawer = () => {
               <ListItemText primary="New request" />
             </ListItemButton>
           </ListItem>
-        </List>
-        <List subheader={<ListSubheader component="div">Work</ListSubheader>}>
           <ListItem key="incoming" disablePadding>
             <ListItemButton
               selected={tasksAreSelected}

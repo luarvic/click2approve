@@ -4,11 +4,13 @@ import {
   getApprovalRequestTask,
 } from "@/features/approvalRequests/api/approvalRequestTasksApi";
 import ApprovalRequestTask from "@/features/approvalRequests/components/ApprovalRequestTask";
+import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTask as Task } from "@/features/approvalRequests/models/approvalRequestTask";
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
+import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { notification } from "@/shared/utils/notifications";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { runInAction } from "mobx";
 import { RouterProvider, createMemoryRouter } from "react-router-dom";
@@ -73,6 +75,56 @@ describe("task response state", () => {
       stores.approvalRequestTaskStore.currentTask = task;
     });
   });
+  test.each([AssigneeType.Team, AssigneeType.Employee, AssigneeType.User])(
+    "shows the individual recipient icon for a %s workflow assignment",
+    (assigneeType) => {
+      const isAssigneeEmployee = assigneeType !== AssigneeType.User;
+      runInAction(() => {
+        stores.approvalRequestTaskStore.currentTask = {
+          ...task,
+          isAssigneeEmployee,
+          approvalRequestStepAssigneeGlobalId: "assignee-a",
+          approvalRequest: {
+            globalId: "request-a",
+            title: "Budget",
+            status: ApprovalRequestStatus.Started,
+            createdAt: task.createdAt,
+            createdAtDate: task.createdAtDate,
+            revisionNumber: 1,
+            requestFiles: [],
+            requesterUserGlobalId: "requester-a",
+            submittedByUserGlobalId: "requester-a",
+            requesterDisplayName: "Morgan",
+            requesterEmail: "morgan@example.com",
+            submittedByDisplayName: "Morgan",
+            submittedByEmail: "morgan@example.com",
+            organizationDisplayName: "Acme",
+            steps: [
+              {
+                globalId: "step-a",
+                sequence: 1,
+                action: ApprovalRequestTaskAction.Approve,
+                assignees: [{ globalId: "assignee-a", type: assigneeType, displayName: "Finance" }],
+              },
+            ],
+          },
+        };
+      });
+      renderTask();
+
+      const assignee = screen.getByText(isAssigneeEmployee ? "Alice" : "alice@example.com").parentElement!;
+      expect(
+        within(assignee).getByTestId(isAssigneeEmployee ? "PersonOutlinedIcon" : "EmailOutlinedIcon"),
+      ).toBeTruthy();
+      expect(within(assignee).queryByTestId("GroupsOutlinedIcon")).toBeNull();
+      if (assigneeType === AssigneeType.Team) {
+        expect(screen.getByText("Assigned via")).toBeTruthy();
+        expect(screen.getByText("Finance")).toBeTruthy();
+      } else {
+        expect(screen.queryByText("Assigned via")).toBeNull();
+      }
+    },
+  );
   test.each(["Cancel", "Escape"])("%s leaves an edited decision immediately without restoring it", async (action) => {
     const user = userEvent.setup();
     const confirm = vi.mocked(window.confirm);

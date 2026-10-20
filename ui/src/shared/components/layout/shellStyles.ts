@@ -58,6 +58,12 @@ export const Shell = {
     minHeight: appBarHeight,
   } as SxProps<Theme>,
   mainMenuButtonSx: (mainMenuDrawerIsOpen: boolean): SxProps<Theme> => ({
+    borderRadius: "50%",
+    height: 40,
+    padding: 1,
+    width: 40,
+    "& .MuiSvgIcon-root": { fontSize: 24 },
+    "@media (pointer: coarse)": { height: 44, width: 44 },
     mr: 1,
     display: mainMenuDrawerIsOpen ? "none" : "inline-flex",
   }),
@@ -137,6 +143,13 @@ export const Shell = {
       whiteSpace: "nowrap",
     },
   } as SxProps<Theme>,
+  profileButtonSx: {
+    borderRadius: "50%",
+    height: 48,
+    padding: 1,
+    width: 48,
+    "@media (pointer: coarse)": { height: 48, width: 48 },
+  } as SxProps<Theme>,
   profileAvatarSx: {
     bgcolor: "action.active",
     color: "background.paper",
@@ -211,6 +224,9 @@ export const Shell = {
     "& > .MuiList-root": {
       pt: 0,
       pb: 2.5,
+    },
+    "& > .MuiList-root:first-child > .MuiListSubheader-root": {
+      mt: 0,
     },
     "& .MuiListItemButton-root": {
       borderRadius: ControlTokens.borderRadius,

@@ -1,6 +1,6 @@
 import { actionRowStyles } from "@/shared/components/buttons/actionRowStyles";
 import { ControlTokens, SitePaletteTokens, SurfaceTokens } from "@/shared/theme/tokens";
-import { PaletteMode, createTheme } from "@mui/material";
+import { PaletteMode, Theme, createTheme } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import type {} from "@mui/x-data-grid/themeAugmentation";
 import type { CSSProperties } from "react";
@@ -24,6 +24,12 @@ declare module "@mui/material/Typography" {
 }
 
 const inputVariant = "standard";
+const gridToolbarStyles = ({ theme }: { theme: Theme }) => ({
+  ...actionRowStyles(theme),
+  justifyContent: "flex-start",
+  paddingTop: 0,
+  paddingBottom: 12,
+});
 const structuralHeadingTypography = {
   letterSpacing: "1px",
   lineHeight: 1.5,
@@ -100,6 +106,30 @@ export const createAppTheme = (colorMode: PaletteMode) => {
           },
         },
       },
+      MuiIconButton: {
+        defaultProps: { size: "small" },
+        styleOverrides: {
+          root: ({ theme, ownerState }) => ({
+            borderRadius: ControlTokens.borderRadius,
+            flexShrink: 0,
+            height: 32,
+            padding: 0,
+            width: 32,
+            "& .MuiSvgIcon-root": { fontSize: 18 },
+            ...(ownerState.color === "default" && {
+              color: theme.palette.text.secondary,
+              "&:hover": { backgroundColor: theme.palette.action.hover, color: theme.palette.primary.main },
+            }),
+            "&.Mui-focusVisible": {
+              outline: "2px solid",
+              outlineColor: theme.palette.primary.main,
+              outlineOffset: 2,
+              ...(ownerState.color === "default" && { color: theme.palette.primary.main }),
+            },
+            "@media (pointer: coarse)": { height: 44, width: 44 },
+          }),
+        },
+      },
       MuiCard: {
         styleOverrides: {
           root: ({ theme }) => ({
@@ -134,12 +164,18 @@ export const createAppTheme = (colorMode: PaletteMode) => {
               letterSpacing: "0.5px",
             },
             "& .MuiDataGrid-columnSeparator": { color: theme.palette.divider },
+            "& .MuiDataGrid-cell .MuiLink-root": {
+              textDecoration: "none",
+              "&:hover": { textDecoration: "underline" },
+              "&:focus-visible": {
+                textDecoration: "underline",
+                outline: `2px solid ${theme.palette.primary.main}`,
+                outlineOffset: 2,
+              },
+            },
           }),
-          toolbar: ({ theme }) => ({
-            ...actionRowStyles(theme),
-            justifyContent: "flex-start",
-            paddingBlock: 12,
-          }),
+          toolbar: gridToolbarStyles,
+          toolbarContainer: gridToolbarStyles,
         },
       },
       MuiCardContent: {

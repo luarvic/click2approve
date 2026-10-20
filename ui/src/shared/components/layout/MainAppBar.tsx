@@ -76,6 +76,7 @@ const MainAppBar = ({
           <IconButton
             color="inherit"
             edge="start"
+            size="medium"
             aria-label={mainMenuDrawerIsOpen ? "Close menu" : "Open menu"}
             onClick={() => stores.commonStore.setMainMenuDrawerIsOpen(!mainMenuDrawerIsOpen)}
             sx={Shell.mainMenuButtonSx(mainMenuDrawerIsOpen)}
@@ -161,6 +162,8 @@ const MainAppBar = ({
             color="inherit"
             edge="end"
             aria-label="Open profile"
+            size="medium"
+            sx={Shell.profileButtonSx}
             onClick={() => stores.commonStore.setProfileDrawerIsOpen(true)}
           >
             <Avatar src={getPublicApiUrl(profile?.avatar)} sx={Shell.profileAvatarSx}>

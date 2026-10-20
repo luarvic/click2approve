@@ -1,7 +1,6 @@
-import ApprovalRequestParticipant from "@/features/approvalRequests/components/ApprovalRequestParticipant";
+import ApprovalStepAssignees from "@/features/approvalWorkflow/components/ApprovalStepAssignees";
 import { AssigneeType, type ApprovalStepAssignee } from "@/features/approvalWorkflow/models/approvalStep";
 import { stripInlineEmail } from "@/shared/utils/displayNameHelpers";
-import { Box, Stack } from "@mui/material";
 
 interface DiscussionParticipantsProps {
   assignees: ApprovalStepAssignee[];
@@ -9,17 +8,6 @@ interface DiscussionParticipantsProps {
   requesterEmail: string;
   requesterType: AssigneeType;
 }
-
-const participantListSx = {
-  columnGap: 2,
-  flexWrap: "wrap",
-  listStyle: "none",
-  m: 0,
-  px: 0,
-  pb: 1,
-  rowGap: 1,
-} as const;
-const participantItemSx = { maxWidth: "100%", minWidth: 0 } as const;
 
 const getParticipantLabel = (displayName?: string, email?: string): string => {
   const name = stripInlineEmail(displayName);
@@ -48,18 +36,14 @@ const DiscussionParticipants: React.FC<DiscussionParticipantsProps> = ({
     .sort((first, second) => first.label.localeCompare(second.label));
 
   return (
-    <Stack component="ul" aria-label="Participants" direction="row" sx={participantListSx}>
-      {participants.map((participant) => (
-        <Box component="li" key={participant.key} sx={participantItemSx}>
-          <ApprovalRequestParticipant
-            allowDisplayNameWrap
-            displayName={participant.label}
-            type={participant.type}
-            variant="body1"
-          />
-        </Box>
-      ))}
-    </Stack>
+    <ApprovalStepAssignees
+      label="Participants"
+      assignees={participants.map((participant) => ({
+        globalId: participant.key,
+        displayName: participant.label,
+        type: participant.type,
+      }))}
+    />
   );
 };
 

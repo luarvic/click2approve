@@ -1,7 +1,7 @@
 import CardHeading, { type CardHeadingVariant } from "@/shared/components/papers/CardHeading";
 import { StackSpacing } from "@/shared/theme/tokens";
 import { ExpandMore } from "@mui/icons-material";
-import { Collapse, IconButton, Stack } from "@mui/material";
+import { Box, Collapse, IconButton, Stack } from "@mui/material";
 import { useId, useState, type ReactNode } from "react";
 
 interface ExpandableSectionProps {
@@ -12,6 +12,7 @@ interface ExpandableSectionProps {
   expandable?: boolean;
   headerSpacing?: number;
   headingId?: string;
+  icon?: ReactNode;
   headingVariant?: CardHeadingVariant;
   title: string;
 }
@@ -22,6 +23,8 @@ const headerRowSx = {
   gap: 2,
   flexWrap: "wrap",
 } as const;
+const headingRowSx = { display: "flex", alignItems: "center", gap: StackSpacing.tight, minWidth: 0 } as const;
+const headingIconSx = { display: "inline-flex", flexShrink: 0 } as const;
 const headerActionsSx = { alignItems: "center", flexShrink: 0, ml: "auto", maxWidth: "100%" } as const;
 const compactHeaderActionsSx = { my: -1 } as const;
 const expandIconSx = (expanded: boolean) => ({ transform: expanded ? "rotate(180deg)" : "none" });
@@ -34,6 +37,7 @@ const ExpandableSection: React.FC<ExpandableSectionProps> = ({
   expandable = true,
   headerSpacing = StackSpacing.default,
   headingId,
+  icon,
   headingVariant,
   title,
 }) => {
@@ -42,9 +46,16 @@ const ExpandableSection: React.FC<ExpandableSectionProps> = ({
   return (
     <Stack spacing={headerSpacing}>
       <Stack direction="row" spacing={StackSpacing.tight} useFlexGap={compactHeader} sx={headerRowSx}>
-        <CardHeading id={headingId} variant={headingVariant}>
-          {title}
-        </CardHeading>
+        <Box sx={headingRowSx}>
+          {icon && (
+            <Box component="span" sx={headingIconSx}>
+              {icon}
+            </Box>
+          )}
+          <CardHeading id={headingId} variant={headingVariant}>
+            {title}
+          </CardHeading>
+        </Box>
         <Stack
           direction="row"
           spacing={StackSpacing.default}

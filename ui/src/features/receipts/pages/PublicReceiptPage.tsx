@@ -3,6 +3,7 @@ import { getReceiptByLink } from "@/features/receipts/api/receiptLinksApi";
 import ReceiptView from "@/features/receipts/components/ReceiptView";
 import ReceiptFileVerification from "@/features/receipts/components/verification/ReceiptFileVerification";
 import type { PublicReceipt } from "@/features/receipts/models/publicReceipt";
+import { Pages } from "@/shared/components/layout/pageStyles";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import NotFoundPage from "@/shared/pages/NotFoundPage";
@@ -17,17 +18,18 @@ const baseUrl = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_UR
 const logoSrc = `${baseUrl}logo-wall-to-wall.svg`;
 const qrCodeSize = 192;
 const receiptLogoSize = 36;
+const receiptBrandVerticalSpacing = 2;
 
 const pageSx: SxProps<Theme> = {
+  ...Pages.containerSx,
+  pt: { xs: receiptBrandVerticalSpacing, md: receiptBrandVerticalSpacing },
   display: "flex",
   flexDirection: "column",
   minHeight: "100vh",
-  pb: { xs: 2, md: 4 },
-  pt: { xs: 1, md: 2 },
   "@media print": {
     display: "block",
     minHeight: "auto",
-    py: 0,
+    p: 0,
   },
 };
 
@@ -42,8 +44,9 @@ const contentContainerSx: SxProps<Theme> = {
 };
 
 const receiptViewSx: SxProps<Theme> = {
-  maxWidth: "100%",
-  width: { sm: 960 },
+  maxWidth: 960,
+  minWidth: 0,
+  width: "100%",
   "@media print": {
     maxWidth: "none",
     width: "100%",
@@ -75,8 +78,11 @@ const qrLabelSx: SxProps<Theme> = {
 
 const receiptBrandSx: SxProps<Theme> = {
   alignItems: "center",
+  color: "inherit",
+  textDecoration: "none",
+  width: "fit-content",
   justifyContent: "flex-start",
-  mb: 2,
+  mb: receiptBrandVerticalSpacing,
   "@media print": {
     breakAfter: "avoid",
     color: "#162b20",
@@ -159,8 +165,15 @@ const PublicReceiptPage = () => {
       <Box component="main" sx={pageSx}>
         <Box sx={contentContainerSx}>
           <Box sx={receiptViewSx}>
-            <Stack direction="row" spacing={StackSpacing.tight} sx={receiptBrandSx}>
-              <Box component="img" src={logoSrc} alt="Click2Approve" sx={receiptLogoSx} />
+            <Stack
+              component="a"
+              href="/"
+              aria-label="Click2Approve home"
+              direction="row"
+              spacing={StackSpacing.tight}
+              sx={receiptBrandSx}
+            >
+              <Box component="img" src={logoSrc} alt="" aria-hidden="true" sx={receiptLogoSx} />
               <Typography component="span" variant="h6" sx={receiptBrandTextSx}>
                 Click2Approve
               </Typography>

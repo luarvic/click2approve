@@ -39,9 +39,11 @@ const retentionSliderSx: SxProps<Theme> = {
   mx: 1,
   width: "auto",
   "& .MuiSlider-valueLabel": {
-    fontSize: "0.75rem",
-    px: 0.5,
-    py: 0.25,
+    borderRadius: "6px",
+    fontSize: "12px",
+    lineHeight: 1.4,
+    px: 0.75,
+    py: 0.375,
   },
   "& .retention-first-mark-label, & .retention-last-mark-label": {
     color: "text.secondary",
@@ -56,7 +58,7 @@ const retentionSliderSx: SxProps<Theme> = {
 };
 const retentionControlSx: SxProps<Theme> = {
   alignItems: { xs: "stretch", sm: "center" },
-  gap: { xs: 3, sm: 2 },
+  gap: { xs: 4, sm: 2 },
 };
 const retentionTitleSx: SxProps<Theme> = {
   color: "text.secondary",

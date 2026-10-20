@@ -13,7 +13,7 @@ const TenantPickerOption: React.FC<TenantPickerOptionProps> = ({ employeeDisplay
       {tenant.businessName}
       {employeeDisplayName && (
         <Typography component="span" variant="body1" color="textSecondary">
-          {` • ${employeeDisplayName}`}
+          {` · ${employeeDisplayName}`}
         </Typography>
       )}
     </Typography>

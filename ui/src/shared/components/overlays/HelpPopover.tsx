@@ -1,4 +1,4 @@
-import { ControlTokens, SurfaceTokens } from "@/shared/theme/tokens";
+import { SurfaceTokens } from "@/shared/theme/tokens";
 import { InfoOutlined } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import { IconButton, Link, Popover, Typography } from "@mui/material";
@@ -9,31 +9,6 @@ interface HelpPopoverProps {
   docsHref?: string;
   helpText: string;
 }
-
-const helpButtonSx: SxProps<Theme> = {
-  borderRadius: ControlTokens.borderRadius,
-  color: "text.secondary",
-  flexShrink: 0,
-  height: 32,
-  p: 0,
-  width: 32,
-  "&:hover": {
-    bgcolor: "action.hover",
-    color: "primary.main",
-  },
-  "&.Mui-focusVisible": {
-    color: "primary.main",
-    outline: "2px solid",
-    outlineColor: "primary.main",
-    outlineOffset: 2,
-  },
-  "@media (pointer: coarse)": {
-    height: 44,
-    width: 44,
-  },
-};
-
-const helpIconSx: SxProps<Theme> = { fontSize: 18 };
 
 const helpPopoverPaperSx: SxProps<Theme> = {
   border: 1,
@@ -63,9 +38,8 @@ const HelpPopover: React.FC<HelpPopoverProps> = ({ docsHref, helpText }) => {
         aria-label="Show help"
         size="small"
         onClick={(event) => setAnchorElement(event.currentTarget)}
-        sx={helpButtonSx}
       >
-        <InfoOutlined sx={helpIconSx} />
+        <InfoOutlined />
       </IconButton>
       <Popover
         anchorEl={anchorElement}

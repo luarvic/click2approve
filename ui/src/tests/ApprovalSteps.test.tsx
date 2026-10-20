@@ -83,6 +83,10 @@ const approvalRequest: ApprovalRequest = {
   title: "Request title",
 };
 
+const expandStepDetails = async () => {
+  await userEvent.setup().click(screen.getByRole("button", { name: "Expand Step 1 · Approve" }));
+};
+
 describe("<ApprovalSteps />", () => {
   test("does not present the Personal workspace as an upcoming task's organization", () => {
     const previousTenants = stores.tenantStore.tenants;
@@ -111,14 +115,16 @@ describe("<ApprovalSteps />", () => {
       });
     }
   });
-  test("shows hidden steps without leaking their details", () => {
+  test("shows hidden steps without leaking their details", async () => {
     render(<ApprovalSteps approvalRequest={approvalRequest} limitWorkflowFields />);
 
-    expect(screen.getByText("Step 1")).toBeTruthy();
-    expect(screen.getByLabelText("Step 1 action Approve")).toBeTruthy();
+    expect(screen.getByText("Step 1 · Approve")).toBeTruthy();
+    await expandStepDetails();
     expect(screen.getByLabelText("Step 1 completion rule Any assignee")).toBeTruthy();
     expect(screen.getByLabelText("Step 1 visibility Organization employees")).toBeTruthy();
-    expect(screen.getByText("visible@example.com")).toBeTruthy();
+    expect(
+      within(screen.getByRole("list", { name: "Step 1 assignees" })).getByText("visible@example.com"),
+    ).toBeTruthy();
     expect(screen.getByLabelText("Upcoming task")).toBeTruthy();
     expect(screen.queryByText("Details")).toBeNull();
     expect(screen.getByText("Activity")).toBeTruthy();
@@ -137,7 +143,7 @@ describe("<ApprovalSteps />", () => {
     expect(screen.queryByText("Hidden task comment")).toBeNull();
   });
 
-  test("can hide visible step visibility summaries", () => {
+  test("can hide visible step visibility summaries", async () => {
     render(
       <ApprovalSteps
         approvalRequest={{
@@ -149,11 +155,13 @@ describe("<ApprovalSteps />", () => {
       />,
     );
 
+    await expandStepDetails();
+    expect(screen.queryByLabelText("Step 1 visibility Organization employees")).toBeNull();
     expect(screen.queryByText("Blocked Assignee")).toBeNull();
     expect(screen.getByTestId("hidden-step-icon")).toBeTruthy();
   });
 
-  test("groups individual assignees when a step also has a team", () => {
+  test("lists mixed original assignees without grouping upcoming tasks", async () => {
     render(
       <ApprovalSteps
         approvalRequest={{
@@ -176,8 +184,82 @@ describe("<ApprovalSteps />", () => {
       />,
     );
 
-    expect(screen.getByText("Individual assignees")).toBeTruthy();
+    await expandStepDetails();
+    const assignees = within(screen.getByRole("list", { name: "Step 1 assignees" }));
+    expect(assignees.getByText("Finance team")).toBeTruthy();
+    expect(assignees.getByText("visible@example.com")).toBeTruthy();
+    expect(screen.queryByText("Individual assignees")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Finance team" })).toBeNull();
     expect(screen.getAllByLabelText("Upcoming task")).toHaveLength(2);
+  });
+
+  test("shows tasks from multiple teams and individual assignments in one list with team provenance", async () => {
+    const assignees = [
+      { globalId: "finance", type: AssigneeType.Team, displayName: "Finance" },
+      { globalId: "management", type: AssigneeType.Team, displayName: "Management" },
+      { globalId: "employee", type: AssigneeType.Employee, displayName: "Jamie" },
+      { globalId: "email", type: AssigneeType.User, email: "external@example.com" },
+    ];
+    const tasks = assignees.map((assignee, index) => ({
+      ...approvalRequest.steps[1].tasks![0],
+      globalId: `task-${index}`,
+      approvalRequestStepGlobalId: "visible-step-id",
+      approvalRequestStepAssigneeGlobalId: assignee.globalId,
+      assigneeDisplayName: `Recipient ${index}`,
+      assigneeEmail: index === 3 ? "external@example.com" : `recipient${index}@example.com`,
+      isAssigneeEmployee: index !== 3,
+    }));
+    render(
+      <ApprovalSteps
+        approvalRequest={{
+          ...approvalRequest,
+          steps: [{ ...approvalRequest.steps[0], assignees, tasks }],
+        }}
+        collapseCards
+      />,
+    );
+
+    await expandStepDetails();
+    const originalAssignees = within(screen.getByRole("list", { name: "Step 1 assignees" }));
+    expect(originalAssignees.getAllByRole("listitem")).toHaveLength(4);
+    expect(originalAssignees.getAllByTestId("GroupsOutlinedIcon")).toHaveLength(2);
+    expect(originalAssignees.getByTestId("PersonOutlinedIcon")).toBeTruthy();
+    expect(originalAssignees.getByTestId("EmailOutlinedIcon")).toBeTruthy();
+    const cards = screen.getAllByLabelText("Pending");
+    expect(cards).toHaveLength(4);
+    expect(new Set(cards.map((card) => card.parentElement)).size).toBe(1);
+    expect(screen.queryByText("Assigned via")).toBeNull();
+    const user = userEvent.setup();
+    for (const button of screen.getAllByRole("button", { name: /Expand Task/ })) {
+      await user.click(button);
+    }
+    expect(screen.getAllByText("Assigned via")).toHaveLength(2);
+    tasks.forEach((task, index) => {
+      const card = within(cards[index]);
+      if (index < 2) {
+        expect(card.getByText(assignees[index].displayName!)).toBeTruthy();
+      } else {
+        expect(card.queryByText("Assigned via")).toBeNull();
+      }
+      const recipient = card.getByText(index === 3 ? task.assigneeEmail : task.assigneeDisplayName).parentElement!;
+      expect(within(recipient).getByTestId(index === 3 ? "EmailOutlinedIcon" : "PersonOutlinedIcon")).toBeTruthy();
+    });
+  });
+
+  test("toggles step details with the keyboard while task cards stay visible", async () => {
+    render(<ApprovalSteps approvalRequest={approvalRequest} collapseCards />);
+    expect(screen.queryByRole("list", { name: "Step 1 assignees" })).toBeNull();
+    const toggle = screen.getByRole("button", { name: "Expand Step 1 · Approve" });
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    toggle.focus();
+    await userEvent.setup().keyboard("{Enter}");
+    expect(within(screen.getByRole("region", { name: "Step 1 details" })).getByText("Any assignee")).toBeTruthy();
+    expect(screen.getByRole("list", { name: "Step 1 assignees" })).toBeTruthy();
+    await userEvent.setup().click(screen.getByRole("button", { name: "Expand Upcoming task" }));
+    await userEvent.setup().click(screen.getByRole("button", { name: "Collapse Step 1 · Approve" }));
+    expect(screen.getByRole("button", { name: "Collapse Upcoming task" })).toBeTruthy();
+    expect(screen.getByLabelText("Upcoming task")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Expand Step 1 · Approve" }).getAttribute("aria-expanded")).toBe("false");
   });
 
   test("can expand upcoming task cards", async () => {
@@ -237,12 +319,15 @@ describe("<ApprovalSteps />", () => {
       />,
     );
 
+    await expandStepDetails();
     expect(screen.getByText("Task #visib")).toBeTruthy();
     expect(screen.queryByText("Visible task description")).toBeNull();
     expect(screen.queryByText("Files")).toBeNull();
     expect(screen.queryByText("Requested by")).toBeNull();
     expect(screen.queryByText("Revision")).toBeNull();
-    expect(screen.getByText("visible@example.com")).toBeTruthy();
+    expect(
+      within(screen.getByRole("list", { name: "Step 1 assignees" })).getByText("visible@example.com"),
+    ).toBeTruthy();
     expect(screen.getByRole("button", { name: "Collapse Task #visib" })).toBeTruthy();
     const currentTaskRow = screen.getByText("Task #visib").closest("[role='button']");
     expect(currentTaskRow?.textContent).toContain("visible@example.com");

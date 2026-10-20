@@ -1,14 +1,17 @@
+import { approvalStepIconSx } from "@/features/approvalWorkflow/components/approvalStepStyles";
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
+import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
+import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
+import ApprovalStepDetails from "@/features/approvalWorkflow/components/ApprovalStepDetails";
 import ApprovalStepList from "@/features/approvalWorkflow/components/ApprovalStepList";
 import ApprovalStepSection from "@/features/approvalWorkflow/components/ApprovalStepSection";
 import { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
-import { Icons } from "@/shared/components/icons/iconStyles";
 import { VisibilityOffOutlined } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
 import { Stack } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
-import ApprovalStepBlock, { ApprovalStepMetadata } from "./ApprovalStepBlock";
+import ApprovalStepBlock from "./ApprovalStepBlock";
 
 interface ApprovalStepsProps {
   approvalRequest: ApprovalRequest;
@@ -29,7 +32,7 @@ const getStepTasks = (step: ApprovalStep) => {
 };
 
 const workflowSpacing = 3;
-const HiddenStepIcon = () => <VisibilityOffOutlined color={Icons.secondaryColor} data-testid="hidden-step-icon" />;
+const HiddenStepIcon = () => <VisibilityOffOutlined sx={approvalStepIconSx} data-testid="hidden-step-icon" />;
 
 const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
   approvalRequest,
@@ -58,10 +61,22 @@ const ApprovalSteps: React.FC<ApprovalStepsProps> = ({
               icon={isHidden ? <HiddenStepIcon /> : undefined}
               iconLabel={isHidden ? "Hidden step" : undefined}
               sequence={step.sequence}
+              actionLabel={
+                isHidden
+                  ? undefined
+                  : getApprovalRequestTaskActionLabels(step.action ?? ApprovalRequestTaskAction.Approve).positive
+              }
+              expandedDetails={
+                isHidden ? undefined : (
+                  <ApprovalStepDetails
+                    attributes={showVisibleStepVisibility ? undefined : ["completion", "requirements", "assignees"]}
+                    step={step}
+                  />
+                )
+              }
             >
               {!isHidden && (
                 <>
-                  <ApprovalStepMetadata showVisibility={showVisibleStepVisibility} step={step} />
                   <ApprovalStepBlock
                     collapseCards={collapseCards}
                     highlightedTaskGlobalId={highlightedTaskGlobalId}

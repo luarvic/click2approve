@@ -1,4 +1,5 @@
 import { ApprovalStepStyles } from "@/features/approvalWorkflow/components/approvalStepStyles";
+import ExpandableSection from "@/shared/components/layout/ExpandableSection";
 import { Flex } from "@/shared/components/layout/flexStyles";
 import { StackSpacing } from "@/shared/theme/tokens";
 import type { SxProps } from "@mui/material";
@@ -12,7 +13,9 @@ interface ApprovalStepHeaderProps {
   actions?: ReactNode;
   icon?: ReactNode;
   iconLabel?: string;
-  details?: ReactNode;
+  expandedDetails?: ReactNode;
+  actionLabel?: string;
+  label?: string;
   hasBottomMargin?: boolean;
   sequence: number;
   showTitle?: boolean;
@@ -33,30 +36,41 @@ const ApprovalStepHeader: React.FC<ApprovalStepHeaderProps> = ({
   actions,
   icon,
   iconLabel,
-  details,
+  expandedDetails,
+  actionLabel,
+  label,
   hasBottomMargin = false,
   sequence,
   showTitle = true,
-}) => (
-  <Stack
-    direction="row"
-    spacing={ApprovalStepStyles.stepHeaderSpacing}
-    sx={[Flex.alignCenterSx, hasBottomMargin && headerSx]}
-  >
-    <Stack sx={Flex.growSx}>
-      <Stack direction="row" sx={titleRowSx}>
-        {icon && (
-          <Box component="span" role={iconLabel ? "img" : undefined} aria-label={iconLabel} sx={iconSx}>
-            {icon}
-          </Box>
-        )}
-        {showTitle && <ApprovalStepTitle sequence={sequence} />}
-        {details}
-        {accessory}
-        {actions && <Box sx={actionsSx}>{actions}</Box>}
+}) =>
+  expandedDetails ? (
+    <ExpandableSection
+      actions={actions}
+      defaultExpanded={false}
+      icon={icon}
+      title={`${label ?? `Step ${sequence}`}${actionLabel ? ` · ${actionLabel}` : ""}`}
+    >
+      {expandedDetails}
+    </ExpandableSection>
+  ) : (
+    <Stack
+      direction="row"
+      spacing={ApprovalStepStyles.stepHeaderSpacing}
+      sx={[Flex.alignCenterSx, hasBottomMargin && headerSx]}
+    >
+      <Stack sx={Flex.growSx}>
+        <Stack direction="row" sx={titleRowSx}>
+          {icon && (
+            <Box component="span" role={iconLabel ? "img" : undefined} aria-label={iconLabel} sx={iconSx}>
+              {icon}
+            </Box>
+          )}
+          {showTitle && <ApprovalStepTitle sequence={sequence} />}
+          {accessory}
+          {actions && <Box sx={actionsSx}>{actions}</Box>}
+        </Stack>
       </Stack>
     </Stack>
-  </Stack>
-);
+  );
 
 export default ApprovalStepHeader;
