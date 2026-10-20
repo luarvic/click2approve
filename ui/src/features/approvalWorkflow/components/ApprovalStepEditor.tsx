@@ -309,18 +309,6 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                       <FormControlLabel
                         control={
                           <Switch
-                            checked={step.isCommentRequired ?? false}
-                            disabled={disabled}
-                            onChange={(_, checked) =>
-                              onUpdateStep(stepIndex, (current) => ({ ...current, isCommentRequired: checked }))
-                            }
-                          />
-                        }
-                        label="Require a comment"
-                      />
-                      <FormControlLabel
-                        control={
-                          <Switch
                             checked={step.isElectronicSignatureRequired ?? false}
                             disabled={disabled}
                             onChange={(_, checked) =>
@@ -332,6 +320,18 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                           />
                         }
                         label="Require an electronic signature"
+                      />
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={step.isCommentRequired ?? false}
+                            disabled={disabled}
+                            onChange={(_, checked) =>
+                              onUpdateStep(stepIndex, (current) => ({ ...current, isCommentRequired: checked }))
+                            }
+                          />
+                        }
+                        label="Require a comment"
                       />
                       {showAttachmentRequirement && (
                         <FormControlLabel
