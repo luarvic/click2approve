@@ -9,8 +9,9 @@ Protect your account with authenticator MFA and passkeys. These settings apply t
 3. Scan the setup QR code in your authenticator app, or enter the setup key manually.
 4. Enter a verification code from the authenticator to confirm setup.
 5. Save the recovery codes in a secure place and confirm that you have saved them.
+6. Choose **Done — sign in again**, then sign in with your password and authenticator code.
 
-After setup, password sign-in requires the additional MFA challenge.
+After setup, password sign-in requires the additional MFA challenge. Starting setup changes your session: completing or canceling it requires signing in again.
 
 ## Recovery codes
 
@@ -18,6 +19,8 @@ Use a saved recovery code when you cannot access your authenticator.
 
 !!! warning "Keep recovery codes safe"
     Each code is a secret and can be used only once. **Generate new recovery codes** replaces the previous set; save the new codes before dismissing them.
+
+Generating new recovery codes or turning off MFA also requires signing in again after you finish.
 
 To disable MFA, use the Security tab and complete the requested verification. Do not remove your only working sign-in method before testing another one.
 

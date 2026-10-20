@@ -14,6 +14,8 @@ Organization work stays within the selected organization. Employee and team task
 
 Employees and delegates must belong to the same organization. Membership in one organization does not grant access to another organization's requests or tasks.
 
+When you have delegated access, the workspace picker also offers organization entries with the represented employee's name. Select that entry to work on their behalf; select your own entry to return to your work. See [Delegations](delegations.md).
+
 ## Main menu
 
 | Area | Purpose |

@@ -7,6 +7,7 @@ import {
   type SxProps,
   type Theme,
 } from "@mui/material";
+import { useId } from "react";
 
 const retentionOptions = [1, 3, 6, 9, 12, 24, 36, 48, 60, 72, 84, 96, 108, 120, 0];
 const retentionMarks = retentionOptions.map((_, index) => ({
@@ -87,26 +88,29 @@ const RetentionValueLabel: React.FC<SliderValueLabelProps> = ({ children, value,
   );
 };
 
-const RetentionControl: React.FC<RetentionControlProps> = ({ disabled, label, months, onChange }) => (
-  <Stack direction={{ xs: "column", sm: "row" }} sx={retentionControlSx}>
-    <Typography id={`${label}-retention`} sx={retentionTitleSx}>
-      {label}
-    </Typography>
-    <Slider
-      aria-labelledby={`${label}-retention`}
-      disabled={disabled}
-      marks={retentionMarks}
-      max={retentionOptions.length - 1}
-      min={0}
-      onChange={(_, value) => onChange(retentionOptions[value as number])}
-      step={1}
-      sx={retentionSliderSx}
-      slots={{ valueLabel: RetentionValueLabel }}
-      value={getRetentionValue(months)}
-      valueLabelDisplay="on"
-      valueLabelFormat={(value) => getRetentionLabel(retentionOptions[value])}
-    />
-  </Stack>
-);
+const RetentionControl: React.FC<RetentionControlProps> = ({ disabled, label, months, onChange }) => {
+  const labelId = useId();
+  return (
+    <Stack direction={{ xs: "column", sm: "row" }} sx={retentionControlSx}>
+      <Typography id={labelId} sx={retentionTitleSx}>
+        {label}
+      </Typography>
+      <Slider
+        aria-labelledby={labelId}
+        disabled={disabled}
+        marks={retentionMarks}
+        max={retentionOptions.length - 1}
+        min={0}
+        onChange={(_, value) => onChange(retentionOptions[value as number])}
+        step={1}
+        sx={retentionSliderSx}
+        slots={{ valueLabel: RetentionValueLabel }}
+        value={getRetentionValue(months)}
+        valueLabelDisplay="on"
+        valueLabelFormat={(value) => getRetentionLabel(retentionOptions[value])}
+      />
+    </Stack>
+  );
+};
 
 export default RetentionControl;

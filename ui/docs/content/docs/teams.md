@@ -19,6 +19,8 @@ Members can view the team directory; Owners and Admins manage it. People from an
 
 When configuring a [workflow step](workflow-steps.md), choose **Team** as the assignee type and select the team. Check the step's all-assignees or any-assignee rule so it matches the intended completion requirement.
 
+Membership changes apply to future task assignments. Tasks already assigned to a participant remain theirs after they leave the team.
+
 Team relationships influence which organization tasks and requests are available to a user. When expected work is missing, check both the current workspace and the employee's team membership.
 
 ## Remove a team

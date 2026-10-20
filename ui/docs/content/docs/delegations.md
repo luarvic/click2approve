@@ -17,7 +17,11 @@ Both employees must belong to the selected organization. Members can view delega
 
 ## Work as a delegate
 
-Select the organization and open the authorized tasks or requests. Review their context and take the permitted action. The record preserves the actual acting user and employee, allowing the action to be distinguished from one taken by the original assignee.
+In the workspace picker, choose the organization entry that includes the employee you represent. This selects that employee's work queue. Choosing your own entry continues to show your own work; delegation does not merge the queues.
+
+Refreshing a workspace page restores that selection only while you still have delegated access. Signing out clears the selection.
+
+Open the authorized tasks or requests, review their context, and take the permitted action. The record preserves the actual acting user and employee, allowing the action to be distinguished from one taken by the original assignee.
 
 Delegation direction matters: choosing Alex as the delegate for Sam allows Alex to act for Sam. It does not automatically allow Sam to act for Alex.
 

@@ -47,4 +47,4 @@ These settings do not grant workspace membership or access to unrelated requests
 
 ## Revisions
 
-When [resubmitting a request](track-requests.md), completed steps can be locked. Keep their recorded decisions intact and change only the editable part of the workflow. For frequently used organization workflows, save the steps as a [template](templates.md).
+When [resubmitting a request](track-requests.md), review and edit the steps for the new revision. Its workflow starts again from the first step; previous decisions remain recorded on the previous revision and its receipts. For frequently used organization workflows, save the steps as a [template](templates.md).

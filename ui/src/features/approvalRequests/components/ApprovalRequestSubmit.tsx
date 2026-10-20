@@ -20,6 +20,7 @@ import { TenantType } from "@/features/tenants/models/tenant";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { CollectionLimits } from "@/shared/config/collectionLimits";
 import { FieldLimits } from "@/shared/config/fieldLimits";
 import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
@@ -64,6 +65,9 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
     businessTenantIsSelected &&
     stores.applicationConfigurationStore.approvalStepTemplatesAreEnabled &&
     tenantGlobalId !== null;
+  const [initialTemplateIsLoading, setInitialTemplateIsLoading] = useState(
+    Boolean(canUseTemplates && initialTemplateGlobalId),
+  );
   const requestToClone = stores.approvalRequestStore.requestToClone;
   const isRevision = Boolean(requestToClone && stores.applicationConfigurationStore.approvalRequestRevisionsAreEnabled);
   const { addAssignee, addStep, moveStep, removeAssignee, removeStep, setSteps, steps, updateAssignee, updateStep } =
@@ -122,26 +126,30 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
         stores.teamStore.loadPicker(tenantGlobalId);
       }
       if (canUseTemplates && initialTemplateGlobalId) {
-        void stores.approvalStepTemplateStore.loadDetail(tenantGlobalId, initialTemplateGlobalId).then((template) => {
-          if (initialTemplateHasBeenApplied.current) {
-            return;
-          }
+        setInitialTemplateIsLoading(true);
+        void stores.approvalStepTemplateStore
+          .loadDetail(tenantGlobalId, initialTemplateGlobalId)
+          .then((template) => {
+            if (initialTemplateHasBeenApplied.current) {
+              return;
+            }
 
-          if (template) {
-            setTitle(template.name);
-            setDescription(template.description ?? "");
-            setSteps(createEditableSteps(template.steps));
-            void stores.employeeStore.loadPicker(
-              tenantGlobalId,
-              template.steps.flatMap((step) =>
-                step.assignees
-                  .filter((assignee) => assignee.type === AssigneeType.Employee && assignee.employeeGlobalId)
-                  .map((assignee) => assignee.employeeGlobalId!),
-              ),
-            );
-          }
-          initialTemplateHasBeenApplied.current = true;
-        });
+            if (template) {
+              setTitle(template.name);
+              setDescription(template.description ?? "");
+              setSteps(createEditableSteps(template.steps));
+              void stores.employeeStore.loadPicker(
+                tenantGlobalId,
+                template.steps.flatMap((step) =>
+                  step.assignees
+                    .filter((assignee) => assignee.type === AssigneeType.Employee && assignee.employeeGlobalId)
+                    .map((assignee) => assignee.employeeGlobalId!),
+                ),
+              );
+            }
+            initialTemplateHasBeenApplied.current = true;
+          })
+          .finally(() => setInitialTemplateIsLoading(false));
       }
     }
   }, [
@@ -364,6 +372,8 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
     event.preventDefault();
     handleSubmit();
   };
+
+  if (initialTemplateIsLoading) return <LoadingOverlay />;
 
   return (
     <CloseOnEscape onClose={handleClose}>

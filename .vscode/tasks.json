@@ -2,6 +2,28 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "test",
+      "type": "process",
+      "command": "node",
+      "args": [
+        "scripts/test.mjs"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "C2A_TEST_AZURITE": "UseDevelopmentStorage=true"
+        }
+      },
+      "detail": "All public API, Queue/Blob, UI and attachment browser tests; lint, build and docs. Requires Azurite, UI dependencies and Chromium.",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "problemMatcher": [
+        "$msCompile"
+      ]
+    },
+    {
       "label": "format-api",
       "type": "shell",
       "command": "dotnet",
@@ -17,27 +39,11 @@
       "group": "build"
     },
     {
-      "label": "test-api",
-      "type": "shell",
-      "command": "dotnet",
-      "args": ["test", "api/Click2Approve.Api.sln"],
-      "problemMatcher": ["$msCompile"],
-      "group": "test"
-    },
-    {
       "label": "format-ui",
       "type": "shell",
       "command": "npx prettier --write --print-width 120 --tab-width 2 \"**/*.{ts,tsx}\"",
       "options": {"cwd": "${workspaceFolder}/ui"},
       "problemMatcher": []
-    },
-    {
-      "label": "test-ui",
-      "type": "shell",
-      "command": "npm",
-      "args": ["test", "--", "--run"],
-      "options": {"cwd": "${workspaceFolder}/ui"},
-      "group": "test"
     },
     {
       "label": "run-ui",

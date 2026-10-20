@@ -158,7 +158,7 @@ proxy or IIS request filtering must allow the intended upload request size.
 
 ### UI
 
-The UI is a React 18 and TypeScript application in `ui`.
+The UI is a React 19 and TypeScript application in `ui`.
 
 ```bash
 cd ui
@@ -172,6 +172,22 @@ For interactive UI development:
 ```bash
 npm run dev
 ```
+
+### Complete test suite
+
+From the repository root, run `node scripts/test.mjs`, or choose **Terminal →
+Run Task → test** in VS Code. This runs all public API tests, Queue and Blob
+integration tests, UI component tests and the attachment browser regression,
+followed by lint, production build and strict documentation validation.
+
+Start Azurite with Blob and Queue endpoints (`--skipApiVersionCheck` for the
+current SDK). The VS Code task supplies `C2A_TEST_AZURITE=UseDevelopmentStorage=true`
+automatically; export it yourself when using the command-line runner. Install UI dependencies with
+`npm ci` and Chromium with `npx playwright install chromium` from `ui`.
+Install the documentation dependencies from `ui/docs/requirements.txt` into
+`ui/.venv-docs` or the active Python environment. The runner fails when required
+configuration is missing rather than skipping provider tests. SQL Server and
+the private repository are not required.
 
 ## On-Premises Hosting
 
@@ -195,7 +211,7 @@ using the sample credentials in `docker-compose.yaml`. At minimum, review:
 
 The application consists of five containerized services:
 
-- Client-side UI: React TypeScript 18.2.
+- Client-side UI: React 19 and TypeScript.
 - Server-side API: ASP.NET Core 10.
 - Event publisher: ASP.NET Core worker that publishes committed outbox messages.
 - Event consumer: ASP.NET Core worker that processes queued event deliveries.
@@ -231,8 +247,8 @@ uses:
 - [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 - [ASP.NET Core Identity](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity)
 
-The API stores relational data in SQL Server and uses filesystem storage for uploaded
-files.
+The API stores relational data in SQL Server and uses Azure Blob Storage for uploaded
+files, with Azurite for local development.
 
 ### Relational Database
 

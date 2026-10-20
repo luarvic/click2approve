@@ -20,7 +20,7 @@ Refresh the resource before retrying after an API error: another participant or 
 
 ## I cannot revise a request
 
-Resubmit is available only for eligible requests without a newer revision and without a successful result. Locked steps preserve recorded decisions. See [Track and revise requests](track-requests.md).
+Resubmit is available only for eligible requests without a newer revision and without a successful result. A new revision restarts the workflow; previous decisions remain on the previous revision. See [Track and revise requests](track-requests.md).
 
 ## A verification link does not work
 

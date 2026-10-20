@@ -11,15 +11,17 @@ Owners and Admins can open **Employees**, start a new employee, and enter their 
 
 The email identifies the account that should receive employee access. Check it before saving. An employee's organization name and position can differ from their personal profile.
 
+An employee whose email has not registered yet starts **Pending**. Registration with that email activates the membership. Adding an already registered account creates an **Active** employee.
+
 ## Roles
 
 | Role | Organization permissions |
 | --- | --- |
-| Member | Participate in authorized workflows and view employee, team, and delegation directories |
+| User (member) | Participate in authorized workflows, view employee, team, and delegation directories, and manage their own templates |
 | Admin | Manage employees, teams, delegations, billing, and retention |
 | Owner | Administrative management plus the authority to schedule organization deletion |
 
-Roles do not grant access to other organizations. Request and task visibility also follows participation, team relationships, and delegation. Template controls follow your workspace permissions.
+Roles do not grant access to other organizations. Request and task visibility also follows participation, team relationships, and delegation. Templates remain private to their creator, including when another member is an Owner or Admin.
 
 Receipt access follows receipt ownership, regardless of employee role. Owners and Admins can view, share, and delete only receipts issued to themselves. See [Receipts and verification](receipts.md).
 

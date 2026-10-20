@@ -19,7 +19,7 @@ export class UserAccountStore {
   currentUser: UserAccount | null | undefined; // undefined means we don't know yet if it's authenticated or anonymous user
   isSessionSignOut = false;
   passkeyEnrollmentPending = false;
-  private clearSession: () => void = () => undefined;
+  private clearSession: (preserveWorkspaceSelection?: boolean) => void = () => undefined;
   private initializeSession: () => Promise<void> = async () => undefined;
 
   constructor(currentUser: UserAccount | undefined = undefined) {
@@ -27,7 +27,10 @@ export class UserAccountStore {
     makeAutoObservable(this);
   }
 
-  configureSessionLifecycle = (initializeSession: () => Promise<void>, clearSession: () => void): void => {
+  configureSessionLifecycle = (
+    initializeSession: () => Promise<void>,
+    clearSession: (preserveWorkspaceSelection?: boolean) => void,
+  ): void => {
     this.initializeSession = initializeSession;
     this.clearSession = clearSession;
   };
@@ -70,7 +73,7 @@ export class UserAccountStore {
     this.passkeyEnrollmentPending = false;
     const tokens = readTokens();
     if (tokens) {
-      this.clearSession();
+      this.clearSession(true);
       runInAction(() => {
         this.currentUser = undefined;
         this.isSessionSignOut = false;

@@ -26,6 +26,8 @@ Check the files, step order, action, instructions, participants, completion rule
 
 If fields are highlighted, correct them and submit again. If a plan limit blocks submission, inspect [Usage](usage.md) or ask an organization Owner or Admin for help.
 
+If your organization employee name is incomplete, a warning explains how it will appear on the record. Choose **Go back** to correct it, or **Proceed anyway** to submit with the current name. Organization employee details are managed separately from your personal profile.
+
 In an organization, **Save template** saves reusable step configuration. It does not replace submitting the request. See [Workflow templates](templates.md).
 
 ## After submission

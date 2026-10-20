@@ -162,10 +162,10 @@ export class RootStore {
     this.approvalStepTemplateStore.clear();
   };
 
-  clearSession = (): void => {
+  clearSession = (preserveWorkspaceSelection = false): void => {
     this.billingAccessStore.clear();
     this.clearTenantScope();
-    this.tenantStore.clear();
+    this.tenantStore.clear(preserveWorkspaceSelection);
     this.userProfileStore.clear();
     this.commonStore.clearSessionState();
   };

@@ -231,9 +231,11 @@ export class TenantStore {
     this.onPickerLoadFailure = handler;
   };
 
-  clear = (): void => {
-    deleteCurrentTenantGlobalId();
-    deleteCurrentWorkEmployeeGlobalId();
+  clear = (preserveSelection = false): void => {
+    if (!preserveSelection) {
+      deleteCurrentTenantGlobalId();
+      deleteCurrentWorkEmployeeGlobalId();
+    }
     runInAction(() => {
       this.requestVersion += 1;
       this.businessTenantRequestVersion += 1;

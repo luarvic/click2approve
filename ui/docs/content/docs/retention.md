@@ -23,6 +23,8 @@ Only a receipt's owner can delete it manually. Manual deletion and retention cle
 
 A relationship from another record can prevent deletion. Resolve the identified relationship where appropriate. Repeated retries do not remove the dependency.
 
+A request with a newer revision cannot be deleted while that revision references it. Start with the latest revision when removing a revision chain. Deletion schedules cleanup; wait for that revision to be removed before retrying its predecessor.
+
 Deleting a request makes it immediately eligible for background cleanup, regardless of its age. Previously consumed tokens are not refunded.
 
 Receipts preserve file metadata and hashes without extending attachment retention. Deleting a receipt does not delete or schedule its original attachments for cleanup.

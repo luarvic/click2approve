@@ -28,14 +28,18 @@ Open a pending or started request you are authorized to manage, choose **Cancel 
 Revise eligible requests in either Personal or an organization.
 
 1. Open an eligible request and choose **Resubmit**.
-2. Review the existing content and locked steps.
-3. Update the editable files, instructions, and remaining steps.
+2. Review the previous revision's files, instructions, and workflow steps.
+3. Update the files, instructions, and steps for the new revision.
 4. Check the participants and choose **Submit**.
 
 Resubmission creates a new revision and supersedes the previous request. The action is offered only on eligible pending, started, or completed requests that have not succeeded and have no newer revision. A successfully completed request cannot be resubmitted through this action.
+
+The new revision starts its workflow from the first step. Earlier decisions remain recorded on the previous revision and its receipts; they do not complete tasks in the new revision. Review every step and participant before submitting again.
 
 Use **Show revision changes**, when present, to inspect added, replaced, and removed files. Replaced or deleted files remain context for the revision and are not part of the current files to review.
 
 ## Preserve the result
 
 [Receipts](receipts.md) provide completed request snapshots. Review [retention and deletion](retention.md) before removing a request or relying on long-term access.
+
+A newer revision prevents deletion of the request it references. Schedule deletion of the latest revision first, then wait for background cleanup before removing its predecessor. Removing a request does not remove participants' receipts.

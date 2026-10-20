@@ -1,5 +1,9 @@
 import { stores } from "@/app/rootStore";
 import ApprovalRequestSubmit from "@/features/approvalRequests/components/ApprovalRequestSubmit";
+import * as templateApi from "@/features/approvalStepTemplates/api/approvalStepTemplatesApi";
+import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
+import * as employeeApi from "@/features/employees/api/employeesApi";
+import { EmployeeRole, TenantType } from "@/features/tenants/models/tenant";
 import { notification } from "@/shared/utils/notifications";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -7,11 +11,14 @@ import { runInAction } from "mobx";
 import { RouterProvider, createMemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-const renderCompose = (onClose = vi.fn()) => {
+const renderCompose = (onClose = vi.fn(), initialTemplateGlobalId?: string) => {
   const router = createMemoryRouter(
     [
       { path: "/away", element: <div>Another page</div> },
-      { path: "*", element: <ApprovalRequestSubmit onClose={onClose} /> },
+      {
+        path: "*",
+        element: <ApprovalRequestSubmit initialTemplateGlobalId={initialTemplateGlobalId} onClose={onClose} />,
+      },
     ],
     { initialEntries: ["/away", "/compose"] },
   );
@@ -54,6 +61,66 @@ describe("request composition", () => {
     await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("textbox", { name: /Title/ })));
     await user.type(screen.getByRole("textbox", { name: /Title/ }), "Budget");
     expect(screen.queryByText("Title is required.")).toBeNull();
+  });
+
+  test("loads template defaults before allowing edits so a slow response cannot overwrite the title", async () => {
+    const tenants = stores.tenantStore.tenants;
+    const configuration = stores.applicationConfigurationStore.applicationConfiguration;
+    runInAction(() => {
+      stores.tenantStore.tenants = [
+        {
+          globalId: "tenant-a",
+          businessName: "Organization",
+          type: TenantType.Business,
+          currentEmployeeRole: EmployeeRole.Owner,
+        },
+      ];
+      stores.applicationConfigurationStore.applicationConfiguration = {
+        avatarImageSize: 256,
+        logoImageSize: 256,
+        edition: "Business",
+        requiresConfirmedEmail: false,
+        capabilities: {
+          apiTokens: false,
+          tenants: true,
+          discussions: false,
+          discussionAttachments: false,
+          employeeAssignees: false,
+          teamAssignees: false,
+          approvalStepTemplates: true,
+          approvalRequestRevisions: false,
+          receipts: false,
+          subscriptions: false,
+          taskAttachments: false,
+        },
+      };
+    });
+    vi.spyOn(employeeApi, "listEmployeePicker").mockResolvedValue([]);
+    let resolveTemplate!: (template: ApprovalStepTemplate) => void;
+    vi.spyOn(templateApi, "getApprovalStepTemplate").mockReturnValue(
+      new Promise((resolve) => {
+        resolveTemplate = resolve;
+      }),
+    );
+    const view = renderCompose(vi.fn(), "slow-template");
+    try {
+      expect(screen.queryByRole("textbox", { name: /Title/ })).toBeNull();
+      await act(async () =>
+        resolveTemplate({ globalId: "slow-template", tenantGlobalId: "tenant-a", name: "Template title", steps: [] }),
+      );
+      const title = await screen.findByRole("textbox", { name: /Title/ });
+      expect((title as HTMLInputElement).value).toBe("Template title");
+      const user = userEvent.setup();
+      await user.clear(title);
+      await user.type(title, "My document");
+      expect((title as HTMLInputElement).value).toBe("My document");
+    } finally {
+      view.unmount();
+      runInAction(() => {
+        stores.tenantStore.tenants = tenants;
+        stores.applicationConfigurationStore.applicationConfiguration = configuration;
+      });
+    }
   });
 
   test.each(["Cancel", "Escape"])(
