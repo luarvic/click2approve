@@ -169,10 +169,12 @@ const PasskeySettings = () => {
           sx={DataGrids.sx}
         />
         <DeleteConfirmationDialog
+          actionLabel="Remove"
           cancelLabel="Cancel"
           entityName={selectedCredentialIds.length === 1 ? "this passkey" : `${selectedCredentialIds.length} passkeys`}
           open={deleteDialogIsOpen}
           title="Remove passkeys"
+          warning="The selected passkeys will no longer work for your account. You may also need to remove them from your password manager."
           onClose={() => setDeleteDialogIsOpen(false)}
           onDelete={handleRemove}
         />

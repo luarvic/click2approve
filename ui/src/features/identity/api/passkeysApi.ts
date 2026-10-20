@@ -187,11 +187,23 @@ export const listPasskeys = async (): Promise<Passkey[]> => {
 };
 
 export const deletePasskey = async (credentialId: string): Promise<boolean> => {
+  let rpId: string;
   try {
-    await axios.delete(`${ApiPaths.account.passkeys.root}/${encodeURIComponent(credentialId)}`);
-    return true;
+    const { data } = await axios.delete<{ rpId: string }>(
+      `${ApiPaths.account.passkeys.root}/${encodeURIComponent(credentialId)}`,
+    );
+    rpId = data.rpId;
   } catch (e) {
     notification.error(getApiErrorNotification(e));
     return false;
   }
+
+  try {
+    if (typeof PublicKeyCredential !== "undefined" && PublicKeyCredential.signalUnknownCredential) {
+      await PublicKeyCredential.signalUnknownCredential({ credentialId, rpId });
+    }
+  } catch {
+    // Provider cleanup is best effort; the credential has already been revoked on the server.
+  }
+  return true;
 };

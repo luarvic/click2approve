@@ -34,4 +34,6 @@ Use the passkey sign-in option on a supported device and browser. Passkeys requi
 
 Select the credential in the Passkeys list and use the remove action. Check its name and last-used details first. Removing it revokes that credential's access; it does not remove other registered passkeys.
 
+After removal, the app notifies compatible password managers so they can stop offering the removed passkey. Your browser or password manager may not support this update. If the passkey still appears, remove it manually from your password manager; it can no longer sign you in to your account.
+
 For a lost authenticator or unavailable device, try your configured alternative method or recovery code. If none is available, contact support for help.

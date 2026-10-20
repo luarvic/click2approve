@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Options;
 
 namespace Click2Approve.WebApi.Controllers;
 
@@ -26,6 +27,7 @@ namespace Click2Approve.WebApi.Controllers;
 [Route("api/v{version:apiVersion}/account/passkeys")]
 public class PasskeyController(
     IFido2 fido2,
+    IOptions<Fido2Configuration> fido2Options,
     IDataProtectionProvider dataProtectionProvider,
     SignInManager<AppUser> signInManager,
     UserManager<AppUser> userManager) : ControllerBase
@@ -221,9 +223,15 @@ public class PasskeyController(
     /// <param name="credentialId">The passkey credential ID.</param>
     [HttpDelete("{credentialId}")]
     [Authorize(Policy = AccountSecurityPolicies.Interactive)]
-    public async Task<IActionResult> DeleteAsync(string credentialId)
+    public async Task<ActionResult<PasskeyRemovalResponse>> DeleteAsync(string credentialId)
     {
         var user = await _userManager.GetAppUserAsync(User);
+        var logins = await _userManager.GetLoginsAsync(user);
+        if (!logins.Any(login => login.LoginProvider == LoginProvider && login.ProviderKey == credentialId))
+        {
+            return NotFound();
+        }
+
         var result = await _userManager.RemoveLoginAsync(user, LoginProvider, credentialId);
         if (!result.Succeeded)
         {
@@ -231,7 +239,7 @@ public class PasskeyController(
         }
 
         await _userManager.RemoveAuthenticationTokenAsync(user, LoginProvider, credentialId);
-        return NoContent();
+        return Ok(new PasskeyRemovalResponse { RpId = fido2Options.Value.RPID });
     }
 
     private async Task<IReadOnlyList<(string CredentialId, byte[] CredentialIdBytes)>> GetStoredPasskeysAsync(AppUser user)

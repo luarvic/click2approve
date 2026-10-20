@@ -109,6 +109,52 @@ public sealed class PasskeySignInTests
         Assert.Contains(secondCredentialId, passkeys);
     }
 
+    [Theory]
+    [InlineData("AQID", HttpStatusCode.OK)]
+    [InlineData("BAUG", HttpStatusCode.NotFound)]
+    public async Task RemovePasskey_ReturnsSignalDetailsOnlyForOwnedCredentials(
+        string credentialId, HttpStatusCode expectedStatus)
+    {
+        const string rpId = "accounts.example.com";
+        await using var factory = CreateFactory(verificationEnabled: false).WithWebHostBuilder(builder =>
+            builder.UseSetting("Authentication:Passkeys:RelyingPartyId", rpId));
+        var email = await CreateUserAsync(factory, confirmed: true, mfa: false);
+        using var client = factory.CreateClient();
+        var authentication = await AuthenticateAsync(client);
+        authentication.EnsureSuccessStatusCode();
+        var tokens = (await authentication.Content.ReadFromJsonAsync<AccessTokenResponse>())!;
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokens.AccessToken);
+
+        var response = await client.DeleteAsync($"api/v1/account/passkeys/{credentialId}");
+
+        Assert.Equal(expectedStatus, response.StatusCode);
+        if (expectedStatus == HttpStatusCode.OK)
+        {
+            var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.Equal(rpId, payload.GetProperty("rpId").GetString());
+        }
+        else
+        {
+            Assert.DoesNotContain("rpId", await response.Content.ReadAsStringAsync());
+        }
+
+        await using var scope = factory.Services.CreateAsyncScope();
+        var users = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+        var user = (await users.FindByEmailAsync(email))!;
+        var logins = await users.GetLoginsAsync(user);
+        var storedCredential = await users.GetAuthenticationTokenAsync(user, Provider, CredentialId);
+        if (expectedStatus == HttpStatusCode.OK)
+        {
+            Assert.DoesNotContain(logins, login => login.LoginProvider == Provider && login.ProviderKey == CredentialId);
+            Assert.Null(storedCredential);
+        }
+        else
+        {
+            Assert.Contains(logins, login => login.LoginProvider == Provider && login.ProviderKey == CredentialId);
+            Assert.NotNull(storedCredential);
+        }
+    }
+
     private static WebApplicationFactory<Program> CreateFactory(bool verificationEnabled) =>
         new CustomWebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
