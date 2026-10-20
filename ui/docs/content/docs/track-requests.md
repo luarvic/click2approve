@@ -17,7 +17,7 @@ The status chip in each request or task card's header shows its current state, i
 | Canceled | The request was stopped |
 | Superseded | A newer revision replaced this request |
 
-Individual task actions can have more specific labels, such as Signed or Rejected. A skipped task does not mean that participant made a decision; another outcome may already have resolved the step.
+Individual task actions can have more specific labels, such as Signed or Rejected. A skipped task does not mean that participant made a decision; another outcome may already have resolved the step. Automatically completed requests and skipped or canceled tasks show their status and completion time without a **Completed by** field.
 
 ## Cancel a request
 

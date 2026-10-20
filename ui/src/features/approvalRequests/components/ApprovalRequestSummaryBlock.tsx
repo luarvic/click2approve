@@ -60,16 +60,12 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
     organizationIsVisible && approvalRequest.organizationDisplayName
       ? approvalRequest.organizationDisplayName
       : undefined;
-  const completionLabel = getRequestCompletionLabel(approvalRequest.status);
   const completedTimestamp = getRequestCompletedTimestamp(approvalRequest);
   const completedBySystem =
     approvalRequest.status === ApprovalRequestStatus.Completed && !approvalRequest.completedByDisplayName;
-  const completionDisplayName = completedBySystem
-    ? "System"
-    : (approvalRequest.completedByDisplayName ?? approvalRequest.requesterDisplayName);
-  const completionEmail = completedBySystem
-    ? undefined
-    : (approvalRequest.completedByEmail ?? approvalRequest.requesterEmail);
+  const completionLabel = completedBySystem ? undefined : getRequestCompletionLabel(approvalRequest.status);
+  const completionDisplayName = approvalRequest.completedByDisplayName ?? approvalRequest.requesterDisplayName;
+  const completionEmail = approvalRequest.completedByEmail ?? approvalRequest.requesterEmail;
   const requestStatusColor = getApprovalRequestStatusColor(approvalRequest.status, approvalRequest.result);
   const participantTimeline =
     completionLabel && completedTimestamp ? (
@@ -92,7 +88,6 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
           <ApprovalRequestParticipant
             displayName={completionDisplayName}
             email={completionEmail}
-            isSystemParticipant={completedBySystem}
             organizationDisplayName={approvalRequest.organizationDisplayName}
             showOrganization={organizationIsVisible}
             type={completionType}
@@ -174,7 +169,6 @@ const ApprovalRequestSummaryBlock: React.FC<ApprovalRequestSummaryBlockProps> = 
             <ApprovalRequestParticipant
               displayName={completionDisplayName}
               email={completionEmail}
-              isSystemParticipant={completedBySystem}
               type={completionType}
               variant="body2"
             />

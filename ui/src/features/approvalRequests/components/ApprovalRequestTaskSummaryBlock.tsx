@@ -114,13 +114,11 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
     organizationIsVisible && participantOrganizationDisplayName ? participantOrganizationDisplayName : undefined;
   const taskStatusColor = getApprovalRequestTaskStatusColor(task.status, task.result);
   const completedTimestamp = getTaskCompletedTimestamp(task);
-  const completionLabel = getTaskCompletionLabel(task);
   const completedBySystem =
     task.status === ApprovalRequestTaskStatus.Skipped || task.status === ApprovalRequestTaskStatus.Canceled;
-  const completionDisplayName = completedBySystem
-    ? "System"
-    : (task.completedByDisplayName ?? task.assigneeDisplayName);
-  const completionEmail = completedBySystem ? undefined : task.completedByEmail || task.assigneeEmail;
+  const completionLabel = completedBySystem ? undefined : getTaskCompletionLabel(task);
+  const completionDisplayName = task.completedByDisplayName ?? task.assigneeDisplayName;
+  const completionEmail = task.completedByEmail || task.assigneeEmail;
   const completionType = resolvedParticipantType;
   const participants =
     participant !== "none" ? (
@@ -145,10 +143,9 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
             <ApprovalRequestParticipant
               displayName={completionDisplayName}
               email={completionEmail}
-              isSystemParticipant={completedBySystem}
               organizationDisplayName={participantOrganizationDisplayName}
               showOrganization={organizationIsVisible}
-              type={completedBySystem ? AssigneeType.Employee : completionType}
+              type={completionType}
             />
           }
           secondTimestamp={
@@ -279,8 +276,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
             <ApprovalRequestParticipant
               displayName={completionDisplayName}
               email={completionEmail}
-              isSystemParticipant={completedBySystem}
-              type={completedBySystem ? AssigneeType.Employee : completionType}
+              type={completionType}
               variant="body2"
             />
           ) : undefined
