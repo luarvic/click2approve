@@ -16,7 +16,6 @@ import {
   serializeApprovalRequestTaskGridQuery,
 } from "@/features/approvalRequests/models/approvalRequestTaskGridQuery";
 import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
-import { TenantType } from "@/features/tenants/models/tenant";
 import CompactGridCell from "@/shared/components/grids/CompactGridCell";
 import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGridSecondaryInformation";
 import CompactGridStatus from "@/shared/components/grids/CompactGridStatus";
@@ -53,8 +52,6 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
     (stores.tenantStore.hasLoaded && stores.tenantStore.currentTenantGlobalId !== null);
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const gridLoader = ActionLoaders.grids.tasks(tenantGlobalId);
-  const organizationColumnIsVisible =
-    allColumnsAreVisible && stores.tenantStore.currentTenant?.type === TenantType.Personal;
   const query = useMemo(() => parseApprovalRequestTaskGridQuery(searchParams), [searchParams]);
   const [tasks, setTasks] = useState<ApprovalRequestTaskListItem[]>([]);
   const [filtersAreVisible, setFiltersAreVisible] = useState(false);
@@ -173,7 +170,7 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
       headerName: "Status",
       sortable: false,
       disableColumnMenu: true,
-      ...ApprovalGrids.tasksColumnSizing.status,
+      flex: ApprovalGrids.approvalColumnFlex.metadata,
       renderCell: (params) => (
         <ApprovalRequestTaskStatusLineLabel
           action={params.row.action}
@@ -188,17 +185,9 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
       headerName: "Requested by",
       sortable: false,
       disableColumnMenu: true,
-      ...ApprovalGrids.tasksColumnSizing.requestedBy,
+      flex: ApprovalGrids.approvalColumnFlex.metadata,
       renderCell: (params) => <OneLineDisplayName displayName={params.row.requestedByDisplayName} variant="body2" />,
       valueGetter: (_value, row) => row.requestedByDisplayName,
-    },
-    {
-      field: "organizationDisplayName",
-      headerName: "From organization",
-      sortable: false,
-      disableColumnMenu: true,
-      flex: ApprovalGrids.approvalColumnFlex.metadata,
-      valueGetter: (_value, row) => row.organizationDisplayName,
     },
     {
       field: "createdAtDate",
@@ -250,7 +239,6 @@ const TasksGrid: React.FC<TasksGridProps> = ({ currentTaskGlobalId }) => {
             revisionNumber: allColumnsAreVisible,
             status: allColumnsAreVisible,
             requestedByDisplayName: allColumnsAreVisible,
-            organizationDisplayName: organizationColumnIsVisible,
             createdAtDate: allColumnsAreVisible,
           }}
           paginationModel={paginationModel}

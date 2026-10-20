@@ -6,8 +6,4 @@ export const ApprovalGrids = {
     content: 5,
     metadata: 3,
   },
-  tasksColumnSizing: {
-    requestedBy: { flex: 4 },
-    status: { flex: 2 },
-  },
 } as const;

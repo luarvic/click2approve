@@ -11,6 +11,8 @@ A task records your action on one step of a request. Review the current request 
 
 For a team assignment, **Assigned to** shows the individual employee receiving the task with an employee icon. In the **Workflow** tab, expand a step heading to review its original assignees and settings. Task cards stay visible below the heading. Expand a team-created task to see **Assigned via**, which identifies the team.
 
+The Tasks and Requests lists use the same columns and widths: **#**, **Title**, **Revision**, **Status**, **Requested by**, and **Created**. On smaller screens, secondary details appear below the title. Open a task to see **From organization** when an organization is recorded.
+
 Use the **Tasks** breadcrumb above the task title to return to the list.
 
 Email-addressed tasks from an organization arrive in Personal. They do not give you access to that organization's workspace. Organization delegates can also act on authorized tasks; see [Delegations](delegations.md).
