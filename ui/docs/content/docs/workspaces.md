@@ -1,6 +1,6 @@
 # Workspaces and navigation
 
-Your selected workspace determines which requests, tasks, and settings you see. Use the workspace picker to switch between **Personal** and organizations you belong to. Set a preferred starting workspace in [User profile](profile.md).
+A **workspace** groups the requests, tasks, and settings you can access. Everyone starts with **Personal**, the workspace for their own requests and tasks sent to their email address. If you also belong to an organization, use the workspace picker to switch to its shared work. Set a preferred starting workspace in [User profile](profile.md).
 
 ## Personal
 

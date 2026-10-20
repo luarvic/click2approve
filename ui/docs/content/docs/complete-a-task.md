@@ -5,7 +5,7 @@ A task records your action on one step of a request. Review the current request 
 ## Find the task
 
 1. [Open the app](/app/) with the account the task was sent to.
-2. Select **Personal** for email-addressed tasks, or the organization for employee and team assignments.
+2. In the workspace picker, select **Personal** for tasks sent to your email address. Personal is the workspace for your own requests and tasks sent directly to you. For employee or team assignments, select the organization instead.
 3. Open **Tasks** and select the task waiting for your action.
 4. Read the title, requester, description, step instructions, and current files.
 

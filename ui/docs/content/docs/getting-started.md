@@ -2,10 +2,12 @@
 
 Click2Approve collects decisions on documents through ordered workflow steps. A **request** is the work you send, including its files, instructions, and participants. A **task** is one participant's action in that request.
 
+For example, send a proposal to a client's email address and ask for an electronic signature. The client signs in, reviews the proposal, and submits a signature. When that completes the request, Click2Approve creates a **receipt**: a record of the outcome that you can share through a verification link. See [Receipts and verification](receipts.md).
+
 ## Send your first request
 
 1. [Open the app](/app/) and [sign in or register](sign-in.md).
-2. Select **Personal** or the organization you want to work in.
+2. Use **Personal**, your workspace for your own requests, or select an organization in the workspace picker to send work on its behalf.
 3. Choose **New request** in the main menu.
 4. Enter a title and description, add files, and configure the steps and assignees.
 5. Review the details, then choose **Submit**.
@@ -15,7 +17,7 @@ Click2Approve collects decisions on documents through ordered workflow steps. A 
 
 ## Complete your first task
 
-Open **Tasks**, select the task, read its instructions, and review the current files. Provide any required comment, signature, or attachment, then submit your decision. See [Complete a task](complete-a-task.md).
+Sign in with the email address the request was sent to. For tasks sent to that address, select **Personal** in the workspace picker; for employee or team assignments, select the organization. Open **Tasks**, select the task, read its instructions, and review the current files. Provide any required comment, signature, or attachment, then submit your decision. See [Complete a task](complete-a-task.md).
 
 ## Find the right guide
 

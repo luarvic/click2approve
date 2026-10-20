@@ -1,13 +1,13 @@
 # Receipts and verification
 
-Receipts preserve completed request snapshots and let you share them through verification links.
+A **receipt** is a record Click2Approve creates when a request finishes. It preserves the request details, outcome, and participants' recorded actions, including signatures where provided. You can share it through a verification link so someone else can review the record and check a copy of a document against its recorded file.
 
 !!! info "Who can manage receipts?"
     Manage your own receipts in Personal. In an organization, Owners and Admins manage receipts and verification links.
 
 ## Open a receipt
 
-Open **Receipts** in the relevant workspace and select a completed request snapshot. The **Receipt** card header includes its short number, matching request and task card headers. The card shows its full ID and date, followed by **Request** and **Task** sections with the recorded details, outcomes, participants, actions, and signatures where present.
+Open **Receipts** in the workspace where you sent the request or completed your task, then select the receipt for that request. The **Receipt** card header includes its short number, matching request and task card headers. The card shows its full ID and date, followed by **Request** and **Task** sections with the recorded details, outcomes, participants, actions, and signatures where present.
 
 The **Request** and **Task** section headings include their short numbers in both workspace receipts and shared verification pages. Full request and task IDs remain in the recorded details when available.
 
