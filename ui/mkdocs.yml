@@ -11,6 +11,7 @@ nav:
       - Getting started:
           - Table of contents: docs/index.md
           - Getting started: docs/getting-started.md
+          - Open-source edition: docs/open-source.md
           - Features and availability: docs/features.md
           - Workspaces and navigation: docs/workspaces.md
       - Requests and tasks:

@@ -1,5 +1,7 @@
+import { stores } from "@/app/rootStore";
 import { Box, Link, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material";
+import { observer } from "mobx-react-lite";
 
 const footerSx: SxProps<Theme> = {
   borderTop: 1,
@@ -42,7 +44,13 @@ const SiteFooter = () => (
       </Typography>
       <Box component="nav" aria-label="Footer navigation" sx={navigationSx}>
         {links.map(({ label, href }) => (
-          <Link key={href} href={href} color="inherit" underline="hover" sx={linkSx}>
+          <Link
+            key={href}
+            href={label === "Docs" ? stores.applicationConfigurationStore.documentationPath : href}
+            color="inherit"
+            underline="hover"
+            sx={linkSx}
+          >
             {label}
           </Link>
         ))}
@@ -51,4 +59,4 @@ const SiteFooter = () => (
   </Box>
 );
 
-export default SiteFooter;
+export default observer(SiteFooter);

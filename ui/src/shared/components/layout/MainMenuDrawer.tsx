@@ -1,6 +1,7 @@
 import { stores } from "@/app/rootStore";
 import { TenantType } from "@/features/tenants/models/tenant";
 import { getTenantCapabilities } from "@/features/tenants/utils/tenantCapabilities";
+import AppBrandBadge from "@/shared/components/layout/AppBrandBadge";
 import { Shell } from "@/shared/components/layout/shellStyles";
 import { Lists } from "@/shared/components/lists/listStyles";
 import { Refresh } from "@/shared/config/application";
@@ -184,10 +185,7 @@ const MainMenuDrawer = () => {
         >
           <Box component="img" src={logoSrc} alt="" aria-hidden="true" sx={Shell.mainMenuLogoSx} />
           <Typography component="span" variant="h6" sx={Shell.appBarBrandTitleSx}>
-            Click2Approve
-            <Typography component="span" sx={Shell.appBarBrandSubtitleSx}>
-              App
-            </Typography>
+            <AppBrandBadge />
           </Typography>
         </Link>
       </Toolbar>
@@ -423,7 +421,7 @@ const MainMenuDrawer = () => {
           <ListItem key="help" disablePadding>
             <ListItemButton
               component="a"
-              href="/docs/"
+              href={stores.applicationConfigurationStore.documentationPath}
               target="_blank"
               rel="noopener noreferrer"
               onClick={closeTemporaryDrawer}

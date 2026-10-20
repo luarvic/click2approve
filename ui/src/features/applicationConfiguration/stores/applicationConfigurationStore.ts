@@ -10,6 +10,14 @@ export class ApplicationConfigurationStore {
     makeAutoObservable(this);
   }
 
+  get isOpenSourceEdition(): boolean {
+    return this.applicationConfiguration?.edition === "OpenSource";
+  }
+
+  get documentationPath(): string {
+    return this.isOpenSourceEdition ? "/docs/open-source/" : "/docs/";
+  }
+
   get tenantsAreEnabled(): boolean {
     return this.applicationConfiguration?.capabilities.tenants === true;
   }

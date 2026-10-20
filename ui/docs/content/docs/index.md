@@ -2,9 +2,12 @@
 
 Click2Approve helps you route documents through approval workflows, collect decisions and signatures, and track the outcome. These guides explain how to send requests, complete tasks, manage organization workspaces, and configure your account.
 
+Click2Approve also has a free [open-source edition](open-source.md) for self-hosted personal workflows. See the edition comparison for included features and commercial additions.
+
 ## Getting started
 
 - [Getting started](getting-started.md)
+- [Open-source edition](open-source.md)
 - [Features and availability](features.md)
 - [Workspaces and navigation](workspaces.md)
 

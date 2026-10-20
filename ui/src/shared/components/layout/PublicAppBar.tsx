@@ -1,3 +1,4 @@
+import AppBrandBadge from "@/shared/components/layout/AppBrandBadge";
 import { Shell } from "@/shared/components/layout/shellStyles";
 import { Routes } from "@/shared/routing/routes";
 import { AppBar, Box, Link, Toolbar, Typography } from "@mui/material";
@@ -47,10 +48,7 @@ const PublicAppBar = ({
               />
               {showBrandTitle && (
                 <Typography component="span" variant="h6" sx={Shell.appBarBrandTitleSx}>
-                  Click2Approve
-                  <Typography component="span" sx={Shell.appBarBrandSubtitleSx}>
-                    App
-                  </Typography>
+                  <AppBrandBadge />
                 </Typography>
               )}
             </Link>

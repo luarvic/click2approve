@@ -16,6 +16,8 @@ Employees and delegates must belong to the same organization. Membership in one 
 
 When you have delegated access, the workspace picker also offers organization entries with the represented employee's name. Select that entry to work on their behalf; select your own entry to return to your work. See [Delegations](delegations.md).
 
+The small chip beside the upper-right corner of the brand name reads **App** in the commercial app, **Free** in the open-source app, and **Docs** in the documentation portal.
+
 ## Main menu
 
 | Area | Purpose |
@@ -30,7 +32,7 @@ When you have delegated access, the workspace picker also offers organization en
 
 Use the profile menu for your account settings and notifications. The navigation drawer can be opened from the menu button on smaller screens. The color-mode switch changes the appearance of both the app and Docs on the same site.
 
-Small uppercase labels identify navigation groups, cards, sections, and workflow steps. Page titles and controls use sentence case. Use the breadcrumb links above a page title to return to its parent pages. Choose **Docs** in the main menu to open the user guides.
+Small uppercase labels identify navigation groups, cards, sections, and workflow steps. Page titles and controls use sentence case. Use the breadcrumb links above a page title to return to its parent pages. Choose **Docs** in the main menu to open the user guides. In the open-source app, Docs opens the [open-source edition](open-source.md) guide and feature comparison.
 
 In grids, green titles and names are links. They show an underline when hovered or focused with the keyboard; keyboard focus also has a visible outline.
 

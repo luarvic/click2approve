@@ -1,4 +1,5 @@
 import { ControlTokens } from "@/shared/theme/tokens";
+import { alpha } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material";
 const appBarHeight = 72;
 const appBarLogoSize = 42;
@@ -108,6 +109,7 @@ export const Shell = {
     height: mainMenuLogoSize,
   } as SxProps<Theme>,
   appBarBrandTitleSx: {
+    lineHeight: "32px",
     display: "block",
     color: "inherit",
     fontSize: "19px",
@@ -121,15 +123,24 @@ export const Shell = {
       fontSize: "18px",
     },
   } as SxProps<Theme>,
-  appBarBrandSubtitleSx: {
+  appBarBrandBadgeSx: {
+    display: "inline-flex",
+    lineHeight: 1,
+    position: "relative",
+    verticalAlign: "middle",
+  } as SxProps<Theme>,
+  appBarBrandChipSx: {
+    bgcolor: (theme) => alpha(theme.palette.text.secondary, 0.08),
+    borderRadius: "4px",
     color: "text.secondary",
-    fontSize: "12px",
+    fontSize: "9px",
     fontWeight: 400,
-    letterSpacing: "normal",
-    left: 0,
-    lineHeight: "12px",
+    height: 16,
     position: "absolute",
-    top: "calc(100% - 4px)",
+    right: 0,
+    top: "2px",
+    transform: "translate(calc(100% - 2px), -100%)",
+    "& .MuiChip-label": { px: "5px" },
   } as SxProps<Theme>,
   tenantPickerSx: {
     flex: "0 1 auto",
