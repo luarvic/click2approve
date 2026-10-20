@@ -121,7 +121,7 @@ describe("<ApprovalSteps />", () => {
     expect(screen.getByText("Step 1 · Approve")).toBeTruthy();
     await expandStepDetails();
     expect(screen.getByLabelText("Step 1 completion rule Any assignee")).toBeTruthy();
-    expect(screen.getByLabelText("Step 1 visibility Organization employees")).toBeTruthy();
+    expect(screen.getByLabelText("Step 1 visibility Assignees and organization participants")).toBeTruthy();
     expect(
       within(screen.getByRole("list", { name: "Step 1 assignees" })).getByText("visible@example.com"),
     ).toBeTruthy();
@@ -156,7 +156,7 @@ describe("<ApprovalSteps />", () => {
     );
 
     await expandStepDetails();
-    expect(screen.queryByLabelText("Step 1 visibility Organization employees")).toBeNull();
+    expect(screen.queryByLabelText("Step 1 visibility Assignees and organization participants")).toBeNull();
     expect(screen.queryByText("Blocked Assignee")).toBeNull();
     expect(screen.getByTestId("hidden-step-icon")).toBeTruthy();
   });

@@ -33,13 +33,15 @@ The action label and electronic signature requirement are separate settings. Ena
 
 ## Step visibility
 
-Visibility controls who can see a step's details:
+The requester and a step's direct assignees can always see that step, including email assignees. **Visibility** controls who else can see its details and response attachments:
 
-| Setting | Intended audience |
+| Setting | Additional audience |
 | --- | --- |
 | All participants | Participants with access to the request |
-| Organization employees | Organization participants; available for organization workflows |
-| Assignees only | Assignees of that step |
+| Assignees and organization participants | Organization participants; available for organization workflows |
+| Assignees only | No additional participants |
+
+Email assignments remain in the recipient’s Personal workspace, even when their email belongs to an organization employee. Assigned steps remain visible in the workflow, available for step chat, and included in the recipient’s receipt.
 
 These settings do not grant workspace membership or access to unrelated requests. Choose a restricted setting when other participants do not need the step's details.
 

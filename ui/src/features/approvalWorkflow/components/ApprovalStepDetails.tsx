@@ -58,7 +58,7 @@ const ApprovalStepDetails: React.FC<ApprovalStepDetailsProps> = ({
   const completionLabel = allAssignees ? "All assignees" : "Any assignee";
   const visibilityLabel =
     step.visibilityMode === ApprovalStepVisibilityMode.OrganizationEmployees
-      ? "Organization employees"
+      ? "Assignees and organization participants"
       : step.visibilityMode === ApprovalStepVisibilityMode.AssigneesOnly
         ? "Assignees only"
         : "All participants";

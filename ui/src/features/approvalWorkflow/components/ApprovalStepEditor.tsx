@@ -378,7 +378,7 @@ const ApprovalStepEditor: React.FC<ApprovalStepEditorProps> = ({
                             {showOrganizationEmployeesVisibility && (
                               <FormControlLabel
                                 control={<Radio />}
-                                label="Organization employees"
+                                label="Assignees and organization participants"
                                 value={ApprovalStepVisibilityMode.OrganizationEmployees}
                               />
                             )}
