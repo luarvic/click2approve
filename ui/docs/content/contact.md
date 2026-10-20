@@ -16,7 +16,7 @@ Start a conversation in [GitHub Discussions](https://github.com/luarvic/click2ap
 
 ## Private account and privacy questions
 
-Email [click2approve@gmail.com](mailto:click2approve@gmail.com) for account, security, legal, or privacy requests. Do not send passwords or unnecessary identity documents.
+Email [contact@click2approve.com](mailto:contact@click2approve.com) for account, security, legal, or privacy requests. Do not send passwords or unnecessary identity documents.
 
 ## Need a starting point?
 

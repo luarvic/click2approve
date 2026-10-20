@@ -11,7 +11,7 @@ Version: draft-2026-10-18.
 
 ## Who we are
 
-Click2Approve is operated by **Rostislav Semenov**, an individual based in New York City, New York, USA. Contact: [click2approve@gmail.com](mailto:click2approve@gmail.com).
+Click2Approve is operated by **Rostislav Semenov**, an individual based in New York City, New York, USA. Contact: [contact@click2approve.com](mailto:contact@click2approve.com).
 
 These terms cover the hosted website and approval service. You accept them when you explicitly agree at signup. You must be at least 18 and able to enter an agreement. If you act for an organization, you must have authority to bind it. Our [Privacy Policy](privacy.md) explains how we handle personal information.
 

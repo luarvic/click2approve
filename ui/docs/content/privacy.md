@@ -11,7 +11,7 @@ Version: draft-2026-10-18.
 
 ## Who handles your information
 
-**Rostislav Semenov**, an individual based in New York City, New York, USA, operates Click2Approve. Send privacy questions and requests to [click2approve@gmail.com](mailto:click2approve@gmail.com). Do not include passwords or post private information in public GitHub issues.
+**Rostislav Semenov**, an individual based in New York City, New York, USA, operates Click2Approve. Send privacy questions and requests to [contact@click2approve.com](mailto:contact@click2approve.com). Do not include passwords or post private information in public GitHub issues.
 
 We control account administration, billing, security, and our customer relationship. An organization generally controls personal information it puts in its workspace; we process that information on its instructions. Contact the organization about its records, and contact us if you need help routing a request. A separate data processing agreement is needed where applicable law requires one. Independently hosted installations have their own operators and privacy practices.
 
@@ -64,4 +64,4 @@ The service is intended for adults aged 18 or older. Contact us if you believe a
 
 ## Updates
 
-We will update the version and provide notice of material changes where required. Processing that needs new consent will have a separate request. Contact [click2approve@gmail.com](mailto:click2approve@gmail.com) for questions or rights requests.
+We will update the version and provide notice of material changes where required. Processing that needs new consent will have a separate request. Contact [contact@click2approve.com](mailto:contact@click2approve.com) for questions or rights requests.
