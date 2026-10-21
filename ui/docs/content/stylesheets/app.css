@@ -150,6 +150,9 @@
 }
 
 .docs-brand .docs-brand-name {
+  align-items: center;
+  display: flex;
+  min-height: 32px;
   position: relative;
 }
 

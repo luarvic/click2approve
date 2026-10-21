@@ -111,7 +111,9 @@ export const Shell = {
   } as SxProps<Theme>,
   appBarBrandTitleSx: {
     lineHeight: "32px",
-    display: "block",
+    alignItems: "center",
+    display: "flex",
+    minHeight: "32px",
     color: "inherit",
     fontSize: "19px",
     fontWeight: 600,
