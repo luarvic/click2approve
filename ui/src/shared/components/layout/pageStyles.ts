@@ -29,14 +29,6 @@ export const Pages = {
       textDecoration: "underline",
     },
   } as SxProps<Theme>,
-  centeredMessageContainerSx: {
-    mt: 8,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  } as SxProps<Theme>,
-  centeredMessageLogoSx: { display: "block", height: 72, width: 72 } as const,
-  centeredMessageLogoLinkSx: { display: "block", mb: 2 } as const,
   centeredMessageMaxWidth: "xs",
   backdropLoadingSx: {
     color: "#fff",

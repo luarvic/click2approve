@@ -22,10 +22,10 @@ When you arrive from a task or request email, sign in with the account that has 
 
 ## Confirm your email
 
-If you cannot find the confirmation message, check spam and use the resend confirmation option. Confirm the address for the account you intend to use. If a link has expired or cannot be accepted, request another message.
+If you cannot find the confirmation message, check spam and use the resend confirmation option. Confirm the address for the account you intend to use. If a link has expired or cannot be accepted, choose **Request a new verification email** on the result page. After successful verification, choose **Sign in** to continue.
 
 ## Reset a forgotten password
 
-Choose the password reset option on the sign-in screen, enter your email, and follow the reset message to set a new password. Return to sign-in after the reset succeeds. Password reset and email confirmation are separate flows.
+Choose the password reset option on the sign-in screen, enter your email, and follow the reset message to set a new password. The email-sent and password-reset result pages each offer a **Sign in** button. After the reset succeeds, choose **Sign in** to continue. Password reset and email confirmation are separate flows.
 
 For authenticator or passkey access problems, see [MFA and passkeys](security.md) and [Troubleshooting](troubleshooting.md).

@@ -227,7 +227,7 @@ test.each([false, true])(
       await screen.findByRole("heading", { name: "Verify your email" });
       cleanup();
       const router = renderFlow("/confirmEmail?userId=user&code=code");
-      fireEvent.click(await screen.findByRole("link", { name: "Sign in" }));
+      fireEvent.click(await screen.findByRole("button", { name: "Sign in" }));
       await screen.findByRole("heading", { name: "Sign in" });
       expect(new URLSearchParams(router.state.location.search).get("returnUrl")).toBe(destination);
       fireEvent.click(screen.getByRole("button", { name: "Sign in with a passkey" }));
@@ -315,7 +315,7 @@ test.each([true, false])(
       expect(router.state.location.pathname).toBe("/passwordResetComplete");
       expect(screen.getByText(/Your password has been reset/)).toBeTruthy();
       expect(toast).not.toHaveBeenCalled();
-      fireEvent.click(screen.getByRole("link", { name: "Sign in" }));
+      fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
       await screen.findByRole("heading", { name: "Sign in" });
       expect(new URLSearchParams(router.state.location.search).get("returnUrl")).toBe(destination);
     } else {
@@ -376,7 +376,20 @@ test.each([
   localStorage.clear();
   const reloaded = renderFlow(resultUrl);
   expect(screen.getByRole("heading", { name: title })).toBeTruthy();
-  fireEvent.click(screen.getByRole("link", { name: "Sign in" }));
+  fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
   await screen.findByRole("heading", { name: "Sign in" });
   expect(new URLSearchParams(reloaded.state.location.search).get("returnUrl")).toBe(destination);
+});
+
+test.each([true, false])("email verification recovery preserves the destination (confirmed=%s)", async (confirmed) => {
+  const { confirmUserEmail } = await import("@/features/identity/api/authApi");
+  vi.mocked(confirmUserEmail).mockResolvedValueOnce(confirmed);
+  const router = renderFlow(`/confirmEmail?userId=user&code=code&returnUrl=${encodeURIComponent(destination)}`);
+  const action = await screen.findByRole("button", {
+    name: confirmed ? "Sign in" : "Request a new verification email",
+  });
+  fireEvent.click(action);
+  await screen.findByRole("heading", { name: confirmed ? "Sign in" : "Email confirmation" });
+  expect(router.state.location.pathname).toBe(confirmed ? "/signIn" : "/resendConfirmationEmail");
+  expect(new URLSearchParams(router.state.location.search).get("returnUrl")).toBe(destination);
 });
