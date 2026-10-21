@@ -1,7 +1,16 @@
 import type { SxProps, Theme } from "@mui/material";
 export const Pages = {
   containerSx: { px: { xs: 2.5, md: 4 }, py: { xs: 3, md: 4 } } satisfies SxProps<Theme>,
-  titleSx: { mb: 3 } as SxProps<Theme>,
+  wrapperSx: { display: "flex", flexDirection: "column", flex: 1 } satisfies SxProps<Theme>,
+  centeredStateSx: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    flex: 1,
+    "&::before": { content: "''", flexGrow: 4 },
+    "&::after": { content: "''", flexGrow: 5 },
+  } satisfies SxProps<Theme>,
+  titleSx: { mb: 3 } satisfies SxProps<Theme>,
   breadcrumbCurrentSx: {
     color: "text.primary",
     fontWeight: 500,

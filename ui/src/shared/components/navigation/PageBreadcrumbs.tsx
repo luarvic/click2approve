@@ -10,18 +10,20 @@ export interface PageBreadcrumbItem {
 }
 
 interface PageBreadcrumbsProps {
+  align?: "left" | "center";
   items: PageBreadcrumbItem[];
   subtitle?: string;
 }
 
 const headingSpacing = 0.5;
+const centeredHeaderSx = { textAlign: "center", alignItems: "center" } as const;
 const titleLabelSx = { minWidth: 0, overflowWrap: "anywhere" } as const;
 const breadcrumbTrailSx = {
   typography: "overline",
   "& .MuiBreadcrumbs-ol": { rowGap: 0.5 },
 } as const;
 
-const PageBreadcrumbs: React.FC<PageBreadcrumbsProps> = ({ items, subtitle }) => {
+const PageBreadcrumbs: React.FC<PageBreadcrumbsProps> = ({ align = "left", items, subtitle }) => {
   const currentItem = items[items.length - 1];
   const parentItems = items.slice(0, -1);
 
@@ -30,7 +32,7 @@ const PageBreadcrumbs: React.FC<PageBreadcrumbsProps> = ({ items, subtitle }) =>
   }
 
   return (
-    <Stack spacing={headingSpacing} sx={Pages.titleSx}>
+    <Stack spacing={headingSpacing} sx={[Pages.titleSx, align === "center" && centeredHeaderSx]}>
       {parentItems.length > 0 && (
         <Breadcrumbs aria-label="Breadcrumb" sx={breadcrumbTrailSx}>
           {parentItems.map((item, index) => (
