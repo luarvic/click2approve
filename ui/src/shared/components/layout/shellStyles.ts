@@ -32,7 +32,7 @@ export const Shell = {
       lg: drawerIsVisible ? `calc(100% - ${mainMenuDrawerWidth}px)` : "100%",
     },
   }),
-  pageBodySx: { flex: 1, minWidth: 0 } as SxProps<Theme>,
+  pageBodySx: { display: "flex", flexDirection: "column", flex: 1, minWidth: 0 } as SxProps<Theme>,
   loadingProgressSx: {
     left: 0,
     position: "absolute",
@@ -55,6 +55,7 @@ export const Shell = {
     px: 2,
   } as SxProps<Theme>,
   appBarSpacerSx: {
+    flexShrink: 0,
     height: appBarHeight,
     minHeight: appBarHeight,
   } as SxProps<Theme>,

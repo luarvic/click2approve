@@ -8,7 +8,7 @@ interface WrapperLayoutProps {
 }
 
 const WrapperLayout = ({ children }: WrapperLayoutProps) => {
-  return <Box sx={Pages.containerSx}>{children ?? <Outlet />}</Box>;
+  return <Box sx={[Pages.containerSx, Pages.wrapperSx]}>{children ?? <Outlet />}</Box>;
 };
 
 export default WrapperLayout;

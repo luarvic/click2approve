@@ -8,6 +8,8 @@ Email-addressed tasks appear in **Personal**. Employee and team assignments appe
 
 An email link does not grant organization access. See [Workspaces and navigation](workspaces.md).
 
+If you see **Page not found**, the page may have moved or you may not have access to it. Select **Home** to return, then check your account and workspace.
+
 ## A menu item or action is missing
 
 Check [Features and availability](features.md). Employees, teams, delegations, and templates require an organization workspace. Your role, plan, or billing status can hide or disable controls. Select the correct organization and ask an Owner or Admin to check your access.

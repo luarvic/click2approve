@@ -1,23 +1,16 @@
 import { stores } from "@/app/rootStore";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { Pages } from "@/shared/components/layout/pageStyles";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { Routes } from "@/shared/routing/routes";
-import { Box, Container, Typography } from "@mui/material";
-import type { SxProps, Theme } from "@mui/material/styles";
+import { Container } from "@mui/material";
 import { useLayoutEffect } from "react";
-import { Link as RouterLink } from "react-router-dom";
-
-const baseUrl = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
-const logoSrc = `${baseUrl}logo.svg`;
-
-const notFoundMessageSx: SxProps<Theme> = {
-  mb: 3,
-  textAlign: "center",
-};
+import { useNavigate } from "react-router-dom";
 
 const NotFoundPage = () => {
   usePageTitle("Page not found");
+  const navigate = useNavigate();
 
   useLayoutEffect(() => {
     stores.commonStore.setAppBarOptions({ showMainMenuButton: false });
@@ -27,26 +20,13 @@ const NotFoundPage = () => {
   }, []);
 
   return (
-    <Container maxWidth={Pages.centeredMessageMaxWidth}>
-      <Box sx={Pages.centeredMessageContainerSx}>
-        <Box
-          component={RouterLink}
-          to={Routes.defaultPath}
-          aria-label="Click2Approve home"
-          sx={Pages.centeredMessageLogoLinkSx}
-        >
-          <Box component="img" src={logoSrc} alt="Click2Approve" sx={Pages.centeredMessageLogoSx} />
-        </Box>
-        <PageBreadcrumbs
-          items={[
-            { label: "Home", to: Routes.defaultPath },
-            {
-              label: "Page not found",
-            },
-          ]}
-        />
-        <Typography sx={notFoundMessageSx}>Sorry, but the page you are looking for has not been found.</Typography>
-      </Box>
+    <Container maxWidth={Pages.centeredMessageMaxWidth} sx={Pages.centeredStateSx}>
+      <PageBreadcrumbs
+        align="center"
+        items={[{ label: "Page not found" }]}
+        subtitle="It may have moved, or access may be restricted."
+      />
+      <MainActionButton onClick={() => navigate(Routes.defaultPath)}>Home</MainActionButton>
     </Container>
   );
 };
