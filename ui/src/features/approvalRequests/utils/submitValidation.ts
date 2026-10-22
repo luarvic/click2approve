@@ -1,0 +1,32 @@
+import { ApprovalStepAssignee, AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
+import { EditableApprovalStep } from "@/features/approvalWorkflow/models/editableApprovalStep";
+import { CollectionLimits } from "@/shared/config/collectionLimits";
+import { FieldLimits } from "@/shared/config/fieldLimits";
+import { textRule } from "@/shared/utils/formValidation";
+import { validateEmail } from "@/shared/utils/validators";
+
+export const getAssigneeError = (assignee: ApprovalStepAssignee): string | undefined => {
+  switch (assignee.type) {
+    case AssigneeType.User:
+      return validateEmail(assignee.email?.trim() ?? "") ? undefined : "Enter a valid email address.";
+    case AssigneeType.Employee:
+      return assignee.employeeGlobalId ? undefined : "Choose an employee.";
+    case AssigneeType.Team:
+      return assignee.teamGlobalId ? undefined : "Choose a team.";
+    default:
+      return "Choose an assignee type.";
+  }
+};
+
+export const hasInvalidAssignees = (steps: EditableApprovalStep[]) =>
+  steps.some((step) => step.assignees.some((assignee) => Boolean(getAssigneeError(assignee))));
+
+export const getStepErrors = (steps: EditableApprovalStep[]) =>
+  steps.map(
+    (step) =>
+      textRule("Instructions", FieldLimits.text)(step.instructions ?? "") ??
+      (step.assignees.length > CollectionLimits.stepAssignees
+        ? `At most ${CollectionLimits.stepAssignees} assignees are allowed.`
+        : undefined) ??
+      (step.assignees.length === 0 ? "Add at least one assignee." : undefined),
+  );

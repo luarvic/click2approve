@@ -1,0 +1,181 @@
+import { stores } from "@/app/rootStore";
+import NotificationBell from "@/features/notifications/components/NotificationBell";
+import TenantPickerOption from "@/features/tenants/components/TenantPickerOption";
+import { Tenant } from "@/features/tenants/models/tenant";
+import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
+import ColorModeSwitch from "@/shared/components/layout/ColorModeSwitch";
+import PublicAppBar from "@/shared/components/layout/PublicAppBar";
+import { Shell } from "@/shared/components/layout/shellStyles";
+import { AppBarOptions } from "@/shared/models/appBarOptions";
+import { Routes } from "@/shared/routing/routes";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
+import { getEmailInitials } from "@/shared/utils/email";
+import { Menu } from "@mui/icons-material";
+import { Avatar, FormControl, IconButton, InputLabel, MenuItem, Select } from "@mui/material";
+import { observer } from "mobx-react-lite";
+import { useNavigate } from "react-router-dom";
+
+const createTenantPickerOption = (tenant: Tenant, employeeGlobalId: string | null, employeeDisplayName?: string) => ({
+  employeeDisplayName,
+  employeeGlobalId,
+  tenant,
+});
+
+const MainAppBar = ({
+  showMainMenuButton = true,
+  showProfileButton = true,
+  showTenantPicker = true,
+}: AppBarOptions) => {
+  const navigate = useNavigate();
+  const currentUser = stores.userAccountStore.currentUser;
+  const profile = stores.userProfileStore.profile;
+  const mainMenuDrawerIsOpen = stores.commonStore.mainMenuDrawerIsOpen;
+  const mainMenuDrawerIsVisible = Boolean(currentUser) && showMainMenuButton && mainMenuDrawerIsOpen;
+  const tenantPickerIsVisible =
+    showTenantPicker &&
+    stores.applicationConfigurationStore.tenantsAreEnabled &&
+    Boolean(currentUser) &&
+    stores.tenantStore.tenants.length > 0;
+  const currentTenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const tenantPickerOptions = stores.tenantStore.tenants.flatMap((tenant) => {
+    if (!tenant.delegators?.length) {
+      return [createTenantPickerOption(tenant, null)];
+    }
+    return [
+      createTenantPickerOption(
+        tenant,
+        tenant.currentEmployeeGlobalId ?? null,
+        getEmployeeDisplayName({
+          email: tenant.currentEmployeeEmail,
+          firstName: tenant.currentEmployeeFirstName,
+          lastName: tenant.currentEmployeeLastName,
+          position: tenant.currentEmployeePosition,
+        }),
+      ),
+      ...tenant.delegators.map((delegator) =>
+        createTenantPickerOption(tenant, delegator.employeeGlobalId, delegator.displayName),
+      ),
+    ];
+  });
+  const selectedTenantPickerOption =
+    tenantPickerOptions.find(
+      (option) =>
+        option.tenant.globalId === currentTenantGlobalId &&
+        option.employeeGlobalId === stores.tenantStore.currentWorkEmployeeGlobalId,
+    ) ?? tenantPickerOptions.find((option) => option.tenant.globalId === currentTenantGlobalId);
+  const tasksPath = currentTenantGlobalId ? Routes.tenantPath(currentTenantGlobalId, Routes.tasksPath) : "/";
+  return (
+    <PublicAppBar
+      homePath={currentUser ? tasksPath : Routes.defaultPath}
+      showBrand={!mainMenuDrawerIsVisible}
+      showBrandTitle={!showMainMenuButton}
+      startContent={
+        currentUser &&
+        showMainMenuButton && (
+          <IconButton
+            color="inherit"
+            edge="start"
+            size="medium"
+            data-user-guide="menu-button"
+            aria-label={mainMenuDrawerIsOpen ? "Close menu" : "Open menu"}
+            onClick={() => stores.commonStore.setMainMenuDrawerIsOpen(!mainMenuDrawerIsOpen)}
+            sx={Shell.mainMenuButtonSx(mainMenuDrawerIsOpen)}
+          >
+            <Menu />
+          </IconButton>
+        )
+      }
+    >
+      <>
+        {tenantPickerIsVisible && (
+          <FormControl data-user-guide="workspace" size="small" sx={Shell.tenantPickerSx} variant="outlined">
+            <InputLabel id="tenant-picker-label">Workspace</InputLabel>
+            <Select
+              label="Workspace"
+              labelId="tenant-picker-label"
+              name="tenant-picker"
+              variant="outlined"
+              value={
+                selectedTenantPickerOption
+                  ? `${selectedTenantPickerOption.tenant.globalId}:${selectedTenantPickerOption.employeeGlobalId ?? ""}`
+                  : ""
+              }
+              renderValue={() =>
+                selectedTenantPickerOption && (
+                  <TenantPickerOption
+                    employeeDisplayName={selectedTenantPickerOption.employeeDisplayName}
+                    tenant={selectedTenantPickerOption.tenant}
+                  />
+                )
+              }
+              onChange={async (event) => {
+                const option = tenantPickerOptions.find(
+                  (candidate) =>
+                    `${candidate.tenant.globalId}:${candidate.employeeGlobalId ?? ""}` === event.target.value,
+                );
+                if (!option) return;
+
+                const tenantGlobalId = option.tenant.globalId;
+                const currentMenuPath = stores.commonStore.currentMenuPath ?? Routes.tasksPath;
+                const loader = ActionLoaders.pages.tenantScope();
+                stores.commonStore.updateActionLoadingCounter(loader, 1);
+                try {
+                  await stores.switchTenant(
+                    tenantGlobalId,
+                    option.employeeGlobalId,
+                    currentMenuPath === Routes.tasksPath,
+                  );
+                  navigate(
+                    currentMenuPath === "/tenants"
+                      ? currentMenuPath
+                      : Routes.tenantPath(tenantGlobalId, currentMenuPath),
+                  );
+                } finally {
+                  stores.commonStore.updateActionLoadingCounter(loader, -1);
+                }
+              }}
+            >
+              {tenantPickerOptions.map((option) => (
+                <MenuItem
+                  key={`${option.tenant.globalId}:${option.employeeGlobalId ?? ""}`}
+                  value={`${option.tenant.globalId}:${option.employeeGlobalId ?? ""}`}
+                >
+                  <TenantPickerOption employeeDisplayName={option.employeeDisplayName} tenant={option.tenant} />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
+        <ColorModeSwitch
+          checked={stores.userPreferencesStore.theme.palette.mode === "dark"}
+          slotProps={{
+            input: {
+              "aria-label": "Dark mode",
+              name: "color-mode",
+            },
+          }}
+          onChange={(event) => stores.userPreferencesStore.setColorMode(event.target.checked ? "dark" : "light")}
+        />
+        {currentUser && <NotificationBell />}
+        {currentUser && showProfileButton && (
+          <IconButton
+            color="inherit"
+            edge="end"
+            data-user-guide="profile"
+            aria-label="Open profile"
+            size="medium"
+            sx={Shell.profileButtonSx}
+            onClick={() => stores.commonStore.setProfileDrawerIsOpen(true)}
+          >
+            <Avatar src={getPublicApiUrl(profile?.avatar)} sx={Shell.profileAvatarSx}>
+              {getEmailInitials(currentUser.email)}
+            </Avatar>
+          </IconButton>
+        )}
+      </>
+    </PublicAppBar>
+  );
+};
+
+export default observer(MainAppBar);

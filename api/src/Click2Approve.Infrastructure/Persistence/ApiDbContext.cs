@@ -1,0 +1,515 @@
+using System.Text.Json;
+using Click2Approve.Application.Abstractions.Auditing;
+using Click2Approve.Application.Abstractions.Persistence;
+using Click2Approve.Domain.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Storage;
+
+namespace Click2Approve.Infrastructure.Persistence;
+
+/// <summary>
+/// Represents an entity framework database context.
+/// </summary>
+public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
+    : IdentityDbContext<AppUser, IdentityRole<long>, long>(options), IUnitOfWork
+{
+    private static readonly JsonSerializerOptions AuditJsonOptions = new(JsonSerializerDefaults.Web);
+
+    public DbSet<AuditLog> AuditLogs { get; set; }
+    public DbSet<ApprovalRequest> ApprovalRequests { get; set; }
+    public DbSet<ApprovalRequestFile> ApprovalRequestFiles { get; set; }
+    public DbSet<ApprovalRequestStep> ApprovalRequestSteps { get; set; }
+    public DbSet<ApprovalRequestStepAssignee> ApprovalRequestStepAssignees { get; set; }
+    public DbSet<ApprovalRequestTask> ApprovalRequestTasks { get; set; }
+    public DbSet<EventOutboxMessage> EventOutboxMessages { get; set; }
+    public DbSet<InAppNotification> InAppNotifications { get; set; }
+    public DbSet<Tenant> Tenants { get; set; }
+    public DbSet<UserFile> UserFiles { get; set; }
+    public DbSet<UserNotificationPreference> UserNotificationPreferences { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder);
+        // Deliberately disable EF retries, including Azure SQL's defaults: callers own explicit
+        // transactions, whose bodies cannot be replayed by BeginTransactionAsync. Surface failures
+        // rather than replay intermediate saves or external effects after an uncertain commit.
+        optionsBuilder.ReplaceService<IExecutionStrategyFactory, NonRetryingExecutionStrategyFactory>();
+    }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        base.ConfigureConventions(configurationBuilder);
+
+        configurationBuilder
+            .Properties<DateTime>()
+            .HaveConversion<UtcDateTimeConverter>();
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        ConfigureGlobalIdIndexes(modelBuilder);
+
+        modelBuilder.Entity<AuditLog>()
+            .HasIndex(log => log.Timestamp);
+
+        modelBuilder.Entity<AuditLog>()
+            .HasIndex(log => new { log.EntityType, log.EntityId });
+
+        modelBuilder.Entity<Tenant>()
+            .Property(t => t.Type)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<Tenant>()
+            .HasOne(t => t.Owner)
+            .WithMany()
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<AppUser>()
+            .HasIndex(u => u.IsPlaceholder);
+
+        modelBuilder.Entity<AppUser>()
+            .HasIndex(u => u.GlobalId)
+            .IsUnique();
+
+        modelBuilder.Entity<AppUser>()
+            .HasOne<Tenant>()
+            .WithMany()
+            .HasForeignKey(u => u.DefaultTenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<AppUser>()
+            .HasOne(user => user.AvatarUserFile)
+            .WithMany()
+            .HasForeignKey(user => user.AvatarUserFileId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Tenant>()
+            .HasOne(tenant => tenant.LogoUserFile)
+            .WithMany()
+            .HasForeignKey(tenant => tenant.LogoUserFileId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Tenant>()
+            .HasIndex(t => t.BusinessName);
+
+        modelBuilder.Entity<Tenant>()
+            .HasIndex(t => new { t.DeletionPublishedAt, t.ScheduledForDeletionAt });
+
+        modelBuilder.Entity<ApprovalRequest>()
+            .Property(r => r.Status)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<ApprovalRequest>()
+            .HasIndex(r => new { r.TenantId, r.Status, r.Result });
+
+        modelBuilder.Entity<ApprovalRequest>()
+            .HasIndex(r => new { r.DeletionPublishedAt, r.ScheduledForDeletionAt });
+
+        modelBuilder.Entity<ApprovalRequest>()
+            .Property(r => r.RevisionNumber)
+            .HasDefaultValue(1);
+
+        modelBuilder.Entity<ApprovalRequest>()
+            .HasIndex(r => new { r.TenantId, r.RequesterUserId, r.CreatedAt, r.GlobalId })
+            .IsDescending(false, false, true, false);
+
+        modelBuilder.Entity<ApprovalRequest>()
+            .HasIndex(r => r.PreviousRevisionApprovalRequestId)
+            .IsUnique();
+
+        modelBuilder.Entity<ApprovalRequest>()
+            .HasOne(r => r.RequesterUser)
+            .WithMany()
+            .HasForeignKey(r => r.RequesterUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequest>()
+            .HasOne(r => r.SubmittedByUser)
+            .WithMany()
+            .HasForeignKey(r => r.SubmittedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequest>()
+            .HasOne(r => r.CompletedByUser)
+            .WithMany()
+            .HasForeignKey(r => r.CompletedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequest>()
+            .HasOne(r => r.Tenant)
+            .WithMany(t => t.ApprovalRequests)
+            .HasForeignKey(r => r.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequest>()
+            .HasOne(r => r.PreviousRevisionApprovalRequest)
+            .WithOne(r => r.NextRevisionApprovalRequest)
+            .HasForeignKey<ApprovalRequest>(r => r.PreviousRevisionApprovalRequestId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequestFile>()
+            .Property(file => file.RevisionAction)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<ApprovalRequestFile>()
+            .HasIndex(file => new { file.ApprovalRequestId, file.Sequence });
+
+        modelBuilder.Entity<ApprovalRequestFile>()
+            .HasOne(file => file.ApprovalRequest)
+            .WithMany(request => request.RequestFiles)
+            .HasForeignKey(file => file.ApprovalRequestId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequestFile>()
+            .HasOne(file => file.UserFile)
+            .WithMany(userFile => userFile.ApprovalRequestFiles)
+            .HasForeignKey(file => file.UserFileId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequestFile>()
+            .HasOne(file => file.PreviousApprovalRequestFile)
+            .WithMany()
+            .HasForeignKey(file => file.PreviousApprovalRequestFileId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequestStep>()
+            .Property(s => s.Mode)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<ApprovalRequestStep>()
+            .HasIndex(s => new { s.ApprovalRequestId, s.Sequence })
+            .IsUnique();
+
+        modelBuilder.Entity<ApprovalRequestStep>()
+            .HasOne(s => s.ApprovalRequest)
+            .WithMany(r => r.Steps)
+            .HasForeignKey(s => s.ApprovalRequestId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequestStep>()
+            .Property(s => s.Action)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<ApprovalRequestStepAssignee>()
+            .Property(a => a.Type)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<ApprovalRequestStepAssignee>()
+            .HasOne(a => a.ApprovalRequestStep)
+            .WithMany(s => s.Assignees)
+            .HasForeignKey(a => a.ApprovalRequestStepId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequestStepAssignee>()
+            .HasOne(a => a.User)
+            .WithMany()
+            .HasForeignKey(a => a.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .Property(t => t.Status)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .Ignore(task => task.TaskFiles);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .Property(t => t.Action)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .Property(t => t.RevisionNumber)
+            .HasDefaultValue(1);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .Property(t => t.AssigneeRepresentationDetails)
+            .HasColumnName("AssigneeOrganization");
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .HasIndex(t => new { t.TenantId, t.AssigneeUserId, t.Status });
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .HasIndex(t => new { t.TenantId, t.AssigneeUserId, t.CreatedAt, t.GlobalId })
+            .IsDescending(false, false, true, false);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .HasOne(t => t.AssigneeUser)
+            .WithMany()
+            .HasForeignKey(t => t.AssigneeUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .HasOne(task => task.CompletedByUser)
+            .WithMany()
+            .HasForeignKey(task => task.CompletedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .HasOne(t => t.ApprovalRequest)
+            .WithMany()
+            .HasForeignKey(t => t.ApprovalRequestId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .HasOne(t => t.ApprovalRequestStep)
+            .WithMany(s => s.Tasks)
+            .HasForeignKey(t => t.ApprovalRequestStepId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .HasOne(t => t.ApprovalRequestStepAssignee)
+            .WithMany(a => a.Tasks)
+            .HasForeignKey(t => t.ApprovalRequestStepAssigneeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApprovalRequestTask>()
+            .HasOne(t => t.Tenant)
+            .WithMany(t => t.ApprovalRequestTasks)
+            .HasForeignKey(t => t.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<UserFile>()
+            .HasIndex(f => new { f.TenantId, f.OwnerId });
+
+        modelBuilder.Entity<UserFile>()
+            .HasIndex(f => new { f.DeletionPublishedAt, f.ScheduledForDeletionAt });
+
+        modelBuilder.Entity<UserFile>()
+            .Property(file => file.StorageType)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<UserFile>()
+            .Property(file => file.Status)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<UserFile>()
+            .HasOne(f => f.Owner)
+            .WithMany()
+            .HasForeignKey(f => f.OwnerId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<UserFile>()
+            .HasOne(f => f.Tenant)
+            .WithMany(t => t.UserFiles)
+            .HasForeignKey(f => f.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<UserNotificationPreference>()
+            .Property(preference => preference.Type)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<UserNotificationPreference>()
+            .Property(preference => preference.Channel)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<UserNotificationPreference>()
+            .HasOne(preference => preference.User)
+            .WithMany(user => user.NotificationPreferences)
+            .HasForeignKey(preference => preference.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<UserNotificationPreference>()
+            .HasIndex(preference => new { preference.UserId, preference.Type, preference.Channel })
+            .IsUnique();
+
+        modelBuilder.Entity<EventOutboxMessage>()
+            .HasIndex(message => message.EventId)
+            .IsUnique();
+        modelBuilder.Entity<EventOutboxMessage>()
+            .HasIndex(message => new { message.PublishedAt, message.OccurredAt });
+
+        modelBuilder.Entity<InAppNotification>()
+            .Property(notification => notification.Type)
+            .HasConversion<int>();
+        modelBuilder.Entity<InAppNotification>()
+            .Property(notification => notification.TargetResourceType)
+            .HasConversion<int>();
+        modelBuilder.Entity<InAppNotification>()
+            .HasOne(notification => notification.User)
+            .WithMany()
+            .HasForeignKey(notification => notification.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<InAppNotification>()
+            .HasIndex(notification => new { notification.EventId, notification.UserId })
+            .IsUnique();
+        modelBuilder.Entity<InAppNotification>()
+            .HasIndex(notification => new { notification.UserId, notification.TenantId, notification.ReadAt });
+        modelBuilder.Entity<InAppNotification>()
+            .HasIndex(notification => new
+            {
+                notification.UserId,
+                notification.TenantId,
+                notification.OccurredAt,
+                notification.GlobalId
+            })
+            .IsDescending(false, false, true, false);
+        TextConstraints.Configure(modelBuilder, Database.ProviderName == "Microsoft.EntityFrameworkCore.SqlServer");
+        ConfigureEnumConstraints(modelBuilder);
+    }
+
+    /// <inheritdoc />
+    public async Task<IUnitOfWorkTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) =>
+        new UnitOfWorkTransaction(this, await Database.BeginTransactionAsync(cancellationToken));
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        ChangeTracker.DetectChanges();
+
+        if (!auditContext.IsEnabled)
+        {
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        var pendingAuditLogs = CreatePendingAuditLogs();
+        if (pendingAuditLogs.Count == 0)
+        {
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        if (Database.CurrentTransaction is not null)
+        {
+            return await SaveChangesWithAuditAsync(pendingAuditLogs, cancellationToken);
+        }
+
+        await using var transaction = await BeginTransactionAsync(cancellationToken);
+        var result = await SaveChangesWithAuditAsync(pendingAuditLogs, cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return result;
+    }
+
+    /// <summary>Restricts persisted enum values to the domain's supported states.</summary>
+    protected static void ConfigureEnumConstraints(ModelBuilder modelBuilder)
+    {
+        foreach (var entity in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entity.GetProperties())
+            {
+                var type = Nullable.GetUnderlyingType(property.ClrType) ?? property.ClrType;
+                if (!type.IsEnum || type.IsDefined(typeof(FlagsAttribute), inherit: false)) continue;
+                var values = string.Join(", ", Enum.GetValues(type).Cast<object>().Select(Convert.ToInt64).Distinct());
+                var column = property.GetColumnName();
+                modelBuilder.Entity(entity.ClrType).ToTable(table => table.HasCheckConstraint(
+                    $"CK_{entity.ClrType.Name}_{property.Name}", $"[{column}] IN ({values})"));
+            }
+        }
+    }
+
+    protected static void ConfigureGlobalIdIndexes(ModelBuilder modelBuilder)
+    {
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes()
+            .Where(entityType => typeof(DbEntity).IsAssignableFrom(entityType.ClrType)))
+        {
+            modelBuilder.Entity(entityType.ClrType)
+                .Property(nameof(DbEntity.GlobalId))
+                .IsRequired();
+
+            modelBuilder.Entity(entityType.ClrType)
+                .HasIndex(nameof(DbEntity.GlobalId))
+                .IsUnique();
+        }
+    }
+
+    private async Task<int> SaveChangesWithAuditAsync(List<PendingAuditLog> pendingAuditLogs,
+        CancellationToken cancellationToken)
+    {
+        var result = await base.SaveChangesAsync(cancellationToken);
+
+        AuditLogs.AddRange(pendingAuditLogs.Select(CreateAuditLog));
+        await base.SaveChangesAsync(cancellationToken);
+
+        return result;
+    }
+
+    private List<PendingAuditLog> CreatePendingAuditLogs()
+    {
+        return [.. ChangeTracker
+            .Entries()
+            .Where(entry => entry.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
+            .Where(entry => entry.Entity is DbEntity and not AuditLog)
+            .Select(entry => CreatePendingAuditLog(entry, auditContext.UserId))];
+    }
+
+    private static PendingAuditLog CreatePendingAuditLog(EntityEntry entry, long? userId)
+    {
+        var entity = (DbEntity)entry.Entity;
+
+        return new PendingAuditLog(
+            UserId: userId,
+            EntityType: entry.Metadata.ClrType.Name,
+            Entity: entity,
+            EntityState: entry.State,
+            PropertyChanges: GetPropertyChanges(entry));
+    }
+
+    private static AuditLog CreateAuditLog(PendingAuditLog pendingAuditLog)
+    {
+        return new AuditLog
+        {
+            Timestamp = DateTime.UtcNow,
+            UserId = pendingAuditLog.UserId,
+            EntityType = pendingAuditLog.EntityType,
+            EntityId = pendingAuditLog.Entity.Id,
+            EntityState = pendingAuditLog.EntityState.ToString(),
+            ChangesJson = JsonSerializer.Serialize(
+                pendingAuditLog.PropertyChanges.ToDictionary(
+                    property => property.Name,
+                    property => property.ToAuditPropertyChange()),
+                AuditJsonOptions)
+        };
+    }
+
+    private static List<PendingAuditPropertyChange> GetPropertyChanges(EntityEntry entry)
+    {
+        return [.. entry.Properties
+            .Where(property => !property.Metadata.IsShadowProperty())
+            .Where(property => property.Metadata.Name != nameof(DbEntity.Id))
+            .Where(property => entry.State != EntityState.Modified || property.IsModified)
+            .Select(property => CreatePropertyChange(property, entry.State))];
+    }
+
+    private static PendingAuditPropertyChange CreatePropertyChange(PropertyEntry property, EntityState entityState)
+    {
+        return entityState switch
+        {
+            EntityState.Added => new PendingAuditPropertyChange(property.Metadata.Name, OldValue: null, NewValue: null, property),
+            EntityState.Deleted => new PendingAuditPropertyChange(property.Metadata.Name, property.OriginalValue, NewValue: null, Property: null),
+            _ => new PendingAuditPropertyChange(property.Metadata.Name, property.OriginalValue, NewValue: null, property)
+        };
+    }
+
+    /// <summary>
+    /// Contains audit log data waiting to be persisted.
+    /// </summary>
+    private sealed record PendingAuditLog(
+        long? UserId,
+        string EntityType,
+        DbEntity Entity,
+        EntityState EntityState,
+        List<PendingAuditPropertyChange> PropertyChanges);
+
+    /// <summary>
+    /// Contains pending audit data for one changed property.
+    /// </summary>
+    private sealed record PendingAuditPropertyChange(
+        string Name,
+        object? OldValue,
+        object? NewValue,
+        PropertyEntry? Property)
+    {
+        public AuditPropertyChange ToAuditPropertyChange()
+        {
+            return new AuditPropertyChange(OldValue, Property?.CurrentValue ?? NewValue);
+        }
+    }
+
+    /// <summary>
+    /// Contains old and new values for an audited property.
+    /// </summary>
+    private sealed record AuditPropertyChange(object? OldValue, object? NewValue);
+}

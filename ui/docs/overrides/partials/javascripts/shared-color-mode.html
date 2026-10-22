@@ -1,0 +1,27 @@
+{# Read the app's shared preference before Material applies its initial palette. #}
+<script>
+  // Keep the key aligned with COLOR_MODE_KEY in shared/session/session.ts.
+  const docsColorModeStorageKey = "colorMode";
+  (() => {
+    let colorMode = localStorage.getItem(docsColorModeStorageKey);
+    const previousPalette = __md_get("__palette");
+    if (colorMode !== "light" && colorMode !== "dark") {
+      const previousScheme = previousPalette?.color?.scheme;
+      if (previousScheme !== "default" && previousScheme !== "slate") return;
+      colorMode = previousScheme === "slate" ? "dark" : "light";
+      localStorage.setItem(docsColorModeStorageKey, colorMode);
+    }
+    const inputs = [...document.querySelectorAll('[data-md-component="palette"] input')];
+    const index = inputs.findIndex((input) => input.dataset.mdColorScheme === (colorMode === "dark" ? "slate" : "default"));
+    const input = inputs[index];
+    __md_set("__palette", {
+      index,
+      color: {
+        media: input.dataset.mdColorMedia,
+        scheme: input.dataset.mdColorScheme,
+        primary: input.dataset.mdColorPrimary,
+        accent: input.dataset.mdColorAccent,
+      },
+    });
+  })();
+</script>

@@ -1,0 +1,322 @@
+import { stores } from "@/app/rootStore";
+import {
+  deleteNotifications,
+  listNotifications,
+  markNotificationRead,
+  markNotificationsRead,
+} from "@/features/notifications/api/notificationsApi";
+import NotificationsFilter from "@/features/notifications/components/NotificationsFilter";
+import {
+  getNotificationLabel,
+  NotificationResourceType,
+  type Notification,
+} from "@/features/notifications/models/notification";
+import {
+  parseNotificationGridQuery,
+  serializeNotificationGridQuery,
+  type NotificationGridQuery,
+} from "@/features/notifications/models/notificationGridQuery";
+import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
+import CompactGridCell from "@/shared/components/grids/CompactGridCell";
+import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGridSecondaryInformation";
+import CompactGridStatus from "@/shared/components/grids/CompactGridStatus";
+import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
+import { DataGrids } from "@/shared/components/grids/dataGridSettings";
+import { FilterStyles } from "@/shared/components/grids/filterStyles";
+import NoLoadingOverlay from "@/shared/components/overlays/NoLoadingOverlay";
+import NoRowsOverlay from "@/shared/components/overlays/NoRowsOverlay";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
+import { NotificationType } from "@/shared/models/notifications";
+import { Routes } from "@/shared/routing/routes";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { getHumanReadableRelativeDate, parseUtcDateTime } from "@/shared/utils/dateTime";
+import { Delete, Done, FilterList } from "@mui/icons-material";
+import type { SxProps, Theme } from "@mui/material";
+import { Box, Button, Typography, useMediaQuery, useTheme } from "@mui/material";
+import type { GridSortModel } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridRowId, GridToolbarContainer } from "@mui/x-data-grid";
+import dayjs from "dayjs";
+import { useCallback, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+
+const notificationColumnFlex = 15;
+const notificationColumnMinWidth = 150;
+const detailsColumnFlex = 55;
+const receivedColumnFlex = 20;
+const unreadNotificationRowClassName = "notification-grid-unread";
+const notificationGridSx: SxProps<Theme> = {
+  ...DataGrids.sx,
+  [`& .${unreadNotificationRowClassName} .MuiDataGrid-cell, & .${unreadNotificationRowClassName} .MuiDataGrid-cell .MuiTypography-root`]:
+    {
+      fontWeight: 500,
+    },
+};
+
+const getPath = (item: Notification) => {
+  if (item.targetResourceGlobalId === undefined || item.targetResourceType === undefined) return null;
+  const isDiscussionNotification = item.type === NotificationType.DiscussionMessageCreated;
+  const resourcePath =
+    item.targetResourceType === NotificationResourceType.ApprovalRequest
+      ? "requests"
+      : item.targetResourceType === NotificationResourceType.Receipt
+        ? "receipts"
+        : "tasks";
+  const chatPath = isDiscussionNotification ? "/chat" : "";
+  return `/${resourcePath}/${item.targetResourceGlobalId}${chatPath}`;
+};
+
+const NotificationsGrid = () => {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const theme = useTheme();
+  const allColumnsAreVisible = useMediaQuery(theme.breakpoints.up("md"));
+  const tenantId = stores.tenantStore.currentTenantGlobalId;
+  const query = useMemo(() => parseNotificationGridQuery(searchParams), [searchParams]);
+  const [items, setItems] = useState<Notification[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [filtersAreVisible, setFiltersAreVisible] = useState(false);
+  const [selectedNotificationGlobalIds, setSelectedNotificationGlobalIds] = useState<GridRowId[]>([]);
+  const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
+  const gridLoader = ActionLoaders.grids.notifications(tenantId);
+  const deleteLoader = ActionLoaders.notifications.delete(tenantId);
+  const markReadLoader = ActionLoaders.notifications.markRead(tenantId);
+  const { isRunning: isDeleting, run: runDelete } = useAsyncAction(deleteLoader);
+  const { isRunning: isMarkingRead, run: runMarkRead } = useAsyncAction(markReadLoader);
+
+  const updateQuery = useCallback(
+    (updates: Partial<NotificationGridQuery>) => {
+      setSearchParams(serializeNotificationGridQuery({ ...query, ...updates }), { replace: true });
+    },
+    [query, setSearchParams],
+  );
+
+  const paginationModel = useMemo(() => ({ page: query.page, pageSize: query.pageSize }), [query.page, query.pageSize]);
+  const sortModel = useMemo<GridSortModel>(
+    () => [{ field: "occurredAt", sort: query.sortDirection }],
+    [query.sortDirection],
+  );
+  const appliedFilterCount =
+    query.type.length +
+    query.status.length +
+    Number(Boolean(query.details)) +
+    Number(Boolean(query.receivedFrom)) +
+    Number(Boolean(query.receivedTo));
+  const receivedFromFilter = query.receivedFrom ? dayjs(query.receivedFrom) : null;
+  const receivedToFilter = query.receivedTo ? dayjs(query.receivedTo) : null;
+
+  const load = useCallback(async () => {
+    if (tenantId) {
+      const [page] = await Promise.all([
+        listNotifications(tenantId, query),
+        stores.notificationStore.loadUnreadCount(tenantId),
+      ]);
+      setItems(page.items);
+      setTotalCount(page.totalCount);
+    }
+  }, [query, tenantId]);
+  const gridIsLoading = useGridRefresh(
+    load,
+    tenantId !== null,
+    `${gridLoader}:${serializeNotificationGridQuery(query)}`,
+  );
+  const synchronize = useCallback(async () => {
+    await load();
+  }, [load]);
+  const selectedUnreadNotificationGlobalIds = selectedNotificationGlobalIds
+    .map(String)
+    .filter((globalId) => items.some((item) => item.globalId === globalId && !item.readAt));
+  const markSelectedRead = async () => {
+    if (!tenantId || selectedUnreadNotificationGlobalIds.length === 0) return;
+    const marked = await runMarkRead(async () => {
+      await markNotificationsRead(tenantId, selectedUnreadNotificationGlobalIds);
+      await synchronize();
+      return true;
+    });
+    if (marked) {
+      setSelectedNotificationGlobalIds([]);
+    }
+  };
+  const deleteSelected = async () => {
+    if (!tenantId || selectedNotificationGlobalIds.length === 0) return false;
+    return (
+      (await runDelete(async () => {
+        await deleteNotifications(tenantId, selectedNotificationGlobalIds.map(String));
+        await synchronize();
+        setSelectedNotificationGlobalIds([]);
+        return true;
+      })) ?? false
+    );
+  };
+  const open = async (item: Notification) => {
+    if (!tenantId) return;
+    if (!item.readAt) {
+      const marked = await runMarkRead(async () => {
+        await markNotificationRead(tenantId, item.globalId);
+        await synchronize();
+        return true;
+      });
+      if (!marked) return;
+    }
+    const path = getPath(item);
+    if (path) navigate(Routes.tenantPath(tenantId, path));
+  };
+  const customToolbar = () => (
+    <GridToolbarContainer>
+      <Button
+        disabled={gridIsLoading || isDeleting || isMarkingRead || selectedUnreadNotificationGlobalIds.length === 0}
+        onClick={() => void markSelectedRead()}
+        startIcon={<Done />}
+      >
+        Mark read
+      </Button>
+      <Button
+        color="error"
+        disabled={gridIsLoading || isDeleting || isMarkingRead || selectedNotificationGlobalIds.length === 0}
+        onClick={() => setDeleteDialogIsOpen(true)}
+        startIcon={<Delete />}
+      >
+        Delete
+      </Button>
+      <Button
+        aria-pressed={filtersAreVisible}
+        disabled={isDeleting || isMarkingRead}
+        startIcon={<FilterList />}
+        onClick={() => setFiltersAreVisible((current) => !current)}
+      >
+        {filtersAreVisible ? "Hide filters" : `Show filters${appliedFilterCount > 0 ? ` (${appliedFilterCount})` : ""}`}
+      </Button>
+    </GridToolbarContainer>
+  );
+  const columns: GridColDef[] = [
+    {
+      field: "type",
+      headerName: "Notification",
+      sortable: false,
+      disableColumnMenu: true,
+      flex: notificationColumnFlex,
+      minWidth: notificationColumnMinWidth,
+      renderCell: (params) => (
+        <CompactGridCell>
+          <CompactGridTitle>
+            <Typography variant="body2">{getNotificationLabel(params.row)}</Typography>
+          </CompactGridTitle>
+          {!allColumnsAreVisible && (
+            <>
+              <CompactGridStatus>
+                <Typography variant="body2">{params.row.readAt ? "Read" : "Unread"}</Typography>
+              </CompactGridStatus>
+              <CompactGridSecondaryInformation>{params.row.summary}</CompactGridSecondaryInformation>
+              <CompactGridSecondaryInformation>
+                {getHumanReadableRelativeDate(parseUtcDateTime(params.row.occurredAt))}
+              </CompactGridSecondaryInformation>
+            </>
+          )}
+        </CompactGridCell>
+      ),
+      valueGetter: (_value, row) => getNotificationLabel(row),
+    },
+    {
+      field: "summary",
+      headerName: "Details",
+      sortable: false,
+      disableColumnMenu: true,
+      flex: detailsColumnFlex,
+    },
+    {
+      field: "occurredAt",
+      headerName: "Received",
+      sortable: true,
+      flex: receivedColumnFlex,
+      valueFormatter: (value) => getHumanReadableRelativeDate(parseUtcDateTime(value)),
+    },
+  ];
+
+  return (
+    <>
+      {filtersAreVisible && (
+        <Box sx={FilterStyles.containerSx}>
+          <NotificationsFilter
+            details={query.details}
+            receivedFrom={receivedFromFilter}
+            receivedTo={receivedToFilter}
+            statuses={query.status}
+            types={query.type}
+            onDetailsChange={(details) => updateQuery({ details, page: 0 })}
+            onReceivedFromChange={(value) =>
+              updateQuery({
+                page: 0,
+                receivedFrom: value?.format("YYYY-MM-DD") ?? null,
+              })
+            }
+            onReceivedToChange={(value) =>
+              updateQuery({
+                page: 0,
+                receivedTo: value?.format("YYYY-MM-DD") ?? null,
+              })
+            }
+            onStatusesChange={(status) => updateQuery({ page: 0, status })}
+            onTypesChange={(type) => updateQuery({ page: 0, type })}
+          />
+        </Box>
+      )}
+      <Box sx={DataGrids.containerSx}>
+        <DataGrid
+          showToolbar
+          autoHeight
+          checkboxSelection
+          disableRowSelectionExcludeModel
+          columns={columns}
+          columnVisibilityModel={{
+            occurredAt: allColumnsAreVisible,
+            summary: allColumnsAreVisible,
+          }}
+          disableColumnSelector
+          disableColumnFilter
+          disableRowSelectionOnClick
+          getRowId={(row) => row.globalId}
+          getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
+          getEstimatedRowHeight={() => (allColumnsAreVisible ? null : DataGrids.compactRowHeightEstimate)}
+          getRowClassName={(params) => (params.row.readAt ? "" : unreadNotificationRowClassName)}
+          hideFooterSelectedRowCount
+          loading={gridIsLoading || isDeleting || isMarkingRead}
+          onRowClick={(params) => void open(params.row as Notification)}
+          onRowSelectionModelChange={(selection) => setSelectedNotificationGlobalIds([...selection.ids])}
+          paginationMode="server"
+          paginationModel={paginationModel}
+          pageSizeOptions={DataGrids.pageSizeOptions}
+          rowSelectionModel={{ type: "include", ids: new Set(selectedNotificationGlobalIds) }}
+          rowCount={totalCount}
+          rows={items}
+          sortingMode="server"
+          sortModel={sortModel}
+          onPaginationModelChange={(model) => updateQuery({ page: model.page, pageSize: model.pageSize })}
+          onSortModelChange={(model) => updateQuery({ page: 0, sortDirection: model[0]?.sort ?? "desc" })}
+          slotProps={{
+            baseCheckbox: { name: "notification-selection" },
+          }}
+          slots={{
+            loadingOverlay: NoLoadingOverlay,
+            noRowsOverlay: NoRowsOverlay,
+            toolbar: customToolbar,
+          }}
+          sx={notificationGridSx}
+        />
+        <DeleteConfirmationDialog
+          cancelLabel="Cancel"
+          entityName={
+            selectedNotificationGlobalIds.length === 1
+              ? "this notification"
+              : `${selectedNotificationGlobalIds.length} notifications`
+          }
+          open={deleteDialogIsOpen}
+          title="Delete notifications"
+          onClose={() => setDeleteDialogIsOpen(false)}
+          onDelete={deleteSelected}
+        />
+      </Box>
+    </>
+  );
+};
+
+export default NotificationsGrid;

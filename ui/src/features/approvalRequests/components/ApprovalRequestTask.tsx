@@ -1,0 +1,444 @@
+import { stores } from "@/app/rootStore";
+import { completeApprovalRequestTask } from "@/features/approvalRequests/api/approvalRequestTasksApi";
+import ApprovalRequestActionBar from "@/features/approvalRequests/components/ApprovalRequestActionBar";
+import ApprovalRequestDetails from "@/features/approvalRequests/components/ApprovalRequestDetails";
+import ApprovalRequestDiscussionSection from "@/features/approvalRequests/components/ApprovalRequestDiscussionSection";
+import ApprovalRequestElectronicSignatureForm from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureForm";
+import ApprovalRequestTaskAttachmentList from "@/features/approvalRequests/components/ApprovalRequestTaskAttachmentList";
+import ApprovalRequestTaskAttachments, {
+  ApprovalRequestTaskAttachmentsHandle,
+} from "@/features/approvalRequests/components/ApprovalRequestTaskAttachments";
+import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/components/ApprovalRequestTaskSummaryBlock";
+import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
+import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
+import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
+import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
+import { createApprovalRequestTaskClientAuditContext } from "@/features/approvalRequests/utils/approvalRequestTaskClientAuditContext";
+import { getIncompleteParticipantNameWarning } from "@/features/approvalRequests/utils/incompleteParticipantNameWarning";
+import {
+  getParticipantName,
+  hasIncompleteBusinessParticipantName,
+} from "@/features/approvalRequests/utils/participantName";
+import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
+import { UserFile } from "@/features/userFiles/models/userFile";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
+import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
+import { Forms } from "@/shared/components/dialogs/formStyles";
+import FormCard from "@/shared/components/forms/FormCard";
+import FormSection from "@/shared/components/forms/FormSection";
+import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { FieldLimits } from "@/shared/config/fieldLimits";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { useFormValidation } from "@/shared/hooks/useFormValidation";
+import NotFoundPage from "@/shared/pages/NotFoundPage";
+import { Routes } from "@/shared/routing/routes";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { signatureRule, textRule } from "@/shared/utils/formValidation";
+import { notification } from "@/shared/utils/notifications";
+import {
+  PersistenceSuccessMessages,
+  showPersistenceSuccessNotification,
+} from "@/shared/utils/persistenceNotifications";
+import {
+  FormControl,
+  FormControlLabel,
+  FormHelperText,
+  Radio,
+  RadioGroup,
+  Stack,
+  Tab,
+  Tabs,
+  TextField,
+} from "@mui/material";
+import { observer } from "mobx-react-lite";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+interface ApprovalRequestTaskProps {
+  onClose: (currentTaskGlobalId?: string) => void;
+  tab: "task" | "request" | "chat";
+  taskGlobalId: string;
+}
+
+const getDefaultLegalName = (isAssigneeEmployee: boolean | undefined): string => {
+  const { firstName, lastName } = getParticipantName(
+    stores.tenantStore.currentTenant,
+    stores.userProfileStore.profile,
+    isAssigneeEmployee,
+  );
+  return [firstName, lastName]
+    .map((name) => name?.trim())
+    .filter((name): name is string => Boolean(name))
+    .join(" ");
+};
+
+const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab, taskGlobalId }) => {
+  const navigate = useNavigate();
+  const initialTaskGlobalId = useRef<string | undefined>(undefined);
+  const [decisionError, setDecisionError] = useState(false);
+  const [attachmentError, setAttachmentError] = useState(false);
+  const [result, setResult] = useState<boolean | undefined>(undefined);
+  const [comment, setComment] = useState("");
+  const [legalName, setLegalName] = useState("");
+  const [representationDetails, setRepresentationDetails] = useState("");
+  const [signatureJson, setSignatureJson] = useState("");
+  const [approvalRequest, setApprovalRequest] = useState<ApprovalRequest | null>(null);
+  const [nameWarningDialogIsOpen, setNameWarningDialogIsOpen] = useState(false);
+  const [taskAttachmentFiles, setTaskAttachmentFiles] = useState<UserFile[]>([]);
+  const taskAttachments = useRef<ApprovalRequestTaskAttachmentsHandle>(null);
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const nameWarning = getIncompleteParticipantNameWarning(stores.tenantStore.currentTenant?.type);
+  const tasksPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/tasks") : "/";
+  const currentTask = stores.approvalRequestTaskStore.currentTask;
+  const currentTaskStepAssignee = approvalRequest?.steps
+    .find((step) => step.globalId === currentTask?.approvalRequestStepGlobalId)
+    ?.assignees.find((assignee) => assignee.globalId === currentTask?.approvalRequestStepAssigneeGlobalId);
+  const currentTaskAssigneeType = currentTask?.isAssigneeEmployee ? AssigneeType.Employee : AssigneeType.User;
+  const discussionStep = approvalRequest?.steps.find(
+    (step) => step.globalId === currentTask?.approvalRequestStepGlobalId,
+  );
+  const canSendDiscussion =
+    approvalRequest?.status !== ApprovalRequestStatus.Completed &&
+    discussionStep?.tasks?.some((task) => task.status === ApprovalRequestTaskStatus.Pending) === true;
+  const discussionsAreEnabled = stores.applicationConfigurationStore.discussionsAreEnabled;
+  const discussionAttachmentsAreEnabled = stores.applicationConfigurationStore.discussionAttachmentsAreEnabled;
+  const taskAttachmentsAreEnabled = stores.applicationConfigurationStore.taskAttachmentsAreEnabled;
+  const isCompleted = Boolean(currentTask && currentTask.status !== ApprovalRequestTaskStatus.Pending);
+  const actionLabels = getApprovalRequestTaskActionLabels(currentTask?.action);
+  const completeTaskLoader = ActionLoaders.approvalRequestTasks.complete(currentTask?.globalId);
+  const submitAction = useAsyncAction(completeTaskLoader);
+  const requiresElectronicSignature = result === true && currentTask?.isElectronicSignatureRequired === true;
+  const canEnterRepresentationDetails = !currentTask?.isAssigneeEmployee;
+  const taskIsSubmitting = submitAction.isRunning || stores.commonStore.isActionLoading(completeTaskLoader);
+  const filesAreUploading = stores.commonStore.isActionLoading(
+    ActionLoaders.userFiles.upload(tenantGlobalId ?? undefined),
+  );
+
+  useEffect(() => {
+    if (initialTaskGlobalId.current === currentTask?.globalId) return;
+    initialTaskGlobalId.current = currentTask?.globalId;
+    const values = {
+      result: currentTask?.result ?? undefined,
+      comment: currentTask?.comment ?? "",
+      legalName: currentTask?.assigneeLegalName?.trim() || getDefaultLegalName(currentTask?.isAssigneeEmployee),
+      representationDetails: currentTask?.assigneeRepresentationDetails ?? "",
+      signatureJson:
+        currentTask?.assigneeSignatureJson?.trim() || stores.userProfileStore.profile?.defaultSignatureJson || "",
+    };
+    setResult(values.result);
+    setComment(values.comment);
+    setLegalName(values.legalName);
+    setRepresentationDetails(values.representationDetails);
+    setSignatureJson(values.signatureJson);
+    setDecisionError(false);
+    setAttachmentError(false);
+    setApprovalRequest(currentTask?.approvalRequest ?? null);
+    setTaskAttachmentFiles([]);
+  }, [currentTask]);
+
+  const validation = useFormValidation(
+    { comment, legalName, representationDetails, signatureJson },
+    {
+      comment: textRule("Comment", FieldLimits.text, result === false || currentTask?.isCommentRequired === true),
+      legalName: requiresElectronicSignature ? textRule("Legal name", FieldLimits.name, true) : undefined,
+      representationDetails:
+        requiresElectronicSignature && canEnterRepresentationDetails
+          ? textRule("Representation details", FieldLimits.details)
+          : undefined,
+      signatureJson: requiresElectronicSignature
+        ? (value) => textRule("Signature", FieldLimits.signature, true)(value) ?? signatureRule(value)
+        : undefined,
+    },
+    {
+      legalName: "AssigneeLegalName",
+      representationDetails: "AssigneeRepresentationDetails",
+      signatureJson: "AssigneeSignatureJson",
+    },
+  );
+
+  const navigateToTab = (value: ApprovalRequestTaskProps["tab"]) => {
+    if (!tenantGlobalId) return;
+    const pathSuffix = value === "task" ? "" : value === "request" ? "/workflow" : `/${value}`;
+    navigate(Routes.tenantPath(tenantGlobalId, `/tasks/${taskGlobalId}${pathSuffix}`));
+  };
+
+  const handleClose = () => {
+    onClose(currentTask?.globalId);
+  };
+
+  const refreshTask = async () => {
+    if (!tenantGlobalId) {
+      return null;
+    }
+
+    return await stores.approvalRequestTaskStore.loadDetails(tenantGlobalId, taskGlobalId);
+  };
+
+  const canSendMessage = async (): Promise<boolean> => {
+    const refreshedTask = await refreshTask();
+    const refreshedDiscussionStep = refreshedTask?.approvalRequest?.steps.find(
+      (step) => step.globalId === refreshedTask.approvalRequestStepGlobalId,
+    );
+    const canSend =
+      refreshedTask?.approvalRequest?.status !== ApprovalRequestStatus.Completed &&
+      refreshedDiscussionStep?.tasks?.some((task) => task.status === ApprovalRequestTaskStatus.Pending) === true;
+    if (!canSend) {
+      notification.warning("This task has changed. Review the latest details before continuing.");
+    }
+    return canSend;
+  };
+
+  const submit = async () => {
+    if (isCompleted) return;
+    if (!currentTask || !stores.userAccountStore.currentUser) return;
+    const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+    if (!tenantGlobalId) return;
+
+    const fieldsValid = validation.validate();
+    const decisionIsMissing = typeof result !== "boolean";
+    const attachmentIsMissing = Boolean(
+      result === true &&
+      currentTask.isAttachmentRequired &&
+      taskAttachmentFiles.length === 0 &&
+      (currentTask.taskFiles?.length ?? 0) === 0,
+    );
+    setDecisionError(decisionIsMissing);
+    setAttachmentError(attachmentIsMissing);
+    if (!fieldsValid || decisionIsMissing || attachmentIsMissing) {
+      notification.validationWarning();
+      return;
+    }
+    await validation.run(() =>
+      submitAction.run(async () => {
+        const refreshedTask = await refreshTask();
+        if (!refreshedTask || refreshedTask.status !== ApprovalRequestTaskStatus.Pending) {
+          notification.warning("This task has changed. Review the latest details before continuing.");
+          return;
+        }
+
+        if (taskAttachments.current && !(await taskAttachments.current.attach())) {
+          return;
+        }
+
+        const didComplete = await completeApprovalRequestTask(
+          tenantGlobalId,
+          refreshedTask.globalId,
+          result,
+          comment,
+          requiresElectronicSignature
+            ? {
+                assigneeLegalName: legalName.trim(),
+                assigneeRepresentationDetails: canEnterRepresentationDetails ? representationDetails : undefined,
+                assigneeSignatureJson: signatureJson,
+              }
+            : undefined,
+          createApprovalRequestTaskClientAuditContext(),
+        );
+        if (didComplete) {
+          showPersistenceSuccessNotification(PersistenceSuccessMessages.approvalDecisionSubmitted);
+
+          onClose(currentTask.globalId);
+          stores.approvalRequestTaskStore.clear();
+          stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
+        }
+      }),
+    );
+  };
+
+  const handleSubmit = () => {
+    if (filesAreUploading) {
+      notification.warning("Wait for file uploads to finish before submitting.");
+      return;
+    }
+    if (requiresElectronicSignature) {
+      void submit();
+      return;
+    }
+
+    if (hasIncompleteBusinessParticipantName(stores.tenantStore.currentTenant, stores.userProfileStore.profile)) {
+      setNameWarningDialogIsOpen(true);
+      return;
+    }
+
+    void submit();
+  };
+
+  if (tab === "chat" && !discussionsAreEnabled) {
+    return <NotFoundPage />;
+  }
+
+  return (
+    <CloseOnEscape onClose={handleClose}>
+      <PageBreadcrumbs
+        items={[
+          {
+            label: "Tasks",
+            state: currentTask ? { currentTaskGlobalId: currentTask.globalId } : undefined,
+            to: tasksPath,
+          },
+          { label: currentTask?.title ?? "Task" },
+        ]}
+      />
+      <Tabs
+        scrollButtons={false}
+        value={tab}
+        variant="scrollable"
+        onChange={(_, value: ApprovalRequestTaskProps["tab"]) => navigateToTab(value)}
+        aria-label="Task sections"
+      >
+        <Tab label="Task" value="task" />
+        <Tab label="Workflow" value="request" />
+        {discussionsAreEnabled && <Tab label="Chat" value="chat" />}
+      </Tabs>
+      {tab === "task" && (
+        <Stack sx={Forms.tabContentSx}>
+          <Stack spacing={Forms.cardStackSpacing}>
+            {currentTask && (
+              <ApprovalRequestTaskSummaryBlock
+                additionalMetadata={
+                  isCompleted && taskAttachmentsAreEnabled && currentTask.taskFiles?.length && tenantGlobalId ? (
+                    <ApprovalRequestTaskAttachmentList
+                      label="Files attached to this decision"
+                      taskFiles={currentTask.taskFiles ?? []}
+                      taskGlobalId={currentTask.globalId}
+                      tenantGlobalId={tenantGlobalId}
+                    />
+                  ) : undefined
+                }
+                assignedVia={currentTaskStepAssignee?.type === AssigneeType.Team ? currentTaskStepAssignee : undefined}
+                expandable
+                participant="assignee"
+                participantType={currentTaskAssigneeType}
+                showComment
+                showElectronicSignature={requiresElectronicSignature || currentTask.hasAssigneeSignature}
+                showRequester
+                task={currentTask}
+              />
+            )}
+            {!isCompleted && (
+              <FormCard title="Your response">
+                <FormControl key="decision" fullWidth error={decisionError}>
+                  <RadioGroup
+                    aria-label="Your decision"
+                    row
+                    name="decision"
+                    value={typeof result === "boolean" ? String(result) : ""}
+                    onChange={(event) => {
+                      setResult(event.target.value === "true");
+                      setDecisionError(false);
+                      setAttachmentError(false);
+                    }}
+                  >
+                    <FormControlLabel value="true" control={<Radio />} label={actionLabels.positive} />
+                    <FormControlLabel value="false" control={<Radio />} label={actionLabels.negative} />
+                  </RadioGroup>
+                  {decisionError && (
+                    <FormHelperText sx={Forms.fieldHelperTextSx}>{actionLabels.missing}</FormHelperText>
+                  )}
+                </FormControl>
+                {taskAttachmentsAreEnabled && currentTask && tenantGlobalId && (
+                  <FormSection title="Files attached to this decision">
+                    <ApprovalRequestTaskAttachments
+                      showLabel={false}
+                      canManageFiles={!isCompleted}
+                      label="Files attached to this decision"
+                      newFiles={taskAttachmentFiles}
+                      onNewFilesChange={(files) => {
+                        setTaskAttachmentFiles(files);
+                        setAttachmentError(false);
+                      }}
+                      ref={taskAttachments}
+                      taskFiles={currentTask.taskFiles ?? []}
+                      taskGlobalId={currentTask.globalId}
+                      tenantGlobalId={tenantGlobalId}
+                    />
+                  </FormSection>
+                )}
+                {attachmentError && (
+                  <FormHelperText error sx={Forms.fieldHelperTextSx}>
+                    At least one attachment is required.
+                  </FormHelperText>
+                )}
+                <TextField
+                  id="comment"
+                  name="comment"
+                  fullWidth
+                  label="Comment"
+                  multiline
+                  value={comment}
+                  error={validation.field("comment").error}
+                  helperText={validation.message("comment")}
+                  onChange={(event) => setComment(event.target.value)}
+                />
+                {requiresElectronicSignature && (
+                  <ApprovalRequestElectronicSignatureForm
+                    errors={{
+                      legalName: validation.message("legalName") ?? "",
+                      signature: validation.message("signatureJson") ?? "",
+                      representationDetails: validation.message("representationDetails"),
+                    }}
+                    legalName={legalName}
+                    representationDetails={representationDetails}
+                    onLegalNameChange={setLegalName}
+                    onRepresentationDetailsChange={setRepresentationDetails}
+                    onSignatureChange={setSignatureJson}
+                    signatureJson={signatureJson}
+                    showRepresentationDetails={canEnterRepresentationDetails}
+                  />
+                )}
+              </FormCard>
+            )}
+          </Stack>
+          <ApprovalRequestActionBar onClose={handleClose}>
+            {!isCompleted && (
+              <MainActionButton loading={taskIsSubmitting} onClick={handleSubmit}>
+                Complete
+              </MainActionButton>
+            )}
+          </ApprovalRequestActionBar>
+        </Stack>
+      )}
+      {tab === "request" && (
+        <>
+          <ApprovalRequestDetails
+            approvalRequest={approvalRequest}
+            approvalRequestTaskGlobalId={currentTask?.globalId}
+            collapseCards
+            highlightedTaskGlobalId={currentTask?.globalId}
+            showVisibleStepVisibility={false}
+            taskAttachmentsTenantGlobalId={taskAttachmentsAreEnabled ? (tenantGlobalId ?? undefined) : undefined}
+          />
+          <ApprovalRequestActionBar onClose={handleClose} />
+        </>
+      )}
+      {tab === "chat" && discussionsAreEnabled && approvalRequest && currentTask && (
+        <ApprovalRequestDiscussionSection
+          attachmentsAreEnabled={discussionAttachmentsAreEnabled}
+          approvalRequest={approvalRequest}
+          canSend={canSendDiscussion}
+          canSendMessage={canSendMessage}
+          onClose={handleClose}
+          task={currentTask}
+          tenantGlobalId={tenantGlobalId}
+        />
+      )}
+      {nameWarning && (
+        <ConfirmationDialog
+          cancelLabel="Go back"
+          confirmLabel="Proceed anyway"
+          message={nameWarning.message}
+          open={nameWarningDialogIsOpen}
+          title={nameWarning.title}
+          onClose={() => setNameWarningDialogIsOpen(false)}
+          onConfirm={async () => {
+            await submit();
+            return true;
+          }}
+        />
+      )}
+    </CloseOnEscape>
+  );
+};
+
+export default observer(ApprovalRequestTask);

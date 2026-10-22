@@ -1,0 +1,122 @@
+using Click2Approve.Application.Abstractions.Events;
+using Click2Approve.Application.Models.Events;
+
+namespace Click2Approve.EventConsumer.Services;
+
+/// <summary>
+/// Runs the configured number of Azure Queue event consumers.
+/// </summary>
+public sealed class EventQueueConsumerService(
+    IEventQueue eventQueue,
+    IServiceScopeFactory scopeFactory,
+    IConfiguration configuration,
+    ILogger<EventQueueConsumerService> logger) : BackgroundService
+{
+    private readonly IEventQueue _eventQueue = eventQueue;
+    private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
+    private readonly IConfiguration _configuration = configuration;
+    private readonly ILogger<EventQueueConsumerService> _logger = logger;
+
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        var idleDelay = TimeSpan.FromSeconds(Math.Max(1, _configuration.GetValue<int>("EventQueue:Consumer:IdleDelaySeconds")));
+        var visibilityTimeout = TimeSpan.FromSeconds(Math.Max(1, _configuration.GetValue<int>("EventQueue:Consumer:VisibilityTimeoutSeconds")));
+        return Task.WhenAll(Enum.GetValues<EventPriority>().SelectMany(priority => Enumerable.Range(
+            0,
+            Math.Max(0, _configuration.GetValue<int>($"EventQueue:Consumer:Workers:{priority}")))
+            .Select(_ => ConsumeAsync(priority, idleDelay, visibilityTimeout, stoppingToken))));
+    }
+
+    private async Task ConsumeAsync(
+        EventPriority priority,
+        TimeSpan idleDelay,
+        TimeSpan visibilityTimeout,
+        CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                var receivedEvents = await _eventQueue.ReceiveAsync(
+                    priority,
+                    // Azure starts each received message's visibility timeout immediately, but this worker handles messages serially.
+                    // Raising maximumCount requires concurrent batch processing to prevent later messages from being redelivered.
+                    maximumCount: 1,
+                    visibilityTimeout: visibilityTimeout,
+                    cancellationToken: stoppingToken);
+                if (receivedEvents.Count == 0)
+                {
+                    await Task.Delay(idleDelay, stoppingToken);
+                    continue;
+                }
+
+                foreach (var receivedEvent in receivedEvents)
+                {
+                    await HandleAsync(receivedEvent, visibilityTimeout, stoppingToken);
+                }
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                return;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "An event queue consumer failed before it could complete its loop.");
+                await Task.Delay(idleDelay, stoppingToken);
+            }
+        }
+    }
+
+    private async Task HandleAsync(
+        ReceivedEvent receivedEvent,
+        TimeSpan visibilityTimeout,
+        CancellationToken stoppingToken)
+    {
+        using var visibilityCancellationSource = new CancellationTokenSource(visibilityTimeout);
+        using var processingCancellationSource = CancellationTokenSource.CreateLinkedTokenSource(
+            stoppingToken,
+            visibilityCancellationSource.Token);
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var handler = scope.ServiceProvider
+                .GetServices<IEventHandler>()
+                .SingleOrDefault(item => item.EventType == receivedEvent.Envelope.EventType)
+                ?? throw new InvalidOperationException($"No handler is registered for '{receivedEvent.Envelope.EventType}'.");
+            await handler.HandleAsync(receivedEvent.Envelope, processingCancellationSource.Token);
+            if (visibilityCancellationSource.IsCancellationRequested) return;
+            await _eventQueue.CompleteAsync(receivedEvent, stoppingToken);
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (OperationCanceledException) when (visibilityCancellationSource.IsCancellationRequested)
+        {
+            _logger.LogWarning(
+                "Stopped processing event {EventId} after its visibility timeout; leaving it for queue redelivery.",
+                receivedEvent.Envelope.EventId);
+        }
+        catch (Exception exception)
+        {
+            await HandleFailureAsync(receivedEvent, exception, stoppingToken);
+        }
+    }
+
+    private async Task HandleFailureAsync(ReceivedEvent receivedEvent, Exception exception, CancellationToken cancellationToken)
+    {
+        var maximumAttempts = Math.Max(1, _configuration.GetValue<int>("EventQueue:Consumer:MaximumAttempts"));
+        if (receivedEvent.DequeueCount >= maximumAttempts)
+        {
+            await _eventQueue.MoveToPoisonAsync(receivedEvent, exception.Message, cancellationToken);
+            _logger.LogError(exception, "Moved event {EventId} to the poison queue.", receivedEvent.Envelope.EventId);
+            return;
+        }
+
+        var delay = TimeSpan.FromSeconds(Math.Min(
+            Math.Max(1, _configuration.GetValue<int>("EventQueue:Consumer:MaximumRetryDelaySeconds")),
+            Math.Pow(2, receivedEvent.DequeueCount)));
+        await _eventQueue.RetryAsync(receivedEvent, delay, cancellationToken);
+        _logger.LogWarning(exception, "Will retry event {EventId} after {Delay}.", receivedEvent.Envelope.EventId, delay);
+    }
+}

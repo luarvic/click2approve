@@ -1,0 +1,459 @@
+import { PaymentIssue } from "@/features/subscriptions/models/paymentIssue";
+import SubscriptionPlansPage from "@/features/subscriptions/pages/SubscriptionPlansPage";
+import { SubscriptionPlan, TenantType } from "@/features/tenants/models/tenant";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { StrictMode } from "react";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const mocks = vi.hoisted(() => ({
+  status: vi.fn(),
+  cancel: vi.fn(),
+  cancelPending: vi.fn(),
+  refresh: vi.fn(),
+  change: vi.fn(),
+  recover: vi.fn(),
+  load: vi.fn(),
+  usage: vi.fn(),
+  tenant: {
+    globalId: "test",
+    type: "Personal" as string,
+    subscriptionPlan: "PersonalFree" as string,
+    businessName: "Workspace",
+  },
+}));
+vi.mock("@/app/rootStore", () => ({
+  stores: {
+    tenantStore: {
+      get currentTenant() {
+        return mocks.tenant;
+      },
+      tenants: [],
+      hasLoaded: true,
+      load: mocks.load,
+    },
+    commonStore: { updateActionLoadingCounter: vi.fn() },
+  },
+}));
+vi.mock("@/features/subscriptions/api/subscriptionsApi", () => ({
+  getBillingStatus: mocks.status,
+  cancelPendingPlanChange: mocks.cancelPending,
+  cancelScheduledPlanChange: mocks.cancel,
+  refreshBilling: mocks.refresh,
+  changeSubscriptionPlan: mocks.change,
+  recoverPayment: mocks.recover,
+  getSubscriptionPlans: vi.fn().mockResolvedValue([]),
+  getSubscriptionUsage: mocks.usage,
+}));
+vi.mock("@/shared/utils/persistenceNotifications", () => ({
+  PersistenceSuccessMessages: {},
+  showPersistenceSuccessNotification: vi.fn(),
+}));
+const active = {
+  paymentIssue: null,
+  canManage: true,
+  hasSubscription: false,
+  paymentResolutionRequired: false,
+  cleanupStarted: false,
+  suspendedAt: null,
+  recoveryDeadline: null,
+  pendingPlan: null,
+  scheduledPlan: null,
+  scheduledPlanEffectiveAt: null,
+  checkoutUrl: null,
+};
+const showPage = (path = "/tenants/test/plans") =>
+  render(
+    <StrictMode>
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          <Route path="/tenants/:tenantGlobalId/plans" element={<SubscriptionPlansPage />} />
+        </Routes>
+      </MemoryRouter>
+    </StrictMode>,
+  );
+afterEach(cleanup);
+beforeEach(() => {
+  vi.clearAllMocks();
+  mocks.tenant.type = TenantType.Personal;
+  mocks.tenant.subscriptionPlan = SubscriptionPlan.PersonalFree;
+  mocks.load.mockResolvedValue(undefined);
+  mocks.refresh.mockResolvedValue(active);
+  mocks.status.mockResolvedValue(active);
+  mocks.usage.mockResolvedValue({ usagePeriodEndsAt: "2099-01-01T00:00:00Z" });
+});
+describe("plans and billing", () => {
+  it("cancels an unpaid upgrade from the target card and keeps the current plan active", async () => {
+    mocks.refresh.mockResolvedValue({ ...active, pendingPlan: SubscriptionPlan.PersonalPro });
+    mocks.cancelPending.mockResolvedValue(active);
+    showPage();
+    const cancel = await screen.findByRole("button", { name: "Cancel change" });
+    expect(cancel.closest(".MuiCard-root")?.textContent).toContain("Personal Pro");
+    fireEvent.click(cancel);
+    await waitFor(() => expect(mocks.cancelPending).toHaveBeenCalledWith("test"));
+    await waitFor(() => expect(screen.queryByRole("button", { name: "Cancel change" })).toBeNull());
+    expect(screen.getByRole("button", { name: "Subscribe to Personal Pro" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Personal Free" }).closest(".MuiCard-root")?.textContent).toContain(
+      "Active",
+    );
+    expect(mocks.recover).not.toHaveBeenCalled();
+  });
+  it("shows disabled pending cancellation to members", async () => {
+    mocks.refresh.mockResolvedValue({ ...active, canManage: false, pendingPlan: SubscriptionPlan.PersonalPro });
+    showPage();
+    const cancel = await screen.findByRole("button", { name: "Cancel change" });
+    expect((cancel as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(cancel);
+    expect(mocks.cancelPending).not.toHaveBeenCalled();
+  });
+  it("does not offer pending cancellation for overdue current-plan payments", async () => {
+    mocks.refresh.mockResolvedValue({
+      ...active,
+      paymentResolutionRequired: true,
+      pendingPlan: SubscriptionPlan.PersonalPro,
+    });
+    showPage();
+    await screen.findByRole("button", { name: "Resolve payment" });
+    expect(screen.queryByRole("button", { name: "Cancel change" })).toBeNull();
+  });
+  it("keeps the pending action available after cancellation fails", async () => {
+    mocks.refresh.mockResolvedValue({ ...active, pendingPlan: SubscriptionPlan.PersonalPro });
+    mocks.cancelPending.mockRejectedValue(new Error("Stripe unavailable"));
+    showPage();
+    fireEvent.click(await screen.findByRole("button", { name: "Cancel change" }));
+    await waitFor(() => expect(mocks.cancelPending).toHaveBeenCalledTimes(1));
+    await waitFor(() =>
+      expect((screen.getByRole("button", { name: "Cancel change" }) as HTMLButtonElement).disabled).toBe(false),
+    );
+    expect(screen.getByRole("button", { name: "Resolve payment" })).toBeTruthy();
+  });
+  it.each(["", "?retryPendingPlan=True", "?retryPendingPlan=true"])(
+    "waits for backend recovery and renders the verified plan for return URL %s",
+    async (search) => {
+      mocks.refresh.mockImplementation(async () => {
+        mocks.tenant.subscriptionPlan = SubscriptionPlan.PersonalPro;
+        return { ...active, hasSubscription: true };
+      });
+      showPage(`/tenants/test/plans${search}`);
+      expect(await screen.findByRole("button", { name: "Manage billing" })).toBeTruthy();
+      expect(mocks.refresh).toHaveBeenCalledTimes(1);
+      expect(mocks.load).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole("heading", { name: "Personal Pro" }).closest(".MuiCard-root")?.textContent).toContain(
+        "Active",
+      );
+    },
+  );
+  it("loads trial usage after billing refresh changes the current plan to Business Trial", async () => {
+    mocks.tenant.type = TenantType.Business;
+    mocks.tenant.subscriptionPlan = SubscriptionPlan.BusinessPro;
+    mocks.refresh.mockImplementation(async () => {
+      mocks.tenant.subscriptionPlan = SubscriptionPlan.BusinessTrial;
+      return active;
+    });
+
+    showPage();
+
+    await waitFor(() => expect(mocks.usage).toHaveBeenCalledWith("test"));
+  });
+  it("keeps an unpaid upgrade actionable when the backend still requires payment", async () => {
+    mocks.refresh.mockResolvedValue({
+      ...active,
+      pendingPlan: SubscriptionPlan.PersonalPro,
+    });
+    showPage();
+    expect(await screen.findByRole("button", { name: "Resolve payment" })).toBeTruthy();
+    expect(mocks.refresh).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("heading", { name: "Personal Free" }).closest(".MuiCard-root")?.textContent).toContain(
+      "Active",
+    );
+  });
+  it("shows recovery failure without substituting stale billing status", async () => {
+    mocks.refresh.mockRejectedValue(new Error("Stripe unavailable"));
+    showPage("/tenants/test/plans?retryPendingPlan=True");
+    expect(await screen.findByText("Unable to load plans and payment status. Refresh to try again.")).toBeTruthy();
+    expect(mocks.status).not.toHaveBeenCalled();
+    expect(mocks.refresh).toHaveBeenCalledTimes(1);
+  });
+  it.each([
+    [PaymentIssue.PaymentMethodRequired, "Add a payment method to complete this payment."],
+    [PaymentIssue.Declined, "Your payment was declined. Update your payment method."],
+    [PaymentIssue.AuthenticationRequired, "Confirm your payment to complete it."],
+    [PaymentIssue.Processing, "Your payment is processing."],
+  ])("shows payment issue %s in a banner above the cards", async (paymentIssue, message) => {
+    mocks.refresh.mockResolvedValue({
+      ...active,
+      pendingPlan: SubscriptionPlan.PersonalPro,
+      paymentIssue,
+    });
+    showPage();
+    const action = await screen.findByRole("button", {
+      name: "Resolve payment",
+    });
+    const banner = screen.getByText(message as string).closest('[role="alert"]');
+    expect(banner).toBeTruthy();
+    expect(banner?.closest(".MuiCard-root")).toBeNull();
+    expect(within(action.closest(".MuiCard-root") as HTMLElement).queryByText(message as string)).toBeNull();
+    expect(screen.queryByText(/awaiting payment confirmation/)).toBeNull();
+    cleanup();
+    mocks.refresh.mockResolvedValue({ ...active, hasSubscription: true });
+    mocks.tenant.subscriptionPlan = SubscriptionPlan.PersonalPro;
+    showPage();
+    await screen.findByRole("button", { name: "Manage billing" });
+    expect(screen.queryByText(message as string)).toBeNull();
+  });
+  it("uses server permissions to prevent plan changes even for a personal tenant", async () => {
+    mocks.refresh.mockResolvedValue({
+      ...active,
+      canManage: false,
+      hasSubscription: true,
+    });
+    showPage();
+    const card = await screen.findByRole("button", { name: /Personal Pro/ });
+    expect(card.hasAttribute("disabled")).toBe(true);
+    expect(screen.getByRole("button", { name: "Manage billing" }).hasAttribute("disabled")).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "Manage billing" }));
+    expect(mocks.recover).not.toHaveBeenCalled();
+    fireEvent.click(card);
+    expect(mocks.change).not.toHaveBeenCalled();
+  });
+  it("lets a manager change plans and keeps the existing plan current while payment is pending", async () => {
+    mocks.change.mockResolvedValue({
+      ...active,
+      pendingPlan: SubscriptionPlan.PersonalPro,
+    });
+    showPage();
+    fireEvent.click(await screen.findByRole("button", { name: /Personal Pro/ }));
+    expect(await screen.findByText(/Your change to Personal Pro is pending/)).toBeTruthy();
+    expect(mocks.change).toHaveBeenCalledWith("test", SubscriptionPlan.PersonalPro);
+    expect(screen.getByRole("heading", { name: "Personal Free" }).closest(".MuiCard-root")?.textContent).toContain(
+      "Active",
+    );
+    expect(screen.getByRole("button", { name: "Resolve payment" })).toBeTruthy();
+  });
+  it("keeps the trial active and puts payment recovery on the pending Pro card", async () => {
+    mocks.tenant.type = TenantType.Business;
+    mocks.tenant.subscriptionPlan = SubscriptionPlan.BusinessTrial;
+    mocks.refresh.mockResolvedValue({
+      ...active,
+      pendingPlan: SubscriptionPlan.BusinessPro,
+    });
+    showPage();
+    expect(
+      (await screen.findByRole("heading", { name: "Business Trial" })).closest(".MuiCard-root")?.textContent,
+    ).toContain("Active");
+    expect(screen.getByRole("heading", { name: "Business Pro" }).closest(".MuiCard-root")?.textContent).toContain(
+      "Pending",
+    );
+    expect(screen.getAllByText("Pending")).toHaveLength(1);
+    const recoveryCard = screen.getByRole("button", { name: "Resolve payment" }).closest(".MuiCard-root");
+    expect(recoveryCard?.textContent).toContain("Business Pro");
+    expect(recoveryCard?.textContent).not.toContain("Business Trial");
+  });
+  it("shows that an expired Business Trial needs a paid plan", async () => {
+    mocks.tenant.type = TenantType.Business;
+    mocks.tenant.subscriptionPlan = SubscriptionPlan.BusinessTrial;
+    mocks.usage.mockResolvedValue({ usagePeriodEndsAt: "2020-01-01T00:00:00Z" });
+
+    showPage();
+
+    expect(
+      await screen.findByText("Your Business Trial has ended. Choose a paid plan to continue using your workspace."),
+    ).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Business Trial" }).closest(".MuiCard-root")?.textContent).toContain(
+      "Trial ended",
+    );
+    expect(screen.getByRole("heading", { name: "Business Trial" }).closest(".MuiCard-root")?.textContent).toContain(
+      `Expires ${new Date("2020-01-01T00:00:00Z").toLocaleString()}`,
+    );
+  });
+  it("shows suspension and cleanup consequences, then refreshes verified payment state", async () => {
+    mocks.tenant.subscriptionPlan = SubscriptionPlan.PersonalPro;
+    mocks.refresh.mockResolvedValueOnce({
+      ...active,
+      hasSubscription: true,
+      paymentResolutionRequired: true,
+      suspendedAt: "2026-09-07T00:00:00Z",
+      recoveryDeadline: "2026-09-14T00:00:00Z",
+    });
+    showPage();
+    expect(await screen.findByText("Suspended")).toBeTruthy();
+    expect(screen.getByText(/personal workflow data and uploads will be deleted/)).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Personal Free/ }).hasAttribute("disabled")).toBe(true);
+    mocks.refresh.mockResolvedValue({ ...active, hasSubscription: true });
+    expect(screen.queryByRole("button", { name: "Check payment status" })).toBeNull();
+    cleanup();
+    showPage();
+    expect(await screen.findByText("Active")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Manage billing" })).toBeTruthy();
+    await waitFor(() => expect(mocks.load).toHaveBeenCalledTimes(2));
+  });
+  it("routes a manager's billing action through the recovery API and handles rejection", async () => {
+    mocks.refresh.mockResolvedValue({ ...active, hasSubscription: true });
+    mocks.recover.mockRejectedValue(new Error("Portal unavailable"));
+    showPage();
+    fireEvent.click(await screen.findByRole("button", { name: "Manage billing" }));
+    await waitFor(() => expect(mocks.recover).toHaveBeenCalledWith("test"));
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Manage billing" }).hasAttribute("disabled")).toBe(false),
+    );
+  });
+  it("keeps the existing cards and Subscribe spinner visible until Checkout opens", async () => {
+    mocks.change.mockResolvedValue({
+      ...active,
+      pendingPlan: SubscriptionPlan.PersonalPro,
+      checkoutUrl: "https://checkout.stripe.com/test",
+    });
+    const assign = vi.spyOn(window.location, "assign").mockImplementation(() => undefined);
+    showPage();
+    const choose = await screen.findByRole("button", { name: "Subscribe to Personal Pro" });
+    fireEvent.click(choose);
+    await waitFor(() => expect(assign).toHaveBeenCalledWith("https://checkout.stripe.com/test"));
+    expect(within(choose).getByRole("progressbar")).toBeTruthy();
+    expect(choose.hasAttribute("disabled")).toBe(true);
+    expect(screen.queryByRole("button", { name: "Resolve payment" })).toBeNull();
+    expect(screen.queryByText("Pending")).toBeNull();
+    expect(mocks.load).toHaveBeenCalledTimes(1);
+    fireEvent.click(choose);
+    expect(mocks.change).toHaveBeenCalledTimes(1);
+
+    const pageShowEvent = new Event("pageshow");
+    Object.defineProperty(pageShowEvent, "persisted", { value: true });
+    fireEvent(window, pageShowEvent);
+    await waitFor(() => expect(mocks.refresh).toHaveBeenCalledTimes(2));
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Subscribe to Personal Pro" }).hasAttribute("disabled")).toBe(false),
+    );
+  });
+  it("restores pending payment actions if Checkout navigation fails", async () => {
+    const pending = { ...active, pendingPlan: SubscriptionPlan.PersonalPro };
+    mocks.change.mockResolvedValue({ ...pending, checkoutUrl: "https://checkout.stripe.com/test" });
+    mocks.status.mockResolvedValue(pending);
+    vi.spyOn(window.location, "assign").mockImplementationOnce(() => {
+      throw new Error("Navigation failed");
+    });
+    showPage();
+    fireEvent.click(await screen.findByRole("button", { name: "Subscribe to Personal Pro" }));
+    expect(await screen.findByRole("button", { name: "Resolve payment" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Cancel change" }).hasAttribute("disabled")).toBe(false);
+  });
+  it("keeps the billing action loading while the portal redirect opens", async () => {
+    mocks.refresh.mockResolvedValue({ ...active, hasSubscription: true });
+    mocks.recover.mockResolvedValue("https://billing.stripe.com/test");
+    const assign = vi.spyOn(window.location, "assign").mockImplementation(() => undefined);
+    showPage();
+
+    fireEvent.click(await screen.findByRole("button", { name: "Manage billing" }));
+
+    await waitFor(() => expect(assign).toHaveBeenCalledWith("https://billing.stripe.com/test"));
+    expect(screen.getByRole("button", { name: "Manage billing" }).hasAttribute("disabled")).toBe(true);
+
+    const pageShowEvent = new Event("pageshow");
+    Object.defineProperty(pageShowEvent, "persisted", { value: true });
+    fireEvent(window, pageShowEvent);
+
+    await waitFor(() => expect(mocks.refresh).toHaveBeenCalledTimes(2));
+    expect(screen.getByRole("button", { name: "Manage billing" }).hasAttribute("disabled")).toBe(false);
+  });
+  it("cancels the scheduled downgrade and keeps the current plan", async () => {
+    mocks.tenant.subscriptionPlan = SubscriptionPlan.PersonalPro;
+    mocks.refresh.mockResolvedValue({
+      ...active,
+      hasSubscription: true,
+      scheduledPlan: SubscriptionPlan.PersonalFree,
+    });
+    mocks.cancel.mockResolvedValue({ ...active, hasSubscription: true });
+    showPage();
+    fireEvent.click(await screen.findByRole("button", { name: "Cancel" }));
+    await waitFor(() => expect(screen.queryByText("Planned")).toBeNull());
+    expect(mocks.cancel).toHaveBeenCalledWith("test");
+    expect(screen.getByRole("heading", { name: "Personal Pro" }).closest(".MuiCard-root")?.textContent).toContain(
+      "Active",
+    );
+  });
+  it("keeps the scheduled change visible if cancellation fails", async () => {
+    mocks.refresh.mockResolvedValue({
+      ...active,
+      hasSubscription: true,
+      scheduledPlan: SubscriptionPlan.PersonalFree,
+    });
+    mocks.cancel.mockRejectedValue(new Error("Stripe unavailable"));
+    showPage();
+    fireEvent.click(await screen.findByRole("button", { name: "Cancel" }));
+    await waitFor(() => expect(mocks.cancel).toHaveBeenCalled());
+    expect(screen.getByText("Planned")).toBeTruthy();
+  });
+  it("disables scheduled-change cancellation for ordinary members", async () => {
+    mocks.refresh.mockResolvedValue({
+      ...active,
+      canManage: false,
+      scheduledPlan: SubscriptionPlan.PersonalFree,
+    });
+    showPage();
+    await screen.findByText("Planned");
+    expect(screen.getByRole("button", { name: "Cancel" }).hasAttribute("disabled")).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(mocks.cancel).not.toHaveBeenCalled();
+  });
+  it("shows the scheduled effective date and explicit Subscribe buttons only for other plans", async () => {
+    mocks.tenant.type = TenantType.Business;
+    mocks.tenant.subscriptionPlan = SubscriptionPlan.BusinessPro;
+    const effectiveAt = "2026-10-08T14:30:00Z";
+    mocks.refresh.mockResolvedValue({
+      ...active,
+      hasSubscription: true,
+      scheduledPlan: SubscriptionPlan.BusinessTrial,
+      scheduledPlanEffectiveAt: effectiveAt,
+    });
+    showPage();
+    expect(await screen.findByText(`Effective ${new Date(effectiveAt).toLocaleString()}`)).toBeTruthy();
+    const scheduledCard = screen.getByRole("heading", { name: "Business Trial" }).closest(".MuiCard-root");
+    expect(scheduledCard?.textContent).toContain("Planned");
+    expect(screen.queryAllByRole("button", { name: /^Subscribe to / })).toHaveLength(0);
+    expect(screen.queryByRole("button", { name: "Subscribe to Business Pro" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Subscribe to Business Pro" })).toBeNull();
+  });
+  it("shows a spinner only on the selected Subscribe button while disabling the others", async () => {
+    mocks.tenant.type = TenantType.Business;
+    mocks.tenant.subscriptionPlan = SubscriptionPlan.BusinessTrial;
+    let rejectChange!: (error: Error) => void;
+    mocks.change.mockReturnValue(
+      new Promise((_, reject) => {
+        rejectChange = reject;
+      }),
+    );
+    showPage();
+    const selected = await screen.findByRole("button", {
+      name: "Subscribe to Business Pro",
+    });
+    const currentCard = screen.getByRole("heading", { name: "Business Trial" }).closest(".MuiCard-root")!;
+    fireEvent.click(selected);
+    expect(within(selected).getByRole("progressbar")).toBeTruthy();
+    expect(selected.hasAttribute("disabled")).toBe(true);
+    expect(within(currentCard as HTMLElement).queryByRole("progressbar")).toBeNull();
+    expect(mocks.change).toHaveBeenCalledTimes(1);
+    rejectChange(new Error("Request failed"));
+    await waitFor(() => expect(selected.hasAttribute("disabled")).toBe(false));
+    expect(within(selected).queryByRole("progressbar")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Subscribe to Business Trial" })).toBeNull();
+  });
+  it("shows disabled payment recovery for ordinary members", async () => {
+    mocks.refresh.mockResolvedValue({
+      ...active,
+      canManage: false,
+      pendingPlan: SubscriptionPlan.PersonalPro,
+    });
+    showPage();
+    const button = await screen.findByRole("button", {
+      name: "Resolve payment",
+    });
+    expect(button.hasAttribute("disabled")).toBe(true);
+    fireEvent.click(button);
+    expect(mocks.recover).not.toHaveBeenCalled();
+  });
+  it("fails closed if billing verification fails", async () => {
+    mocks.refresh.mockRejectedValue(new Error("offline"));
+    showPage();
+    expect(await screen.findByText(/Unable to load plans and payment status/)).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /Personal Pro/ })).toBeNull();
+  });
+});

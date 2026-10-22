@@ -1,0 +1,24 @@
+import { Forms } from "@/shared/components/dialogs/formStyles";
+import { Button, Stack } from "@mui/material";
+import type { ReactNode } from "react";
+
+interface ApprovalRequestActionBarProps {
+  children?: ReactNode;
+  closeLabel?: string;
+  onClose: () => void;
+}
+
+const ApprovalRequestActionBar: React.FC<ApprovalRequestActionBarProps> = ({
+  children,
+  closeLabel = "Cancel",
+  onClose,
+}) => (
+  <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.actionBarSx}>
+    <Button variant="text" onClick={onClose}>
+      {closeLabel}
+    </Button>
+    {children}
+  </Stack>
+);
+
+export default ApprovalRequestActionBar;

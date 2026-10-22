@@ -1,0 +1,85 @@
+import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
+import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
+
+export interface Receipt {
+  canDelete: boolean;
+  canManageLinks: boolean;
+  globalId: string;
+  approvalRequestGlobalId: string;
+  approvalRequestTitle: string;
+  approvalRequestDescription?: string;
+  approvalRequestStatus: ApprovalRequestStatus;
+  approvalRequestResult?: boolean;
+  revisionNumber: number;
+  approvalRequestCreatedAt: Date;
+  approvalRequestCompletedAt?: Date;
+  approvalRequestCompletedByDisplayName?: string;
+  submittedByDisplayName: string;
+  submittedByEmail: string;
+  requesterEmail: string;
+  requesterDisplayName: string;
+  organizationDisplayName: string;
+  tenantGlobalId: string;
+  tenantDisplayName: string;
+  createdAt: Date;
+  links: ReceiptLink[];
+  files: ReceiptFile[];
+  participants: ReceiptParticipant[];
+}
+
+export interface ReceiptListItem {
+  globalId: string;
+  approvalRequestTitle: string;
+  requesterDisplayName: string;
+  approvalRequestStatus: ApprovalRequestStatus;
+  approvalRequestResult?: boolean;
+  revisionNumber: number;
+  createdAt: Date;
+}
+
+export interface ReceiptFile {
+  globalId: string;
+  userFileGlobalId: string;
+  fileName: string;
+  fileType: string;
+  size: number;
+  sequence: number;
+  hashAlgorithm: string;
+  hashValue: string;
+}
+
+export interface ReceiptParticipant {
+  role: ReceiptParticipantRole;
+  action: string;
+  assignedAt?: Date;
+  assigneeLegalName?: string;
+  assigneeRepresentationDetails?: string;
+  comment?: string;
+  displayName: string;
+  completedByDisplayName?: string;
+  email: string;
+  delegateDisplayName?: string;
+  delegateEmail?: string;
+  electronicSignatureJson?: string;
+  files: ReceiptParticipantFile[];
+  isAssigneeEmployee: boolean;
+  instructions?: string;
+  organizationDisplayName?: string;
+  completedAt?: Date;
+  result?: boolean;
+  taskGlobalId?: string;
+  taskStatus?: ApprovalRequestTaskStatus;
+}
+
+export type ReceiptParticipantFile = ReceiptFile;
+
+export enum ReceiptParticipantRole {
+  Requester = "Requester",
+  Assignee = "Assignee",
+}
+
+export interface ReceiptLink {
+  expiresAt: Date;
+  globalId: string;
+  createdAt: Date;
+}

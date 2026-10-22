@@ -1,7 +1,7 @@
 namespace Click2Approve.WebApi.Tests.Models;
 
 /// <summary>
-/// Represents a JSON data returned by api/account/login endpoint.
+/// Represents a JSON data returned by api/v1/account/login endpoint.
 /// </summary>
 public class LoginResponse
 {

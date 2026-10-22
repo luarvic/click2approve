@@ -1,7 +1,14 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Asp.Versioning;
+using Click2Approve.Application.Abstractions.Services.ApprovalRequests;
+using Click2Approve.Application.Abstractions.Services.UserFiles;
+using Click2Approve.Domain.Models;
+using Click2Approve.Domain.Validation;
 using Click2Approve.WebApi.Extensions;
-using Click2Approve.WebApi.Models;
-using Click2Approve.WebApi.Models.DTOs;
-using Click2Approve.WebApi.Services.ApprovalRequestService;
+using Click2Approve.WebApi.Mappers.ApprovalRequests;
+using Click2Approve.WebApi.Mappers.Grids;
+using Click2Approve.WebApi.Models.Responses.Grids;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,19 +19,36 @@ namespace Click2Approve.WebApi.Controllers;
 /// API endpoints that manage approval request tasks.
 /// </summary>
 /// <param name="logger">The logger service.</param>
-/// <param name="approvalRequestService">The service that manages approval requests and derived tasks.</param>
+/// <param name="approvalRequestTaskService">The service that manages approval request tasks.</param>
+/// <param name="userFileService">The service that reads approval-request attachments.</param>
 /// <param name="userManager">The service that manages users.</param>
 [Tags("Click2Approve.WebApi.ApprovalRequestTask")]
 [ApiController]
-[Route("api/task")]
+[ApiVersion(1.0)]
+[Route("api/v{version:apiVersion}/tenants/{tenantGlobalId:guid}/tasks")]
 [Authorize]
 public class ApprovalRequestTaskController(
     ILogger<ApprovalRequestTaskController> logger,
-    IApprovalRequestService approvalRequestService,
+    IApprovalRequestTaskService approvalRequestTaskService,
+    IUserFileService userFileService,
     UserManager<AppUser> userManager) : ControllerBase
 {
+    private const int MaxBrowserDataLength = FieldLimits.Details;
+    private const int MaxHeaderLength = 256;
+    private const int MaxLanguageCount = 5;
+    private const int MaxRouteLength = 192;
+    private const int MaxShortValueLength = ClientAuditLimits.ShortValue;
+    private const int MaxTimestampLength = 40;
+
+    private static readonly JsonSerializerOptions BrowserDataJsonOptions = new()
+    {
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     private readonly ILogger<ApprovalRequestTaskController> _logger = logger;
-    private readonly IApprovalRequestService _approvalRequestService = approvalRequestService;
+    private readonly IApprovalRequestTaskService _approvalRequestTaskService = approvalRequestTaskService;
+    private readonly IUserFileService _userFileService = userFileService;
     private readonly UserManager<AppUser> _userManager = userManager;
 
     /// <summary>
@@ -33,37 +57,65 @@ public class ApprovalRequestTaskController(
     /// <param name="payload">The payload that contains the approval request task properties.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     [HttpPost("complete")]
-    public async Task<IActionResult> CompleteAsync([FromBody] ApprovalRequestTaskCompleteDto payload, CancellationToken cancellationToken)
+    public async Task<IActionResult> CompleteAsync([FromBody] CompleteApprovalRequestTaskRequest payload, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        await _approvalRequestService.CompleteTaskAsync(user, payload, cancellationToken);
+        payload.AssigneeIpAddress = GetClientIpAddress();
+        payload.AssigneeBrowserData = BuildBrowserData(payload.ClientAuditContext);
+        await _approvalRequestTaskService.CompleteAsync(user, ApprovalRequestCommandMapper.Map(payload), cancellationToken);
         return Ok();
     }
 
     /// <summary>
-    /// Lists uncompleted approval request tasks.
+    /// Lists incoming approval request task summaries.
     /// </summary>
+    /// <param name="query">The Tasks list page, sort, and filter query.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The list of approval request tasks.</returns>
-    [HttpGet("listUncompleted")]
-    public async Task<ActionResult<List<ApprovalRequestTask>>> ListUncompletedAsync(CancellationToken cancellationToken)
+    /// <returns>The page of approval request task summaries.</returns>
+    [HttpGet]
+    public async Task<ActionResult<GridPageResponse<ApprovalRequestTaskListItemResponse>>> ListAsync(
+        [FromQuery] ApprovalRequestTaskListQueryRequest query,
+        CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        var approvalRequests = await _approvalRequestService.ListTasksAsync(user, [ApprovalStatus.Submitted], cancellationToken);
-        return Ok(approvalRequests);
+        var page = await _approvalRequestTaskService.ListAsync(
+            user,
+            ApprovalRequestTaskListQueryContractMapper.Map(query),
+            cancellationToken);
+        return Ok(GridPageResponseMapper.Map(page, ApprovalRequestResponseMapper.Map));
     }
 
     /// <summary>
-    /// Lists completed approval request tasks.
+    /// Gets an approval request task with the request data the assignee can view.
     /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The list of approval request tasks.</returns>
-    [HttpGet("listCompleted")]
-    public async Task<ActionResult<List<ApprovalRequestTask>>> ListCompletedAsync(CancellationToken cancellationToken)
+    /// <param name="globalId">The approval request task ID.</param>
+    /// <param name="cancellationToken">Cancels the operation.</param>
+    [HttpGet("{globalId:guid}")]
+    public async Task<ActionResult<ApprovalRequestTaskDetailsResponse>> GetAsync(Guid globalId, CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        var approvalRequests = await _approvalRequestService.ListTasksAsync(user, [ApprovalStatus.Approved, ApprovalStatus.Rejected], cancellationToken);
-        return Ok(approvalRequests);
+        return Ok(ApprovalRequestResponseMapper.Map(await _approvalRequestTaskService.GetAsync(user, globalId, cancellationToken)));
+    }
+
+    /// <summary>
+    /// Downloads a base64 representation of an approval-request attachment visible through a task.
+    /// </summary>
+    /// <param name="approvalRequestTaskGlobalId">The approval request task ID.</param>
+    /// <param name="globalId">The approval request task ID.</param>
+    /// <param name="cancellationToken">Cancels the operation.</param>
+    [HttpGet("{approvalRequestTaskGlobalId:guid}/requestAttachments/{globalId:guid}/downloadBase64")]
+    public async Task<ActionResult<string>> DownloadRequestAttachmentBase64Async(
+        Guid approvalRequestTaskGlobalId,
+        Guid globalId,
+        CancellationToken cancellationToken)
+    {
+        var user = await _userManager.GetAppUserAsync(User);
+        var (filename, bytes) = await _userFileService.DownloadApprovalRequestAttachmentForTaskAsync(
+            user,
+            globalId,
+            approvalRequestTaskGlobalId,
+            cancellationToken);
+        return $"data:{MimeTypes.GetMimeType(filename)};base64,{Convert.ToBase64String(bytes)}";
     }
 
     /// <summary>
@@ -71,11 +123,116 @@ public class ApprovalRequestTaskController(
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The number of the approval requests.</returns>
-    [HttpGet("countUncompleted")]
+    [HttpGet("uncompleted/count")]
     public async Task<ActionResult<long>> CountUncompletedAsync(CancellationToken cancellationToken)
     {
         var user = await _userManager.GetAppUserAsync(User);
-        var count = await _approvalRequestService.CountUncompletedTasksAsync(user, cancellationToken);
+        var count = await _approvalRequestTaskService.CountUncompletedAsync(user, cancellationToken);
         return Ok(count);
     }
+
+    private string? GetClientIpAddress()
+    {
+        var forwardedFor = Request.Headers["X-Forwarded-For"].ToString();
+        if (!string.IsNullOrWhiteSpace(forwardedFor))
+        {
+            return forwardedFor.Split(',')[0].Trim();
+        }
+
+        return HttpContext.Connection.RemoteIpAddress?.ToString();
+    }
+
+    private string BuildBrowserData(ApprovalRequestTaskClientAuditContextRequest? clientAuditContext)
+    {
+        var browserData = new ApprovalRequestTaskBrowserData(
+            TrimToNull(Request.Headers.UserAgent.ToString(), MaxHeaderLength),
+            TrimToNull(Request.Headers.AcceptLanguage.ToString(), MaxHeaderLength),
+            TrimToNull(Request.Headers.Origin.ToString(), MaxHeaderLength),
+            TrimToNull(Request.Headers.Referer.ToString(), MaxHeaderLength),
+            Sanitize(clientAuditContext));
+
+        var serialized = JsonSerializer.Serialize(browserData, BrowserDataJsonOptions);
+        if (serialized.Length <= MaxBrowserDataLength)
+        {
+            return serialized;
+        }
+
+        browserData = browserData with
+        {
+            ServerOrigin = null,
+            ServerReferer = null,
+            Client = Sanitize(clientAuditContext, includeOptionalNetworkData: false)
+        };
+        serialized = JsonSerializer.Serialize(browserData, BrowserDataJsonOptions);
+        if (serialized.Length <= MaxBrowserDataLength)
+        {
+            return serialized;
+        }
+
+        browserData = browserData with { Client = null };
+        return JsonSerializer.Serialize(browserData, BrowserDataJsonOptions);
+    }
+
+    private static ApprovalRequestTaskClientAuditContextRequest? Sanitize(
+        ApprovalRequestTaskClientAuditContextRequest? clientAuditContext,
+        bool includeOptionalNetworkData = true)
+    {
+        if (clientAuditContext is null)
+        {
+            return null;
+        }
+
+        return new ApprovalRequestTaskClientAuditContextRequest
+        {
+            Language = TrimToNull(clientAuditContext.Language, MaxShortValueLength),
+            Languages = clientAuditContext.Languages?
+                .Select(language => TrimToNull(language, MaxShortValueLength))
+                .Where(language => language is not null)
+                .Take(MaxLanguageCount)
+                .Select(language => language!)
+                .ToArray(),
+            TimeZone = TrimToNull(clientAuditContext.TimeZone, MaxShortValueLength),
+            Timestamp = TrimToNull(clientAuditContext.Timestamp, MaxTimestampLength),
+            TimeZoneOffsetMinutes = clientAuditContext.TimeZoneOffsetMinutes,
+            ScreenWidth = clientAuditContext.ScreenWidth,
+            ScreenHeight = clientAuditContext.ScreenHeight,
+            ViewportWidth = clientAuditContext.ViewportWidth,
+            ViewportHeight = clientAuditContext.ViewportHeight,
+            DevicePixelRatio = clientAuditContext.DevicePixelRatio,
+            ColorDepth = clientAuditContext.ColorDepth,
+            TouchSupported = clientAuditContext.TouchSupported,
+            Platform = TrimToNull(clientAuditContext.Platform, MaxShortValueLength),
+            UserAgentPlatform = TrimToNull(clientAuditContext.UserAgentPlatform, MaxShortValueLength),
+            UserAgentMobile = clientAuditContext.UserAgentMobile,
+            ConnectionEffectiveType = includeOptionalNetworkData
+                ? TrimToNull(clientAuditContext.ConnectionEffectiveType, MaxShortValueLength)
+                : null,
+            ConnectionDownlink = includeOptionalNetworkData ? clientAuditContext.ConnectionDownlink : null,
+            ConnectionRoundTripTime = includeOptionalNetworkData ? clientAuditContext.ConnectionRoundTripTime : null,
+            ConnectionSaveData = includeOptionalNetworkData ? clientAuditContext.ConnectionSaveData : null,
+            Route = TrimToNull(clientAuditContext.Route, MaxRouteLength),
+            BuildVersion = TrimToNull(clientAuditContext.BuildVersion, MaxShortValueLength)
+        };
+    }
+
+    private static string? TrimToNull(string? value, int maxLength)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        value = value.Trim();
+        return value.Length <= maxLength ? value : value[..maxLength];
+    }
+
+    /// <summary>
+    /// Contains browser metadata submitted with an approval request task action.
+    /// </summary>
+    private sealed record ApprovalRequestTaskBrowserData(
+        string? ServerUserAgent,
+        string? ServerAcceptLanguage,
+        string? ServerOrigin,
+        string? ServerReferer,
+        ApprovalRequestTaskClientAuditContextRequest? Client);
 }

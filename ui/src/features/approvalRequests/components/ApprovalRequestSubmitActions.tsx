@@ -1,0 +1,44 @@
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
+import { Forms } from "@/shared/components/dialogs/formStyles";
+import { ArrowBack } from "@mui/icons-material";
+import { Button, Stack } from "@mui/material";
+
+interface ApprovalRequestSubmitActionsProps {
+  isSavingTemplate: boolean;
+  isSubmitting: boolean;
+  onBack?: () => void;
+  onCancel?: () => void;
+  onSaveTemplate?: () => void;
+  onSubmit?: () => void;
+}
+
+const ApprovalRequestSubmitActions: React.FC<ApprovalRequestSubmitActionsProps> = ({
+  isSavingTemplate,
+  isSubmitting,
+  onBack,
+  onCancel,
+  onSaveTemplate,
+  onSubmit,
+}) => (
+  <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
+    {onBack ? (
+      <Button startIcon={<ArrowBack />} onClick={onBack}>
+        Back
+      </Button>
+    ) : (
+      <Button variant="text" onClick={onCancel}>
+        Cancel
+      </Button>
+    )}
+    {onSaveTemplate && (
+      <Button loading={isSavingTemplate} variant="text" onClick={onSaveTemplate}>
+        Save template
+      </Button>
+    )}
+    <MainActionButton loading={isSubmitting} type="submit" onClick={onSubmit}>
+      Submit
+    </MainActionButton>
+  </Stack>
+);
+
+export default ApprovalRequestSubmitActions;

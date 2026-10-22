@@ -1,0 +1,334 @@
+using Click2Approve.Application.Extensions;
+using Click2Approve.Application.Models.ApprovalRequests;
+using Click2Approve.Domain.Models;
+
+namespace Click2Approve.Application.Services.ApprovalRequests;
+
+/// <summary>
+/// Maps approval request domain models to approval request results.
+/// </summary>
+public static class ApprovalRequestMapper
+{
+    public static ApprovalRequestDetailsResult MapApprovalRequest(
+        ApprovalRequest approvalRequest,
+        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps)
+    {
+        var assigneeGlobalIdsById = approvalRequest.Steps
+            .SelectMany(step => step.Assignees)
+            .ToDictionary(assignee => assignee.Id, assignee => assignee.GlobalId);
+        var requesterEmail = approvalRequest.RequesterUser.NormalizedEmailOrEmpty();
+        var requesterDisplayName = GetRequesterDisplayName(approvalRequest);
+        return new ApprovalRequestDetailsResult
+        {
+            GlobalId = approvalRequest.GlobalId,
+            Title = approvalRequest.Title,
+            RequestFiles = [.. OrderRequestFiles(approvalRequest).Select(MapRequestFile)],
+            Steps = [.. approvalRequest.Steps.Select(step => MapStep(
+                step,
+                approvalRequest.GlobalId,
+                requesterDisplayName,
+                requesterEmail,
+                approvalRequest.OrganizationDisplayName,
+                assigneeGlobalIdsById,
+                assigneeGlobalIdMaps))],
+            Description = approvalRequest.Description,
+            CreatedAt = approvalRequest.CreatedAt,
+            CompletedAt = approvalRequest.CompletedAt,
+            SubmittedByUserGlobalId = approvalRequest.SubmittedByUser.GlobalId,
+            SubmittedByEmployeeGlobalId = GetEmployeeGlobalId(approvalRequest.SubmittedByEmployeeId, assigneeGlobalIdMaps),
+            SubmittedByDisplayName = approvalRequest.SubmittedByDisplayName,
+            SubmittedByEmail = approvalRequest.SubmittedByUser.NormalizedEmailOrEmpty(),
+            RequesterUserGlobalId = approvalRequest.RequesterUser.GlobalId,
+            RequesterEmployeeGlobalId = GetEmployeeGlobalId(
+                approvalRequest.RequesterEmployeeId,
+                assigneeGlobalIdMaps),
+            CompletedByUserGlobalId = approvalRequest.CompletedByUser?.GlobalId,
+            CompletedByEmployeeGlobalId = GetEmployeeGlobalId(
+                approvalRequest.CompletedByEmployeeId,
+                assigneeGlobalIdMaps),
+            RequesterEmail = requesterEmail,
+            RequesterDisplayName = requesterDisplayName,
+            CompletedByDisplayName = GetRequestCompleterDisplayName(approvalRequest),
+            CompletedByEmail = approvalRequest.CompletedByUser.NormalizedEmailOrEmpty(),
+            OrganizationDisplayName = approvalRequest.OrganizationDisplayName,
+            Status = approvalRequest.Status,
+            Result = approvalRequest.Result,
+            RevisionNumber = approvalRequest.RevisionNumber,
+            PreviousRevisionApprovalRequestGlobalId = approvalRequest.PreviousRevisionApprovalRequest?.GlobalId,
+            PreviousRevisionApprovalRequestTitle = approvalRequest.PreviousRevisionApprovalRequest?.Title,
+            NextRevisionApprovalRequestGlobalId = approvalRequest.NextRevisionApprovalRequest?.GlobalId,
+            NextRevisionApprovalRequestTitle = approvalRequest.NextRevisionApprovalRequest?.Title
+        };
+    }
+
+    public static ApprovalRequestTaskDetailsResult MapTaskDetail(
+        ApprovalRequestTask task,
+        IReadOnlyCollection<int> hiddenStepSequences,
+        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps) => new(MapTask(task))
+        {
+            RequestFiles = [.. OrderRequestFiles(task.ApprovalRequest).Select(MapRequestFile)],
+            ApprovalRequest = MapApprovalRequestForTask(task, hiddenStepSequences, assigneeGlobalIdMaps),
+            AssigneeSignatureJson = task.AssigneeSignatureJson
+        };
+
+    private static ApprovalRequestDetailsResult MapApprovalRequestForTask(
+        ApprovalRequestTask task,
+        IReadOnlyCollection<int> hiddenStepSequences,
+        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps)
+    {
+        var approvalRequest = task.ApprovalRequest;
+        var assigneeGlobalIdsById = approvalRequest.Steps
+            .SelectMany(step => step.Assignees)
+            .ToDictionary(assignee => assignee.Id, assignee => assignee.GlobalId);
+
+        var requesterEmail = approvalRequest.RequesterUser.NormalizedEmailOrEmpty();
+        var requesterDisplayName = GetRequesterDisplayName(approvalRequest);
+        return new ApprovalRequestDetailsResult
+        {
+            GlobalId = approvalRequest.GlobalId,
+            Title = approvalRequest.Title,
+            RequestFiles = [.. OrderRequestFiles(approvalRequest).Select(MapRequestFile)],
+            Steps = [.. approvalRequest.Steps
+                .Where(step => !hiddenStepSequences.Contains(step.Sequence))
+                .Select(step => MapStep(
+                    step,
+                    approvalRequest.GlobalId,
+                    requesterDisplayName,
+                    requesterEmail,
+                    approvalRequest.OrganizationDisplayName,
+                    assigneeGlobalIdsById,
+                    assigneeGlobalIdMaps,
+                    includeVisibility: false)), .. hiddenStepSequences.Select(MapHiddenStep)],
+            Description = approvalRequest.Description,
+            CreatedAt = approvalRequest.CreatedAt,
+            CompletedAt = approvalRequest.CompletedAt,
+            SubmittedByUserGlobalId = approvalRequest.SubmittedByUser.GlobalId,
+            SubmittedByEmployeeGlobalId = GetEmployeeGlobalId(approvalRequest.SubmittedByEmployeeId, assigneeGlobalIdMaps),
+            SubmittedByDisplayName = approvalRequest.SubmittedByDisplayName,
+            SubmittedByEmail = approvalRequest.SubmittedByUser.NormalizedEmailOrEmpty(),
+            RequesterUserGlobalId = approvalRequest.RequesterUser.GlobalId,
+            RequesterEmployeeGlobalId = GetEmployeeGlobalId(
+                approvalRequest.RequesterEmployeeId,
+                assigneeGlobalIdMaps),
+            CompletedByUserGlobalId = approvalRequest.CompletedByUser?.GlobalId,
+            CompletedByEmployeeGlobalId = GetEmployeeGlobalId(
+                approvalRequest.CompletedByEmployeeId,
+                assigneeGlobalIdMaps),
+            RequesterEmail = requesterEmail,
+            RequesterDisplayName = requesterDisplayName,
+            CompletedByDisplayName = GetRequestCompleterDisplayName(approvalRequest),
+            CompletedByEmail = approvalRequest.CompletedByUser.NormalizedEmailOrEmpty(),
+            OrganizationDisplayName = approvalRequest.OrganizationDisplayName,
+            Status = approvalRequest.Status,
+            Result = approvalRequest.Result,
+            RevisionNumber = approvalRequest.RevisionNumber,
+            PreviousRevisionApprovalRequestGlobalId = approvalRequest.PreviousRevisionApprovalRequest?.GlobalId,
+            PreviousRevisionApprovalRequestTitle = approvalRequest.PreviousRevisionApprovalRequest?.Title,
+            NextRevisionApprovalRequestGlobalId = approvalRequest.NextRevisionApprovalRequest?.GlobalId,
+            NextRevisionApprovalRequestTitle = approvalRequest.NextRevisionApprovalRequest?.Title
+        };
+    }
+
+    private static ApprovalRequestStepResult MapStep(
+        ApprovalRequestStep step,
+        Guid approvalRequestGlobalId,
+        string requesterDisplayName,
+        string requesterEmail,
+        string organizationDisplayName,
+        IReadOnlyDictionary<long, Guid>? assigneeGlobalIdsById = null,
+        ApprovalRequestAssigneeGlobalIdMaps? assigneeGlobalIdMaps = null,
+        bool includeVisibility = true)
+    {
+        assigneeGlobalIdMaps ??= ApprovalRequestAssigneeGlobalIdMaps.Empty;
+        return new ApprovalRequestStepResult
+        {
+            GlobalId = step.GlobalId,
+            Sequence = step.Sequence,
+            Mode = step.Mode,
+            Action = step.Action,
+            Instructions = step.Instructions,
+            IsAttachmentRequired = step.IsAttachmentRequired,
+            IsCommentRequired = step.IsCommentRequired,
+            IsElectronicSignatureRequired = step.IsElectronicSignatureRequired,
+            VisibilityMode = includeVisibility ? step.VisibilityMode : null,
+            Assignees = [.. step.Assignees.Select(assignee => MapAssignee(assignee, assigneeGlobalIdMaps))],
+            Tasks = [.. step.Tasks.Select(task => MapTask(
+                task,
+                requesterDisplayName,
+                requesterEmail,
+                organizationDisplayName,
+                approvalRequestGlobalId,
+                step.GlobalId,
+                assigneeGlobalIdsById is not null
+                    ? GetTaskAssigneeGlobalId(task, assigneeGlobalIdsById)
+                    : null))],
+        };
+    }
+
+    private static ApprovalRequestAssigneeResult MapAssignee(
+        ApprovalRequestStepAssignee assignee,
+        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps)
+    {
+        return new ApprovalRequestAssigneeResult
+        {
+            GlobalId = assignee.GlobalId,
+            Type = assignee.Type,
+            Email = assignee.User.NormalizedEmailOrEmpty(),
+            EmployeeGlobalId = GetEmployeeGlobalId(assignee, assigneeGlobalIdMaps),
+            TeamGlobalId = GetTeamGlobalId(assignee, assigneeGlobalIdMaps),
+            DisplayName = GetAssigneeDisplayName(assignee)
+        };
+    }
+
+    private static ApprovalRequestStepResult MapHiddenStep(int sequence) => new()
+    {
+        Sequence = sequence,
+        IsVisible = false
+    };
+
+    private static ApprovalRequestTaskResult MapTask(
+        ApprovalRequestTask task,
+        string? requesterDisplayName = null,
+        string? requesterEmail = null,
+        string? organizationDisplayName = null,
+        Guid? approvalRequestGlobalId = null,
+        Guid? approvalRequestStepGlobalId = null,
+        Guid? approvalRequestStepAssigneeGlobalId = null)
+    {
+        return new ApprovalRequestTaskResult
+        {
+            GlobalId = task.GlobalId,
+            Title = task.Title,
+            ApprovalRequestGlobalId = approvalRequestGlobalId ?? task.ApprovalRequest.GlobalId,
+            ApprovalRequestStepGlobalId = approvalRequestStepGlobalId ?? task.ApprovalRequestStep.GlobalId,
+            ApprovalRequestStepAssigneeGlobalId = approvalRequestStepAssigneeGlobalId ?? task.ApprovalRequestStepAssignee?.GlobalId,
+            AssigneeEmail = task.AssigneeUser.NormalizedEmailOrEmpty(),
+            AssigneeDisplayName = GetAssigneeDisplayName(task),
+            CompletedByDisplayName = GetTaskCompleterDisplayName(task),
+            CompletedByEmail = task.CompletedByUser.NormalizedEmailOrEmpty(),
+            Action = task.Action,
+            Result = task.Result,
+            RequestedByEmail = requesterEmail ?? task.ApprovalRequest.RequesterUser.NormalizedEmailOrEmpty(),
+            RequestedByDisplayName = requesterDisplayName ?? GetRequesterDisplayName(task.ApprovalRequest),
+            OrganizationDisplayName = organizationDisplayName
+                ?? task.OrganizationDisplayName
+                ?? task.ApprovalRequest.OrganizationDisplayName,
+            RevisionNumber = GetTaskRevisionNumber(task),
+            Status = task.Status,
+            CreatedAt = task.CreatedAt,
+            CompletedAt = task.CompletedAt,
+            Description = task.Description,
+            Instructions = task.Instructions,
+            IsAttachmentRequired = task.IsAttachmentRequired,
+            IsCommentRequired = task.IsCommentRequired,
+            IsElectronicSignatureRequired = task.IsElectronicSignatureRequired,
+            Comment = task.Comment,
+            AssigneeIpAddress = task.AssigneeIpAddress,
+            AssigneeBrowserData = task.AssigneeBrowserData,
+            AssigneeLegalName = task.AssigneeLegalName,
+            AssigneeRepresentationDetails = task.AssigneeEmployeeId.HasValue
+                ? null
+                : task.AssigneeRepresentationDetails,
+            HasAssigneeSignature = !string.IsNullOrWhiteSpace(task.AssigneeSignatureJson),
+            IsAssigneeEmployee = task.AssigneeEmployeeId.HasValue,
+            AssigneeSignatureJson = task.AssigneeSignatureJson,
+            TaskFiles = [.. task.TaskFiles.Select(MapUserFile)]
+        };
+    }
+
+    private static UserFileResult MapUserFile(UserFile userFile)
+    {
+        return new UserFileResult
+        {
+            GlobalId = userFile.GlobalId,
+            Name = userFile.Name,
+            Type = userFile.Type,
+            CreatedAt = userFile.CreatedAt,
+            Size = userFile.Size
+        };
+    }
+
+    private static ApprovalRequestFileResult MapRequestFile(ApprovalRequestFile requestFile)
+    {
+        return new ApprovalRequestFileResult
+        {
+            GlobalId = requestFile.GlobalId,
+            UserFile = MapUserFile(requestFile.UserFile),
+            Sequence = requestFile.Sequence,
+            RevisionAction = requestFile.RevisionAction,
+            PreviousApprovalRequestFileGlobalId = requestFile.PreviousApprovalRequestFile?.GlobalId,
+            PreviousUserFile = requestFile.PreviousApprovalRequestFile is null
+                ? null
+                : MapUserFile(requestFile.PreviousApprovalRequestFile.UserFile)
+        };
+    }
+
+    private static string GetRequesterDisplayName(ApprovalRequest approvalRequest) =>
+        approvalRequest.RequesterEmployeeId.HasValue
+            ? approvalRequest.RequesterDisplayName
+            : approvalRequest.RequesterUser.NormalizedEmailOrEmpty();
+
+    private static string? GetRequestCompleterDisplayName(ApprovalRequest approvalRequest) =>
+        approvalRequest.CompletedByEmployeeId.HasValue
+            ? approvalRequest.CompletedByDisplayName
+            : approvalRequest.CompletedByUser.NormalizedEmailOrEmpty();
+
+    private static string GetAssigneeDisplayName(ApprovalRequestStepAssignee assignee) =>
+        assignee.EmployeeId.HasValue
+            ? assignee.AssigneeDisplayName ?? assignee.User.NormalizedEmailOrEmpty()
+            : assignee.TeamId.HasValue
+                ? assignee.AssigneeDisplayName ?? string.Empty
+            : assignee.User.NormalizedEmailOrEmpty();
+
+    private static string GetAssigneeDisplayName(ApprovalRequestTask task) =>
+        task.AssigneeEmployeeId.HasValue
+            ? task.AssigneeDisplayName
+            : task.AssigneeUser.NormalizedEmailOrEmpty();
+
+    private static string? GetTaskCompleterDisplayName(ApprovalRequestTask task) =>
+        task.CompletedByEmployeeId.HasValue
+            ? task.CompletedByDisplayName
+            : task.CompletedByUser.NormalizedEmailOrEmpty();
+
+    private static Guid? GetEmployeeGlobalId(
+        long? employeeId,
+        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps) =>
+        employeeId is { } id
+        && assigneeGlobalIdMaps.EmployeeGlobalIdsById.TryGetValue(id, out var employeeGlobalId)
+            ? employeeGlobalId
+            : null;
+
+    private static Guid? GetEmployeeGlobalId(
+        ApprovalRequestStepAssignee assignee,
+        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps) =>
+        assignee.EmployeeId is { } employeeId
+            && assigneeGlobalIdMaps.EmployeeGlobalIdsById.TryGetValue(employeeId, out var employeeGlobalId)
+                ? employeeGlobalId
+                : null;
+
+    private static Guid? GetTeamGlobalId(
+        ApprovalRequestStepAssignee assignee,
+        ApprovalRequestAssigneeGlobalIdMaps assigneeGlobalIdMaps) =>
+        assignee.TeamId is { } teamId
+            && assigneeGlobalIdMaps.TeamGlobalIdsById.TryGetValue(teamId, out var teamGlobalId)
+                ? teamGlobalId
+                : null;
+
+    private static Guid? GetTaskAssigneeGlobalId(
+        ApprovalRequestTask task,
+        IReadOnlyDictionary<long, Guid> assigneeGlobalIdsById) =>
+        task.ApprovalRequestStepAssigneeId is { } assigneeId
+            ? assigneeGlobalIdsById.TryGetValue(assigneeId, out var globalId)
+                ? globalId
+                : task.ApprovalRequestStepAssignee?.GlobalId
+            : null;
+
+    private static int GetTaskRevisionNumber(ApprovalRequestTask task) =>
+        task.ApprovalRequest is { } approvalRequest
+            ? approvalRequest.RevisionNumber
+            : task.RevisionNumber;
+
+    private static IEnumerable<ApprovalRequestFile> OrderRequestFiles(ApprovalRequest approvalRequest) =>
+        approvalRequest.RequestFiles.OrderBy(file => file.Sequence);
+
+}

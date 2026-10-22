@@ -1,0 +1,463 @@
+import { stores } from "@/app/rootStore";
+import { resubmitApprovalRequest, submitApprovalRequest } from "@/features/approvalRequests/api/approvalRequestsApi";
+import ApprovalRequestSubmitCompose from "@/features/approvalRequests/components/ApprovalRequestSubmitCompose";
+import { useApprovalRequestSubmitFiles } from "@/features/approvalRequests/hooks/useApprovalRequestSubmitFiles";
+import {
+  ApprovalRequestFileRevisionAction,
+  ApprovalRequestFileSubmission,
+} from "@/features/approvalRequests/models/approvalRequest";
+import { getIncompleteParticipantNameWarning } from "@/features/approvalRequests/utils/incompleteParticipantNameWarning";
+import { hasIncompleteBusinessParticipantName } from "@/features/approvalRequests/utils/participantName";
+import { getStepErrors, hasInvalidAssignees } from "@/features/approvalRequests/utils/submitValidation";
+import { useEditableApprovalSteps } from "@/features/approvalWorkflow/hooks/useEditableApprovalSteps";
+import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
+import {
+  createEditableSteps,
+  createEmptyStep,
+  toApprovalStepSubmissions,
+} from "@/features/approvalWorkflow/models/editableApprovalStep";
+import { TenantType } from "@/features/tenants/models/tenant";
+import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
+import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
+import { CollectionLimits } from "@/shared/config/collectionLimits";
+import { FieldLimits } from "@/shared/config/fieldLimits";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { useFormValidation } from "@/shared/hooks/useFormValidation";
+import { Routes } from "@/shared/routing/routes";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { textRule } from "@/shared/utils/formValidation";
+import { notification } from "@/shared/utils/notifications";
+import {
+  PersistenceSuccessMessages,
+  showPersistenceSuccessNotification,
+} from "@/shared/utils/persistenceNotifications";
+import { Box } from "@mui/material";
+import { observer } from "mobx-react-lite";
+import { useEffect, useRef, useState } from "react";
+
+interface ApprovalRequestSubmitProps {
+  initialTemplateGlobalId?: string;
+  onClose: (currentApprovalRequestGlobalId?: string) => void;
+}
+
+const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTemplateGlobalId, onClose }) => {
+  const [validationAttempted, setValidationAttempted] = useState(false);
+  const [templateValidationAttempted, setTemplateValidationAttempted] = useState(false);
+  const formContainer = useRef<HTMLDivElement>(null);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [nameWarningDialogIsOpen, setNameWarningDialogIsOpen] = useState(false);
+  const nameWarning = getIncompleteParticipantNameWarning(stores.tenantStore.currentTenant?.type);
+  const submitAction = useAsyncAction(ActionLoaders.approvalRequests.submit());
+  const saveTemplateAction = useAsyncAction(ActionLoaders.approvalStepTemplates.save(undefined));
+  const initialTemplateHasBeenApplied = useRef(false);
+  const initializedRequestGlobalId = useRef<string | undefined>(undefined);
+
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const requestsPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/requests") : "/";
+  const businessTenantIsSelected = stores.tenantStore.currentTenant?.type === TenantType.Business;
+  const canUseEmployees = businessTenantIsSelected && stores.applicationConfigurationStore.employeeAssigneesAreEnabled;
+  const canUseTeams = businessTenantIsSelected && stores.applicationConfigurationStore.teamAssigneesAreEnabled;
+  const defaultAssigneeType = canUseEmployees ? AssigneeType.Employee : AssigneeType.User;
+  const canUseTemplates =
+    businessTenantIsSelected &&
+    stores.applicationConfigurationStore.approvalStepTemplatesAreEnabled &&
+    tenantGlobalId !== null;
+  const [initialTemplateIsLoading, setInitialTemplateIsLoading] = useState(
+    Boolean(canUseTemplates && initialTemplateGlobalId),
+  );
+  const requestToClone = stores.approvalRequestStore.requestToClone;
+  const isRevision = Boolean(requestToClone && stores.applicationConfigurationStore.approvalRequestRevisionsAreEnabled);
+  const { addAssignee, addStep, moveStep, removeAssignee, removeStep, setSteps, steps, updateAssignee, updateStep } =
+    useEditableApprovalSteps({
+      defaultAssigneeType,
+      initialSteps: [createEmptyStep(1, true, defaultAssigneeType)],
+    });
+  const {
+    addedFilesUpload,
+    existingFiles,
+    fileDeletion,
+    handleReplacementFilesChange,
+    newFiles,
+    removeExistingFile,
+    removeNewFile,
+    removeReplacementFile,
+    replacementFilesUpload,
+    restoreExistingFile,
+    setExistingFiles,
+    startReplacingExistingFile,
+  } = useApprovalRequestSubmitFiles({
+    initialExistingFiles: [],
+    initialNewFiles: [],
+    isRevision,
+    tenantGlobalId,
+  });
+
+  useEffect(() => {
+    if (requestToClone && initializedRequestGlobalId.current !== requestToClone.globalId) {
+      initializedRequestGlobalId.current = requestToClone.globalId;
+      setTitle(requestToClone.title);
+      setExistingFiles(
+        (requestToClone.requestFiles?.length ? requestToClone.requestFiles : [])
+          .filter((file) => file.revisionAction !== ApprovalRequestFileRevisionAction.Removed)
+          .map((file) => ({
+            file: file.userFile,
+            requestFileGlobalId: file.globalId,
+          })),
+      );
+      setSteps(createEditableSteps(requestToClone.steps));
+      setDescription(requestToClone.description ?? "");
+    }
+
+    if (tenantGlobalId && businessTenantIsSelected) {
+      if (canUseEmployees) {
+        stores.employeeStore.loadPicker(
+          tenantGlobalId,
+          requestToClone?.steps.flatMap((step) =>
+            step.assignees
+              .filter((assignee) => assignee.type === AssigneeType.Employee && assignee.employeeGlobalId)
+              .map((assignee) => assignee.employeeGlobalId!),
+          ) ?? [],
+        );
+      }
+      if (canUseTeams) {
+        stores.teamStore.loadPicker(tenantGlobalId);
+      }
+      if (canUseTemplates && initialTemplateGlobalId) {
+        setInitialTemplateIsLoading(true);
+        void stores.approvalStepTemplateStore
+          .loadDetail(tenantGlobalId, initialTemplateGlobalId)
+          .then((template) => {
+            if (initialTemplateHasBeenApplied.current) {
+              return;
+            }
+
+            if (template) {
+              setTitle(template.name);
+              setDescription(template.description ?? "");
+              setSteps(createEditableSteps(template.steps));
+              void stores.employeeStore.loadPicker(
+                tenantGlobalId,
+                template.steps.flatMap((step) =>
+                  step.assignees
+                    .filter((assignee) => assignee.type === AssigneeType.Employee && assignee.employeeGlobalId)
+                    .map((assignee) => assignee.employeeGlobalId!),
+                ),
+              );
+            }
+            initialTemplateHasBeenApplied.current = true;
+          })
+          .finally(() => setInitialTemplateIsLoading(false));
+      }
+    }
+  }, [
+    requestToClone,
+    tenantGlobalId,
+    businessTenantIsSelected,
+    canUseEmployees,
+    canUseTeams,
+    canUseTemplates,
+    initialTemplateGlobalId,
+    setExistingFiles,
+    setSteps,
+  ]);
+
+  const validation = useFormValidation(
+    { title, description },
+    {
+      title: textRule("Title", FieldLimits.name, true),
+      description: textRule("Description", FieldLimits.text),
+    },
+  );
+  const filesAreBusy = fileDeletion.isDeleting || addedFilesUpload.isUploading || replacementFilesUpload.isUploading;
+  const stepErrors = getStepErrors(steps);
+  const titleError =
+    (validationAttempted || templateValidationAttempted) && !title.trim() ? "Title is required." : undefined;
+  const filesError = validationAttempted
+    ? existingFiles.length + newFiles.length > CollectionLimits.files
+      ? `At most ${CollectionLimits.files} files are allowed.`
+      : !newFiles.length && !existingFiles.some((file) => !file.removed)
+        ? "Attach at least one file for approval."
+        : undefined
+    : undefined;
+  const stepsError =
+    validationAttempted || templateValidationAttempted
+      ? steps.length > CollectionLimits.workflowSteps
+        ? `At most ${CollectionLimits.workflowSteps} approval steps are allowed.`
+        : !steps.length
+          ? "Add at least one approval step."
+          : undefined
+      : undefined;
+
+  const focusFirstError = () => {
+    requestAnimationFrame(() => {
+      const field = formContainer.current?.querySelector<HTMLElement>('[aria-invalid="true"], [data-validation-error]');
+      field?.focus();
+      field?.scrollIntoView?.({ block: "center", behavior: "smooth" });
+    });
+  };
+
+  const handleUploadClick = () => {
+    addedFilesUpload.openFileDialog();
+  };
+
+  const handleClose = () => {
+    onClose();
+  };
+
+  const validateSteps = () => {
+    setTemplateValidationAttempted(true);
+    return (
+      steps.length > 0 &&
+      steps.length <= CollectionLimits.workflowSteps &&
+      !stepErrors.some(Boolean) &&
+      !hasInvalidAssignees(steps)
+    );
+  };
+
+  const validateDraft = () => {
+    const fieldsValid = validation.validate();
+    setValidationAttempted(true);
+    const valid =
+      fieldsValid &&
+      Boolean(title.trim()) &&
+      (newFiles.length > 0 || existingFiles.some((file) => !file.removed)) &&
+      existingFiles.length + newFiles.length <= CollectionLimits.files &&
+      steps.length > 0 &&
+      steps.length <= CollectionLimits.workflowSteps &&
+      !stepErrors.some(Boolean) &&
+      !hasInvalidAssignees(steps);
+    if (!valid) {
+      notification.validationWarning();
+      focusFirstError();
+    }
+    return valid;
+  };
+
+  const getSubmittedSteps = () => toApprovalStepSubmissions(steps);
+
+  const saveTemplate = async () => {
+    const fieldsValid = validation.validate();
+    const stepsValid = validateSteps();
+    if (!fieldsValid || !stepsValid) {
+      notification.validationWarning();
+      focusFirstError();
+      return;
+    }
+    if (!tenantGlobalId || !canUseTemplates) {
+      return;
+    }
+
+    const trimmedTitle = title.trim();
+
+    await validation.run(() =>
+      saveTemplateAction.run(async () => {
+        await stores.approvalStepTemplateStore.load(tenantGlobalId);
+        const payload = {
+          description,
+          name: trimmedTitle,
+          steps: getSubmittedSteps(),
+        };
+        const existingTemplate = stores.approvalStepTemplateStore.templates.find(
+          (template) => template.name.localeCompare(trimmedTitle, undefined, { sensitivity: "base" }) === 0,
+        );
+        const template = existingTemplate
+          ? await stores.approvalStepTemplateStore.update(tenantGlobalId, existingTemplate.globalId, payload)
+          : await stores.approvalStepTemplateStore.create(tenantGlobalId, payload);
+        if (template) {
+          showPersistenceSuccessNotification(PersistenceSuccessMessages.templateSaved);
+        }
+      }),
+    );
+  };
+
+  const submit = async () => {
+    const trimmedTitle = title.trim();
+    if (!tenantGlobalId) {
+      return;
+    }
+
+    await validation.run(() =>
+      submitAction.run(async () => {
+        const requestFiles: ApprovalRequestFileSubmission[] = [];
+
+        existingFiles.forEach((file, index) => {
+          if (file.removed) {
+            requestFiles.push({
+              userFileGlobalId: file.file.globalId,
+              sequence: index,
+              revisionAction: ApprovalRequestFileRevisionAction.Removed,
+              previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
+            });
+            return;
+          }
+
+          if (file.replacement) {
+            requestFiles.push({
+              userFileGlobalId: file.replacement.globalId,
+              sequence: index,
+              revisionAction: ApprovalRequestFileRevisionAction.Replaced,
+              previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
+            });
+            return;
+          }
+
+          requestFiles.push({
+            userFileGlobalId: file.file.globalId,
+            sequence: index,
+            revisionAction: isRevision
+              ? ApprovalRequestFileRevisionAction.Unchanged
+              : ApprovalRequestFileRevisionAction.Added,
+            previousApprovalRequestFileGlobalId: file.requestFileGlobalId,
+          });
+        });
+
+        newFiles.forEach((file, index) => {
+          requestFiles.push({
+            userFileGlobalId: file.globalId,
+            sequence: existingFiles.length + index,
+            revisionAction: ApprovalRequestFileRevisionAction.Added,
+          });
+        });
+
+        const approvalRequestGlobalId =
+          isRevision && requestToClone
+            ? await resubmitApprovalRequest(
+                tenantGlobalId,
+                requestToClone.globalId,
+                getSubmittedSteps(),
+                description,
+                requestFiles,
+              )
+            : await submitApprovalRequest(
+                tenantGlobalId,
+                trimmedTitle,
+                getSubmittedSteps(),
+                description,
+                undefined,
+                requestFiles,
+              );
+        if (approvalRequestGlobalId) {
+          showPersistenceSuccessNotification(PersistenceSuccessMessages.approvalRequestSubmitted);
+
+          onClose(approvalRequestGlobalId);
+          stores.approvalRequestStore.clear();
+          void Promise.all([
+            stores.approvalRequestStore.load(tenantGlobalId),
+            stores.approvalRequestStore.loadDetails(tenantGlobalId, approvalRequestGlobalId),
+          ]).then(([, createdRequest]) => stores.approvalRequestStore.setCurrent(createdRequest ?? null));
+          stores.approvalRequestTaskStore.loadUncompletedCount(tenantGlobalId);
+        }
+      }),
+    );
+  };
+
+  const handleSubmit = () => {
+    if (!validateDraft()) return;
+    if (filesAreBusy) {
+      notification.warning("Wait for file uploads to finish before submitting.");
+      return;
+    }
+    if (hasIncompleteBusinessParticipantName(stores.tenantStore.currentTenant, stores.userProfileStore.profile)) {
+      setNameWarningDialogIsOpen(true);
+      return;
+    }
+
+    void submit();
+  };
+
+  const handleComposeSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleSubmit();
+  };
+
+  if (initialTemplateIsLoading) return <LoadingOverlay />;
+
+  return (
+    <CloseOnEscape onClose={handleClose}>
+      <PageBreadcrumbs
+        items={[
+          ...(isRevision
+            ? [
+                {
+                  label: "Requests",
+                  state: requestToClone ? { currentApprovalRequestGlobalId: requestToClone.globalId } : undefined,
+                  to: requestsPath,
+                },
+              ]
+            : []),
+          {
+            label: isRevision ? "Resubmit request" : "New request",
+          },
+        ]}
+      />
+      <Box ref={formContainer}>
+        <ApprovalRequestSubmitCompose
+          titleError={validation.message("title") || titleError}
+          descriptionError={validation.message("description")}
+          filesError={filesError}
+          stepsError={stepsError}
+          stepErrors={validationAttempted || templateValidationAttempted ? stepErrors : undefined}
+          showAssigneeErrors={validationAttempted || templateValidationAttempted}
+          canUseEmployees={canUseEmployees}
+          canUseTeams={canUseTeams}
+          description={description}
+          employees={stores.employeeStore.pickerEmployees}
+          existingFiles={existingFiles}
+          fileInput={addedFilesUpload.fileInput}
+          isFilesBusy={fileDeletion.isDeleting || addedFilesUpload.isUploading || replacementFilesUpload.isUploading}
+          isFilesUploading={addedFilesUpload.isUploading}
+          isRevision={isRevision}
+          isSavingTemplate={saveTemplateAction.isRunning}
+          isSubmitting={submitAction.isRunning}
+          newFiles={newFiles}
+          replacementFileInput={replacementFilesUpload.fileInput}
+          showAttachmentRequirement={stores.applicationConfigurationStore.taskAttachmentsAreEnabled}
+          showOrganizationEmployeesVisibility={businessTenantIsSelected}
+          steps={steps}
+          teams={stores.teamStore.pickerTeams}
+          title={title}
+          onAddAssignee={addAssignee}
+          onAddStep={addStep}
+          onCancel={handleClose}
+          onDescriptionChange={setDescription}
+          onFilesChange={addedFilesUpload.handleFilesChange}
+          onMoveStep={moveStep}
+          onRemoveAssignee={removeAssignee}
+          onRemoveExisting={removeExistingFile}
+          onRemoveNew={(index) => void removeNewFile(index)}
+          onRemoveReplacement={(index) => void removeReplacementFile(index)}
+          onRemoveStep={removeStep}
+          onReplaceExisting={startReplacingExistingFile}
+          onReplacementFilesChange={handleReplacementFilesChange}
+          onRestoreExisting={restoreExistingFile}
+          onSaveTemplate={canUseTemplates ? () => void saveTemplate() : undefined}
+          onSubmit={handleComposeSubmit}
+          onTitleChange={setTitle}
+          onUpdateAssignee={updateAssignee}
+          onUpdateStep={updateStep}
+          onUploadClick={handleUploadClick}
+        />
+      </Box>
+      {nameWarning && (
+        <ConfirmationDialog
+          cancelLabel="Go back"
+          confirmLabel="Proceed anyway"
+          message={nameWarning.message}
+          open={nameWarningDialogIsOpen}
+          title={nameWarning.title}
+          onClose={() => setNameWarningDialogIsOpen(false)}
+          onConfirm={async () => {
+            if (!validateDraft()) return false;
+            await submit();
+            return true;
+          }}
+        />
+      )}
+    </CloseOnEscape>
+  );
+};
+
+export default observer(ApprovalRequestSubmit);

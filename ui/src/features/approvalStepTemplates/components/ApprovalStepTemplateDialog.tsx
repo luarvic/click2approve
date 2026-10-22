@@ -1,0 +1,261 @@
+import { stores } from "@/app/rootStore";
+import {
+  getAssigneeError,
+  getStepErrors,
+  hasInvalidAssignees,
+} from "@/features/approvalRequests/utils/submitValidation";
+import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
+import ApprovalStepEditor from "@/features/approvalWorkflow/components/ApprovalStepEditor";
+import { useEditableApprovalSteps } from "@/features/approvalWorkflow/hooks/useEditableApprovalSteps";
+import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
+import {
+  createEditableSteps,
+  createEmptyStep,
+  toApprovalStepSubmissions,
+} from "@/features/approvalWorkflow/models/editableApprovalStep";
+import { TenantType } from "@/features/tenants/models/tenant";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
+import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
+import { Forms } from "@/shared/components/dialogs/formStyles";
+import FormCard from "@/shared/components/forms/FormCard";
+import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
+import { CollectionLimits } from "@/shared/config/collectionLimits";
+import { FieldLimits } from "@/shared/config/fieldLimits";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { useFormValidation } from "@/shared/hooks/useFormValidation";
+import { Routes } from "@/shared/routing/routes";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { textRule } from "@/shared/utils/formValidation";
+import { notification } from "@/shared/utils/notifications";
+import {
+  PersistenceSuccessMessages,
+  showPersistenceSuccessNotification,
+} from "@/shared/utils/persistenceNotifications";
+import { Button, FormHelperText, Stack, TextField } from "@mui/material";
+import { observer } from "mobx-react-lite";
+import { useEffect, useRef, useState } from "react";
+
+interface ApprovalStepTemplateEditorProps {
+  template: ApprovalStepTemplate | null;
+  onClose: (currentTemplateGlobalId?: string) => void;
+  onDelete: (templateGlobalId: string) => Promise<boolean>;
+}
+
+const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({ template, onClose, onDelete }) => {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
+  const initializedTemplateGlobalId = useRef<string | null | undefined>(undefined);
+  const saveLoader = ActionLoaders.approvalStepTemplates.save(template?.globalId);
+  const saveAction = useAsyncAction(saveLoader);
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const templatesPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/approvalStepTemplates") : "/";
+  const businessTenantIsSelected = stores.tenantStore.currentTenant?.type === TenantType.Business;
+  const canUseEmployees = businessTenantIsSelected && stores.applicationConfigurationStore.employeeAssigneesAreEnabled;
+  const canUseTeams = businessTenantIsSelected && stores.applicationConfigurationStore.teamAssigneesAreEnabled;
+  const defaultAssigneeType = canUseEmployees ? AssigneeType.Employee : AssigneeType.User;
+  const {
+    addAssignee,
+    addStep,
+    moveStep,
+    removeAssignee: removeEditableAssignee,
+    removeStep,
+    setSteps,
+    steps,
+    updateAssignee,
+    updateStep,
+  } = useEditableApprovalSteps({
+    defaultAssigneeType,
+    initialSteps: [createEmptyStep(1)],
+  });
+
+  const [stepsValidationAttempted, setStepsValidationAttempted] = useState(false);
+  const validation = useFormValidation(
+    { name, description },
+    {
+      name: textRule("Name", FieldLimits.name, true),
+      description: textRule("Description", FieldLimits.text),
+    },
+  );
+
+  useEffect(() => {
+    if (initializedTemplateGlobalId.current !== (template?.globalId ?? null)) {
+      initializedTemplateGlobalId.current = template?.globalId ?? null;
+      setName(template?.name ?? "");
+      setDescription(template?.description ?? "");
+      setSteps(template ? createEditableSteps(template.steps) : [createEmptyStep(1, true, defaultAssigneeType)]);
+    }
+
+    if (tenantGlobalId && businessTenantIsSelected) {
+      if (canUseEmployees) {
+        stores.employeeStore.loadPicker(
+          tenantGlobalId,
+          template?.steps.flatMap((step) =>
+            step.assignees
+              .filter((assignee) => assignee.type === AssigneeType.Employee && assignee.employeeGlobalId)
+              .map((assignee) => assignee.employeeGlobalId!),
+          ) ?? [],
+        );
+      }
+      if (canUseTeams) {
+        stores.teamStore.loadPicker(tenantGlobalId);
+      }
+    }
+  }, [template, tenantGlobalId, businessTenantIsSelected, canUseEmployees, canUseTeams, defaultAssigneeType, setSteps]);
+
+  const employeePickerIsLoading =
+    canUseEmployees &&
+    tenantGlobalId !== null &&
+    (stores.employeeStore.isPickerLoading || stores.employeeStore.pickerTenantGlobalId !== tenantGlobalId);
+  const teamPickerIsLoading =
+    canUseTeams &&
+    tenantGlobalId !== null &&
+    (stores.teamStore.isPickerLoading || stores.teamStore.pickerTenantGlobalId !== tenantGlobalId);
+
+  if (employeePickerIsLoading || teamPickerIsLoading) {
+    return <LoadingOverlay />;
+  }
+
+  const removeAssignee = (stepIndex: number, assigneeIndex: number) => {
+    if ((steps[stepIndex]?.assignees.length ?? 0) > 1) {
+      removeEditableAssignee(stepIndex, assigneeIndex);
+    }
+  };
+
+  const stepErrors = getStepErrors(steps);
+  const stepsError = !stepsValidationAttempted
+    ? undefined
+    : steps.length > CollectionLimits.workflowSteps
+      ? `At most ${CollectionLimits.workflowSteps} approval steps are allowed.`
+      : steps.length === 0
+        ? "Add at least one approval step."
+        : undefined;
+  const validateSteps = () => {
+    setStepsValidationAttempted(true);
+    return (
+      steps.length > 0 &&
+      steps.length <= CollectionLimits.workflowSteps &&
+      !stepErrors.some(Boolean) &&
+      !hasInvalidAssignees(steps)
+    );
+  };
+
+  const handleSubmit = async () => {
+    const fieldsValid = validation.validate();
+    const stepsValid = validateSteps();
+    if (!fieldsValid || !stepsValid) {
+      notification.validationWarning();
+      return;
+    }
+    if (!tenantGlobalId) {
+      return;
+    }
+
+    await validation.run(() =>
+      saveAction.run(async () => {
+        const saved = template
+          ? await stores.approvalStepTemplateStore.update(tenantGlobalId, template.globalId, {
+              description,
+              name: name.trim(),
+              steps: toApprovalStepSubmissions(steps),
+            })
+          : await stores.approvalStepTemplateStore.create(tenantGlobalId, {
+              description,
+              name: name.trim(),
+              steps: toApprovalStepSubmissions(steps),
+            });
+        if (saved) {
+          showPersistenceSuccessNotification(PersistenceSuccessMessages.templateSaved);
+          onClose(saved.globalId);
+        }
+      }),
+    );
+  };
+
+  return (
+    <CloseOnEscape onClose={() => onClose(template?.globalId)}>
+      <PageBreadcrumbs
+        items={[
+          {
+            label: "Templates",
+            state: template ? { currentTemplateGlobalId: template.globalId } : undefined,
+            to: templatesPath,
+          },
+          {
+            label: template?.name ?? "New template",
+          },
+        ]}
+      />
+      <Stack spacing={Forms.cardStackSpacing}>
+        <FormCard title="Template details">
+          <TextField
+            label="Name"
+            value={name}
+            {...validation.field("name")}
+            onChange={(event) => setName(event.target.value)}
+            fullWidth
+            required
+          />
+          <TextField
+            fullWidth
+            label="Description"
+            multiline
+            value={description}
+            {...validation.field("description")}
+            onChange={(event) => setDescription(event.target.value)}
+          />
+        </FormCard>
+        {stepsError && (
+          <FormHelperText error role="alert">
+            {stepsError}
+          </FormHelperText>
+        )}
+        <ApprovalStepEditor
+          stepErrors={stepsValidationAttempted ? stepErrors : undefined}
+          getAssigneeError={stepsValidationAttempted ? getAssigneeError : undefined}
+          steps={steps}
+          canUseEmployees={canUseEmployees}
+          canUseTeams={canUseTeams}
+          employees={stores.employeeStore.pickerEmployees}
+          teams={stores.teamStore.pickerTeams}
+          onAddAssignee={addAssignee}
+          onAddStep={addStep}
+          onMoveStep={moveStep}
+          onRemoveAssignee={removeAssignee}
+          onRemoveStep={removeStep}
+          onUpdateAssignee={updateAssignee}
+          onUpdateStep={updateStep}
+          showAttachmentRequirement={stores.applicationConfigurationStore.taskAttachmentsAreEnabled}
+          showOrganizationEmployeesVisibility={businessTenantIsSelected}
+        />
+      </Stack>
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
+        <Button variant="text" onClick={() => onClose(template?.globalId)}>
+          Cancel
+        </Button>
+        {template && (
+          <Button color="error" variant="text" onClick={() => setDeleteDialogIsOpen(true)}>
+            Delete
+          </Button>
+        )}
+        <MainActionButton loading={saveAction.isRunning} onClick={handleSubmit}>
+          Save
+        </MainActionButton>
+      </Stack>
+      {template && (
+        <DeleteConfirmationDialog
+          cancelLabel="Cancel"
+          entityName={template.name}
+          open={deleteDialogIsOpen}
+          title="Delete template"
+          onClose={() => setDeleteDialogIsOpen(false)}
+          onDelete={() => onDelete(template.globalId)}
+        />
+      )}
+    </CloseOnEscape>
+  );
+};
+
+export default observer(ApprovalStepTemplateEditor);

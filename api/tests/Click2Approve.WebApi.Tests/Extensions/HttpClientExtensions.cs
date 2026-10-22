@@ -2,8 +2,8 @@ using System.Net.Http.Json;
 using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
-using Click2Approve.WebApi.Models;
-using Click2Approve.WebApi.Models.DTOs;
+using System.Text.Json.Serialization;
+using Click2Approve.WebApi.Models.Responses.Grids;
 using Click2Approve.WebApi.Tests.Helpers;
 using Click2Approve.WebApi.Tests.Models;
 
@@ -14,6 +14,11 @@ namespace Click2Approve.WebApi.Tests.Extensions;
 /// </summary>
 public static class HttpClientExtensions
 {
+    public static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        Converters = { new JsonStringEnumConverter() }
+    };
+
     /// <summary>
     /// Sends an HTTP request.
     /// </summary>
@@ -64,30 +69,39 @@ public static class HttpClientExtensions
         var httpContent = await httpClient.SendAsync(method, url, headers, queryParameters, body, cancellationToken);
         return typeof(T) == typeof(string) ?
             (T)(object)await httpContent.ReadAsStringAsync(cancellationToken) :
-            await httpContent.ReadFromJsonAsync<T>(cancellationToken)
+            await httpContent.ReadFromJsonAsync<T>(JsonOptions, cancellationToken)
                 ?? throw new Exception($"Failed sending {method} request to {url}.");
     }
 
     /// <summary>
-    /// Registers a user by sending POST request to api/account/register endpoint.
+    /// Registers a user by sending POST request to api/v1/account/register endpoint.
     /// </summary>
     public static async Task RegisterAsync(this HttpClient httpClient, Credentials credentials, CancellationToken cancellationToken)
     {
+        var configuration = await httpClient.GetFromJsonAsync<JsonElement>("api/v1/products/info", cancellationToken);
+        Dictionary<string, string>? headers = null;
+        if (configuration.TryGetProperty("registrationLegal", out var legal) && legal.ValueKind == JsonValueKind.Object)
+            headers = new Dictionary<string, string>
+            {
+                ["X-Click2Approve-Legal-Acknowledged"] = "true",
+                ["X-Click2Approve-Terms-Version"] = legal.GetProperty("termsVersion").GetString()!,
+                ["X-Click2Approve-Privacy-Version"] = legal.GetProperty("privacyVersion").GetString()!
+            };
         await httpClient.SendAsync(HttpMethod.Post,
-            "api/account/register",
-            null,
+            "api/v1/account/register",
+            headers,
             null,
             new StringContent(JsonSerializer.Serialize(credentials), Encoding.UTF8, "application/json"),
             cancellationToken);
     }
 
     /// <summary>
-    /// Logs in a user by sending POST request to api/account/login endpoint.
+    /// Logs in a user by sending POST request to api/v1/account/login endpoint.
     /// </summary>
     public static async Task<LoginResponse> LogInAsync(this HttpClient httpClient, Credentials credentials, CancellationToken cancellationToken)
     {
         return await httpClient.SendAsync<LoginResponse>(HttpMethod.Post,
-            "api/account/login",
+            "api/v1/account/login",
             null,
             null,
             new StringContent(JsonSerializer.Serialize(credentials), Encoding.UTF8, "application/json"),
@@ -95,9 +109,27 @@ public static class HttpClientExtensions
     }
 
     /// <summary>
-    /// Uploads text files by sending POST request to api/file/upload endpoint.
+    /// Gets the authenticated user's current tenant.
     /// </summary>
-    public static async Task<List<UserFile>> UploadTextFilesAsync(this HttpClient httpClient,
+    public static async Task<Guid> GetCurrentTenantIdAsync(this HttpClient httpClient,
+        string accessToken,
+        CancellationToken cancellationToken)
+    {
+        var tenant = await httpClient.SendAsync<CurrentTenantResponse>(HttpMethod.Get,
+            "api/v1/tenants/current",
+            new Dictionary<string, string> {
+                {"Authorization", $"Bearer {accessToken}"}
+            },
+            null,
+            null,
+            cancellationToken);
+        return tenant.GlobalId;
+    }
+
+    /// <summary>
+    /// Uploads text files by sending POST request to the tenant files upload endpoint.
+    /// </summary>
+    public static async Task<List<UserFileResponse>> UploadTextFilesAsync(this HttpClient httpClient,
         string accessToken,
         Dictionary<string, string> files,
         CancellationToken cancellationToken)
@@ -107,8 +139,9 @@ public static class HttpClientExtensions
         {
             formContent.Add(Converters.GetStreamContentFromBytes(Encoding.UTF8.GetBytes(file.Value)), "files", file.Key);
         }
-        return await httpClient.SendAsync<List<UserFile>>(HttpMethod.Post,
-            "api/file/upload",
+        var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
+        return await httpClient.SendAsync<List<UserFileResponse>>(HttpMethod.Post,
+            $"api/v1/tenants/{tenantId}/files/upload",
             new Dictionary<string, string> {
                 {"Authorization", $"Bearer {accessToken}"}
             },
@@ -119,99 +152,76 @@ public static class HttpClientExtensions
     }
 
     /// <summary>
-    /// Lists files by sending GET request to api/file/list endpoint.
+    /// Downloads a base64 representation of a file attached to an approval request task.
     /// </summary>
-    public static async ValueTask<List<UserFile>> ListFilesAsync(this HttpClient httpClient,
+    public static async Task<string> DownloadApprovalRequestTaskBase64Async(this HttpClient httpClient,
         string accessToken,
+        Guid globalId,
+        Guid approvalRequestTaskGlobalId,
         CancellationToken cancellationToken)
     {
-        return await httpClient.SendAsync<List<UserFile>>(HttpMethod.Get,
-            "api/file/list",
-            new Dictionary<string, string> {
-                {"Authorization", $"Bearer {accessToken}"}
-            },
+        var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
+        return await httpClient.SendAsync<string>(HttpMethod.Get,
+            $"api/v1/tenants/{tenantId}/tasks/{approvalRequestTaskGlobalId}/requestAttachments/{globalId}/downloadBase64",
+            new Dictionary<string, string> { { "Authorization", $"Bearer {accessToken}" } },
             null,
             null,
             cancellationToken);
     }
 
     /// <summary>
-    /// Downloads a file by sending GET request to api/file/download endpoint.
+    /// Downloads a base64 representation of a file attached to an approval request.
     /// </summary>
-    public static async Task<string> DownloadFileAsync(this HttpClient httpClient,
-    string accessToken,
-    long id,
-    CancellationToken cancellationToken)
+    public static async Task<string> DownloadApprovalRequestBase64Async(this HttpClient httpClient,
+        string accessToken,
+        Guid globalId,
+        Guid approvalRequestGlobalId,
+        CancellationToken cancellationToken)
     {
+        var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
         return await httpClient.SendAsync<string>(HttpMethod.Get,
-            "api/file/download",
-            new Dictionary<string, string> {
-                {"Authorization", $"Bearer {accessToken}"}
-            },
-            new Dictionary<string, string> {
-                {"id", id.ToString()},
-            },
+            $"api/v1/tenants/{tenantId}/requests/{approvalRequestGlobalId}/attachments/{globalId}/downloadBase64",
+            new Dictionary<string, string> { { "Authorization", $"Bearer {accessToken}" } },
             null,
-            cancellationToken
-            );
+            null,
+            cancellationToken);
     }
 
     /// <summary>
-    /// Downloads base64 representation of a file by sending GET request to api/file/downloadBase64 endpoint.
-    /// </summary>
-    public static async Task<string> DownloadBase64Async(this HttpClient httpClient,
-    string accessToken,
-    long id,
-    CancellationToken cancellationToken)
-    {
-        return await httpClient.SendAsync<string>(HttpMethod.Get,
-            "api/file/downloadBase64",
-            new Dictionary<string, string> {
-                {"Authorization", $"Bearer {accessToken}"}
-            },
-            new Dictionary<string, string> {
-                {"id", id.ToString()},
-            },
-            null,
-            cancellationToken
-            );
-    }
-
-    /// <summary>
-    /// Deletes a file by sending DELETE request to api/file endpoint.
+    /// Deletes a file by sending DELETE request to the tenant files endpoint.
     /// </summary>
     public static async Task<string> DeleteFileAsync(this HttpClient httpClient,
     string accessToken,
-    long id,
+    Guid globalId,
     CancellationToken cancellationToken)
     {
+        var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
         return await httpClient.SendAsync<string>(HttpMethod.Delete,
-            "api/file",
+            $"api/v1/tenants/{tenantId}/files/{globalId}",
             new Dictionary<string, string> {
                 {"Authorization", $"Bearer {accessToken}"}
             },
-            new Dictionary<string, string> {
-                {"id", id.ToString()},
-            },
+            null,
             null,
             cancellationToken
             );
     }
 
     /// <summary>
-    /// Submits an approval request by sending POST request to api/request endpoint.
+    /// Submits an approval request by sending POST request to the tenant requests endpoint.
     /// </summary>
     public static async Task<string> SubmitApprovalRequestAsync(this HttpClient httpClient,
     string accessToken,
-    ApprovalRequestSubmitDto payload,
+    SubmitApprovalRequestRequest payload,
     CancellationToken cancellationToken)
     {
         var body = new StringContent(
             JsonSerializer.Serialize(payload),
             Encoding.UTF8,
             MediaTypeNames.Application.Json);
+        var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
         return await httpClient.SendAsync<string>(HttpMethod.Post,
-            "api/request",
+            $"api/v1/tenants/{tenantId}/requests",
             new Dictionary<string, string> {
                 {"Authorization", $"Bearer {accessToken}"}
             },
@@ -219,5 +229,43 @@ public static class HttpClientExtensions
             body,
             cancellationToken
             );
+    }
+
+    /// <summary>
+    /// Lists approval requests submitted by the current user.
+    /// </summary>
+    public static async Task<List<ApprovalRequestListItemResponse>> ListApprovalRequestsAsync(this HttpClient httpClient,
+        string accessToken,
+        CancellationToken cancellationToken)
+    {
+        var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
+        var page = await httpClient.SendAsync<GridPageResponse<ApprovalRequestListItemResponse>>(HttpMethod.Get,
+            $"api/v1/tenants/{tenantId}/requests",
+            new Dictionary<string, string> {
+                {"Authorization", $"Bearer {accessToken}"}
+            },
+            null,
+            null,
+            cancellationToken);
+        return page.Items;
+    }
+
+    /// <summary>
+    /// Gets an approval request with the data required by its editor.
+    /// </summary>
+    public static async Task<ApprovalRequestDetailsResponse> GetApprovalRequestAsync(this HttpClient httpClient,
+        string accessToken,
+        Guid globalId,
+        CancellationToken cancellationToken)
+    {
+        var tenantId = await httpClient.GetCurrentTenantIdAsync(accessToken, cancellationToken);
+        return await httpClient.SendAsync<ApprovalRequestDetailsResponse>(HttpMethod.Get,
+            $"api/v1/tenants/{tenantId}/requests/{globalId}",
+            new Dictionary<string, string> {
+                {"Authorization", $"Bearer {accessToken}"}
+            },
+            null,
+            null,
+            cancellationToken);
     }
 }

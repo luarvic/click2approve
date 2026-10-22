@@ -1,0 +1,70 @@
+import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
+import GridFilterBar from "@/shared/components/grids/GridFilterBar";
+import { FieldLimits } from "@/shared/config/fieldLimits";
+import type { Dayjs } from "dayjs";
+
+interface ApprovalRequestTasksFilterProps {
+  createdFrom: Dayjs | null;
+  createdTo: Dayjs | null;
+  onCreatedFromChange: (createdFrom: Dayjs | null) => void;
+  onCreatedToChange: (createdTo: Dayjs | null) => void;
+  onRequestedByChange: (requestedBy: string) => void;
+  onStatusesChange: (statuses: ApprovalRequestTaskStatus[]) => void;
+  onTitleChange: (title: string) => void;
+  requestedBy: string;
+  statuses: ApprovalRequestTaskStatus[];
+  title: string;
+}
+
+const statusOptions = Object.values(ApprovalRequestTaskStatus);
+
+const ApprovalRequestTasksFilter: React.FC<ApprovalRequestTasksFilterProps> = ({
+  createdFrom,
+  createdTo,
+  onCreatedFromChange,
+  onCreatedToChange,
+  onRequestedByChange,
+  onStatusesChange,
+  onTitleChange,
+  requestedBy,
+  statuses,
+  title,
+}) => {
+  return (
+    <GridFilterBar
+      items={[
+        { label: "Title", onChange: onTitleChange, type: "text", value: title },
+        {
+          label: "Requested by",
+          maxLength: FieldLimits.participantDisplayName,
+          onChange: onRequestedByChange,
+          type: "text",
+          value: requestedBy,
+        },
+        {
+          label: "Status",
+          onChange: (values) => onStatusesChange(values as ApprovalRequestTaskStatus[]),
+          options: statusOptions.map((value) => ({ label: value, value })),
+          type: "multiSelect",
+          value: statuses.map(String),
+        },
+        {
+          label: "Created from",
+          onChange: onCreatedFromChange,
+          type: "date",
+          maxDate: createdTo ?? undefined,
+          value: createdFrom,
+        },
+        {
+          label: "Created to",
+          onChange: onCreatedToChange,
+          type: "date",
+          minDate: createdFrom ?? undefined,
+          value: createdTo,
+        },
+      ]}
+    />
+  );
+};
+
+export default ApprovalRequestTasksFilter;

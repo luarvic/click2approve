@@ -1,0 +1,31 @@
+using Click2Approve.Application.Models.Commands.UserFiles;
+using Click2Approve.Domain.Models;
+
+namespace Click2Approve.Application.Abstractions.Services.UserFiles;
+
+/// <summary>
+/// Defines a contract for a service that manages user files.
+/// </summary>
+public interface IUserFileService
+{
+    Task<IList<UserFileResult>> UploadAsync(AppUser user, UploadUserFilesCommand command, CancellationToken cancellationToken);
+    Task<List<UserFile>> AttachAsync(AppUser user, IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken);
+    Task ScheduleUnattachedForDeletionAsync(IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken);
+    Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestAttachmentAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken);
+    Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestAttachmentForTaskAsync(
+        AppUser user,
+        Guid globalId,
+        Guid approvalRequestTaskGlobalId,
+        CancellationToken cancellationToken);
+    Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestTaskAttachmentAsync(
+        AppUser user,
+        Guid globalId,
+        Guid approvalRequestTaskGlobalId,
+        CancellationToken cancellationToken);
+    Task<(string Filename, byte[] Bytes)> DownloadDiscussionMessageAttachmentAsync(
+        AppUser user,
+        Guid globalId,
+        Guid discussionMessageGlobalId,
+        CancellationToken cancellationToken);
+    Task DeleteAsync(AppUser user, Guid globalId, CancellationToken cancellationToken);
+}

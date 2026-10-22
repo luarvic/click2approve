@@ -1,12 +1,14 @@
-import { Outlet } from "react-router-dom";
+import { Pages } from "@/shared/components/layout/pageStyles";
 import { Box } from "@mui/material";
+import { ReactNode } from "react";
+import { Outlet } from "react-router-dom";
 
-const WrapperLayout = () => {
-  return (
-    <Box sx={{ p: 2 }}>
-      <Outlet />
-    </Box>
-  );
+interface WrapperLayoutProps {
+  children?: ReactNode;
+}
+
+const WrapperLayout = ({ children }: WrapperLayoutProps) => {
+  return <Box sx={[Pages.containerSx, Pages.wrapperSx]}>{children ?? <Outlet />}</Box>;
 };
 
 export default WrapperLayout;

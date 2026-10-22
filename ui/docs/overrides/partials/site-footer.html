@@ -1,0 +1,23 @@
+<footer class="md-footer site-footer">
+  <div class="site-footer-inner">
+    <p>&copy; <time id="copyright-year">{{ build_date_utc.year }}</time> Click2Approve. All rights reserved.</p>
+    <nav aria-label="Footer navigation">
+      <a href="{{ '.' | url }}">Home</a>
+      <a href="/app/">App</a>
+      <a href="{{ 'docs/' | url }}">Docs</a>
+      <a href="{{ 'contact/' | url }}">Contact</a>
+      <a href="{{ 'terms/' | url }}">Terms</a>
+      <a href="{{ 'privacy/' | url }}">Privacy</a>
+      {% if config.extra.google_analytics_id %}
+        <button type="button" class="analytics-settings" data-analytics-settings>Analytics settings</button>
+      {% endif %}
+    </nav>
+  </div>
+</footer>
+<script>
+  document.getElementById("copyright-year").textContent = new Date().getFullYear();
+</script>
+
+{% if config.extra.google_analytics_id %}
+  {% include "partials/analytics-consent.html" %}
+{% endif %}

@@ -2,45 +2,107 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "build-webapi",
-      "type": "shell",
-      "command": "dotnet",
+      "label": "test",
+      "type": "process",
+      "command": "node",
       "args": [
-        "build",
-        "api/src/Click2Approve.WebApi/Click2Approve.WebApi.csproj"
+        "scripts/test.mjs"
       ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "C2A_TEST_AZURITE": "UseDevelopmentStorage=true"
+        }
+      },
+      "detail": "All public API, Queue/Blob, UI and attachment browser tests; lint, build and docs. Requires Azurite, UI dependencies and Chromium.",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
       "problemMatcher": [
         "$msCompile"
-      ],
+      ]
+    },
+    {
+      "label": "format-api",
+      "type": "shell",
+      "command": "dotnet",
+      "args": ["format", "api/Click2Approve.Api.sln", "--diagnostics", "IDE0005", "IDE0001", "IDE0002"],
+      "problemMatcher": ["$msCompile"]
+    },
+    {
+      "label": "build-api",
+      "type": "shell",
+      "command": "dotnet",
+      "args": ["build", "api/Click2Approve.Api.sln"],
+      "problemMatcher": ["$msCompile"],
       "group": "build"
     },
     {
-      "label": "test-webapi",
+      "label": "format-ui",
       "type": "shell",
-      "command": "dotnet",
-      "args": [
-        "test",
-        "api/tests/Click2Approve.WebApi.Tests/Click2Approve.WebApi.Tests.csproj"
-      ],
-      "problemMatcher": [
-        "$msCompile"
-      ],
-      "group": "test"
+      "command": "npx prettier --write --print-width 120 --tab-width 2 \"**/*.{ts,tsx}\"",
+      "options": {"cwd": "${workspaceFolder}/ui"},
+      "problemMatcher": []
+    },
+    {
+      "label": "run-ui",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev"],
+      "options": {"cwd": "${workspaceFolder}/ui"},
+      "isBackground": true
+    },
+    {
+      "label": "setup-docs",
+      "type": "shell",
+      "command": "python3 -m venv .venv-docs && .venv-docs/bin/python -m pip install -r docs/requirements.txt",
+      "options": {"cwd": "${workspaceFolder}/ui"},
+      "problemMatcher": []
+    },
+    {
+      "label": "run-docs",
+      "type": "process",
+      "command": "${workspaceFolder}/ui/.venv-docs/bin/python",
+      "args": ["-m", "mkdocs", "serve", "--dev-addr", "127.0.0.1:8000"],
+      "options": {"cwd": "${workspaceFolder}/ui"},
+      "dependsOn": "setup-docs",
+      "isBackground": true,
+      "problemMatcher": []
     },
     {
       "label": "run-webapi",
       "type": "shell",
       "command": "dotnet",
-      "args": [
-        "run",
-        "--project",
-        "api/src/Click2Approve.WebApi/Click2Approve.WebApi.csproj"
-      ],
+      "args": ["run", "--project", "api/src/Click2Approve.WebApi/Click2Approve.WebApi.csproj"],
+      "options": {"env": {"ASPNETCORE_ENVIRONMENT": "Development"}},
       "isBackground": true,
-      "problemMatcher": [
-        "$msCompile"
-      ],
-      "group": "test"
+      "problemMatcher": {
+        "base": "$msCompile",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*",
+          "endsPattern": "Now listening on:"
+        }
+      }
+    },
+    {
+      "label": "run-event-publisher",
+      "type": "shell",
+      "command": "dotnet",
+      "args": ["run", "--project", "api/src/Click2Approve.EventPublisher/Click2Approve.EventPublisher.csproj"],
+      "options": {"env": {"DOTNET_ENVIRONMENT": "Development"}},
+      "isBackground": true,
+      "problemMatcher": ["$msCompile"]
+    },
+    {
+      "label": "run-event-consumer",
+      "type": "shell",
+      "command": "dotnet",
+      "args": ["run", "--project", "api/src/Click2Approve.EventConsumer/Click2Approve.EventConsumer.csproj"],
+      "options": {"env": {"DOTNET_ENVIRONMENT": "Development"}},
+      "isBackground": true,
+      "problemMatcher": ["$msCompile"]
     }
   ]
 }

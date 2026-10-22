@@ -1,0 +1,25 @@
+{# Follow the guide order in mkdocs.yml, without linking to marketing pages. #}
+{% set previous = page.previous_page %}
+{% set next = page.next_page %}
+<nav class="docs-page-navigation" aria-label="Guide navigation">
+  {% if previous and previous.file.src_uri.startswith("docs/") %}
+    <a href="{{ previous.url | url }}" rel="prev">
+      <span>← Previous</span>
+      <span>{{ previous.title }}</span>
+    </a>
+  {% else %}
+    <span></span>
+  {% endif %}
+  <a href="{{ 'docs/' | url }}" class="docs-page-navigation-contents">Table of contents</a>
+  {% if next and next.file.src_uri.startswith("docs/") %}
+    <a href="{{ next.url | url }}" rel="next" class="docs-page-navigation-next">
+      <span>Next →</span>
+      <span>{{ next.title }}</span>
+    </a>
+  {% else %}
+    <a href="{{ 'docs/' | url }}" rel="next" class="docs-page-navigation-next">
+      <span>Next →</span>
+      <span>Table of contents</span>
+    </a>
+  {% endif %}
+</nav>

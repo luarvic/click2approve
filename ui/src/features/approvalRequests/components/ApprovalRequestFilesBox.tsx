@@ -1,0 +1,153 @@
+import { stores } from "@/app/rootStore";
+import { ApprovalRequestFileStyles } from "@/features/approvalRequests/components/approvalRequestFileStyles";
+import {
+  ApprovalRequestFile,
+  ApprovalRequestFileRevisionAction,
+} from "@/features/approvalRequests/models/approvalRequest";
+import { UserFile } from "@/features/userFiles/models/userFile";
+import { downloadApprovalRequestFile, downloadApprovalRequestTaskFile } from "@/features/userFiles/utils/downloaders";
+import FileNameLink from "@/shared/components/files/FileNameLink";
+import FileRow from "@/shared/components/files/FileRow";
+import ReplacedFileGroup from "@/shared/components/files/ReplacedFileGroup";
+import { Flex } from "@/shared/components/layout/flexStyles";
+import CommentPaper from "@/shared/components/papers/CommentPaper";
+import { StackSpacing } from "@/shared/theme/tokens";
+import { Chip, Stack, Tooltip, type SxProps } from "@mui/material";
+import type { ChipProps } from "@mui/material/Chip";
+import type { Theme } from "@mui/material/styles";
+
+interface ApprovalRequestFilesBoxProps {
+  requestFiles?: ApprovalRequestFile[];
+  approvalRequestGlobalId?: string;
+  approvalRequestTaskGlobalId?: string;
+  compareWithPrevious?: boolean;
+  showFileStateIndicators?: boolean;
+}
+
+const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
+  requestFiles,
+  approvalRequestGlobalId,
+  approvalRequestTaskGlobalId,
+  compareWithPrevious = false,
+  showFileStateIndicators = true,
+}) => {
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const onDownload =
+    tenantGlobalId && approvalRequestTaskGlobalId
+      ? (userFile: UserFile) => downloadApprovalRequestTaskFile(tenantGlobalId, userFile, approvalRequestTaskGlobalId)
+      : tenantGlobalId && approvalRequestGlobalId
+        ? (userFile: UserFile) => downloadApprovalRequestFile(tenantGlobalId, userFile, approvalRequestGlobalId)
+        : undefined;
+
+  const files = requestFiles ?? [];
+  const orderedFiles = [...files].sort((left, right) => left.sequence - right.sequence);
+  const isPreviousFileForReplacement = (file: ApprovalRequestFile, index: number) =>
+    file.revisionAction === ApprovalRequestFileRevisionAction.Removed &&
+    orderedFiles[index + 1]?.revisionAction === ApprovalRequestFileRevisionAction.Replaced;
+
+  const getReplacedOriginalFile = (replacementIndex: number) => {
+    const previousFile = orderedFiles[replacementIndex - 1];
+    return previousFile?.revisionAction === ApprovalRequestFileRevisionAction.Removed ? previousFile : undefined;
+  };
+
+  const renderFileLink = (
+    userFile: UserFile,
+    key: React.Key,
+    sx?: SxProps<Theme>,
+    statusColor: ChipProps["color"] = "default",
+    statusLabel?: string,
+    tooltip?: string,
+  ) => {
+    const fileLink = (
+      <FileRow key={key} sx={ApprovalRequestFileStyles.actionsSx}>
+        <FileNameLink
+          fileName={userFile.name}
+          onClick={onDownload ? () => onDownload(userFile) : undefined}
+          sx={sx}
+          variant="body1"
+        />
+        {statusLabel && <Chip color={statusColor} label={statusLabel} size="small" variant="outlined" />}
+      </FileRow>
+    );
+
+    return tooltip ? (
+      <Tooltip key={key} title={tooltip}>
+        {fileLink}
+      </Tooltip>
+    ) : (
+      fileLink
+    );
+  };
+
+  const renderCurrentFile = (file: ApprovalRequestFile) =>
+    renderFileLink(
+      file.userFile,
+      file.globalId,
+      undefined,
+      "success",
+      showFileStateIndicators && file.revisionAction === ApprovalRequestFileRevisionAction.Added ? "Added" : undefined,
+      showFileStateIndicators && file.revisionAction === ApprovalRequestFileRevisionAction.Added
+        ? "New file"
+        : undefined,
+    );
+
+  return (
+    <CommentPaper>
+      <Stack spacing={StackSpacing.default} sx={Flex.alignStartSx}>
+        {orderedFiles.map((file, index) => {
+          if (!compareWithPrevious) {
+            return file.revisionAction === ApprovalRequestFileRevisionAction.Removed ? null : renderCurrentFile(file);
+          }
+
+          if (file.revisionAction === ApprovalRequestFileRevisionAction.Removed) {
+            if (isPreviousFileForReplacement(file, index)) {
+              return null;
+            }
+
+            return renderFileLink(
+              file.previousUserFile ?? file.userFile,
+              file.globalId,
+              showFileStateIndicators ? ApprovalRequestFileStyles.inactiveLinkSx : undefined,
+              "error",
+              showFileStateIndicators ? "Deleted" : undefined,
+              showFileStateIndicators ? "Deleted file" : undefined,
+            );
+          }
+
+          if (file.revisionAction === ApprovalRequestFileRevisionAction.Replaced) {
+            const previousRequestFile = getReplacedOriginalFile(index);
+
+            return (
+              <Stack key={file.globalId} spacing={StackSpacing.default} sx={Flex.alignStartSx}>
+                {renderFileLink(
+                  file.userFile,
+                  `${file.globalId}-current`,
+                  undefined,
+                  "default",
+                  undefined,
+                  showFileStateIndicators ? "Replacement file" : undefined,
+                )}
+                {(previousRequestFile?.userFile ?? file.previousUserFile) && (
+                  <ReplacedFileGroup>
+                    {renderFileLink(
+                      previousRequestFile?.userFile ?? file.previousUserFile!,
+                      `${file.globalId}-previous`,
+                      showFileStateIndicators ? ApprovalRequestFileStyles.inactiveLinkSx : undefined,
+                      "warning",
+                      "Replaced",
+                      showFileStateIndicators ? "Replaced file" : undefined,
+                    )}
+                  </ReplacedFileGroup>
+                )}
+              </Stack>
+            );
+          }
+
+          return renderCurrentFile(file);
+        })}
+      </Stack>
+    </CommentPaper>
+  );
+};
+
+export default ApprovalRequestFilesBox;

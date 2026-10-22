@@ -1,0 +1,278 @@
+using Click2Approve.Application.Models.Files;
+using Click2Approve.Application.Models.Commands.UserFiles;
+using Click2Approve.Domain.Exceptions;
+using Click2Approve.Domain.Models;
+using FluentValidation;
+
+namespace Click2Approve.Application.Services.UserFiles;
+
+/// <summary>
+/// Implements a service that manages user files.
+/// </summary>
+public class UserFileService(
+    IConfiguration configuration,
+    IUserFileRepository userFileRepository,
+    ITenantContext tenantContext,
+    IUnitOfWork unitOfWork,
+    IUserFileStorage fileStorage,
+    ILogger<UserFileService> logger,
+    IValidator<UploadedFile> uploadedFileValidator) : IUserFileService
+{
+    private readonly IValidator<UploadedFile> _uploadedFileValidator = uploadedFileValidator;
+    private readonly IConfiguration _configuration = configuration;
+    private readonly IUserFileRepository _userFileRepository = userFileRepository;
+    private readonly ITenantContext _tenantContext = tenantContext;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IUserFileStorage _fileStorage = fileStorage;
+    private readonly ILogger<UserFileService> _logger = logger;
+
+    /// <summary>
+    /// Uploads files to the workspace selected by the tenant-resolution hook.
+    /// </summary>
+    public async Task<IList<UserFileResult>> UploadAsync(AppUser user, UploadUserFilesCommand command, CancellationToken cancellationToken)
+    {
+        if (command.RequestGlobalId.HasValue && command.TaskGlobalId.HasValue)
+            throw new BusinessRuleException("Specify either a request or a task for the upload.");
+        foreach (var file in command.Files)
+            await _uploadedFileValidator.ValidateAndThrowAsync(file, cancellationToken);
+        await CheckLimitations(user, command.Files, cancellationToken);
+        var tenantId = await GetUploadTenantIdAsync(user, command, cancellationToken);
+        return await UploadAsync(user, command.Files, tenantId, cancellationToken);
+    }
+
+    public async Task<List<UserFile>> AttachAsync(AppUser user, IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken)
+    {
+        var distinctGlobalIds = globalIds.Distinct().ToList();
+        if (distinctGlobalIds.Count == 0)
+        {
+            return [];
+        }
+
+        var userFiles = await _userFileRepository.ListAsync(user, distinctGlobalIds, cancellationToken);
+        var userFileGlobalIds = userFiles.Select(file => file.GlobalId).ToHashSet();
+        if (!distinctGlobalIds.All(userFileGlobalIds.Contains))
+        {
+            throw new BusinessRuleException("One or more files could not be found.");
+        }
+
+        foreach (var userFile in userFiles)
+        {
+            userFile.DeletionPublishedAt = null;
+            userFile.ScheduledForDeletionAt = null;
+            userFile.Status = UserFileStatus.Attached;
+        }
+
+        return userFiles;
+    }
+
+    /// <summary>Schedules files that are no longer attached to a domain entity for deletion.</summary>
+    public async Task ScheduleUnattachedForDeletionAsync(IReadOnlyCollection<Guid> globalIds, CancellationToken cancellationToken)
+    {
+        if (globalIds.Count == 0)
+        {
+            return;
+        }
+
+        var userFiles = await _userFileRepository.ListUnattachedAsync([.. globalIds.Distinct()], cancellationToken);
+        var scheduledForDeletionAt = GetUnattachedDeletionAt();
+        foreach (var userFile in userFiles)
+        {
+            userFile.DeletionPublishedAt = null;
+            userFile.ScheduledForDeletionAt = scheduledForDeletionAt;
+        }
+
+        if (userFiles.Count > 0)
+        {
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    /// <summary>
+    /// Downloads a file attached to an approval request the user can access.
+    /// </summary>
+    public async Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestAttachmentAsync(AppUser user, Guid globalId, Guid approvalRequestGlobalId, CancellationToken cancellationToken)
+    {
+        var userFile = await _userFileRepository.GetApprovalRequestAttachmentForDownloadAsync(user, globalId, approvalRequestGlobalId, cancellationToken)
+            ?? throw new NotFoundException("File was not found.");
+        return await ReadAsync(userFile, cancellationToken);
+    }
+
+    /// <summary>
+    /// Downloads a file attached to an approval request task the user can access.
+    /// </summary>
+    public async Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestAttachmentForTaskAsync(
+        AppUser user,
+        Guid globalId,
+        Guid approvalRequestTaskGlobalId,
+        CancellationToken cancellationToken)
+    {
+        var userFile = await _userFileRepository.GetApprovalRequestAttachmentForTaskDownloadAsync(
+            user,
+            globalId,
+            approvalRequestTaskGlobalId,
+            cancellationToken)
+            ?? throw new NotFoundException("File was not found.");
+        return await ReadAsync(userFile, cancellationToken);
+    }
+
+    /// <summary>Downloads a file attached directly to an approval request task.</summary>
+    public async Task<(string Filename, byte[] Bytes)> DownloadApprovalRequestTaskAttachmentAsync(
+        AppUser user,
+        Guid globalId,
+        Guid approvalRequestTaskGlobalId,
+        CancellationToken cancellationToken)
+    {
+        var userFile = await _userFileRepository.GetApprovalRequestTaskAttachmentForDownloadAsync(
+            user,
+            globalId,
+            approvalRequestTaskGlobalId,
+            cancellationToken)
+            ?? throw new NotFoundException("File was not found.");
+        return await ReadAsync(userFile, cancellationToken);
+    }
+
+    /// <summary>Downloads a file attached to a discussion message visible to the user.</summary>
+    public async Task<(string Filename, byte[] Bytes)> DownloadDiscussionMessageAttachmentAsync(
+        AppUser user,
+        Guid globalId,
+        Guid discussionMessageGlobalId,
+        CancellationToken cancellationToken)
+    {
+        var userFile = await _userFileRepository.GetDiscussionMessageAttachmentForDownloadAsync(
+            user,
+            globalId,
+            discussionMessageGlobalId,
+            cancellationToken)
+            ?? throw new NotFoundException("File was not found.");
+        return await ReadAsync(userFile, cancellationToken);
+    }
+
+    /// <summary>
+    /// Deletes the user file.
+    /// </summary>
+    public async Task DeleteAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
+    {
+        var userFile = await _userFileRepository.GetForDeleteAsync(user, globalId, cancellationToken)
+            ?? throw new NotFoundException("File was not found.");
+        var unattachedFiles = await _userFileRepository.ListUnattachedAsync([userFile.GlobalId], cancellationToken);
+        if (unattachedFiles.Count == 0)
+        {
+            throw new BusinessRuleException("Attached files cannot be deleted.");
+        }
+
+        _userFileRepository.Remove(userFile);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _fileStorage.DeleteAsync(userFile, cancellationToken);
+    }
+
+    /// <summary>Returns the current workspace; extensions can select another authorized owning workspace.</summary>
+    protected virtual Task<long> GetUploadTenantIdAsync(
+        AppUser user,
+        UploadUserFilesCommand command,
+        CancellationToken cancellationToken) =>
+        _tenantContext.GetRequiredTenantIdAsync(user, cancellationToken);
+
+    /// <summary>Stores files after the owning workspace has been authorized.</summary>
+    protected virtual async Task<IList<UserFileResult>> UploadAsync(
+        AppUser user,
+        IReadOnlyCollection<UploadedFile> files,
+        long tenantId,
+        CancellationToken cancellationToken)
+    {
+        var userFiles = new List<UserFile>();
+        try
+        {
+            foreach (var file in files)
+            {
+                var userFile = await _userFileRepository.AddAsync(new UserFile
+                {
+                    CreatedAt = DateTime.UtcNow,
+                    Name = Path.GetFileName(file.FileName),
+                    Owner = user,
+                    OwnerId = user.Id,
+                    Size = file.Length,
+                    StorageType = UserFileStorageType.Private,
+                    ScheduledForDeletionAt = GetUnattachedDeletionAt(),
+                    TenantId = tenantId,
+                    Type = Path.GetExtension(file.FileName)
+                }, cancellationToken);
+                userFiles.Add(userFile);
+
+                await _fileStorage.SaveAsync(userFile, file.Bytes, cancellationToken);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+            }
+        }
+        catch
+        {
+            await CleanupUploadAsync(userFiles);
+            throw;
+        }
+
+        return [.. userFiles.Select(UserFileMapper.MapUserFile)];
+    }
+
+    protected virtual async Task<(string Filename, byte[] Bytes)> ReadAsync(UserFile userFile, CancellationToken cancellationToken)
+    {
+        return
+        (
+            userFile.Name,
+            await _fileStorage.ReadAsync(userFile, cancellationToken)
+        );
+    }
+
+    private async Task CleanupUploadAsync(IEnumerable<UserFile> userFiles)
+    {
+        var files = userFiles.ToList();
+        foreach (var userFile in files)
+        {
+            _userFileRepository.Remove(userFile);
+        }
+
+        try
+        {
+            await _unitOfWork.SaveChangesAsync(CancellationToken.None);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Failed to clean up user-file records after an upload failure.");
+        }
+
+        foreach (var userFile in files)
+        {
+            try
+            {
+                await _fileStorage.DeleteAsync(userFile, CancellationToken.None);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Failed to clean up stored user file {UserFileGlobalId} after an upload failure.", userFile.GlobalId);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Checks the limitations defined for user files and throws
+    /// when any of them is exceeded.
+    /// </summary>
+    private async Task CheckLimitations(AppUser user, IReadOnlyCollection<UploadedFile> files, CancellationToken cancellationToken)
+    {
+        var maxFileSizeBytes = _configuration.GetValue<int>("Limitations:MaxAttachmentFileSizeBytes");
+        if (files.Any(file => file.Length > maxFileSizeBytes))
+        {
+            throw new LimitExceededException($"The maximum file size ({maxFileSizeBytes} bytes) has been exceeded.");
+        }
+    }
+
+    private DateTime GetUnattachedDeletionAt()
+    {
+        var delay = _configuration.GetValue<TimeSpan?>("UserFiles:UnattachedDeletionDelay")
+            ?? throw new InvalidOperationException("UserFiles:UnattachedDeletionDelay must be configured.");
+        if (delay <= TimeSpan.Zero)
+        {
+            throw new InvalidOperationException("UserFiles:UnattachedDeletionDelay must be greater than zero.");
+        }
+
+        return DateTime.UtcNow.Add(delay);
+    }
+
+}

@@ -1,0 +1,337 @@
+import { stores } from "@/app/rootStore";
+import ApprovalRequestSignatureField from "@/features/approvalRequests/components/ApprovalRequestSignatureField";
+import ApiTokenSettings from "@/features/identity/components/ApiTokenSettings";
+import MfaSettings from "@/features/identity/components/MfaSettings";
+import PasskeySettings from "@/features/identity/components/PasskeySettings";
+import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
+import { Forms } from "@/shared/components/dialogs/formStyles";
+import ImagePicker from "@/shared/components/images/ImagePicker";
+import NarrowContent from "@/shared/components/layout/NarrowContent";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { FieldLimits } from "@/shared/config/fieldLimits";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { useFormValidation } from "@/shared/hooks/useFormValidation";
+import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import {
+  NotificationChannel,
+  NotificationPreferenceType,
+  notificationChannelLabels,
+  notificationPreferenceTypeLabels,
+  notificationPreferenceTypeToNotificationTypes,
+} from "@/shared/models/notifications";
+import { UserNotificationPreference } from "@/shared/models/userProfile";
+import { Routes, type UserProfileTab } from "@/shared/routing/routes";
+import { StackSpacing } from "@/shared/theme/tokens";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { signatureRule, textRule } from "@/shared/utils/formValidation";
+import { notification } from "@/shared/utils/notifications";
+import {
+  PersistenceSuccessMessages,
+  showPersistenceSuccessNotification,
+} from "@/shared/utils/persistenceNotifications";
+import { Person } from "@mui/icons-material";
+import {
+  Box,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  Switch,
+  Tab,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tabs,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { observer } from "mobx-react-lite";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+const profileTabContentSx = { minWidth: 0, pt: 1 };
+const profileContainerSx = { display: "flex", flexDirection: "column" } as const;
+
+const notificationChannels = [NotificationChannel.InApp, NotificationChannel.Email];
+
+const notificationPreferenceTypes = [
+  NotificationPreferenceType.Requests,
+  NotificationPreferenceType.Tasks,
+  NotificationPreferenceType.Chat,
+  NotificationPreferenceType.Receipts,
+  NotificationPreferenceType.Billing,
+];
+
+interface UserProfilePageProps {
+  tab?: Exclude<UserProfileTab, "profile">;
+}
+
+const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
+  usePageTitle("User profile");
+  const navigate = useNavigate();
+  const profile = stores.userProfileStore.profile;
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [defaultTenantGlobalId, setDefaultTenantGlobalId] = useState<string | "">("");
+  const [defaultSignatureJson, setDefaultSignatureJson] = useState("");
+  const [notificationPreferences, setNotificationPreferences] = useState<UserNotificationPreference[]>([]);
+  const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
+  const selectedTab = tab ?? "profile";
+  const removeAvatarAction = useAsyncAction(ActionLoaders.userProfile.removeAvatar());
+  const saveAction = useAsyncAction(ActionLoaders.userProfile.save());
+
+  const validation = useFormValidation(
+    { firstName, lastName, defaultSignatureJson },
+    {
+      firstName: textRule("First name", FieldLimits.name),
+      lastName: textRule("Last name", FieldLimits.name),
+      defaultSignatureJson: signatureRule,
+    },
+  );
+
+  const handleSignatureChange = useCallback((value: string) => {
+    setDefaultSignatureJson(value);
+  }, []);
+
+  useEffect(() => {
+    if (!stores.userProfileStore.hasLoaded) {
+      const loader = ActionLoaders.pages.userProfile();
+      stores.commonStore.updateActionLoadingCounter(loader, 1);
+      void stores.userProfileStore.load().finally(() => stores.commonStore.updateActionLoadingCounter(loader, -1));
+    }
+  }, []);
+
+  useEffect(() => {
+    setFirstName(profile?.firstName ?? "");
+    setLastName(profile?.lastName ?? "");
+    setDefaultTenantGlobalId(profile?.defaultTenantGlobalId ?? "");
+    setDefaultSignatureJson(profile?.defaultSignatureJson ?? "");
+    setNotificationPreferences(profile?.notificationPreferences ?? []);
+  }, [profile]);
+
+  if (!stores.userProfileStore.hasLoaded || !profile) {
+    return null;
+  }
+
+  const isNotificationCategoryEnabled = (type: NotificationPreferenceType, channel: NotificationChannel) => {
+    const notificationTypes = notificationPreferenceTypeToNotificationTypes[type];
+    return notificationTypes.every(
+      (type) =>
+        notificationPreferences.find((preference) => preference.type === type && preference.channel === channel)
+          ?.isEnabled ?? true,
+    );
+  };
+
+  const handleNotificationToggle = (type: NotificationPreferenceType, channel: NotificationChannel) => {
+    const notificationTypes = notificationPreferenceTypeToNotificationTypes[type];
+    const isEnabled = isNotificationCategoryEnabled(type, channel);
+    setNotificationPreferences((current) => [
+      ...current.filter((preference) => !notificationTypes.includes(preference.type) || preference.channel !== channel),
+      ...notificationTypes.map((notificationType) => ({ type: notificationType, channel, isEnabled: !isEnabled })),
+    ]);
+  };
+
+  const handleSave = async () => {
+    if (!validation.validate()) {
+      notification.validationWarning();
+      return;
+    }
+    await validation.run(() =>
+      saveAction.run(async () => {
+        const saved = await stores.userProfileStore.update({
+          firstName: firstName.trim() || undefined,
+          lastName: lastName.trim() || undefined,
+          defaultTenantGlobalId: defaultTenantGlobalId === "" ? undefined : defaultTenantGlobalId,
+          defaultSignatureJson: defaultSignatureJson || undefined,
+          notificationPreferences,
+        });
+        if (!saved) {
+          return;
+        }
+
+        if (selectedAvatar) {
+          const uploaded = await stores.userProfileStore.uploadAvatar(selectedAvatar);
+          if (!uploaded) {
+            return;
+          }
+          setSelectedAvatar(null);
+        }
+        showPersistenceSuccessNotification(PersistenceSuccessMessages.profileSaved);
+      }),
+    );
+  };
+
+  const handleRemoveAvatar = async () => {
+    await removeAvatarAction.run(async () => {
+      setSelectedAvatar(null);
+      const deleted = await stores.userProfileStore.deleteAvatar();
+      if (deleted) {
+        showPersistenceSuccessNotification(PersistenceSuccessMessages.profileSaved);
+      }
+    });
+  };
+
+  return (
+    <Box sx={profileContainerSx}>
+      <PageBreadcrumbs
+        items={[
+          {
+            label: "User profile",
+          },
+        ]}
+      />
+      <NarrowContent>
+        <Stack component="form" noValidate spacing={StackSpacing.loose}>
+          <Tabs
+            aria-label="Profile sections"
+            value={selectedTab}
+            onChange={(_, value: UserProfileTab) => navigate(Routes.userProfileTabPath(value))}
+            variant="scrollable"
+          >
+            <Tab label="Profile" value="profile" />
+            <Tab label="Security" value="security" />
+            <Tab label="Passkeys" value="passkeys" />
+            {stores.applicationConfigurationStore.apiTokensAreEnabled && <Tab label="API tokens" value="apiTokens" />}
+            <Tab label="Signature" value="signature" />
+            <Tab label="Notifications" value="notifications" />
+          </Tabs>
+          <Box sx={profileTabContentSx}>
+            {selectedTab === "profile" && (
+              <Stack spacing={Forms.formStackSpacing}>
+                <ImagePicker
+                  alt="User avatar"
+                  fallback={<Person fontSize="large" />}
+                  imageSize={stores.applicationConfigurationStore.applicationConfiguration?.avatarImageSize ?? 256}
+                  imageUrl={getPublicApiUrl(profile.avatar)}
+                  onDelete={handleRemoveAvatar}
+                  onSave={setSelectedAvatar}
+                  selectedFile={selectedAvatar}
+                  title="Edit avatar"
+                />
+                <TextField
+                  label="First name"
+                  value={firstName}
+                  {...validation.field("firstName")}
+                  onChange={(event) => setFirstName(event.target.value)}
+                />
+                <TextField
+                  label="Last name"
+                  value={lastName}
+                  {...validation.field("lastName")}
+                  onChange={(event) => setLastName(event.target.value)}
+                />
+                {stores.tenantStore.tenants.length > 0 && (
+                  <FormControl>
+                    <InputLabel id="default-workspace-label">Default workspace</InputLabel>
+                    <Select
+                      labelId="default-workspace-label"
+                      label="Default workspace"
+                      value={defaultTenantGlobalId}
+                      onChange={(event) =>
+                        setDefaultTenantGlobalId(event.target.value === "" ? "" : event.target.value)
+                      }
+                    >
+                      <MenuItem value="">No default workspace</MenuItem>
+                      {stores.tenantStore.tenants.map((tenant) => (
+                        <MenuItem key={tenant.globalId} value={tenant.globalId}>
+                          {tenant.businessName}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
+              </Stack>
+            )}
+            {selectedTab === "notifications" && (
+              <Stack spacing={Forms.formStackSpacing}>
+                <TableContainer>
+                  <Table aria-label="Notification preferences">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Notification</TableCell>
+                        {notificationChannels.map((channel) => (
+                          <TableCell key={channel} align="center">
+                            {notificationChannelLabels[channel]}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {notificationPreferenceTypes
+                        .filter(
+                          (type) =>
+                            (type !== NotificationPreferenceType.Billing ||
+                              stores.applicationConfigurationStore.subscriptionsAreEnabled) &&
+                            (type !== NotificationPreferenceType.Receipts ||
+                              stores.applicationConfigurationStore.receiptsAreEnabled),
+                        )
+                        .map((type) => (
+                          <TableRow key={type}>
+                            <TableCell component="th" scope="row">
+                              {notificationPreferenceTypeLabels[type]}
+                            </TableCell>
+                            {notificationChannels.map((channel) => (
+                              <TableCell key={channel} align="center">
+                                <Switch
+                                  disabled={
+                                    type === NotificationPreferenceType.Billing && channel === NotificationChannel.InApp
+                                  }
+                                  checked={
+                                    type === NotificationPreferenceType.Billing && channel === NotificationChannel.InApp
+                                      ? false
+                                      : isNotificationCategoryEnabled(type, channel)
+                                  }
+                                  onChange={() => handleNotificationToggle(type, channel)}
+                                  slotProps={{
+                                    input: {
+                                      "aria-label": `${notificationPreferenceTypeLabels[type]} ${notificationChannelLabels[channel]}`,
+                                    },
+                                  }}
+                                />
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Stack>
+            )}
+            {selectedTab === "security" && <MfaSettings />}
+            {selectedTab === "passkeys" && <PasskeySettings />}
+            {selectedTab === "apiTokens" && stores.applicationConfigurationStore.apiTokensAreEnabled && (
+              <ApiTokenSettings />
+            )}
+            {selectedTab === "signature" && (
+              <Stack spacing={Forms.formStackSpacing}>
+                <Typography color="textSecondary">
+                  Your saved signature will be prefilled when you sign an approval request.
+                </Typography>
+                <ApprovalRequestSignatureField
+                  error={Boolean(validation.message("defaultSignatureJson"))}
+                  helperText={validation.message("defaultSignatureJson")}
+                  onChange={handleSignatureChange}
+                  value={defaultSignatureJson}
+                />
+              </Stack>
+            )}
+          </Box>
+          {["profile", "signature", "notifications"].includes(selectedTab) && (
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
+              <MainActionButton loading={saveAction.isRunning} onClick={handleSave}>
+                Save
+              </MainActionButton>
+            </Stack>
+          )}
+        </Stack>
+      </NarrowContent>
+    </Box>
+  );
+};
+
+export default observer(UserProfilePage);

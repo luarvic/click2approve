@@ -1,0 +1,169 @@
+import { stores } from "@/app/rootStore";
+import AuthForm from "@/features/identity/components/AuthForm";
+import AuthFormActions from "@/features/identity/components/AuthFormActions";
+import AuthTextLink from "@/features/identity/components/AuthTextLink";
+import AuthTextLinks from "@/features/identity/components/AuthTextLinks";
+import { AuthForms } from "@/features/identity/components/authFormStyles";
+import { authPath } from "@/features/identity/routing/returnUrl";
+import { useAuthReturnUrl } from "@/features/identity/routing/useAuthReturnUrl";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { notification } from "@/shared/utils/notifications";
+import { Validation } from "@/shared/utils/validationRules";
+import { validatePassword } from "@/shared/utils/validators";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import {
+  Box,
+  Container,
+  FormControl,
+  FormHelperText,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
+} from "@mui/material";
+import { observer } from "mobx-react-lite";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+
+const ResetPasswordPage = () => {
+  usePageTitle("Reset password");
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [showPasswordConfirmation, setShowPasswordConfirmation] = React.useState(false);
+  const [email, setEmail] = useState<string>("");
+  const [code, setCode] = useState<string>("");
+  const [passwordError, setPasswordError] = useState<boolean>(false);
+  const [passwordConfirmationError, setPasswordConfirmationError] = useState<boolean>(false);
+  const action = useAsyncAction(ActionLoaders.identity.resetPassword());
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const returnUrl = useAuthReturnUrl();
+
+  useEffect(() => {
+    const emailParam = searchParams.get("email");
+    const codeParam = searchParams.get("code");
+
+    if (emailParam && codeParam) {
+      setEmail(emailParam);
+      setCode(codeParam);
+    } else {
+      navigate("/notfound");
+    }
+  }, [navigate, searchParams]);
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const handleClickShowPasswordConfirmation = () => setShowPasswordConfirmation((show) => !show);
+
+  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const password = data.get("password");
+    const passwordConfirmation = data.get("passwordConfirmation");
+    if (
+      !password ||
+      !validatePassword(password.toString()) ||
+      !passwordConfirmation ||
+      password.toString() !== passwordConfirmation.toString()
+    ) {
+      setPasswordError(!password || !validatePassword(password.toString()));
+      setPasswordConfirmationError(
+        !password || !passwordConfirmation || password.toString() !== passwordConfirmation.toString(),
+      );
+      notification.validationWarning();
+    } else {
+      await action.run(async () => {
+        if (await stores.userAccountStore.resetPassword(email, code, password.toString())) {
+          navigate(authPath("/passwordResetComplete", returnUrl), { replace: true });
+        }
+      });
+    }
+  };
+
+  return (
+    <Container maxWidth={AuthForms.maxWidth}>
+      <Box sx={AuthForms.containerSx}>
+        <PageBreadcrumbs
+          items={[
+            {
+              label: "Reset password",
+            },
+          ]}
+        />
+        <AuthForm onSubmit={handleSubmit} noValidate>
+          <FormControl margin="normal" fullWidth variant={AuthForms.inputVariant} required>
+            <InputLabel error={passwordError}>Password</InputLabel>
+            <OutlinedInput
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
+              label="Password"
+              onChange={() => setPasswordError(false)}
+            />
+            <FormHelperText error id="passwordError">
+              {passwordError && Validation.passwordValidatorError}
+            </FormHelperText>
+          </FormControl>
+          <FormControl margin="normal" fullWidth variant={AuthForms.inputVariant} required>
+            <InputLabel error={passwordConfirmationError}>Password confirmation</InputLabel>
+            <OutlinedInput
+              id="passwordConfirmation"
+              name="passwordConfirmation"
+              type={showPasswordConfirmation ? "text" : "password"}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password confirmation visibility"
+                    onClick={handleClickShowPasswordConfirmation}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showPasswordConfirmation ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
+              label="Password confirmation"
+              onChange={() => setPasswordConfirmationError(false)}
+            />
+            <FormHelperText error id="passwordConfirmationError">
+              {!passwordError && passwordConfirmationError && "Does not match password"}
+            </FormHelperText>
+          </FormControl>
+          <AuthFormActions>
+            <MainActionButton loading={action.isRunning} type="submit" fullWidth>
+              Reset
+            </MainActionButton>
+            <AuthTextLinks>
+              <AuthTextLink component="button" type="button" onClick={() => navigate(authPath("/signIn", returnUrl))}>
+                Sign in
+              </AuthTextLink>
+              <AuthTextLink component="button" type="button" onClick={() => navigate(authPath("/signUp", returnUrl))}>
+                Sign up
+              </AuthTextLink>
+            </AuthTextLinks>
+          </AuthFormActions>
+        </AuthForm>
+      </Box>
+    </Container>
+  );
+};
+
+export default observer(ResetPasswordPage);

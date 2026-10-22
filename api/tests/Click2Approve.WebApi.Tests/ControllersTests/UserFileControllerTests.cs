@@ -1,192 +1,153 @@
 using System.Net;
-using Click2Approve.WebApi.Models.DTOs;
-using Click2Approve.WebApi.Persistence;
-using Click2Approve.WebApi.Tests.Extensions;
+using Click2Approve.Domain.Models;
+using Click2Approve.Infrastructure.Persistence;
 using Click2Approve.WebApi.Tests.Helpers;
-using Click2Approve.WebApi.Tests.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Click2Approve.WebApi.Tests.ControllersTests;
 
-/// <summary>
-/// Tests UserFileController class.
-/// </summary>
-public class UserFileControllerTests(CustomWebApplicationFactory<Program> applicationFactory) : IClassFixture<CustomWebApplicationFactory<Program>>
+/// <summary>Tests upload, resource-authorized download, and deletion independently.</summary>
+public sealed class UserFileControllerTests(CustomWebApplicationFactory<Program> factory)
+    : IClassFixture<CustomWebApplicationFactory<Program>>
 {
-    private readonly HttpClient _client = applicationFactory.CreateClient();
-    private readonly ApiDbContext _db = applicationFactory.Services.GetRequiredService<ApiDbContext>();
-
-    /// <summary>
-    /// Makes sure an anonymous user cannot access the controller's endpoints.
-    /// </summary>
     [Theory]
-    [InlineData("POST", "api/file/upload")]
-    [InlineData("GET", "api/file/list")]
-    [InlineData("GET", "api/file/download")]
-    [InlineData("GET", "api/file/downloadBase64")]
-    [InlineData("DELETE", "api/file")]
-    public async Task AllEndpoints_WhenRequestedWithoutBearerToken_ShouldReturnUnauthorized(string httpMethod, string url)
+    [InlineData("POST", "files/upload")]
+    [InlineData("GET", "requests/00000000-0000-0000-0000-000000000002/attachments/00000000-0000-0000-0000-000000000003/downloadBase64")]
+    [InlineData("GET", "tasks/00000000-0000-0000-0000-000000000003/requestAttachments/00000000-0000-0000-0000-000000000004/downloadBase64")]
+    [InlineData("DELETE", "files/00000000-0000-0000-0000-000000000002")]
+    public async Task AnonymousRequests_ReturnUnauthorized(string method, string path)
     {
-        var request = new HttpRequestMessage(HttpMethod.Parse(httpMethod), url);
-        var response = await _client.SendAsync(request);
+        using var client = factory.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Parse(method), $"api/v1/tenants/{Guid.NewGuid()}/{path}");
+        using var response = await client.SendAsync(request);
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
-    /// <summary>
-    /// Tests if:
-    ///     1. Uploading files works correctly.
-    ///     2. Owners can list their files.
-    ///     3. Owners can download their files.
-    ///     4. Users cannot download and delete files owned by other users.
-    ///     5. Approvers can download files that were sent to them.
-    ///     6. Owners can delete their files.
-    /// </summary>
     [Fact]
-    public async Task AllEndpoints_WhenRequestedWithBearerToken_ShouldWorkProperly()
+    public async Task MissingResources_ReturnNotFound()
     {
-        // Arrange test data.
-        var testData = new List<UserFileControllerTestDataEntry>
-        {
-            new()
-            {
-                Credentials = new Credentials { Email = "user1@UserFileControllerTests.com", Password = "ZAQ12wsx!" },
-                FilesToUpload = new Dictionary<string, string>
-                {
-                    { "textFile1.txt", "textFile1 content" },
-                    { "textFile2.txt", "textFile2 content" }
-                }
-            },
-            new()
-            {
-                Credentials = new Credentials { Email = "user2@UserFileControllerTests.com", Password = "ZAQ12wsx!" },
-                FilesToUpload = new Dictionary<string, string>
-                {
-                    { "textFile3.txt", "textFile2 content" }
-                }
-            },
-        };
-
-        // Register users.
-        foreach (var testDataEntry in testData)
-        {
-            await _client.RegisterAsync(testDataEntry.Credentials, CancellationToken.None);
-        }
-
-        // 1. Uploading files works correctly.
-        foreach (var testDataEntry in testData)
-        {
-            // Log in.
-            var loginData = await _client.LogInAsync(testDataEntry.Credentials, CancellationToken.None);
-
-            var uploadedFiles = await _client.UploadTextFilesAsync(loginData.AccessToken, testDataEntry.FilesToUpload, CancellationToken.None);
-            Assert.Equal(testDataEntry.FilesToUpload.Count, uploadedFiles.Count);
-        }
-
-        // 2. Owners can list their files.
-        foreach (var testDataEntry in testData)
-        {
-            // Log in.
-            var loginData = await _client.LogInAsync(testDataEntry.Credentials, CancellationToken.None);
-
-            var userFiles = await _client.ListFilesAsync(loginData.AccessToken, CancellationToken.None);
-            Assert.Equal(testDataEntry.FilesToUpload.Count, userFiles.Count);
-            foreach (var file in testDataEntry.FilesToUpload)
-            {
-                Assert.Contains(userFiles, f => f.Name == file.Key);
-            }
-        }
-
-        // 3. Owners can download their files.
-        foreach (var testDataEntry in testData)
-        {
-            // Log in.
-            var loginData = await _client.LogInAsync(testDataEntry.Credentials, CancellationToken.None);
-
-            // Take files owned by user.
-            var filesOwnedByUser = _db.UserFiles
-                .Where(x => x.Owner.NormalizedEmail!.Equals(testDataEntry.Credentials.Email.ToUpper()))
-                .ToList();
-
-            foreach (var file in filesOwnedByUser)
-            {
-                var originalFile = testDataEntry.FilesToUpload.Single(f => f.Key == file.Name);
-
-                var downloadedFileContent = await _client.DownloadFileAsync(loginData.AccessToken, file.Id, CancellationToken.None);
-                Assert.Equal(originalFile.Value, downloadedFileContent);
-
-                var downloadFileBase64 = await _client.DownloadBase64Async(loginData.AccessToken, file.Id, CancellationToken.None);
-                var originalFileBase64 = $"data:{MimeTypes.GetMimeType(originalFile.Key)};base64,{Converters.GetBase64FromString(originalFile.Value)}";
-                Assert.Equal(originalFileBase64, downloadFileBase64);
-            }
-        }
-
-        // 4. Users cannot download and delete files owned by other users.
-        foreach (var testDataEntry in testData)
-        {
-            // Log in.
-            var loginData = await _client.LogInAsync(testDataEntry.Credentials, CancellationToken.None);
-
-            // Take files owned by other users.
-            var filesOwnedByOtherUsers = _db.UserFiles
-                .Where(x => !x.Owner.NormalizedEmail!.Equals(testDataEntry.Credentials.Email.ToUpper()))
-                .ToList();
-
-            foreach (var file in filesOwnedByOtherUsers)
-            {
-                await Assert.ThrowsAsync<Exception>(async () =>
-                    await _client.DownloadFileAsync(loginData.AccessToken, file.Id, CancellationToken.None));
-                await Assert.ThrowsAsync<Exception>(async () =>
-                    await _client.DeleteFileAsync(loginData.AccessToken, file.Id, CancellationToken.None));
-            }
-        }
-
-        // 5. Approvers can download files that were sent to them.
-        // Let's prepare an approval request.
-        var requester = testData.First();
-        var approver = testData.First(x => x.Credentials.Email != requester.Credentials.Email);
-        var filesOwnedByRequester = _db.UserFiles
-            .Where(x => x.Owner.NormalizedEmail!.Equals(requester.Credentials.Email.ToUpper()))
-            .ToList();
-        var payload = new ApprovalRequestSubmitDto
-        {
-            UserFileIds = filesOwnedByRequester.Select(x => x.Id).ToList(),
-            Emails = [approver.Credentials.Email]
-        };
-
-        // Log in with requester and submit the request.
-        var requesterLoginData = await _client.LogInAsync(requester.Credentials, CancellationToken.None);
-        await _client.SubmitApprovalRequestAsync(requesterLoginData.AccessToken, payload, CancellationToken.None);
-
-        // Log in with approver and download the files owned by requester.
-        var approverLoginData = await _client.LogInAsync(approver.Credentials, CancellationToken.None);
-        foreach (var file in filesOwnedByRequester)
-        {
-            // Downloading should not throw.
-            await _client.DownloadFileAsync(approverLoginData.AccessToken, file.Id, CancellationToken.None);
-            await _client.DownloadBase64Async(approverLoginData.AccessToken, file.Id, CancellationToken.None);
-        }
-
-        // 6. Owners can delete their files.
-        foreach (var testDataEntry in testData)
-        {
-            // Log in.
-            var loginData = await _client.LogInAsync(testDataEntry.Credentials, CancellationToken.None);
-
-            // Take files owned by user.
-            var filesOwnedByUser = _db.UserFiles
-                .Where(x => x.Owner.NormalizedEmail!.Equals(testDataEntry.Credentials.Email.ToUpper()))
-                .ToList();
-
-            // Delete files.
-            foreach (var file in filesOwnedByUser)
-            {
-                var originalFile = testDataEntry.FilesToUpload.Single(f => f.Key == file.Name);
-                await _client.DeleteFileAsync(loginData.AccessToken, file.Id, CancellationToken.None);
-            }
-
-            Assert.Empty(_db.UserFiles
-                .Where(x => x.Owner.NormalizedEmail!.Equals(testDataEntry.Credentials.Email.ToUpper()))
-                .ToList());
-        }
+        using var session = await ApiTestSession.CreateAsync(factory.CreateClient());
+        var missing = Guid.NewGuid();
+        Assert.Equal(HttpStatusCode.NotFound, (await session.Client.DeleteAsync($"{session.Root}/files/{missing}")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await session.Client.GetAsync($"{session.Root}/requests/{missing}/attachments/{missing}/downloadBase64")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await session.Client.GetAsync($"{session.Root}/tasks/{missing}/requestAttachments/{missing}/downloadBase64")).StatusCode);
     }
+
+    [Fact]
+    public async Task Upload_PersistsOwnedPrivateFileAndSchedulesUnattachedCleanup()
+    {
+        using var session = await ApiTestSession.CreateAsync(factory.CreateClient());
+        var fileId = await session.UploadAsync();
+        await using var scope = factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var file = await db.UserFiles.Include(item => item.Owner).Include(item => item.Tenant)
+            .SingleAsync(item => item.GlobalId == fileId);
+        Assert.Equal(session.Email, file.Owner.Email);
+        Assert.Equal(session.TenantId, file.Tenant.GlobalId);
+        Assert.Equal(UserFileStorageType.Private, file.StorageType);
+        Assert.Equal(UserFileStatus.Uploaded, file.Status);
+        Assert.Equal("approval.txt", file.Name);
+        Assert.True(file.Size > 0);
+        Assert.True(file.ScheduledForDeletionAt > file.CreatedAt);
+    }
+
+    [Theory]
+    [InlineData(52428800, HttpStatusCode.OK)]
+    [InlineData(52428801, HttpStatusCode.BadRequest)]
+    public async Task Upload_EnforcesThe50MiBPerAttachmentBoundary(int size, HttpStatusCode expectedStatus)
+    {
+        using var session = await ApiTestSession.CreateAsync(factory.CreateClient());
+        using var body = new MultipartFormDataContent();
+        body.Add(new ByteArrayContent(new byte[size]), "files", "large.pdf");
+        using var response = await session.Client.PostAsync($"{session.Root}/files/upload", body);
+        Assert.Equal(expectedStatus, response.StatusCode);
+        if (expectedStatus == HttpStatusCode.BadRequest)
+            Assert.Contains("52428800 bytes", await response.Content.ReadAsStringAsync());
+
+        await using var scope = factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+        Assert.Equal(expectedStatus == HttpStatusCode.OK,
+            await db.UserFiles.AnyAsync(file => file.Owner.Email == session.Email && file.Name == "large.pdf"));
+    }
+
+    [Fact]
+    public async Task UnattachedDelete_RequiresOwnershipAndRemovesOnlyTheSelectedFile()
+    {
+        using var owner = await ApiTestSession.CreateAsync(factory.CreateClient());
+        using var outsider = await ApiTestSession.CreateAsync(factory.CreateClient());
+        var file = await owner.UploadAsync();
+        var retained = await owner.UploadAsync();
+        Assert.Equal(HttpStatusCode.NotFound, (await outsider.Client.DeleteAsync($"{outsider.Root}/files/{file}")).StatusCode);
+        await using var scope = factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+        Assert.True(await db.UserFiles.AnyAsync(item => item.GlobalId == file));
+        (await owner.Client.DeleteAsync($"{owner.Root}/files/{file}")).EnsureSuccessStatusCode();
+        Assert.False(await db.UserFiles.AnyAsync(item => item.GlobalId == file));
+        Assert.True(await db.UserFiles.AnyAsync(item => item.GlobalId == retained));
+        Assert.Equal(HttpStatusCode.NotFound, (await owner.Client.DeleteAsync($"{owner.Root}/files/{file}")).StatusCode);
+    }
+
+    [Fact]
+    public async Task Download_UsesRequestAccessAndRejectsFilesOutsideTheRequest()
+    {
+        using var owner = await ApiTestSession.CreateAsync(factory.CreateClient());
+        using var assignee = await ApiTestSession.CreateAsync(factory.CreateClient());
+        var file = await owner.UploadAsync();
+        var unrelated = await owner.UploadAsync();
+        var request = await owner.SubmitAsync(Payload(file, assignee.Email));
+        await using var scope = factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var task = await db.ApprovalRequestTasks.SingleAsync(item => item.ApprovalRequest.GlobalId == request);
+        var expected = "data:text/plain;base64," + Convert.ToBase64String("Approval document"u8.ToArray());
+        Assert.Equal(expected, await owner.Client.GetStringAsync($"{owner.Root}/requests/{request}/attachments/{file}/downloadBase64"));
+        Assert.Equal(expected, await assignee.Client.GetStringAsync($"{assignee.Root}/tasks/{task.GlobalId}/requestAttachments/{file}/downloadBase64"));
+        Assert.Equal(HttpStatusCode.NotFound,
+            (await assignee.Client.GetAsync($"{assignee.Root}/tasks/{task.GlobalId}/requestAttachments/{unrelated}/downloadBase64")).StatusCode);
+        // Attachments added after task creation remain visible through the authorized request.
+        db.ApprovalRequestFiles.Add(new ApprovalRequestFile
+        {
+            ApprovalRequestId = task.ApprovalRequestId,
+            UserFileId = (await db.UserFiles.SingleAsync(item => item.GlobalId == unrelated)).Id,
+            Sequence = 1,
+            RevisionAction = ApprovalRequestFileRevisionAction.Unchanged
+        });
+        await db.SaveChangesAsync();
+        Assert.Equal(expected, await assignee.Client.GetStringAsync($"{assignee.Root}/tasks/{task.GlobalId}/requestAttachments/{unrelated}/downloadBase64"));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task AttachedDelete_ReturnsBusinessErrorAndPreservesMetadataAndBytes(bool staleStatus)
+    {
+        using var owner = await ApiTestSession.CreateAsync(factory.CreateClient());
+        using var assignee = await ApiTestSession.CreateAsync(factory.CreateClient());
+        var file = await owner.UploadAsync();
+        var request = await owner.SubmitAsync(Payload(file, assignee.Email));
+        var download = $"{owner.Root}/requests/{request}/attachments/{file}/downloadBase64";
+        var before = await owner.Client.GetStringAsync(download);
+        await using var scope = factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var row = await db.UserFiles.SingleAsync(item => item.GlobalId == file);
+        if (staleStatus)
+        {
+            row.Status = UserFileStatus.Uploaded;
+            await db.SaveChangesAsync();
+        }
+        using var response = await owner.Client.DeleteAsync($"{owner.Root}/files/{file}");
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+        Assert.True(await db.UserFiles.AnyAsync(item => item.GlobalId == file));
+        Assert.True(await db.ApprovalRequestFiles.AnyAsync(item => item.UserFileId == row.Id));
+        Assert.Equal(before, await owner.Client.GetStringAsync(download));
+    }
+
+    private static object Payload(Guid file, string email) => new
+    {
+        Title = "File access approval",
+        RequestFiles = new[] { new { UserFileGlobalId = file, Sequence = 0 } },
+        Steps = new[] { new { Sequence = 1, Mode = ApprovalStepMode.Any, Action = ApprovalRequestTaskAction.Approve,
+            Assignees = new[] { new { Type = AssigneeType.User, Email = email } } } }
+    };
 }

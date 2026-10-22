@@ -1,0 +1,69 @@
+using Click2Approve.Domain.Models;
+
+namespace Click2Approve.Application.Services.Notifications;
+
+/// <summary>
+/// Implements user notification preference operations.
+/// </summary>
+public class UserNotificationPreferenceService(IUserNotificationPreferenceRepository notificationPreferenceRepository)
+    : IUserNotificationPreferenceService
+{
+    private readonly IUserNotificationPreferenceRepository _notificationPreferenceRepository = notificationPreferenceRepository;
+
+    public async Task<List<UserNotificationPreferenceResult>> ListAsync(AppUser user, CancellationToken cancellationToken)
+    {
+        var savedPreferences = await _notificationPreferenceRepository.ListAsync(user.Id, cancellationToken);
+
+        return [.. AllTypes().SelectMany(type => AllChannels().Select(channel =>
+        {
+            var preference = savedPreferences.FirstOrDefault(p => p.Type == type && p.Channel == channel);
+            return new UserNotificationPreferenceResult
+            {
+                Type = type,
+                Channel = channel,
+                IsEnabled = preference?.IsEnabled ?? true
+            };
+        }))];
+    }
+
+    public async Task ReplaceAsync(AppUser user, List<UserNotificationPreferenceCommand> preferences, CancellationToken cancellationToken)
+    {
+        var requestedPreferences = preferences
+            .Where(preference => AllChannels().Contains(preference.Channel) && AllTypes().Contains(preference.Type))
+            .GroupBy(preference => new { preference.Type, preference.Channel })
+            .Select(group => group.Last())
+            .ToList();
+
+        var existingPreferences = await _notificationPreferenceRepository.ListForUpdateAsync(user.Id, cancellationToken);
+
+        foreach (var requestedPreference in requestedPreferences)
+        {
+            var existingPreference = existingPreferences.FirstOrDefault(preference =>
+                preference.Type == requestedPreference.Type && preference.Channel == requestedPreference.Channel);
+            if (existingPreference is null)
+            {
+                await _notificationPreferenceRepository.AddAsync(new UserNotificationPreference
+                {
+                    UserId = user.Id,
+                    User = user,
+                    Type = requestedPreference.Type,
+                    Channel = requestedPreference.Channel,
+                    IsEnabled = requestedPreference.IsEnabled
+                }, cancellationToken);
+                continue;
+            }
+
+            existingPreference.IsEnabled = requestedPreference.IsEnabled;
+        }
+    }
+
+    public async Task<bool> IsEnabledAsync(AppUser user, NotificationType type, NotificationChannel channel, CancellationToken cancellationToken)
+    {
+        var preference = await _notificationPreferenceRepository.GetAsync(user.Id, type, channel, cancellationToken);
+        return preference?.IsEnabled ?? true;
+    }
+
+    private static NotificationChannel[] AllChannels() => [NotificationChannel.InApp, NotificationChannel.Email];
+
+    private static NotificationType[] AllTypes() => Enum.GetValues<NotificationType>();
+}

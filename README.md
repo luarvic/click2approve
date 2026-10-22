@@ -1,146 +1,85 @@
-![Main build status](https://github.com/luarvic/click2approve/actions/workflows/main-build.yml/badge.svg)
+[![Main build status](https://github.com/luarvic/click2approve/actions/workflows/main-build.yml/badge.svg)](https://github.com/luarvic/click2approve/actions/workflows/main-build.yml)
 
-# Table of Contents
+# Click2Approve
 
-1. [Product overview.](#product-overview)
-2. [Demo.](#demo)
-3. [How to run locally.](#how-to-run-locally)
-4. [How to host on-premises.](#how-to-host-on-premises)
-5. [Architecture and design decisions.](#architecture-and-design-decisions)
-6. [License and trademark.](#license-and-trademark)
+Click2Approve is an open-source document approval and workflow system. Upload
+files, request approvals or electronic signatures, and track decisions in one
+place. This MIT-licensed edition is the core used by the commercial version,
+sharing its workflow engine and web interface.
 
-# Product Overview
+Need organization workspaces, teams, workflow templates, discussions, revisions,
+or verifiable receipts? Explore the [commercial service](https://click2approve.com/)
+and the [edition comparison](ui/docs/content/docs/open-source.md).
 
-`click2approve` is a free, open-source, cross-platform document approval system with a responsive user interface that allows you to:
+## Table of contents
 
-- Upload documents.
-- Send documents for approval by specifying a list of approvers' email addresses.
-- Notify requesting and approving parties via email.
-- Keep track of approval requests.
+- [Features](#features)
+- [Run locally](#run-locally)
+- [Documentation](#documentation)
 
-# Demo
+## Features
 
-Please visit [click2approve.com](https://click2approve.com/) to see how it works.
+- **Document approval workflows:** Build multi-step workflows with sequential or
+  parallel assignees and all/any completion rules.
+- **Flexible task actions:** Request approval, signature, confirmation,
+  acknowledgement, review, verification, acceptance, or completion, with optional
+  instructions and required comments.
+- **Electronic signatures:** Collect a legal name and drawn signature with IP
+  address and browser evidence; save a reusable signature in your profile.
+- **File uploads and previews:** Attach multiple documents and preview files
+  while reviewing requests and tasks.
+- **Request and task tracking:** Follow progress and decision history, manage
+  incoming tasks, and cancel or delete requests.
+- **Email and in-app notifications:** Keep requesters and assignees informed of
+  tasks and outcomes, with personal notification preferences.
+- **Account security:** Use password or passkey sign-in, authenticator-app MFA,
+  recovery codes, email confirmation, and password reset.
+- **First-time user guide:** Tour profile settings, notifications, and navigation;
+  replay the guide from Support.
+- **Responsive web interface:** Manage personal workflows from desktop or mobile.
 
-> ⭐ If you find this project useful, please give the repository a star to support ongoing development and visibility.
+## Run locally
 
-# How to Run Locally
-
-## Prerequisites
-
-- You have installed the latest version of [Docker Desktop](https://docs.docker.com/get-docker/).
-- You have installed a [Git client](https://git-scm.com/downloads).
-
-## Getting Started
-
-### 1. Clone the Repository
-
-Run in a terminal:
-
-```bash
-git clone git@github.com:luarvic/click2approve.git
-```
-
-### 2. Open `click2approve` Directory
-
-Run in a terminal:
+Install [Docker with Compose](https://docs.docker.com/get-docker/) and
+[Git](https://git-scm.com/downloads), then run:
 
 ```bash
+git clone https://github.com/luarvic/click2approve.git
 cd click2approve
-```
-
-### 3. Build and Run Docker Images
-
-Run in a terminal:
-
-```bash
-docker compose build --no-cache
+docker compose build
 docker compose up -d
 ```
 
-Wait until you see:
+Open [http://localhost:3333/app/](http://localhost:3333/app/) and create an account.
+The landing page and user guides are at [http://localhost:3333/](http://localhost:3333/).
+The API reference is at [http://localhost:5555/swagger/](http://localhost:5555/swagger/).
 
-```
- ✔ Network click2approve_default Created
- ✔ Container click2approve-db-1  Created
- ✔ Container click2approve-api-1 Created
- ✔ Container click2approve-ui-1  Created
-```
+Compose starts the UI, API, event publisher, event consumer, SQL Server, and
+Azurite (local Blob and Queue Storage). No external accounts or secrets are
+needed: the local profiles include development credentials, disable email
+confirmation, and turn off email delivery. In-app notifications still use both workers.
+See [configuration](docs/configuration.md) to enable email or configure your own domain.
 
-### 4. Verify Running Docker Containers
-
-Run in a terminal:
+On Apple Silicon, enable x86-64 emulation in Docker or Colima for the SQL Server
+`linux/amd64` image.
 
 ```bash
-docker ps -a
+docker compose ps          # Check service status
+docker compose logs -f api # View API logs
+docker compose down       # Stop and remove containers
 ```
 
-Make sure all of the following containers are up and running:
+**Local data is disposable:** Compose defines no persistent data volumes.
+`docker compose down` removes the database and emulator data with their containers.
 
-- `click2approve-api-1`.
-- `click2approve-db-1`.
-- `click2approve-ui-1`.
+## Documentation
 
-(Find more details about those containers below in [Architecture and design decisions](#architecture-and-design-decisions).)
+- [Local development and testing](docs/development.md) — run from source and validate changes.
+- [Configuration](docs/configuration.md) — settings, secrets, environment variables, and email.
+- [Architecture](docs/architecture.md) — repository layout, components, data flow, and commercial extensions.
+- [Deployment overview](docs/deployment.md) — Azure and on-premises hosting considerations.
+- [License and trademark](docs/license-and-trademark.md) — MIT terms and brand use.
+- [User guides](ui/docs/content/docs/index.md) — product documentation; check the
+  [edition comparison](ui/docs/content/docs/open-source.md) for open-source availability.
 
-### 5. Open the Web Page
-
-In the web browser open [http://localhost:3333/](http://localhost:3333/).
-
-You should see a page with the `click2approve` title.
-
-Welcome to the `click2approve` service! 🎉🎉🎉
-
-# How to Host On-Premises
-
-The same Docker-based setup can be used as a foundation: run the containers on your own servers, place the UI and API behind your internal load balancer or reverse proxy, and persist the database volume on managed storage. The steps above cover a local run, but the approach is identical for an on-prem deployment with your environment-specific networking, DNS, and TLS configuration.
-
-For production on-prem, consider using a dedicated VM or Kubernetes node pool, configuring externalized secrets for database credentials and email settings, and enabling regular backups for the database volume. These details depend on your infrastructure, so adapt them to your internal standards.
-
-# Architecture and Design Decisions
-
-The application consists of the following microservices:
-
-- Client-side UI (`React TypeScript v18.2`).
-- Server-side API (`ASP.NET Core v10.0`).
-- Relational database (`MySQL 8.4.0`).
-
-All microservices are containerized with [Docker](https://docs.docker.com/).
-
-## Client-side UI
-
-It provides a graphical interface, allowing users to interact with the application via a web browser.
-
-It is written in [TypeScript](https://www.typescriptlang.org/) and uses:
-
-- [React](https://react.dev/) library;
-- [Material UI](https://mui.com/material-ui/) CSS framework;
-- [MobX](https://mobx.js.org/react-integration.html) state management framework.
-
-The build transforms the TypeScript code into a JavaScript single-page application (SPA). The `ui` container hosts [Nginx](https://www.nginx.com/) web server that returns the SPA to the users. The SPA handles HTTP requests coming from the users and interacts with the `Server-side API` microservice.
-
-## Server-side API
-
-It provides HTTP endpoints that implement business logic.
-
-It is written in [C#](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp/) and uses:
-
-- [ASP.NET Core](https://dotnet.microsoft.com/en-us/apps/aspnet) framework.
-- [Entity Framework](https://learn.microsoft.com/en-us/ef/).
-- [ASP.NET Identity](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity) framework.
-
-The build compiles the C# code into a self-hosted web API application that handles HTTP requests coming from the UI.
-The application interacts with the relational database and the filesystem to manage user data.
-
-## Relational Database
-
-It provides the relational data storage required for system operation.
-
-# License and Trademark
-
-This project is licensed under the MIT License. See [LICENSE](LICENSE).
-
-Click2Approve is a registered trademark of Rostislav Semenov in the United
-States. The MIT License applies to the software, but does not grant permission
-to use the Click2Approve name, logo, or trademarks except as required to
-identify this software.
+For bugs and feature requests, [open a GitHub issue](https://github.com/luarvic/click2approve/issues).

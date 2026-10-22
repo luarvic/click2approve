@@ -1,0 +1,54 @@
+import { Flex } from "@/shared/components/layout/flexStyles";
+import { StackSpacing } from "@/shared/theme/tokens";
+import { getLocaleDateTimeString } from "@/shared/utils/dateTime";
+import type { SxProps } from "@mui/material";
+import { Box, Stack, Tooltip, Typography } from "@mui/material";
+import type { Theme } from "@mui/material/styles";
+import type { ReactNode } from "react";
+
+interface TimelineTimestampProps {
+  color?: string;
+  date?: Date;
+  icon?: ReactNode;
+  iconSize?: "inherit" | "small";
+  label?: string;
+  sx?: SxProps<Theme>;
+  text?: string;
+}
+
+const timestampColorSx = (color: string): SxProps<Theme> => ({ color });
+
+const smallIconSx: SxProps<Theme> = {
+  alignItems: "center",
+  display: "inline-flex",
+  fontSize: "1.25rem",
+  lineHeight: 1,
+};
+
+const TimelineTimestamp: React.FC<TimelineTimestampProps> = ({
+  color = "text.secondary",
+  date,
+  icon,
+  iconSize = "inherit",
+  label,
+  sx,
+  text,
+}) => (
+  <Stack direction="row" spacing={StackSpacing.tight} sx={Flex.alignCenterSx}>
+    {icon &&
+      (label ? (
+        <Tooltip title={label}>
+          <Box component="span" sx={iconSize === "small" ? smallIconSx : undefined}>
+            {icon}
+          </Box>
+        </Tooltip>
+      ) : (
+        icon
+      ))}
+    <Typography sx={[timestampColorSx(color), ...(Array.isArray(sx) ? sx : [sx])]} variant="caption">
+      {text ?? (date ? getLocaleDateTimeString(date) : "")}
+    </Typography>
+  </Stack>
+);
+
+export default TimelineTimestamp;

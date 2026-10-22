@@ -1,0 +1,154 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+
+const uiRoot = fileURLToPath(new URL("../../", import.meta.url));
+const analyticsId = process.env.GOOGLE_ANALYTICS_ID?.trim() || "";
+const image = "click2approve-ui:nginx-smoke";
+const docker = (...args) => execFileSync("docker", args, { cwd: uiRoot, encoding: "utf8" }).trim();
+
+execFileSync(
+  "docker",
+  ["build", "--build-arg", "ENV=production", "--build-arg", `GOOGLE_ANALYTICS_ID=${analyticsId}`, "-t", image, "."],
+  {
+    cwd: uiRoot,
+    stdio: "inherit",
+  },
+);
+
+const container = docker("run", "--rm", "-d", "-p", "127.0.0.1::3333", image);
+try {
+  console.log(docker("exec", container, "nginx", "-t"));
+  const port = docker("port", container, "3333/tcp").split(":").at(-1);
+  const origin = `http://127.0.0.1:${port}`;
+  const request = (path, options = {}) =>
+    fetch(`${origin}${path}`, {
+      redirect: "manual",
+      ...options,
+      headers: { Host: "click2approve.com", "X-Forwarded-Proto": "https", ...options.headers },
+    });
+
+  function checkHeaders(response, cache = "no-cache") {
+    assert.equal(response.headers.get("cache-control"), cache);
+    assert.equal(response.headers.get("x-content-type-options"), "nosniff");
+    assert.equal(response.headers.get("x-frame-options"), "SAMEORIGIN");
+    assert.equal(response.headers.get("referrer-policy"), "strict-origin-when-cross-origin");
+    assert.equal(response.headers.get("server"), "nginx");
+  }
+
+  for (const path of ["/app", "/docs", "/docs/getting-started"]) {
+    const response = await request(`${path}?source=smoke`);
+    assert.equal(response.status, 301, path);
+    assert.equal(response.headers.get("location"), `${path}/?source=smoke`);
+    checkHeaders(response);
+    await response.text();
+  }
+
+  for (const path of ["/", "/docs/", "/docs/getting-started/", "/privacy/", "/terms/", "/contact/", "/app/"]) {
+    const response = await request(path);
+    assert.equal(response.status, 200, path);
+    checkHeaders(response);
+    const html = await response.text();
+    assert.match(html, /<!doctype html>/i);
+    if (analyticsId && !path.startsWith("/app/")) {
+      assert.ok(html.includes(`data-analytics-id="${analyticsId}"`), path);
+      assert.ok(html.includes("analytics-consent.js"), path);
+      assert.ok(html.includes("analytics-root") && html.includes("data-analytics-settings"), path);
+      assert.doesNotMatch(html, /googletagmanager\.com|google-analytics\.com|__md_analytics/, path);
+    } else {
+      assert.doesNotMatch(
+        html,
+        /googletagmanager\.com|google-analytics\.com|gtag\(|analytics-consent|analytics-settings/,
+        path,
+      );
+    }
+  }
+
+  for (const path of [
+    "/app/logo-with-text.png",
+    "/app/logo-wall-to-wall.svg",
+    "/app/logo-narrow.svg",
+    "/app/styles.css",
+  ]) {
+    const response = await request(path);
+    assert.equal(response.status, 200, path);
+    checkHeaders(response);
+    assert.ok((await response.arrayBuffer()).byteLength > 0, path);
+  }
+
+  const shell = await (await request("/app/index.html")).text();
+  const versionResponse = await request("/app/version.json");
+  assert.equal(versionResponse.status, 200);
+  assert.match(versionResponse.headers.get("content-type"), /application\/json/);
+  checkHeaders(versionResponse, "no-store");
+  const { buildId } = await versionResponse.json();
+  assert.match(buildId, /^[0-9a-f-]{36}$/);
+  const deepLink = await request("/app/unknown-route?source=smoke");
+  assert.equal(deepLink.status, 200);
+  checkHeaders(deepLink);
+  assert.equal(await deepLink.text(), shell);
+
+  for (const path of [
+    "/asda",
+    "/docs/missing-page",
+    "/404.html",
+    "/app/assets/missing.js",
+    "/app/help.html",
+    "/app/help.css",
+    "/app/favicon.ico",
+    "/app/logo-email.png",
+  ]) {
+    const response = await request(path);
+    assert.equal(response.status, 404, path);
+    checkHeaders(response);
+    assert.match(await response.text(), /404 - Not found/);
+  }
+
+  const assetPaths = [...shell.matchAll(/(?:src|href)="(\/app\/assets\/[^"?#]+\.(?:js|css))"/g)].map(
+    (match) => match[1],
+  );
+  assert.ok(
+    assetPaths.some((path) => path.endsWith(".js")),
+    "App script must be fingerprinted",
+  );
+  assert.ok(
+    assetPaths.some((path) => path.endsWith(".css")),
+    "App stylesheet must be fingerprinted",
+  );
+  let embeddedBuildIdFound = false;
+  for (const path of assetPaths) {
+    const response = await request(path, { headers: { "Accept-Encoding": "gzip" } });
+    assert.equal(response.status, 200, path);
+    checkHeaders(response, "public, max-age=31536000, immutable");
+    assert.match(response.headers.get("content-type"), /(?:javascript|text\/css)/);
+    const body = await response.text();
+    embeddedBuildIdFound ||= body.includes(buildId);
+    assert.ok(body.length > 0);
+    if (Buffer.byteLength(body) >= 1024) {
+      assert.equal(response.headers.get("content-encoding"), "gzip", path);
+      assert.match(response.headers.get("vary"), /Accept-Encoding/i);
+    }
+  }
+  assert.ok(embeddedBuildIdFound, "The app bundle and version endpoint must identify the same build");
+
+  const asset = await request(assetPaths[0], { headers: { "Accept-Encoding": "identity" } });
+  const etag = asset.headers.get("etag");
+  assert.ok(etag);
+  await asset.text();
+  const unchanged = await request(assetPaths[0], {
+    headers: { "If-None-Match": etag, "Accept-Encoding": "identity" },
+  });
+  assert.equal(unchanged.status, 304);
+  checkHeaders(unchanged, "public, max-age=31536000, immutable");
+
+  if (process.argv.includes("--browser")) {
+    const { checkAnalyticsConsent } = await import("./analyticsConsent.mjs");
+    await checkAnalyticsConsent(origin, analyticsId);
+  }
+
+  console.log(
+    "Nginx smoke checks passed: redirects, routes, 404s, caching, gzip, security headers, and optional analytics.",
+  );
+} finally {
+  docker("stop", container);
+}

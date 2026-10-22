@@ -1,0 +1,29 @@
+{% extends "main.html" %}
+{% block extrahead %}
+  <link rel="stylesheet" href="{{ 'stylesheets/marketing.css' | url }}" />
+{% endblock %}
+{% block header %}
+<header class="md-header site-header" data-md-component="header">
+  <nav class="md-header__inner site-header-inner" aria-label="Main navigation">
+    <a class="docs-brand site-brand" href="{{ '.' | url }}" aria-label="Click2Approve home">
+      <img src="{{ config.theme.logo | url }}" alt="" aria-hidden="true" />
+      <span>Click2Approve</span>
+    </a>
+    <div class="site-header-links">
+      <a href="{{ 'docs/' | url }}" target="_blank" rel="noopener noreferrer"{% if page.url.startswith('docs/') %} aria-current="page"{% endif %}>Docs</a>
+    </div>
+    {% include "partials/palette.html" %}
+    {% include "partials/javascripts/shared-color-mode.html" %}
+    {% include "partials/javascripts/palette.html" %}
+    <a class="site-open-app" href="/app/" target="_blank" rel="noopener noreferrer">Open app <span aria-hidden="true">↗</span></a>
+  </nav>
+</header>
+{% endblock %}
+{% block site_nav %}{% endblock %}
+{% block container %}
+<div class="site-content" data-md-component="content">
+  {% block marketing_content %}
+    <article class="site-prose md-typeset">{{ page.content }}</article>
+  {% endblock %}
+</div>
+{% endblock %}

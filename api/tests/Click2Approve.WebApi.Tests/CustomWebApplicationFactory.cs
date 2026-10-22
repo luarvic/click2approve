@@ -1,7 +1,7 @@
 using System.Data.Common;
-using Click2Approve.WebApi.Persistence;
-using Click2Approve.WebApi.Services;
-using Click2Approve.WebApi.Services.StoreService;
+using Click2Approve.Application.Abstractions.FileStorage;
+using Click2Approve.Infrastructure.Persistence;
+using Click2Approve.WebApi.Tests.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
@@ -23,7 +23,7 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
         builder.UseEnvironment("Test");
         builder.ConfigureServices(services =>
         {
-            // Replace MySQL DB context with SQLite.
+            // Replace SQL Server DB context with SQLite.
             services.RemoveAll<DbContextOptions<ApiDbContext>>();
             services.RemoveAll<IDbContextOptionsConfiguration<ApiDbContext>>();
             services.RemoveAll<ApiDbContext>();
@@ -43,9 +43,10 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
                 options.UseSqlite(connection);
             });
 
-            // Replace StoreService with MockStoreService.
-            services.RemoveAll<IStoreService>();
-            services.AddSingleton<IStoreService, MockStoreService>();
+            // Replace file storage with in-memory test storage.
+            services.RemoveAll<IUserFileStorage>();
+            services.AddSingleton<MockFileStorage>();
+            services.AddSingleton<IUserFileStorage>(serviceProvider => serviceProvider.GetRequiredService<MockFileStorage>());
         });
     }
 }

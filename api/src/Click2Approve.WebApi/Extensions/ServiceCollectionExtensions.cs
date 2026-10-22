@@ -1,17 +1,21 @@
-using System.Net;
-using System.Net.Mail;
-using Azure.Core;
-using Click2Approve.WebApi.Models;
-using Click2Approve.WebApi.Persistence;
-using Click2Approve.WebApi.Services.EmailService;
-using FluentEmail.Core.Interfaces;
-using FluentEmail.Smtp;
-using Hangfire;
-using Hangfire.MemoryStorage;
+using System.Reflection;
+using Click2Approve.Application.Abstractions.FileStorage;
+using Click2Approve.Application.Abstractions.Identity;
+using Click2Approve.Application.Models.Results.Identity;
+using Click2Approve.Application.Services.Identity;
+using Click2Approve.Domain.Models;
+using Click2Approve.Infrastructure.Email;
+using Click2Approve.Infrastructure.FileStorage;
+using Click2Approve.Infrastructure.Identity;
+using Click2Approve.Infrastructure.Persistence;
+using Click2Approve.WebApi.Identity;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Azure;
+using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Click2Approve.WebApi.Extensions;
 
@@ -20,136 +24,169 @@ namespace Click2Approve.WebApi.Extensions;
 /// </summary>
 public static class ServiceCollectionExtensions
 {
+    private const int MaximumEmailPermitLimit = 1000;
+    private const int MaximumEmailWindowMinutes = 1440;
+
+    /// <summary>
+    /// Adds email-address rate limiting for anonymous identity email endpoints.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>The service collection.</returns>
+    public static IServiceCollection AddIdentityRateLimiting(this IServiceCollection services, IConfiguration configuration)
+    {
+        foreach (var purpose in Enum.GetValues<AccountEmailPurpose>())
+        {
+            services.AddOptions<AccountEmailRateLimitOptions>(purpose.ToString())
+                .Bind(configuration.GetSection($"Authentication:{purpose}"))
+                .Validate(options => options.EmailPermitLimit is >= 1 and <= MaximumEmailPermitLimit
+                    && options.EmailWindowMinutes is >= 1 and <= MaximumEmailWindowMinutes, "Invalid account email allowance.")
+                .ValidateOnStart();
+        }
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddScoped<IIdentityEmailRateLimitService, IdentityEmailRateLimitService>();
+        return services;
+    }
+
     /// <summary>
     /// Adds and configures AuthN/Z services to the service collection.
     /// </summary>
     public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddFido2(options =>
+        {
+            options.RPID = configuration["Authentication:Passkeys:RelyingPartyId"];
+            options.RPName = configuration["Authentication:Passkeys:RelyingPartyName"];
+            options.Origins = configuration.GetSection("Authentication:Passkeys:Origins").Get<HashSet<string>>();
+        });
+        services.TryAddSingleton(TimeProvider.System);
         services.AddAuthentication();
         services.Configure<BearerTokenOptions>(IdentityConstants.BearerScheme, options =>
         {
-            options.BearerTokenExpiration = TimeSpan.FromMinutes(configuration.GetValue<int>("Authentication:BearerTokenExpirationInMinutes"));
-            options.RefreshTokenExpiration = TimeSpan.FromDays(configuration.GetValue<int>("Authentication:RefreshTokenExpirationInDays"));
+            options.BearerTokenExpiration = TimeSpan.FromMinutes(configuration.GetValue<int>("Authentication:Tokens:AccessTokenLifetimeMinutes"));
+            options.RefreshTokenExpiration = TimeSpan.FromDays(configuration.GetValue<int>("Authentication:Tokens:RefreshTokenLifetimeDays"));
         });
-        services.AddAuthorization();
+        services.AddAuthorizationBuilder()
+            .AddPolicy(AccountSecurityPolicies.Interactive, policy => policy
+                .AddAuthenticationSchemes(IdentityConstants.BearerScheme).RequireAuthenticatedUser());
         services.AddIdentityApiEndpoints<AppUser>(options =>
             {
                 options.User.RequireUniqueEmail = true;
-                options.Password.RequiredLength = configuration.GetValue<int>("Identity:Password:RequiredLength");
-                options.SignIn.RequireConfirmedEmail = configuration.GetValue<bool>("Email:IsEnabled");
-                options.Lockout.MaxFailedAccessAttempts = configuration.GetValue<int>("Identity:Lockout:MaxFailedAccessAttempts");
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(configuration.GetValue<int>("Identity:Lockout:LockoutTimeSpanInMinutes"));
-                options.Lockout.AllowedForNewUsers = configuration.GetValue<bool>("Identity:Lockout:AllowedForNewUsers");
+                options.Password.RequiredLength = configuration.GetValue<int>("Authentication:Password:RequiredLength");
+                options.SignIn.RequireConfirmedEmail = configuration.GetValue<bool>("Authentication:VerificationEnabled");
+                options.Lockout.MaxFailedAccessAttempts = configuration.GetValue<int>("Authentication:Lockout:MaxFailedAttempts");
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(configuration.GetValue<int>("Authentication:Lockout:DurationMinutes"));
+                options.Lockout.AllowedForNewUsers = true;
             })
             .AddEntityFrameworkStores<ApiDbContext>();
-        return services;
-    }
-
-    /// <summary>
-    /// Adds and configures Hangfire services to the service collection.
-    /// </summary>
-    public static IServiceCollection AddHangfireServices(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddHangfire(config =>
-        {
-            config.UseMemoryStorage()
-                .WithJobExpirationTimeout(TimeSpan.FromMinutes(configuration.GetValue<int>("Hangfire:JobExpirationTimeoutMin")));
-        });
-        services.AddHangfireServer();
-        return services;
-    }
-
-    /// <summary>
-    /// Adds and configures Email services to the service collection.
-    /// </summary>
-    public static IServiceCollection AddEmailServices(this IServiceCollection services, IConfiguration configuration)
-    {
-        var emailSettings = configuration.GetSection("Email");
-        var emailServiceIsEnabled = emailSettings.GetValue<bool>("IsEnabled");
-        if (!emailServiceIsEnabled)
-        {
-            services.AddTransient<IEmailService, EmailServiceStub>();
-        }
-        else
-        {
-            var fromEmailAddress = emailSettings["FromEmailAddress"];
-            var host = emailSettings["Host"];
-            var port = emailSettings.GetValue<int>("Port");
-            services.AddFluentEmail(fromEmailAddress);
-            var username = emailSettings["Username"];
-            var password = emailSettings["Password"];
-            services.AddTransient<ISender>(x =>
-                new SmtpSender(new SmtpClient(host, port)
-                {
-                    EnableSsl = true,
-                    Credentials = new NetworkCredential
-                    {
-                        UserName = username,
-                        Password = password
-                    }
-                }));
-            services.AddTransient<IEmailService, EmailService>();
-        }
-        services.AddTransient<IEmailSender<AppUser>, IdentityEmailService>();
-        return services;
-    }
-
-    /// <summary>
-    /// Adds and configures Azure Email services to the service collection.
-    /// </summary>
-    public static IServiceCollection AddAzureEmailServices(this IServiceCollection services, IConfiguration configuration)
-    {
-        if (!configuration.GetSection("Email").GetValue<bool>("IsEnabled"))
-        {
-            services.AddSingleton<IEmailService, EmailServiceStub>();
-        }
-        else
-        {
-            var settings = configuration.GetSection("AzureEmailCommunication");
-            var connectionString = settings.GetValue<string>("ConnectionString");
-            var retryDelaySeconds = settings.GetValue<int>("RetryDelaySeconds");
-            var maxRetryAttempts = settings.GetValue<int>("MaxRetryAttempts");
-            services.AddAzureClients(clientBuilder =>
-            {
-                clientBuilder.AddEmailClient(connectionString)
-                    .ConfigureOptions(options =>
-                    {
-                        options.Retry.Mode = RetryMode.Fixed;
-                        options.Retry.Delay = TimeSpan.FromSeconds(retryDelaySeconds);
-                        options.Retry.MaxRetries = maxRetryAttempts;
-                    });
-            });
-            services.AddSingleton<IEmailService, AzureEmailCommunicationService>();
-        }
+        services.AddScoped<IUserStore<AppUser>, PlaceholderAwareUserStore>();
+        services.RemoveAll<IUserValidator<AppUser>>();
+        services.AddScoped<IUserValidator<AppUser>, PlaceholderAwareUserValidator>();
+        services.AddScoped<IUserIdentityService, UserIdentityService>();
+        services.AddScoped<IUserLookupService, UserLookupService>();
+        services.AddScoped<IUserProvisioningService, UserProvisioningService>();
+        services.AddScoped<ILookupNormalizer, LowerInvariantLookupNormalizer>();
         services.AddSingleton<IEmailSender<AppUser>, IdentityEmailService>();
+        return services;
+    }
+
+    /// <summary>
+    /// Adds and configures Azure Blob Storage services.
+    /// </summary>
+    public static IServiceCollection AddAzureFileStorageServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddSingleton<IUserFileStorage, AzureUserFileStorage>();
         return services;
     }
 
     /// <summary>
     /// Adds and configures Swagger services to the service collection.
     /// </summary>
-    public static IServiceCollection AddSwagger(this IServiceCollection services)
+    /// <param name="services">The service collection.</param>
+    /// <param name="additionalDocumentationAssemblies">Assemblies whose XML documentation should also appear in Swagger.</param>
+    /// <returns>The service collection.</returns>
+    public static IServiceCollection AddSwagger(
+        this IServiceCollection services,
+        params Assembly[] additionalDocumentationAssemblies)
     {
         services.AddSwaggerGen(options =>
         {
-            options.SwaggerDoc("v1", new OpenApiInfo
+            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Click2Approve.WebApi.xml"));
+            foreach (var assembly in additionalDocumentationAssemblies)
             {
-                Version = "v1",
-                Title = "click2approve API Specification",
-            });
-            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "ApiSpecification.XML"));
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{assembly.GetName().Name}.xml"));
+            }
+            options.OperationFilter<TenantRouteParameterOperationFilter>();
+            options.OperationFilter<IdentityAccountOperationFilter>();
             options.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
             {
                 Type = SecuritySchemeType.Http,
                 Scheme = "bearer",
-                BearerFormat = "JWT",
-                Description = "JWT Authorization header using the Bearer scheme."
+                BearerFormat = "Opaque token",
+                Description = "Authorization header using the Bearer scheme. Supports Identity access tokens and personal API tokens."
             });
             options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
             {
                 [new OpenApiSecuritySchemeReference("bearer", document)] = []
             });
         });
+        services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
         return services;
+    }
+
+    /// <summary>
+    /// Applies email-address rate limits to anonymous identity endpoints that send account emails.
+    /// </summary>
+    /// <param name="builder">The identity API endpoint builder.</param>
+    /// <returns>The identity API endpoint builder.</returns>
+    public static IEndpointConventionBuilder RequireIdentityRateLimiting(this IEndpointConventionBuilder builder)
+    {
+        builder.Add(endpointBuilder =>
+        {
+            if (endpointBuilder is not RouteEndpointBuilder routeEndpointBuilder)
+            {
+                return;
+            }
+
+            if (IsEmailRateLimitedRoute(routeEndpointBuilder.RoutePattern.RawText))
+            {
+                routeEndpointBuilder.FilterFactories.Add((_, next) => async invocationContext =>
+                {
+                    var email = GetEmail(invocationContext.Arguments);
+                    if (email is null)
+                    {
+                        return await next(invocationContext);
+                    }
+
+                    var services = invocationContext.HttpContext.RequestServices;
+                    var normalizer = services.GetRequiredService<ILookupNormalizer>();
+                    var rateLimiter = services.GetRequiredService<IIdentityEmailRateLimitService>();
+                    var result = await rateLimiter.TryAcquireAsync(
+                        normalizer.NormalizeEmail(email),
+                        invocationContext.Arguments.Any(argument => argument is ForgotPasswordRequest)
+                            ? AccountEmailPurpose.PasswordReset : AccountEmailPurpose.EmailConfirmation,
+                        invocationContext.HttpContext.RequestAborted);
+                    if (result == IdentityEmailRateLimitResult.RateLimited)
+                    {
+                        return Results.StatusCode(StatusCodes.Status429TooManyRequests);
+                    }
+
+                    return await next(invocationContext);
+                });
+            }
+        });
+        return builder;
+    }
+
+    private static string? GetEmail(IList<object?> arguments)
+    {
+        return arguments.OfType<ForgotPasswordRequest>().FirstOrDefault()?.Email
+            ?? arguments.OfType<ResendConfirmationEmailRequest>().FirstOrDefault()?.Email;
+    }
+
+    private static bool IsEmailRateLimitedRoute(string? route)
+    {
+        return route?.EndsWith("/forgotPassword", StringComparison.Ordinal) == true
+            || route?.EndsWith("/resendConfirmationEmail", StringComparison.Ordinal) == true;
     }
 }

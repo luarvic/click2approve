@@ -1,0 +1,205 @@
+using Click2Approve.Application.Abstractions.Email;
+using Click2Approve.Application.Abstractions.FileStorage;
+using Click2Approve.Application.Helpers;
+using Click2Approve.Application.Models.Emails;
+using Click2Approve.Application.Models.Events;
+using Click2Approve.Domain.Models;
+using Click2Approve.EventConsumer.Email;
+using Click2Approve.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+
+namespace Click2Approve.EventConsumer.Services;
+
+/// <summary>Renders notification emails after the handler applies recipient preferences.</summary>
+public class NotificationEmailService(
+    ApiDbContext db,
+    IEmailService emailService,
+    IConfiguration configuration,
+    IUserFileStorage fileStorage)
+{
+    private readonly ApiDbContext _db = db;
+    private readonly IEmailService _emailService = emailService;
+    private readonly IConfiguration _configuration = configuration;
+    private readonly IUserFileStorage _fileStorage = fileStorage;
+
+    /// <summary>Composes and sends a notification for its selected recipient.</summary>
+    public Task SendAsync(AppUser recipient, NotificationEventPayload payload, CancellationToken cancellationToken) =>
+        SendAsync(recipient, payload, eventId: Guid.NewGuid(), cancellationToken);
+
+    /// <summary>Uses the stable event identity for retry-safe delivery extensions.</summary>
+    public virtual async Task SendAsync(AppUser recipient, NotificationEventPayload payload, Guid eventId, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(recipient.NormalizedEmail)) return;
+        var tenant = await _db.Tenants.AsNoTracking()
+            .Include(item => item.LogoUserFile)
+            .Include(item => item.Owner).ThenInclude(owner => owner.AvatarUserFile)
+            .SingleOrDefaultAsync(item => item.Id == payload.TenantId, cancellationToken);
+        if (tenant is null) return;
+        var context = payload.Type == NotificationType.DiscussionMessageCreated
+            ? await CreateDiscussionContextAsync(payload, tenant.GlobalId, cancellationToken)
+            : await CreateContextAsync(payload, tenant.GlobalId, cancellationToken);
+        if (context is null) return;
+        var senderIdentity = CreateSenderIdentity(tenant, payload.Type == NotificationType.ApprovalRequestTaskCompleted
+            ? null : context.Actor);
+        var content = NotificationEmailTemplates.Create(payload.Type, context with { SenderIdentity = senderIdentity });
+        var template = content with
+        {
+            SenderIdentity = payload.Type == NotificationType.ApprovalRequestCompleted ? null : senderIdentity
+        };
+        await SendMessageAsync(payload, eventId, new EmailMessage
+        {
+            ToAddress = recipient.NormalizedEmail,
+            Subject = template.Subject.ReplaceLineEndings(" "),
+            Body = EmailLayout.Render(
+                template,
+                EmailBranding.GetLogoUrl(_configuration),
+                _configuration.GetValue<Uri>("UI:BaseUrl")?.ToString())
+        }, cancellationToken);
+    }
+
+    /// <summary>Allows delivery accounting around the final provider call.</summary>
+    protected virtual Task SendMessageAsync(NotificationEventPayload payload, Guid eventId, EmailMessage message,
+        CancellationToken cancellationToken) => _emailService.SendAsync(message, cancellationToken);
+
+    /// <summary>Allows the commercial worker to resolve its discussion data without a shared dependency.</summary>
+    protected virtual Task<NotificationEmailContext?> CreateDiscussionContextAsync(
+        NotificationEventPayload payload,
+        Guid tenantGlobalId,
+        CancellationToken cancellationToken) => Task.FromResult<NotificationEmailContext?>(null);
+
+    /// <summary>Builds a link using the deployment's existing UI base and application path.</summary>
+    protected string GetLink(Guid tenantGlobalId, string route) => UriHelpers.GetUiUri(
+        _configuration.GetValue<Uri>("UI:BaseUrl"), _configuration["UI:AppPath"], $"tenants/{tenantGlobalId}/{route}").ToString();
+
+    /// <summary>Uses stored attribution and public images, with a system fallback for missing actors.</summary>
+    protected EmailActor CreateActor(string? displayName, AppUser? user, ApprovalRequest request) => new()
+    {
+        DisplayName = request.Tenant.Type == TenantType.Business && !string.IsNullOrWhiteSpace(displayName)
+            ? displayName.Trim()
+            : user is null ? null : DisplayNameHelpers.FormatParticipantDisplayName(
+                user.FirstName, user.LastName, position: null, email: user.Email ?? user.NormalizedEmail),
+        AvatarUrl = PublicImage(user?.AvatarUserFile),
+        OrganizationDisplayName = request.Tenant.Type == TenantType.Business ? request.OrganizationDisplayName : null,
+        OrganizationLogoUrl = request.Tenant.Type == TenantType.Business ? PublicImage(request.Tenant.LogoUserFile) : null
+    };
+
+    private EmailSenderIdentity CreateSenderIdentity(Tenant tenant, EmailActor? actor)
+    {
+        if (tenant.Type == TenantType.Business)
+        {
+            return new EmailSenderIdentity
+            {
+                Name = tenant.BusinessName,
+                IsOrganization = true,
+                ImageUrl = PublicImage(tenant.LogoUserFile),
+                WebsiteUrl = tenant.WebsiteUrl
+            };
+        }
+
+        var owner = tenant.Owner;
+        return new EmailSenderIdentity
+        {
+            Name = actor is { IsSystemGenerated: false } && !string.IsNullOrWhiteSpace(actor.DisplayName)
+                ? actor.DisplayName
+                : DisplayNameHelpers.FormatParticipantDisplayName(
+                    owner.FirstName, owner.LastName, position: null, email: owner.Email ?? owner.NormalizedEmail),
+            ImageUrl = actor is { IsSystemGenerated: false } && !string.IsNullOrWhiteSpace(actor.DisplayName)
+                ? actor.AvatarUrl : PublicImage(owner.AvatarUserFile)
+        };
+    }
+
+    /// <summary>Resolves the notification target while allowing commercial resource types.</summary>
+    protected virtual async Task<NotificationEmailContext?> CreateContextAsync(
+        NotificationEventPayload payload,
+        Guid tenantGlobalId,
+        CancellationToken cancellationToken)
+    {
+        var targetResourceGlobalId = payload.TargetResourceGlobalId;
+        if (targetResourceGlobalId is null) return null;
+        if (payload.Type == NotificationType.ApprovalRequestTaskCreated)
+        {
+            var task = await GetTasksQuery().FirstOrDefaultAsync(
+                item => item.GlobalId == targetResourceGlobalId && item.AssigneeUserId == payload.UserId
+                    && item.TenantId == payload.TenantId, cancellationToken);
+            return task is null ? null : new NotificationEmailContext
+            {
+                RequestTitle = task.ApprovalRequest.Title,
+                ActionUrl = GetLink(tenantGlobalId, $"tasks/{task.GlobalId}"),
+                Action = task.Action,
+                Actor = CreateActor(task.ApprovalRequest.SubmittedByDisplayName, task.ApprovalRequest.SubmittedByUser, task.ApprovalRequest),
+                Requester = task.ApprovalRequest.RequesterUserId == task.ApprovalRequest.SubmittedByUserId
+                    ? null
+                    : CreateActor(task.ApprovalRequest.RequesterDisplayName, task.ApprovalRequest.RequesterUser, task.ApprovalRequest)
+            };
+        }
+
+        var request = await _db.ApprovalRequests.AsNoTracking()
+            .Include(item => item.Tenant).ThenInclude(tenant => tenant.LogoUserFile)
+            .Include(item => item.CompletedByUser).ThenInclude(user => user!.AvatarUserFile)
+            .FirstOrDefaultAsync(item => item.GlobalId == targetResourceGlobalId, cancellationToken);
+        if (request is null) return null;
+        string route;
+        if (payload.Type != NotificationType.ApprovalRequestTaskCompleted
+            && request.RequesterUserId == payload.UserId && request.TenantId == payload.TenantId)
+        {
+            route = $"requests/{request.GlobalId}";
+        }
+        else
+        {
+            var tasks = _db.ApprovalRequestTasks.Where(task => task.ApprovalRequestId == request.Id
+                && task.AssigneeUserId == payload.UserId && task.TenantId == payload.TenantId);
+            if (payload.Type == NotificationType.ApprovalRequestTaskCompleted
+                && (payload.SourceResourceType is null || payload.SourceResourceType == NotificationResourceType.ApprovalRequestTask)
+                && payload.SourceResourceGlobalId is { } sourceId)
+            {
+                tasks = tasks.Where(task => task.GlobalId == sourceId);
+            }
+            var taskGlobalId = await tasks.OrderByDescending(task => task.CompletedAt).ThenByDescending(task => task.Id)
+                .Select(task => (Guid?)task.GlobalId).FirstOrDefaultAsync(cancellationToken);
+            if (taskGlobalId is null) return null;
+            route = $"tasks/{taskGlobalId}";
+        }
+        var context = new NotificationEmailContext
+        {
+            RequestTitle = request.Title,
+            ActionUrl = GetLink(tenantGlobalId, route),
+            Status = request.Status,
+            Result = request.Result,
+            Actor = request.CompletedByUserId is null ? new EmailActor { IsSystemGenerated = true }
+                : CreateActor(request.CompletedByDisplayName, request.CompletedByUser, request)
+        };
+        if (payload.Type == NotificationType.ApprovalRequestTaskCompleted)
+        {
+            return context with
+            {
+                Reason = request.Result == false
+                    ? "This happened because the request failed."
+                    : "This happened because the request no longer requires your action."
+            };
+        }
+        if (payload.Type == NotificationType.ApprovalRequestStepCompleted)
+        {
+            var task = payload.SourceResourceType is not null and not NotificationResourceType.ApprovalRequestTask
+                || payload.SourceResourceGlobalId is null ? null : await GetTasksQuery().FirstOrDefaultAsync(
+                item => item.GlobalId == payload.SourceResourceGlobalId && item.ApprovalRequestId == request.Id,
+                cancellationToken);
+            return context with
+            {
+                Action = task?.Action,
+                Result = task?.Result,
+                Actor = task is null ? CreateActor(displayName: null, user: null, request)
+                    : CreateActor(task.CompletedByDisplayName, task.CompletedByUser, task.ApprovalRequest)
+            };
+        }
+        return context;
+    }
+
+    private IQueryable<ApprovalRequestTask> GetTasksQuery() => _db.ApprovalRequestTasks.AsNoTracking()
+        .Include(item => item.CompletedByUser).ThenInclude(user => user!.AvatarUserFile)
+        .Include(item => item.ApprovalRequest).ThenInclude(request => request.RequesterUser).ThenInclude(user => user.AvatarUserFile)
+        .Include(item => item.ApprovalRequest).ThenInclude(request => request.SubmittedByUser).ThenInclude(user => user.AvatarUserFile)
+        .Include(item => item.ApprovalRequest).ThenInclude(request => request.Tenant).ThenInclude(tenant => tenant.LogoUserFile);
+
+    private string? PublicImage(UserFile? file) => file is { StorageType: UserFileStorageType.Public }
+        ? _fileStorage.GetPublicUrl(file) : null;
+}

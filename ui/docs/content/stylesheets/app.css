@@ -1,0 +1,735 @@
+@font-face {
+  font-family: Sora;
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/sora-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: Sora;
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../assets/fonts/sora-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: Sora;
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../assets/fonts/sora-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: Sora;
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../assets/fonts/sora-latin-700-normal.woff2") format("woff2");
+}
+
+/* Match createAppTheme.ts, tokens.ts, and the shared app shell. */
+:root {
+  --md-text-font: Sora, sans-serif;
+  --md-code-font: ui-monospace, monospace;
+  --app-bar-height: 72px;
+  --app-chip-background: rgb(82 100 90 / 8%);
+}
+
+[data-md-color-scheme="default"] {
+  --site-green: #15803d;
+  --site-soft: #f2f7f3;
+  --site-muted: #52645a;
+  --site-ink: #162b20;
+  --md-default-bg-color: #fff;
+  --md-default-fg-color: rgba(0, 0, 0, 0.87);
+  --md-default-fg-color--light: rgba(0, 0, 0, 0.6);
+  --md-primary-fg-color: #fff;
+  --md-primary-bg-color: rgba(0, 0, 0, 0.87);
+  --md-accent-fg-color: #1976d2;
+  --md-typeset-a-color: #1976d2;
+  --app-divider: rgba(0, 0, 0, 0.12);
+  --app-input-border: rgba(0, 0, 0, 0.23);
+  --app-selected: rgba(25, 118, 210, 0.08);
+  --app-menu-heading-bg: rgba(0, 0, 0, 0.04);
+  --app-menu-selected-bg: rgba(25, 118, 210, 0.16);
+  --app-menu-selected-hover-bg: rgba(25, 118, 210, 0.22);
+}
+
+[data-md-color-scheme="slate"] {
+  --app-chip-background: rgb(166 186 173 / 8%);
+  --site-green: #4ade80;
+  --site-soft: #19251e;
+  --site-muted: #a6baad;
+  --site-ink: #edf7f0;
+  --md-default-bg-color: #121212;
+  --md-default-fg-color: #fff;
+  --md-default-fg-color--light: rgba(255, 255, 255, 0.7);
+  --md-primary-fg-color: #121212;
+  --md-primary-bg-color: #fff;
+  --md-accent-fg-color: #90caf9;
+  --md-typeset-a-color: #90caf9;
+  --app-divider: rgba(255, 255, 255, 0.12);
+  --app-input-border: rgba(255, 255, 255, 0.23);
+  --app-selected: rgba(144, 202, 249, 0.16);
+  --app-menu-heading-bg: rgba(255, 255, 255, 0.08);
+  --app-menu-selected-bg: rgba(144, 202, 249, 0.24);
+  --app-menu-selected-hover-bg: rgba(144, 202, 249, 0.3);
+}
+
+.md-header {
+  box-sizing: border-box;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--app-bar-height);
+  border-bottom: 1px solid var(--app-divider);
+  box-shadow: none;
+}
+
+/* Reserve the fixed app bar's space for both guides and marketing pages. */
+.md-container {
+  padding-top: var(--app-bar-height);
+}
+
+.md-header__inner {
+  box-sizing: border-box;
+  height: 100%;
+  margin: 0;
+  max-width: none;
+  padding: 0 16px;
+  width: 100%;
+}
+
+.docs-brand {
+  align-items: center;
+  color: inherit;
+  display: flex;
+  flex-shrink: 1;
+  gap: 2.4px;
+  min-width: 0;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.docs-brand img {
+  display: block;
+  flex-shrink: 0;
+  height: 36px;
+  width: auto;
+}
+
+.docs-app-bar-logo {
+  flex-shrink: 0;
+}
+
+.docs-app-bar-logo img {
+  height: 42px;
+}
+
+[data-md-toggle="drawer"]:checked ~ .md-header .docs-app-bar-logo {
+  display: none;
+}
+
+.docs-brand span {
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: normal;
+  line-height: 32px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.docs-drawer-toolbar .docs-brand,
+.docs-brand .docs-brand-name {
+  overflow: visible;
+}
+
+.docs-brand .docs-brand-name {
+  align-items: center;
+  display: flex;
+  min-height: 32px;
+  position: relative;
+}
+
+.md-header .md-search-result__meta {
+  font-size: 12px;
+}
+
+.docs-brand .docs-brand-label {
+  display: inline-flex;
+  line-height: 1;
+  overflow: visible;
+  position: relative;
+  vertical-align: middle;
+}
+
+/* Match Shell.appBarBrandChipSx, anchored to the tight brand text bounds. */
+.docs-brand-badge {
+  align-items: center;
+  background-color: var(--app-chip-background);
+  border-radius: 4px;
+  box-sizing: border-box;
+  color: var(--site-muted);
+  display: inline-flex;
+  font-size: 9px;
+  font-weight: 400;
+  height: 16px;
+  letter-spacing: normal;
+  right: 0;
+  line-height: 1;
+  padding: 0 5px;
+  position: absolute;
+  top: 2px;
+  transform: translate(calc(100% - 2px), -100%);
+}
+
+@media screen and (max-width: 700px) {
+  .docs-brand span {
+    font-size: 18px;
+  }
+}
+
+.docs-header-spacer {
+  flex: 1 0 8px;
+}
+
+.docs-icon-button {
+  align-items: center;
+  border-radius: 50%;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  flex: 0 0 40px;
+  height: 40px;
+  justify-content: center;
+  padding: 8px;
+  width: 40px;
+}
+
+.docs-icon-button svg {
+  fill: currentColor;
+  height: 24px;
+  width: 24px;
+}
+
+.docs-icon-button:hover {
+  background: var(--app-selected);
+}
+
+.docs-icon-button:focus-visible,
+.docs-brand:focus-visible {
+  outline: 2px solid var(--md-accent-fg-color);
+  outline-offset: 2px;
+}
+
+.docs-menu-button {
+  margin-left: -12px;
+  margin-right: 8px;
+}
+
+/* Match ColorModeSwitch.tsx and colorModeSwitchTokens.ts in the app. */
+.docs-palette {
+  display: none;
+}
+
+.docs-color-mode {
+  cursor: pointer;
+  display: inline-block;
+  flex: 0 0 62px;
+  height: 34px;
+  position: relative;
+  width: 62px;
+}
+
+.docs-color-mode input {
+  cursor: inherit;
+  height: 100%;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  z-index: 1;
+}
+
+.docs-color-mode__track {
+  background: #aab4be;
+  border-radius: 17px;
+  inset: 7px;
+  position: absolute;
+}
+
+.docs-color-mode__thumb {
+  align-items: center;
+  background: #f5f5f5;
+  border-radius: 50%;
+  color: #d4a72c;
+  display: flex;
+  height: 32px;
+  justify-content: center;
+  left: 7px;
+  position: absolute;
+  top: 1px;
+  transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  width: 32px;
+}
+
+.docs-color-mode__thumb svg {
+  fill: currentColor;
+  height: 20px;
+  width: 20px;
+}
+
+.docs-color-mode__moon {
+  display: none;
+}
+
+.docs-color-mode input:focus-visible ~ .docs-color-mode__thumb {
+  outline: 2px solid var(--md-accent-fg-color);
+  outline-offset: 2px;
+}
+
+[data-md-color-scheme="slate"] .docs-color-mode__track {
+  background: #8796a5;
+}
+
+[data-md-color-scheme="slate"] .docs-color-mode__thumb {
+  background: #003892;
+  color: #fff8dc;
+  transform: translateX(16px);
+}
+
+[data-md-color-scheme="slate"] .docs-color-mode__sun {
+  display: none;
+}
+
+[data-md-color-scheme="slate"] .docs-color-mode__moon {
+  display: block;
+}
+
+@media screen and (min-width: 1200px) {
+  .docs-menu-button {
+    display: none;
+  }
+}
+
+/* Match the app's outlined inputs and popup surfaces in both search states. */
+.md-header .md-search {
+  flex: 0 1 380px;
+  margin-right: 8px;
+  max-width: 380px;
+  min-width: 0;
+  padding: 0;
+  width: 380px;
+}
+
+.md-header .md-search__inner,
+[data-md-toggle="search"]:checked ~ .md-header .md-search__inner {
+  height: auto;
+  left: auto;
+  opacity: 1;
+  overflow: visible;
+  padding: 0;
+  position: relative;
+  top: auto;
+  transform: none;
+  width: 100%;
+}
+
+.md-header .md-search__form,
+[data-md-toggle="search"]:checked ~ .md-header .md-search__form {
+  background: var(--md-default-bg-color);
+  border: 1px solid var(--app-input-border);
+  border-radius: 6px;
+  box-shadow: none;
+  height: 40px;
+}
+
+.md-header .md-search__form:hover {
+  background: var(--md-default-bg-color);
+  border-color: var(--md-default-fg-color);
+}
+
+.md-header .md-search__form:focus-within {
+  border-color: var(--md-accent-fg-color);
+  outline: 2px solid var(--md-accent-fg-color);
+  outline-offset: -2px;
+}
+
+.md-header .md-search__input {
+  color: var(--md-default-fg-color);
+  font-family: inherit;
+  font-size: 16px;
+  height: 100%;
+  padding-left: 40px;
+  padding-right: 36px;
+}
+
+.md-header .md-search__input::placeholder {
+  color: var(--md-default-fg-color--light);
+  opacity: 1;
+}
+
+.md-header .md-search__icon {
+  color: var(--md-default-fg-color--light);
+}
+
+.md-header .md-search__icon[for="__search"] {
+  left: 8px;
+  pointer-events: none;
+  top: 7px;
+}
+
+.md-header .md-search__icon[for="__search"] svg:first-child {
+  display: block;
+}
+
+.md-header .md-search__icon[for="__search"] svg:last-child {
+  display: none;
+}
+
+.md-header .md-search__options {
+  top: 7px;
+}
+
+.md-header .md-search__output,
+[data-md-toggle="search"]:checked ~ .md-header .md-search__output {
+  background: var(--md-default-bg-color);
+  border: 1px solid var(--app-divider);
+  border-radius: 6px;
+  bottom: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.16);
+  max-height: calc(100dvh - 88px);
+  top: 48px;
+  width: 100%;
+}
+
+.md-header .md-search__output {
+  opacity: 0;
+  pointer-events: none;
+}
+
+[data-md-toggle="search"]:checked ~ .md-header .md-search__output {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.md-header .md-search__scrollwrap {
+  max-height: calc(100dvh - 90px);
+  width: 100%;
+}
+
+.md-header .md-search-result__meta {
+  background: var(--md-default-bg-color);
+  border-bottom: 1px solid var(--app-divider);
+  color: var(--md-default-fg-color--light);
+  height: auto;
+  line-height: 20px;
+  padding: 8px 16px;
+}
+
+.md-header .md-search-result__article {
+  padding: 12px 16px;
+}
+
+.md-header .md-search-result__icon {
+  display: none;
+}
+
+.md-header .md-search-result__article h1 {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  margin: 0 0 4px;
+}
+
+.md-header .md-search-result__article p {
+  color: var(--md-default-fg-color--light);
+  font-size: 14px;
+  line-height: 21px;
+}
+
+.md-header .md-search-result__link:is(:hover, :focus) {
+  background: var(--app-selected);
+}
+
+.md-header .md-search__overlay,
+[data-md-toggle="search"]:checked ~ .md-header .md-search__overlay {
+  background: transparent;
+  border-radius: 0;
+  height: 100dvh;
+  left: 0;
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  transform: none;
+  width: 100%;
+}
+
+[data-md-toggle="search"]:checked ~ .md-header .md-search__overlay {
+  pointer-events: auto;
+}
+
+@media screen and (max-width: 599px) {
+  .md-header .md-search__output,
+  [data-md-toggle="search"]:checked ~ .md-header .md-search__output {
+    left: 16px;
+    position: fixed;
+    top: 64px;
+    width: calc(100vw - 32px);
+  }
+}
+
+.md-typeset pre > code {
+  border-radius: 6px;
+}
+
+.md-typeset {
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.md-typeset h1 {
+  color: var(--md-default-fg-color);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: normal;
+  line-height: 32px;
+  margin: 0 0 16px;
+}
+
+/* Match Shell.mainMenuDrawer*, MainLayout, Pages, and the app's MUI lists. */
+.md-main__inner {
+  margin: 0 auto;
+  max-width: 1536px;
+  width: 100%;
+}
+
+.md-content {
+  min-width: 0;
+  padding: 16px;
+  width: 100%;
+}
+
+.md-content__inner {
+  /* Override Material's direction-specific sidebar margins. */
+  margin: 0 !important;
+  padding: 0;
+}
+
+.md-content__inner::before,
+.md-content__inner::after {
+  display: none;
+}
+
+.md-sidebar--secondary:not([hidden]) {
+  display: none;
+}
+
+.md-sidebar.md-sidebar--primary {
+  background: var(--md-default-bg-color);
+  height: 100dvh !important;
+  left: 0;
+  padding: 0;
+  position: fixed;
+  top: 0 !important;
+  transform: translateX(-100%);
+  transition: transform 225ms cubic-bezier(0.4, 0, 0.2, 1);
+  width: 240px;
+  z-index: 6;
+}
+
+[dir="ltr"] .md-sidebar--primary,
+[dir="rtl"] .md-sidebar--primary {
+  left: 0;
+  right: auto;
+}
+
+.md-sidebar--primary .md-sidebar__scrollwrap {
+  height: 100% !important;
+  margin: 0;
+  overflow: hidden;
+}
+
+.md-sidebar--primary .md-sidebar__inner {
+  font-size: 16px;
+  height: 100%;
+  padding: 0;
+}
+
+[data-md-toggle="drawer"]:checked ~ .md-container .md-sidebar--primary {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  transform: translateX(0);
+}
+
+.docs-navigation {
+  color: var(--md-default-fg-color);
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+  height: 100%;
+  line-height: 24px;
+}
+
+.docs-drawer-content {
+  border-right: 1px solid var(--app-divider);
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-top: 8px;
+}
+
+.docs-drawer-toolbar {
+  align-items: center;
+  border-bottom: 1px solid var(--app-divider);
+  display: flex;
+  flex-shrink: 0;
+  height: 72px;
+  padding: 0 8px 0 16px;
+}
+
+.docs-menu-section {
+  align-items: center;
+  background: var(--app-menu-heading-bg);
+  box-sizing: border-box;
+  color: var(--md-default-fg-color--light);
+  display: flex;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 20px;
+  min-height: 36px;
+  padding: 4px 16px;
+  text-transform: uppercase;
+}
+
+.docs-menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 12px;
+}
+
+.docs-menu-list .docs-menu-list {
+  padding-left: 16px;
+}
+
+.docs-menu-link {
+  align-items: center;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  min-height: 48px;
+  padding: 8px 16px;
+  text-decoration: none;
+}
+
+.docs-menu-link--active {
+  background: var(--app-menu-selected-bg);
+  box-shadow: inset 3px 0 0 var(--md-accent-fg-color);
+  color: var(--md-accent-fg-color);
+}
+
+.docs-menu-link:hover {
+  background: var(--app-selected);
+}
+
+.docs-menu-link--active:hover {
+  background: var(--app-menu-selected-hover-bg);
+}
+
+.docs-menu-link:focus-visible {
+  outline: 2px solid var(--md-accent-fg-color);
+  outline-offset: -2px;
+}
+
+@media screen and (min-width: 1200px) {
+  .md-header {
+    padding-left: 240px;
+  }
+
+  .md-header .docs-app-bar-logo {
+    display: none;
+  }
+
+  .md-main__inner {
+    padding-left: 240px;
+  }
+
+  .md-sidebar.md-sidebar--primary {
+    transform: none;
+  }
+
+  .md-overlay {
+    display: none;
+  }
+}
+
+.md-footer {
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color--light);
+}
+
+.md-footer-meta {
+  background: transparent;
+}
+
+
+/* Shared public-site links, also available from the documentation shell. */
+.site-footer { border-top: 1px solid var(--app-divider); }
+.site-footer-inner { max-width: 1240px; margin: auto; padding: 24px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; font-size: 11px; }
+.site-footer-inner p { margin: 0; font-weight: 500; }
+.site-footer-inner p span { display: block; margin-top: 6px; font-weight: 400; font-size: 10px; }
+.site-footer nav { display: flex; flex-wrap: wrap; gap: 16px; }
+.site-footer a:hover { text-decoration: underline; }
+.site-footer a:focus-visible { outline: 2px solid var(--md-accent-fg-color); outline-offset: 4px; }
+@media (min-width: 1200px) {
+  body:not(:has(.site-header)) .site-footer { margin-left: 240px; }
+}
+@media (max-width: 700px) {
+  .site-footer-inner { padding: 24px 20px; }
+}
+
+/* Reading order follows the documentation navigation. */
+.docs-page-navigation {
+  border-top: 1px solid var(--app-divider);
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  margin-top: 32px;
+  padding-top: 16px;
+}
+
+.docs-page-navigation a {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 48px;
+}
+
+.docs-page-navigation a:hover { text-decoration: underline; }
+.docs-page-navigation a:focus-visible {
+  outline: 2px solid var(--md-accent-fg-color);
+  outline-offset: 4px;
+}
+
+.docs-page-navigation-next { text-align: right; }
+
+@media (max-width: 600px) {
+  .docs-page-navigation { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .docs-page-navigation-contents {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    text-align: center;
+  }
+}
+
+/* Analytics settings are also available in the shared public footer. */
+.analytics-settings { border: 0; font: inherit; color: inherit; background: transparent; padding: 0; cursor: pointer; }
+.analytics-settings:hover { text-decoration: underline; }
+.analytics-settings:focus-visible { outline: 2px solid var(--site-green); outline-offset: 3px; }

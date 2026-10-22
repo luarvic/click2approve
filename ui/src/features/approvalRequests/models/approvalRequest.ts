@@ -1,0 +1,65 @@
+import { ApprovalStep } from "@/features/approvalWorkflow/models/approvalStep";
+import { UserFile } from "@/features/userFiles/models/userFile";
+import { ApprovalRequestListItem } from "./approvalRequestListItem";
+
+export interface ApprovalRequest extends ApprovalRequestListItem {
+  requestFiles: ApprovalRequestFile[];
+  steps: ApprovalStep[];
+  description?: string;
+  completedAt?: string;
+  completedAtDate?: Date;
+  submittedByUserGlobalId: string;
+  submittedByEmployeeGlobalId?: string;
+  submittedByDisplayName: string;
+  submittedByEmail: string;
+  requesterUserGlobalId: string;
+  requesterEmployeeGlobalId?: string;
+  completedByUserGlobalId?: string;
+  completedByEmployeeGlobalId?: string;
+  requesterEmail: string;
+  requesterDisplayName: string;
+  completedByDisplayName?: string;
+  completedByEmail?: string;
+  organizationDisplayName: string;
+  previousRevisionApprovalRequestGlobalId?: string;
+  previousRevisionApprovalRequestTitle?: string;
+  nextRevisionApprovalRequestGlobalId?: string;
+  nextRevisionApprovalRequestTitle?: string;
+}
+
+export enum ApprovalRequestFileRevisionAction {
+  Unchanged = "Unchanged",
+  Added = "Added",
+  Removed = "Removed",
+  Replaced = "Replaced",
+}
+
+export interface ApprovalRequestFile {
+  globalId: string;
+  userFile: UserFile;
+  sequence: number;
+  revisionAction: ApprovalRequestFileRevisionAction;
+  previousApprovalRequestFileGlobalId?: string;
+  previousUserFile?: UserFile;
+}
+
+export interface ApprovalRequestFileSubmission {
+  userFileGlobalId: string;
+  sequence: number;
+  revisionAction: ApprovalRequestFileRevisionAction;
+  previousApprovalRequestFileGlobalId?: string;
+}
+
+export interface SubmitApprovalRequestRequest {
+  title: string;
+  previousRevisionApprovalRequestGlobalId?: string;
+  requestFiles: ApprovalRequestFileSubmission[];
+  steps: ApprovalStep[];
+  description?: string;
+}
+
+export interface ResubmitApprovalRequestRequest {
+  requestFiles: ApprovalRequestFileSubmission[];
+  steps: ApprovalStep[];
+  description?: string;
+}

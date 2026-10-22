@@ -1,73 +1,114 @@
 using System.Text.Json.Serialization;
+using Asp.Versioning;
+using Click2Approve.Application.Abstractions.Auditing;
+using Click2Approve.Application.Abstractions.Authorization;
+using Click2Approve.Application.Abstractions.Persistence;
+using Click2Approve.Application.Abstractions.Services.ApprovalRequests;
+using Click2Approve.Application.Abstractions.Services.Notifications;
+using Click2Approve.Application.Abstractions.Services.Tenants;
+using Click2Approve.Application.Abstractions.Services.UserFiles;
+using Click2Approve.Application.Abstractions.Services.UserProfiles;
+using Click2Approve.Application.Abstractions.TenantContext;
+using Click2Approve.Application.Authorization;
+using Click2Approve.Application.Services.ApprovalRequests;
+using Click2Approve.Application.Services.Notifications;
+using Click2Approve.Application.Services.Tenants;
+using Click2Approve.Application.Services.UserFiles;
+using Click2Approve.Application.Services.UserProfiles;
+using Click2Approve.Domain.Models;
+using Click2Approve.Infrastructure.Authorization;
+using Click2Approve.Infrastructure.Extensions;
+using Click2Approve.Infrastructure.Persistence;
+using Click2Approve.WebApi.Auditing;
 using Click2Approve.WebApi.Extensions;
 using Click2Approve.WebApi.Middlewares;
-using Click2Approve.WebApi.Models;
-using Click2Approve.WebApi.Persistence;
-using Click2Approve.WebApi.Services.ApprovalRequestService;
-using Click2Approve.WebApi.Services.AuditLogService;
-using Click2Approve.WebApi.Services.StoreService;
-using Click2Approve.WebApi.Services.UserFileService;
-using Hangfire;
+using Click2Approve.WebApi.TenantContext;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers()
+    .AddInputValidation(typeof(Program).Assembly, typeof(ApprovalRequestService).Assembly)
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+builder.Services.AddApiVersioning(options =>
+{
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = new UrlSegmentApiVersionReader();
+})
+    .AddMvc()
+    .AddApiExplorer(options =>
+    {
+        options.GroupNameFormat = "'v'VVV";
+        options.SubstituteApiVersionInUrl = true;
     });
 builder.Services.AddCors();
+builder.Services.AddIdentityRateLimiting(builder.Configuration);
+builder.Services.AddAzureServiceAuthentication(builder.Configuration);
 builder.Services.AddDbContext<ApiDbContext>(options =>
 {
     var connectionString = builder.Configuration.GetConnectionString("Default");
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+    options.UseAzureSql(connectionString);
 });
-// Use AddEmailServices() instead of AddAzureEmailServices() to switch to the SmtpEmailService implementation.
-builder.Services.AddAzureEmailServices(builder.Configuration);
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddAzureFileStorageServices(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddHangfireServices(builder.Configuration);
 builder.Services.AddHttpClient();
 builder.Services.AddIdentityServices(builder.Configuration);
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddSwagger();
 
-builder.Services.AddScoped<IAuditLogService, AuditLogService>();
-builder.Services.AddScoped<IUserFileService, UserFileService>();
+// Application services
+builder.Services.AddScoped<IAccessPolicy, DefaultAccessPolicy>();
+builder.Services.AddScoped<IAccessScopeProvider, AccessScopeProvider>();
+builder.Services.AddScoped<IAuditContext, HttpAuditContext>();
+builder.Services.AddScoped<IApprovalRequestAssigneeGlobalIdResolver, DefaultApprovalRequestAssigneeGlobalIdResolver>();
+builder.Services.AddScoped<IApprovalRequestCompletionAttributor, ApprovalRequestCompletionAttributor>();
 builder.Services.AddScoped<IApprovalRequestService, ApprovalRequestService>();
-builder.Services.AddScoped<IStoreService, StoreService>();
+builder.Services.AddScoped<IApprovalRequestTaskCompletionAttributor, ApprovalRequestTaskCompletionAttributor>();
+builder.Services.AddScoped<IApprovalRequestTaskService, ApprovalRequestTaskService>();
+builder.Services.AddScoped<IApprovalWorkflowService, ApprovalWorkflowService>();
+builder.Services.AddScoped<IAssigneeResolver, UserOnlyAssigneeResolver>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<ITenantService, TenantService>();
+builder.Services.AddScoped<ITenantContext, RequestTenantContext>();
+builder.Services.AddScoped<IUserFileService, UserFileService>();
+builder.Services.AddScoped<IUserNotificationPreferenceService, UserNotificationPreferenceService>();
+builder.Services.AddScoped<IUserProfileAccessService, DefaultUserProfileAccessService>();
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+
+// Infrastructure services
+builder.Services.AddScoped<IApprovalRequestRepository, ApprovalRequestRepository>();
+builder.Services.AddScoped<IApprovalRequestTaskRepository, ApprovalRequestTaskRepository>();
+builder.Services.AddScoped<IEventOutboxRepository, EventOutboxRepository>();
+builder.Services.AddScoped<IInAppNotificationRepository, InAppNotificationRepository>();
+builder.Services.AddScoped<ITenantRepository, TenantRepository>();
+builder.Services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApiDbContext>());
+builder.Services.AddScoped<IUserFileRepository, UserFileRepository>();
+builder.Services.AddScoped<IUserNotificationPreferenceRepository, UserNotificationPreferenceRepository>();
 
 var app = builder.Build();
 
-// Ensure the database is created. If the database already exists, this will do nothing.
-// Changes to the database schema should be handled via EF Core migrations.
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
-    db.Database.EnsureCreated();
-}
-
-var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
-if (allowedOrigins is not null && allowedOrigins.Length > 0)
-{
-    app.UseCors(policy => policy.AllowAnyHeader()
-        .AllowAnyMethod()
-        .WithOrigins(allowedOrigins));
-}
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    app.UseHangfireDashboard();
-}
+app.InitializeDatabase<ApiDbContext>();
+app.UseConfiguredCors();
+app.UseApiDocumentation();
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+app.UseRouting();
 app.UseAuthentication();
+app.UseMiddleware<InitialTenantSetupMiddleware>();
+app.UseMiddleware<DefaultTenantResolutionMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
-app.MapGroup("/api/account").MapIdentityApi<AppUser>();
+var account = app.NewVersionedApi("Account")
+    .MapGroup("/api/v{version:apiVersion}/account")
+    .WithTags("Click2Approve.WebApi.Account")
+    .HasApiVersion(1.0);
+account.MapIdentityApi<AppUser>().RequireIdentityRateLimiting().ApplyVerificationPolicy().RequireAccountSecurity();
 
 app.Run();

@@ -1,0 +1,88 @@
+import { stores } from "@/app/rootStore";
+import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
+import ApprovalRequestTask from "@/features/approvalRequests/components/ApprovalRequestTask";
+import NarrowContent from "@/shared/components/layout/NarrowContent";
+import { Refresh } from "@/shared/config/application";
+import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import NotFoundPage from "@/shared/pages/NotFoundPage";
+import { Routes } from "@/shared/routing/routes";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { observer } from "mobx-react-lite";
+import { useEffect, useState } from "react";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
+
+export type ApprovalRequestTaskTab = "task" | "request" | "chat";
+
+interface ApprovalRequestTaskPageProps {
+  tab?: ApprovalRequestTaskTab;
+}
+
+const ApprovalRequestTaskPage: React.FC<ApprovalRequestTaskPageProps> = ({ tab = "task" }) => {
+  const navigate = useNavigate();
+  const { taskGlobalId } = useParams<{ taskGlobalId: string }>();
+  usePageTitle(`Task ${getApprovalRequestNumber(taskGlobalId)}`);
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const tasksPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/tasks") : "/";
+  const task = taskGlobalId ? stores.approvalRequestTaskStore.getDetail(taskGlobalId) : null;
+  const [loadedTaskGlobalId, setLoadedTaskGlobalId] = useState<string | null>(null);
+  const taskHasLoaded = loadedTaskGlobalId === taskGlobalId;
+  const detailLoader = ActionLoaders.approvalRequestTasks.load(taskGlobalId);
+
+  useEffect(() => {
+    let active = true;
+    setLoadedTaskGlobalId(null);
+    const load = () => {
+      if (!tenantGlobalId || !taskGlobalId) {
+        return;
+      }
+
+      stores.commonStore.updateActionLoadingCounter(detailLoader, 1);
+      void stores.approvalRequestTaskStore
+        .loadDetails(tenantGlobalId, taskGlobalId)
+        .then(() => {
+          if (active) {
+            setLoadedTaskGlobalId(taskGlobalId);
+          }
+        })
+        .finally(() => stores.commonStore.updateActionLoadingCounter(detailLoader, -1));
+    };
+
+    load();
+    if (Refresh.approvalRequestDetailsMs <= 0) {
+      return () => {
+        active = false;
+      };
+    }
+
+    const intervalId = window.setInterval(load, Refresh.approvalRequestDetailsMs);
+    return () => {
+      active = false;
+      window.clearInterval(intervalId);
+    };
+  }, [detailLoader, taskGlobalId, tenantGlobalId]);
+
+  useEffect(() => {
+    stores.approvalRequestTaskStore.setCurrent(task ?? null);
+  }, [task]);
+
+  if (!taskGlobalId) return <Navigate to={tasksPath} />;
+  if (taskHasLoaded && !task) return <NotFoundPage />;
+  if (!task || !taskHasLoaded) return null;
+
+  return (
+    <NarrowContent>
+      <ApprovalRequestTask
+        key={JSON.stringify([stores.tenantStore.currentWorkEmployeeGlobalId, taskGlobalId])}
+        onClose={(currentTaskGlobalId) =>
+          navigate(tasksPath, {
+            state: currentTaskGlobalId ? { currentTaskGlobalId } : undefined,
+          })
+        }
+        tab={tab}
+        taskGlobalId={taskGlobalId}
+      />
+    </NarrowContent>
+  );
+};
+
+export default observer(ApprovalRequestTaskPage);

@@ -1,0 +1,323 @@
+import { stores } from "@/app/rootStore";
+import ApprovalRequestParticipantChip from "@/features/approvalRequests/components/ApprovalRequestParticipantChip";
+import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
+import {
+  CreateEmployeeRequest,
+  Employee,
+  EmployeeStatus,
+  UpdateEmployeeRequest,
+} from "@/features/employees/models/employee";
+import { Team } from "@/features/teams/models/team";
+import { EmployeeRole } from "@/features/tenants/models/tenant";
+import MainActionButton from "@/shared/components/buttons/MainActionButton";
+import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
+import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
+import { Forms } from "@/shared/components/dialogs/formStyles";
+import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
+import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
+import { FieldLimits } from "@/shared/config/fieldLimits";
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction";
+import { useFormValidation } from "@/shared/hooks/useFormValidation";
+import { Routes } from "@/shared/routing/routes";
+import { ActionLoaders } from "@/shared/utils/actionLoaders";
+import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
+import { emailRule, textRule } from "@/shared/utils/formValidation";
+import { notification } from "@/shared/utils/notifications";
+import {
+  Autocomplete,
+  Button,
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  TextField,
+} from "@mui/material";
+import { useEffect, useRef, useState } from "react";
+
+interface EmployeeDialogProps {
+  canEdit: boolean;
+  canTransferOwnership: boolean;
+  employee: Employee | null;
+  teams: Team[];
+  selectedTeamGlobalIds: string[];
+  onClose: (currentEmployeeGlobalId?: string) => void;
+  onDelete: (employeeGlobalId: string) => Promise<boolean>;
+  onSubmit: (
+    payload: CreateEmployeeRequest | UpdateEmployeeRequest,
+    employeeGlobalId?: string,
+  ) => Promise<Employee | null>;
+}
+
+const roleOptions = [
+  { label: "User", value: EmployeeRole.User },
+  { label: "Admin", value: EmployeeRole.Admin },
+];
+
+const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
+  employee,
+  teams,
+  selectedTeamGlobalIds,
+  canEdit,
+  canTransferOwnership,
+  onClose,
+  onDelete,
+  onSubmit,
+}) => {
+  const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [position, setPosition] = useState("");
+  const [role, setRole] = useState(EmployeeRole.User);
+  const [isActive, setIsActive] = useState(true);
+  const [selectedTeams, setSelectedTeams] = useState<Team[]>([]);
+  const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
+  const [disableDialogIsOpen, setDisableDialogIsOpen] = useState(false);
+  const [ownershipTransferDialogIsOpen, setOwnershipTransferDialogIsOpen] = useState(false);
+  const initializedEmployeeGlobalId = useRef<string | null | undefined>(undefined);
+  const saveLoader = ActionLoaders.employees.save(employee?.globalId);
+  const saveAction = useAsyncAction(saveLoader);
+  const isNew = employee === null;
+  const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
+  const employeesPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/employees") : "/";
+  const saveIsLoading = saveAction.isRunning || stores.commonStore.isActionLoading(saveLoader);
+  const availableRoleOptions = [
+    ...roleOptions,
+    ...(employee?.role === EmployeeRole.Owner || (canTransferOwnership && !isNew)
+      ? [{ label: "Owner", value: EmployeeRole.Owner }]
+      : []),
+  ];
+
+  useEffect(() => {
+    if (initializedEmployeeGlobalId.current === (employee?.globalId ?? null)) return;
+    initializedEmployeeGlobalId.current = employee?.globalId ?? null;
+    setEmail(employee?.email ?? "");
+    setFirstName(employee?.firstName ?? "");
+    setLastName(employee?.lastName ?? "");
+    setPosition(employee?.position ?? "");
+    setRole(employee?.role ?? EmployeeRole.User);
+    setIsActive(employee?.status === EmployeeStatus.Active);
+    setSelectedTeams(teams.filter((team) => selectedTeamGlobalIds.includes(team.globalId)));
+  }, [employee, teams, selectedTeamGlobalIds]);
+
+  const saveEmployee = async () => {
+    const payload = {
+      firstName: firstName.trim() || undefined,
+      lastName: lastName.trim() || undefined,
+      position: position.trim() || undefined,
+      role,
+      ...(!isNew ? { isActive } : {}),
+      teamGlobalIds: selectedTeams.map((team) => team.globalId),
+    };
+    return (
+      (await validation.run(() =>
+        saveAction.run(async () => {
+          const savedEmployee = !isNew
+            ? await onSubmit(payload, employee.globalId)
+            : await onSubmit({ ...payload, email: email.trim() });
+
+          if (savedEmployee) {
+            onClose(savedEmployee.globalId);
+          }
+
+          return savedEmployee !== null;
+        }),
+      )) ?? false
+    );
+  };
+
+  const validation = useFormValidation(
+    { email, firstName, lastName, position },
+    {
+      email: emailRule(isNew),
+      firstName: textRule("First name", FieldLimits.name),
+      lastName: textRule("Last name", FieldLimits.name),
+      position: textRule("Position", FieldLimits.name),
+    },
+  );
+
+  const handleSubmit = async () => {
+    if (!validation.validate()) {
+      notification.validationWarning();
+      return;
+    }
+    if (!canEdit) {
+      return;
+    }
+
+    if (!isNew && employee.role !== EmployeeRole.Owner && role === EmployeeRole.Owner) {
+      setOwnershipTransferDialogIsOpen(true);
+      return;
+    }
+
+    if (!isNew && employee.status === EmployeeStatus.Active && !isActive) {
+      setDisableDialogIsOpen(true);
+      return;
+    }
+
+    await saveEmployee();
+  };
+
+  return (
+    <CloseOnEscape onClose={() => onClose(employee?.globalId)}>
+      <PageBreadcrumbs
+        items={[
+          {
+            label: "Employees",
+            state: employee ? { currentEmployeeGlobalId: employee.globalId } : undefined,
+            to: employeesPath,
+          },
+          {
+            label: employee ? getEmployeeDisplayName(employee) : "New employee",
+          },
+        ]}
+      />
+      <Stack spacing={Forms.formStackSpacing}>
+        <TextField
+          label="Email"
+          value={email}
+          {...validation.field("email")}
+          onChange={(event) => setEmail(event.target.value)}
+          disabled={!isNew || !canEdit}
+          fullWidth
+          required
+        />
+        <TextField
+          label="First name"
+          value={firstName}
+          {...validation.field("firstName")}
+          onChange={(event) => setFirstName(event.target.value)}
+          fullWidth
+          disabled={!canEdit}
+        />
+        <TextField
+          label="Last name"
+          value={lastName}
+          {...validation.field("lastName")}
+          onChange={(event) => setLastName(event.target.value)}
+          fullWidth
+          disabled={!canEdit}
+        />
+        <TextField
+          label="Position"
+          value={position}
+          {...validation.field("position")}
+          onChange={(event) => setPosition(event.target.value)}
+          fullWidth
+          disabled={!canEdit}
+        />
+        <FormControl fullWidth>
+          <InputLabel id="tenant-user-role-label">Role</InputLabel>
+          <Select
+            labelId="tenant-user-role-label"
+            label="Role"
+            value={role}
+            onChange={(event) => setRole(event.target.value as EmployeeRole)}
+            disabled={!canEdit || (!isNew && employee.role === EmployeeRole.Owner)}
+          >
+            {availableRoleOptions.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <Autocomplete
+          multiple
+          options={teams}
+          value={selectedTeams}
+          getOptionKey={(option) => option.globalId}
+          getOptionLabel={(option) => option.name}
+          isOptionEqualToValue={(option, value) => option.globalId === value.globalId}
+          onChange={(_, value) => setSelectedTeams(value)}
+          disabled={!canEdit}
+          renderValue={(value, getItemProps) =>
+            value.map((option, index) => {
+              const { key, ...chipProps } = getItemProps({ index });
+              void key; // Use the resource ID instead of MUI's positional key.
+              return (
+                <ApprovalRequestParticipantChip
+                  key={option.globalId}
+                  {...chipProps}
+                  displayName={option.name}
+                  type={AssigneeType.Team}
+                />
+              );
+            })
+          }
+          renderInput={(params) => <TextField {...params} label="Teams" helperText="Assign this employee to teams." />}
+        />
+        {!isNew && employee.status !== EmployeeStatus.Pending && (
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isActive}
+                disabled={!canEdit || employee.role === EmployeeRole.Owner}
+                onChange={(event) => setIsActive(event.target.checked)}
+              />
+            }
+            label="Active"
+          />
+        )}
+      </Stack>
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
+        <Button variant="text" onClick={() => onClose(employee?.globalId)}>
+          Cancel
+        </Button>
+        {!isNew && canEdit && employee?.role !== EmployeeRole.Owner && (
+          <Button color="error" variant="text" onClick={() => setDeleteDialogIsOpen(true)}>
+            Delete
+          </Button>
+        )}
+        {canEdit && (
+          <MainActionButton loading={saveIsLoading} onClick={handleSubmit}>
+            Save
+          </MainActionButton>
+        )}
+      </Stack>
+      {employee && (
+        <DeleteConfirmationDialog
+          entityName={employee.email}
+          open={deleteDialogIsOpen}
+          title="Delete employee"
+          onClose={() => setDeleteDialogIsOpen(false)}
+          onDelete={() => onDelete(employee.globalId)}
+        />
+      )}
+      <ConfirmationDialog
+        cancelLabel="Keep current owner"
+        confirmColor="warning"
+        confirmLabel="Transfer ownership"
+        message={
+          <>
+            You are transferring ownership of this organization. You will become an Admin and will not be able to
+            transfer ownership back yourself.
+          </>
+        }
+        open={ownershipTransferDialogIsOpen}
+        title="Transfer organization ownership?"
+        onClose={() => setOwnershipTransferDialogIsOpen(false)}
+        onConfirm={saveEmployee}
+      />
+      <ConfirmationDialog
+        cancelLabel="Keep employee active"
+        confirmColor="warning"
+        confirmLabel="Disable employee"
+        message={
+          <>
+            This employee will immediately lose access to this organization and will no longer appear when selecting
+            employees. Existing tasks, requests, team memberships, and delegations will be retained.
+          </>
+        }
+        open={disableDialogIsOpen}
+        title="Disable employee?"
+        onClose={() => setDisableDialogIsOpen(false)}
+        onConfirm={saveEmployee}
+      />
+    </CloseOnEscape>
+  );
+};
+
+export default EmployeeDialog;

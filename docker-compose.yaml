@@ -1,23 +1,60 @@
 services:
-  db:
-    image: mysql:8.4
-    environment:
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: click2approve
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:3.35.0
+    command:
+      - sh
+      - -c
+      - >
+        azurite-blob --blobHost 0.0.0.0 --skipApiVersionCheck &
+        azurite-queue --queueHost 0.0.0.0 --skipApiVersionCheck &
+        wait
     ports:
-      - "3306:3306"
+      - "10000:10000"
+      - "10001:10001"
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: P@ssw0rd
+    ports:
+      - "1433:1433"
   api:
     depends_on:
+      - azurite
       - db
-    build: ./api
+    build:
+      context: ./api
+      dockerfile: Dockerfile.api
     image: click2approve-api:local
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
     ports:
       - "5555:5555"
-    command: /app/wait-for-it.sh -t 60 db:3306 -- dotnet /app/Click2Approve.WebApi.dll
+    command: /app/wait-for-it.sh -t 60 db:1433 -- dotnet /app/Click2Approve.WebApi.dll
+  event-publisher:
+    depends_on:
+      - azurite
+      - db
+    build:
+      context: ./api
+      dockerfile: Dockerfile.event-publisher
+    image: click2approve-event-publisher:local
+    environment:
+      - DOTNET_ENVIRONMENT=Docker
+    command: /app/wait-for-it.sh -t 60 db:1433 -- dotnet /app/Click2Approve.EventPublisher.dll
+  event-consumer:
+    depends_on:
+      - azurite
+      - db
+    build:
+      context: ./api
+      dockerfile: Dockerfile.event-consumer
+    image: click2approve-event-consumer:local
+    environment:
+      - DOTNET_ENVIRONMENT=Docker
+    command: /app/wait-for-it.sh -t 60 db:1433 -- dotnet /app/Click2Approve.EventConsumer.dll
   ui:
     depends_on:
       - api
@@ -25,6 +62,7 @@ services:
       context: ./ui
       args:
         - ENV=development
+        - DOCS_API_BASE_URI=http://localhost:5555
     image: click2approve-ui:local
     ports:
       - "3333:3333"

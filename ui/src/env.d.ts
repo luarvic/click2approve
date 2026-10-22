@@ -1,9 +1,13 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
+  readonly APP_BUILD_ID: string;
+  readonly GOOGLE_ANALYTICS_ID?: string;
+  readonly VITE_APP_UPDATE_CHECK_MINUTES?: string;
   readonly VITE_API_BASE_URI: string;
+  readonly VITE_APP_VERSION?: string;
+  readonly VITE_SHOW_PERSISTENCE_SUCCESS_NOTIFICATIONS?: string;
   readonly VITE_UI_BASE_URI: string;
-  readonly VITE_EMAIL_SERVICE_IS_ENABLED: string;
   // more env variables...
 }
 

@@ -1,0 +1,196 @@
+import ApprovalRequestCardLayout from "@/features/approvalRequests/components/ApprovalRequestCardLayout";
+import ApprovalRequestField from "@/features/approvalRequests/components/ApprovalRequestField";
+import ApprovalRequestFieldGroup from "@/features/approvalRequests/components/ApprovalRequestFieldGroup";
+import ApprovalRequestFilesBox from "@/features/approvalRequests/components/ApprovalRequestFilesBox";
+import { getApprovalRequestNumber } from "@/features/approvalRequests/components/ApprovalRequestNumberText";
+import ApprovalRequestRevisionLinks from "@/features/approvalRequests/components/ApprovalRequestRevisionLinks";
+import ApprovalRequestStatusChip from "@/features/approvalRequests/components/ApprovalRequestStatusChip";
+import {
+  ApprovalRequestFile,
+  ApprovalRequestFileRevisionAction,
+} from "@/features/approvalRequests/models/approvalRequest";
+import { Flex } from "@/shared/components/layout/flexStyles";
+import HelpPopover from "@/shared/components/overlays/HelpPopover";
+import UserProvidedText from "@/shared/components/text/UserProvidedText";
+import { StackSpacing } from "@/shared/theme/tokens";
+import type { TypographyProps } from "@mui/material";
+import { FormControlLabel, Stack, Switch, Typography } from "@mui/material";
+import type { SxProps, Theme } from "@mui/material/styles";
+import { useState, type ElementType, type ReactNode } from "react";
+
+interface ApprovalRequestSummaryProps {
+  additionalContent?: ReactNode;
+  activity?: ReactNode;
+  artifacts?: ReactNode;
+  approvalRequestGlobalId?: string;
+  approvalRequestTaskGlobalId?: string;
+  description?: string;
+  defaultExpanded?: boolean;
+  expandable?: boolean;
+  instructions?: string;
+  nextRevisionApprovalRequestGlobalId?: string;
+  numberPrefix?: string;
+  previousRevisionApprovalRequestGlobalId?: string;
+  requestFiles?: ApprovalRequestFile[];
+  revisionNumber?: number;
+  metadata?: ReactNode;
+  numberColor?: TypographyProps["color"];
+  numberComponent?: ElementType;
+  numberVariant?: string;
+  showFileStateIndicators?: boolean;
+  showDescription?: boolean;
+  showFiles?: boolean;
+  showInstructions?: boolean;
+  showRevision?: boolean;
+  showStatus?: boolean;
+  showTitle?: boolean;
+  statusLabel?: string;
+  statusColor?: TypographyProps["color"];
+  statusIcon?: ReactNode;
+  tenantGlobalId?: string | null;
+  title?: string;
+}
+
+const revisionToggleSx: SxProps<Theme> = { mr: 0 };
+
+const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
+  additionalContent,
+  activity,
+  artifacts,
+  approvalRequestGlobalId,
+  approvalRequestTaskGlobalId,
+  description,
+  defaultExpanded,
+  expandable,
+  instructions,
+  nextRevisionApprovalRequestGlobalId,
+  metadata,
+  numberPrefix: _numberPrefix = "Request",
+  previousRevisionApprovalRequestGlobalId,
+  requestFiles,
+  revisionNumber,
+  showFileStateIndicators,
+  showDescription = true,
+  showFiles = true,
+  showInstructions = false,
+  showRevision = true,
+  showStatus = true,
+  statusLabel,
+  statusColor,
+  statusIcon,
+  tenantGlobalId,
+}) => {
+  const numberGlobalId = approvalRequestGlobalId ?? approvalRequestTaskGlobalId;
+  const hasFiles = Boolean(requestFiles?.length);
+  const isRevision = (revisionNumber ?? 1) > 1;
+  const [showChanges, setShowChanges] = useState(false);
+  const hasCurrentFiles = requestFiles?.some(
+    (file) => file.revisionAction !== ApprovalRequestFileRevisionAction.Removed,
+  );
+  const files = hasFiles ? (
+    <ApprovalRequestFilesBox
+      approvalRequestGlobalId={approvalRequestGlobalId}
+      approvalRequestTaskGlobalId={approvalRequestTaskGlobalId}
+      compareWithPrevious={isRevision && showChanges}
+      requestFiles={requestFiles}
+      showFileStateIndicators={isRevision && showChanges && (showFileStateIndicators ?? true)}
+    />
+  ) : undefined;
+
+  const hasDetails =
+    (showRevision && isRevision) ||
+    (showDescription && Boolean(description?.trim())) ||
+    (showInstructions && Boolean(instructions?.trim())) ||
+    (showFiles && hasFiles);
+  const details = hasDetails ? (
+    <ApprovalRequestFieldGroup title="Details">
+      {showRevision && isRevision && (
+        <ApprovalRequestField
+          label="Revision"
+          value={
+            <Stack component="span" direction="row" spacing={StackSpacing.tight} sx={Flex.inlineCenterSx}>
+              <Typography component="span" variant="body1">
+                {revisionNumber ?? 1}
+              </Typography>
+              <ApprovalRequestRevisionLinks
+                leadingDivider
+                nextRevisionApprovalRequestGlobalId={nextRevisionApprovalRequestGlobalId}
+                previousRevisionApprovalRequestGlobalId={previousRevisionApprovalRequestGlobalId}
+                tenantGlobalId={tenantGlobalId}
+              />
+            </Stack>
+          }
+        />
+      )}
+      {showDescription && (
+        <ApprovalRequestField
+          label="Description"
+          value={description?.trim() ? <UserProvidedText text={description} /> : undefined}
+        />
+      )}
+      {showInstructions && (
+        <ApprovalRequestField
+          label="Instructions"
+          value={instructions?.trim() ? <UserProvidedText text={instructions} /> : undefined}
+        />
+      )}
+      {showFiles && hasFiles && (
+        <ApprovalRequestField
+          label="Files to review"
+          value={
+            isRevision ? (
+              <Stack spacing={StackSpacing.tight} sx={Flex.alignStartSx}>
+                <Stack direction="row" spacing={StackSpacing.tight} sx={Flex.alignCenterSx}>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={showChanges}
+                        onChange={(event) => setShowChanges(event.target.checked)}
+                        size="small"
+                      />
+                    }
+                    label={
+                      <Typography color="textSecondary" variant="caption">
+                        Show revision changes
+                      </Typography>
+                    }
+                    sx={revisionToggleSx}
+                  />
+                  <HelpPopover
+                    docsHref="/docs/track-requests/"
+                    helpText="Show replaced and deleted files for context alongside the current files."
+                  />
+                </Stack>
+                {(showChanges || hasCurrentFiles) && files ? (
+                  files
+                ) : (
+                  <Typography color="textSecondary">None</Typography>
+                )}
+              </Stack>
+            ) : (
+              files
+            )
+          }
+        />
+      )}
+    </ApprovalRequestFieldGroup>
+  ) : undefined;
+
+  return (
+    <ApprovalRequestCardLayout
+      activity={activity ?? additionalContent}
+      artifacts={artifacts ?? metadata}
+      defaultExpanded={defaultExpanded}
+      details={details}
+      expandable={expandable}
+      status={
+        showStatus && statusLabel ? (
+          <ApprovalRequestStatusChip color={statusColor} icon={statusIcon} label={statusLabel} />
+        ) : undefined
+      }
+      title={`${_numberPrefix} ${getApprovalRequestNumber(numberGlobalId)}`}
+    />
+  );
+};
+
+export default ApprovalRequestSummary;
