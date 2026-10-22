@@ -115,7 +115,7 @@ not update the compiled app.
 | `VITE_API_BASE_URI` | API base URL visible to the browser |
 | `VITE_UI_BASE_URI` | Public UI origin |
 | `VITE_APP_UPDATE_CHECK_MINUTES` | Production release-check interval in minutes (default `5`); also checks at startup and reloads when a new build is detected |
-| `GOOGLE_ANALYTICS_ID` | Optional GA4 measurement ID (`G-...`) for the app, legacy help, landing page, and docs; unset or empty disables Analytics |
+| `GOOGLE_ANALYTICS_ID` | Optional GA4 measurement ID (`G-...`) for the app, landing page, and docs; unset or empty disables Analytics |
 | `DOCS_SITE_URL` | Public site's canonical origin, including trailing `/` |
 | `DOCS_API_BASE_URI` | API base URL used for the public site's Swagger link |
 

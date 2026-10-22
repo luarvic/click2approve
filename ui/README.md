@@ -106,7 +106,7 @@ For a local static build, use `DOCS_API_BASE_URI=http://localhost:5555`.
 ## Optional analytics
 
 Google Analytics is disabled when `GOOGLE_ANALYTICS_ID` is unset or empty.
-To enable it across the app, legacy help, landing page, and docs, pass
+To enable it across the app, landing page, and docs, pass
 `--build-arg GOOGLE_ANALYTICS_ID=G-YOURID` to the UI Docker build, or set the same
 environment variable for both Vite and MkDocs builds. Rebuild to change the ID.
 See [frontend build settings](../docs/configuration.md#frontend-build-settings).

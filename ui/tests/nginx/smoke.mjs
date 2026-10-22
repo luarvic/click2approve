@@ -45,7 +45,7 @@ try {
     await response.text();
   }
 
-  for (const path of ["/", "/docs/", "/docs/getting-started/", "/app/", "/app/help.html"]) {
+  for (const path of ["/", "/docs/", "/docs/getting-started/", "/app/"]) {
     const response = await request(path);
     assert.equal(response.status, 200, path);
     checkHeaders(response);
@@ -75,6 +75,18 @@ try {
     }
   }
 
+  for (const path of [
+    "/app/logo-with-text.png",
+    "/app/logo-wall-to-wall.svg",
+    "/app/logo-narrow.svg",
+    "/app/styles.css",
+  ]) {
+    const response = await request(path);
+    assert.equal(response.status, 200, path);
+    checkHeaders(response);
+    assert.ok((await response.arrayBuffer()).byteLength > 0, path);
+  }
+
   const shell = await (await request("/app/index.html")).text();
   const versionResponse = await request("/app/version.json");
   assert.equal(versionResponse.status, 200);
@@ -87,7 +99,16 @@ try {
   checkHeaders(deepLink);
   assert.equal(await deepLink.text(), shell);
 
-  for (const path of ["/asda", "/docs/missing-page", "/404.html", "/app/assets/missing.js"]) {
+  for (const path of [
+    "/asda",
+    "/docs/missing-page",
+    "/404.html",
+    "/app/assets/missing.js",
+    "/app/help.html",
+    "/app/help.css",
+    "/app/favicon.ico",
+    "/app/logo-email.png",
+  ]) {
     const response = await request(path);
     assert.equal(response.status, 404, path);
     checkHeaders(response);

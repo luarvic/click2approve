@@ -62,37 +62,10 @@ public class NotificationEmailService(
         CancellationToken cancellationToken) => _emailService.SendAsync(message, cancellationToken);
 
     /// <summary>Allows the commercial worker to resolve its discussion data without a shared dependency.</summary>
-    protected virtual async Task<NotificationEmailContext?> CreateDiscussionContextAsync(
+    protected virtual Task<NotificationEmailContext?> CreateDiscussionContextAsync(
         NotificationEventPayload payload,
         Guid tenantGlobalId,
-        CancellationToken cancellationToken)
-    {
-        // Legacy events do not identify a message: show context only, never guess the latest author or excerpt.
-        var targetResourceGlobalId = payload.TargetResourceGlobalId;
-        if (targetResourceGlobalId is null) return null;
-        if (payload.TargetResourceType == NotificationResourceType.ApprovalRequestTask)
-        {
-            var task = await _db.ApprovalRequestTasks.AsNoTracking()
-                .Include(item => item.ApprovalRequest)
-                .FirstOrDefaultAsync(item => item.GlobalId == targetResourceGlobalId
-                    && item.AssigneeUserId == payload.UserId && item.TenantId == payload.TenantId, cancellationToken);
-            if (task is null) return null;
-            return new NotificationEmailContext
-            {
-                RequestTitle = task.ApprovalRequest.Title,
-                ActionUrl = GetLink(tenantGlobalId, $"tasks/{task.GlobalId}/chat")
-            };
-        }
-        if (payload.TargetResourceType != NotificationResourceType.ApprovalRequest) return null;
-        var request = await _db.ApprovalRequests.AsNoTracking().FirstOrDefaultAsync(
-            item => item.GlobalId == targetResourceGlobalId && item.RequesterUserId == payload.UserId
-                && item.TenantId == payload.TenantId, cancellationToken);
-        return request is null ? null : new NotificationEmailContext
-        {
-            RequestTitle = request.Title,
-            ActionUrl = GetLink(tenantGlobalId, $"requests/{request.GlobalId}/chat")
-        };
-    }
+        CancellationToken cancellationToken) => Task.FromResult<NotificationEmailContext?>(null);
 
     /// <summary>Builds a link using the deployment's existing UI base and application path.</summary>
     protected string GetLink(Guid tenantGlobalId, string route) => UriHelpers.GetUiUri(

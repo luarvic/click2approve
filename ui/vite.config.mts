@@ -1,6 +1,5 @@
 import react from "@vitejs/plugin-react-swc";
 import { randomUUID } from "node:crypto";
-import { readFileSync } from "node:fs";
 import path from "node:path";
 import { defineConfig, loadEnv } from "vite";
 
@@ -41,13 +40,6 @@ export default defineConfig(({ command, mode }) => {
       {
         name: "optional-google-analytics",
         transformIndexHtml: injectAnalytics,
-        generateBundle() {
-          this.emitFile({
-            type: "asset",
-            fileName: "help.html",
-            source: injectAnalytics(readFileSync(new URL("./public/help.html", import.meta.url), "utf8")),
-          });
-        },
       },
       {
         name: "app-build-version",
@@ -79,7 +71,7 @@ export default defineConfig(({ command, mode }) => {
               { name: "state", test: /node_modules\/(mobx|mobx-react-lite)\// },
               {
                 name: "utilities",
-                test: /node_modules\/(axios|dayjs|password-validator|pretty-bytes|s-ago|styled-components)\//,
+                test: /node_modules\/(axios|dayjs|password-validator|pretty-bytes|s-ago)\//,
               },
             ],
           },
