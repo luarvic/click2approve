@@ -43,6 +43,7 @@
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "test": "vitest",
     "test:browser:attachments": "node tests/browser/attachmentPreviews.mjs",
+    "test:nginx": "node tests/nginx/smoke.mjs",
     "preview": "vite preview"
   },
   "browserslist": {

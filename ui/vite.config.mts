@@ -7,9 +7,8 @@ export default defineConfig(() => {
     server: {
       port: 3333,
       proxy: {
-        "^/$": "http://127.0.0.1:8000",
-        "^/(?:docs|contact|terms|privacy|assets|stylesheets|javascripts|search|livereload)(?:/|$)":
-          "http://127.0.0.1:8000",
+        // MkDocs owns public pages and their 404s; Vite owns /app and its tooling.
+        "^/(?!app(?:/|\\?|$)|@vite/|@id/|@fs/|__vite|__open-in-editor)": "http://127.0.0.1:8000",
       },
     },
     base: "/app",
