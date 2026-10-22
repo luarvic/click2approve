@@ -34,6 +34,8 @@ and the [edition comparison](ui/docs/content/docs/open-source.md).
   tasks and outcomes, with personal notification preferences.
 - **Account security:** Use password or passkey sign-in, authenticator-app MFA,
   recovery codes, email confirmation, and password reset.
+- **First-time user guide:** Tour profile settings, notifications, and navigation;
+  replay the guide from Support.
 - **Responsive web interface:** Manage personal workflows from desktop or mobile.
 
 ## Run locally

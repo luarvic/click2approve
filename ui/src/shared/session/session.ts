@@ -72,3 +72,25 @@ export const isPasskeyEnrollmentPromptDismissed = (email: string): boolean =>
 export const dismissPasskeyEnrollmentPrompt = (email: string) => {
   localStorage.setItem(getPasskeyEnrollmentPromptDismissedKey(email), "true");
 };
+
+const dismissedUserGuides = new Set<string>();
+const userGuideKey = (email: string) => `userGuideDismissed.v1.${encodeURIComponent(email.trim().toLowerCase())}`;
+
+export const isUserGuideDismissed = (email: string): boolean => {
+  const key = userGuideKey(email);
+  try {
+    return dismissedUserGuides.has(key) || localStorage.getItem(key) === "true";
+  } catch {
+    return dismissedUserGuides.has(key);
+  }
+};
+
+export const dismissUserGuide = (email: string) => {
+  const key = userGuideKey(email);
+  dismissedUserGuides.add(key);
+  try {
+    localStorage.setItem(key, "true");
+  } catch {
+    // Keep the guide dismissed for this session when browser storage is unavailable.
+  }
+};

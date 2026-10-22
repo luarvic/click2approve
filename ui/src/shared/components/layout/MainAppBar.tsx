@@ -77,6 +77,7 @@ const MainAppBar = ({
             color="inherit"
             edge="start"
             size="medium"
+            data-user-guide="menu-button"
             aria-label={mainMenuDrawerIsOpen ? "Close menu" : "Open menu"}
             onClick={() => stores.commonStore.setMainMenuDrawerIsOpen(!mainMenuDrawerIsOpen)}
             sx={Shell.mainMenuButtonSx(mainMenuDrawerIsOpen)}
@@ -88,7 +89,7 @@ const MainAppBar = ({
     >
       <>
         {tenantPickerIsVisible && (
-          <FormControl size="small" sx={Shell.tenantPickerSx} variant="outlined">
+          <FormControl data-user-guide="workspace" size="small" sx={Shell.tenantPickerSx} variant="outlined">
             <InputLabel id="tenant-picker-label">Workspace</InputLabel>
             <Select
               label="Workspace"
@@ -161,6 +162,7 @@ const MainAppBar = ({
           <IconButton
             color="inherit"
             edge="end"
+            data-user-guide="profile"
             aria-label="Open profile"
             size="medium"
             sx={Shell.profileButtonSx}

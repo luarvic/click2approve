@@ -33,6 +33,7 @@ const NotificationBell = () => {
   }, [loadUnreadCount, workEmployeeGlobalId]);
   return (
     <IconButton
+      data-user-guide="notifications"
       aria-label="Open notifications"
       color="inherit"
       disabled={!tenantId}

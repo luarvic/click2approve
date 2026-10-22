@@ -4,6 +4,7 @@ import { makeAutoObservable, runInAction } from "mobx";
 
 export class CommonStore {
   appBarOptions: AppBarOptions | null = null;
+  userGuideIsOpen = false;
   actionLoadingCounter: Dictionary<number>;
   approvalRequestSubmitDialogIsOpen: boolean;
   approvalRequestTrackDialogIsOpen: boolean;
@@ -83,6 +84,10 @@ export class CommonStore {
     });
   };
 
+  setUserGuideIsOpen = (isOpen: boolean) => {
+    this.userGuideIsOpen = isOpen;
+  };
+
   setMainMenuDrawerIsOpen = (isOpen: boolean) => {
     runInAction(() => {
       this.mainMenuDrawerIsOpen = isOpen;
@@ -119,6 +124,7 @@ export class CommonStore {
       this.approvalRequestTrackDialogIsOpen = false;
       this.approvalRequestViewDialogIsOpen = false;
       this.appBarOptions = null;
+      this.userGuideIsOpen = false;
       this.approvalRequestDeleteDialogIsOpen = false;
       this.taskViewDialogIsOpen = false;
       this.mainMenuDrawerIsOpen = false;

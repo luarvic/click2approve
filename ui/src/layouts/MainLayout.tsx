@@ -4,6 +4,7 @@ import MainMenuDrawer from "@/shared/components/layout/MainMenuDrawer";
 import ProfileDrawer from "@/shared/components/layout/ProfileDrawer";
 import { Shell } from "@/shared/components/layout/shellStyles";
 import SiteFooter from "@/shared/components/layout/SiteFooter";
+import UserGuide from "@/shared/components/onboarding/UserGuide";
 import { AppBarOptions } from "@/shared/models/appBarOptions";
 import { GlobalLoadingActionLoaderScopes } from "@/shared/utils/actionLoaders";
 import { Box, Container, LinearProgress, Toolbar } from "@mui/material";
@@ -27,6 +28,7 @@ const MainLayout = ({ appBarOptions: configuredAppBarOptions, children }: MainLa
     <Box sx={Shell.outerBackgroundSx}>
       <Container maxWidth="xl" disableGutters sx={Shell.contentBackgroundSx}>
         <MainAppBar {...appBarOptions} />
+        <UserGuide appBarOptions={appBarOptions} />
         {showMainMenuButton && <MainMenuDrawer />}
         <Box sx={Shell.mainContentSx(drawerIsVisible)}>
           <Box component="main" sx={Shell.pageBodySx}>

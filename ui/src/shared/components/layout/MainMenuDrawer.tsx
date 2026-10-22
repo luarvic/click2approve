@@ -16,6 +16,7 @@ import {
   BusinessOutlined,
   ContentCopyOutlined,
   CreditCardOutlined,
+  ExploreOutlined,
   GroupsOutlined,
   MenuBookOutlined,
   PersonOutlined,
@@ -190,7 +191,13 @@ const MainMenuDrawer = () => {
         </Link>
       </Toolbar>
       <Box sx={Shell.mainMenuDrawerContentSx}>
-        <List subheader={<ListSubheader component="div">Work</ListSubheader>}>
+        <List
+          subheader={
+            <ListSubheader component="div" data-user-guide-group="Work">
+              Work
+            </ListSubheader>
+          }
+        >
           <ListItem disablePadding>
             <ListItemButton
               selected={newRequestIsSelected}
@@ -283,7 +290,13 @@ const MainMenuDrawer = () => {
           )}
         </List>
         {organizationsIsVisible && (
-          <List subheader={<ListSubheader component="div">Access</ListSubheader>}>
+          <List
+            subheader={
+              <ListSubheader component="div" data-user-guide-group="Access">
+                Access
+              </ListSubheader>
+            }
+          >
             <ListItem key="organizations" disablePadding>
               <ListItemButton
                 selected={organizationsIsSelected}
@@ -302,7 +315,13 @@ const MainMenuDrawer = () => {
           </List>
         )}
         {workspaceGroupIsVisible && (
-          <List subheader={<ListSubheader component="div">People</ListSubheader>}>
+          <List
+            subheader={
+              <ListSubheader component="div" data-user-guide-group="People">
+                People
+              </ListSubheader>
+            }
+          >
             {employeeManagerIsVisible && (
               <ListItem key="employees" disablePadding>
                 <ListItemButton
@@ -363,7 +382,13 @@ const MainMenuDrawer = () => {
           </List>
         )}
         {subscriptionsIsVisible && (
-          <List subheader={<ListSubheader component="div">Subscription</ListSubheader>}>
+          <List
+            subheader={
+              <ListSubheader component="div" data-user-guide-group="Subscription">
+                Subscription
+              </ListSubheader>
+            }
+          >
             <ListItem key="subscriptionPlan" disablePadding>
               <ListItemButton
                 selected={
@@ -417,7 +442,26 @@ const MainMenuDrawer = () => {
             </ListItem>
           </List>
         )}
-        <List subheader={<ListSubheader component="div">Support</ListSubheader>}>
+        <List
+          subheader={
+            <ListSubheader component="div" data-user-guide-group="Support">
+              Support
+            </ListSubheader>
+          }
+        >
+          <ListItem key="userGuide" disablePadding>
+            <ListItemButton
+              onClick={() => {
+                closeTemporaryDrawer();
+                stores.commonStore.setUserGuideIsOpen(true);
+              }}
+            >
+              <ListItemIcon sx={Lists.itemIconSx}>
+                <ExploreOutlined />
+              </ListItemIcon>
+              <ListItemText primary="Replay user guide" />
+            </ListItemButton>
+          </ListItem>
           <ListItem key="help" disablePadding>
             <ListItemButton
               component="a"
@@ -470,7 +514,7 @@ const MainMenuDrawer = () => {
   }
 
   return (
-    <Box component="nav" sx={Shell.mainMenuDrawerNavSx(stores.commonStore.mainMenuDrawerIsOpen)}>
+    <Box data-user-guide="menu" component="nav" sx={Shell.mainMenuDrawerNavSx(stores.commonStore.mainMenuDrawerIsOpen)}>
       <Drawer
         variant="temporary"
         open={!isDesktop && stores.commonStore.mainMenuDrawerIsOpen}
