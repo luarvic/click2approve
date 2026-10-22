@@ -10,6 +10,8 @@ Notifications and email subjects show **Step succeeded** or **Step failed**, and
 
 Email links target the relevant task, request, receipt, or Plans page. Sign in with the intended account when prompted.
 
+Account, workflow, and billing emails share the app's footer with Home, App, Docs, Contact, Terms, and Privacy links. Security notices and delivery explanations appear above the footer.
+
 ## Set delivery preferences
 
 1. Open **User profile → Notifications**.

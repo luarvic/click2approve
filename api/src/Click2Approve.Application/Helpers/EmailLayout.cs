@@ -32,9 +32,11 @@ public static class EmailLayout
             {{RenderContext(model)}}
             {{RenderButton(model.PrimaryActionText, model.PrimaryActionUrl)}}
             {{Paragraph(model.Details, "color:#52645a;font-size:14px;")}}
+            {{Paragraph(model.Footer, "color:#52645a;font-size:12px;")}}
             </td></tr>
-            <tr><td style="border-top:1px solid #dfe7e1;padding:24px 28px;color:#52645a;font-size:12px;line-height:1.6;">
-            {{Encode(model.Footer)}}<br>© {{DateTime.UtcNow.Year}} Click2Approve
+            <tr><td style="border-top:1px solid #dfe7e1;padding:24px 28px;color:#52645a;font-size:11px;line-height:1.6;">
+            <p style="margin:0;font-weight:500;">© {{DateTime.UtcNow.Year}} Click2Approve. All rights reserved.</p>
+            {{RenderFooterNavigation(logoLinkUrl)}}
             </td></tr></table>
             <!--[if mso]></td></tr></table><![endif]-->
             </td></tr></table></body></html>
@@ -45,6 +47,26 @@ public static class EmailLayout
     public static string? SafeUrl(string? value) =>
         Uri.TryCreate(value, UriKind.Absolute, out var uri) && (uri.Scheme == "https" || uri.Scheme == "http")
             ? uri.AbsoluteUri : null;
+
+    private static string RenderFooterNavigation(string? siteUrl)
+    {
+        if (SafeUrl(siteUrl) is not { } safeUrl) return string.Empty;
+        var baseUri = new Uri(safeUrl);
+        // Match SiteFooter's root-relative public navigation, using absolute URLs for email clients.
+        (string Label, string Path)[] links =
+        [
+            ("Home", "/"),
+            ("App", "/app/"),
+            ("Docs", "/docs/"),
+            ("Contact", "/contact/"),
+            ("Terms", "/terms/"),
+            ("Privacy", "/privacy/")
+        ];
+        return "<p style=\"margin:16px 0 0;\">"
+            + string.Join(" ", links.Select(link =>
+                $"<a href=\"{Encode(new Uri(baseUri, link.Path).AbsoluteUri)}\" style=\"display:inline-block;margin-right:16px;color:#52645a;font-size:11px;line-height:2;text-decoration:underline;\">{link.Label}</a>"))
+            + "</p>";
+    }
 
     private static string RenderBody(EmailTemplateModel model)
     {

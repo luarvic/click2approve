@@ -205,6 +205,43 @@ public sealed class EmailTemplatesTests
     }
 
     [Fact]
+    public void Footer_MatchesAppNavigationAndKeepsSecurityNoteInTheContent()
+    {
+        var model = AccountEmailTemplates.Create(AccountEmailType.PasswordReset, "https://api.example.com/reset?code=secret");
+        var html = EmailLayout.Render(model, "https://cdn.example.com/logo.png", "https://ui.example.com/?tracking=value");
+
+        Assert.Contains($"© {DateTime.UtcNow.Year} Click2Approve. All rights reserved.", html);
+        (string Label, string Path)[] links =
+        [
+            ("Home", "/"), ("App", "/app/"), ("Docs", "/docs/"),
+            ("Contact", "/contact/"), ("Terms", "/terms/"), ("Privacy", "/privacy/")
+        ];
+        foreach (var (label, path) in links)
+        {
+            Assert.Matches($"href=\"https://ui\\.example\\.com{path}\"[^>]*>{label}</a>", html);
+        }
+        var footerPosition = html.IndexOf("border-top:1px", StringComparison.Ordinal);
+        Assert.Contains(WebUtility.HtmlEncode(model.Footer), html[..footerPosition]);
+        Assert.DoesNotContain("code=secret", html[footerPosition..]);
+        Assert.DoesNotContain("tracking=value", html[footerPosition..]);
+        Assert.DoesNotContain("cdn.example.com", html[footerPosition..]);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("javascript:alert(1)")]
+    [InlineData("/relative")]
+    public void Footer_WithoutAValidSiteUrl_DoesNotInventNavigation(string? siteUrl)
+    {
+        var model = AccountEmailTemplates.Create(AccountEmailType.PasswordReset, "https://example.com/reset");
+        var html = EmailLayout.Render(model, logoLinkUrl: siteUrl);
+
+        Assert.Contains("Click2Approve. All rights reserved.", html);
+        Assert.DoesNotContain(">Privacy</a>", html);
+        Assert.DoesNotContain("javascript:", html);
+    }
+
+    [Fact]
     public void Body_ShowsSenderNameWhenImageIsMissing()
     {
         var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestTaskCreated,

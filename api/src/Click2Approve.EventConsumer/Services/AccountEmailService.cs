@@ -27,7 +27,10 @@ public sealed class AccountEmailService(IEmailService emailService, IConfigurati
         {
             ToAddress = payload.ToAddress,
             Subject = template.Subject,
-            Body = EmailLayout.Render(template, EmailBranding.GetLogoUrl(_configuration))
+            Body = EmailLayout.Render(
+                template,
+                EmailBranding.GetLogoUrl(_configuration),
+                _configuration.GetValue<Uri>("UI:BaseUrl")?.ToString())
         }, cancellationToken);
     }
 
