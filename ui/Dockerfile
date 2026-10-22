@@ -12,10 +12,11 @@ COPY tsconfig.node.json ./
 COPY vite.config.mts ./
 COPY .env.${ENV} ./
 RUN npm ci --silent
+ARG GOOGLE_ANALYTICS_ID=
 RUN if [ "${ENV}" = "production" ]; then \
-  npm run build; \
+  GOOGLE_ANALYTICS_ID="${GOOGLE_ANALYTICS_ID}" npm run build; \
   else \
-  npm run build-dev; \
+  GOOGLE_ANALYTICS_ID="${GOOGLE_ANALYTICS_ID}" npm run build-dev; \
   fi
 
 FROM python:3.13-alpine AS docs
@@ -28,7 +29,8 @@ COPY mkdocs.yml ./
 COPY docs ./docs
 COPY public ./public
 COPY --from=build /app/node_modules/@fontsource/sora/files ./node_modules/@fontsource/sora/files
-RUN DOCS_SITE_URL="${DOCS_SITE_URL}" DOCS_API_BASE_URI="${DOCS_API_BASE_URI}" mkdocs build --strict
+ARG GOOGLE_ANALYTICS_ID=
+RUN DOCS_SITE_URL="${DOCS_SITE_URL}" DOCS_API_BASE_URI="${DOCS_API_BASE_URI}" GOOGLE_ANALYTICS_ID="${GOOGLE_ANALYTICS_ID}" mkdocs build --strict
 
 FROM nginx:stable-alpine
 COPY --from=build /app/dist /usr/share/nginx/html/app

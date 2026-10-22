@@ -1,11 +1,23 @@
 """Include shared branding assets and resolve environment-specific API links."""
 
 import os
+import re
 from pathlib import Path
 
 from mkdocs.structure.files import File
 
 _api_base_uri = ""
+
+
+def on_config(config):
+    analytics_id = os.environ.get("GOOGLE_ANALYTICS_ID", "").strip()
+    if analytics_id:
+        if not re.fullmatch(r"G-[A-Z0-9]+", analytics_id):
+            raise ValueError("GOOGLE_ANALYTICS_ID must be a GA4 measurement ID (G-...) or empty.")
+        config.extra["analytics"] = {"provider": "google", "property": analytics_id}
+    else:
+        config.extra.pop("analytics", None)
+    return config
 
 
 def on_startup(command, dirty):

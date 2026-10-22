@@ -1,10 +1,29 @@
 import react from "@vitejs/plugin-react-swc";
 import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
 import path from "node:path";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 
-export default defineConfig(({ command }) => {
+export default defineConfig(({ command, mode }) => {
   const buildId = command === "build" ? randomUUID() : "development";
+  const analyticsId = loadEnv(mode, import.meta.dirname, "GOOGLE_ANALYTICS_ID").GOOGLE_ANALYTICS_ID?.trim() || "";
+  if (analyticsId && !/^G-[A-Z0-9]+$/.test(analyticsId)) {
+    throw new Error("GOOGLE_ANALYTICS_ID must be a GA4 measurement ID (G-...) or empty.");
+  }
+  const injectAnalytics = (html: string) =>
+    analyticsId
+      ? html.replace(
+          "</head>",
+          `<script async src="https://www.googletagmanager.com/gtag/js?id=${analyticsId}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag("js", new Date());
+  gtag("config", ${JSON.stringify(analyticsId)});
+</script>
+</head>`,
+        )
+      : html;
   return {
     define: {
       "import.meta.env.APP_BUILD_ID": JSON.stringify(buildId),
@@ -19,6 +38,17 @@ export default defineConfig(({ command }) => {
     base: "/app",
     plugins: [
       react(),
+      {
+        name: "optional-google-analytics",
+        transformIndexHtml: injectAnalytics,
+        generateBundle() {
+          this.emitFile({
+            type: "asset",
+            fileName: "help.html",
+            source: injectAnalytics(readFileSync(new URL("./public/help.html", import.meta.url), "utf8")),
+          });
+        },
+      },
       {
         name: "app-build-version",
         apply: "build",

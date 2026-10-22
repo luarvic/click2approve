@@ -103,6 +103,21 @@ set `DOCS_API_BASE_URI` to that base URL when serving or building the docs (or p
 `--build-arg DOCS_API_BASE_URI=https://api.your-domain.example` to `docker build`).
 For a local static build, use `DOCS_API_BASE_URI=http://localhost:5555`.
 
+## Optional analytics
+
+Google Analytics is disabled when `GOOGLE_ANALYTICS_ID` is unset or empty.
+To enable it across the app, legacy help, landing page, and docs, pass
+`--build-arg GOOGLE_ANALYTICS_ID=G-YOURID` to the UI Docker build, or set the same
+environment variable for both Vite and MkDocs builds. Rebuild to change the ID.
+See [frontend build settings](../docs/configuration.md#frontend-build-settings).
+
+The container smoke check verifies the selected mode:
+
+```sh
+npm run test:nginx
+GOOGLE_ANALYTICS_ID=G-ANALYTICSTEST npm run test:nginx
+```
+
 ## Style and settings ownership
 
 | Responsibility                                     | Location                                                | Examples                                                         |

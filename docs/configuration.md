@@ -115,6 +115,7 @@ not update the compiled app.
 | `VITE_API_BASE_URI` | API base URL visible to the browser |
 | `VITE_UI_BASE_URI` | Public UI origin |
 | `VITE_APP_UPDATE_CHECK_MINUTES` | Production release-check interval in minutes (default `5`); also checks at startup and reloads when a new build is detected |
+| `GOOGLE_ANALYTICS_ID` | Optional GA4 measurement ID (`G-...`) for the app, legacy help, landing page, and docs; unset or empty disables Analytics |
 | `DOCS_SITE_URL` | Public site's canonical origin, including trailing `/` |
 | `DOCS_API_BASE_URI` | API base URL used for the public site's Swagger link |
 
@@ -123,7 +124,11 @@ Local values live in `ui/.env.development`; production values in
 domain, update the selected Vite environment file before building. The UI Dockerfile
 selects it with the `ENV` build argument (`production` by default; Compose uses
 `development`). Pass `DOCS_SITE_URL` and `DOCS_API_BASE_URI` as Docker build arguments
-for the public site. See [frontend development](../ui/README.md#user-documentation).
+for the public site. Analytics is disabled by default. To enable it, pass
+`--build-arg GOOGLE_ANALYTICS_ID=G-YOURID` when building the UI image. For builds
+outside Docker, set `GOOGLE_ANALYTICS_ID` in the environment for both `npm run build`
+and `mkdocs build --strict`. The measurement ID is public configuration, not a secret.
+See [frontend development](../ui/README.md#user-documentation).
 
 ## Upload limits
 

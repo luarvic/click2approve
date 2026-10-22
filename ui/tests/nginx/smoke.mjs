@@ -1,15 +1,21 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { runInNewContext } from "node:vm";
 
 const uiRoot = fileURLToPath(new URL("../../", import.meta.url));
+const analyticsId = process.env.GOOGLE_ANALYTICS_ID?.trim() || "";
 const image = "click2approve-ui:nginx-smoke";
 const docker = (...args) => execFileSync("docker", args, { cwd: uiRoot, encoding: "utf8" }).trim();
 
-execFileSync("docker", ["build", "--build-arg", "ENV=production", "-t", image, "."], {
-  cwd: uiRoot,
-  stdio: "inherit",
-});
+execFileSync(
+  "docker",
+  ["build", "--build-arg", "ENV=production", "--build-arg", `GOOGLE_ANALYTICS_ID=${analyticsId}`, "-t", image, "."],
+  {
+    cwd: uiRoot,
+    stdio: "inherit",
+  },
+);
 
 const container = docker("run", "--rm", "-d", "-p", "127.0.0.1::3333", image);
 try {
@@ -39,11 +45,34 @@ try {
     await response.text();
   }
 
-  for (const path of ["/", "/docs/", "/docs/getting-started/", "/app/"]) {
+  for (const path of ["/", "/docs/", "/docs/getting-started/", "/app/", "/app/help.html"]) {
     const response = await request(path);
     assert.equal(response.status, 200, path);
     checkHeaders(response);
-    assert.match(await response.text(), /<!doctype html>/i);
+    const html = await response.text();
+    assert.match(html, /<!doctype html>/i);
+    if (analyticsId) {
+      assert.ok(html.includes(`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`), path);
+      const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
+        .map((match) => match[1])
+        .filter((source) => source.includes("dataLayer"));
+      assert.equal(scripts.length, 1, path);
+      const context = {
+        document: {
+          addEventListener() {},
+          createElement: () => ({}),
+          getElementById: () => ({ insertAdjacentElement() {} }),
+        },
+      };
+      context.window = context;
+      runInNewContext(`${scripts[0]}; if (typeof __md_analytics === "function") __md_analytics();`, context);
+      assert.ok(
+        context.dataLayer.some((command) => command[0] === "config" && command[1] === analyticsId),
+        path,
+      );
+    } else {
+      assert.doesNotMatch(html, /googletagmanager\.com|google-analytics\.com|gtag\(/, path);
+    }
   }
 
   const shell = await (await request("/app/index.html")).text();
@@ -102,7 +131,9 @@ try {
   assert.equal(unchanged.status, 304);
   checkHeaders(unchanged, "public, max-age=31536000, immutable");
 
-  console.log("Nginx smoke checks passed: redirects, routes, 404s, caching, gzip, and security headers.");
+  console.log(
+    "Nginx smoke checks passed: redirects, routes, 404s, caching, gzip, security headers, and optional analytics.",
+  );
 } finally {
   docker("stop", container);
 }
