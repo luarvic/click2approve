@@ -5,9 +5,9 @@ search:
 ---
 # Privacy Policy
 
-Version: draft-2026-10-18.
+Version: 2026-10-22.
 
-> **Pre-launch draft.** Hosting locations, international transfer arrangements, and operational retention periods still need confirmation before public launch.
+Effective date: October 22, 2026.
 
 ## Who handles your information
 
@@ -38,13 +38,21 @@ Necessary account details are required to register. Optional marketing or tracki
 
 We share information with participants and administrators according to workspace permissions and your actions. Service emails may include names and content excerpts. **Public receipt links let anyone with an active link view the disclosed receipt**, potentially including signatures. Revocation cannot recall copies already saved by recipients.
 
-Microsoft Azure provides hosting, database, storage, queues, and transactional email. Stripe provides payments and may independently control some payment information. Contacting us at Gmail also involves Google's email service. Providers handle information needed for those functions. We may also disclose information to meet legal requirements, protect rights and security, or complete a business transfer subject to applicable protections.
+Microsoft Azure provides hosting, database, storage, queues, and transactional email. With your permission, Google provides audience measurement for the website, documentation, and application as described below. Stripe provides payments and may independently control some payment information. Contacting us at Gmail also involves Google's email service. Providers handle information needed for those functions. We may also disclose information to meet legal requirements, protect rights and security, or complete a business transfer subject to applicable protections.
 
 We do not sell personal information or share it for cross-context behavioral advertising, and we do not use advertising trackers. Our website does not change its operation in response to browser Do Not Track signals. Providers may collect technical information when you interact with their services; their own notices also explain their practices.
 
 ## Browser storage
 
-The app stores authentication tokens, workspace selection, appearance, and related session preferences in browser local storage. Closing a tab does not clear these values. Signing out removes session tokens; some preferences remain. You can clear browser storage yourself. We will obtain consent before introducing nonessential cookies or similar tracking where required.
+The app stores authentication tokens, workspace selection, appearance, and related session preferences in browser local storage. Closing a tab does not clear these values. Signing out removes session tokens; some preferences remain. You can clear browser storage yourself.
+
+## Optional analytics
+
+We use Google Analytics on the public website, documentation, and application only after you enable **Allow analytics** in the optional analytics banner. Turning the toggle off disables analytics. Closing the banner without enabling it keeps analytics disabled. This choice is separate from signup agreement and does not affect access to the service. The same browser preference applies across these pages on the same site, including open tabs.
+
+After acceptance, Google Analytics uses cookies such as `_ga` and `_ga_...` to measure visits and understand how pages and app screens are used. Google receives page-view and technical information, such as the public page address and title or an app screen category, browser and device information, and the network information needed to receive the request. We omit URL query strings, fragments, and referring-page addresses from the page views we send. In the app, we send fixed screen names and route templates with resource identifiers replaced, rather than actual account, workspace, task, request, or receipt addresses. We do not send account details, document content, or workspace identifiers, and we do not enable Google advertising features through this integration. Google's processing may take place in the USA and other countries; see [Google's Privacy Policy](https://policies.google.com/privacy).
+
+We remember your analytics choice in this browser's local storage for up to 180 days. Analytics cookies are configured with a 180-day lifetime. Use **Analytics settings** in the website, documentation, or app footer to change your choice. Turning analytics off stops further collection and removes Analytics cookies accessible to this website; it does not recall information already sent to Google. Clearing browser storage or using another browser may require choosing again.
 
 ## Retention and security
 

@@ -1,6 +1,7 @@
 import { stores } from "@/app/rootStore";
-import { Box, Link, Typography } from "@mui/material";
+import AnalyticsSettingsButton from "@/shared/analytics/AnalyticsSettingsButton";
 import type { SxProps, Theme } from "@mui/material";
+import { Box, Link, Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
 
 const footerSx: SxProps<Theme> = {
@@ -54,6 +55,7 @@ const SiteFooter = () => (
             {label}
           </Link>
         ))}
+        <AnalyticsSettingsButton />
       </Box>
     </Box>
   </Box>

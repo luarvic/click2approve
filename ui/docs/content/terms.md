@@ -5,9 +5,9 @@ search:
 ---
 # Terms of service
 
-Version: draft-2026-10-18.
+Version: 2026-10-22.
 
-> **Pre-launch draft.** Review these terms before offering the hosted service to the public.
+Effective date: October 22, 2026.
 
 ## Who we are
 

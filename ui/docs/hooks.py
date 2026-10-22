@@ -7,6 +7,7 @@ from pathlib import Path
 from mkdocs.structure.files import File
 
 _api_base_uri = ""
+_serving = False
 
 
 def on_config(config):
@@ -14,14 +15,16 @@ def on_config(config):
     if analytics_id:
         if not re.fullmatch(r"G-[A-Z0-9]+", analytics_id):
             raise ValueError("GOOGLE_ANALYTICS_ID must be a GA4 measurement ID (G-...) or empty.")
-        config.extra["analytics"] = {"provider": "google", "property": analytics_id}
+        config.extra["google_analytics_id"] = analytics_id
     else:
-        config.extra.pop("analytics", None)
+        config.extra.pop("google_analytics_id", None)
+    config.extra["analytics_development"] = _serving
     return config
 
 
 def on_startup(command, dirty):
-    global _api_base_uri
+    global _api_base_uri, _serving
+    _serving = command == "serve"
     default = "http://localhost:5555" if command == "serve" else ""
     _api_base_uri = os.environ.get("DOCS_API_BASE_URI", default).rstrip("/")
 

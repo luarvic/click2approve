@@ -3,6 +3,7 @@ import { getReceiptByLink } from "@/features/receipts/api/receiptLinksApi";
 import ReceiptView from "@/features/receipts/components/ReceiptView";
 import ReceiptFileVerification from "@/features/receipts/components/verification/ReceiptFileVerification";
 import type { PublicReceipt } from "@/features/receipts/models/publicReceipt";
+import AnalyticsSettingsButton from "@/shared/analytics/AnalyticsSettingsButton";
 import { Pages } from "@/shared/components/layout/pageStyles";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
@@ -194,6 +195,9 @@ const PublicReceiptPage = () => {
         </Box>
         <Container disableGutters maxWidth={false} sx={receiptViewSx}>
           <ReceiptFileVerification key={linkGlobalId} receipt={receipt} />
+          <Box sx={{ py: 2, "@media print": { display: "none" } }}>
+            <AnalyticsSettingsButton />
+          </Box>
         </Container>
       </Box>
     </>

@@ -19,8 +19,8 @@ The UI Docker image builds one MkDocs Material site at `/`, with a product
 landing page, `/contact/`, `/terms/`, `/privacy/`, and user documentation under
 `/docs/`. The documentation root is a table of contents; Getting started lives at
 `/docs/getting-started/`. The Docs menu opens `/docs/`; `/docs` redirects to `/docs/`. The React
-application is served separately at `/app/`. Terms and privacy are explicitly
-marked placeholders and need final content before release.
+application is served separately at `/app/`. Terms and privacy live at `/terms/`
+and `/privacy/`; hosted-service operators must maintain notices matching their practices.
 
 From `ui/`, install the app dependencies (`npm ci`) and the documentation tools:
 
@@ -106,9 +106,24 @@ For a local static build, use `DOCS_API_BASE_URI=http://localhost:5555`.
 ## Optional analytics
 
 Google Analytics is disabled when `GOOGLE_ANALYTICS_ID` is unset or empty.
-To enable it across the app, landing page, and docs, pass
-`--build-arg GOOGLE_ANALYTICS_ID=G-YOURID` to the UI Docker build, or set the same
-environment variable for both Vite and MkDocs builds. Rebuild to change the ID.
+To offer opt-in analytics across the website, docs, and app, pass
+`--build-arg GOOGLE_ANALYTICS_ID=G-YOURID` to the UI Docker build. Outside Docker,
+set `GOOGLE_ANALYTICS_ID` for both Vite and MkDocs. Rebuild to change the ID.
+One shared MUI banner has an Allow analytics toggle and a close button; the choice
+is remembered for 180 days and synchronized across pages and tabs on the same origin.
+Closing without enabling analytics remembers rejection. Footer Analytics settings
+reopen the banner. Without an ID, no banner or settings control is shown.
+App navigation sends fixed screen labels and route templates with identifiers removed.
+Withdrawal stops tracking and clears Analytics cookies without reloading app forms.
+In the GA4 property, keep Google Signals, advertising features, and Enhanced
+Measurement disabled; only explicit sanitized page views are sent.
+
+For the local consent preview, run Vite and MkDocs with the same ID and open
+`http://localhost:3333/` (including docs and `/app/`). The docs' MUI banner uses Vite
+in development and the built `/app/analytics-consent.js` in production. Using a
+single origin shares consent and theme preferences; port 8000 alone does not serve
+the React banner bundle.
+
 See [frontend build settings](../docs/configuration.md#frontend-build-settings).
 
 The container smoke check verifies the selected mode:
@@ -116,6 +131,9 @@ The container smoke check verifies the selected mode:
 ```sh
 npm run test:nginx
 GOOGLE_ANALYTICS_ID=G-ANALYTICSTEST npm run test:nginx
+# Docker and Playwright Chromium required; CHROME_BIN can select a local browser.
+npm run test:browser:analytics
+GOOGLE_ANALYTICS_ID=G-ANALYTICSTEST npm run test:browser:analytics
 ```
 
 ## Style and settings ownership

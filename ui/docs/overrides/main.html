@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block analytics %}{% endblock %}
+
 {% block extrahead %}
   {{ super() }}
   {% if page and page.file.src_uri.startswith("docs/") %}

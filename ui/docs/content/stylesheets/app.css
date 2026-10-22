@@ -728,3 +728,8 @@
     text-align: center;
   }
 }
+
+/* Analytics settings are also available in the shared public footer. */
+.analytics-settings { border: 0; font: inherit; color: inherit; background: transparent; padding: 0; cursor: pointer; }
+.analytics-settings:hover { text-decoration: underline; }
+.analytics-settings:focus-visible { outline: 2px solid var(--site-green); outline-offset: 3px; }

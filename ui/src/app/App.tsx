@@ -2,6 +2,7 @@ import AppRouter from "@/app/AppRouter";
 import { stores } from "@/app/rootStore";
 import PasskeyEnrollmentDialog from "@/features/identity/components/PasskeyEnrollmentDialog";
 import { useSharedSessionSynchronization } from "@/features/identity/hooks/useSharedSessionSynchronization";
+import AnalyticsBanner from "@/shared/analytics/AnalyticsBanner";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import Notifications from "@/shared/components/overlays/Notifications";
 import { useAppVersionCheck } from "@/shared/hooks/useAppVersionCheck";
@@ -31,6 +32,7 @@ const App = () => {
   return (
     <ThemeProvider theme={stores.userPreferencesStore.theme}>
       <CssBaseline>
+        <AnalyticsBanner measurementId={import.meta.env.GOOGLE_ANALYTICS_ID} />
         {stores.userAccountStore.currentUser === undefined ||
         stores.applicationConfigurationStore.applicationConfiguration === null ? (
           <LoadingOverlay />

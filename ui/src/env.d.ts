@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly APP_BUILD_ID: string;
+  readonly GOOGLE_ANALYTICS_ID?: string;
   readonly VITE_APP_UPDATE_CHECK_MINUTES?: string;
   readonly VITE_API_BASE_URI: string;
   readonly VITE_APP_VERSION?: string;

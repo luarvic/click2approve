@@ -8,9 +8,16 @@
       <a href="{{ 'contact/' | url }}">Contact</a>
       <a href="{{ 'terms/' | url }}">Terms</a>
       <a href="{{ 'privacy/' | url }}">Privacy</a>
+      {% if config.extra.google_analytics_id %}
+        <button type="button" class="analytics-settings" data-analytics-settings>Analytics settings</button>
+      {% endif %}
     </nav>
   </div>
 </footer>
 <script>
   document.getElementById("copyright-year").textContent = new Date().getFullYear();
 </script>
+
+{% if config.extra.google_analytics_id %}
+  {% include "partials/analytics-consent.html" %}
+{% endif %}

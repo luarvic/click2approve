@@ -38,6 +38,7 @@
     "test": "vitest",
     "test:browser:attachments": "node tests/browser/attachmentPreviews.mjs",
     "test:nginx": "node tests/nginx/smoke.mjs",
+    "test:browser:analytics": "node tests/nginx/smoke.mjs --browser",
     "preview": "vite preview"
   },
   "devDependencies": {

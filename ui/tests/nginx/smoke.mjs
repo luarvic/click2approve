@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { runInNewContext } from "node:vm";
 
 const uiRoot = fileURLToPath(new URL("../../", import.meta.url));
 const analyticsId = process.env.GOOGLE_ANALYTICS_ID?.trim() || "";
@@ -45,33 +44,23 @@ try {
     await response.text();
   }
 
-  for (const path of ["/", "/docs/", "/docs/getting-started/", "/app/"]) {
+  for (const path of ["/", "/docs/", "/docs/getting-started/", "/privacy/", "/terms/", "/contact/", "/app/"]) {
     const response = await request(path);
     assert.equal(response.status, 200, path);
     checkHeaders(response);
     const html = await response.text();
     assert.match(html, /<!doctype html>/i);
-    if (analyticsId) {
-      assert.ok(html.includes(`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`), path);
-      const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
-        .map((match) => match[1])
-        .filter((source) => source.includes("dataLayer"));
-      assert.equal(scripts.length, 1, path);
-      const context = {
-        document: {
-          addEventListener() {},
-          createElement: () => ({}),
-          getElementById: () => ({ insertAdjacentElement() {} }),
-        },
-      };
-      context.window = context;
-      runInNewContext(`${scripts[0]}; if (typeof __md_analytics === "function") __md_analytics();`, context);
-      assert.ok(
-        context.dataLayer.some((command) => command[0] === "config" && command[1] === analyticsId),
+    if (analyticsId && !path.startsWith("/app/")) {
+      assert.ok(html.includes(`data-analytics-id="${analyticsId}"`), path);
+      assert.ok(html.includes("analytics-consent.js"), path);
+      assert.ok(html.includes("analytics-root") && html.includes("data-analytics-settings"), path);
+      assert.doesNotMatch(html, /googletagmanager\.com|google-analytics\.com|__md_analytics/, path);
+    } else {
+      assert.doesNotMatch(
+        html,
+        /googletagmanager\.com|google-analytics\.com|gtag\(|analytics-consent|analytics-settings/,
         path,
       );
-    } else {
-      assert.doesNotMatch(html, /googletagmanager\.com|google-analytics\.com|gtag\(/, path);
     }
   }
 
@@ -151,6 +140,11 @@ try {
   });
   assert.equal(unchanged.status, 304);
   checkHeaders(unchanged, "public, max-age=31536000, immutable");
+
+  if (process.argv.includes("--browser")) {
+    const { checkAnalyticsConsent } = await import("./analyticsConsent.mjs");
+    await checkAnalyticsConsent(origin, analyticsId);
+  }
 
   console.log(
     "Nginx smoke checks passed: redirects, routes, 404s, caching, gzip, security headers, and optional analytics.",

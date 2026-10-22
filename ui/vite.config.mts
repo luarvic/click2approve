@@ -6,26 +6,12 @@ import { defineConfig, loadEnv } from "vite";
 export default defineConfig(({ command, mode }) => {
   const buildId = command === "build" ? randomUUID() : "development";
   const analyticsId = loadEnv(mode, import.meta.dirname, "GOOGLE_ANALYTICS_ID").GOOGLE_ANALYTICS_ID?.trim() || "";
-  if (analyticsId && !/^G-[A-Z0-9]+$/.test(analyticsId)) {
+  if (analyticsId && !/^G-[A-Z0-9]+$/.test(analyticsId))
     throw new Error("GOOGLE_ANALYTICS_ID must be a GA4 measurement ID (G-...) or empty.");
-  }
-  const injectAnalytics = (html: string) =>
-    analyticsId
-      ? html.replace(
-          "</head>",
-          `<script async src="https://www.googletagmanager.com/gtag/js?id=${analyticsId}"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag() { dataLayer.push(arguments); }
-  gtag("js", new Date());
-  gtag("config", ${JSON.stringify(analyticsId)});
-</script>
-</head>`,
-        )
-      : html;
   return {
     define: {
       "import.meta.env.APP_BUILD_ID": JSON.stringify(buildId),
+      "import.meta.env.GOOGLE_ANALYTICS_ID": JSON.stringify(analyticsId),
     },
     server: {
       port: 3333,
@@ -37,10 +23,6 @@ export default defineConfig(({ command, mode }) => {
     base: "/app",
     plugins: [
       react(),
-      {
-        name: "optional-google-analytics",
-        transformIndexHtml: injectAnalytics,
-      },
       {
         name: "app-build-version",
         apply: "build",
@@ -56,7 +38,13 @@ export default defineConfig(({ command, mode }) => {
     },
     build: {
       rolldownOptions: {
+        input: {
+          app: path.resolve(import.meta.dirname, "index.html"),
+          "analytics-consent": path.resolve(import.meta.dirname, "src/shared/analytics/docs-entry.tsx"),
+        },
         output: {
+          entryFileNames: (chunk) =>
+            chunk.name === "analytics-consent" ? "analytics-consent.js" : "assets/[name]-[hash].js",
           codeSplitting: {
             groups: [
               {

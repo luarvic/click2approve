@@ -1,0 +1,13 @@
+<div id="analytics-root"></div>
+{% if config.extra.analytics_development %}
+<script type="module" src="/app/@vite/client"></script>
+<script type="module">
+  import { injectIntoGlobalHook } from "/app/@react-refresh";
+  injectIntoGlobalHook(window);
+  window.$RefreshReg$ = () => {};
+  window.$RefreshSig$ = () => (type) => type;
+</script>
+{% endif %}
+<script type="module" id="analytics-bootstrap" data-analytics-id="{{ config.extra.google_analytics_id | e }}"
+  data-page-path="/{{ page.url if page else '' }}"
+  src="{{ '/app/src/shared/analytics/docs-entry.tsx' if config.extra.analytics_development else '/app/analytics-consent.js' }}"></script>

@@ -83,6 +83,14 @@ jobs:
           npm run lint
           npm run build
 
+      - name: Browser analytics consent regression
+        env:
+          CHROME_NO_SANDBOX: "1"
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:browser:analytics
+          GOOGLE_ANALYTICS_ID=G-ANALYTICSTEST npm run test:browser:analytics
+
   build-and-push-images:
     needs: [build-test-api, build-test-ui]
     if: github.event_name == 'release' && inputs.image-tag != ''
