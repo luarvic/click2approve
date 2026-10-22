@@ -1,5 +1,8 @@
 const refreshSecondsDefault = 30;
 const filterTextInputDebounceMsDefault = 500;
+const appUpdateCheckMinutesDefault = 5;
+const appUpdateCheckIntervalMs =
+  Number(import.meta.env.VITE_APP_UPDATE_CHECK_MINUTES ?? String(appUpdateCheckMinutesDefault)) * 60 * 1000;
 
 const gridRefreshSeconds = Number(import.meta.env.VITE_GRID_REFRESH_SECONDS ?? String(refreshSecondsDefault));
 const filterTextInputDebounceMs = Number(
@@ -29,6 +32,15 @@ const toDelayMs = (value: number): number =>
 export const Api = {
   baseUri: import.meta.env.VITE_API_BASE_URI,
   uiBaseUri: import.meta.env.VITE_UI_BASE_URI,
+  timeoutMs: 10000,
+} as const;
+
+export const AppUpdates = {
+  buildId: import.meta.env.APP_BUILD_ID,
+  checkIntervalMs:
+    Number.isFinite(appUpdateCheckIntervalMs) && appUpdateCheckIntervalMs > 0 && appUpdateCheckIntervalMs <= 2147483647
+      ? appUpdateCheckIntervalMs
+      : appUpdateCheckMinutesDefault * 60 * 1000,
   timeoutMs: 10000,
 } as const;
 

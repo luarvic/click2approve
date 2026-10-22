@@ -1,9 +1,14 @@
 import react from "@vitejs/plugin-react-swc";
+import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { defineConfig } from "vite";
 
-export default defineConfig(() => {
+export default defineConfig(({ command }) => {
+  const buildId = command === "build" ? randomUUID() : "development";
   return {
+    define: {
+      "import.meta.env.APP_BUILD_ID": JSON.stringify(buildId),
+    },
     server: {
       port: 3333,
       proxy: {
@@ -12,7 +17,16 @@ export default defineConfig(() => {
       },
     },
     base: "/app",
-    plugins: [react()],
+    plugins: [
+      react(),
+      {
+        name: "app-build-version",
+        apply: "build",
+        generateBundle() {
+          this.emitFile({ type: "asset", fileName: "version.json", source: JSON.stringify({ buildId }) });
+        },
+      },
+    ],
     resolve: {
       alias: {
         "@": path.resolve(import.meta.dirname, "./src"),

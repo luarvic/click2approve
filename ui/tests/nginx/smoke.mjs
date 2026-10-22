@@ -47,6 +47,12 @@ try {
   }
 
   const shell = await (await request("/app/index.html")).text();
+  const versionResponse = await request("/app/version.json");
+  assert.equal(versionResponse.status, 200);
+  assert.match(versionResponse.headers.get("content-type"), /application\/json/);
+  checkHeaders(versionResponse, "no-store");
+  const { buildId } = await versionResponse.json();
+  assert.match(buildId, /^[0-9a-f-]{36}$/);
   const deepLink = await request("/app/unknown-route?source=smoke");
   assert.equal(deepLink.status, 200);
   checkHeaders(deepLink);
@@ -70,18 +76,21 @@ try {
     assetPaths.some((path) => path.endsWith(".css")),
     "App stylesheet must be fingerprinted",
   );
+  let embeddedBuildIdFound = false;
   for (const path of assetPaths) {
     const response = await request(path, { headers: { "Accept-Encoding": "gzip" } });
     assert.equal(response.status, 200, path);
     checkHeaders(response, "public, max-age=31536000, immutable");
     assert.match(response.headers.get("content-type"), /(?:javascript|text\/css)/);
     const body = await response.text();
+    embeddedBuildIdFound ||= body.includes(buildId);
     assert.ok(body.length > 0);
     if (Buffer.byteLength(body) >= 1024) {
       assert.equal(response.headers.get("content-encoding"), "gzip", path);
       assert.match(response.headers.get("vary"), /Accept-Encoding/i);
     }
   }
+  assert.ok(embeddedBuildIdFound, "The app bundle and version endpoint must identify the same build");
 
   const asset = await request(assetPaths[0], { headers: { "Accept-Encoding": "identity" } });
   const etag = asset.headers.get("etag");

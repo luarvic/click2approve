@@ -4,6 +4,7 @@ import PasskeyEnrollmentDialog from "@/features/identity/components/PasskeyEnrol
 import { useSharedSessionSynchronization } from "@/features/identity/hooks/useSharedSessionSynchronization";
 import LoadingOverlay from "@/shared/components/overlays/LoadingOverlay";
 import Notifications from "@/shared/components/overlays/Notifications";
+import { useAppVersionCheck } from "@/shared/hooks/useAppVersionCheck";
 import { useSharedColorModeSynchronization } from "@/shared/hooks/useSharedColorModeSynchronization";
 import "@fontsource/sora/400.css";
 import "@fontsource/sora/500.css";
@@ -15,6 +16,7 @@ import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 
 const App = () => {
+  useAppVersionCheck();
   useSharedSessionSynchronization();
   useSharedColorModeSynchronization();
 

@@ -14,6 +14,10 @@ If you see **Page not found**, the page may have moved or you may not have acces
 
 Check [Features and availability](features.md). Employees, teams, delegations, and templates require an organization workspace. Your role, plan, or billing status can hide or disable controls. Select the correct organization and ask an Owner or Admin to check your access.
 
+## The app reloads after an update
+
+The app reloads automatically when it detects a new release and reopens the current page. Text you have not saved may be lost.
+
 ## Submission or task completion fails
 
 Correct highlighted fields and provide every required comment, signature, and attachment. Wait for uploads to finish. Check [Usage](usage.md) if the message mentions an allowance.
