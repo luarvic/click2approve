@@ -1,9 +1,3 @@
-html,
-body {
-  /* Keep vertical overscroll from handing app scrolling to browser refresh. */
-  overscroll-behavior-y: none;
-}
-
 img {
   max-width: 100%;
   height: auto;

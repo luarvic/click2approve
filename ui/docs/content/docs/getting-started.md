@@ -14,7 +14,7 @@ Finishing or skipping is remembered for your account in this browser. Another br
 
 ## Send your first request
 
-1. [Open the app](/app/) and [sign in or register](sign-in.md).
+1. Choose **Open app** on the website to continue in the same browser tab, or [open the app directly](/app/), then [sign in or register](sign-in.md).
 2. Use **Personal**, your workspace for your own requests, or select an organization in the workspace picker to send work on its behalf.
 3. Choose **New request** in the main menu.
 4. Enter a title and description, add files, and configure the steps and assignees.
