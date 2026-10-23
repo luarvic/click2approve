@@ -227,6 +227,7 @@ export const createAppTheme = (colorMode: PaletteMode) => {
             borderBottom: `1px solid ${theme.palette.divider}`,
             maxWidth: "100%",
           }),
+          scrollButtons: { "&.Mui-disabled": { display: "none" } },
         },
       },
       MuiTab: {
