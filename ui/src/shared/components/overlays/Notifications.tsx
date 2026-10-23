@@ -11,25 +11,24 @@ import { useEffect, useState } from "react";
 const notificationAlertSx: SxProps<Theme> = {
   width: "100%",
   display: "grid",
-  gridTemplateColumns: "auto minmax(0, 1fr) auto",
+  gridTemplateColumns: "minmax(0, 1fr) auto",
   alignItems: "center",
   columnGap: 1.5,
   pl: 2,
   pr: 1,
   py: 1,
-  "& .MuiAlert-icon": { gridColumn: 1, gridRow: 1, alignSelf: { xs: "start", sm: "center" }, m: 0, p: 0, py: 0.5 },
-  "& .MuiAlert-message": { gridColumn: 2, gridRow: 1, minWidth: 0, overflowWrap: "anywhere", py: 0.5 },
+  "& .MuiAlert-message": { gridColumn: 1, gridRow: 1, minWidth: 0, overflowWrap: "anywhere", py: 0.5 },
   "& .MuiAlert-action": {
     display: { xs: "contents", sm: "flex" },
     alignItems: "center",
     gap: 1,
-    gridColumn: 3,
+    gridColumn: 2,
     gridRow: 1,
     justifySelf: "end",
     m: 0,
     p: 0,
-    "& .MuiButton-root": { gridColumn: 2, gridRow: 2, justifySelf: "end" },
-    "& .MuiIconButton-root": { gridColumn: 3, gridRow: 1, alignSelf: { xs: "start", sm: "center" } },
+    "& .MuiButton-root": { gridColumn: "1 / -1", gridRow: 2, justifySelf: "end" },
+    "& .MuiIconButton-root": { gridColumn: 2, gridRow: 1, alignSelf: { xs: "start", sm: "center" } },
   },
 };
 const snackbarSx: SxProps<Theme> = {
@@ -95,6 +94,7 @@ const NotificationHost = () => {
                 </>
               ) : undefined
             }
+            icon={false}
             onClose={() => dismissNotification(currentNotification.id)}
             severity={currentNotification.severity}
             sx={notificationAlertSx}
