@@ -10,16 +10,15 @@ export const Shell = {
   mainMenuDrawerWidth,
   outerBackgroundSx: {
     bgcolor: "background.default",
-    minHeight: "100vh",
+    minHeight: "100dvh",
   } as SxProps<Theme>,
   contentBackgroundSx: {
     bgcolor: "background.default",
-    minHeight: "100vh",
   } as SxProps<Theme>,
   mainContentSx: (drawerIsVisible: boolean): SxProps<Theme> => ({
     display: "flex",
     flexDirection: "column",
-    minHeight: "100vh",
+    minHeight: { xs: `calc(100dvh - ${appBarHeight}px)`, lg: "100dvh" },
     ml: drawerIsVisible ? { lg: `${mainMenuDrawerWidth}px` } : 0,
     minWidth: 0,
     position: "relative",
@@ -37,7 +36,7 @@ export const Shell = {
     left: 0,
     position: "absolute",
     right: 0,
-    top: appBarHeight,
+    top: { xs: 0, lg: appBarHeight },
     zIndex: 2,
   } as SxProps<Theme>,
   appBarSx: {
@@ -45,6 +44,9 @@ export const Shell = {
     borderBottom: 1,
     borderColor: "divider",
     height: appBarHeight,
+    // Keep the mobile header's space in the page flow as browser toolbars collapse.
+    position: { xs: "sticky", lg: "fixed" },
+    top: 0,
     width: "100%",
     zIndex: (theme) => theme.zIndex.drawer + 1,
   } as SxProps<Theme>,
@@ -55,6 +57,7 @@ export const Shell = {
     px: 2,
   } as SxProps<Theme>,
   appBarSpacerSx: {
+    display: { xs: "none", lg: "flex" },
     flexShrink: 0,
     height: appBarHeight,
     minHeight: appBarHeight,
