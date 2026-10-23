@@ -10,7 +10,7 @@
       <span>Click2Approve</span>
     </a>
     <div class="site-header-links">
-      <a href="{{ 'docs/' | url }}" target="_blank" rel="noopener noreferrer"{% if page.url.startswith('docs/') %} aria-current="page"{% endif %}>Docs</a>
+      <a href="{{ 'docs/' | url }}"{% if page.url.startswith('docs/') %} aria-current="page"{% endif %}>Docs</a>
     </div>
     {% include "partials/palette.html" %}
     {% include "partials/javascripts/shared-color-mode.html" %}

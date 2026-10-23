@@ -11,15 +11,14 @@ describe("<HelpPopover />", () => {
     expect(screen.queryByRole("link")).toBeNull();
   });
 
-  test("opens the corresponding guide in a separate tab", () => {
+  test("opens the corresponding guide in the current tab", () => {
     render(<HelpPopover docsHref="/docs/complete-a-task/" helpText="Review the task before acting." />);
 
     expect(screen.queryByRole("link")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Show help" }));
 
-    const link = screen.getByRole("link", { name: "Read documentation (opens in a new tab)" });
+    const link = screen.getByRole("link", { name: "Read documentation" });
     expect(link.getAttribute("href")).toBe("/docs/complete-a-task/");
-    expect(link.getAttribute("target")).toBe("_blank");
-    expect(link.getAttribute("rel")).toBe("noopener noreferrer");
+    expect(link.getAttribute("target")).toBeNull();
   });
 });

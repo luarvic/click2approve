@@ -32,7 +32,7 @@ The small chip beside the upper-right corner of the brand name reads **App** in 
 
 Use the profile menu for your account settings and notification preferences. The bell in the app bar opens notifications for the selected workspace. The navigation drawer can be opened from the menu button on smaller screens. The color-mode switch changes the appearance of both the app and Docs on the same site.
 
-Small uppercase labels identify navigation groups, cards, sections, and workflow steps. Page titles and controls use sentence case. Use the breadcrumb links above a page title to return to its parent pages. Choose **Docs** in the main menu to open the user guides. In the open-source app, Docs opens the [open-source edition](open-source.md) guide and feature comparison.
+Small uppercase labels identify navigation groups, cards, sections, and workflow steps. Page titles and controls use sentence case. Use the breadcrumb links above a page title to return to its parent pages. Choose **Docs** in the main menu to open the user guides in the current tab. The website's Docs links and contextual **Read documentation** links also use the current tab. In the open-source app, Docs opens the [open-source edition](open-source.md) guide and feature comparison.
 
 In grids, green titles and names are links. They show an underline when hovered or focused with the keyboard; keyboard focus also has a visible outline.
 

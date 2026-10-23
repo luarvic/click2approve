@@ -54,14 +54,7 @@ const HelpPopover: React.FC<HelpPopoverProps> = ({ docsHref, helpText }) => {
       >
         <Typography variant="body2">{helpText}</Typography>
         {docsHref && (
-          <Link
-            variant="body2"
-            aria-label="Read documentation (opens in a new tab)"
-            href={docsHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            sx={documentationLinkSx}
-          >
+          <Link variant="body2" href={docsHref} sx={documentationLinkSx}>
             Read documentation
           </Link>
         )}

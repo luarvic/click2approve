@@ -466,8 +466,6 @@ const MainMenuDrawer = () => {
             <ListItemButton
               component="a"
               href={stores.applicationConfigurationStore.documentationPath}
-              target="_blank"
-              rel="noopener noreferrer"
               onClick={closeTemporaryDrawer}
             >
               <ListItemIcon sx={Lists.itemIconSx}>
