@@ -16,4 +16,7 @@ public sealed record NotificationEmailContext
     public string? StepName { get; init; }
     public string? Message { get; init; }
     public string? Reason { get; init; }
+    public DateTime? RetentionDeletionAt { get; init; }
+    public string? RetentionPolicyUrl { get; init; }
+    public string? RetentionGuideUrl { get; init; }
 }

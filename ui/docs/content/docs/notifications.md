@@ -15,13 +15,18 @@ Account, workflow, and billing emails share the app's footer with Home, App, Doc
 ## Set delivery preferences
 
 1. Open **User profile → Notifications**.
-2. Review the categories: **Request notifications**, **Task notifications**, **Chat notifications**, **Receipt notifications**, and **Billing recovery reminders**.
+2. Review the categories: **Request notifications**, **Task notifications**, **Chat notifications**, **Receipt notifications**, **Retention deletion reminders**, and **Billing recovery reminders**.
 3. Set the **In-app** and **Email** switches for each supported category.
 4. Choose **Save**.
 
 Categories without saved preferences start enabled. Change a switch and choose **Save** to store your preference.
 
 The **Billing recovery reminders** in-app option is disabled; its email preference is managed separately from other categories. Preferences do not expand your access or add you to a discussion's audience.
+
+**Retention deletion reminders** warn request and receipt owners before automatic
+retention cleanup. Their emails link to retention settings and the
+[retention and deletion guide](retention.md). Disabling this category does not
+disable retention deletion.
 
 ## Missing messages
 
@@ -31,4 +36,4 @@ If you need to act now, open Tasks or Requests directly rather than waiting for 
 
 ## Email tokens
 
-Workflow emails consume tokens per recipient, charged to the originating workflow workspace. Tokens are checked before sending and charged when the email provider accepts the send. Queuing a notification does not consume tokens. Disabled email deliveries are not charged. Security, account recovery, and billing emails are included without a workspace token charge. See [Usage and tokens](usage.md).
+Workflow emails, including retention reminders, consume tokens per recipient, charged to the originating workspace. Tokens are checked before sending and charged when the email provider accepts the send. Queuing a notification does not consume tokens. Disabled email deliveries are not charged. Security, account recovery, and billing emails are included without a workspace token charge. See [Usage and tokens](usage.md).

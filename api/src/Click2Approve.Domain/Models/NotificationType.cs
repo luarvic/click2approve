@@ -24,5 +24,8 @@ public enum NotificationType
     BillingRecovery = 5,
 
     // Sent to the user issued a receipt.
-    ReceiptCreated = 6
+    ReceiptCreated = 6,
+
+    // Sent before request and receipt retention deletion.
+    RetentionWarning = 7
 }

@@ -64,6 +64,7 @@ const notificationPreferenceTypes = [
   NotificationPreferenceType.Tasks,
   NotificationPreferenceType.Chat,
   NotificationPreferenceType.Receipts,
+  NotificationPreferenceType.Retention,
   NotificationPreferenceType.Billing,
 ];
 
@@ -265,7 +266,8 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ tab }) => {
                       {notificationPreferenceTypes
                         .filter(
                           (type) =>
-                            (type !== NotificationPreferenceType.Billing ||
+                            ((type !== NotificationPreferenceType.Billing &&
+                              type !== NotificationPreferenceType.Retention) ||
                               stores.applicationConfigurationStore.subscriptionsAreEnabled) &&
                             (type !== NotificationPreferenceType.Receipts ||
                               stores.applicationConfigurationStore.receiptsAreEnabled),

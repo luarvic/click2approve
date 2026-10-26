@@ -154,6 +154,10 @@ public sealed class EmailTemplatesTests
             Footer = "<footer>",
             PrimaryActionText = "<action>",
             PrimaryActionUrl = "https://example.com/?code=a%2Bb&email=a%40b.com",
+            AdditionalLinks = [
+                new EmailLink("<policy>", "https://example.com/retention?one=1&two=2"),
+                new EmailLink("Unsafe link", "javascript:alert(1)")
+            ],
             Actor = new EmailActor { DisplayName = "<actor>", OrganizationDisplayName = "<org>", AvatarUrl = "javascript:alert(1)" }
         };
         var html = EmailLayout.Render(model, "https://example.com/logo.png");
@@ -164,6 +168,9 @@ public sealed class EmailTemplatesTests
         }
         Assert.DoesNotContain("javascript:", html);
         Assert.Contains("code=a%2Bb&amp;email=a%40b.com", html);
+        Assert.Contains("&lt;policy&gt;", html);
+        Assert.Contains("retention?one=1&amp;two=2", html);
+        Assert.DoesNotContain("Unsafe link", html);
         Assert.Throws<ArgumentException>(() => EmailLayout.Render(model with { PrimaryActionUrl = "javascript:alert(1)" }));
         Assert.Contains("max-width:600px", html);
     }

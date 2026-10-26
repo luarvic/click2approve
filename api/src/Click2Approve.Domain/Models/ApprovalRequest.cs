@@ -20,6 +20,7 @@ public class ApprovalRequest : DbEntity
     public string? CompletedByDisplayName { get; set; }
     public required DateTime CreatedAt { get; set; }
     public DateTime? DeletionPublishedAt { get; set; }
+    public DateTime? DeletionWarningPublishedAt { get; set; }
     public required string? Description { get; set; }
     public required string OrganizationDisplayName { get; set; }
     public required string RequesterDisplayName { get; set; }

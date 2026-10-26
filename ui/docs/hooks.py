@@ -38,6 +38,7 @@ def on_files(files, config):
     assets = {
         "assets/logo.svg": ui_dir / "public/logo-wall-to-wall.svg",
         "assets/logo-narrow.svg": ui_dir / "public/logo-narrow.svg",
+        "assets/favicon-192.png": ui_dir / "public/favicon-192.png",
     }
     for weight in (400, 500, 600, 700):
         name = f"sora-latin-{weight}-normal.woff2"

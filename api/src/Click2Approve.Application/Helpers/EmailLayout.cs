@@ -31,6 +31,7 @@ public static class EmailLayout
             {{RenderBody(model)}}
             {{RenderContext(model)}}
             {{RenderButton(model.PrimaryActionText, model.PrimaryActionUrl)}}
+            {{RenderAdditionalLinks(model)}}
             {{Paragraph(model.Details, "color:#52645a;font-size:14px;")}}
             {{Paragraph(model.Footer, "color:#52645a;font-size:12px;")}}
             </td></tr>
@@ -90,6 +91,11 @@ public static class EmailLayout
             </td></tr></table>
             """;
     }
+
+    private static string RenderAdditionalLinks(EmailTemplateModel model) =>
+        string.Concat(model.AdditionalLinks.Select(link => SafeUrl(link.Url) is { } url
+            ? $"<p style=\"margin:0 0 16px;\"><a href=\"{Encode(url)}\" style=\"color:#15803d;text-decoration:underline;\">{Encode(link.Text)}</a></p>"
+            : string.Empty));
 
     private static string Paragraph(string? text, string style = "") => string.IsNullOrWhiteSpace(text)
         ? string.Empty : $"<p style=\"margin:0 0 16px;{style}\">{Encode(text)}</p>";

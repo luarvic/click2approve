@@ -15,4 +15,5 @@ public sealed record NotificationEventPayload(
     string Summary,
     long UserId,
     Guid? SourceResourceGlobalId = null,
-    NotificationResourceType? SourceResourceType = null);
+    NotificationResourceType? SourceResourceType = null,
+    DateTime? RetentionDeletionAt = null);

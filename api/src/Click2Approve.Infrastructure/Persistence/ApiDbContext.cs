@@ -109,6 +109,8 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
 
         modelBuilder.Entity<ApprovalRequest>()
             .HasIndex(r => new { r.DeletionPublishedAt, r.ScheduledForDeletionAt });
+        modelBuilder.Entity<ApprovalRequest>()
+            .HasIndex(r => new { r.DeletionWarningPublishedAt, r.CreatedAt });
 
         modelBuilder.Entity<ApprovalRequest>()
             .Property(r => r.RevisionNumber)

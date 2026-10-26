@@ -6,6 +6,7 @@ export enum NotificationType {
   DiscussionMessageCreated = "DiscussionMessageCreated",
   BillingRecovery = "BillingRecovery",
   ReceiptCreated = "ReceiptCreated",
+  RetentionWarning = "RetentionWarning",
 }
 
 export enum NotificationChannel {
@@ -19,6 +20,7 @@ export enum NotificationPreferenceType {
   Chat = "Chat",
   Billing = "Billing",
   Receipts = "Receipts",
+  Retention = "Retention",
 }
 
 export const notificationPreferenceTypeLabels: Record<NotificationPreferenceType, string> = {
@@ -27,6 +29,7 @@ export const notificationPreferenceTypeLabels: Record<NotificationPreferenceType
   [NotificationPreferenceType.Chat]: "Chat notifications",
   [NotificationPreferenceType.Billing]: "Billing recovery reminders",
   [NotificationPreferenceType.Receipts]: "Receipt notifications",
+  [NotificationPreferenceType.Retention]: "Retention deletion reminders",
 };
 
 export const notificationChannelLabels: Record<NotificationChannel, string> = {
@@ -46,4 +49,5 @@ export const notificationPreferenceTypeToNotificationTypes: Record<NotificationP
   [NotificationPreferenceType.Chat]: [NotificationType.DiscussionMessageCreated],
   [NotificationPreferenceType.Billing]: [NotificationType.BillingRecovery],
   [NotificationPreferenceType.Receipts]: [NotificationType.ReceiptCreated],
+  [NotificationPreferenceType.Retention]: [NotificationType.RetentionWarning],
 };

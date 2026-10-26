@@ -15,6 +15,28 @@ When Personal Free or Business Trial becomes active, both periods automatically 
 !!! warning "Retention is not a backup"
     Records can be removed by background cleanup after their retention period. Choose a policy that supports your recordkeeping needs before accumulating important workflow history.
 
+## Retention reminders
+
+Before requests and receipts reach their retention deadline, their owners receive
+**Retention deletion reminders**. The standard notice period is one week. Each
+reminder identifies the affected record and its deletion date. Emails link to that record, the workspace's retention settings, and this guide.
+Request reminders go to the requester; receipt reminders go only to the receipt's owner.
+Each request or receipt generates one reminder; changing its retention deadline
+does not reset that reminder.
+
+Manage **In-app** and **Email** delivery under **User profile → Notifications → Retention deletion reminders**.
+Both start enabled. Disabling reminders does not disable retention cleanup. To
+keep records longer, change the retention period if your plan and permissions
+allow it, or contact your organization's Owner or Admin.
+Email reminders use [notification email tokens](usage.md) and require sufficient
+tokens in the workspace.
+
+Reminders follow your notification preferences and normal delivery retries.
+Retention cleanup follows its configured schedule even if a reminder is disabled
+or cannot be delivered. Reminders apply to automatic request and receipt retention;
+notification cleanup, manual deletion, organization deletion, and payment-related
+cleanup follow their own rules.
+
 ## Delete individual records
 
 Use the delete action offered for a request, task, receipt, employee, team, template, or delegation only when you intend to remove that record. Read the confirmation and any validation message.

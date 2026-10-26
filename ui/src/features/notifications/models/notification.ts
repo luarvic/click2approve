@@ -27,6 +27,7 @@ const notificationTypeLabels: Record<NotificationType, string> = {
   [NotificationType.DiscussionMessageCreated]: "New message",
   [NotificationType.BillingRecovery]: "Notification",
   [NotificationType.ReceiptCreated]: "New receipt",
+  [NotificationType.RetentionWarning]: "Retention deletion reminder",
 };
 
 export const getNotificationTypeLabel = (type: NotificationType) => notificationTypeLabels[type] ?? "Notification";

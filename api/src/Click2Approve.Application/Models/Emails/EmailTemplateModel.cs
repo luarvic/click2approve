@@ -8,6 +8,7 @@ public sealed record EmailTemplateModel
     public required string Body { get; init; }
     public required string PrimaryActionText { get; init; }
     public required string PrimaryActionUrl { get; init; }
+    public IReadOnlyList<EmailLink> AdditionalLinks { get; init; } = [];
     public EmailActor? Actor { get; init; }
     public EmailSenderIdentity? SenderIdentity { get; init; }
     public string? RequestTitle { get; init; }

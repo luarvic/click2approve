@@ -49,6 +49,21 @@ public static class NotificationEmailTemplates
                 BodyAfterTitle = " is available.",
                 PrimaryActionText = "View receipt"
             },
+            NotificationType.RetentionWarning => model with
+            {
+                Subject = $"Retention deletion reminder: {title}",
+                Heading = "Retention deletion reminder",
+                Body = "Your record titled ",
+                BodyAfterTitle = $" is scheduled for permanent deletion on {context.RetentionDeletionAt:yyyy-MM-dd HH:mm} UTC under the workspace's retention policy.",
+                PrimaryActionText = "View record",
+                Details = "You can manage the retention policy in Retention, subject to your plan and permissions. "
+                    + "Contact an organization Owner or Admin if you cannot change it.",
+                AdditionalLinks = [
+                    new EmailLink("Manage retention policy", context.RetentionPolicyUrl!),
+                    new EmailLink("Read the retention and deletion guide", context.RetentionGuideUrl!)
+                ],
+                Footer = "Manage retention deletion reminders in User profile / Notifications. Disabling reminders does not disable retention deletion."
+            },
             NotificationType.DiscussionMessageCreated => model with
             {
                 Subject = $"New message: {title}",
