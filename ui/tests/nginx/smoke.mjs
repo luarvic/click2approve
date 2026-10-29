@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const uiRoot = fileURLToPath(new URL("../../", import.meta.url));
@@ -63,6 +64,12 @@ try {
       );
     }
   }
+
+  const robots = await request("/robots.txt");
+  assert.equal(robots.status, 200);
+  assert.match(robots.headers.get("content-type"), /^text\/plain\b/);
+  checkHeaders(robots);
+  assert.equal(await robots.text(), readFileSync(`${uiRoot}public/robots.txt`, "utf8"));
 
   for (const path of [
     "/app/logo-with-text.png",
@@ -147,7 +154,7 @@ try {
   }
 
   console.log(
-    "Nginx smoke checks passed: redirects, routes, 404s, caching, gzip, security headers, and optional analytics.",
+    "Nginx smoke checks passed: redirects, routes, robots.txt, 404s, caching, gzip, security headers, and optional analytics.",
   );
 } finally {
   docker("stop", container);

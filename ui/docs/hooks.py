@@ -36,6 +36,7 @@ def on_page_markdown(markdown, page, config, files):
 def on_files(files, config):
     ui_dir = Path(config.config_file_path).parent
     assets = {
+        "robots.txt": ui_dir / "public/robots.txt",
         "assets/logo.svg": ui_dir / "public/logo-wall-to-wall.svg",
         "assets/logo-narrow.svg": ui_dir / "public/logo-narrow.svg",
         "assets/favicon-192.png": ui_dir / "public/favicon-192.png",
