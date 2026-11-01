@@ -51,4 +51,4 @@ We will identify changes by version, give reasonable notice of material changes 
 
 New York law governs these terms, subject to mandatory protections where you live. Disputes may be brought in courts with jurisdiction in New York, without restricting rights to other courts or remedies required by law. If a provision is unenforceable, the remaining terms continue to apply to the extent lawful.
 
-The open-source software has a separate [license and trademark policy](https://github.com/luarvic/click2approve#license-and-trademark).
+The open-source software has a separate [license and trademark policy](https://github.com/luarvic/click2approve/blob/main/docs/license-and-trademark.md).
