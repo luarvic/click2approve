@@ -188,12 +188,6 @@
   transform: translate(calc(100% - 2px), -100%);
 }
 
-@media screen and (max-width: 700px) {
-  .docs-brand span {
-    font-size: 18px;
-  }
-}
-
 .docs-header-spacer {
   flex: 1 0 8px;
 }

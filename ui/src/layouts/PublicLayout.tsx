@@ -17,7 +17,7 @@ const PublicLayout = ({ children }: PublicLayoutProps) => {
   const isLoading = stores.commonStore.isAnyActionLoading(GlobalLoadingActionLoaderScopes);
   return (
     <Box sx={Shell.outerBackgroundSx}>
-      <PublicAppBar showBrandTitle>
+      <PublicAppBar>
         <ColorModeSwitch
           checked={stores.userPreferencesStore.theme.palette.mode === "dark"}
           slotProps={{ input: { "aria-label": "Dark mode" } }}

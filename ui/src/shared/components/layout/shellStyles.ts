@@ -49,10 +49,17 @@ export const Shell = {
     zIndex: (theme) => theme.zIndex.drawer + 1,
   } as SxProps<Theme>,
   appBarToolbarSx: {
+    overflowX: "auto",
     flexShrink: 0,
     height: "100%",
     minHeight: "100%",
     px: 2,
+  } as SxProps<Theme>,
+  publicAppBarLogoSx: {
+    display: "block",
+    flex: "0 0 auto",
+    width: "auto",
+    height: 36,
   } as SxProps<Theme>,
   appBarSpacerSx: {
     flexShrink: 0,
@@ -122,9 +129,6 @@ export const Shell = {
     textDecoration: "none",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
-    "@media (max-width: 700px)": {
-      fontSize: "18px",
-    },
   } as SxProps<Theme>,
   appBarBrandBadgeSx: {
     display: "inline-flex",

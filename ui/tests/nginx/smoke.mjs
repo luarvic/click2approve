@@ -108,7 +108,11 @@ try {
     const response = await request(path);
     assert.equal(response.status, 404, path);
     checkHeaders(response);
-    assert.match(await response.text(), /404 - Not found/);
+    const html = await response.text();
+    assert.match(html, /<h1>Page not found<\/h1>/);
+    assert.match(html, /It may have moved, or access may be restricted\./);
+    assert.match(html, /class="not-found-home" href="\/">Home<\/a>/);
+    assert.doesNotMatch(html, /docs-menu-button|class="md-search"|md-sidebar--primary/);
   }
 
   const assetPaths = [...shell.matchAll(/(?:src|href)="(\/app\/assets\/[^"?#]+\.(?:js|css))"/g)].map(

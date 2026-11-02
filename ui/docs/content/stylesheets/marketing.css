@@ -4,6 +4,7 @@
   overflow-x: auto;
 }
 .site-header .site-header-inner {
+  align-items: center;
   gap: 24px;
   min-width: max-content;
 }
@@ -17,18 +18,23 @@
   letter-spacing: normal;
 }
 .site-header-links {
+  align-items: center;
   display: flex;
   flex-shrink: 0;
   gap: 24px;
   font-size: 14px;
+  line-height: 32px;
 }
 .site-header-links a:hover,
 .site-header-links a[aria-current] {
   color: var(--site-green);
 }
 .site-open-app {
+  align-items: center;
+  display: inline-flex;
   font-size: 13px;
   font-weight: 600;
+  line-height: 32px;
   white-space: nowrap;
 }
 .site-open-app span {
@@ -546,21 +552,21 @@ body:has(.site-header) .md-main__inner {
   .example-card {
     padding: 20px;
   }
-  .site-header .site-header-inner {
-    gap: 12px;
+  .site-header-home .site-header-inner {
+    gap: 8px;
     padding: 0 12px;
   }
-  .site-header .site-brand span {
+  .site-header-home .site-brand span {
     font-size: 16px;
   }
-  .site-header .site-brand img {
+  .site-header-home .site-brand img {
     height: 28px;
   }
-  .site-header-links,
-  .site-open-app {
+  .site-header-home .site-header-links,
+  .site-header-home .site-open-app {
     font-size: 12px;
   }
-  .site-open-app span {
+  .site-header-home .site-open-app span {
     margin-left: 2px;
   }
   .site-story {
@@ -624,10 +630,5 @@ body:has(.site-header) .md-main__inner {
   }
   .site-prose.md-typeset h1 {
     font-size: 32px;
-  }
-}
-@media (max-width: 380px) {
-  .site-header .site-brand span {
-    display: none;
   }
 }

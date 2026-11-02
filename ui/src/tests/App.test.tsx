@@ -23,9 +23,9 @@ describe("<App />", () => {
   afterEach(cleanup);
 
   test.each([
-    ["OpenSource", true, "/docs/open-source/"],
-    ["Business", false, "/docs/"],
-  ])("%s app shows its branding and Docs destination", async (edition, isOpenSource, documentationPath) => {
+    ["OpenSource", "/docs/open-source/"],
+    ["Business", "/docs/"],
+  ])("%s app shows its branding and Docs destination", async (edition, documentationPath) => {
     configuration.edition = edition;
     const wrapper = render(<App />);
     expect(wrapper).toBeTruthy();
@@ -35,7 +35,8 @@ describe("<App />", () => {
     expect(screen.getByRole("button", { name: "Click2Approve home" })).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Show help" })).toBeNull();
     const brand = screen.getByRole("button", { name: "Click2Approve home" });
-    expect(within(brand).getByText(isOpenSource ? "Free" : "App")).toBeTruthy();
+    expect(within(brand).getByText("Click2Approve")).toBeTruthy();
+    expect(within(brand).getByText(edition === "OpenSource" ? "Free" : "App")).toBeTruthy();
     expect(screen.getByRole("link", { name: "Docs" }).getAttribute("href")).toBe(documentationPath);
   });
 });

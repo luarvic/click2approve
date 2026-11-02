@@ -6,8 +6,8 @@ import { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
 const baseUrl = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
-const logoSrc = `${baseUrl}logo-narrow.svg`;
-const logoWithTitleSrc = `${baseUrl}logo-wall-to-wall.svg`;
+const logoSrc = `${baseUrl}logo-wall-to-wall.svg`;
+const compactLogoSrc = `${baseUrl}logo-narrow.svg`;
 
 interface PublicAppBarProps {
   children?: ReactNode;
@@ -21,7 +21,7 @@ const PublicAppBar = ({
   children,
   homePath = Routes.defaultPath,
   showBrand = true,
-  showBrandTitle = false,
+  showBrandTitle = true,
   startContent,
 }: PublicAppBarProps) => {
   const navigate = useNavigate();
@@ -36,15 +36,15 @@ const PublicAppBar = ({
               component="button"
               variant="body2"
               aria-label="Click2Approve home"
-              sx={showBrandTitle ? Shell.mainMenuBrandLinkSx : Shell.appBarBrandLinkSx}
+              sx={Shell.mainMenuBrandLinkSx}
               onClick={() => navigate(homePath)}
             >
               <Box
                 component="img"
-                src={showBrandTitle ? logoWithTitleSrc : logoSrc}
+                src={showBrandTitle ? logoSrc : compactLogoSrc}
                 alt=""
                 aria-hidden="true"
-                sx={showBrandTitle ? Shell.mainMenuLogoSx : Shell.appBarLogoSx}
+                sx={showBrandTitle ? Shell.publicAppBarLogoSx : Shell.appBarLogoSx}
               />
               {showBrandTitle && (
                 <Typography component="span" variant="h6" sx={Shell.appBarBrandTitleSx}>

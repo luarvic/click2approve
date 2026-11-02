@@ -1,16 +1,21 @@
 {# Match PublicAppBar; retain Material's navigation, palette, and search behavior. #}
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner" aria-label="{{ lang.t('header') }}">
+    {% if not is_not_found %}
     <button class="docs-icon-button docs-menu-button" type="button"
       aria-label="Open documentation menu" aria-controls="docs-navigation" aria-expanded="false"
       data-docs-toggle="__drawer">
       {% include ".icons/material/menu.svg" %}
     </button>
-    <a class="docs-brand docs-app-bar-logo" href="{{ 'docs/' | url }}" aria-label="Click2Approve documentation home">
-      <img src="{{ 'assets/logo-narrow.svg' | url }}" alt="" aria-hidden="true" />
+    {% endif %}
+    <a class="docs-brand docs-app-bar-logo" href="{{ '/' | url if is_not_found else 'docs/' | url }}" aria-label="{{ 'Click2Approve home' if is_not_found else 'Click2Approve documentation home' }}">
+      <img src="{{ config.theme.logo | url if is_not_found else 'assets/logo-narrow.svg' | url }}" alt="" aria-hidden="true" />
+      {% if is_not_found %}
+      <span class="not-found-brand-title">{{ config.site_name }}</span>
+      {% endif %}
     </a>
     <div class="docs-header-spacer"></div>
-    {% if "material/search" in config.plugins %}
+    {% if not is_not_found and "material/search" in config.plugins %}
       {% set search = config.plugins["material/search"] | attr("config") %}
       {% if search.enabled %}
         {% include "partials/search.html" %}
