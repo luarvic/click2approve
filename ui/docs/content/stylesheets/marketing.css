@@ -275,18 +275,22 @@ body:has(.site-header) .md-main__inner {
 }
 .site-demo-player {
   aspect-ratio: 16 / 9;
-  background: #102c20;
+  background: var(--app-divider);
+  background-clip: padding-box;
   border: 1px solid var(--app-divider);
   border-radius: 12px;
+  box-sizing: content-box;
+  box-shadow: 0 12px 40px #163b2210;
   margin-top: 28px;
   overflow: hidden;
   position: relative;
 }
 .site-demo-play,
 .site-demo-player iframe {
+  aspect-ratio: 16 / 9;
   border: 0;
   display: block;
-  height: 100%;
+  height: auto;
   width: 100%;
 }
 .site-demo-play {
@@ -295,6 +299,14 @@ body:has(.site-header) .md-main__inner {
   cursor: pointer;
   font: inherit;
   padding: 0;
+}
+/* Hide subpixel black bars introduced by the embedded player at browser zoom levels. */
+.site-demo-player iframe {
+  height: calc(100% + 4px);
+  left: -2px;
+  position: absolute;
+  top: -2px;
+  width: calc(100% + 4px);
 }
 .site-demo-play img {
   display: block;
