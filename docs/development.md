@@ -3,7 +3,7 @@
 Run commands from the repository root unless a `cd` command is shown. Install
 the .NET 10 SDK and Node.js 24, plus Docker for SQL Server and Azurite.
 
-For the complete app in Docker, use the [quick start](../README.md#run-locally).
+For the complete app in Docker, use the [quick start](../README.md#try-it-locally).
 The instructions below run each component from source.
 
 ## API

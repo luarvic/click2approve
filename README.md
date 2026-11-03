@@ -42,12 +42,17 @@ and create an account. Try your first workflow:
 2. Add an approval step using your account's email as the assignee, then submit.
 3. Open **Tasks** to complete the approval, then **Requests** to see the outcome.
 
-Next, try multiple reviewers, a signing step, or a required comment. Local email
-delivery and email confirmation are disabled; in-app notifications work. To
-involve other people, have them create accounts on the same installation.
+Next, try multiple reviewers, a required comment, or a signing step with
+**Require an electronic signature** enabled. Local email delivery and email
+confirmation are disabled; in-app notifications work. To try a second
+participant, create another account in a separate browser profile.
 
 The [local landing page and guides](http://localhost:3333/) and
 [API reference](http://localhost:5555/swagger/) are also included.
+
+**Local data is disposable:** this demo setup has no persistent data volumes.
+Running `docker compose down` removes the database and emulator data with their
+containers. For production, follow the [deployment guide](docs/deployment.md).
 
 <details>
 <summary>Local services, Apple Silicon, and stopping the app</summary>
@@ -66,10 +71,8 @@ docker compose logs -f api # View API logs
 docker compose down       # Stop and remove containers
 ```
 
-**Local data is disposable:** Compose defines no persistent data volumes.
-`docker compose down` removes the database and emulator data with their containers.
-This setup uses SQL Server Developer Edition; review the
-[deployment guide](docs/deployment.md) before hosting for production use.
+This setup uses SQL Server Developer Edition, which is for development and
+testing. Choose a suitably licensed database for production.
 
 </details>
 
@@ -134,8 +137,9 @@ and [deployment](docs/deployment.md) for the current implementations.
 ### Can I host it on my own infrastructure?
 
 **Yes.** The UI, API, and background workers run in containers and can be hosted
-on your own servers or in a cloud environment. The current storage providers
-use Azure services; replacing those providers enables other storage backends.
+on your own servers or in a cloud environment. The included providers require
+SQL Server / Azure SQL and Azure Blob and Queue Storage. A fully on-premises
+installation requires replacing the Azure storage providers, as described above.
 For production, configure persistent data, backups, HTTPS, secure credentials,
 and email delivery using the [deployment guide](docs/deployment.md).
 
