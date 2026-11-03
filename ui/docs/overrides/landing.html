@@ -2,6 +2,7 @@
 {% block htmltitle %}<title>Document approvals, electronic signatures &amp; verification · Click2Approve</title>{% endblock %}
 {% block extrahead %}
   {{ super() }}
+  <script src="{{ 'javascripts/demo-video.js' | url }}" defer></script>
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Document approvals, electronic signatures &amp; verification · Click2Approve" />
   <meta property="og:description" content="{{ page.meta.description | e }}" />
@@ -29,7 +30,7 @@
     <p class="site-lead">Send documents for approval or signature, then share a receipt that records who acted, what they decided, and when.</p>
     <div class="site-actions">
       <a class="site-button" href="/app/">Create your first request <span aria-hidden="true">→</span></a>
-      <a class="site-text-link" href="#how-it-works">See how it works <span aria-hidden="true">↓</span></a>
+      <a class="site-text-link" href="#product-demo">Watch the demo <span aria-hidden="true">↓</span></a>
     </div>
     <p class="site-hero-note">For proposals, agreements, and everyday sign-offs.</p>
   </div>
@@ -43,6 +44,20 @@
     </ol>
     <div class="preview-footer"><span class="preview-avatar" aria-hidden="true">✓</span><p><strong>From a request to a record you can share.</strong><br />Who acted, what they decided, and when.</p></div>
   </figure>
+</section>
+<section class="site-process site-demo" id="product-demo" aria-labelledby="demo-title">
+  <div class="site-section-heading">
+    <p class="site-eyebrow">SEE CLICK2APPROVE IN ACTION</p>
+    <h2 id="demo-title">From proposal to signed agreement.</h2>
+    <p>Follow a sample agency through internal approval, client signature, and document verification.</p>
+  </div>
+  <div class="site-demo-player" data-video-src="https://www.youtube-nocookie.com/embed/{{ page.meta.demo_video_id | e }}?autoplay=1&amp;playsinline=1&amp;rel=0">
+    <button class="site-demo-play" type="button" aria-label="Play the Click2Approve product demo">
+      <img src="{{ 'assets/approval-workflow-demo.jpg' | url }}" alt="" width="1280" height="720" loading="lazy" />
+      <span class="site-demo-play-label"><span class="site-demo-play-icon" aria-hidden="true">▶</span> Watch the demo <span class="site-demo-duration">1:32</span></span>
+    </button>
+  </div>
+  <p class="site-demo-caption"><a class="site-text-link" href="https://www.youtube.com/watch?v={{ page.meta.demo_video_id | e }}">Watch on YouTube <span aria-hidden="true">→</span></a></p>
 </section>
 <section class="site-process" id="how-it-works" aria-labelledby="process-title">
   <div class="site-section-heading"><p class="site-eyebrow">A SIMPLE EXAMPLE</p><h2 id="process-title">One proposal. Three people. A clear outcome.</h2><p>Alex is a freelance designer. Jamie is the client. Taylor handles the accounts and needs a record of the agreement.</p></div>

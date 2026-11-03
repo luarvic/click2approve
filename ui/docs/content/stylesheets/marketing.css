@@ -269,8 +269,70 @@ body:has(.site-header) .md-main__inner {
   border-top: 1px solid var(--app-divider);
   padding: 56px 0;
 }
-#how-it-works {
+#how-it-works,
+#product-demo {
   scroll-margin-top: 88px;
+}
+.site-demo-player {
+  aspect-ratio: 16 / 9;
+  background: #102c20;
+  border: 1px solid var(--app-divider);
+  border-radius: 12px;
+  margin-top: 28px;
+  overflow: hidden;
+  position: relative;
+}
+.site-demo-play,
+.site-demo-player iframe {
+  border: 0;
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+.site-demo-play {
+  background: transparent;
+  color: white;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+.site-demo-play img {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+.site-demo-play-label {
+  position: absolute;
+  align-items: center;
+  background: #102c20ed;
+  border: 1px solid #ffffff40;
+  border-radius: 8px;
+  bottom: clamp(12px, 3vw, 28px);
+  display: flex;
+  font-size: clamp(12px, 1.5vw, 16px);
+  gap: 12px;
+  left: clamp(12px, 3vw, 28px);
+  min-height: 44px;
+  padding: 10px 16px;
+}
+.site-demo-play-icon {
+  color: #4ade80;
+  font-size: 20px;
+}
+.site-demo-duration {
+  color: #c8d9ce;
+  font-size: 12px;
+}
+.site-demo-play:hover .site-demo-play-label {
+  background: #15803d;
+}
+.site-demo-play:focus-visible {
+  outline: 3px solid #4ade80;
+  outline-offset: -6px;
+}
+.site-demo-caption {
+  margin: 14px 0 0;
 }
 .site-story {
   margin-top: 44px;

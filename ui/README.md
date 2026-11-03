@@ -46,6 +46,8 @@ The landing page walks through creating, signing, and verifying a proposal using
 responsive HTML example cards. The cards use the current theme and readable text
 at every screen size. Keep the examples explicitly labeled as illustrative and
 use fictional people and details; they are explanations rather than app controls.
+The product demo uses a local thumbnail and loads its YouTube player only after
+the visitor selects Play.
 Supporting pages use `template: marketing.html`; their content stays in Markdown.
 User guides live in `docs/content/docs/` and retain the documentation shell. Add
 new guides under the appropriate group within Documentation in `mkdocs.yml`; only

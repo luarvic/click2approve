@@ -10,15 +10,11 @@
 [![Main build status](https://github.com/luarvic/click2approve/actions/workflows/main-build.yml/badge.svg)](https://github.com/luarvic/click2approve/actions/workflows/main-build.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-**Turn “Have you reviewed this?” into a clear next step.** Click2Approve is an
-open-source document approval and workflow system you can host yourself. Upload
-files, choose who reviews or signs them, and follow every decision in one place.
+Click2Approve helps you get documents approved and signed. Upload files, choose
+reviewers, and track decisions in one place.
 
-**Upload documents → Set approval steps → Collect decisions and signatures → Track progress**
-
-Use it for supplier agreements, policy acknowledgements, design reviews, or any
-document that needs a decision. Free under the MIT License, including for use
-within your organization.
+Open source and free under the MIT License. Host it yourself for personal or
+business use. [Watch a video to see how it works](https://www.youtube.com/watch?v=E3Tf1zwNyxk).
 
 **[Try it locally](#try-it-locally)** · **[Common questions](#common-questions)** ·
 **[Documentation](#documentation)** · **[Support the project](#help-shape-click2approve)**
