@@ -1,5 +1,8 @@
 <p align="center">
-  <img src="ui/public/logo-with-text.png" alt="Click2Approve" width="300">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="ui/public/logo-with-text-dark.svg">
+    <img src="ui/public/logo-with-text.svg" alt="Click2Approve" width="300">
+  </picture>
 </p>
 
 # Get documents approved. Keep everyone on the same page.
