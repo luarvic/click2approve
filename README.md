@@ -21,7 +21,7 @@ document that needs a decision. Free under the MIT License, including for use
 within your organization.
 
 **[Try it locally](#try-it-locally)** · **[Common questions](#common-questions)** ·
-**[Documentation](#documentation)** · **[Star on GitHub](https://github.com/luarvic/click2approve)**
+**[Documentation](#documentation)** · **[Support the project](#help-shape-click2approve)**
 
 ## Try it locally
 
@@ -161,8 +161,9 @@ and email delivery using the [deployment guide](docs/deployment.md).
 
 ## Help shape Click2Approve
 
-**Would this make your approval process easier? Give the repo a ⭐** to bookmark
-it and help others discover it: **[Star Click2Approve on GitHub](https://github.com/luarvic/click2approve)**.
+**Would this make your approval process easier? Give the repo a ⭐** using the
+**Star** button at the top of this GitHub repository. It helps you find the
+project again and helps others discover it.
 
 Have a workflow in mind, found a bug, or want to add a provider?
 [Open an issue](https://github.com/luarvic/click2approve/issues) to share your use
