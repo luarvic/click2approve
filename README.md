@@ -23,6 +23,13 @@ within your organization.
 **[Try it locally](#try-it-locally)** · **[Common questions](#common-questions)** ·
 **[Documentation](#documentation)** · **[Star on GitHub](https://github.com/luarvic/click2approve)**
 
+> **Want to start right away without setting up infrastructure?**
+> Use the **[hosted Click2Approve service](https://click2approve.com/)**—we handle
+> hosting so you can focus on getting documents approved. The commercial version
+> adds organization workspaces, employee roles and teams, reusable workflow
+> templates, discussions, document revisions, verifiable receipts, and API tokens
+> for integrations. [Compare editions](ui/docs/content/docs/open-source.md).
+
 ## Try it locally
 
 You need [Docker with Compose](https://docs.docker.com/get-docker/) and
