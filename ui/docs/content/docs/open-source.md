@@ -1,8 +1,23 @@
-# Open-source edition
+---
+title: Open-source document approval system
+description: Self-host Click2Approve, a free MIT-licensed document approval system with multi-step workflows, multiple reviewers, and electronic signatures. Compare editions.
+---
+# Open-source document approval system
 
-Click2Approve is available as a free, MIT-licensed open-source edition and as a commercial service. The open-source edition provides personal document workflows that you can host on your own infrastructure. Its app header shows a compact **Free** chip beside the upper-right corner of the brand name, and **Docs** opens this guide.
+Click2Approve is a free, MIT-licensed open-source document approval system that you can host on your own infrastructure. Upload documents, assign reviewers by email address, and track their decisions through a multi-step approval workflow. You can request electronic signatures and require comments when a task needs an explanation.
+
+The open-source edition supports individual accounts and personal document workflows for personal or commercial use. There is no Click2Approve license fee; you cover your infrastructure and provider costs. See the [source code and self-hosting instructions](https://github.com/luarvic/click2approve) to get started.
 
 The commercial version adds organization workspaces, collaboration tools, and subscription-based usage and retention controls. The other guides in this portal describe the commercial service; use this comparison to check which features apply to the open-source edition.
+
+## Example: review and approve a proposal
+
+1. Upload a proposal and add an approval step for the people who need to review it.
+2. Choose whether everyone assigned to the step must respond or any one reviewer can complete it. Workflow steps run in order, with multiple assignees able to act within each step.
+3. Add a signing step if the proposal also needs an electronic signature.
+4. Track the request's progress and recorded decisions from **Requests**. Each participant finds their assigned work in **Tasks**.
+
+See [Create a request](create-a-request.md) and [Configure workflow steps](workflow-steps.md) for the workflow controls. Shareable receipts and file verification are commercial features; see the comparison below when choosing an edition.
 
 ## Feature comparison
 

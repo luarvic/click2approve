@@ -1,6 +1,14 @@
-# Workflow templates
+---
+title: Reuse document approval workflow templates
+description: Save approval steps and participants as a template in an organization. Start new requests from your templates and review the files and assignees each time.
+---
+# Reuse document approval workflow templates {#workflow-templates}
 
-Templates save reusable request steps and participants inside an organization. Each template belongs to the person who creates it: other members, including Owners and Admins, do not see or manage your templates.
+Use workflow templates when you send documents through the same approval process often. A template saves request steps and participants inside an organization. You add the current documents when you create each request.
+
+For example, save a proposal review step followed by a signing step. Reuse those steps for the next proposal, then check the reviewers, signer, and files before submitting.
+
+Each template belongs to the person who creates it. Other members, including Owners and Admins, do not see or manage your templates.
 
 !!! info "Organization only"
     Select an organization to create and reuse workflow templates. Templates belong to that organization and are unavailable in Personal.

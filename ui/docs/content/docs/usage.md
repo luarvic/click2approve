@@ -1,3 +1,7 @@
+---
+title: Approval workflow usage, tokens, and storage limits
+description: See which Click2Approve actions use tokens, how file storage is measured, and what happens at a limit. Use an example to estimate a document workflow's usage.
+---
 # Usage and tokens
 
 Select a workspace and open **Usage** to see its token balance, billing period, and total occupied storage. The table below the tiles lists each action and its **Tokens used**, including zero-token entries. Actions are ordered by tokens used, highest first, with alphabetical ordering for equal amounts. Sorting uses precise amounts before display rounding. The Tokens and Storage tiles show used and available amounts with a quota bar. Displayed token amounts are rounded down to whole tokens; accounting and quota bars retain fractional precision.

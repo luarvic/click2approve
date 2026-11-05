@@ -45,6 +45,22 @@ try {
     await response.text();
   }
 
+  for (const path of [
+    "/ui",
+    "/ui/",
+    "/ui/signIn",
+    "/ui/tenants/example/tasks/example",
+    "/ui/assets/example.js",
+  ]) {
+    for (const query of ["", "?source=legacy&returnUrl=%2Fui%2Ftasks"]) {
+      const response = await request(`${path}${query}`);
+      assert.equal(response.status, 301, `${path}${query}`);
+      assert.equal(response.headers.get("location"), "/app/");
+      checkHeaders(response);
+      await response.text();
+    }
+  }
+
   for (const path of ["/", "/docs/", "/docs/getting-started/", "/privacy/", "/terms/", "/contact/", "/app/"]) {
     const response = await request(path);
     assert.equal(response.status, 200, path);
@@ -97,6 +113,8 @@ try {
 
   for (const path of [
     "/asda",
+    "/uikit",
+    "/docs/ui/missing-page",
     "/docs/missing-page",
     "/404.html",
     "/app/assets/missing.js",

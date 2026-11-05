@@ -1,8 +1,25 @@
-# Configure workflow steps
+---
+title: Configure document approval workflow steps
+description: Set up approval steps in order or let several reviewers act at one step. Choose all or any assignee, required signatures, comments, and attachments.
+---
+# Configure document approval workflow steps {#configure-workflow-steps}
 
-Steps run in sequence. Put dependent decisions in separate steps; put participants who can act at the same stage in the same step.
+An approval workflow defines who acts on a document and in what order. An **assignee** is a person or team assigned to a step. Steps run one after another. Several assignees can act at the same step.
 
-Each step has a heading and a flat, full-width editor card. Use **Add step** to create another step, the arrow controls to change its order, and the remove button to delete it.
+Use **Add step** to create another step, the arrow controls to change its order, and the remove button to delete it.
+
+## Sequential and parallel approvals
+
+Use separate steps when one decision must come before another. This is a **sequential approval**. For example, a reviewer approves a proposal in step 1, then a client signs in step 2.
+
+Put people in the same step when they can review at the same time. This is a **parallel approval** within that step. Steps themselves still run in order.
+
+| You need… | Configure the workflow this way |
+| --- | --- |
+| One reviewer, followed by another | Add a separate step for each reviewer |
+| Two reviewers who must both approve | Add both to one step and enable **All assignees must complete** |
+| Approval from any one of several people | Add them to one step and leave **All assignees must complete** disabled |
+| Approval followed by a drawn signature | Add an **Approve** step, then a **Sign** step with **Require an electronic signature** enabled |
 
 ## Choose an action and participants
 
@@ -15,7 +32,9 @@ Add assignees by email and check the displayed names and addresses before submit
 
 ## Require everyone or any assignee
 
-Enable **All assignees must complete** to require every assignee to act. With this option disabled, any assignee can satisfy the step; remaining tasks may be skipped once its outcome is determined.
+Enable **All assignees must complete** to require a successful response from every assignee. With this option disabled, one successful response completes the step and skips its other pending tasks. The switch appears when a step has several assignees or a team assignment.
+
+A negative decision stops the request with an unsuccessful outcome, even when **All assignees must complete** is disabled. The option does not allow other assignees to override a rejection.
 
 For example, use one step for two reviewers who must both act, followed by a separate signing step. Use the any-assignee option when one available participant can provide the required decision.
 

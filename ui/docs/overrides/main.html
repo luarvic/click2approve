@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block htmltitle %}
-  <title>{% if page and not page.is_homepage %}{{ page.title | striptags | e }} · {% endif %}{{ config.site_name }}</title>
+  <title>{% if page and not page.is_homepage %}{{ page.meta.title | default(page.title, true) | striptags | e }} · {% endif %}{{ config.site_name }}</title>
 {% endblock %}
 
 {% block content %}

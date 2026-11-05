@@ -1,4 +1,8 @@
-# Notifications
+---
+title: Manage approval emails and in-app notifications
+description: Choose email and in-app notifications for approval requests, tasks, Chat, and receipts. Find delivery settings and check what to do when a message is missing.
+---
+# Approval emails and in-app notifications {#notifications}
 
 Notifications help you return to assigned tasks, request outcomes, discussions, receipts, and billing events. Set delivery preferences separately for each category.
 

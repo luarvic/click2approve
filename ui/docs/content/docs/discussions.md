@@ -1,6 +1,10 @@
-# Discussions
+---
+title: Discuss documents in request and task Chat
+description: Ask questions and share supporting files in Click2Approve Chat. Learn who can read discussions and why Chat messages do not record approval decisions.
+---
+# Discuss documents in request and task Chat {#discussions}
 
-Use discussions to ask questions and share supporting files about a request. Chat is available in both Personal and organization workspaces.
+Use **Chat** to ask questions about a document before approving or signing it. You can share supporting files in the discussion. Chat is available in both Personal and organization workspaces.
 
 ## Ask about a request
 
@@ -9,7 +13,9 @@ Use discussions to ask questions and share supporting files about a request. Cha
 3. Read the existing messages for context.
 4. Enter your message. Use the paperclip inside **Message** to attach supporting files, then choose **Send**.
 
-Incoming messages appear on the left in neutral bubbles; your messages appear on the right in green bubbles. Each workflow step uses the same icon and muted **Step · Action** heading as the workflow view, with an expand control. Use the chevron beside it to show an alphabetically sorted list of participants, then use the chevron again to hide the list. Participants use the same muted icons and text as the workflow attributes. They are listed alphabetically across the row and wrap when needed. The participant list starts collapsed; messages stay visible. Request chats group conversations by workflow step, with a light divider between step chats; task chats show the current step.
+Your messages appear on the right; other people's messages appear on the left. On a request, conversations are grouped by workflow step. On a task, Chat shows the current step.
+
+Use the arrow beside a step heading to show its participants in alphabetical order. Use it again to hide the list. Messages stay visible when the participant list is hidden.
 
 Use Chat for questions and clarification. Record the actual decision through the task's action controls so it becomes a workflow outcome.
 

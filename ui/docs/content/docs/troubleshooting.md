@@ -1,6 +1,10 @@
-# Troubleshooting
+---
+title: Fix missing approval tasks and failed submissions
+description: Find missing requests or tasks and resolve document approval problems in Click2Approve, including failed submissions, sign-in issues, and expired receipt links.
+---
+# Troubleshooting document approval problems {#troubleshooting}
 
-Start by checking your account, selected workspace, and the resource's current state. Then review the message shown by the failed action.
+If you cannot find an approval task, submit a request, or open a receipt link, start by checking your account and selected workspace. Open the request or task to check its current status. Then read the error message for the action that failed.
 
 ## I cannot find a request or task
 

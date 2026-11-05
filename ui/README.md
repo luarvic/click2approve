@@ -18,7 +18,8 @@ do not bypass peer dependency checks with `--force` or `--legacy-peer-deps`.
 The UI Docker image builds one MkDocs Material site at `/`, with a product
 landing page, `/contact/`, `/terms/`, `/privacy/`, and user documentation under
 `/docs/`. The documentation root is a table of contents; Getting started lives at
-`/docs/getting-started/`. The Docs menu opens `/docs/`; `/docs` redirects to `/docs/`. The React
+`/docs/getting-started/`. The Docs menu opens `/docs/`; `/docs` redirects to `/docs/`.
+Legacy `/ui` and `/ui/…` URLs permanently redirect to `/app/`, discarding old paths and query strings. The React
 application is served separately at `/app/`. Terms and privacy live at `/terms/`
 and `/privacy/`; hosted-service operators must maintain notices matching their practices.
 

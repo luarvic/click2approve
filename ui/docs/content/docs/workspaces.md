@@ -1,3 +1,7 @@
+---
+title: Find requests and tasks in the right workspace
+description: Learn where to find document approval requests, tasks, and receipts in Personal and organization workspaces, and how to switch between them.
+---
 # Workspaces and navigation
 
 A **workspace** groups the requests, tasks, and settings you can access. Everyone starts with **Personal**, the workspace for their own requests and tasks sent to their email address. If you also belong to an organization, use the workspace picker to switch to its shared work. Set a preferred starting workspace in [User profile](profile.md).

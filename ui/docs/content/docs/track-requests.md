@@ -1,10 +1,20 @@
-# Track and revise requests
+---
+title: Track approval status and revise requests
+description: Check document approval status in Requests. See recorded decisions, cancel active work, or use Resubmit to start an eligible request with revised files.
+---
+# Track approval status and revise requests {#track-and-revise-requests}
 
-Open **Requests** in the workspace that owns the request. Use the available filters to find it, then open its details to review files, steps, participants, and recorded actions.
+To check a document's approval status, open **Requests** in the workspace that owns the request. Use **Personal**, your workspace for your own requests, for work you sent personally. For work sent on behalf of an organization, select that organization.
+
+Use the available filters to find the request, then open its details to review files, steps, participants, and recorded actions. For actions assigned to you, open **Tasks** instead; see [Complete a task](complete-a-task.md).
 
 ## Read progress and outcomes
 
-Workflow steps appear below the request summary. Each step heading shows its number and action, such as **Step 1 · Approve**. Use its expand control to show a wrapping row of icons and values for the completion rule, visibility, any requirements, and original assignees. These details start collapsed. Full-width task cards remain visible when the step details are collapsed. Assignee icons identify the original teams, employees, and email addresses. Tasks appear in one list without team groups; expand a task to see **Assigned via** when it was created from a team assignment. An **Upcoming task** shows an assignee whose task has not started yet. **From organization**, when present on an existing task, identifies its recorded organization; Personal is a workspace, not an organization.
+Workflow steps appear below the request summary. Each step heading shows its number and action, such as **Step 1 · Approve**. Expand the heading to see the completion rule, visibility, requirements, and original assignees. The assignee icons identify teams, employees, and email addresses. Task cards stay visible when you collapse the step details.
+
+Expand a task to see **Assigned via** if it came from a team assignment. An **Upcoming task** shows someone whose task has not started yet.
+
+**From organization**, when shown on a task, names its recorded organization. Personal is a workspace, not an organization.
 
 The status chip in each request or task card's header shows its current state, including when the card is collapsed.
 
@@ -27,6 +37,8 @@ Open a pending or started request you are authorized to manage, choose **Cancel 
 
 Revise eligible requests in either Personal or an organization.
 
+For example, a reviewer may choose **Request changes** and explain that a proposal has the wrong price. Use **Resubmit** to replace the proposal and start a new review. Adding a file to [Chat](discussions.md) does not replace the request's current review files.
+
 1. Open an eligible request and choose **Resubmit**.
 2. Review the previous revision's files, instructions, and workflow steps.
 3. Update the files, instructions, and steps for the new revision.
@@ -40,6 +52,6 @@ Use **Show revision changes**, when present, to inspect added, replaced, and rem
 
 ## Preserve the result
 
-[Receipts](receipts.md) provide completed request snapshots. Review [retention and deletion](retention.md) before removing a request or relying on long-term access.
+[Receipts](receipts.md) record the request's result and each participant's recorded actions, subject to step visibility. They are created when a request completes, is canceled, or is replaced by a new revision. Review [retention and deletion](retention.md) before removing a request or relying on long-term access.
 
 A newer revision prevents deletion of the request it references. Schedule deletion of the latest revision first, then wait for background cleanup before removing its predecessor. Removing a request does not remove participants' receipts.

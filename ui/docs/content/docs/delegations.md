@@ -1,6 +1,10 @@
-# Delegations
+---
+title: Delegate approval tasks and request management
+description: Let an employee act on another employee's tasks and requests in the same organization. Set up delegation, select the work queue, and remove access later.
+---
+# Delegate approval tasks and requests {#delegations}
 
-Delegations allow one employee to act on another employee's assigned tasks and created requests within the same organization.
+Use a **delegation** when one employee needs another employee to act on their approval tasks and requests. For example, a colleague can cover work while someone is away. Both employees must belong to the same organization.
 
 !!! info "Organization only"
     Select an organization to view delegations. Owners and Admins can create, change, and remove them; both employees must belong to that organization.

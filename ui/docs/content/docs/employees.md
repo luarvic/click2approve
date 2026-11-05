@@ -1,3 +1,7 @@
+---
+title: Manage employees and approval workspace roles
+description: Add employees to a Click2Approve organization and manage their roles and access. Compare User, Admin, and Owner permissions for approval workflows.
+---
 # Employees and roles
 
 Employees connect user accounts to an organization and provide the identities used for assignments and audit records.

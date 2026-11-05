@@ -1,4 +1,8 @@
-# API tokens
+---
+title: Connect approval workflows with API tokens
+description: Create a Click2Approve API token for your integration, send it as a Bearer token, and explore the API reference. Learn how token permissions and revocation work.
+---
+# API tokens for approval workflow integrations {#api-tokens}
 
 Use the Click2Approve API to connect your own tools and automate approval workflows. API tokens let integrations access the API through your user account. Manage them in your profile, whether you work in Personal or an organization.
 

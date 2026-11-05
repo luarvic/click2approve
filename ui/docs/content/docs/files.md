@@ -1,6 +1,16 @@
-# Files and attachments
+---
+title: Add files to document approval requests and tasks
+description: Learn where to attach review documents, task response files, and Chat files in Click2Approve. Check file size limits and how revised files are shown.
+---
+# Files and attachments for document approvals {#files-and-attachments}
 
-Files can belong to the request, a participant's decision, or a discussion message. Check where you attach a file so it is part of the intended record.
+You can attach files to a document approval request, a participant's decision, or a Chat message. Each place has a different purpose. Check where you attach a file so it becomes part of the record you need.
+
+| You want to… | Attach the file here |
+| --- | --- |
+| Send a document for people to review | **Files to review** when creating the request |
+| Submit a file with your task response | **Your response** on the task |
+| Share extra information or ask a question | **Chat** on the request or task |
 
 Each attachment can be up to **50 MiB** (52,428,800 bytes). This applies to request, decision, and discussion attachments. Workspace storage and token limits also apply.
 

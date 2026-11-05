@@ -1,6 +1,12 @@
-# Receipts and verification
+---
+title: Approval receipts and document file verification
+description: Open a record of document approval decisions and signatures. Share a receipt through a verification link and check whether a file matches the recorded copy.
+---
+# Approval receipts and document file verification {#receipts-and-verification}
 
-A **receipt** is a record Click2Approve creates when a request finishes. It preserves the request details, outcome, and participants' recorded actions, including signatures where provided. You can share it through a verification link so someone else can review the record and check a copy of a document against its recorded file.
+A **receipt** is a record Click2Approve creates when a request finishes. It preserves the request details, outcome, and participants' recorded actions, including signatures where provided. Use it to see who acted and what result was recorded.
+
+You can share a receipt through a verification link. The person with the link can review the record and check whether their copy of a document matches a file recorded on the receipt.
 
 !!! info "Who can manage receipts?"
     Only the user a receipt is issued to can open or delete it in the workspace and manage its verification links. This applies in both Personal and organizations; Owners and Admins cannot open other people's receipts through their role.
@@ -26,16 +32,18 @@ A receipt preserves the recorded context of the completed work. Participant-spec
 3. Choose **New link**, set **Expires**, and create the link.
 4. Select the created link in the list to open its verification URL, then copy and share it with the intended recipient.
 
-Shared verification pages show the Click2Approve logo above the receipt card, aligned to its left edge. Select the logo or brand name to open the Click2Approve home page. The page uses the same responsive outer spacing as other pages, keeping the receipt and file verification controls inset from screen edges. The QR code inside the card opens the same verification link.
+The QR code inside the receipt card opens the same verification link. Select the Click2Approve logo or brand name above the card to open the home page.
 
 !!! warning "Anyone with the link can view the receipt"
     An active verification link opens the receipt without requiring workspace membership. Review it before sharing: its contents may include names, decisions, and signatures.
 
 ## Verify a file
 
-Open a receipt in your workspace or an active verification link and choose **Verify file**. Select your copy of the document. Click2Approve compares its SHA-256 hash with the files recorded on the receipt and shows whether it matches a request file or a participant's response attachment.
+Open a receipt in your workspace or an active verification link and choose **Verify file**. Select your copy of the document. Your browser calculates its **SHA-256 hash**, a value based on the file's contents. Click2Approve compares that value with the hashes recorded on the receipt and shows whether the file matches a request file or a participant's response attachment. This check reads your selected file in the browser; it does not upload that copy.
 
-The result spans the receipt's width above **Verify file**. In the workspace receipt view, **Verify file** is grouped with the other actions below the receipt. A green **File verified** alert identifies the matching attachment and its request or task. A red **File does not match** alert means no recorded file has the same hash; check that you selected the correct version and try again.
+For example, if someone sends you an approved proposal and its receipt link, open the link and use **Verify file** to check the proposal. A file with changed contents will not match the recorded hash, even if its filename is the same.
+
+The result appears above **Verify file**. **File verified** identifies the matching attachment and its request or task. **File does not match** means no recorded file has the same hash. Check that you selected the correct version and try again.
 
 Verification uses the file metadata and hashes preserved in the receipt. It still works after the original attachments have been removed; retaining a receipt does not keep those stored attachments.
 

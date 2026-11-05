@@ -1,14 +1,14 @@
 {% extends "marketing.html" %}
-{% block htmltitle %}<title>Document approvals, electronic signatures &amp; verification · Click2Approve</title>{% endblock %}
+{% block htmltitle %}<title>{{ page.meta.title | e }} · Click2Approve</title>{% endblock %}
 {% block extrahead %}
   {{ super() }}
   <script src="{{ 'javascripts/demo-video.js' | url }}" defer></script>
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Document approvals, electronic signatures &amp; verification · Click2Approve" />
+  <meta property="og:title" content="{{ page.meta.title | e }} · Click2Approve" />
   <meta property="og:description" content="{{ page.meta.description | e }}" />
   <meta property="og:url" content="{{ page.canonical_url | e }}" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Send it. Sign it. Verify it. · Click2Approve" />
+  <meta name="twitter:title" content="{{ page.meta.title | e }} · Click2Approve" />
   <meta name="twitter:description" content="{{ page.meta.description | e }}" />
   <script type="application/ld+json">
     {
@@ -26,8 +26,8 @@
 <section class="site-hero" aria-labelledby="hero-title">
   <div class="site-hero-copy">
     <p class="site-eyebrow"><span></span> DOCUMENT APPROVALS &amp; ELECTRONIC SIGNATURES</p>
-    <h1 id="hero-title">Send it. Sign it.<br /><em>Verify it.</em></h1>
-    <p class="site-lead">Send documents for approval or signature, then share a receipt that records who acted, what they decided, and when.</p>
+    <h1 id="hero-title">Document approval<br /><em>software.</em></h1>
+    <p class="site-lead">Send documents for review, approval, or electronic signature. Track each decision in one place, then share a receipt that records who acted, what they decided, and when.</p>
     <div class="site-actions">
       <a class="site-button" href="/app/">Create your first request <span aria-hidden="true">→</span></a>
       <a class="site-text-link" href="#product-demo">Watch the demo <span aria-hidden="true">↓</span></a>
@@ -131,5 +131,6 @@
     <article><h3>Repeat what works.</h3><p>In an organization, assign work to employees or teams and save workflow templates for recurring requests.</p></article>
   </div>
 </section>
+<section class="site-guide" aria-labelledby="open-source-title"><div><p class="site-eyebrow">HOST IT YOURSELF</p><h2 id="open-source-title">Looking for an open-source approval system?</h2><p>The free, MIT-licensed edition supports document approval workflows, multiple reviewers, and electronic signatures. Host it on your own infrastructure. Organization workspaces, discussions, and verifiable receipts are available in the commercial service.</p></div><a class="site-text-link" href="{{ 'docs/open-source/' | url }}">Explore the open-source edition <span aria-hidden="true">→</span></a></section>
 <section class="site-guide" aria-labelledby="guide-title"><div><p class="site-eyebrow">YOUR FIRST REQUEST</p><h2 id="guide-title">Give your next agreement a clear record.</h2><p>Start with a document and the person who needs to act.</p><a class="site-text-link" href="{{ 'docs/getting-started/' | url }}">Read the getting started guide <span aria-hidden="true">→</span></a></div><a class="site-button" href="/app/">Open Click2Approve <span aria-hidden="true">→</span></a></section>
 {% endblock %}

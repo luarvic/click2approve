@@ -1,6 +1,10 @@
-# Getting started
+---
+title: Getting started with document approvals
+description: Send your first document approval request in Click2Approve. Learn what requests, tasks, and receipts mean and where to find your work.
+---
+# Getting started with document approvals {#getting-started}
 
-Click2Approve collects decisions on documents through ordered workflow steps. A **request** is the work you send, including its files, instructions, and participants. A **task** is one participant's action in that request.
+Use Click2Approve to send documents for review, approval, or an electronic signature. A **request** is the work you send, including its files, instructions, and participants. A **task** is one participant's action in that request. Workflow steps run in the order you choose.
 
 For example, send a proposal to a client's email address and ask for an electronic signature. The client signs in, reviews the proposal, and submits a signature. When that completes the request, Click2Approve creates a **receipt**: a record of the outcome that you can share through a verification link. See [Receipts and verification](receipts.md).
 
@@ -8,7 +12,11 @@ For example, send a proposal to a client's email address and ask for an electron
 
 The first time you open the app after signing in, a short user guide highlights your profile settings, notifications, workspace picker, and main menu groups. If a passkey setup prompt appears, finish or dismiss it first.
 
-Choose **Next** and **Back** to move through the guide, **Finish** to complete it, or **Skip** to close it. You can also close it with Escape. On short screens, Tab to **User guide instructions** and use Page Down or the arrow keys to scroll the explanation; the navigation buttons remain visible. The guide shows only navigation available in your current workspace; the workspace step appears when the workspace picker is available. In Personal, the menu step also explains that organization workspaces include a People group for employees, teams, and delegations.
+Choose **Next** and **Back** to move through the guide, **Finish** to complete it, or **Skip** to close it. You can also close it with Escape.
+
+On short screens, Tab to **User guide instructions** and use Page Down or the arrow keys to scroll the explanation. The navigation buttons stay visible.
+
+The guide shows the navigation available in your current workspace. It explains the workspace picker when one is available. In Personal, it also explains that organizations have a **People** group for employees, teams, and delegations.
 
 Finishing or skipping is remembered for your account in this browser. Another browser, or clearing saved site data, makes the guide appear again. To revisit it at any time, open the main menu and choose **Replay user guide** under **Support**.
 

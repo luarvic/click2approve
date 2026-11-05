@@ -1,6 +1,10 @@
+---
+title: Sign in, register, or reset your password
+description: Create a Click2Approve account, confirm your email, sign in to review documents, or reset a forgotten password. Use the account your task was sent to.
+---
 # Registration and sign-in
 
-Your user account can access Personal and any organizations where you have employee access. Use the same account consistently when following task links.
+Sign in to Click2Approve to send documents for approval or complete a task. Your account can access **Personal**, your workspace for your own requests and email-addressed tasks, and any organizations where you have employee access. When following a task link, use the email address the task was sent to.
 
 ## Register
 

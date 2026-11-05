@@ -1,6 +1,10 @@
-# Profile and signature
+---
+title: Save your signature and update your profile
+description: Update your Click2Approve profile, choose a default workspace, and save a drawn signature to reuse when an approval task requires an electronic signature.
+---
+# Profile and saved electronic signature {#profile-and-signature}
 
-Open **User profile** from the profile menu. These settings belong to your account and are shared across the workspaces you can access.
+Open **User profile** from the profile menu to update your name, choose a default workspace, or save a signature for future approval tasks. These settings belong to your account and are shared across the workspaces you can access.
 
 ## Personal details
 

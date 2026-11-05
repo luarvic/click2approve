@@ -1,3 +1,7 @@
+---
+title: Document approval plans and billing
+description: Compare Click2Approve Personal and Business plans. Learn how to subscribe, change a plan, cancel renewal, and recover access after a payment problem.
+---
 # Plans and billing
 
 Personal workspaces offer **Personal Free** ($0/month, 1 GB) and **Personal Pro** ($20/month, 10 GB). Organizations offer **Business Trial** ($0 for one month only, 1 GB) and **Business Pro** ($100/month, 100 GB). All prices are in USD excluding taxes.

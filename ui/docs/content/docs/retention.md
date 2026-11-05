@@ -1,3 +1,7 @@
+---
+title: Retention and deletion of approval records
+description: Learn how long Click2Approve keeps requests, receipts, and files. Review retention settings and what happens when you delete a record or organization.
+---
 # Retention and deletion
 
 Choose how long to keep requests, receipts, and notifications in each workspace. Deletion controls depend on the resource and your permissions.

@@ -1,6 +1,12 @@
+---
+title: Set up authenticator MFA and passkeys
+description: Protect your Click2Approve account with an authenticator app or passkey. Learn how to set up MFA, save recovery codes, and manage registered passkeys.
+---
 # MFA and passkeys
 
-Protect your account with authenticator MFA and passkeys. These settings apply to your account across Personal and organization workspaces.
+Protect your Click2Approve account with **multi-factor authentication (MFA)** or a **passkey**. With authenticator MFA, you enter a code from an authenticator app after your password. A passkey lets you sign in through a supported device or security key, using the browser's prompt.
+
+These settings apply to your account across Personal and organization workspaces.
 
 ## Enable authenticator MFA
 

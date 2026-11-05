@@ -1,6 +1,10 @@
-# Teams
+---
+title: Assign document approval steps to teams
+description: Group organization employees into teams and assign approval steps to them. Learn who manages teams and how membership changes affect assigned tasks.
+---
+# Assign document approval steps to teams {#teams}
 
-Teams group employees within one organization and let you assign a workflow step to a group.
+Teams group employees within one organization and let you assign a document approval step to a group. For example, create a team for people who review proposals, then choose that team when setting up a review step. The step's completion rule controls whether all assigned people or any one person must respond successfully.
 
 !!! info "Organization only"
     Select an organization to view its teams. Owners and Admins manage team membership.

@@ -1,6 +1,10 @@
-# Complete a task
+---
+title: Review, approve, or sign a document
+description: Find your assigned task in Click2Approve, review the documents, and submit a decision. Add a comment, electronic signature, or response file when required.
+---
+# Review, approve, or sign a document {#complete-a-task}
 
-A task records your action on one step of a request. Review the current request and its documents before deciding.
+A **task** asks you to act on one step of a document approval request. Open **Tasks** to review, approve, or sign a document assigned to you. Read the current documents and instructions before recording your decision.
 
 ## Find the task
 
@@ -25,13 +29,25 @@ Use the action offered for your task. The workflow may require a comment, respon
 
 For a signature, check your **Legal name**, enter **Representation details** when relevant, and provide your signature. A [saved profile signature](profile.md) can prefill the drawing; review it for this decision.
 
-Use [Chat](discussions.md) to clarify the request before recording your action. Files attached to a discussion and files attached to a decision serve different purposes; see [Files and attachments](files.md).
+## Approve, reject, or request changes
+
+The response choices depend on the step's **Action**. These are some common choices:
+
+| Step action | Positive response | Negative response |
+| --- | --- | --- |
+| Approve | **Approve** | **Reject** |
+| Review | **Review** | **Request changes** |
+| Sign | **Sign** | **Decline** |
+
+A negative response requires a comment and stops the request with an unsuccessful outcome. For example, choose **Request changes** on a Review task and explain which part of the document needs an update. The requester can then [revise and resubmit an eligible request](track-requests.md#revise-and-resubmit).
+
+Use [Chat](discussions.md) to clarify the request before recording your action. A Chat message does not complete the task. A file sent in Chat does not satisfy **Require an attachment**; add that file under **Your response**. See [Files and attachments](files.md).
 
 ## Submit the decision
 
 Choose the action that matches your decision, including a negative outcome when the task offers one. Check the decision and any confirmation before submitting. Wait for success feedback.
 
-Your recorded action becomes part of the request history. Depending on its completion rule, the step may wait for other assignees or move on immediately. An unsuccessful decision can fail the workflow.
+Your recorded action becomes part of the request history. After a successful response, the step may wait for other assignees or move on immediately, depending on its completion rule. A negative response ends the workflow with a failed result.
 
 ## Return later
 

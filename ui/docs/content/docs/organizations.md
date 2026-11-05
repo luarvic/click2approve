@@ -1,6 +1,10 @@
+---
+title: Set up an organization for document approvals
+description: Create a Click2Approve organization workspace, add employees and teams, and set up shared approval work. Learn who can manage or delete the organization.
+---
 # Manage organizations
 
-An organization holds its own requests, employees, teams, templates, and delegated work.
+An **organization** is a workspace for document approvals sent on behalf of a business. It holds its own requests, employees, teams, templates, and delegated work. Select it in the workspace picker before creating a request or managing its people.
 
 !!! info "Organization workspace"
     Create or select an organization to manage shared work. Your Personal workspace has no employees, teams, templates, or delegations.
