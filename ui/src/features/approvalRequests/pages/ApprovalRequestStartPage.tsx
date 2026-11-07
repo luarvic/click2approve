@@ -10,12 +10,26 @@ import { usePageTitle } from "@/shared/hooks/usePageTitle";
 import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { notification } from "@/shared/utils/notifications";
-import { FormControl, FormControlLabel, MenuItem, Radio, RadioGroup, Stack, TextField } from "@mui/material";
+import {
+  FormControl,
+  FormControlLabel,
+  ListSubheader,
+  MenuItem,
+  Radio,
+  RadioGroup,
+  Stack,
+  TextField,
+} from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 type RequestType = "custom" | "template";
+
+const templateScopes = [
+  { label: "Private templates", shared: false },
+  { label: "Shared templates", shared: true },
+] as const;
 
 const ApprovalRequestStartPage = () => {
   usePageTitle("Start a new request");
@@ -109,11 +123,21 @@ const ApprovalRequestStartPage = () => {
               onChange={(event) => setTemplateGlobalId(event.target.value)}
             >
               {!hasTemplates && <MenuItem disabled>No templates available</MenuItem>}
-              {stores.approvalStepTemplateStore.templates.map((template) => (
-                <MenuItem key={template.globalId} value={template.globalId}>
-                  {template.name}
-                </MenuItem>
-              ))}
+              {templateScopes.flatMap((scope) => {
+                const templates = stores.approvalStepTemplateStore.templates.filter(
+                  (template) => template.shared === scope.shared,
+                );
+                return templates.length === 0
+                  ? []
+                  : [
+                      <ListSubheader key={scope.label}>{scope.label}</ListSubheader>,
+                      ...templates.map((template) => (
+                        <MenuItem key={template.globalId} value={template.globalId}>
+                          {template.name}
+                        </MenuItem>
+                      )),
+                    ];
+              })}
             </TextField>
           )}
           <MainActionButton sx={Flex.alignSelfStartSx} type="submit">

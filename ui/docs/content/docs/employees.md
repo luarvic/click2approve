@@ -25,7 +25,7 @@ An employee whose email has not registered yet starts **Pending**. Registration 
 | Admin | Manage employees, teams, delegations, billing, and retention |
 | Owner | Administrative management plus the authority to schedule organization deletion |
 
-Roles do not grant access to other organizations. Request and task visibility also follows participation, team relationships, and delegation. Templates remain private to their creator, including when another member is an Owner or Admin.
+Roles do not grant access to other organizations. Request and task visibility also follows participation, team relationships, and delegation. Templates are private by default and can be shared for other organization members to view and use. Only the template's creator can edit or delete it, including when another member is an Owner or Admin.
 
 Receipt access follows receipt ownership, regardless of employee role. Owners and Admins can view, share, and delete only receipts issued to themselves. See [Receipts and verification](receipts.md).
 

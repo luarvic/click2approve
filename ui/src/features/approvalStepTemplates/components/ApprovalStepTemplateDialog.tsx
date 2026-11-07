@@ -33,7 +33,7 @@ import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
 } from "@/shared/utils/persistenceNotifications";
-import { Button, FormHelperText, Stack, TextField } from "@mui/material";
+import { Alert, Button, Checkbox, FormControlLabel, FormHelperText, Stack, TextField } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef, useState } from "react";
 
@@ -46,6 +46,8 @@ interface ApprovalStepTemplateEditorProps {
 const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({ template, onClose, onDelete }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [shared, setShared] = useState(false);
+  const canEdit = template === null || template.isOwner;
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
   const initializedTemplateGlobalId = useRef<string | null | undefined>(undefined);
   const saveLoader = ActionLoaders.approvalStepTemplates.save(template?.globalId);
@@ -85,6 +87,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
       initializedTemplateGlobalId.current = template?.globalId ?? null;
       setName(template?.name ?? "");
       setDescription(template?.description ?? "");
+      setShared(template?.shared ?? false);
       setSteps(template ? createEditableSteps(template.steps) : [createEmptyStep(1, true, defaultAssigneeType)]);
     }
 
@@ -143,6 +146,9 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
   };
 
   const handleSubmit = async () => {
+    if (!canEdit) {
+      return;
+    }
     const fieldsValid = validation.validate();
     const stepsValid = validateSteps();
     if (!fieldsValid || !stepsValid) {
@@ -159,11 +165,13 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
           ? await stores.approvalStepTemplateStore.update(tenantGlobalId, template.globalId, {
               description,
               name: name.trim(),
+              shared,
               steps: toApprovalStepSubmissions(steps),
             })
           : await stores.approvalStepTemplateStore.create(tenantGlobalId, {
               description,
               name: name.trim(),
+              shared,
               steps: toApprovalStepSubmissions(steps),
             });
         if (saved) {
@@ -189,9 +197,11 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
         ]}
       />
       <Stack spacing={Forms.cardStackSpacing}>
+        {!canEdit && <Alert severity="info">Only the template owner can modify or delete this template.</Alert>}
         <FormCard title="Template details">
           <TextField
             label="Name"
+            disabled={!canEdit}
             value={name}
             {...validation.field("name")}
             onChange={(event) => setName(event.target.value)}
@@ -201,11 +211,25 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
           <TextField
             fullWidth
             label="Description"
+            disabled={!canEdit}
             multiline
             value={description}
             {...validation.field("description")}
             onChange={(event) => setDescription(event.target.value)}
           />
+          {template && (
+            <TextField
+              label="Owner"
+              value={template.ownerDisplayName}
+              slotProps={{ input: { readOnly: true } }}
+              fullWidth
+            />
+          )}
+          <FormControlLabel
+            control={<Checkbox checked={shared} onChange={(_, checked) => setShared(checked)} disabled={!canEdit} />}
+            label="Shared"
+          />
+          <FormHelperText>Shared templates can be viewed and used by other organization members.</FormHelperText>
         </FormCard>
         {stepsError && (
           <FormHelperText error role="alert">
@@ -213,6 +237,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
           </FormHelperText>
         )}
         <ApprovalStepEditor
+          getStepState={canEdit ? undefined : () => ({ disabled: true, canMoveUp: false, canMoveDown: false })}
           stepErrors={stepsValidationAttempted ? stepErrors : undefined}
           getAssigneeError={stepsValidationAttempted ? getAssigneeError : undefined}
           steps={steps}
@@ -222,6 +247,7 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
           teams={stores.teamStore.pickerTeams}
           onAddAssignee={addAssignee}
           onAddStep={addStep}
+          showAddStep={canEdit}
           onMoveStep={moveStep}
           onRemoveAssignee={removeAssignee}
           onRemoveStep={removeStep}
@@ -233,18 +259,20 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
       </Stack>
       <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
         <Button variant="text" onClick={() => onClose(template?.globalId)}>
-          Cancel
+          {canEdit ? "Cancel" : "Close"}
         </Button>
-        {template && (
+        {template?.isOwner && (
           <Button color="error" variant="text" onClick={() => setDeleteDialogIsOpen(true)}>
             Delete
           </Button>
         )}
-        <MainActionButton loading={saveAction.isRunning} onClick={handleSubmit}>
-          Save
-        </MainActionButton>
+        {canEdit && (
+          <MainActionButton loading={saveAction.isRunning} onClick={handleSubmit}>
+            Save
+          </MainActionButton>
+        )}
       </Stack>
-      {template && (
+      {template?.isOwner && (
         <DeleteConfirmationDialog
           cancelLabel="Cancel"
           entityName={template.name}

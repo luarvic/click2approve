@@ -70,6 +70,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
   );
   const requestToClone = stores.approvalRequestStore.requestToClone;
   const isRevision = Boolean(requestToClone && stores.applicationConfigurationStore.approvalRequestRevisionsAreEnabled);
+  const canSaveTemplate = canUseTemplates && initialTemplateGlobalId === undefined && requestToClone === null;
   const { addAssignee, addStep, moveStep, removeAssignee, removeStep, setSteps, steps, updateAssignee, updateStep } =
     useEditableApprovalSteps({
       defaultAssigneeType,
@@ -164,13 +165,12 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
     setSteps,
   ]);
 
-  const validation = useFormValidation(
-    { title, description },
-    {
-      title: textRule("Title", FieldLimits.name, true),
-      description: textRule("Description", FieldLimits.text),
-    },
-  );
+  const validationRules = {
+    title: textRule("Title", FieldLimits.name, true),
+    description: textRule("Description", FieldLimits.text),
+  };
+  const validation = useFormValidation({ title, description }, validationRules);
+  const templateValidation = useFormValidation({ title, description }, validationRules, { title: "Name" });
   const filesAreBusy = fileDeletion.isDeleting || addedFilesUpload.isUploading || replacementFilesUpload.isUploading;
   const stepErrors = getStepErrors(steps);
   const titleError =
@@ -239,33 +239,27 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
   const getSubmittedSteps = () => toApprovalStepSubmissions(steps);
 
   const saveTemplate = async () => {
-    const fieldsValid = validation.validate();
+    const fieldsValid = templateValidation.validate();
     const stepsValid = validateSteps();
     if (!fieldsValid || !stepsValid) {
       notification.validationWarning();
       focusFirstError();
       return;
     }
-    if (!tenantGlobalId || !canUseTemplates) {
+    if (!tenantGlobalId || !canSaveTemplate) {
       return;
     }
 
     const trimmedTitle = title.trim();
 
-    await validation.run(() =>
+    await templateValidation.run(() =>
       saveTemplateAction.run(async () => {
-        await stores.approvalStepTemplateStore.load(tenantGlobalId);
-        const payload = {
+        const template = await stores.approvalStepTemplateStore.create(tenantGlobalId, {
           description,
           name: trimmedTitle,
+          shared: false,
           steps: getSubmittedSteps(),
-        };
-        const existingTemplate = stores.approvalStepTemplateStore.templates.find(
-          (template) => template.name.localeCompare(trimmedTitle, undefined, { sensitivity: "base" }) === 0,
-        );
-        const template = existingTemplate
-          ? await stores.approvalStepTemplateStore.update(tenantGlobalId, existingTemplate.globalId, payload)
-          : await stores.approvalStepTemplateStore.create(tenantGlobalId, payload);
+        });
         if (template) {
           showPersistenceSuccessNotification(PersistenceSuccessMessages.templateSaved);
         }
@@ -395,8 +389,8 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
       />
       <Box ref={formContainer}>
         <ApprovalRequestSubmitCompose
-          titleError={validation.message("title") || titleError}
-          descriptionError={validation.message("description")}
+          titleError={validation.message("title") || templateValidation.message("title") || titleError}
+          descriptionError={validation.message("description") || templateValidation.message("description")}
           filesError={filesError}
           stepsError={stepsError}
           stepErrors={validationAttempted || templateValidationAttempted ? stepErrors : undefined}
@@ -433,7 +427,7 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
           onReplaceExisting={startReplacingExistingFile}
           onReplacementFilesChange={handleReplacementFilesChange}
           onRestoreExisting={restoreExistingFile}
-          onSaveTemplate={canUseTemplates ? () => void saveTemplate() : undefined}
+          onSaveTemplate={canSaveTemplate ? () => void saveTemplate() : undefined}
           onSubmit={handleComposeSubmit}
           onTitleChange={setTitle}
           onUpdateAssignee={updateAssignee}

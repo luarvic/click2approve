@@ -1,7 +1,10 @@
 import { stores } from "@/app/rootStore";
 import { listApprovalStepTemplateGrid } from "@/features/approvalStepTemplates/api/approvalStepTemplatesApi";
-import { ApprovalStepTemplate } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
-import { TeamGridSettings } from "@/features/teams/components/gridSettings";
+import { ApprovalStepTemplateGridSettings } from "@/features/approvalStepTemplates/components/gridSettings";
+import { ApprovalStepTemplateListItem } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
+import CompactGridCell from "@/shared/components/grids/CompactGridCell";
+import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGridSecondaryInformation";
+import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
 import GridFilters from "@/shared/components/grids/GridFilters";
 import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import { FilterStyles } from "@/shared/components/grids/filterStyles";
@@ -13,7 +16,7 @@ import { useGridRefresh } from "@/shared/hooks/useGridRefresh";
 import { Routes } from "@/shared/routing/routes";
 import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { Add, FilterList } from "@mui/icons-material";
-import { Box, Button, Link } from "@mui/material";
+import { Box, Button, Link, useMediaQuery, useTheme } from "@mui/material";
 import type { GridSortModel } from "@mui/x-data-grid";
 import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
@@ -29,10 +32,12 @@ const filterKeys = ["name"];
 const ApprovalStepTemplatesGrid: React.FC<ApprovalStepTemplatesGridProps> = ({ currentTemplateGlobalId }) => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const theme = useTheme();
+  const allColumnsAreVisible = useMediaQuery(theme.breakpoints.up("md"));
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const gridLoader = ActionLoaders.grids.approvalStepTemplates(tenantGlobalId);
   const query = useMemo(() => parseSimpleGridQuery(searchParams, "name", ["name"], filterKeys), [searchParams]);
-  const [templates, setTemplates] = useState<ApprovalStepTemplate[]>([]);
+  const [templates, setTemplates] = useState<ApprovalStepTemplateListItem[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [filtersAreVisible, setFiltersAreVisible] = useState(false);
   const updateQuery = useCallback(
@@ -78,18 +83,43 @@ const ApprovalStepTemplatesGrid: React.FC<ApprovalStepTemplatesGridProps> = ({ c
       field: "name",
       headerName: "Name",
       sortable: true,
-      ...TeamGridSettings.teamsColumnSizing.name,
+      ...ApprovalStepTemplateGridSettings.columnSizing.name,
       renderCell: (params) => (
-        <Link
-          component={RouterLink}
-          to={Routes.tenantPath(tenantGlobalId!, `/approvalStepTemplates/${params.row.globalId}`)}
-          tabIndex={params.hasFocus ? 0 : -1}
-          onClick={(event) => event.stopPropagation()}
-          variant="body2"
-        >
-          {params.row.name}
-        </Link>
+        <CompactGridCell>
+          <CompactGridTitle>
+            <Link
+              component={RouterLink}
+              to={Routes.tenantPath(tenantGlobalId!, `/approvalStepTemplates/${params.row.globalId}`)}
+              tabIndex={params.hasFocus ? 0 : -1}
+              onClick={(event) => event.stopPropagation()}
+              variant="body2"
+            >
+              {params.row.name}
+            </Link>
+          </CompactGridTitle>
+          {!allColumnsAreVisible && (
+            <>
+              <CompactGridSecondaryInformation>
+                {params.row.shared ? "Shared" : "Private"}
+              </CompactGridSecondaryInformation>
+              <CompactGridSecondaryInformation>{params.row.ownerDisplayName}</CompactGridSecondaryInformation>
+            </>
+          )}
+        </CompactGridCell>
       ),
+    },
+    {
+      field: "shared",
+      headerName: "Shared",
+      sortable: false,
+      ...ApprovalStepTemplateGridSettings.columnSizing.shared,
+      renderCell: (params) => (params.value ? "Yes" : "No"),
+    },
+    {
+      field: "ownerDisplayName",
+      headerName: "Owner",
+      sortable: false,
+      ...ApprovalStepTemplateGridSettings.columnSizing.owner,
     },
   ];
   return (
@@ -111,8 +141,11 @@ const ApprovalStepTemplatesGrid: React.FC<ApprovalStepTemplatesGridProps> = ({ c
         <DataGrid
           showToolbar
           rows={templates}
+          getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
+          getEstimatedRowHeight={() => (allColumnsAreVisible ? null : DataGrids.compactRowHeightEstimate)}
           getRowId={(row) => row.globalId}
           columns={columns}
+          columnVisibilityModel={{ shared: allColumnsAreVisible, ownerDisplayName: allColumnsAreVisible }}
           rowSelectionModel={{
             type: "include",
             ids: new Set(currentTemplateGlobalId === undefined ? [] : [currentTemplateGlobalId]),
@@ -122,7 +155,7 @@ const ApprovalStepTemplatesGrid: React.FC<ApprovalStepTemplatesGridProps> = ({ c
             navigate(
               Routes.tenantPath(
                 tenantGlobalId!,
-                `/approvalStepTemplates/${(params.row as ApprovalStepTemplate).globalId}`,
+                `/approvalStepTemplates/${(params.row as ApprovalStepTemplateListItem).globalId}`,
               ),
             )
           }

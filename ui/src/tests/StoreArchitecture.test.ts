@@ -119,6 +119,9 @@ describe("store architecture", () => {
       globalId: "11111111-1111-4111-8111-111111111111",
       tenantGlobalId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
       name: "Template",
+      isOwner: true,
+      ownerDisplayName: "Owner",
+      shared: false,
       steps: [],
     };
     vi.mocked(approvalStepTemplateApi.getApprovalStepTemplate).mockResolvedValueOnce(template);
@@ -414,6 +417,9 @@ describe("store architecture", () => {
       globalId: "11111111-1111-4111-8111-111111111111",
       tenantGlobalId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
       name: "Template",
+      isOwner: true,
+      ownerDisplayName: "Owner",
+      shared: false,
       steps: [],
     };
     const request = approvalRequest("11111111-1111-4111-8111-111111111111");
@@ -477,9 +483,10 @@ describe("store architecture", () => {
       stores.approvalStepTemplateStore.templates = [
         {
           globalId: "11111111-1111-4111-8111-111111111111",
-          tenantGlobalId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
           name: "Old tenant template",
-          steps: [],
+          isOwner: true,
+          ownerDisplayName: "Owner",
+          shared: false,
         },
       ];
     });
