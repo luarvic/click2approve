@@ -1,5 +1,6 @@
 import {
   ApprovalStepTemplate,
+  ApprovalStepTemplateListItem,
   UpsertApprovalStepTemplateRequest,
 } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
 import { ApiPaths } from "@/shared/api/apiPaths";
@@ -13,9 +14,9 @@ import { notification } from "@/shared/utils/notifications";
 export const listApprovalStepTemplateGrid = async (
   tenantGlobalId: string,
   query: SimpleGridQuery,
-): Promise<GridPage<ApprovalStepTemplate>> => {
+): Promise<GridPage<ApprovalStepTemplateListItem>> => {
   try {
-    const { data } = await axios.get<GridPage<ApprovalStepTemplate>>(
+    const { data } = await axios.get<GridPage<ApprovalStepTemplateListItem>>(
       `${ApiPaths.tenants.approvalStepTemplates(tenantGlobalId)}?${new URLSearchParams({
         ...Object.fromEntries(Object.entries(query.filters).filter(([, value]) => value)),
         page: String(query.page),
@@ -31,7 +32,7 @@ export const listApprovalStepTemplateGrid = async (
   }
 };
 
-export const listApprovalStepTemplates = async (tenantGlobalId: string): Promise<ApprovalStepTemplate[]> => {
+export const listApprovalStepTemplates = async (tenantGlobalId: string): Promise<ApprovalStepTemplateListItem[]> => {
   return (
     await listApprovalStepTemplateGrid(tenantGlobalId, {
       filters: {},

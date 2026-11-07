@@ -106,7 +106,15 @@ describe("request composition", () => {
     try {
       expect(screen.queryByRole("textbox", { name: /Title/ })).toBeNull();
       await act(async () =>
-        resolveTemplate({ globalId: "slow-template", tenantGlobalId: "tenant-a", name: "Template title", steps: [] }),
+        resolveTemplate({
+          globalId: "slow-template",
+          tenantGlobalId: "tenant-a",
+          name: "Template title",
+          isOwner: false,
+          ownerDisplayName: "Another member",
+          shared: true,
+          steps: [],
+        }),
       );
       const title = await screen.findByRole("textbox", { name: /Title/ });
       expect((title as HTMLInputElement).value).toBe("Template title");

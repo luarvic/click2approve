@@ -18,9 +18,9 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 const ApprovalStepTemplateEditorPage = () => {
   const navigate = useNavigate();
   const { templateGlobalId } = useParams<{ templateGlobalId: string }>();
-  usePageTitle(templateGlobalId === undefined ? "New template" : "Edit template");
   const [hasLoadedTemplate, setHasLoadedTemplate] = useState(false);
   const [template, setTemplate] = useState<ApprovalStepTemplate | null>(null);
+  usePageTitle(templateGlobalId === undefined ? "New template" : template?.isOwner ? "Edit template" : "Template");
   const currentTenant = stores.tenantStore.currentTenant;
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const templatesPath = tenantGlobalId ? Routes.tenantPath(tenantGlobalId, "/approvalStepTemplates") : "/";

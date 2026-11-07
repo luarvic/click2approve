@@ -1,16 +1,17 @@
 import * as approvalStepTemplateApi from "@/features/approvalStepTemplates/api/approvalStepTemplatesApi";
 import {
   ApprovalStepTemplate,
+  ApprovalStepTemplateListItem,
   UpsertApprovalStepTemplateRequest,
 } from "@/features/approvalStepTemplates/models/approvalStepTemplate";
 import { makeAutoObservable, runInAction } from "mobx";
 
 export class ApprovalStepTemplateStore {
-  templates: ApprovalStepTemplate[];
+  templates: ApprovalStepTemplateListItem[];
   // Incremented to invalidate older async requests so only the latest response updates the store.
   private requestVersion = 0;
 
-  constructor(templates: ApprovalStepTemplate[] = []) {
+  constructor(templates: ApprovalStepTemplateListItem[] = []) {
     this.templates = templates;
     makeAutoObservable(this);
   }
