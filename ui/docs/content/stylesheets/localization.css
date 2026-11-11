@@ -2,7 +2,6 @@
 .language-picker {
   position: relative;
   flex: 0 0 auto;
-  font-size: 13px;
   line-height: 1.5;
 }
 .language-picker summary {
@@ -15,7 +14,6 @@
   border-radius: 6px;
   cursor: pointer;
   list-style: none;
-  color: var(--site-muted);
   white-space: nowrap;
 }
 .language-picker summary::-webkit-details-marker {
@@ -167,7 +165,7 @@
     display: none;
   }
   .md-header .language-picker summary {
-    width: 36px;
+    width: 40px;
     min-height: 40px;
     padding: 0;
   }
@@ -183,7 +181,6 @@
   }
 }
 @media (pointer: coarse) {
-  .language-picker summary,
   .language-picker-options a {
     min-height: 44px;
   }
@@ -254,7 +251,7 @@
 }
 
 @media (pointer: coarse) {
-  .language-picker summary,
+  .md-header .language-picker summary,
   .site-docs-link {
     min-width: 44px;
     min-height: 44px;

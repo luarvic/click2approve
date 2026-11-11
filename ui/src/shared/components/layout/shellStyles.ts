@@ -155,6 +155,13 @@ export const Shell = {
     minWidth: 0,
     mr: 1,
     width: 380,
+    "& .MuiSelect-icon:not(.Mui-disabled)": {
+      color: "text.secondary",
+    },
+    "& .MuiOutlinedInput-root:hover:not(.Mui-disabled) .MuiSelect-icon, & .MuiOutlinedInput-root.Mui-focused .MuiSelect-icon":
+      {
+        color: "primary.main",
+      },
     "& .MuiSelect-select": {
       overflow: "hidden",
       textOverflow: "ellipsis",

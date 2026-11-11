@@ -35,7 +35,6 @@ const NotificationBell = () => {
     <IconButton
       data-user-guide="notifications"
       aria-label="Open notifications"
-      color="inherit"
       disabled={!tenantId}
       size="medium"
       sx={notificationBellSx}

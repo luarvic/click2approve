@@ -5,8 +5,15 @@
 }
 .site-header .site-header-inner {
   align-items: center;
-  gap: 16px;
+  gap: 24px;
   min-width: 0;
+}
+/* Space the visible controls evenly while preserving their padded hit areas. */
+.site-header .language-picker {
+  margin-inline: -10px;
+}
+.site-header .docs-color-mode {
+  margin-inline: -7px;
 }
 .site-header .site-brand {
   flex-shrink: 0;
@@ -22,10 +29,9 @@
   display: flex;
   flex-shrink: 0;
   gap: 24px;
-  font-size: 14px;
-  line-height: 32px;
 }
 .site-header-links a:hover,
+.site-open-app:hover,
 .site-header-links a[aria-current] {
   color: var(--site-green);
 }
@@ -35,9 +41,7 @@
 .site-open-app {
   align-items: center;
   display: inline-flex;
-  font-size: 13px;
   font-weight: 600;
-  line-height: 32px;
   white-space: nowrap;
 }
 .site-open-app .site-open-app-arrow {
@@ -621,6 +625,10 @@ body:has(.site-header) .md-main__inner {
   .site-header .site-header-inner {
     gap: 0;
   }
+  .site-header .language-picker,
+  .site-header .docs-color-mode {
+    margin-inline: 0;
+  }
   .site-header .site-brand span {
     font-size: 16px;
   }
@@ -637,7 +645,6 @@ body:has(.site-header) .md-main__inner {
     align-items: center;
     display: inline-flex;
     border-radius: 6px;
-    color: var(--site-muted);
     flex: 0 0 40px;
     width: 40px;
     height: 40px;

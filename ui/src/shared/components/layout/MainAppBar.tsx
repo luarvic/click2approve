@@ -74,7 +74,6 @@ const MainAppBar = ({
         currentUser &&
         showMainMenuButton && (
           <IconButton
-            color="inherit"
             edge="start"
             size="medium"
             data-user-guide="menu-button"
@@ -160,7 +159,6 @@ const MainAppBar = ({
         {currentUser && <NotificationBell />}
         {currentUser && showProfileButton && (
           <IconButton
-            color="inherit"
             edge="end"
             data-user-guide="profile"
             aria-label="Open profile"

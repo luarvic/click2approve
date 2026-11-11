@@ -114,6 +114,15 @@
   width: 100%;
 }
 
+.site-docs-link,
+.site-open-app,
+.language-picker summary {
+  color: var(--site-muted);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 32px;
+}
+
 .docs-brand {
   align-items: center;
   color: inherit;
