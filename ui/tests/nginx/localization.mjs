@@ -212,6 +212,8 @@ export async function checkLocalizationBrowser(origin) {
         await expect(page.locator(".site-docs-link")).toBeVisible();
         await expect(page.locator(".site-docs-link")).toHaveAccessibleName(messages["Docs"]);
         if (small) {
+          await expect(page.locator(".language-picker-name")).toBeHidden();
+          await expect(page.locator(".language-picker-chevron")).toBeHidden();
           const insets = await page.evaluate(visibleHeaderInsets);
           assert.ok(Math.abs(insets.leading - insets.trailing) < 1,
             `${code} ${width}: visible leading/trailing insets ${JSON.stringify(insets)}`);
@@ -220,12 +222,14 @@ export async function checkLocalizationBrowser(origin) {
           await expect(page.locator(".site-open-app-label")).toBeHidden();
           await expect(page.locator(".site-open-app-icon")).toBeVisible();
         } else {
+          await expect(page.locator(".language-picker-name")).toBeVisible();
+          await expect(page.locator(".language-picker-chevron")).toBeVisible();
           await expect(page.locator(".site-docs-label")).toHaveText(messages["Docs"]);
           await expect(page.locator(".site-docs-label")).toBeVisible();
           await expect(page.locator(".site-docs-icon")).toBeHidden();
           await expect(page.locator(".site-open-app-label")).toHaveText(messages["Open app"]);
           await expect(page.locator(".site-open-app-label")).toBeVisible();
-          await expect(page.locator(".site-open-app-icon")).toBeHidden();
+          await expect(page.locator(".site-open-app-icon")).toBeVisible();
         }
         if (width < 360) await expect(page.locator(".site-header .site-brand span")).toBeHidden();
         else await expect(page.locator(".site-header .site-brand span")).toBeVisible();

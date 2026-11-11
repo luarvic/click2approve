@@ -42,14 +42,19 @@
   align-items: center;
   display: inline-flex;
   font-weight: 600;
+  gap: 6px;
   white-space: nowrap;
 }
-.site-open-app .site-open-app-arrow {
-  margin-left: 6px;
-}
-.site-docs-icon,
-.site-open-app-icon {
+.site-docs-icon {
   display: none;
+}
+.site-open-app-icon {
+  display: flex;
+}
+.site-open-app-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
 }
 body:has(.site-header) .md-main__inner {
   max-width: var(--site-content-max-width);
@@ -636,8 +641,7 @@ body:has(.site-header) .md-main__inner {
     height: 28px;
   }
   .site-docs-label,
-  .site-open-app-label,
-  .site-open-app-arrow {
+  .site-open-app-label {
     display: none;
   }
   .site-docs-link,
@@ -656,18 +660,16 @@ body:has(.site-header) .md-main__inner {
     background: var(--site-soft);
     color: var(--site-green);
   }
-  /* Align ArrowForward's visible edge with the brand, retaining the full hit area. */
+  /* Align Login's visible edge with the brand, retaining the full hit area. */
   .site-open-app {
     margin-inline-end: -12px;
   }
-  .site-docs-icon,
-  .site-open-app-icon {
+  .site-docs-icon {
     display: flex;
   }
-  .site-docs-icon svg,
-  .site-open-app-icon svg {
-    width: 24px;
-    height: 24px;
+  .site-docs-icon svg {
+    width: 18px;
+    height: 18px;
     fill: currentColor;
   }
 }

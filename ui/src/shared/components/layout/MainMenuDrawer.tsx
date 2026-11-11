@@ -18,9 +18,9 @@ import {
   CreditCardOutlined,
   ExploreOutlined,
   GroupsOutlined,
-  MenuBookOutlined,
   PersonOutlined,
   QuestionAnswerOutlined,
+  QuestionMark,
   ReceiptLongOutlined,
   ShowChartOutlined,
   SwapHorizOutlined,
@@ -469,7 +469,7 @@ const MainMenuDrawer = () => {
               onClick={closeTemporaryDrawer}
             >
               <ListItemIcon sx={Lists.itemIconSx}>
-                <MenuBookOutlined />
+                <QuestionMark fontSize="small" />
               </ListItemIcon>
               <ListItemText primary="Docs" />
             </ListItemButton>
