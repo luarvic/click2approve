@@ -42,6 +42,8 @@ In grids, green titles and names are links. They show an underline when hovered 
 
 The footer includes Home, App, Docs, Contact, Terms, and Privacy links. Each opens in the current tab.
 
+Use the language picker in the website or documentation header to read the same page in another language. The site remembers your selection in this browser. When you open an English website or Docs link from the app, it redirects to your saved language; an explicit language prefix in the URL takes priority. Documentation search returns pages in the URL language. The app currently uses English, so these guides retain exact app control names and explain their meaning in the selected language.
+
 The main menu groups related pages under **Work**, **Access**, **People**, **Subscription**, and **Support**. Groups appear only when their features are available in the selected workspace. Choose **Replay user guide** under **Support** for a guided introduction to the app bar and navigation; see [Getting started](getting-started.md#take-a-quick-tour).
 
 ## Open a shared link

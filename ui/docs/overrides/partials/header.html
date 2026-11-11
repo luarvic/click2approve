@@ -3,12 +3,12 @@
   <nav class="md-header__inner" aria-label="{{ lang.t('header') }}">
     {% if not is_not_found %}
     <button class="docs-icon-button docs-menu-button" type="button"
-      aria-label="Open documentation menu" aria-controls="docs-navigation" aria-expanded="false"
-      data-docs-toggle="__drawer">
+      aria-label="{{ t('Open documentation menu') }}" aria-controls="docs-navigation" aria-expanded="false"
+      data-docs-toggle="__drawer" data-docs-menu-label="{{ t('Documentation menu') }}">
       {% include ".icons/material/menu.svg" %}
     </button>
     {% endif %}
-    <a class="docs-brand docs-app-bar-logo" href="{{ '/' | url if is_not_found else 'docs/' | url }}" aria-label="{{ 'Click2Approve home' if is_not_found else 'Click2Approve documentation home' }}">
+    <a class="docs-brand docs-app-bar-logo" href="{{ site_path() if is_not_found else site_path('docs/') }}" aria-label="{{ t('Click2Approve home') if is_not_found else t('Click2Approve documentation home') }}">
       <img src="{{ config.theme.logo | url if is_not_found else 'assets/logo-narrow.svg' | url }}" alt="" aria-hidden="true" />
       {% if is_not_found %}
       <span class="not-found-brand-title">{{ config.site_name }}</span>
@@ -21,6 +21,7 @@
         {% include "partials/search.html" %}
       {% endif %}
     {% endif %}
+    {% include "partials/language-picker.html" %}
     {% include "partials/palette.html" %}
     {% include "partials/javascripts/shared-color-mode.html" %}
     {% include "partials/javascripts/palette.html" %}

@@ -1,0 +1,118 @@
+[
+  {
+    "code": "en",
+    "path": "en",
+    "name": "English",
+    "theme": "en",
+    "search": "en",
+    "direction": "ltr"
+  },
+  {
+    "code": "id",
+    "path": "id",
+    "name": "Bahasa Indonesia",
+    "theme": "id",
+    "search": "en",
+    "direction": "ltr",
+    "search_pipeline": [],
+    "search_separator": "[\\s\\-.,;:!?()\\[\\]{}\"'…/]+"
+  },
+  {
+    "code": "de",
+    "path": "de",
+    "name": "Deutsch",
+    "theme": "de",
+    "search": "de",
+    "direction": "ltr"
+  },
+  {
+    "code": "es",
+    "path": "es",
+    "name": "Español",
+    "theme": "es",
+    "search": "es",
+    "direction": "ltr"
+  },
+  {
+    "code": "fr",
+    "path": "fr",
+    "name": "Français",
+    "theme": "fr",
+    "search": "fr",
+    "direction": "ltr"
+  },
+  {
+    "code": "it",
+    "path": "it",
+    "name": "Italiano",
+    "theme": "it",
+    "search": "it",
+    "direction": "ltr"
+  },
+  {
+    "code": "pl",
+    "path": "pl",
+    "name": "Polski",
+    "theme": "pl",
+    "search": "en",
+    "direction": "ltr",
+    "search_pipeline": [],
+    "search_separator": "[\\s\\-.,;:!?()\\[\\]{}\"'…/]+"
+  },
+  {
+    "code": "pt-BR",
+    "path": "pt-br",
+    "name": "Português (Brasil)",
+    "theme": "pt-BR",
+    "search": "pt",
+    "direction": "ltr"
+  },
+  {
+    "code": "tr",
+    "path": "tr",
+    "name": "Türkçe",
+    "theme": "tr",
+    "search": "tr",
+    "direction": "ltr"
+  },
+  {
+    "code": "ru",
+    "path": "ru",
+    "name": "Русский",
+    "theme": "ru",
+    "search": "ru",
+    "direction": "ltr"
+  },
+  {
+    "code": "ar",
+    "path": "ar",
+    "name": "العربية",
+    "theme": "ar",
+    "search": "ar",
+    "direction": "rtl"
+  },
+  {
+    "code": "ja",
+    "path": "ja",
+    "name": "日本語",
+    "theme": "ja",
+    "search": "ja",
+    "direction": "ltr"
+  },
+  {
+    "code": "zh-Hans",
+    "path": "zh-hans",
+    "name": "简体中文",
+    "theme": "zh",
+    "search": "zh",
+    "direction": "ltr"
+  },
+  {
+    "code": "ko",
+    "path": "ko",
+    "name": "한국어",
+    "theme": "ko",
+    "search": "ko",
+    "direction": "ltr"
+  }
+]

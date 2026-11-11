@@ -1,0 +1,10 @@
+{% if page %}
+  {# Reciprocal hreflang lives in sitemap.xml; Material interprets head alternates as language roots. #}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="{{ page.meta.title | default(page.title, true) | striptags | e }} · Click2Approve" />
+  <meta property="og:description" content="{{ page.meta.description | default(config.site_description, true) | e }}" />
+  <meta property="og:url" content="{{ page.canonical_url | e }}" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="{{ page.meta.title | default(page.title, true) | striptags | e }} · Click2Approve" />
+  <meta name="twitter:description" content="{{ page.meta.description | default(config.site_description, true) | e }}" />
+{% endif %}

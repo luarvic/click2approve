@@ -4,6 +4,7 @@ WORKDIR /app
 COPY nginx ./nginx
 COPY public ./public
 COPY src ./src
+COPY docs/analytics-consent.ts ./docs/analytics-consent.ts
 COPY index.html ./
 COPY package.json ./
 COPY package-lock.json ./
@@ -26,6 +27,7 @@ WORKDIR /app
 COPY docs/requirements.txt ./docs/requirements.txt
 RUN pip install --no-cache-dir -r docs/requirements.txt
 COPY mkdocs.yml ./
+COPY locales.json ./
 COPY docs ./docs
 COPY public ./public
 COPY --from=build /app/node_modules/@fontsource/sora/files ./node_modules/@fontsource/sora/files
@@ -35,6 +37,7 @@ RUN DOCS_SITE_URL="${DOCS_SITE_URL}" DOCS_API_BASE_URI="${DOCS_API_BASE_URI}" GO
 FROM nginx:stable-alpine
 COPY --from=build /app/dist /usr/share/nginx/html/app
 COPY --from=docs /app/site /usr/share/nginx/html
+RUN mv /usr/share/nginx/html/nginx-languages.conf /etc/nginx/localization.conf
 COPY --from=build /app/nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 CMD ["nginx", "-g", "daemon off;"]

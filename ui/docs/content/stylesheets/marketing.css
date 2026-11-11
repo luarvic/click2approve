@@ -5,8 +5,8 @@
 }
 .site-header .site-header-inner {
   align-items: center;
-  gap: 24px;
-  min-width: max-content;
+  gap: 16px;
+  min-width: 0;
 }
 .site-header .site-brand {
   flex-shrink: 0;
@@ -29,6 +29,9 @@
 .site-header-links a[aria-current] {
   color: var(--site-green);
 }
+.site-docs-link {
+  white-space: nowrap;
+}
 .site-open-app {
   align-items: center;
   display: inline-flex;
@@ -37,8 +40,12 @@
   line-height: 32px;
   white-space: nowrap;
 }
-.site-open-app span {
+.site-open-app .site-open-app-arrow {
   margin-left: 6px;
+}
+.site-docs-icon,
+.site-open-app-icon {
+  display: none;
 }
 body:has(.site-header) .md-main__inner {
   max-width: var(--site-content-max-width);
@@ -53,8 +60,8 @@ body:has(.site-header) .md-main__inner {
   display: grid;
   grid-template-columns: 1.1fr 1fr;
   gap: 60px;
-  align-items: center;
-  padding: 100px 0 88px;
+  align-items: start;
+  padding: var(--site-content-padding) 0 88px;
 }
 .site-eyebrow {
   font-size: 10px;
@@ -593,7 +600,7 @@ body:has(.site-header) .md-main__inner {
   }
   .site-hero {
     gap: 32px;
-    padding: 64px 0;
+    padding: var(--site-content-padding) 0 64px;
   }
   .site-hero h1 {
     letter-spacing: -1.7px;
@@ -610,13 +617,9 @@ body:has(.site-header) .md-main__inner {
     gap: 12px;
   }
 }
-@media (max-width: 700px) {
-  .example-card {
-    padding: 20px;
-  }
+@media (max-width: 899px) {
   .site-header .site-header-inner {
-    gap: 8px;
-    padding: 0 12px;
+    gap: 0;
   }
   .site-header .site-brand span {
     font-size: 16px;
@@ -624,12 +627,46 @@ body:has(.site-header) .md-main__inner {
   .site-header .site-brand img {
     height: 28px;
   }
-  .site-header .site-header-links,
-  .site-header .site-open-app {
-    font-size: 12px;
+  .site-docs-label,
+  .site-open-app-label,
+  .site-open-app-arrow {
+    display: none;
   }
-  .site-header .site-open-app span {
-    margin-left: 2px;
+  .site-docs-link,
+  .site-open-app {
+    align-items: center;
+    display: inline-flex;
+    border-radius: 6px;
+    color: var(--site-muted);
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    justify-content: center;
+    padding: 8px;
+  }
+  .site-docs-link:hover,
+  .site-open-app:hover {
+    background: var(--site-soft);
+    color: var(--site-green);
+  }
+  /* Align ArrowForward's visible edge with the brand, retaining the full hit area. */
+  .site-open-app {
+    margin-inline-end: -12px;
+  }
+  .site-docs-icon,
+  .site-open-app-icon {
+    display: flex;
+  }
+  .site-docs-icon svg,
+  .site-open-app-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+  }
+}
+@media (max-width: 700px) {
+  .example-card {
+    padding: 20px;
   }
   .site-story {
     margin-top: 20px;
@@ -641,7 +678,7 @@ body:has(.site-header) .md-main__inner {
   }
   .site-hero {
     grid-template-columns: 1fr;
-    padding: 44px 0;
+    padding: var(--site-content-padding) 0 44px;
     gap: 36px;
   }
   .site-hero h1 {
@@ -686,8 +723,27 @@ body:has(.site-header) .md-main__inner {
   }
 }
 
-/* Keep every header action visible on the narrowest phones. */
+/* Preserve the complete brand beside the standard Docs header controls. */
 @media (max-width: 380px) {
+  .site-header .site-brand span {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 899px) and (pointer: coarse) {
+  .site-docs-link,
+  .site-open-app {
+    flex-basis: 44px;
+    width: 44px;
+    height: 44px;
+  }
+  .site-open-app {
+    margin-inline-end: -14px;
+  }
+}
+
+/* Keep the standard gutters and all controls on the narrowest phones. */
+@media (max-width: 359px) {
   .site-header .site-brand span {
     display: none;
   }

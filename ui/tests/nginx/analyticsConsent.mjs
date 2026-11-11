@@ -38,11 +38,11 @@ export async function checkAnalyticsConsent(origin, analyticsId) {
     await page.goto(`${origin}/`, { waitUntil: "networkidle" });
     assert.equal(googleRequests.length, 0, "No Google requests before consent");
     if (!analyticsId) {
-      await expect(banner).toHaveCount(0);
+      await expect(banner).not.toBeVisible();
       await expect(settings).toHaveCount(0);
       for (const path of ["/docs/", "/app/signIn"]) {
         await page.goto(`${origin}${path}`, { waitUntil: "networkidle" });
-        await expect(banner).toHaveCount(0);
+        await expect(banner).not.toBeVisible();
         await expect(settings).toHaveCount(0);
       }
       assert.equal(googleRequests.length, 0);
@@ -69,9 +69,9 @@ export async function checkAnalyticsConsent(origin, analyticsId) {
         }
       }
       await close.click();
-      await expect(banner).toHaveCount(0);
+      await expect(banner).not.toBeVisible();
       await page.goto(`${origin}/docs/getting-started/`, { waitUntil: "networkidle" });
-      await expect(banner).toHaveCount(0);
+      await expect(banner).not.toBeVisible();
       assert.equal(googleRequests.length, 0, "Closing without enabling remembers rejection");
       await settings.click();
       await expect(toggle).toBeFocused();

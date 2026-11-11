@@ -45,13 +45,7 @@ try {
     await response.text();
   }
 
-  for (const path of [
-    "/ui",
-    "/ui/",
-    "/ui/signIn",
-    "/ui/tenants/example/tasks/example",
-    "/ui/assets/example.js",
-  ]) {
+  for (const path of ["/ui", "/ui/", "/ui/signIn", "/ui/tenants/example/tasks/example", "/ui/assets/example.js"]) {
     for (const query of ["", "?source=legacy&returnUrl=%2Fui%2Ftasks"]) {
       const response = await request(`${path}${query}`);
       assert.equal(response.status, 301, `${path}${query}`);
@@ -70,7 +64,7 @@ try {
     if (analyticsId && !path.startsWith("/app/")) {
       assert.ok(html.includes(`data-analytics-id="${analyticsId}"`), path);
       assert.ok(html.includes("analytics-consent.js"), path);
-      assert.ok(html.includes("analytics-root") && html.includes("data-analytics-settings"), path);
+      assert.ok(html.includes('id="analytics-consent"') && html.includes("data-analytics-settings"), path);
       assert.doesNotMatch(html, /googletagmanager\.com|google-analytics\.com|__md_analytics/, path);
     } else {
       assert.doesNotMatch(
@@ -170,7 +164,11 @@ try {
   assert.equal(unchanged.status, 304);
   checkHeaders(unchanged, "public, max-age=31536000, immutable");
 
+  const { checkLocalization, checkLocalizationBrowser } = await import("./localization.mjs");
+  await checkLocalization(origin, request);
+
   if (process.argv.includes("--browser")) {
+    await checkLocalizationBrowser(origin);
     const { checkAnalyticsConsent } = await import("./analyticsConsent.mjs");
     await checkAnalyticsConsent(origin, analyticsId);
   }

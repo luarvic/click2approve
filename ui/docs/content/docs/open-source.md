@@ -54,4 +54,4 @@ Organization navigation and commercial tools are hidden in the open-source app. 
 
 ## Source and self-hosting
 
-See the [open-source repository](https://github.com/luarvic/click2approve) for source code, the MIT license, Docker setup, and self-hosting instructions. Visit the [Click2Approve service](https://click2approve.com/) for the commercial version.
+See the [open-source repository](https://github.com/luarvic/click2approve) for source code, the MIT license, Docker setup, and self-hosting instructions. Visit the [Click2Approve service](../index.md) for the commercial version.

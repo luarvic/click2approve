@@ -40,7 +40,7 @@ export default defineConfig(({ command, mode }) => {
       rolldownOptions: {
         input: {
           app: path.resolve(import.meta.dirname, "index.html"),
-          "analytics-consent": path.resolve(import.meta.dirname, "src/shared/analytics/docs-entry.tsx"),
+          "analytics-consent": path.resolve(import.meta.dirname, "docs/analytics-consent.ts"),
         },
         output: {
           entryFileNames: (chunk) =>

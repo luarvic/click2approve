@@ -1,10 +1,15 @@
 {% extends "main.html" %}
 
 {% block htmltitle %}
-  <title>Page not found · {{ config.site_name }}</title>
+  <title>{{ t('Page not found') }} · {{ config.site_name }}</title>
 {% endblock %}
 
 {% block extrahead %}
+  {{ super() }}
+  <meta name="robots" content="noindex" />
+{% endblock %}
+
+{% block page_styles %}
   {{ super() }}
   <link rel="stylesheet" href="{{ 'stylesheets/not-found.css' | url }}" />
 {% endblock %}
@@ -19,9 +24,9 @@
 {% block container %}
   <div class="not-found-page">
     <div class="not-found-message">
-      <h1>Page not found</h1>
-      <p>It may have moved, or access may be restricted.</p>
-      <a class="not-found-home" href="{{ '/' | url }}">Home</a>
+      <h1>{{ t("Page not found") }}</h1>
+      <p>{{ t("It may have moved, or access may be restricted.") }}</p>
+      <a class="not-found-home" href="{{ site_path() }}">{{ t("Home") }}</a>
     </div>
   </div>
 {% endblock %}

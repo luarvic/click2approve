@@ -28,7 +28,8 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": [
-    "src"
+    "src",
+    "docs/analytics-consent.ts"
   ],
   "references": [
     {

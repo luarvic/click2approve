@@ -1,13 +1,16 @@
-<div id="analytics-root"></div>
+<section id="analytics-consent" class="site-analytics-consent" role="region" aria-labelledby="analytics-consent-title" hidden>
+  <div class="site-analytics-heading">
+    <h2 id="analytics-consent-title">{{ t('Optional analytics') }}</h2>
+    <button type="button" data-analytics-close aria-label="{{ t('Close analytics settings') }}">×</button>
+  </div>
+  <p>{{ t('Allow Google Analytics cookies to help us understand visits and app usage. Your choice does not affect access to the service.') }}
+    <a href="{{ site_path('privacy/') }}">{{ t('Privacy Policy') }}</a>
+  </p>
+  <label class="site-analytics-choice"><input type="checkbox" role="switch" aria-label="{{ t('Allow analytics') }}" data-analytics-choice /> {{ t('Allow analytics') }}</label>
+</section>
 {% if config.extra.analytics_development %}
 <script type="module" src="/app/@vite/client"></script>
-<script type="module">
-  import { injectIntoGlobalHook } from "/app/@react-refresh";
-  injectIntoGlobalHook(window);
-  window.$RefreshReg$ = () => {};
-  window.$RefreshSig$ = () => (type) => type;
-</script>
 {% endif %}
 <script type="module" id="analytics-bootstrap" data-analytics-id="{{ config.extra.google_analytics_id | e }}"
-  data-page-path="/{{ page.url if page else '' }}"
-  src="{{ '/app/src/shared/analytics/docs-entry.tsx' if config.extra.analytics_development else '/app/analytics-consent.js' }}"></script>
+  data-page-path="{{ public_page_path | default(site_path('404.html')) }}"
+  src="{{ '/app/docs/analytics-consent.ts' if config.extra.analytics_development else '/app/analytics-consent.js' }}"></script>

@@ -87,6 +87,38 @@ The app and docs share the `colorMode` browser preference, including live update
 across tabs on the same origin. For local development, open docs through Vite's
 `/docs/` proxy to share storage with `/app/`.
 
+The public site is available in the languages registered in `locales.json`, including
+Russian (`/ru/`) and Polish (`/pl/`). Existing unprefixed URLs remain canonical English;
+`/en/` serves the same English source. Other language prefixes contain independent
+static builds with language-specific search, translated metadata, reciprocal
+`hreflang` annotations in the root sitemap, and localized 404 pages. The header language picker links
+to the equivalent page and remembers explicit selections in the same-origin `language`
+preference. Unprefixed English pages restore it before rendering; explicit prefixes
+always win. Query strings and heading anchors survive the redirect. Missing pages,
+visitors without a saved choice, and navigation without JavaScript keep their URL. App links still target `/app/` and the app remains English.
+
+The picker follows registry order: English first, then the other Latin-script native
+names alphabetically, followed by fixed Cyrillic, Arabic, Japanese, Chinese, and
+Korean groups. Keep this order consistent across pages and current selections.
+
+English Markdown stays in `docs/content/`; translations live in
+`docs/translations/<language>/` with matching paths and stable heading IDs. Shared
+public-site copy is in `docs/i18n/en.json` and matching language catalogs. Preserve
+literal app labels such as **Requests**, **New request**, and **Personal** while
+translating their explanations. Keep legal versions, dates, claims, and prices accurate.
+Source changes must update every published language. After completing a language's
+updates, run `.venv-docs/bin/python docs/localization.py --stamp <language>` to
+acknowledge the revised sources. The build fails on missing pages, catalog entries,
+or stale source hashes; it never copies English prose into a translated page.
+The same checks reject changed link destinations, translated literal app controls,
+and damaged tables. Run `.venv-docs/bin/python docs/test_localization.py` for their
+regression tests; the repository documentation test command includes them.
+
+`docs/localization.py` builds all prefixes after the default English build and
+merges their canonical pages into the root sitemap. The same hooks run during the
+existing MkDocs preview. The static analytics banner uses translated templates
+and shares the application's consent storage and tracking helpers.
+
 Build static documentation into `ui/site/` with:
 
 ```sh
@@ -114,7 +146,8 @@ Google Analytics is disabled when `GOOGLE_ANALYTICS_ID` is unset or empty.
 To offer opt-in analytics across the website, docs, and app, pass
 `--build-arg GOOGLE_ANALYTICS_ID=G-YOURID` to the UI Docker build. Outside Docker,
 set `GOOGLE_ANALYTICS_ID` for both Vite and MkDocs. Rebuild to change the ID.
-One shared MUI banner has an Allow analytics toggle and a close button; the choice
+The app uses a MUI consent banner; static pages use translated HTML with the same
+Allow analytics choice and close action. The choice
 is remembered for 180 days and synchronized across pages and tabs on the same origin.
 Closing without enabling analytics remembers rejection. Footer Analytics settings
 reopen the banner. Without an ID, no banner or settings control is shown.
@@ -124,10 +157,10 @@ In the GA4 property, keep Google Signals, advertising features, and Enhanced
 Measurement disabled; only explicit sanitized page views are sent.
 
 For the local consent preview, run Vite and MkDocs with the same ID and open
-`http://localhost:3333/` (including docs and `/app/`). The docs' MUI banner uses Vite
+`http://localhost:3333/` (including docs and `/app/`). The static consent module uses Vite
 in development and the built `/app/analytics-consent.js` in production. Using a
 single origin shares consent and theme preferences; port 8000 alone does not serve
-the React banner bundle.
+the consent module. Without an ID, the missing Analytics settings link is expected locally.
 
 See [frontend build settings](../docs/configuration.md#frontend-build-settings).
 

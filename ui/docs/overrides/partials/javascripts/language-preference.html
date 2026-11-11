@@ -1,0 +1,18 @@
+{# Only known, unprefixed English pages restore an explicit language preference.
+   Prefixed URLs, errors, and the app always retain their requested destination. #}
+{% if page and not config.extra.language_prefix %}
+<script>
+  (() => {
+    try {
+      const language = localStorage.getItem("language");
+      const destinations = {{ language_choices | tojson }};
+      const choice = destinations.find((item) => item.path === language);
+      if (choice && language !== "en") {
+        location.replace(choice.url + location.search + location.hash);
+      }
+    } catch {
+      // Keep the English page usable when storage is blocked.
+    }
+  })();
+</script>
+{% endif %}

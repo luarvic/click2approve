@@ -20,15 +20,15 @@
     {% endfor %}
   </ul>
 {% endmacro %}
-<nav id="docs-navigation" class="docs-navigation" aria-label="Documentation">
+<nav id="docs-navigation" class="docs-navigation" aria-label="{{ t('Documentation') }}">
   <div class="docs-drawer-toolbar">
-    <a class="docs-brand" href="{{ 'docs/' | url }}" aria-label="Click2Approve documentation home">
+    <a class="docs-brand" href="{{ 'docs/' | url }}" aria-label="{{ t('Click2Approve documentation home') }}">
       <img src="{{ config.theme.logo | url }}" alt="" aria-hidden="true" />
       <span class="docs-brand-name"><span class="docs-brand-label">{{ config.site_name }}<small class="docs-brand-badge">Docs</small></span></span>
     </a>
   </div>
   <div class="docs-drawer-content">
-    {% for item in nav.items if item.title == "Documentation" %}
+    {% for item in nav.items if item.title == t("Documentation") %}
       {% for group in item.children %}
         {% if group.children %}
           <div class="docs-menu-section">{{ group.title }}</div>

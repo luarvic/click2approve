@@ -1,0 +1,15 @@
+<details class="language-picker">
+  <summary aria-label="{{ t('Change language') }}: {{ config.extra.locale.name }}">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 0c2.4 2.5 3.5 5.5 3.5 9S14.4 18.5 12 21c-2.4-2.5-3.5-5.5-3.5-9S9.6 5.5 12 3ZM3 12h18M5 6.5h14M5 17.5h14" /></svg>
+    <span class="language-picker-name" lang="{{ config.extra.locale.code }}" dir="{{ config.extra.locale.direction }}">{{ config.extra.locale.name }}</span>
+    <svg class="language-picker-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5" /></svg>
+  </summary>
+  <nav class="language-picker-options" aria-label="{{ t('Language') }}">
+    {% for choice in language_choices %}
+    <a href="{{ choice.url }}" lang="{{ choice.code }}" hreflang="{{ choice.code }}" dir="{{ choice.direction }}" data-language="{{ choice.path }}"
+      {% if choice.path == config.extra.locale.path %}aria-current="true"{% endif %}>
+      <span>{{ choice.name }}</span><span aria-hidden="true">{% if choice.path == config.extra.locale.path %}✓{% endif %}</span>
+    </a>
+    {% endfor %}
+  </nav>
+</details>

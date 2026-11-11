@@ -3,13 +3,6 @@
 {% block extrahead %}
   {{ super() }}
   <script src="{{ 'javascripts/demo-video.js' | url }}" defer></script>
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="{{ page.meta.title | e }} · Click2Approve" />
-  <meta property="og:description" content="{{ page.meta.description | e }}" />
-  <meta property="og:url" content="{{ page.canonical_url | e }}" />
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="{{ page.meta.title | e }} · Click2Approve" />
-  <meta name="twitter:description" content="{{ page.meta.description | e }}" />
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -18,119 +11,120 @@
       "applicationCategory": "BusinessApplication",
       "operatingSystem": "Web",
       "url": {{ config.site_url | tojson }},
-      "description": {{ page.meta.description | tojson }}
+      "description": {{ page.meta.description | tojson }},
+      "inLanguage": {{ config.extra.locale.code | tojson }}
     }
   </script>
 {% endblock %}
 {% block marketing_content %}
 <section class="site-hero" aria-labelledby="hero-title">
   <div class="site-hero-copy">
-    <p class="site-eyebrow"><span></span> DOCUMENT APPROVALS &amp; ELECTRONIC SIGNATURES</p>
-    <h1 id="hero-title">Document approval<br /><em>software.</em></h1>
-    <p class="site-lead">Send documents for review, approval, or electronic signature. Track each decision in one place, then share a receipt that records who acted, what they decided, and when.</p>
+    <p class="site-eyebrow"><span></span> {{ t("DOCUMENT APPROVALS & ELECTRONIC SIGNATURES") }}</p>
+    <h1 id="hero-title">{{ t("Document approval software.") }}</h1>
+    <p class="site-lead">{{ t("Send documents for review, approval, or electronic signature. Track each decision in one place, then share a receipt that records who acted, what they decided, and when.") }}</p>
     <div class="site-actions">
-      <a class="site-button" href="/app/">Create your first request <span aria-hidden="true">→</span></a>
-      <a class="site-text-link" href="#product-demo">Watch the demo <span aria-hidden="true">↓</span></a>
+      <a class="site-button" href="/app/">{{ t("Create your first request") }} <span aria-hidden="true">→</span></a>
+      <a class="site-text-link" href="#product-demo">{{ t("Watch the demo") }} <span aria-hidden="true">↓</span></a>
     </div>
-    <p class="site-hero-note">For proposals, agreements, and everyday sign-offs.</p>
+    <p class="site-hero-note">{{ t("For proposals, agreements, and everyday sign-offs.") }}</p>
   </div>
-  <figure class="workflow-preview" aria-label="Example: a proposal goes from request to signature to verification">
-    <figcaption><span class="preview-dot"></span> ONE PROPOSAL, A SHARED RECORD</figcaption>
-    <div class="preview-document"><span class="document-icon" aria-hidden="true">↳</span><div><strong>Website design proposal</strong><span>Alex sends a proposal to Jamie.</span></div></div>
+  <figure class="workflow-preview" aria-label="{{ t('Example: a proposal goes from request to signature to verification') }}">
+    <figcaption><span class="preview-dot"></span> {{ t("ONE PROPOSAL, A SHARED RECORD") }}</figcaption>
+    <div class="preview-document"><span class="document-icon" aria-hidden="true">↳</span><div><strong>{{ t("Website design proposal") }}</strong><span>{{ t("Alex sends a proposal to Jamie.") }}</span></div></div>
     <ol class="preview-steps">
-      <li class="step-complete"><span class="step-number" aria-hidden="true">1</span><div><strong>Create a request</strong><span>Alex adds the scope, fee, and document.</span></div></li>
-      <li class="step-current"><span class="step-number" aria-hidden="true">2</span><div><strong>Review and sign</strong><span>Jamie reviews the proposal and signs.</span></div></li>
-      <li><span class="step-number" aria-hidden="true">3</span><div><strong>Verify the receipt</strong><span>Taylor checks the record and file.</span></div></li>
+      <li class="step-complete"><span class="step-number" aria-hidden="true">1</span><div><strong>{{ t("Create a request") }}</strong><span>{{ t("Alex adds the scope, fee, and document.") }}</span></div></li>
+      <li class="step-current"><span class="step-number" aria-hidden="true">2</span><div><strong>{{ t("Review and sign") }}</strong><span>{{ t("Jamie reviews the proposal and signs.") }}</span></div></li>
+      <li><span class="step-number" aria-hidden="true">3</span><div><strong>{{ t("Verify the receipt") }}</strong><span>{{ t("Taylor checks the record and file.") }}</span></div></li>
     </ol>
-    <div class="preview-footer"><span class="preview-avatar" aria-hidden="true">✓</span><p><strong>From a request to a record you can share.</strong><br />Who acted, what they decided, and when.</p></div>
+    <div class="preview-footer"><span class="preview-avatar" aria-hidden="true">✓</span><p><strong>{{ t("From a request to a record you can share.") }}</strong><br />{{ t("Who acted, what they decided, and when.") }}</p></div>
   </figure>
 </section>
 <section class="site-process site-demo" id="product-demo" aria-labelledby="demo-title">
   <div class="site-section-heading">
-    <p class="site-eyebrow">SEE CLICK2APPROVE IN ACTION</p>
-    <h2 id="demo-title">From proposal to signed agreement.</h2>
-    <p>Follow a sample agency through internal approval, client signature, and document verification.</p>
+    <p class="site-eyebrow">{{ t("SEE CLICK2APPROVE IN ACTION") }}</p>
+    <h2 id="demo-title">{{ t("From proposal to signed agreement.") }}</h2>
+    <p>{{ t("Follow a sample agency through internal approval, client signature, and document verification.") }}</p>
   </div>
-  <div class="site-demo-player" data-video-src="https://www.youtube-nocookie.com/embed/{{ page.meta.demo_video_id | e }}?autoplay=1&amp;playsinline=1&amp;rel=0">
-    <button class="site-demo-play" type="button" aria-label="Play the Click2Approve product demo">
+  <div class="site-demo-player" data-video-title="{{ t('Click2Approve product demo: from proposal to signed agreement') }}" data-video-src="https://www.youtube-nocookie.com/embed/{{ page.meta.demo_video_id | e }}?autoplay=1&amp;playsinline=1&amp;rel=0">
+    <button class="site-demo-play" type="button" aria-label="{{ t('Play the Click2Approve product demo') }}">
       <img src="{{ 'assets/approval-workflow-demo.jpg' | url }}" alt="" width="1280" height="720" loading="lazy" />
-      <span class="site-demo-play-label"><span class="site-demo-play-icon" aria-hidden="true">▶</span> Watch the demo <span class="site-demo-duration">1:32</span></span>
+      <span class="site-demo-play-label"><span class="site-demo-play-icon" aria-hidden="true">▶</span> {{ t("Watch the demo") }} <span class="site-demo-duration">1:32</span></span>
     </button>
   </div>
-  <p class="site-demo-caption"><a class="site-text-link" href="https://www.youtube.com/watch?v={{ page.meta.demo_video_id | e }}">Watch on YouTube <span aria-hidden="true">→</span></a></p>
+  <p class="site-demo-caption"><a class="site-text-link" href="https://www.youtube.com/watch?v={{ page.meta.demo_video_id | e }}">{{ t("Watch on YouTube") }} <span aria-hidden="true">→</span></a></p>
 </section>
 <section class="site-process" id="how-it-works" aria-labelledby="process-title">
-  <div class="site-section-heading"><p class="site-eyebrow">A SIMPLE EXAMPLE</p><h2 id="process-title">One proposal. Three people. A clear outcome.</h2><p>Alex is a freelance designer. Jamie is the client. Taylor handles the accounts and needs a record of the agreement.</p></div>
+  <div class="site-section-heading"><p class="site-eyebrow">{{ t("A SIMPLE EXAMPLE") }}</p><h2 id="process-title">{{ t("One proposal. Three people. A clear outcome.") }}</h2><p>{{ t("Alex is a freelance designer. Jamie is the client. Taylor handles the accounts and needs a record of the agreement.") }}</p></div>
   <div class="site-story">
     <article class="site-story-step" aria-labelledby="create-title">
-      <div class="site-story-copy"><span class="process-number">01 / CREATE A REQUEST</span><h3 id="create-title">Alex sends the proposal.</h3><p>Alex attaches the website proposal, describes the scope, fee, and delivery date, and asks Jamie to sign it using Jamie’s email address.</p><p>Jamie has the document and instructions together, ready to review.</p><a class="site-text-link" href="{{ 'docs/create-a-request/' | url }}">How to create a request <span aria-hidden="true">→</span></a></div>
+      <div class="site-story-copy"><span class="process-number">{{ t("01 / CREATE A REQUEST") }}</span><h3 id="create-title">{{ t("Alex sends the proposal.") }}</h3><p>{{ t("Alex attaches the website proposal, describes the scope, fee, and delivery date, and asks Jamie to sign it using Jamie’s email address.") }}</p><p>{{ t("Jamie has the document and instructions together, ready to review.") }}</p><a class="site-text-link" href="{{ 'docs/create-a-request/' | url }}">{{ t("How to create a request") }} <span aria-hidden="true">→</span></a></div>
       <figure class="site-example" aria-labelledby="request-example-title">
         <div class="example-card">
-          <div class="example-card-header"><span class="process-number">THE REQUEST</span><span class="example-badge">Signature requested</span></div>
-          <h4 id="request-example-title">Website design proposal</h4>
-          <p class="example-summary">A clear scope. A fixed fee. A person to sign.</p>
+          <div class="example-card-header"><span class="process-number">{{ t("THE REQUEST") }}</span><span class="example-badge">{{ t("Signature requested") }}</span></div>
+          <h4 id="request-example-title">{{ t("Website design proposal") }}</h4>
+          <p class="example-summary">{{ t("A clear scope. A fixed fee. A person to sign.") }}</p>
           <dl class="example-details">
-            <div><dt>Scope</dt><dd>Design a five-page website</dd></div>
-            <div><dt>Project fee</dt><dd>$2,400</dd></div>
-            <div><dt>Delivery</dt><dd>November 6, 2026</dd></div>
-            <div><dt>Send to</dt><dd>Jamie Chen<span>jamie@example.com</span></dd></div>
-            <div><dt>Ask for</dt><dd>An electronic signature</dd></div>
+            <div><dt>{{ t("Scope") }}</dt><dd>{{ t("Design a five-page website") }}</dd></div>
+            <div><dt>{{ t("Project fee") }}</dt><dd>$2,400</dd></div>
+            <div><dt>{{ t("Delivery") }}</dt><dd>{{ t("November 6, 2026") }}</dd></div>
+            <div><dt>{{ t("Send to") }}</dt><dd>{{ t("Jamie Chen") }}<span>{{ t("jamie@example.com") }}</span></dd></div>
+            <div><dt>{{ t("Ask for") }}</dt><dd>{{ t("An electronic signature") }}</dd></div>
           </dl>
-          <div class="example-card-footer"><span>Alex sends</span><span aria-hidden="true">→</span><span>Jamie reviews</span></div>
+          <div class="example-card-footer"><span>{{ t("Alex sends") }}</span><span aria-hidden="true">→</span><span>{{ t("Jamie reviews") }}</span></div>
         </div>
-        <figcaption>Illustrative example · Fictional people and details.</figcaption>
+        <figcaption>{{ t("Illustrative example · Fictional people and details.") }}</figcaption>
       </figure>
     </article>
     <article class="site-story-step" aria-labelledby="sign-title">
-      <div class="site-story-copy"><span class="process-number">02 / REVIEW AND SIGN</span><h3 id="sign-title">Jamie reviews the proposal and signs.</h3><p>Jamie signs in to Click2Approve with the email address Alex used and opens the proposal. After reviewing the document and instructions, Jamie checks the legal name, draws a signature, and submits the response.</p><p>The signature and decision become part of the request history.</p><a class="site-text-link" href="{{ 'docs/complete-a-task/' | url }}">How to complete a signing task <span aria-hidden="true">→</span></a></div>
+      <div class="site-story-copy"><span class="process-number">{{ t("02 / REVIEW AND SIGN") }}</span><h3 id="sign-title">{{ t("Jamie reviews the proposal and signs.") }}</h3><p>{{ t("Jamie signs in to Click2Approve with the email address Alex used and opens the proposal. After reviewing the document and instructions, Jamie checks the legal name, draws a signature, and submits the response.") }}</p><p>{{ t("The signature and decision become part of the request history.") }}</p><a class="site-text-link" href="{{ 'docs/complete-a-task/' | url }}">{{ t("How to complete a signing task") }} <span aria-hidden="true">→</span></a></div>
       <figure class="site-example" aria-labelledby="signature-example-title">
         <div class="example-card">
-          <div class="example-card-header"><span class="process-number">THE DECISION</span><span class="example-badge"><span aria-hidden="true">✓</span> Signed</span></div>
-          <h4 id="signature-example-title">Jamie signs the proposal.</h4>
-          <p class="example-summary">The decision stays with the request.</p>
+          <div class="example-card-header"><span class="process-number">{{ t("THE DECISION") }}</span><span class="example-badge"><span aria-hidden="true">✓</span> Signed</span></div>
+          <h4 id="signature-example-title">{{ t("Jamie signs the proposal.") }}</h4>
+          <p class="example-summary">{{ t("The decision stays with the request.") }}</p>
           <dl class="example-details">
-            <div><dt>Document</dt><dd>Website design proposal</dd></div>
-            <div><dt>Signed by</dt><dd>Jamie Chen</dd></div>
-            <div><dt>Recorded</dt><dd>October 15, 2026<span>10:30 a.m. Eastern Time</span></dd></div>
+            <div><dt>{{ t("Document") }}</dt><dd>{{ t("Website design proposal") }}</dd></div>
+            <div><dt>{{ t("Signed by") }}</dt><dd>{{ t("Jamie Chen") }}</dd></div>
+            <div><dt>{{ t("Recorded") }}</dt><dd>{{ t("October 15, 2026") }}<span>{{ t("10:30 a.m. Eastern Time") }}</span></dd></div>
           </dl>
           <div class="example-signature">
-            <span>Sample electronic signature</span>
-            <svg viewBox="0 0 320 90" role="img" aria-label="Illustrative drawn signature for Jamie Chen">
+            <span>{{ t("Sample electronic signature") }}</span>
+            <svg viewBox="0 0 320 90" role="img" aria-label="{{ t('Illustrative drawn signature for Jamie Chen') }}">
               <path d="M28 62 C34 41 47 10 49 18 C52 28 30 81 41 71 L67 58 L76 44 L72 65 L92 49 L90 64 L109 43 L104 65 L127 51 L151 64 C162 44 171 20 172 25 L160 68 L188 45 L183 67 L207 54 L220 65 L242 44 L258 65 M43 77 Q145 65 274 73" />
             </svg>
           </div>
         </div>
-        <figcaption>Illustrative example · Fictional people and details.</figcaption>
+        <figcaption>{{ t("Illustrative example · Fictional people and details.") }}</figcaption>
       </figure>
     </article>
     <article class="site-story-step" aria-labelledby="verify-title">
-      <div class="site-story-copy"><span class="process-number">03 / SHARE AND VERIFY</span><h3 id="verify-title">Taylor checks what was agreed.</h3><p>When Jamie’s signature completes the request, Click2Approve creates a receipt recording the outcome. Alex opens that receipt and creates a verification link with an expiry date. Taylor follows the link to review the recorded decision, signer, and signature without signing in.</p><p>With a copy of the proposal, Taylor can use <strong>Verify file</strong> to check that its contents match a file recorded on the receipt.</p><p class="site-story-note">Anyone with an active link can view that receipt. Alex can remove the link to stop sharing.</p><a class="site-text-link" href="{{ 'docs/receipts/' | url }}">How receipt verification works <span aria-hidden="true">→</span></a></div>
+      <div class="site-story-copy"><span class="process-number">{{ t("03 / SHARE AND VERIFY") }}</span><h3 id="verify-title">{{ t("Taylor checks what was agreed.") }}</h3><p>{{ t("When Jamie’s signature completes the request, Click2Approve creates a receipt recording the outcome. Alex opens that receipt and creates a verification link with an expiry date. Taylor follows the link to review the recorded decision, signer, and signature without signing in.") }}</p><p>{{ t("With a copy of the proposal, Taylor can use") }} <strong>Verify file</strong> {{ t("to check that its contents match a file recorded on the receipt.") }}</p><p class="site-story-note">{{ t("Anyone with an active link can view that receipt. Alex can remove the link to stop sharing.") }}</p><a class="site-text-link" href="{{ 'docs/receipts/' | url }}">{{ t("How receipt verification works") }} <span aria-hidden="true">→</span></a></div>
       <figure class="site-example" aria-labelledby="receipt-example-title">
         <div class="example-card">
-          <div class="example-card-header"><span class="process-number">THE RECEIPT</span><span class="example-badge"><span aria-hidden="true">✓</span> Succeeded</span></div>
-          <h4 id="receipt-example-title">A record Taylor can check.</h4>
-          <p class="example-summary">Shared through a verification link.</p>
+          <div class="example-card-header"><span class="process-number">{{ t("THE RECEIPT") }}</span><span class="example-badge"><span aria-hidden="true">✓</span> Succeeded</span></div>
+          <h4 id="receipt-example-title">{{ t("A record Taylor can check.") }}</h4>
+          <p class="example-summary">{{ t("Shared through a verification link.") }}</p>
           <dl class="example-details">
-            <div><dt>Request</dt><dd>Website design proposal</dd></div>
-            <div><dt>Requested by</dt><dd>Alex Morgan</dd></div>
-            <div><dt>Signed by</dt><dd>Jamie Chen</dd></div>
-            <div><dt>Recorded</dt><dd>October 15, 2026<span>10:30 a.m. Eastern Time</span></dd></div>
+            <div><dt>{{ t("Request") }}</dt><dd>{{ t("Website design proposal") }}</dd></div>
+            <div><dt>{{ t("Requested by") }}</dt><dd>{{ t("Alex Morgan") }}</dd></div>
+            <div><dt>{{ t("Signed by") }}</dt><dd>{{ t("Jamie Chen") }}</dd></div>
+            <div><dt>{{ t("Recorded") }}</dt><dd>{{ t("October 15, 2026") }}<span>{{ t("10:30 a.m. Eastern Time") }}</span></dd></div>
           </dl>
-          <div class="example-file-match"><span class="example-match-icon" aria-hidden="true">✓</span><div><strong>Document matches the recorded file.</strong><span>website-proposal.txt · File contents match</span></div></div>
+          <div class="example-file-match"><span class="example-match-icon" aria-hidden="true">✓</span><div><strong>{{ t("Document matches the recorded file.") }}</strong><span>{{ t("website-proposal.txt · File contents match") }}</span></div></div>
         </div>
-        <figcaption>Illustrative example · Fictional people and details.</figcaption>
+        <figcaption>{{ t("Illustrative example · Fictional people and details.") }}</figcaption>
       </figure>
     </article>
   </div>
 </section>
 <section class="site-process" aria-labelledby="workflows-title">
-  <div class="site-section-heading"><p class="site-eyebrow">WHEN YOUR WORKFLOW GROWS</p><h2 id="workflows-title">Start simple. Add the steps you need.</h2></div>
+  <div class="site-section-heading"><p class="site-eyebrow">{{ t("WHEN YOUR WORKFLOW GROWS") }}</p><h2 id="workflows-title">{{ t("Start simple. Add the steps you need.") }}</h2></div>
   <div class="site-process-grid">
-    <article><h3>Review before signing.</h3><p>Add a review or approval step before the signature. Steps run in order; each step can require all assigned participants or just one of them to act.</p></article>
-    <article><h3>Keep the context together.</h3><p>Use request discussions to clarify details. Follow progress and recorded decisions alongside the documents.</p></article>
-    <article><h3>Repeat what works.</h3><p>In an organization, assign work to employees or teams and save workflow templates for recurring requests.</p></article>
+    <article><h3>{{ t("Review before signing.") }}</h3><p>{{ t("Add a review or approval step before the signature. Steps run in order; each step can require all assigned participants or just one of them to act.") }}</p></article>
+    <article><h3>{{ t("Keep the context together.") }}</h3><p>{{ t("Use request discussions to clarify details. Follow progress and recorded decisions alongside the documents.") }}</p></article>
+    <article><h3>{{ t("Repeat what works.") }}</h3><p>{{ t("In an organization, assign work to employees or teams and save workflow templates for recurring requests.") }}</p></article>
   </div>
 </section>
-<section class="site-guide" aria-labelledby="open-source-title"><div><p class="site-eyebrow">HOST IT YOURSELF</p><h2 id="open-source-title">Looking for an open-source approval system?</h2><p>The free, MIT-licensed edition supports document approval workflows, multiple reviewers, and electronic signatures. Host it on your own infrastructure. Organization workspaces, discussions, and verifiable receipts are available in the commercial service.</p></div><a class="site-text-link" href="{{ 'docs/open-source/' | url }}">Explore the open-source edition <span aria-hidden="true">→</span></a></section>
-<section class="site-guide" aria-labelledby="guide-title"><div><p class="site-eyebrow">YOUR FIRST REQUEST</p><h2 id="guide-title">Give your next agreement a clear record.</h2><p>Start with a document and the person who needs to act.</p><a class="site-text-link" href="{{ 'docs/getting-started/' | url }}">Read the getting started guide <span aria-hidden="true">→</span></a></div><a class="site-button" href="/app/">Open Click2Approve <span aria-hidden="true">→</span></a></section>
+<section class="site-guide" aria-labelledby="open-source-title"><div><p class="site-eyebrow">{{ t("HOST IT YOURSELF") }}</p><h2 id="open-source-title">{{ t("Looking for an open-source approval system?") }}</h2><p>{{ t("The free, MIT-licensed edition supports document approval workflows, multiple reviewers, and electronic signatures. Host it on your own infrastructure. Organization workspaces, discussions, and verifiable receipts are available in the commercial service.") }}</p></div><a class="site-text-link" href="{{ 'docs/open-source/' | url }}">{{ t("Explore the open-source edition") }} <span aria-hidden="true">→</span></a></section>
+<section class="site-guide" aria-labelledby="guide-title"><div><p class="site-eyebrow">{{ t("YOUR FIRST REQUEST") }}</p><h2 id="guide-title">{{ t("Give your next agreement a clear record.") }}</h2><p>{{ t("Start with a document and the person who needs to act.") }}</p><a class="site-text-link" href="{{ 'docs/getting-started/' | url }}">{{ t("Read the getting started guide") }} <span aria-hidden="true">→</span></a></div><a class="site-button" href="/app/">{{ t("Open Click2Approve") }} <span aria-hidden="true">→</span></a></section>
 {% endblock %}

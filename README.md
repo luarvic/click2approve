@@ -43,8 +43,9 @@ Next, try multiple reviewers, a required comment, or a signing step with
 confirmation are disabled; in-app notifications work. To try a second
 participant, create another account in a separate browser profile.
 
-The [local landing page and guides](http://localhost:3333/) and
-[API reference](http://localhost:5555/swagger/) are also included.
+The [local landing page and guides](http://localhost:3333/) are available in 14
+languages, with language-specific search and shareable URLs. The app remains in
+English. The [API reference](http://localhost:5555/swagger/) is also included.
 
 **Local data is disposable:** this demo setup has no persistent data volumes.
 Running `docker compose down` removes the database and emulator data with their

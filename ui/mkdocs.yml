@@ -4,6 +4,10 @@ site_url: !ENV [DOCS_SITE_URL, "https://click2approve.com/"]
 docs_dir: docs/content
 site_dir: site
 strict: true
+validation:
+  links:
+    anchors: warn
+    absolute_links: ignore
 
 nav:
   - Home: index.md
@@ -77,12 +81,14 @@ plugins:
 
 hooks:
   - docs/hooks.py
+  - docs/localization.py
 
 extra_css:
   - stylesheets/app.css
 
 extra_javascript:
   - javascripts/app-bar.js
+  - javascripts/language-picker.js
 
 extra:
   homepage: /

@@ -18,7 +18,10 @@ def on_config(config):
         config.extra["google_analytics_id"] = analytics_id
     else:
         config.extra.pop("google_analytics_id", None)
-    config.extra["analytics_development"] = _serving
+    config.extra["analytics_development"] = _serving or config.extra.get(
+        "analytics_development", False
+    )
+    config.extra["docs_api_base_uri"] = config.extra.get("docs_api_base_uri", _api_base_uri)
     return config
 
 
@@ -30,7 +33,9 @@ def on_startup(command, dirty):
 
 
 def on_page_markdown(markdown, page, config, files):
-    return markdown.replace("{{ api_reference_url }}", f"{_api_base_uri}/swagger/")
+    return markdown.replace(
+        "{{ api_reference_url }}", f"{config.extra['docs_api_base_uri']}/swagger/"
+    )
 
 
 def on_files(files, config):
@@ -43,12 +48,12 @@ def on_files(files, config):
     }
     for weight in (400, 500, 600, 700):
         name = f"sora-latin-{weight}-normal.woff2"
-        assets[f"assets/fonts/{name}"] = (
-            ui_dir / "node_modules/@fontsource/sora/files" / name
-        )
+        assets[f"assets/fonts/{name}"] = ui_dir / "node_modules/@fontsource/sora/files" / name
 
     for destination, source in assets.items():
         if not source.is_file():
-            raise FileNotFoundError(f"Missing documentation asset: {source}. Run npm ci in ui/ first.")
+            raise FileNotFoundError(
+                f"Missing documentation asset: {source}. Run npm ci in ui/ first."
+            )
         files.append(File.generated(config, destination, abs_src_path=str(source)))
     return files

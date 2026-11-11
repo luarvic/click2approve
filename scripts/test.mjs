@@ -35,6 +35,7 @@ try {
   run("npm", ["run", "build"], ui);
   const python = path.join(ui, ".venv-docs/bin/python");
   run(existsSync(python) ? python : "python3", ["-m", "mkdocs", "build", "--strict"], ui);
+  run(existsSync(python) ? python : "python3", ["docs/test_localization.py"], ui);
 } catch (error) {
   console.error(error.message);
   process.exitCode = 1;

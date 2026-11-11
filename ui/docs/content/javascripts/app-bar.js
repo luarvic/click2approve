@@ -13,11 +13,7 @@ new MutationObserver(syncColorModeSwitch).observe(document.body, {
 const applyColorMode = (colorMode) => {
   const scheme = colorMode === "dark" ? "slate" : "default";
   if (document.body.dataset.mdColorScheme === scheme) return;
-  document
-    .querySelector(
-      `[data-md-component="palette"] input[data-md-color-scheme="${scheme}"]`,
-    )
-    .click();
+  document.querySelector(`[data-md-component="palette"] input[data-md-color-scheme="${scheme}"]`).click();
 };
 
 colorModeSwitch.addEventListener("change", () => {
@@ -38,10 +34,7 @@ const synchronizeSharedColorMode = () => {
 };
 
 window.addEventListener("storage", (event) => {
-  if (
-    event.storageArea === localStorage &&
-    (event.key === docsColorModeStorageKey || event.key === null)
-  ) {
+  if (event.storageArea === localStorage && (event.key === docsColorModeStorageKey || event.key === null)) {
     synchronizeSharedColorMode();
   }
 });
@@ -61,14 +54,13 @@ if (document.querySelector(".md-sidebar--primary")) {
   const drawerButton = document.querySelector("[data-docs-toggle='__drawer']");
   const desktopLayout = window.matchMedia("(min-width: 1200px)");
   const syncDrawer = () => {
-    const temporaryDrawerIsOpen =
-      !desktopLayout.matches && drawerToggle.checked;
+    const temporaryDrawerIsOpen = !desktopLayout.matches && drawerToggle.checked;
     drawer.inert = !desktopLayout.matches && !temporaryDrawerIsOpen;
     drawerButton.setAttribute("aria-expanded", String(temporaryDrawerIsOpen));
     if (temporaryDrawerIsOpen) {
       drawer.setAttribute("role", "dialog");
       drawer.setAttribute("aria-modal", "true");
-      drawer.setAttribute("aria-label", "Documentation menu");
+      drawer.setAttribute("aria-label", drawerButton.dataset.docsMenuLabel);
       drawer.querySelector("a").focus();
     } else {
       drawer.removeAttribute("role");
@@ -92,9 +84,7 @@ if (document.querySelector(".md-sidebar--primary")) {
       drawerToggle.click();
     }
     if (event.key === "Tab") {
-      const controls = [...drawer.querySelectorAll("a[href], summary")].filter(
-        (element) => element.checkVisibility(),
-      );
+      const controls = [...drawer.querySelectorAll("a[href], summary")].filter((element) => element.checkVisibility());
       const first = controls[0];
       const last = controls[controls.length - 1];
       if (event.shiftKey && document.activeElement === first) {

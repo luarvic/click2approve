@@ -4,10 +4,15 @@
 
 {% block extrahead %}
   {{ super() }}
-  {% if page and page.file.src_uri.startswith("docs/") %}
-    <link rel="stylesheet" href="{{ 'stylesheets/prose.css' | url }}" />
-    <link rel="stylesheet" href="{{ 'stylesheets/docs.css' | url }}" />
-  {% endif %}
+  {% include "partials/javascripts/language-preference.html" %}
+  {% include "partials/localization-meta.html" %}
+  {% block page_styles %}
+    {% if page and page.file.src_uri.startswith("docs/") %}
+      <link rel="stylesheet" href="{{ 'stylesheets/prose.css' | url }}" />
+      <link rel="stylesheet" href="{{ 'stylesheets/docs.css' | url }}" />
+    {% endif %}
+  {% endblock %}
+  <link rel="stylesheet" href="{{ 'stylesheets/localization.css' | url }}" />
 {% endblock %}
 
 {% block htmltitle %}

@@ -1,0 +1,275 @@
+/* Shared header picker for marketing, documentation, and error pages. */
+.language-picker {
+  position: relative;
+  flex: 0 0 auto;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.language-picker summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  list-style: none;
+  color: var(--site-muted);
+  white-space: nowrap;
+}
+.language-picker summary::-webkit-details-marker {
+  display: none;
+}
+.language-picker summary:hover,
+.language-picker[open] summary {
+  background: var(--site-soft);
+  color: var(--site-green);
+}
+.language-picker svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+.language-picker .language-picker-chevron {
+  width: 14px;
+  height: 14px;
+}
+.language-picker-options {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  inset-inline-end: 0;
+  top: calc(100% + 6px);
+  z-index: 10;
+  width: max-content;
+  min-width: 210px;
+  max-width: calc(100vw - 32px);
+  max-height: min(480px, calc(100dvh - 100px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px;
+  border: 1px solid var(--app-divider);
+  border-radius: 8px;
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 16%);
+}
+.language-picker-options a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 40px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  text-decoration: none;
+}
+.language-picker-options a:hover,
+.language-picker-options a[aria-current] {
+  color: var(--site-green);
+  background: var(--site-soft);
+  text-decoration: none;
+}
+.language-picker :is(summary, a):focus-visible {
+  outline: 2px solid var(--site-green);
+  outline-offset: 2px;
+}
+.site-header.md-header {
+  overflow: visible;
+}
+.site-header .site-header-inner {
+  min-width: 0;
+}
+.site-header .site-brand {
+  margin-right: 0;
+  margin-inline-end: auto;
+}
+.site-brand {
+  direction: ltr;
+}
+/* System fonts supply scripts outside the locally hosted Sora Latin subset. */
+:root {
+  --md-text-font:
+    Sora, "Noto Sans", "Noto Sans Arabic", "Noto Sans CJK JP", "Yu Gothic", "Malgun Gothic", "Microsoft YaHei",
+    system-ui, sans-serif;
+}
+[lang="ar"] .site-hero h1 {
+  letter-spacing: normal;
+  line-height: 1.5;
+}
+[dir="rtl"] .docs-page-navigation-next {
+  text-align: left;
+}
+[dir="rtl"] .docs-menu-link--active {
+  box-shadow: inset -3px 0 0 var(--md-accent-fg-color);
+}
+[dir="rtl"] .docs-menu-list .docs-menu-list {
+  padding-left: 0;
+  padding-right: 16px;
+}
+[dir="rtl"] .docs-brand-badge {
+  right: auto;
+  left: 0;
+  transform: translate(calc(-100% + 2px), -100%);
+}
+[dir="rtl"] .md-sidebar.md-sidebar--primary {
+  left: auto;
+  right: 0;
+  transform: translateX(100%);
+}
+[dir="rtl"] [data-md-toggle="drawer"]:checked ~ .md-container .md-sidebar--primary {
+  transform: translateX(0);
+}
+[dir="rtl"] .docs-drawer-content {
+  border-right: 0;
+  border-left: 1px solid var(--app-divider);
+}
+[dir="rtl"] .docs-menu-button {
+  margin-left: 8px;
+  margin-right: -12px;
+}
+[dir="rtl"] .site-open-app .site-open-app-arrow,
+[dir="rtl"] .site-text-link span {
+  margin-left: 0;
+  margin-right: 6px;
+}
+@media (min-width: 1200px) {
+  [dir="rtl"] .md-header {
+    padding-left: 0;
+    padding-right: 240px;
+  }
+  [dir="rtl"] .md-main__inner {
+    padding-left: 0;
+    padding-right: 240px;
+  }
+  [dir="rtl"] .md-sidebar.md-sidebar--primary {
+    transform: none;
+  }
+  [dir="rtl"] body:not(:has(.site-header)) .site-footer {
+    margin-left: 0;
+    margin-right: 240px;
+  }
+  [dir="rtl"] .site-header.md-header,
+  [dir="rtl"] body:has(.site-header) .md-main__inner {
+    padding-right: 0;
+  }
+}
+@media (max-width: 599px) {
+  .md-header .language-picker-name,
+  .md-header .language-picker-chevron {
+    display: none;
+  }
+  .md-header .language-picker summary {
+    width: 36px;
+    min-height: 40px;
+    padding: 0;
+  }
+  .md-header .language-picker-options {
+    position: fixed;
+    top: 64px;
+    inset-inline-end: 16px;
+  }
+  .md-header .md-search {
+    flex: 1 1 140px;
+    width: 140px;
+    margin-inline-end: 4px;
+  }
+}
+@media (pointer: coarse) {
+  .language-picker summary,
+  .language-picker-options a {
+    min-height: 44px;
+  }
+}
+.site-analytics-consent {
+  position: fixed;
+  z-index: 1400;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  margin-inline: auto;
+  max-width: 640px;
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  padding: 20px;
+  border: 1px solid var(--app-divider);
+  border-radius: 12px;
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+  font-family: var(--md-text-font);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.site-analytics-consent[hidden] {
+  display: none;
+}
+.site-analytics-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.site-analytics-heading h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+.site-analytics-heading button {
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 6px;
+  font-size: 24px;
+  cursor: pointer;
+}
+.site-analytics-consent p {
+  margin-block: 8px;
+}
+.site-analytics-consent a {
+  color: var(--md-typeset-a-color);
+  text-decoration: underline;
+}
+.site-analytics-choice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  min-height: 44px;
+}
+.site-analytics-choice input {
+  width: 36px;
+  height: 22px;
+  accent-color: var(--site-green);
+  cursor: pointer;
+}
+.site-analytics-consent :is(button, input):focus-visible {
+  outline: 2px solid var(--site-green);
+  outline-offset: 3px;
+}
+
+@media (pointer: coarse) {
+  .language-picker summary,
+  .site-docs-link {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* The Latin brand keeps its own text direction within an RTL toolbar. */
+[dir="rtl"] .site-header .site-brand {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+[dir="rtl"] .site-open-app > .site-open-app-arrow,
+[dir="rtl"] .site-open-app > .site-open-app-icon,
+[dir="rtl"] .site-button > span[aria-hidden],
+[dir="rtl"] .site-text-link:not([href^="#"]) > span[aria-hidden] {
+  transform: scaleX(-1);
+}
