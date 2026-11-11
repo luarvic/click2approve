@@ -5,6 +5,7 @@
 {% block extrahead %}
   {{ super() }}
   {% if page and page.file.src_uri.startswith("docs/") %}
+    <link rel="stylesheet" href="{{ 'stylesheets/prose.css' | url }}" />
     <link rel="stylesheet" href="{{ 'stylesheets/docs.css' | url }}" />
   {% endif %}
 {% endblock %}

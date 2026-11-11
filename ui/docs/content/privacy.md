@@ -3,7 +3,7 @@ template: marketing.html
 search:
   exclude: true
 ---
-# Privacy Policy
+# Privacy policy
 
 Version: 2026-10-22.
 

@@ -2,7 +2,7 @@
 template: marketing.html
 description: Get help with Click2Approve or share feedback with the project.
 ---
-# Let's talk.
+# Let's talk
 
 Have a question about a workflow, found something unexpected, or have an idea for Click2Approve?
 

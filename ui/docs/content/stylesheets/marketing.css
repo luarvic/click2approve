@@ -41,8 +41,8 @@
   margin-left: 6px;
 }
 body:has(.site-header) .md-main__inner {
-  max-width: 1240px;
-  padding: 0 32px;
+  max-width: var(--site-content-max-width);
+  padding: 0 var(--site-content-gutter);
 }
 .site-content {
   width: 100%;
@@ -562,21 +562,9 @@ body:has(.site-header) .md-main__inner {
   flex-shrink: 0;
 }
 .site-prose.md-typeset {
-  max-width: 760px;
-  margin: 64px auto 96px;
+  margin: 0;
+  padding: var(--site-content-padding) 0;
   min-height: 45vh;
-  line-height: 1.85;
-}
-.site-prose.md-typeset h1 {
-  font-size: 40px;
-  line-height: 1.2;
-  letter-spacing: -1.5px;
-  margin-bottom: 32px;
-}
-.site-prose.md-typeset h2 {
-  font-size: 20px;
-  font-weight: 500;
-  margin-top: 32px;
 }
 .site-prose.md-typeset a {
   color: var(--site-green);
@@ -626,21 +614,21 @@ body:has(.site-header) .md-main__inner {
   .example-card {
     padding: 20px;
   }
-  .site-header-home .site-header-inner {
+  .site-header .site-header-inner {
     gap: 8px;
     padding: 0 12px;
   }
-  .site-header-home .site-brand span {
+  .site-header .site-brand span {
     font-size: 16px;
   }
-  .site-header-home .site-brand img {
+  .site-header .site-brand img {
     height: 28px;
   }
-  .site-header-home .site-header-links,
-  .site-header-home .site-open-app {
+  .site-header .site-header-links,
+  .site-header .site-open-app {
     font-size: 12px;
   }
-  .site-header-home .site-open-app span {
+  .site-header .site-open-app span {
     margin-left: 2px;
   }
   .site-story {
@@ -650,9 +638,6 @@ body:has(.site-header) .md-main__inner {
     grid-template-columns: 1fr;
     gap: 24px;
     padding: 28px 0;
-  }
-  body:has(.site-header) .md-main__inner {
-    padding: 0 20px;
   }
   .site-hero {
     grid-template-columns: 1fr;
@@ -699,10 +684,11 @@ body:has(.site-header) .md-main__inner {
   .site-process-grid h3 {
     margin-top: 10px;
   }
-  .site-prose.md-typeset {
-    margin: 40px auto 64px;
-  }
-  .site-prose.md-typeset h1 {
-    font-size: 32px;
+}
+
+/* Keep every header action visible on the narrowest phones. */
+@media (max-width: 380px) {
+  .site-header .site-brand span {
+    display: none;
   }
 }

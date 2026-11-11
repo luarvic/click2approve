@@ -36,6 +36,16 @@
   --md-code-font: ui-monospace, monospace;
   --app-bar-height: 72px;
   --app-chip-background: rgb(82 100 90 / 8%);
+  --site-content-max-width: 1240px;
+  --site-content-gutter: 20px;
+  --site-content-padding: 24px;
+}
+
+@media (min-width: 900px) {
+  :root {
+    --site-content-gutter: 32px;
+    --site-content-padding: 32px;
+  }
 }
 
 [data-md-color-scheme="default"] {
@@ -676,7 +686,7 @@
 
 /* Shared public-site links, also available from the documentation shell. */
 .site-footer { border-top: 1px solid var(--app-divider); }
-.site-footer-inner { max-width: 1240px; margin: auto; padding: 24px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; font-size: 11px; }
+.site-footer-inner { max-width: var(--site-content-max-width); margin: auto; padding: 24px var(--site-content-gutter); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; font-size: 11px; }
 .site-footer-inner p { margin: 0; font-weight: 500; }
 .site-footer-inner p span { display: block; margin-top: 6px; font-weight: 400; font-size: 10px; }
 .site-footer nav { display: flex; flex-wrap: wrap; gap: 16px; }
@@ -684,9 +694,6 @@
 .site-footer a:focus-visible { outline: 2px solid var(--md-accent-fg-color); outline-offset: 4px; }
 @media (min-width: 1200px) {
   body:not(:has(.site-header)) .site-footer { margin-left: 240px; }
-}
-@media (max-width: 700px) {
-  .site-footer-inner { padding: 24px 20px; }
 }
 
 /* Reading order follows the documentation navigation. */

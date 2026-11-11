@@ -64,8 +64,10 @@ Next links to guides automatically using that order. Marketing presentation live
 `docs/overrides/partials/site-footer.html`. The documentation theme uses the app's logo and locally
 served Sora font files through `docs/hooks.py`; no external font service is needed.
 `docs/content/stylesheets/app.css` owns the shared shell and public-site color
-tokens. Guide presentation lives in `docs/content/stylesheets/docs.css`, loaded
-only for `/docs/` pages. It follows the landing page's green accents, muted text,
+tokens. Shared guide, legal, and contact typography and tables live in
+`docs/content/stylesheets/prose.css`. Guide layout and navigation live in
+`docs/content/stylesheets/docs.css`, loaded only for `/docs/` pages. The reading
+styles follow the landing page's green accents, muted text,
 light borders, medium-weight headings, and open spacing in both color modes.
 The header and palette overrides in `docs/overrides/partials/` mirror
 `PublicAppBar` and `ColorModeSwitch`, including their dimensions, icons, and
