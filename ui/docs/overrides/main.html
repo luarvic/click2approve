@@ -2,6 +2,12 @@
 
 {% block analytics %}{% endblock %}
 
+{% block fonts %}
+  {% for weight in [400, 500, 600] %}
+    <link rel="preload" href="{{ ('assets/fonts/sora-latin-' ~ weight ~ '-normal.woff2') | url }}" as="font" type="font/woff2" crossorigin />
+  {% endfor %}
+{% endblock %}
+
 {% block extrahead %}
   {{ super() }}
   {% include "partials/javascripts/language-preference.html" %}
