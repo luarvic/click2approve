@@ -1,8 +1,6 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="ui/public/logo-with-text-dark.svg">
-    <img src="ui/public/logo-with-text.svg" alt="Click2Approve" width="300">
-  </picture>
+  <img src="ui/public/logo-with-text.svg#gh-light-mode-only" alt="Click2Approve" width="300">
+  <img src="ui/public/logo-with-text-dark.svg#gh-dark-mode-only" alt="Click2Approve" width="300">
 </p>
 
 # Get documents approved. Keep everyone on the same page.
