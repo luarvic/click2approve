@@ -110,6 +110,8 @@ export async function checkLocalizationBrowser(origin) {
       const input = page.locator('[data-md-component="search-query"]');
       await expect(input).toBeVisible();
       await input.pressSequentially(queries[locale.path]);
+      // Material listens for keyup; Playwright inserts non-Latin characters without it.
+      await input.press("ArrowRight");
       const results = page.locator(".md-search-result__link");
       await expect
         .poll(() => results.count(), { message: `Search results for ${locale.path}`, timeout: 15000 })
