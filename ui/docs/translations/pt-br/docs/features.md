@@ -24,6 +24,7 @@ Por exemplo, dois revisores podem avaliar uma proposta na primeira etapa. O clie
 
 | Recurso | Personal | Organização |
 | --- | --- | --- |
+| [Aprovações de convidados por links seguros de e-mail](complete-a-task.md#guest-review) | ✓ | ✓ |
 | Requests, tarefas, etapas ordenadas e destinatários de e-mail | Disponível | Disponível |
 | Comentários e assinaturas eletrônicas obrigatórias | Disponível | Disponível |
 | Discussões e anexos de discussão | Disponível | Disponível |

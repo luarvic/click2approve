@@ -23,6 +23,7 @@ Vedi [Crea una richiesta](create-a-request.md) e [Configura i passaggi del fluss
 
 | Caratteristica | Open source | Commerciale |
 | --- | --- | --- |
+| [Approvazioni degli ospiti tramite link e-mail sicuri](complete-a-task.md#guest-review) | — | ✓ |
 | Personal richieste e attività con file caricati | Incluso | Incluso |
 | Passaggi multipli del flusso di lavoro, assegnatari seriali o paralleli e tutte/qualsiasi regola di completamento | Incluso | Incluso |
 | Azioni di approvazione, firma, conferma, riconoscimento, revisione, verifica, accettazione e completamento | Incluso | Incluso |

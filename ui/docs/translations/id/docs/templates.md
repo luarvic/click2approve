@@ -13,6 +13,8 @@ Setiap template adalah milik orang yang membuatnya. Templat bersifat pribadi sec
 !!! info "Khusus Organisasi"
     Pilih organisasi untuk membuat dan menggunakan kembali templat alur kerja. Templat milik organisasi tersebut dan tidak tersedia di Personal.
 
+Templat menyimpan pilihan **User** atau **Guest** untuk setiap penerima email. Periksa **Type** saat memulai permintaan; karyawan dan tim selalu harus masuk.
+
 ## Buat templat {#create-a-template}
 
 Buka **Templates** di organisasi dan buat templat dengan nama deskriptif dan langkah-langkah yang dapat digunakan kembali. Konfigurasikan tindakan, instruksi, penerima tugas, aturan penyelesaian, visibilitas, dan persyaratan tambahan, lalu simpan.

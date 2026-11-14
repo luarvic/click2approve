@@ -21,6 +21,7 @@ public class ApprovalRequestTaskResponse : ApprovalRequestTaskListItemResponse
         Result = source.Result;
         CreatedAt = source.CreatedAt;
         CompletedAt = source.CompletedAt;
+        CompletedViaEmailLink = source.CompletedViaEmailLink;
         RevisionNumber = source.RevisionNumber;
         ApprovalRequestGlobalId = source.ApprovalRequestGlobalId;
         ApprovalRequestStepGlobalId = source.ApprovalRequestStepGlobalId;
@@ -64,6 +65,8 @@ public class ApprovalRequestTaskResponse : ApprovalRequestTaskListItemResponse
     public string? CompletedByEmail { get; init; }
     /// <summary>Time when the approval task was completed, if applicable.</summary>
     public DateTime? CompletedAt { get; init; }
+    /// <summary>Whether the decision was submitted through an email link; null when not recorded.</summary>
+    public bool? CompletedViaEmailLink { get; init; }
     /// <summary>Email address of the person who requested the approval.</summary>
     public required string RequestedByEmail { get; init; }
     /// <summary>Description of the associated approval request.</summary>

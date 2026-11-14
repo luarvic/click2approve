@@ -23,6 +23,7 @@ See [Create a request](create-a-request.md) and [Configure workflow steps](workf
 
 | Feature | Open-source | Commercial |
 | --- | --- | --- |
+| [Guest approvals through secure email links](complete-a-task.md#guest-review) | — | ✓ |
 | Personal requests and tasks with uploaded files | Included | Included |
 | Multiple workflow steps, serial or parallel assignees, and all/any completion rules | Included | Included |
 | Approval, signature, confirmation, acknowledgement, review, verification, acceptance, and completion actions | Included | Included |

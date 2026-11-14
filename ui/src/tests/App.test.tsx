@@ -1,9 +1,13 @@
 import App from "@/app/App";
 import { Routes } from "@/shared/routing/routes";
 import { cleanup, render, screen, within } from "@testing-library/react";
-import { afterEach, beforeAll, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-const configuration = vi.hoisted(() => ({ edition: "OpenSource" }));
+const configuration = vi.hoisted(() => ({ edition: "OpenSource", guestApprovals: false }));
+
+vi.mock("@/shared/analytics/AnalyticsBanner", () => ({
+  default: () => <div data-testid="shared-analytics" />,
+}));
 
 vi.mock("@/features/applicationConfiguration/api/applicationConfigurationApi", () => ({
   getApplicationConfiguration: vi.fn(async () => ({
@@ -11,12 +15,14 @@ vi.mock("@/features/applicationConfiguration/api/applicationConfigurationApi", (
     requiresConfirmedEmail: false,
     capabilities: {
       tenants: false,
+      guestApprovals: configuration.guestApprovals,
     },
   })),
 }));
 
 describe("<App />", () => {
-  beforeAll(() => {
+  beforeEach(() => {
+    configuration.guestApprovals = false;
     window.history.replaceState(null, "", Routes.applicationPath("/signIn"));
   });
 
@@ -38,5 +44,14 @@ describe("<App />", () => {
     expect(within(brand).getByText("Click2Approve")).toBeTruthy();
     expect(within(brand).getByText(edition === "OpenSource" ? "Free" : "App")).toBeTruthy();
     expect(screen.getByRole("link", { name: "Docs" }).getAttribute("href")).toBe(documentationPath);
+  });
+
+  test("keeps shared analytics mounted on guest task pages", async () => {
+    configuration.edition = "Business";
+    configuration.guestApprovals = true;
+    history.replaceState(null, "", Routes.applicationPath("/guest/tasks/private-task#token=private-token"));
+    render(<App />);
+    expect(await screen.findByRole("heading", { level: 1, name: "Review document" })).toBeTruthy();
+    expect(screen.getByTestId("shared-analytics")).toBeTruthy();
   });
 });

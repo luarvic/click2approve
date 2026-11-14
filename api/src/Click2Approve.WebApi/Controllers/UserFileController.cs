@@ -3,6 +3,7 @@ using Click2Approve.Application.Abstractions.Services.UserFiles;
 using Click2Approve.Domain.Models;
 using Click2Approve.WebApi.Extensions;
 using Click2Approve.WebApi.Mappers.UserFiles;
+using Click2Approve.WebApi.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -35,7 +36,7 @@ public class UserFileController(
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The list of uploaded files.</returns>
     [HttpPost("upload")]
-    [RequestSizeLimit(128 * 1024 * 1024)]
+    [RequestSizeLimit(UploadLimits.MaximumRequestBodyBytes)]
     public async Task<ActionResult<List<UserFileResponse>>> UploadAsync(
         IFormFileCollection files,
         [FromQuery] Guid? requestGlobalId,

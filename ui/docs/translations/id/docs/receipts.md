@@ -13,6 +13,8 @@ Anda dapat membagikan catatan hasil melalui link verifikasi. Orang yang memiliki
 
 Pemohon dan setiap orang yang menerima tugas mendapat catatan hasil saat permintaan selesai, dibatalkan, atau digantikan revisi baru. Setiap orang menerima satu catatan untuk setiap ruang kerja dan revisi permintaan, meskipun memiliki beberapa tugas atau juga menjadi pemohon. Tugas tidak harus diselesaikan untuk mendapat catatan; statusnya membedakan penugasan dari tindakan yang sudah dilakukan. Langkah yang tidak pernah menghasilkan tugas tidak menerbitkan catatan bagi penerima yang direncanakan.
 
+Jika dicatat, **Responded using** menampilkan **Email link** atau **Account sign-in** untuk keputusan. Catatan lama dan hasil otomatis tidak menampilkan kolom ini.
+
 ## Buka catatan hasil {#open-a-receipt}
 
 Buka **Receipts** di ruang kerja tempat Anda mengirim permintaan atau menyelesaikan tugas Anda, lalu pilih catatan hasil untuk permintaan tersebut. Header kartu **Receipt** menyertakan nomor pendek, permintaan yang cocok, dan header kartu tugas. Kartu menunjukkan ID dan tanggal lengkapnya, diikuti oleh bagian **Request** dan **Task** dengan rekaman detail, hasil, peserta, tindakan, dan tanda tangan jika ada.

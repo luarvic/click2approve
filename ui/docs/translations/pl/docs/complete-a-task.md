@@ -6,6 +6,16 @@ description: Znajdź przydzielone zadanie w Click2Approve, przejrzyj dokumenty i
 
 **Zadanie** wymaga wykonania jednego kroku prośby o zatwierdzenie dokumentu. Otwórz **Tasks**, aby przejrzeć, zatwierdzić lub podpisać przypisany do Ciebie dokument. Zanim zapiszesz swoją decyzję, przeczytaj aktualne dokumenty i instrukcje.
 
+## Przeglądanie bez konta {#guest-review}
+
+Otwórz link w wiadomości dotyczącej zadania i wybierz **Continue to document**. Przejrzyj pliki i instrukcje, a następnie wyślij decyzję w **Your response**. Wymagane komentarze, podpisy i pliki odpowiedzi nadal są obowiązkowe. Przed odpowiedzią możesz użyć **Chat**.
+
+Link działa tylko wtedy, gdy zadanie oczekuje na decyzję. Decyzja, anulowanie, pominięcie lub zastąpienie nową wersją zamyka cały dostęp gościa, również pobieranie i Chat. Aby później wrócić do dokumentów i potwierdzeń, zarejestruj się lub zaloguj przy użyciu adresu, na który wysłano prośbę. Dotychczasowe zadania pozostają w **Personal**, zgodnie z zasadami przechowywania. Rejestracja nie nadaje członkostwa w organizacji.
+
+Nie udostępniaj linku: każda osoba, która go ma, może wykonać zadanie. Jeśli wymagane jest konto lub już je masz, użyj zwykłego logowania.
+
+Jeśli zarejestrujesz się, gdy zadanie nadal oczekuje na decyzję, istniejący link gościa pozostanie dostępny do czasu potwierdzenia adresu e-mail. Po potwierdzeniu zaloguj się, aby uzyskać dostęp do zadania.
+
 ## Znajdź zadanie {#find-the-task}
 
 1. [Otwórz aplikację](/app/) z kontem, na które zadanie zostało wysłane.

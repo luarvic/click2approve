@@ -8,6 +8,8 @@ Un processus d’approbation détermine qui intervient et dans quel ordre. Un **
 
 Utilisez **Add step** pour ajouter une étape, les flèches pour la déplacer et le bouton de suppression pour la retirer.
 
+Choisissez **Guest** dans **Type** pour permettre à une personne non inscrite de consulter les documents et de répondre via un lien sécurisé reçu par e-mail, sans mot de passe ni code de vérification. Les nouveaux destinataires par e-mail sont de type **Guest** par défaut. Choisissez **User** pour imposer une inscription et une connexion. Les employés et les équipes doivent toujours se connecter. Les destinataires ayant déjà un compte utilisent la connexion habituelle, même avec le type **Guest**.
+
 ## Approbations successives et parallèles {#sequential-and-parallel-approvals}
 
 Créez des étapes distinctes lorsqu’une décision doit en précéder une autre : c’est une **approbation séquentielle**. Par exemple, un relecteur approuve une proposition à l’étape 1, puis le client signe à l’étape 2.

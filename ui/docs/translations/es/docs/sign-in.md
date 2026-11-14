@@ -4,7 +4,7 @@ description: Cree una cuenta Click2Approve, confirme su correo electrónico, ini
 ---
 # Registro e inicio de sesión {#registration-and-sign-in}
 
-Inicie sesión en Click2Approve para enviar documentos para su aprobación o completar una tarea. Su cuenta puede acceder a **Personal**, a su espacio de trabajo para sus propias solicitudes y tareas dirigidas por correo electrónico, y a cualquier organización a la que tenga acceso de empleado. Cuando siga el enlace de una tarea, utilice la dirección de correo electrónico a la que se envió la tarea.
+Inicie sesión en Click2Approve para enviar documentos, gestionar su trabajo o completar tareas que exijan una cuenta. Los destinatarios no registrados pueden [responder mediante un enlace seguro por correo](complete-a-task.md#guest-review) si el solicitante lo permite. Regístrese con el mismo correo para conservar sus tareas, documentos y recibos en **Personal**, sujetos a la retención. Confirme su correo cuando se le indique. La pertenencia a organizaciones se gestiona por separado.
 
 ## Registre {#register}
 

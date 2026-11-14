@@ -13,6 +13,8 @@ Sie können eine Quittung über einen Bestätigungslink teilen. Die Person mit d
 
 Sobald eine Anfrage abgeschlossen, abgebrochen oder durch eine neue Überarbeitung ersetzt wird, erhalten der Anfragesteller und alle Personen, denen eine Aufgabe zugewiesen wurde, einen Ergebnisnachweis. Pro Person, Arbeitsbereich und Überarbeitung der Anfrage entsteht genau ein Nachweis, auch bei mehreren Aufgaben oder wenn die Person zugleich Anfragesteller ist. Die Aufgabe muss dafür nicht abgeschlossen sein; der gespeicherte Status unterscheidet eine Zuweisung von einer ausgeführten Handlung. Für Schritte, aus denen keine Aufgabe entstanden ist, wird kein Nachweis für die vorgesehenen Bearbeiter erstellt.
 
+Wenn erfasst, zeigt **Responded using** für eine Entscheidung **Email link** oder **Account sign-in** an. Bei älteren Einträgen und automatischen Ergebnissen fehlt dieses Feld.
+
 ## Öffnen Sie einen Beleg {#open-a-receipt}
 
 Öffnen Sie **Receipts** in dem Arbeitsbereich, in dem Sie die Anfrage gesendet oder Ihre Aufgabe abgeschlossen haben, und wählen Sie dann den Beleg für diese Anfrage aus. Der Kartenkopf **Receipt** enthält die Kurznummer, die passenden Anforderungs- und Aufgabenkartenköpfe. Auf der Karte werden die vollständige ID und das Datum angezeigt, gefolgt von den Abschnitten **Request** und **Task** mit den aufgezeichneten Details, Ergebnissen, Teilnehmern, Aktionen und Unterschriften, sofern vorhanden.

@@ -4,7 +4,7 @@ description: Crea un account Click2Approve, conferma la tua email, accedi per ri
 ---
 # Registrazione e accesso {#registration-and-sign-in}
 
-Accedi a Click2Approve per inviare documenti per l'approvazione o completare un'attività. Il tuo account può accedere a **Personal**, al tuo spazio di lavoro per le tue richieste e attività indirizzate via email e a qualsiasi organizzazione a cui hai accesso da parte dei dipendenti. Quando segui il collegamento di un'attività, utilizza l'indirizzo email a cui è stata inviata l'attività.
+Accedete a Click2Approve per inviare documenti, gestire il lavoro o completare attività che richiedono un account. I destinatari non registrati possono [rispondere tramite un link e-mail sicuro](complete-a-task.md#guest-review) se il richiedente lo consente. Registratevi con lo stesso indirizzo per mantenere attività, documenti e ricevute in **Personal**, secondo i criteri di conservazione. Confermate l’indirizzo quando richiesto. L’appartenenza alle organizzazioni è gestita separatamente.
 
 ## Registra {#register}
 

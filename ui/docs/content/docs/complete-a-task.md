@@ -6,6 +6,16 @@ description: Find your assigned task in Click2Approve, review the documents, and
 
 A **task** asks you to act on one step of a document approval request. Open **Tasks** to review, approve, or sign a document assigned to you. Read the current documents and instructions before recording your decision.
 
+## Review without an account {#guest-review}
+
+Open the link in your task email and choose **Continue to document**. Review the files and instructions, then submit your decision under **Your response**. Comments, signatures, and response attachments remain required when configured; you can also use **Chat** before responding.
+
+The link grants access only while this task is awaiting a decision. Submitting a decision, cancellation, skipping, or replacement by a new revision closes all guest access, including file downloads and Chat. To return to your documents and receipts afterward, sign up or sign in with the email address that received the request. Existing guest work remains in **Personal**, subject to retention. Registration does not make you an organization member.
+
+Keep the email link private: anyone holding it can act on the assigned task. If the requester requires an account, or you already have one, use normal sign-in instead.
+
+If you register while this task is pending, its existing guest link remains usable until you confirm your email. After confirmation, sign in to access the task.
+
 ## Find the task
 
 1. [Open the app](/app/) with the account the task was sent to.

@@ -97,7 +97,9 @@ public sealed class EmailTemplatesTests
                 Result = result,
                 SenderIdentity = new EmailSenderIdentity
                 {
-                    Name = "Aurora <2026>", IsOrganization = true, ImageUrl = "https://example.com/aurora.png"
+                    Name = "Aurora <2026>",
+                    IsOrganization = true,
+                    ImageUrl = "https://example.com/aurora.png"
                 }
             });
         Assert.Equal(heading, model.Heading);
@@ -189,7 +191,8 @@ public sealed class EmailTemplatesTests
         };
         var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestTaskCreated,
             Context() with { Actor = new EmailActor { DisplayName = "<Jane>" }, SenderIdentity = sender })
-            with { SenderIdentity = sender };
+            with
+        { SenderIdentity = sender };
         var html = EmailLayout.Render(model, "https://example.com/platform.png");
 
         Assert.Contains("&lt;Jane&gt;", html);
@@ -200,14 +203,15 @@ public sealed class EmailTemplatesTests
     }
 
     [Fact]
-    public void Header_LinksPlatformLogoToTheConfiguredBaseUrl()
+    public void Header_LinksIconAndLiveWordmarkToTheConfiguredBaseUrl()
     {
         var model = NotificationEmailTemplates.Create(NotificationType.ApprovalRequestTaskCreated, Context());
 
-        var html = EmailLayout.Render(model, "https://example.com/logo.png", "https://click2approve.com");
+        var html = EmailLayout.Render(model, "https://example.com/logo.png", "https://click2approve.com", logoIncludesWordmark: false);
 
         Assert.Contains("<a href=\"https://click2approve.com/\"", html);
-        Assert.Contains("<img src=\"https://example.com/logo.png\"", html);
+        Assert.Contains("<img src=\"https://example.com/logo.png\" alt=\"\"", html);
+        Assert.Contains(">Click2Approve</span>", html);
         Assert.DoesNotContain("On behalf of", html);
     }
 

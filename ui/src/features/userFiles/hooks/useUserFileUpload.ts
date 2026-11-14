@@ -28,10 +28,8 @@ export const useUserFileUpload = ({
     fileInput.current?.click();
   }, []);
 
-  const handleFilesChange = useCallback(
-    async (event: ChangeEvent<HTMLInputElement>) => {
-      const selectedFiles = Array.from(event.currentTarget.files ?? []);
-      event.currentTarget.value = "";
+  const uploadFiles = useCallback(
+    async (selectedFiles: File[]) => {
       if (!tenantGlobalId || selectedFiles.length === 0) {
         return;
       }
@@ -55,8 +53,18 @@ export const useUserFileUpload = ({
     [onUploaded, tenantGlobalId, uploadAction, taskGlobalId, requestGlobalId],
   );
 
+  const handleFilesChange = useCallback(
+    async (event: ChangeEvent<HTMLInputElement>) => {
+      const selectedFiles = Array.from(event.currentTarget.files ?? []);
+      event.currentTarget.value = "";
+      await uploadFiles(selectedFiles);
+    },
+    [uploadFiles],
+  );
+
   return {
     fileInput,
+    uploadFiles,
     handleFilesChange,
     isUploading: uploadAction.isRunning,
     openFileDialog,

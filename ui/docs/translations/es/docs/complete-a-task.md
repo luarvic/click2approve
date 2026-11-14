@@ -6,6 +6,16 @@ description: Encuentre su tarea asignada en Click2Approve, revise los documentos
 
 Una **tarea** le pide que actúe en un paso de una solicitud de aprobación de documento. Abra **Tasks** para revisar, aprobar o firmar un documento que se le haya asignado. Lea los documentos e instrucciones actuales antes de registrar su decisión.
 
+## Revisar sin una cuenta {#guest-review}
+
+Abra el enlace del correo de la tarea y elija **Continue to document**. Revise los archivos y las instrucciones, y envíe su decisión en **Your response**. Los comentarios, firmas y archivos de respuesta siguen siendo obligatorios cuando se solicitan. Puede usar **Chat** antes de responder.
+
+El enlace solo permite el acceso mientras la tarea espera una decisión. Al responder, cancelarse, omitirse o sustituirse por una nueva revisión, se cierra todo acceso de invitado, incluidas las descargas y Chat. Para volver a sus documentos y recibos, regístrese o inicie sesión con el correo que recibió la solicitud. Su trabajo anterior permanece en **Personal**, sujeto a la retención. Registrarse no concede acceso como miembro de una organización.
+
+No comparta el enlace: cualquiera que lo tenga puede actuar en la tarea. Si se exige una cuenta o ya tiene una, use el inicio de sesión habitual.
+
+Si te registras mientras esta tarea sigue pendiente, su enlace de invitado existente continúa disponible hasta que confirmes tu correo electrónico. Después de confirmarlo, inicia sesión para acceder a la tarea.
+
 ## Encuentre la tarea {#find-the-task}
 
 1. [Abra la aplicación](/app/) con la cuenta a la que se envió la tarea.

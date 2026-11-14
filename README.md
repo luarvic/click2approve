@@ -97,7 +97,7 @@ provider costs. See [LICENSE](LICENSE) and [license and trademark](docs/license-
 for the terms and brand-use guidance.
 
 The free edition supports individual accounts and document workflows with email
-assignees. Organization workspaces, employee roles, teams, workflow templates,
+assignees. Guest approvals through secure email links, organization workspaces, employee roles, teams, workflow templates,
 discussions, revisions, and verifiable receipts are part of the
 [commercial service](https://click2approve.com/). See the
 [edition comparison](ui/docs/content/docs/open-source.md) for the full breakdown.
@@ -143,7 +143,7 @@ and email delivery using the [deployment guide](docs/deployment.md).
 > **Want to start right away without setting up infrastructure?**
 > Use the **[hosted Click2Approve service](https://click2approve.com/)**—we handle
 > hosting so you can focus on getting documents approved. The commercial version
-> adds organization workspaces, employee roles and teams, reusable workflow
+> adds guest approvals through secure email links, organization workspaces, employee roles and teams, reusable workflow
 > templates, discussions, document revisions, verifiable receipts, and API tokens
 > for integrations. [Compare editions](ui/docs/content/docs/open-source.md).
 

@@ -16,6 +16,7 @@ const screens: [string, string][] = [
   ["/confirmationEmailSent", "Confirmation email sent"],
   ["/passwordResetEmailSent", "Password reset email sent"],
   ["/receipt-verification/:link", "Public receipt"],
+  ["/guest/tasks/:task", "Guest task"],
   ["/userProfile", "Profile"],
   ...["security", "passkeys", "apiTokens", "signature", "notifications"].map((tab): [string, string] => [
     `/userProfile/${tab}`,

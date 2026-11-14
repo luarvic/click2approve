@@ -8,6 +8,8 @@ Un flujo de trabajo de aprobación define quién actúa en un documento y en qu�
 
 Utilice **Add step** para crear otro paso, los controles de flecha para cambiar su orden y el botón Quitar para eliminarlo.
 
+Elija **Guest** en **Type** para que una persona no registrada revise y responda mediante un enlace seguro recibido por correo, sin contraseña ni código de verificación. Los nuevos destinatarios por correo tienen **Guest** por defecto. Elija **User** para exigir registro e inicio de sesión. Los empleados y equipos siempre deben iniciar sesión. Quienes ya tienen una cuenta utilizan el inicio de sesión habitual, incluso si se les asigna como **Guest**.
+
 ## Aprobaciones secuenciales y paralelas {#sequential-and-parallel-approvals}
 
 Utilice pasos separados cuando una decisión debe preceder a otra. Esta es una **aprobación secuencial**. Por ejemplo, un revisor aprueba una propuesta en el paso 1 y luego un cliente inicia sesión en el paso 2.

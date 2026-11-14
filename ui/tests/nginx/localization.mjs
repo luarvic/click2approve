@@ -343,6 +343,32 @@ export async function checkLocalizationBrowser(origin) {
     }
     await phone.locator(".site-open-app").tap();
     await phone.waitForURL("**/app/");
+    assert.ok(await phone.evaluate(() => matchMedia("(pointer: coarse)").matches), "Touch checks use a coarse pointer");
+    for (const width of [900, 1024, 1180, 1366]) {
+      await phone.setViewportSize({ width, height: 820 });
+      for (const code of ["en", "ru", "ar"]) {
+        await phone.goto(`${origin}/${code}/`);
+        await phone.evaluate(() => document.fonts.ready);
+        for (const scheme of ["default", "slate"]) {
+          await phone.locator('.docs-color-mode input[role="switch"]').setChecked(scheme === "slate");
+          await expect(phone.locator("body")).toHaveAttribute("data-md-color-scheme", scheme);
+          const centers = await phone.evaluate(() =>
+            [".site-docs-label", ".language-picker-name", ".site-open-app-label"].map((selector) => {
+              const range = document.createRange();
+              range.selectNodeContents(document.querySelector(selector));
+              const box = range.getBoundingClientRect();
+              return box.y + box.height / 2;
+            }),
+          );
+          assert.ok(Math.max(...centers) - Math.min(...centers) < 1,
+            `${code} ${width} ${scheme}: touch header text centers align, got ${centers}`);
+          const docsLink = await phone.locator(".site-docs-link").boundingBox();
+          assert.ok(docsLink.height >= 44, `${code} ${width}: Docs retains its touch target`);
+          if (process.env.C2A_TEST_ARTIFACTS && width === 1180 && code === "en")
+            await phone.screenshot({ path: join(process.env.C2A_TEST_ARTIFACTS, `tablet-landscape-${scheme}.png`) });
+        }
+      }
+    }
     await touch.close();
     console.log(
       "Localization browser checks passed: search, header layout, language memory, deep links, themes, RTL, mobile, and no-JavaScript navigation.",

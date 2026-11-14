@@ -23,6 +23,7 @@ Consulte [Crear una solicitud](create-a-request.md) y [Configurar pasos del fluj
 
 | Característica | Código abierto | Comercial |
 | --- | --- | --- |
+| [Aprobaciones de invitados mediante enlaces seguros](complete-a-task.md#guest-review) | — | ✓ |
 | Solicitudes y tareas Personal con archivos cargados | Incluido | Incluido |
 | Múltiples pasos del flujo de trabajo, asignatarios en serie o paralelos y todas/cualquier regla de finalización | Incluido | Incluido |
 | Acciones de aprobación, firma, confirmación, reconocimiento, revisión, verificación, aceptación y finalización | Incluido | Incluido |

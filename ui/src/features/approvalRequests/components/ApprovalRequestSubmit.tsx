@@ -236,7 +236,11 @@ const ApprovalRequestSubmit: React.FC<ApprovalRequestSubmitProps> = ({ initialTe
     return valid;
   };
 
-  const getSubmittedSteps = () => toApprovalStepSubmissions(steps);
+  const getSubmittedSteps = () =>
+    toApprovalStepSubmissions(
+      steps,
+      stores.applicationConfigurationStore.applicationConfiguration?.capabilities.guestApprovals === true,
+    );
 
   const saveTemplate = async () => {
     const fieldsValid = templateValidation.validate();

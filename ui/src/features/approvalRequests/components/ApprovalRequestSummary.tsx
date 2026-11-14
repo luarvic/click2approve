@@ -1,3 +1,4 @@
+import type { UserFile } from "@/features/userFiles/models/userFile";
 import ApprovalRequestCardLayout from "@/features/approvalRequests/components/ApprovalRequestCardLayout";
 import ApprovalRequestField from "@/features/approvalRequests/components/ApprovalRequestField";
 import ApprovalRequestFieldGroup from "@/features/approvalRequests/components/ApprovalRequestFieldGroup";
@@ -20,6 +21,7 @@ import { useState, type ElementType, type ReactNode } from "react";
 
 interface ApprovalRequestSummaryProps {
   additionalContent?: ReactNode;
+  onDownloadFile?: (file: UserFile) => void;
   activity?: ReactNode;
   artifacts?: ReactNode;
   approvalRequestGlobalId?: string;
@@ -55,6 +57,7 @@ const revisionToggleSx: SxProps<Theme> = { mr: 0 };
 
 const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   additionalContent,
+  onDownloadFile,
   activity,
   artifacts,
   approvalRequestGlobalId,
@@ -89,6 +92,7 @@ const ApprovalRequestSummary: React.FC<ApprovalRequestSummaryProps> = ({
   );
   const files = hasFiles ? (
     <ApprovalRequestFilesBox
+      onDownloadFile={onDownloadFile}
       approvalRequestGlobalId={approvalRequestGlobalId}
       approvalRequestTaskGlobalId={approvalRequestTaskGlobalId}
       compareWithPrevious={isRevision && showChanges}

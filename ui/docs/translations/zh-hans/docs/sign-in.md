@@ -4,7 +4,7 @@ description: 创建 Click2Approve 账户、验证邮箱、登录审核文档或�
 ---
 # 注册与登录 {#registration-and-sign-in}
 
-登录 Click2Approve 后可发送审批申请或完成任务。账户可访问 **Personal**，即个人申请和邮箱任务的工作区，以及您拥有员工访问权限的组织。打开任务链接时，请使用接收该任务的邮箱。
+登录 Click2Approve 可发送文档、管理工作，或完成要求账户登录的任务。如果请求者允许，未注册的收件人可以[通过安全的邮件链接回复](complete-a-task.md#guest-review)。使用相同邮箱注册后，即可在保留期内通过 **Personal** 访问此前的访客任务、文档和回执。请在提示时确认邮箱。组织成员资格单独管理。
 
 ## 注册 {#register}
 

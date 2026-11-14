@@ -8,6 +8,8 @@ Um fluxo de trabalho de aprovação define quem atua em um documento e em que or
 
 Use **Add step** para criar outra etapa, os controles de seta para alterar sua ordem e o botão remover para excluí-la.
 
+Escolha **Guest** em **Type** para permitir que uma pessoa não cadastrada revise e responda por um link seguro recebido por e-mail, sem senha nem código de verificação. Novos destinatários por e-mail usam **Guest** por padrão. Escolha **User** para exigir cadastro e login. Funcionários e equipes sempre precisam entrar na conta. Quem já tem uma conta usa o login normal, mesmo quando atribuído como **Guest**.
+
 ## Aprovações sequenciais e paralelas {#sequential-and-parallel-approvals}
 
 Use etapas separadas quando uma decisão precisar vir antes de outra. Esta é uma **aprovação sequencial**. Por exemplo, um revisor aprova uma proposta na etapa 1 e, em seguida, um cliente assina na etapa 2.

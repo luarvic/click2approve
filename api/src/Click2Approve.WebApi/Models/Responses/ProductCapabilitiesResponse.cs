@@ -17,6 +17,8 @@ public class ProductCapabilitiesResponse
     public bool EmployeeAssignees { get; set; }
     /// <summary>Whether teams can be assigned to approval steps.</summary>
     public bool TeamAssignees { get; set; }
+    /// <summary>Whether email assignees can respond through a restricted email link without an account.</summary>
+    public bool GuestApprovals { get; set; }
     /// <summary>Whether approval step templates are available.</summary>
     public bool ApprovalStepTemplates { get; set; }
     /// <summary>Whether approval request revisions are available.</summary>

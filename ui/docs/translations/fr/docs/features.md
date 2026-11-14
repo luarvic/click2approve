@@ -24,6 +24,7 @@ Par exemple, deux personnes peuvent examiner une proposition à la première ét
 
 | Fonctionnalité | Personal | Organisation |
 | --- | --- | --- |
+| [Approbation sans compte via un lien sécurisé](complete-a-task.md#guest-review) | ✓ | ✓ |
 | Requests, tâches, étapes ordonnées et destinataires de courrier électronique | Disponible | Disponible |
 | Commentaires et signatures électroniques requis | Disponible | Disponible |
 | Discussions et pièces jointes aux discussions | Disponible | Disponible |

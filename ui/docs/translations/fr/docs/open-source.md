@@ -23,6 +23,7 @@ Voir [Créer une demande](create-a-request.md) et [Configurer les étapes du flu
 
 | Fonctionnalité | Open source | Commercial |
 | --- | --- | --- |
+| [Approbation sans compte via un lien sécurisé](complete-a-task.md#guest-review) | — | ✓ |
 | Personal requêtes et tâches avec fichiers téléchargés | Inclus | Inclus |
 | Plusieurs étapes de flux de travail, destinataires en série ou parallèles et règles d'exécution toutes/toutes | Inclus | Inclus |
 | Actions d'approbation, de signature, de confirmation, d'accusé de réception, de révision, de vérification, d'acceptation et d'achèvement | Inclus | Inclus |

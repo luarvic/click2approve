@@ -6,6 +6,16 @@ description: Trova l'attività assegnata in Click2Approve, esamina i documenti e
 
 Un'**attività** ti chiede di agire su un passaggio di una richiesta di approvazione di un documento. Apri **Tasks** per rivedere, approvare o firmare un documento che ti è stato assegnato. Leggi i documenti e le istruzioni attuali prima di registrare la tua decisione.
 
+## Revisionare senza un account {#guest-review}
+
+Aprite il link nell’e-mail dell’attività e scegliete **Continue to document**. Esaminate file e istruzioni, quindi inviate la decisione in **Your response**. Commenti, firme e allegati di risposta restano obbligatori quando richiesti. Potete usare **Chat** prima di rispondere.
+
+Il link consente l’accesso solo mentre l’attività attende una decisione. Dopo una decisione, un annullamento, il salto dell’attività o una nuova revisione, ogni accesso come ospite termina, inclusi download e Chat. Per tornare ai documenti e alle ricevute, registratevi o accedete con l’indirizzo che ha ricevuto la richiesta. Le attività precedenti restano in **Personal**, secondo i criteri di conservazione. La registrazione non aggiunge membri a un’organizzazione.
+
+Mantenete riservato il link: chi lo possiede può agire sull’attività. Se è richiesto un account o ne avete già uno, usate l’accesso normale.
+
+Se ti registri mentre questa attività è ancora in attesa di una decisione, il link ospite esistente rimane utilizzabile finché non confermi il tuo indirizzo email. Dopo la conferma, accedi per visualizzare l’attività.
+
 ## Trova l'attività {#find-the-task}
 
 1. [Apri l'app](/app/) con l'account a cui è stata inviata l'attività.

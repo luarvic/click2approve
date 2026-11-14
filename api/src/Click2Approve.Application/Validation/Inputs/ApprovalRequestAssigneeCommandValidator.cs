@@ -11,6 +11,9 @@ public sealed class ApprovalRequestAssigneeCommandValidator : AbstractValidator<
     {
         RuleLevelCascadeMode = CascadeMode.Stop;
         RuleFor(value => value.Type).IsInEnum();
+        RuleFor(value => value.AccountSignInRequired).Equal(true)
+            .When(value => value.Type != AssigneeType.User)
+            .WithMessage("Employee and team assignees require account sign-in.");
         RuleFor(value => value.Email).MaximumLength(FieldLimits.Email).EmailAddress();
         RuleFor(value => value.UserGlobalId)
             .Must(value => value != Guid.Empty)

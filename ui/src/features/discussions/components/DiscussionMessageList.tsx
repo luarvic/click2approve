@@ -5,6 +5,7 @@ import ApprovalStepDetails from "@/features/approvalWorkflow/components/Approval
 import ApprovalStepSection from "@/features/approvalWorkflow/components/ApprovalStepSection";
 import type { ApprovalStep, AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import DiscussionParticipants from "@/features/discussions/components/DiscussionParticipants";
+import type { UserFile } from "@/features/userFiles/models/userFile";
 import type { DiscussionMessage } from "@/features/discussions/models/discussionMessage";
 import { downloadDiscussionMessageFile } from "@/features/userFiles/utils/downloaders";
 import UserProvidedText from "@/shared/components/text/UserProvidedText";
@@ -16,6 +17,7 @@ import { alpha, type SxProps, type Theme } from "@mui/material/styles";
 
 interface DiscussionMessageListProps {
   attachmentsAreEnabled: boolean;
+  onDownloadFile?: (file: UserFile, messageGlobalId: string) => void;
   messages: DiscussionMessage[] | null;
   requesterDisplayName: string;
   requesterEmail: string;
@@ -64,6 +66,7 @@ export const getDiscussionMessageSender = (message: DiscussionMessage) => {
 
 const DiscussionMessageList: React.FC<DiscussionMessageListProps> = ({
   attachmentsAreEnabled,
+  onDownloadFile,
   messages,
   requesterDisplayName,
   requesterEmail,
@@ -95,11 +98,14 @@ const DiscussionMessageList: React.FC<DiscussionMessageListProps> = ({
             )}
           </Stack>
           <UserProvidedText text={message.body} />
-          {attachmentsAreEnabled && (message.userFiles?.length ?? 0) > 0 && tenantGlobalId && (
+          {attachmentsAreEnabled && (message.userFiles?.length ?? 0) > 0 && (tenantGlobalId || onDownloadFile) && (
             <ApprovalRequestFilesList
               existingFiles={(message.userFiles ?? []).map((file) => ({ file }))}
               newFiles={[]}
-              onDownloadExisting={(file) => void downloadDiscussionMessageFile(tenantGlobalId, file, message.globalId)}
+              onDownloadExisting={(file) => {
+                if (onDownloadFile) onDownloadFile(file, message.globalId);
+                else if (tenantGlobalId) void downloadDiscussionMessageFile(tenantGlobalId, file, message.globalId);
+              }}
               onRemoveNew={() => undefined}
             />
           )}

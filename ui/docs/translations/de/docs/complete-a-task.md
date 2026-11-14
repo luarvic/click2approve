@@ -6,6 +6,16 @@ description: Suchen Sie in Click2Approve nach der Ihnen zugewiesenen Aufgabe, ü
 
 Eine **Aufgabe** fordert Sie auf, auf einen Schritt einer Dokumentgenehmigungsanfrage zu reagieren. Öffnen Sie **Tasks**, um ein Ihnen zugewiesenes Dokument zu überprüfen, zu genehmigen oder zu unterzeichnen. Lesen Sie die aktuellen Dokumente und Anweisungen, bevor Sie Ihre Entscheidung festhalten.
 
+## Ohne Konto prüfen {#guest-review}
+
+Öffnen Sie den Link in der Aufgaben-E-Mail und wählen Sie **Continue to document**. Prüfen Sie Dateien und Anweisungen und senden Sie Ihre Entscheidung unter **Your response**. Vorgeschriebene Kommentare, Unterschriften und Antwortdateien bleiben erforderlich. Vor Ihrer Antwort können Sie **Chat** nutzen.
+
+Der Link gilt nur, solange diese Aufgabe auf eine Entscheidung wartet. Nach einer Entscheidung, Stornierung, dem Überspringen oder Ersetzen durch eine neue Revision endet jeder Gastzugriff, auch auf Downloads und Chat. Registrieren Sie sich anschließend mit der Empfängeradresse oder melden Sie sich damit an, um Dokumente und Belege wieder aufzurufen. Ihre bisherigen Aufgaben bleiben gemäß den Aufbewahrungsregeln in **Personal**. Die Registrierung gewährt keine Organisationsmitgliedschaft.
+
+Halten Sie den Link geheim: Wer ihn besitzt, kann die Aufgabe bearbeiten. Wenn ein Konto erforderlich ist oder bereits besteht, verwenden Sie die reguläre Anmeldung.
+
+Wenn Sie sich registrieren, während diese Aufgabe noch auf eine Entscheidung wartet, bleibt der vorhandene Gastlink bis zur Bestätigung Ihrer E-Mail-Adresse nutzbar. Melden Sie sich nach der Bestätigung an, um auf die Aufgabe zuzugreifen.
+
 ## Finden Sie die Aufgabe {#find-the-task}
 
 1. [Öffnen Sie die App](/app/) mit dem Konto, an das die Aufgabe gesendet wurde.

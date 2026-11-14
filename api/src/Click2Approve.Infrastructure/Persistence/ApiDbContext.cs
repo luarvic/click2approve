@@ -198,6 +198,11 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             .HasConversion<int>();
 
         modelBuilder.Entity<ApprovalRequestStepAssignee>()
+            .Property(a => a.AccountSignInRequired).HasDefaultValue(true);
+        modelBuilder.Entity<ApprovalRequestStepAssignee>().ToTable(table => table.HasCheckConstraint(
+            "CK_ApprovalRequestStepAssignees_AccountSignInRequired", "[Type] = 0 OR [AccountSignInRequired] = 1"));
+
+        modelBuilder.Entity<ApprovalRequestStepAssignee>()
             .Property(a => a.Type)
             .HasConversion<int>();
 

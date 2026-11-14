@@ -13,6 +13,8 @@ Her şablon onu oluşturan kişiye aittir. Şablonlar başlangıçta özeldir. A
 !!! info "Yalnızca kuruluşlarda"
     İş akışı şablonu oluşturmak ve kullanmak için bir kuruluş seçin. Şablonlar bu kuruluşa aittir ve Personal alanında kullanılamaz.
 
+Şablonlar her e-posta alıcısı için **User** veya **Guest** seçimini kaydeder. Bir istek başlatırken **Type** alanını kontrol edin; çalışanlar ve ekipler her zaman oturum açmalıdır.
+
 ## Şablon oluşturma {#create-a-template}
 
 Kuruluşta **Templates** bölümünü açın; açıklayıcı bir ad ve yeniden kullanılabilir adımlarla şablon oluşturun. Eylemleri, talimatları, görevlendirilenleri, tamamlama kurallarını, görünürlüğü ve ek gereksinimleri yapılandırıp kaydedin.

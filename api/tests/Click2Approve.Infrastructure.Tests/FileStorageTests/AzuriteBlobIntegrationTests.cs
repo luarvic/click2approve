@@ -25,10 +25,24 @@ public sealed class AzuriteBlobIntegrationTests
         }).Build();
         var storage = new AzureUserFileStorage(configuration, new UnusedTokenCredential());
         var service = new BlobServiceClient(connection);
-        var privateFile = new UserFile { Name = "document.txt", StorageType = UserFileStorageType.Private,
-            OwnerId = 1, CreatedAt = DateTime.UtcNow, Size = 6, Type = "text/plain" };
-        var publicFile = new UserFile { Name = "logo.svg", StorageType = UserFileStorageType.Public,
-            OwnerId = 1, CreatedAt = DateTime.UtcNow, Size = 6, Type = "image/svg+xml" };
+        var privateFile = new UserFile
+        {
+            Name = "document.txt",
+            StorageType = UserFileStorageType.Private,
+            OwnerId = 1,
+            CreatedAt = DateTime.UtcNow,
+            Size = 6,
+            Type = "text/plain"
+        };
+        var publicFile = new UserFile
+        {
+            Name = "logo.svg",
+            StorageType = UserFileStorageType.Public,
+            OwnerId = 1,
+            CreatedAt = DateTime.UtcNow,
+            Size = 6,
+            Type = "image/svg+xml"
+        };
         byte[] bytes = [0, 1, 2, 127, 128, 255];
         try
         {

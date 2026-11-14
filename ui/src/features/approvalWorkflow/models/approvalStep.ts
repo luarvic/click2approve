@@ -21,6 +21,7 @@ export enum AssigneeType {
 export interface ApprovalStepAssignee {
   globalId?: string;
   type: AssigneeType;
+  accountSignInRequired?: boolean;
   email?: string;
   userGlobalId?: string;
   employeeGlobalId?: string;

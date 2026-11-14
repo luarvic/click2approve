@@ -8,6 +8,8 @@ Onay iş akışı, belge üzerinde kimin ve hangi sırayla işlem yapacağını 
 
 Yeni adım oluşturmak için **Add step**, sırasını değiştirmek için ok kontrollerini, kaldırmak için silme düğmesini kullanın.
 
+Kayıtlı olmayan e-posta alıcısının parola veya doğrulama kodu olmadan güvenli e-posta bağlantısıyla inceleyip yanıtlaması için **Type** alanında **Guest** seçin. Yeni e-posta alıcılarında varsayılan seçenek **Guest** olur. Kayıt ve oturum açmayı zorunlu tutmak için **User** seçin. Çalışanlar ve ekipler her zaman oturum açmalıdır. Zaten hesabı olan alıcılar, **Guest** olarak atansalar da normal oturum açma işlemini kullanır.
+
 ## Sıralı ve paralel onaylar {#sequential-and-parallel-approvals}
 
 Bir karar diğerinden önce gelmeliyse ayrı adımlar kullanın. Buna **sıralı onay** denir. Örneğin, inceleyen kişi birinci adımda teklifi onaylar, müşteri ikinci adımda imzalar.

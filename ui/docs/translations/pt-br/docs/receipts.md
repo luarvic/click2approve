@@ -13,6 +13,8 @@ Você pode compartilhar um registro de resultado por meio de um link de verifica
 
 O solicitante e cada pessoa que recebeu uma tarefa obtêm um registro de resultado quando a solicitação é concluída, cancelada ou substituída por uma nova revisão. Cada pessoa recebe um único registro por espaço de trabalho e revisão da solicitação, mesmo que tenha várias tarefas ou também seja o solicitante. Não é necessário concluir a tarefa: o status registrado distingue a atribuição de uma ação realizada. Etapas que não chegaram a criar tarefas não geram registros para os responsáveis previstos.
 
+Quando registrado, **Responded using** mostra **Email link** ou **Account sign-in** para uma decisão. Registros antigos e resultados automáticos não exibem esse campo.
+
 ## Abra um registro de resultado {#open-a-receipt}
 
 Abra **Receipts** no espaço de trabalho onde você enviou a solicitação ou concluiu sua tarefa e selecione o registro de resultado dessa solicitação. O cabeçalho do cartão **Receipt** inclui seu número curto, cabeçalhos de cartão de tarefa e solicitação correspondentes. O cartão mostra seu ID completo e data, seguido pelas seções **Request** e **Task** com os detalhes registrados, resultados, participantes, ações e assinaturas quando presentes.

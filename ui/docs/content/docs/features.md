@@ -24,6 +24,7 @@ For example, two reviewers can check a proposal in the first step. A client can 
 
 | Feature | Personal | Organization |
 | --- | --- | --- |
+| [Guest approvals through secure email links](complete-a-task.md#guest-review) | ✓ | ✓ |
 | Requests, tasks, ordered steps, and email assignees | Available | Available |
 | Required comments and electronic signatures | Available | Available |
 | Discussions and discussion attachments | Available | Available |

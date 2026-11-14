@@ -40,8 +40,10 @@ public class NotificationService(
                     notification.SourceResourceType);
                 var message = new EventOutboxMessage
                 {
-                    EventId = Guid.NewGuid(), EventType = EventTypes.NotificationRequestedV1,
-                    OccurredAt = DateTime.UtcNow, Payload = JsonSerializer.Serialize(payload, EventJson.Options)
+                    EventId = Guid.NewGuid(),
+                    EventType = EventTypes.NotificationRequestedV1,
+                    OccurredAt = DateTime.UtcNow,
+                    Payload = JsonSerializer.Serialize(payload, EventJson.Options)
                 };
                 await _eventOutboxRepository.AddAsync(message, cancellationToken);
             }

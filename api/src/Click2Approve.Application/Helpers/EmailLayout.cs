@@ -7,14 +7,16 @@ namespace Click2Approve.Application.Helpers;
 public static class EmailLayout
 {
     /// <summary>Renders an email without accepting raw HTML from callers.</summary>
-    public static string Render(EmailTemplateModel model, string? logoUrl = null, string? logoLinkUrl = null)
+    public static string Render(EmailTemplateModel model, string? logoUrl = null, string? logoLinkUrl = null,
+        bool logoIncludesWordmark = true)
     {
-        var logo = SafeUrl(logoUrl) is { } url
-            ? $"<img src=\"{Encode(url)}\" alt=\"Click2Approve\" height=\"48\" style=\"display:block;width:auto;max-width:100%;height:auto;max-height:48px;border:0;\">"
-            : "<span role=\"img\" aria-label=\"Click2Approve\" style=\"color:#15803d;font-size:40px;\">✓</span>";
+        var safeLogoUrl = SafeUrl(logoUrl);
+        var logo = safeLogoUrl is { } fullLogoUrl && logoIncludesWordmark
+            ? $"<img src=\"{Encode(fullLogoUrl)}\" alt=\"Click2Approve\" height=\"48\" style=\"display:block;width:auto;max-width:100%;height:auto;max-height:48px;border:0;\">"
+            : RenderBrandWithLiveWordmark(safeLogoUrl);
         if (SafeUrl(logoLinkUrl) is { } linkUrl)
         {
-            logo = $"<a href=\"{Encode(linkUrl)}\" style=\"display:inline-block;text-decoration:none;\">{logo}</a>";
+            logo = $"<a href=\"{Encode(linkUrl)}\" style=\"display:inline-block;color:#162b20;text-decoration:none;white-space:nowrap;\">{logo}</a>";
         }
         return $$"""
             <!doctype html>
@@ -48,6 +50,15 @@ public static class EmailLayout
     public static string? SafeUrl(string? value) =>
         Uri.TryCreate(value, UriKind.Absolute, out var uri) && (uri.Scheme == "https" || uri.Scheme == "http")
             ? uri.AbsoluteUri : null;
+
+    private static string RenderBrandWithLiveWordmark(string? iconUrl)
+    {
+        var icon = iconUrl is { } url
+            ? $"<img src=\"{Encode(url)}\" alt=\"\" width=\"26\" height=\"29\" style=\"display:inline-block;width:26px;height:auto;vertical-align:middle;border:0;\">"
+            : "<span aria-hidden=\"true\" style=\"color:#15803d;font-size:28px;vertical-align:middle;\">✓</span>";
+        // Mail clients can adjust live text with the message's colors; lettering baked into a PNG stays dark.
+        return icon + "<span style=\"display:inline-block;padding-left:4px;vertical-align:middle;font-family:Sora,Arial,Helvetica,sans-serif;font-size:18px;line-height:1.5;font-weight:500;\">Click2Approve</span>";
+    }
 
     private static string RenderFooterNavigation(string? siteUrl)
     {

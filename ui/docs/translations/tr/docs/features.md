@@ -24,6 +24,7 @@ Click2Approve API aracılığıyla kendi araçlarınızı da bağlayabilirsiniz.
 
 | Özellik | Personal | Organizasyon |
 | --- | --- | --- |
+| [Güvenli e-posta bağlantılarıyla misafir onayları](complete-a-task.md#guest-review) | ✓ | ✓ |
 | Requests, görevler, sıralı adımlar ve atanan kişilere e-posta gönderme | Mevcut | Mevcut |
 | Gerekli açıklamalar ve elektronik imzalar | Mevcut | Mevcut |
 | Tartışmalar ve tartışma ekleri | Mevcut | Mevcut |

@@ -166,13 +166,19 @@ const ApprovalStepTemplateEditor: React.FC<ApprovalStepTemplateEditorProps> = ({
               description,
               name: name.trim(),
               shared,
-              steps: toApprovalStepSubmissions(steps),
+              steps: toApprovalStepSubmissions(
+                steps,
+                stores.applicationConfigurationStore.applicationConfiguration?.capabilities.guestApprovals === true,
+              ),
             })
           : await stores.approvalStepTemplateStore.create(tenantGlobalId, {
               description,
               name: name.trim(),
               shared,
-              steps: toApprovalStepSubmissions(steps),
+              steps: toApprovalStepSubmissions(
+                steps,
+                stores.applicationConfigurationStore.applicationConfiguration?.capabilities.guestApprovals === true,
+              ),
             });
         if (saved) {
           showPersistenceSuccessNotification(PersistenceSuccessMessages.templateSaved);

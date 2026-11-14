@@ -9,6 +9,8 @@ public class ApprovalRequestAssigneeRequest
 {
     /// <summary>Type of assignee.</summary>
     public required AssigneeType Type { get; set; }
+    /// <summary>Whether the assignee must sign in to an account to respond.</summary>
+    public bool AccountSignInRequired { get; set; } = true;
     /// <summary>Email address.</summary>
     public string? Email { get; set; }
     /// <summary>Global identifier of the user.</summary>

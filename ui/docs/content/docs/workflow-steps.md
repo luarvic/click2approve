@@ -8,6 +8,8 @@ An approval workflow defines who acts on a document and in what order. An **assi
 
 Use **Add step** to create another step, the arrow controls to change its order, and the remove button to delete it.
 
+Choose **Guest** in **Type** to let an unregistered email recipient review and respond through a secure email link, without a password or verification code. New email assignees default to **Guest**. Choose **User** to require registration and sign-in. Employee and team assignments always require sign-in. Recipients who already have an account use normal sign-in even when assigned as **Guest**.
+
 ## Sequential and parallel approvals
 
 Use separate steps when one decision must come before another. This is a **sequential approval**. For example, a reviewer approves a proposal in step 1, then a client signs in step 2.

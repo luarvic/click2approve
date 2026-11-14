@@ -13,6 +13,8 @@ Cada modelo pertence à pessoa que o cria. Os modelos são privados por padrão.
 !!! info "Somente organização"
     Selecione uma organização para criar e reutilizar modelos de fluxo de trabalho. Os modelos pertencem a essa organização e não estão disponíveis em Personal.
 
+Os modelos salvam a escolha **User** ou **Guest** de cada destinatário por e-mail. Confira **Type** ao iniciar uma solicitação; funcionários e equipes sempre precisam entrar na conta.
+
 ## Crie um modelo {#create-a-template}
 
 Abra **Templates** na organização e crie um modelo com um nome descritivo e etapas reutilizáveis. Configure ações, instruções, responsáveis, regras de conclusão, visibilidade e requisitos adicionais e salve.

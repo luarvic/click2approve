@@ -24,6 +24,7 @@ Na przykład dwie osoby mogą sprawdzić ofertę w pierwszym kroku, a klient dod
 
 | Funkcja | Personal | Organizacja |
 | --- | --- | --- |
+| [Zatwierdzanie przez gości za pomocą bezpiecznych linków](complete-a-task.md#guest-review) | ✓ | ✓ |
 | Requests, zadania, uporządkowane kroki i e-maile do przypisanych osób | Dostępne | Dostępne |
 | Wymagane uwagi i podpisy elektroniczne | Dostępne | Dostępne |
 | Dyskusje i załączniki do dyskusji | Dostępne | Dostępne |

@@ -14,6 +14,7 @@ export interface ProductCapabilities {
   discussionAttachments: boolean;
   employeeAssignees: boolean;
   teamAssignees: boolean;
+  guestApprovals?: boolean;
   approvalStepTemplates: boolean;
   approvalRequestRevisions: boolean;
   receipts: boolean;

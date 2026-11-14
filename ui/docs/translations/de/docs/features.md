@@ -24,6 +24,7 @@ Zum Beispiel können zwei Personen einen Vorschlag im ersten Schritt prüfen. An
 
 | Funktion | Personal | Organisation |
 | --- | --- | --- |
+| [Gastgenehmigungen über sichere E-Mail-Links](complete-a-task.md#guest-review) | ✓ | ✓ |
 | Requests, Aufgaben, geordnete Schritte und E-Mail-Zuständigen | Verfügbar | Verfügbar |
 | Erforderliche Kommentare und elektronische Signaturen | Verfügbar | Verfügbar |
 | Diskussionen und Diskussionsanhänge | Verfügbar | Verfügbar |

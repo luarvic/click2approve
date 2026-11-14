@@ -24,6 +24,7 @@ Ad esempio, due revisori possono controllare una proposta nel primo passaggio. I
 
 | Caratteristica | Personal | Organizzazione |
 | --- | --- | --- |
+| [Approvazioni degli ospiti tramite link e-mail sicuri](complete-a-task.md#guest-review) | ✓ | ✓ |
 | Requests, attività, passaggi ordinati e assegnatari di posta elettronica | Disponibile | Disponibile |
 | Commenti obbligatori e firme elettroniche | Disponibile | Disponibile |
 | Discussioni e allegati discussioni | Disponibile | Disponibile |

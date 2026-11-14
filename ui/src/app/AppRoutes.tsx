@@ -1,4 +1,5 @@
 import { stores } from "@/app/rootStore";
+import GuestTaskPage from "@/features/guestTasks/pages/GuestTaskPage";
 import ApprovalRequestStartPage from "@/features/approvalRequests/pages/ApprovalRequestStartPage";
 import ApprovalRequestSubmitPage from "@/features/approvalRequests/pages/ApprovalRequestSubmitPage";
 import ApprovalRequestTaskPage from "@/features/approvalRequests/pages/ApprovalRequestTaskPage";
@@ -60,6 +61,16 @@ const ApplicationRoutes = () => {
       <Route path="/receipt-verification/:linkGlobalId" element={<PublicReceiptPage />} />
       <Route element={<PublicLayout />}>
         <Route element={<WrapperLayout />}>
+          <Route
+            path="/guest/tasks/:taskGlobalId"
+            element={
+              stores.applicationConfigurationStore.applicationConfiguration?.capabilities.guestApprovals ? (
+                <GuestTaskPage />
+              ) : (
+                <NotFoundPage />
+              )
+            }
+          />
           <Route element={<AnonymousRoute />}>
             <Route path="/signIn" element={<SignInPage />} />
             <Route path="/signUp" element={<SignUpPage />} />

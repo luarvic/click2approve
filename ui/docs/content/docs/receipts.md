@@ -13,6 +13,8 @@ You can share a receipt through a verification link. The person with the link ca
 
 The requester and every assignee who received a task get a receipt when the request completes, is canceled, or is replaced by a new revision. Each person receives one receipt per workspace and request revision, even if they have several tasks or are also the requester. A task does not have to be completed to receive a receipt; its recorded status distinguishes an assignment from a completed action. Steps that never produced a task do not issue assignee receipts.
 
+When recorded, **Responded using** shows **Email link** or **Account sign-in** for a decision. Older records and automatic outcomes omit this field.
+
 ## Open a receipt
 
 Open **Receipts** in the workspace where you sent the request or completed your task, then select the receipt for that request. The **Receipt** card header includes its short number, matching request and task card headers. The card shows its full ID and date, followed by **Request** and **Task** sections with the recorded details, outcomes, participants, actions, and signatures where present.

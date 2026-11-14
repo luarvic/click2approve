@@ -1,14 +1,12 @@
 namespace Click2Approve.Domain.Models;
 
 /// <summary>
-/// Represents a user file.
+/// Represents a user file owned by a workspace and attributed to its uploading user.
 /// </summary>
 public class UserFile : DbEntity
 {
     // Foreign key identifiers
-    /// <summary>The user who uploaded the file.</summary>
     public required long OwnerId { get; set; }
-    /// <summary>The workspace that owns the file, which may differ from the uploader's current workspace.</summary>
     public long TenantId { get; set; }
 
     // Scalar properties

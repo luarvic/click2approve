@@ -20,5 +20,7 @@ public class ApplicationConfigurationControllerTests(CustomWebApplicationFactory
         var configuration = await response.Content.ReadFromJsonAsync<ApplicationConfigurationResponse>();
         Assert.NotNull(configuration);
         Assert.False(configuration.RequiresConfirmedEmail);
+        Assert.False(configuration.Capabilities.GuestApprovals);
+        Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync($"api/v1/guest/tasks/{Guid.NewGuid()}")).StatusCode);
     }
 }

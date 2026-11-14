@@ -8,6 +8,8 @@ Un flusso di lavoro di approvazione definisce chi agisce su un documento e in qu
 
 Utilizza **Add step** per creare un altro passaggio, i controlli freccia per modificarne l'ordine e il pulsante Rimuovi per eliminarlo.
 
+Scegliete **Guest** in **Type** per consentire a chi non è registrato di esaminare i documenti e rispondere tramite un link sicuro ricevuto per e-mail, senza password o codice di verifica. I nuovi destinatari e-mail sono di tipo **Guest** per impostazione predefinita. Scegliete **User** per richiedere registrazione e accesso. Dipendenti e team devono sempre accedere. Chi ha già un account usa l’accesso normale, anche se assegnato come **Guest**.
+
 ## Approvazioni sequenziali e parallele {#sequential-and-parallel-approvals}
 
 Utilizza passaggi separati quando una decisione deve precedere un'altra. Questa è un'**approvazione sequenziale**. Ad esempio, un revisore approva una proposta nel passaggio 1, quindi un cliente accede al passaggio 2.

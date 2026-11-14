@@ -13,6 +13,8 @@ Each template belongs to the person who creates it. Templates are private by def
 !!! info "Organization only"
     Select an organization to create and reuse workflow templates. Templates belong to that organization and are unavailable in Personal.
 
+Templates save the **User** or **Guest** choice for each email assignee. Review **Type** when starting a request; employee and team assignments always require sign-in.
+
 ## Create a template
 
 Open **Templates** in the organization and create a template with a descriptive name and reusable steps. Configure actions, instructions, assignees, completion rules, visibility, and additional requirements, then save.

@@ -1,3 +1,4 @@
+import DiscussionComposerField from "@/features/discussions/components/DiscussionComposerField";
 import ApprovalRequestFilesList from "@/features/approvalRequests/components/ApprovalRequestFilesList";
 import { useUserFileDelete } from "@/features/userFiles/hooks/useUserFileDelete";
 import { useUserFileUpload } from "@/features/userFiles/hooks/useUserFileUpload";
@@ -5,8 +6,7 @@ import type { UserFile } from "@/features/userFiles/models/userFile";
 import { Files } from "@/shared/components/files/fileInputStyles";
 import { Flex } from "@/shared/components/layout/flexStyles";
 import { StackSpacing } from "@/shared/theme/tokens";
-import { AttachFile } from "@mui/icons-material";
-import { IconButton, InputAdornment, Stack, TextField } from "@mui/material";
+import { Stack } from "@mui/material";
 import type { Dispatch, SetStateAction } from "react";
 import { useCallback } from "react";
 
@@ -22,8 +22,6 @@ interface DiscussionComposerProps {
   onSend: () => Promise<void>;
   tenantGlobalId: string | null;
 }
-
-const attachmentAdornmentSx = { alignSelf: "flex-end", mb: 0.5 } as const;
 
 const DiscussionComposer: React.FC<DiscussionComposerProps> = ({
   attachmentsAreEnabled,
@@ -58,41 +56,15 @@ const DiscussionComposer: React.FC<DiscussionComposerProps> = ({
 
   return (
     <Stack spacing={StackSpacing.tight} sx={Flex.alignStartSx}>
-      <TextField
-        fullWidth
-        label="Message"
-        error={Boolean(error)}
-        helperText={error}
-        multiline
-        slotProps={{
-          input: {
-            endAdornment: attachmentsAreEnabled ? (
-              <InputAdornment position="end" sx={attachmentAdornmentSx}>
-                <IconButton
-                  aria-label="Attach files"
-                  color="primary"
-                  disabled={isManagingFiles}
-                  loading={fileUpload.isUploading}
-                  onClick={fileUpload.openFileDialog}
-                  size="small"
-                  title="Attach files"
-                >
-                  <AttachFile fontSize="small" />
-                </IconButton>
-              </InputAdornment>
-            ) : undefined,
-          },
-        }}
-        value={body}
-        onChange={(event) => onBodyChange(event.target.value)}
-        onKeyDown={(event) => {
-          const isMessageInput =
-            event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLInputElement;
-          if (isMessageInput && event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
-            event.preventDefault();
-            void onSend();
-          }
-        }}
+      <DiscussionComposerField
+        attachmentsAreEnabled={attachmentsAreEnabled}
+        body={body}
+        error={error}
+        disabled={isManagingFiles}
+        uploading={fileUpload.isUploading}
+        onAttachFiles={fileUpload.openFileDialog}
+        onBodyChange={onBodyChange}
+        onSend={onSend}
       />
       {attachmentsAreEnabled && (
         <ApprovalRequestFilesList

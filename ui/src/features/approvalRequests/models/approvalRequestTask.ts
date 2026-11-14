@@ -1,6 +1,5 @@
-import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
-import { ApprovalRequestFile } from "./approvalRequest";
-import { ApprovalRequestTaskListItem } from "./approvalRequestTaskListItem";
+import { ApprovalRequest, ApprovalRequestFile } from "@/features/approvalRequests/models/approvalRequest";
+import { ApprovalRequestTaskListItem } from "@/features/approvalRequests/models/approvalRequestTaskListItem";
 import { UserFile } from "@/features/userFiles/models/userFile";
 
 export interface ApprovalRequestTask extends ApprovalRequestTaskListItem {
@@ -14,6 +13,7 @@ export interface ApprovalRequestTask extends ApprovalRequestTaskListItem {
   completedAtDate?: Date;
   completedByDisplayName?: string;
   completedByEmail?: string;
+  completedViaEmailLink?: boolean | null;
   requestedByEmail: string;
   requestedByDisplayName: string;
   organizationDisplayName: string;

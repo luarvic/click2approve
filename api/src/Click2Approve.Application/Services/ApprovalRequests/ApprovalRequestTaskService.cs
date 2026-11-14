@@ -1,3 +1,4 @@
+using Click2Approve.Application.Helpers;
 using Click2Approve.Application.Validation.ApprovalRequests;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
@@ -16,7 +17,8 @@ public class ApprovalRequestTaskService(
     IApprovalRequestTaskCompletionAttributor completionAttributor,
     IValidator<ApprovalRequestTaskListQueryCommand> approvalRequestTaskListQueryCommandValidator,
     IValidator<CompleteApprovalRequestTaskCommand> completeApprovalRequestTaskCommandValidator,
-    IValidator<TaskCompletionContext> taskCompletionValidator) : IApprovalRequestTaskService
+    IValidator<TaskCompletionContext> taskCompletionValidator,
+    IConfiguration configuration) : IApprovalRequestTaskService
 {
     private readonly IValidator<ApprovalRequestTaskListQueryCommand> _approvalRequestTaskListQueryCommandValidator =
         approvalRequestTaskListQueryCommandValidator;
@@ -60,6 +62,14 @@ public class ApprovalRequestTaskService(
         await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
         var approvalRequestTask = await _approvalRequestTaskRepository.GetForCompletionAsync(user, payload.GlobalId, cancellationToken)
             ?? throw new NotFoundException("Approval request task was not found.");
+        if (payload.CompletedViaEmailLink
+            && (approvalRequestTask.ApprovalRequestStepAssignee is not { Type: AssigneeType.User, AccountSignInRequired: false }
+                || approvalRequestTask.AssigneeEmployeeId is not null
+                || !EmailLinkAccessRules.CanUseExistingLink(approvalRequestTask.AssigneeUser,
+                    configuration.GetValue<bool>("Authentication:VerificationEnabled"))))
+        {
+            throw new NotFoundException("Task was not found.");
+        }
         await _taskCompletionValidator.ValidateAndThrowAsync(
             new TaskCompletionContext(approvalRequestTask, payload), cancellationToken);
         var now = DateTime.UtcNow;
@@ -68,6 +78,7 @@ public class ApprovalRequestTaskService(
         approvalRequestTask.Status = ApprovalRequestTaskStatus.Completed;
         approvalRequestTask.Result = payload.Result;
         approvalRequestTask.CompletedAt = now;
+        approvalRequestTask.CompletedViaEmailLink = payload.CompletedViaEmailLink;
         approvalRequestTask.Comment = payload.Comment;
         await _completionAttributor.AttributeAsync(user, approvalRequestTask, cancellationToken);
 

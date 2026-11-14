@@ -13,6 +13,8 @@ Vous pouvez partager un reçu via un lien de vérification. La personne disposan
 
 Le demandeur et chaque personne ayant reçu une tâche obtiennent un reçu lorsque la demande est terminée, annulée ou remplacée par une nouvelle révision. Chaque personne reçoit un seul reçu par espace de travail et par révision de la demande, même si elle a plusieurs tâches ou est aussi demandeur. Il n’est pas nécessaire d’avoir terminé la tâche : le statut enregistré distingue une attribution d’une action effectuée. Une étape qui n’a créé aucune tâche ne génère pas de reçu pour ses destinataires.
 
+Lorsqu’il est renseigné, **Responded using** indique **Email link** ou **Account sign-in** pour une décision. Ce champ est absent des anciens enregistrements et des résultats automatiques.
+
 ## Ouvrez un reçu {#open-a-receipt}
 
 Ouvrez **Receipts** dans l'espace de travail où vous avez envoyé la demande ou terminé votre tâche, puis sélectionnez le reçu pour cette demande. L'en-tête de carte **Receipt** comprend son numéro court, ses en-têtes de demande correspondante et de carte de tâche. La carte affiche son identifiant complet et sa date, suivis des sections **Request** et **Task** avec les détails enregistrés, les résultats, les participants, les actions et les signatures le cas échéant.

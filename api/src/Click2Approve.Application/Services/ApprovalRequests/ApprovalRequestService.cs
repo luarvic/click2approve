@@ -274,6 +274,7 @@ public class ApprovalRequestService(
     {
         return new ApprovalRequestStepAssignee
         {
+            AccountSignInRequired = assignee.Type != AssigneeType.User || assignee.AccountSignInRequired,
             Type = assignee.Type,
         };
     }

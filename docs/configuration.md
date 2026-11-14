@@ -84,9 +84,12 @@ For the currently registered Azure provider:
 4. Run both publisher and consumer. Verify email delivery before enabling
    `Authentication__VerificationEnabled=true` in the API.
 
-The default email logo uses `UI__BaseUrl` + `UI__AppPath` + `/logo-with-text.png`.
-Override `Email__LogoUrl` with a publicly reachable HTTPS image if needed; remote
-email clients cannot fetch localhost images. Configure the sender display name
+The default email header uses a tightly cropped icon at `UI__BaseUrl` + `UI__AppPath` +
+`/logo-email.png` beside the HTML text “Click2Approve”. Live text allows
+email clients to adjust the wordmark contrast in dark mode. Override
+`Email__LogoUrl` with a publicly reachable HTTPS full-logo image if needed; custom
+images replace the complete default brand lockup. Remote email clients cannot
+fetch localhost images. Configure the sender display name
 with the email provider, separately from the From address.
 
 For delivery problems, check both worker logs and queue backlogs, verify the sender
@@ -137,7 +140,11 @@ See [frontend development](../ui/README.md#user-documentation).
 
 ## Upload limits
 
-The attachment endpoint accepts request bodies up to 128 MiB, including multipart
-overhead. Larger batches must be split across requests. If increasing file-size
-settings, review the endpoint and multipart limits as well as reverse-proxy or IIS
-request filtering. See [deployment](deployment.md) for the production checklist.
+Attachment uploads use the shared
+[`UploadLimits.MaximumRequestBodyBytes`](../api/src/Click2Approve.WebApi/Validation/UploadLimits.cs)
+limit of 128 MiB for the entire request body, including multipart overhead.
+The separate per-file limit is configured through
+`Limitations:MaxAttachmentFileSizeBytes` (50 MiB by default). Larger batches must
+be split across requests. If increasing file-size settings, review the shared
+request limit and multipart limits as well as reverse-proxy or IIS request
+filtering. See [deployment](deployment.md) for the production checklist.

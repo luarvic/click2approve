@@ -15,6 +15,23 @@ public sealed class ApprovalWorkflowTests(CustomWebApplicationFactory<Program> f
     : IClassFixture<CustomWebApplicationFactory<Program>>
 {
     [Fact]
+    public async Task OpenSource_RejectsGuestAssignmentsWithoutProvisioningARecipient()
+    {
+        using var owner = await ApiTestSession.CreateAsync(factory.CreateClient());
+        var email = $"guest-unavailable-{Guid.NewGuid():N}@example.com";
+        var response = await owner.Client.PostAsJsonAsync($"{owner.Root}/requests", new
+        {
+            Title = "Guest access is commercial",
+            RequestFiles = new[] { new { UserFileGlobalId = await owner.UploadAsync(), Sequence = 0 } },
+            Steps = new[] { new { Sequence = 1, Mode = ApprovalStepMode.All,
+                Assignees = new[] { new { Type = AssigneeType.User, Email = email, AccountSignInRequired = false } } } }
+        });
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await using var scope = factory.Services.CreateAsyncScope();
+        Assert.False(await scope.ServiceProvider.GetRequiredService<ApiDbContext>().Users.AnyAsync(user => user.Email == email));
+    }
+
+    [Fact]
     public async Task NewEmailAssignee_TaskUsesTheirPersonalTenantBeforeRegistration()
     {
         using var owner = await ApiTestSession.CreateAsync(factory.CreateClient());

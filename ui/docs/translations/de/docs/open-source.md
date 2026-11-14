@@ -23,6 +23,7 @@ Siehe [Eine Anfrage erstellen](create-a-request.md) und [Workflow-Schritte konfi
 
 | Funktion | Open-Source | Kommerziell |
 | --- | --- | --- |
+| [Gastgenehmigungen über sichere E-Mail-Links](complete-a-task.md#guest-review) | — | ✓ |
 | Personal Anfragen und Aufgaben mit hochgeladenen Dateien | Im Lieferumfang enthalten | Enthalten |
 | Mehrere Workflow-Schritte, serielle oder parallele Beauftragte und alle/beliebige Abschlussregeln | Im Lieferumfang enthalten | Enthalten |
 | Genehmigungs-, Unterschrifts-, Bestätigungs-, Bestätigungs-, Überprüfungs-, Verifizierungs-, Annahme- und Abschlussaktionen | Im Lieferumfang enthalten | Enthalten |

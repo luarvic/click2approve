@@ -7,6 +7,7 @@ public class CompleteApprovalRequestTaskCommand
 {
     public required Guid GlobalId { get; set; }
     public required bool Result { get; set; }
+    public bool CompletedViaEmailLink { get; set; }
     public string? Comment { get; set; }
     public string? AssigneeLegalName { get; set; }
     public string? AssigneeRepresentationDetails { get; set; }

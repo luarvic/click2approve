@@ -49,6 +49,7 @@ public static class ApprovalRequestCommandMapper
 
     private static ApprovalRequestAssigneeCommand Map(ApprovalRequestAssigneeRequest request) => new()
     {
+        AccountSignInRequired = request.AccountSignInRequired,
         Email = request.Email,
         EmployeeGlobalId = request.EmployeeGlobalId,
         TeamGlobalId = request.TeamGlobalId,

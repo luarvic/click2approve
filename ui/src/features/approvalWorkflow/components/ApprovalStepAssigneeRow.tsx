@@ -1,3 +1,4 @@
+import { stores } from "@/app/rootStore";
 import {
   ApprovalStepStyles,
   AssigneeTypeFieldMinWidth,
@@ -7,8 +8,9 @@ import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import { getEmployeeDisplayName } from "@/shared/utils/displayNameHelpers";
 import { Close } from "@mui/icons-material";
 import type { SxProps } from "@mui/material";
-import { Autocomplete, IconButton, MenuItem, Stack, TextField, Tooltip } from "@mui/material";
+import { Autocomplete, IconButton, ListItemText, MenuItem, Stack, TextField, Tooltip } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
+import { observer } from "mobx-react-lite";
 
 interface ApprovalStepAssigneeRowProps {
   assignee: ApprovalStepAssignee;
@@ -59,10 +61,19 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
   onRemove,
   stackControlsOnSmallScreens = false,
 }) => {
+  const guestApprovalsEnabled =
+    stores.applicationConfigurationStore.applicationConfiguration?.capabilities.guestApprovals === true;
+  const selectedType =
+    guestApprovalsEnabled && assignee.type === AssigneeType.User && !(assignee.accountSignInRequired ?? false)
+      ? "Guest"
+      : assignee.type;
   const recipientTypes = [
-    { value: AssigneeType.User, label: "User" },
-    ...(canUseEmployees ? [{ value: AssigneeType.Employee, label: "Employee" }] : []),
-    ...(canUseTeams ? [{ value: AssigneeType.Team, label: "Team" }] : []),
+    { value: AssigneeType.User, label: "User", description: "Account required" },
+    ...(guestApprovalsEnabled ? [{ value: "Guest", label: "Guest", description: "No account required" }] : []),
+    ...(canUseEmployees
+      ? [{ value: AssigneeType.Employee, label: "Employee", description: "Member of your organization" }]
+      : []),
+    ...(canUseTeams ? [{ value: AssigneeType.Team, label: "Team", description: "Group of employees" }] : []),
   ];
 
   return (
@@ -75,19 +86,38 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
         <TextField
           select
           label="Type"
-          value={assignee.type}
+          value={selectedType}
           disabled={disabled}
-          onChange={(event) =>
+          slotProps={{
+            select: {
+              MenuProps: {
+                anchorOrigin: { vertical: "bottom", horizontal: "left" },
+                transformOrigin: { vertical: "top", horizontal: "left" },
+              },
+              renderValue: (value) => recipientTypes.find((type) => type.value === value)?.label,
+            },
+          }}
+          onChange={(event) => {
+            const selected = event.target.value;
+            const type = selected === "Guest" ? AssigneeType.User : (selected as AssigneeType);
             onChange({
-              globalId: assignee.globalId,
-              type: event.target.value as AssigneeType,
-            })
-          }
+              ...(type === assignee.type ? assignee : { globalId: assignee.globalId }),
+              type,
+              accountSignInRequired: selected !== "Guest",
+            });
+          }}
           sx={stackControlsOnSmallScreens ? responsiveAssigneeTypeFieldSx : ApprovalStepStyles.assigneeTypeFieldSx}
         >
           {recipientTypes.map((type) => (
             <MenuItem key={type.value} value={type.value}>
-              {type.label}
+              <ListItemText
+                primary={type.label}
+                secondary={type.description}
+                slotProps={{
+                  primary: { sx: { fontWeight: 500 } },
+                  secondary: { sx: { whiteSpace: "normal" } },
+                }}
+              />
             </MenuItem>
           ))}
         </TextField>
@@ -163,4 +193,4 @@ const ApprovalStepAssigneeRow: React.FC<ApprovalStepAssigneeRowProps> = ({
   );
 };
 
-export default ApprovalStepAssigneeRow;
+export default observer(ApprovalStepAssigneeRow);

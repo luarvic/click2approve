@@ -50,10 +50,7 @@ public class NotificationEmailService(
         {
             ToAddress = recipient.NormalizedEmail,
             Subject = template.Subject.ReplaceLineEndings(" "),
-            Body = EmailLayout.Render(
-                template,
-                EmailBranding.GetLogoUrl(_configuration),
-                _configuration.GetValue<Uri>("UI:BaseUrl")?.ToString())
+            Body = EmailBranding.Render(template, _configuration)
         }, cancellationToken);
     }
 

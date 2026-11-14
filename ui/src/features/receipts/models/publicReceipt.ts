@@ -43,7 +43,9 @@ export interface PublicReceiptParticipant {
   assigneeRepresentationDetails?: string;
   comment?: string;
   displayName: string;
+  completedAt?: Date;
   completedByDisplayName?: string;
+  completedViaEmailLink?: boolean | null;
   email: string;
   delegateDisplayName?: string;
   delegateEmail?: string;
@@ -52,7 +54,6 @@ export interface PublicReceiptParticipant {
   isAssigneeEmployee: boolean;
   instructions?: string;
   organizationDisplayName?: string;
-  completedAt?: Date;
   result?: boolean;
   taskGlobalId?: string;
   taskStatus?: ApprovalRequestTaskStatus;

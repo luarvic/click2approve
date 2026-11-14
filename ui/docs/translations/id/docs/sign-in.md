@@ -4,7 +4,7 @@ description: Buat akun Click2Approve, konfirmasi email Anda, masuk untuk meninja
 ---
 # Pendaftaran dan masuk {#registration-and-sign-in}
 
-Masuk ke Click2Approve untuk mengirim dokumen guna persetujuan atau menyelesaikan tugas. Akun Anda dapat mengakses **Personal**, ruang kerja Anda untuk permintaan Anda sendiri dan tugas yang dialamatkan email, dan organisasi mana pun tempat Anda memiliki akses karyawan. Saat mengikuti tautan tugas, gunakan alamat email tujuan pengiriman tugas.
+Masuk ke Click2Approve untuk mengirim dokumen, mengelola pekerjaan, atau menyelesaikan tugas yang mewajibkan akun. Penerima yang belum terdaftar dapat [merespons melalui tautan email aman](complete-a-task.md#guest-review) jika pemohon mengizinkan. Daftar dengan alamat yang sama untuk mempertahankan tugas, dokumen, dan tanda terima di **Personal**, sesuai masa retensi. Konfirmasikan email jika diminta. Keanggotaan organisasi dikelola secara terpisah.
 
 ## Daftar {#register}
 

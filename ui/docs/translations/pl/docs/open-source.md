@@ -23,6 +23,7 @@ Zobacz [Utwórz żądanie](create-a-request.md) i [Konfiguruj kroki przepływu p
 
 | Funkcja | Otwarte oprogramowanie | Komercyjne |
 | --- | --- | --- |
+| [Zatwierdzanie przez gości za pomocą bezpiecznych linków](complete-a-task.md#guest-review) | — | ✓ |
 | Personal żądania i zadania z przesłanymi plikami | Zawarte | Zawiera |
 | Wiele etapów przepływu pracy, przypisanie szeregowe lub równoległe oraz zasady ukończenia wszystkich/dowolnych | Zawarte | Zawiera |
 | Zatwierdzenie, podpisanie, potwierdzenie, potwierdzenie, przegląd, weryfikacja, akceptacja i zakończenie działań | Zawarte | Zawiera |

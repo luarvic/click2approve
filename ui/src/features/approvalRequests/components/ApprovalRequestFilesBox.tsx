@@ -18,6 +18,7 @@ import type { Theme } from "@mui/material/styles";
 
 interface ApprovalRequestFilesBoxProps {
   requestFiles?: ApprovalRequestFile[];
+  onDownloadFile?: (file: UserFile) => void;
   approvalRequestGlobalId?: string;
   approvalRequestTaskGlobalId?: string;
   compareWithPrevious?: boolean;
@@ -26,6 +27,7 @@ interface ApprovalRequestFilesBoxProps {
 
 const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
   requestFiles,
+  onDownloadFile,
   approvalRequestGlobalId,
   approvalRequestTaskGlobalId,
   compareWithPrevious = false,
@@ -33,11 +35,12 @@ const ApprovalRequestFilesBox: React.FC<ApprovalRequestFilesBoxProps> = ({
 }) => {
   const tenantGlobalId = stores.tenantStore.currentTenantGlobalId;
   const onDownload =
-    tenantGlobalId && approvalRequestTaskGlobalId
+    onDownloadFile ??
+    (tenantGlobalId && approvalRequestTaskGlobalId
       ? (userFile: UserFile) => downloadApprovalRequestTaskFile(tenantGlobalId, userFile, approvalRequestTaskGlobalId)
       : tenantGlobalId && approvalRequestGlobalId
         ? (userFile: UserFile) => downloadApprovalRequestFile(tenantGlobalId, userFile, approvalRequestGlobalId)
-        : undefined;
+        : undefined);
 
   const files = requestFiles ?? [];
   const orderedFiles = [...files].sort((left, right) => left.sequence - right.sequence);

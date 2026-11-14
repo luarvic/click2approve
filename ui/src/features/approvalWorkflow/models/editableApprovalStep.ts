@@ -1,10 +1,10 @@
 import { ApprovalRequestTaskAction } from "@/features/approvalRequests/models/approvalRequestTaskAction";
 import {
-  AssigneeType,
   ApprovalStep,
   ApprovalStepAssignee,
   ApprovalStepMode,
   ApprovalStepVisibilityMode,
+  AssigneeType,
 } from "@/features/approvalWorkflow/models/approvalStep";
 
 export type EditableApprovalStep = ApprovalStep;
@@ -40,10 +40,13 @@ export const createEditableSteps = (steps: ApprovalStep[]): EditableApprovalStep
     isCommentRequired: step.isCommentRequired ?? false,
     isElectronicSignatureRequired: step.isElectronicSignatureRequired ?? false,
     visibilityMode: step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants,
-    assignees: step.assignees.map((assignee) => ({ ...assignee })),
+    assignees: step.assignees.map((assignee) => ({
+      ...assignee,
+      accountSignInRequired: assignee.accountSignInRequired ?? true,
+    })),
   }));
 
-const toApprovalStep = (step: EditableApprovalStep): ApprovalStep => ({
+const toApprovalStep = (step: EditableApprovalStep, guestApprovalsEnabled: boolean): ApprovalStep => ({
   sequence: step.sequence,
   mode: step.mode ?? ApprovalStepMode.Any,
   visibilityMode: step.visibilityMode ?? ApprovalStepVisibilityMode.AllParticipants,
@@ -54,10 +57,15 @@ const toApprovalStep = (step: EditableApprovalStep): ApprovalStep => ({
   isElectronicSignatureRequired: step.isElectronicSignatureRequired ?? false,
   assignees: step.assignees.map((assignee) => ({
     type: assignee.type,
+    accountSignInRequired:
+      assignee.type !== AssigneeType.User || !guestApprovalsEnabled || (assignee.accountSignInRequired ?? false),
     email: assignee.email,
     employeeGlobalId: assignee.employeeGlobalId,
     teamGlobalId: assignee.teamGlobalId,
   })),
 });
 
-export const toApprovalStepSubmissions = (steps: EditableApprovalStep[]): ApprovalStep[] => steps.map(toApprovalStep);
+export const toApprovalStepSubmissions = (
+  steps: EditableApprovalStep[],
+  guestApprovalsEnabled = false,
+): ApprovalStep[] => steps.map((step) => toApprovalStep(step, guestApprovalsEnabled));

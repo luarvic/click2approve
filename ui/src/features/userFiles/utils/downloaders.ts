@@ -82,7 +82,7 @@ export const downloadDiscussionMessageFile = async (
 ) =>
   downloadFile(userFile, () => downloadDiscussionMessageFileBase64(tenantGlobalId, messageGlobalId, userFile.globalId));
 
-const downloadFile = async (userFile: UserFile, download: () => Promise<string | null>) => {
+export const downloadFile = async (userFile: UserFile, download: () => Promise<string | null>) => {
   const previewTab = canOpenInBrowser(userFile) ? window.open("about:blank", "_blank") : null;
   if (previewTab) {
     previewTab.opener = null;

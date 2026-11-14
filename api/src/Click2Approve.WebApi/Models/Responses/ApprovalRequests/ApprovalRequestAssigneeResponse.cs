@@ -11,6 +11,8 @@ public class ApprovalRequestAssigneeResponse
     public Guid GlobalId { get; init; }
     /// <summary>Type of assignee.</summary>
     public AssigneeType Type { get; init; }
+    /// <summary>Whether the assignee must sign in to an account to respond.</summary>
+    public bool AccountSignInRequired { get; init; } = true;
     /// <summary>Email address.</summary>
     public string? Email { get; init; }
     /// <summary>Global identifier of the employee.</summary>

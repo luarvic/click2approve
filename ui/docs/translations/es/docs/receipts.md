@@ -13,6 +13,8 @@ Puede compartir un comprobante a través de un enlace de verificación. La perso
 
 El solicitante y cada persona que haya recibido una tarea obtienen un comprobante cuando la solicitud se completa, se cancela o se sustituye por una nueva revisión. Se genera uno por persona, espacio de trabajo y revisión de la solicitud, aunque tenga varias tareas o también sea el solicitante. No hace falta completar la tarea para recibirlo: el estado registrado distingue la asignación de la acción realizada. Los pasos que no llegaron a crear tareas no generan comprobantes para sus destinatarios.
 
+Cuando se registra, **Responded using** muestra **Email link** o **Account sign-in** para una decisión. Los registros antiguos y los resultados automáticos omiten este campo.
+
 ## Abrir un comprobante {#open-a-receipt}
 
 Abra **Receipts** en el espacio de trabajo donde envió la solicitud o completó su tarea, luego seleccione el comprobante para esa solicitud. El encabezado de la tarjeta **Receipt** incluye su número corto, la solicitud coincidente y los encabezados de la tarjeta de tarea. La tarjeta muestra su identificación completa y fecha, seguidas de las secciones **Request** y **Task** con los detalles registrados, los resultados, los participantes, las acciones y las firmas, cuando estén presentes.

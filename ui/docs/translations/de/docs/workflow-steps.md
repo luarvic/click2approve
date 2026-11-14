@@ -8,6 +8,8 @@ Ein Genehmigungsworkflow definiert, wer an einem Dokument in welcher Reihenfolge
 
 Verwenden Sie **Add step**, um einen weiteren Schritt zu erstellen, die Pfeilsteuerelemente, um seine Reihenfolge zu ändern, und die Schaltfläche „Entfernen“, um ihn zu löschen.
 
+Wählen Sie unter **Type** die Option **Guest**, damit noch nicht registrierte E-Mail-Empfänger über einen sicheren E-Mail-Link prüfen und antworten können, ohne Passwort oder Bestätigungscode. Neue E-Mail-Empfänger sind standardmäßig **Guest**. Wählen Sie **User**, um Registrierung und Anmeldung zu verlangen. Mitarbeiter und Teams müssen sich immer anmelden. Empfänger mit bestehendem Konto nutzen auch bei **Guest** die reguläre Anmeldung.
+
 ## Sequentielle und parallele Genehmigungen {#sequential-and-parallel-approvals}
 
 Verwenden Sie separate Schritte, wenn eine Entscheidung vor einer anderen erfolgen muss. Es handelt sich hierbei um eine **sequenzielle Genehmigung**. Beispielsweise genehmigt ein Prüfer ein Angebot in Schritt 1, dann unterzeichnet ein Kunde in Schritt 2.

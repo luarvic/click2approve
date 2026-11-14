@@ -105,8 +105,60 @@ describe("optional shared analytics", () => {
     expect(commands().filter(([type]: string[]) => type === "event")).toHaveLength(1);
   });
 
+  test("guest visits use normal consent and redact task identifiers and tokens from initialization and navigation", async () => {
+    history.replaceState(null, "", "/app/guest/tasks/private-task?email=private@example.com#token=private-token");
+    render(<AnalyticsBanner measurementId={id} />);
+    expect(screen.getByRole("region", { name: "Optional analytics" })).toBeTruthy();
+    expect(googleTags().length).toBe(0);
+
+    await userEvent.click(screen.getByRole("switch", { name: "Allow analytics" }));
+    const expected = {
+      page_location: `${location.origin}/app/guest/tasks/:task`,
+      page_title: "Guest task",
+      page_referrer: "",
+    };
+    expect(commands().find(([type]: string[]) => type === "config")[2]).toMatchObject(expected);
+    expect(
+      commands()
+        .filter(([type]: string[]) => type === "event")
+        .at(-1)[2],
+    ).toEqual(expected);
+
+    await act(async () => history.pushState(null, "", "/app/signIn?returnUrl=private-return#private-token"));
+    expect(
+      commands()
+        .filter(([type]: string[]) => type === "event")
+        .at(-1)[2].page_location,
+    ).toBe(`${location.origin}/app/signIn`);
+    await act(async () => history.replaceState(null, "", "/app/guest/tasks/another-task?tab=chat#token=another-token"));
+    expect(
+      commands()
+        .filter(([type]: string[]) => type === "event")
+        .at(-1)[2],
+    ).toEqual(expected);
+
+    const beforeBack = commands().filter(([type]: string[]) => type === "event").length;
+    await act(async () => {
+      await new Promise<void>((resolve) => {
+        window.addEventListener("popstate", () => resolve(), { once: true });
+        history.back();
+      });
+    });
+    expect(commands().filter(([type]: string[]) => type === "event")).toHaveLength(beforeBack + 1);
+    expect(
+      commands()
+        .filter(([type]: string[]) => type === "event")
+        .at(-1)[2],
+    ).toEqual(expected);
+    expect(JSON.stringify(commands())).not.toMatch(
+      /private-task|another-task|private@example|private-token|another-token|private-return|tab=chat/,
+    );
+    expect(googleTags().length).toBe(1);
+  });
+
   test.each([
     ["/app/receipt-verification/private-link?token=secret", "/app/receipt-verification/:link"],
+    ["/app/guest/tasks/private-task?tab=chat#token=secret", "/app/guest/tasks/:task"],
     ["/app/tenants/private-id/employees/private-person", "/app/tenants/:tenant/employees/:resource"],
     ["/app/tenants/new/plans", "/app/tenants/new/plans"],
     ["/app/arbitrary-private-path", "/app/other"],

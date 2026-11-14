@@ -8,6 +8,7 @@ using Click2Approve.Domain.Models;
 public class ApprovalRequestAssigneeCommand
 {
     public required AssigneeType Type { get; set; }
+    public bool AccountSignInRequired { get; set; } = true;
     public string? Email { get; set; }
     public Guid? UserGlobalId { get; set; }
     public Guid? EmployeeGlobalId { get; set; }

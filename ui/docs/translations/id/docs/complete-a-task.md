@@ -6,6 +6,16 @@ description: Temukan tugas yang diberikan kepada Anda di Click2Approve, tinjau d
 
 **tugas** meminta Anda untuk bertindak pada satu langkah permintaan persetujuan dokumen. Buka **Tasks** untuk meninjau, menyetujui, atau menandatangani dokumen yang ditugaskan kepada Anda. Baca dokumen dan instruksi terkini sebelum mencatat keputusan Anda.
 
+## Meninjau tanpa akun {#guest-review}
+
+Buka tautan dalam email tugas dan pilih **Continue to document**. Tinjau file serta petunjuk, lalu kirim keputusan melalui **Your response**. Komentar, tanda tangan, dan lampiran respons tetap wajib jika diminta. Anda juga dapat memakai **Chat** sebelum merespons.
+
+Tautan hanya memberikan akses selama tugas ini menunggu keputusan. Keputusan, pembatalan, tugas yang dilewati, atau penggantian oleh revisi baru menutup seluruh akses tamu, termasuk unduhan dan Chat. Untuk kembali ke dokumen dan tanda terima, daftar atau masuk dengan alamat yang menerima permintaan. Tugas sebelumnya tetap ada di **Personal**, sesuai masa retensi. Pendaftaran tidak memberikan keanggotaan organisasi.
+
+Rahasiakan tautan: siapa pun yang memilikinya dapat bertindak pada tugas. Jika akun diwajibkan atau Anda sudah memilikinya, gunakan proses masuk biasa.
+
+Jika Anda mendaftar saat tugas ini masih menunggu keputusan, tautan tamu yang sudah ada tetap dapat digunakan hingga Anda mengonfirmasi email. Setelah konfirmasi, masuk untuk mengakses tugas.
+
 ## Temukan tugas {#find-the-task}
 
 1. [Buka aplikasi](/app/) dengan akun tujuan pengiriman tugas.

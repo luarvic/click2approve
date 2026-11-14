@@ -23,6 +23,7 @@ Ticari sürüm, organizasyon çalışma alanları, ortak çalışma araçları v
 
 | Özellik | Açık kaynak | Ticari |
 | --- | --- | --- |
+| [Güvenli e-posta bağlantılarıyla misafir onayları](complete-a-task.md#guest-review) | — | ✓ |
 | Personal yüklenen dosyalarla istekler ve görevler | Dahil | Dahil |
 | Çoklu iş akışı adımları, seri veya paralel atananlar ve tüm/herhangi bir tamamlama kuralı | Dahil | Dahil |
 | Onaylama, imza, onay, onay, inceleme, doğrulama, kabul ve tamamlama işlemleri | Dahil | Dahil |

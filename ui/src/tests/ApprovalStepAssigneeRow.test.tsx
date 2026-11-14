@@ -1,8 +1,11 @@
+import { stores } from "@/app/rootStore";
+import type { ApplicationConfiguration } from "@/features/applicationConfiguration/models/applicationConfiguration";
 import ApprovalStepAssigneeRow from "@/features/approvalWorkflow/components/ApprovalStepAssigneeRow";
 import { AssigneeType } from "@/features/approvalWorkflow/models/approvalStep";
 import { Employee, EmployeeStatus } from "@/features/employees/models/employee";
 import { EmployeeRole } from "@/features/tenants/models/tenant";
 import { fireEvent, render, screen } from "@testing-library/react";
+import { runInAction } from "mobx";
 import { describe, expect, test, vi } from "vitest";
 
 const employee: Employee = {
@@ -91,5 +94,60 @@ describe("<ApprovalStepAssigneeRow />", () => {
       "Ada Lovelace (disabled)",
     );
     expect(screen.queryByTestId("PersonOffOutlinedIcon")).toBeNull();
+  });
+});
+
+describe("email assignee access choices", () => {
+  test("User and Guest map to the boolean flag and switching preserves the email", async () => {
+    const original = stores.applicationConfigurationStore.applicationConfiguration;
+    const onChange = vi.fn();
+    runInAction(() => {
+      stores.applicationConfigurationStore.applicationConfiguration = {
+        ...original,
+        capabilities: { ...original?.capabilities, guestApprovals: true },
+      } as ApplicationConfiguration;
+    });
+    try {
+      const props = {
+        canUseEmployees: false,
+        canUseTeams: false,
+        employees: [],
+        teams: [],
+        onChange,
+        onRemove: vi.fn(),
+      };
+      const assignee = { globalId: "row-id", type: AssigneeType.User, email: "client@example.com" };
+      const { rerender } = render(<ApprovalStepAssigneeRow {...props} assignee={assignee} />);
+      expect(screen.getByRole("combobox", { name: "Type" }).textContent).toBe("Guest");
+      expect(screen.queryByRole("checkbox")).toBeNull();
+      fireEvent.mouseDown(screen.getByRole("combobox", { name: "Type" }));
+      fireEvent.click(screen.getByRole("option", { name: "User Account required" }));
+      expect(onChange).toHaveBeenLastCalledWith({ ...assignee, accountSignInRequired: true });
+      rerender(<ApprovalStepAssigneeRow {...props} assignee={{ ...assignee, accountSignInRequired: true }} />);
+      fireEvent.mouseDown(screen.getByRole("combobox", { name: "Type" }));
+      fireEvent.click(screen.getByRole("option", { name: "Guest No account required" }));
+      expect(onChange).toHaveBeenLastCalledWith({ ...assignee, accountSignInRequired: false });
+    } finally {
+      runInAction(() => {
+        stores.applicationConfigurationStore.applicationConfiguration = original;
+      });
+    }
+  });
+
+  test("the open-source UI does not offer Guest", () => {
+    render(
+      <ApprovalStepAssigneeRow
+        assignee={{ type: AssigneeType.User }}
+        canUseEmployees={false}
+        canUseTeams={false}
+        employees={[]}
+        teams={[]}
+        onChange={vi.fn()}
+        onRemove={vi.fn()}
+      />,
+    );
+    fireEvent.mouseDown(screen.getByRole("combobox", { name: "Type" }));
+    expect(screen.queryByRole("option", { name: /^Guest/ })).toBeNull();
+    expect(screen.getByRole("option", { name: "User Account required" })).toBeTruthy();
   });
 });

@@ -7,8 +7,5 @@ namespace Click2Approve.Application.Models.Events;
 /// </summary>
 public static class EventJson
 {
-    /// <summary>
-    /// Gets the immutable JSON options used to serialize and deserialize event transport data.
-    /// </summary>
     public static JsonSerializerOptions Options { get; } = new(JsonSerializerDefaults.Web);
 }

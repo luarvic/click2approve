@@ -13,6 +13,8 @@ Chaque modèle appartient à la personne qui l'a créé. Les modèles sont priv�
 !!! info "Organisation uniquement"
     Sélectionnez une organisation pour créer et réutiliser des modèles de workflow. Les modèles appartiennent à cette organisation et ne sont pas disponibles dans Personal.
 
+Les modèles enregistrent le choix **User** ou **Guest** pour chaque destinataire par e-mail. Vérifiez **Type** au début d’une demande ; les employés et les équipes doivent toujours se connecter.
+
 ## Créez un modèle {#create-a-template}
 
 Ouvrez **Templates** dans l'organisation et créez un modèle avec un nom descriptif et des étapes réutilisables. Configurez les actions, les instructions, les responsables, les règles d'achèvement, la visibilité et les exigences supplémentaires, puis enregistrez.

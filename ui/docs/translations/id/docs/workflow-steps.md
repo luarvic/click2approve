@@ -8,6 +8,8 @@ Alur kerja persetujuan menentukan siapa yang bertindak pada dokumen dan dalam ur
 
 Gunakan **Add step** untuk membuat langkah lainnya, kontrol panah untuk mengubah urutannya, dan tombol hapus untuk menghapusnya.
 
+Pilih **Guest** pada **Type** agar penerima email yang belum terdaftar dapat meninjau dan merespons melalui tautan email aman, tanpa kata sandi atau kode verifikasi. Penerima email baru menggunakan **Guest** secara default. Pilih **User** untuk mewajibkan pendaftaran dan masuk. Karyawan dan tim selalu harus masuk. Penerima yang sudah memiliki akun menggunakan proses masuk biasa, meskipun ditetapkan sebagai **Guest**.
+
 ## Persetujuan berurutan dan paralel {#sequential-and-parallel-approvals}
 
 Gunakan langkah terpisah ketika satu keputusan harus diambil sebelum keputusan lainnya. Ini adalah **persetujuan berurutan**. Misalnya, peninjau menyetujui proposal pada langkah 1, lalu klien masuk pada langkah 2.

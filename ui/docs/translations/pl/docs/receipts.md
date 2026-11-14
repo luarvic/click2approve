@@ -13,6 +13,8 @@ Potwierdzenie możesz udostępnić przez link weryfikacyjny. Odbiorca obejrzy za
 
 Autor zgłoszenia i każdy wykonawca, który otrzymał zadanie, dostają potwierdzenie po zakończeniu, anulowaniu lub zastąpieniu zgłoszenia nową wersją. Każda osoba otrzymuje jedno na obszar roboczy i wersję zgłoszenia, nawet jeśli ma wiele zadań lub jest również autorem. Ukończenie zadania nie jest konieczne: zapisany stan odróżnia przydzielenie od wykonanej czynności. Kroki, które nie utworzyły zadania, nie wystawiają potwierdzenia wykonawcy.
 
+Jeśli sposób odpowiedzi został zapisany, pole **Responded using** pokazuje **Email link** lub **Account sign-in**. Starsze wpisy i wyniki automatyczne nie zawierają tego pola.
+
 ## Otwieranie potwierdzenia {#open-a-receipt}
 
 Otwórz **Receipts** w obszarze, z którego wysłano zgłoszenie lub w którym wykonano zadanie. Wybierz właściwe potwierdzenie. Nagłówek karty **Receipt** zawiera krótki numer, podobnie jak karty zgłoszeń i zadań. Dalej są pełny identyfikator i data, a następnie sekcje **Request** i **Task** ze szczegółami, wynikami, uczestnikami, działaniami i dostępnymi podpisami.

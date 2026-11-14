@@ -24,6 +24,7 @@ Misalnya, dua peninjau memeriksa proposal pada langkah pertama. Klien kemudian m
 
 | Fitur | Personal | Organisasi |
 | --- | --- | --- |
+| [Persetujuan tamu melalui tautan email aman](complete-a-task.md#guest-review) | ✓ | ✓ |
 | Requests, tugas, langkah-langkah yang diurutkan, dan penerima tugas email | Tersedia | Tersedia |
 | Diperlukan komentar dan tanda tangan elektronik | Tersedia | Tersedia |
 | Pembahasan dan Lampiran Pembahasan | Tersedia | Tersedia |

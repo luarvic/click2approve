@@ -4,7 +4,7 @@ description: Bir Click2Approve hesabı oluşturun, e-postanızı onaylayın, bel
 ---
 # Kayıt ve oturum açma {#registration-and-sign-in}
 
-Dokümanları onaya göndermek veya bir görevi tamamlamak için Click2Approve'de oturum açın. Hesabınız **Personal**'ye, kendi istekleriniz ve e-posta adresli görevleriniz için çalışma alanınıza ve çalışanların erişimine sahip olduğunuz tüm kuruluşlara erişebilir. Bir görev bağlantısını takip ederken, görevin gönderildiği e-posta adresini kullanın.
+Belge göndermek, işlerinizi yönetmek veya hesap gerektiren görevleri tamamlamak için Click2Approve oturumunu açın. Kayıtlı olmayan alıcılar, istekte bulunan izin verdiğinde [güvenli e-posta bağlantısıyla yanıtlayabilir](complete-a-task.md#guest-review). Misafir görevlerinize, belgelerinize ve makbuzlarınıza saklama süresi boyunca **Personal** içinde erişmek için aynı adresle kaydolun. İstendiğinde e-posta adresinizi doğrulayın. Kuruluş üyeliği ayrı yönetilir.
 
 ## 'yi kaydedin {#register}
 

@@ -12,6 +12,7 @@ public class ApprovalRequestStepAssignee : DbEntity
     public long? UserId { get; set; }
 
     // Scalar properties
+    public bool AccountSignInRequired { get; set; } = true;
     public string? AssigneeDisplayName { get; set; }
     public required AssigneeType Type { get; set; }
 

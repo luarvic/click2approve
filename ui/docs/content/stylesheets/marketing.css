@@ -35,15 +35,15 @@
 .site-header-links a[aria-current] {
   color: var(--site-green);
 }
-.site-docs-link {
-  white-space: nowrap;
-}
+.site-docs-link,
 .site-open-app {
   align-items: center;
   display: inline-flex;
+  white-space: nowrap;
+}
+.site-open-app {
   font-weight: 600;
   gap: 6px;
-  white-space: nowrap;
 }
 .site-docs-icon {
   display: none;
@@ -646,8 +646,6 @@ body:has(.site-header) .md-main__inner {
   }
   .site-docs-link,
   .site-open-app {
-    align-items: center;
-    display: inline-flex;
     border-radius: 6px;
     flex: 0 0 40px;
     width: 40px;

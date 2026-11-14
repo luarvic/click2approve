@@ -6,6 +6,16 @@ description: Recherchez la tâche qui vous a été assignée dans Click2Approve,
 
 Une **tâche** vous demande d'agir sur une étape d'une demande d'approbation de document. Ouvrez **Tasks** pour réviser, approuver ou signer un document qui vous est attribué. Lisez les documents et instructions actuels avant d'enregistrer votre décision.
 
+## Consulter sans compte {#guest-review}
+
+Ouvrez le lien reçu par e-mail et choisissez **Continue to document**. Consultez les fichiers et les instructions, puis envoyez votre décision dans **Your response**. Les commentaires, signatures et pièces jointes restent obligatoires si la demande les exige. Vous pouvez utiliser **Chat** avant de répondre.
+
+Le lien ne donne accès à la tâche que tant qu’elle attend une décision. Une décision, une annulation, une tâche ignorée ou une nouvelle révision ferme tous les accès invités, y compris les téléchargements et Chat. Pour retrouver ensuite vos documents et reçus, inscrivez-vous ou connectez-vous avec l’adresse ayant reçu la demande. Vos tâches précédentes restent dans **Personal**, selon les règles de conservation. L’inscription ne vous ajoute pas à une organisation.
+
+Gardez ce lien confidentiel : toute personne qui le possède peut agir sur la tâche. Si un compte est exigé, ou si vous en avez déjà un, utilisez la connexion habituelle.
+
+Si vous vous inscrivez alors que cette tâche attend encore une décision, son lien invité existant reste utilisable jusqu’à la confirmation de votre adresse e-mail. Après confirmation, connectez-vous pour accéder à la tâche.
+
 ## Recherchez la tâche {#find-the-task}
 
 1. [Ouvrez l'application](/app/) avec le compte auquel la tâche a été envoyée.

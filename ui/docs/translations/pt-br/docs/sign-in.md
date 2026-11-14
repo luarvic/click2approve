@@ -4,7 +4,7 @@ description: Crie uma conta Click2Approve, confirme seu e-mail, faça login para
 ---
 # Registro e login {#registration-and-sign-in}
 
-Faça login em Click2Approve para enviar documentos para aprovação ou concluir uma tarefa. Sua conta pode acessar **Personal**, seu espaço de trabalho para suas próprias solicitações e tarefas endereçadas por e-mail e qualquer organização onde você tenha acesso de funcionário. Ao seguir o link de uma tarefa, use o endereço de e-mail para o qual a tarefa foi enviada.
+Entre no Click2Approve para enviar documentos, gerenciar seu trabalho ou concluir tarefas que exigem conta. Destinatários não cadastrados podem [responder por um link seguro de e-mail](complete-a-task.md#guest-review) quando o solicitante permite. Cadastre-se com o mesmo endereço para manter suas tarefas, documentos e comprovantes em **Personal**, sujeitos à retenção. Confirme o e-mail quando solicitado. A participação em organizações é gerenciada separadamente.
 
 ## Registrar {#register}
 

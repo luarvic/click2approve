@@ -6,6 +6,16 @@ description: Atanan görevinizi Click2Approve'de bulun, belgeleri inceleyin ve b
 
 Bir **görev** sizden belge onay isteğinin bir adımını gerçekleştirmenizi ister. Size atanan bir belgeyi incelemek, onaylamak veya imzalamak için **Tasks**'yi açın. Kararınızı kaydetmeden önce mevcut belgeleri ve talimatları okuyun.
 
+## Hesap olmadan inceleme {#guest-review}
+
+Görev e-postasındaki bağlantıyı açın ve **Continue to document** seçeneğini seçin. Dosyaları ve talimatları inceleyip **Your response** bölümünden kararınızı gönderin. Yapılandırılmış yorum, imza ve yanıt eki gereklilikleri geçerlidir. Yanıtlamadan önce **Chat** kullanabilirsiniz.
+
+Bağlantı yalnızca görev bir karar beklerken erişim sağlar. Karar verilmesi, iptal, atlama veya yeni revizyonla değiştirme; indirmeler ve Chat dahil tüm misafir erişimini kapatır. Belgelerinize ve makbuzlarınıza dönmek için isteği alan e-posta adresiyle kaydolun veya oturum açın. Önceki görevleriniz saklama kuralları kapsamında **Personal** içinde kalır. Kayıt olmak kuruluş üyeliği vermez.
+
+Bağlantıyı gizli tutun: bağlantıya sahip herkes görev üzerinde işlem yapabilir. Hesap gerekiyorsa veya zaten hesabınız varsa normal oturum açmayı kullanın.
+
+Bu görev hâlâ karar beklerken kaydolursanız mevcut misafir bağlantısı e-posta adresinizi doğrulayana kadar kullanılabilir. Doğrulamadan sonra göreve erişmek için oturum açın.
+
 ## görevini bulun {#find-the-task}
 
 1. [Uygulamayı](/app/) görevin gönderildiği hesapla açın.

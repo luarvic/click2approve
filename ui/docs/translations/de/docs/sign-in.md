@@ -4,7 +4,7 @@ description: Erstellen Sie ein Click2Approve-Konto, bestätigen Sie Ihre E-Mail,
 ---
 # Registrierung und Anmeldung {#registration-and-sign-in}
 
-Melden Sie sich bei Click2Approve an, um Dokumente zur Genehmigung zu senden oder eine Aufgabe abzuschließen. Mit Ihrem Konto haben Sie Zugriff auf **Personal**, Ihren Arbeitsbereich für Ihre eigenen Anfragen und per E-Mail adressierten Aufgaben sowie auf alle Organisationen, bei denen Sie Mitarbeiterzugriff haben. Wenn Sie einem Aufgabenlink folgen, verwenden Sie die E-Mail-Adresse, an die die Aufgabe gesendet wurde.
+Melden Sie sich bei Click2Approve an, um Dokumente zu senden, Ihre Arbeit zu verwalten oder Aufgaben mit Anmeldepflicht zu erledigen. Nicht registrierte Empfänger können [über einen sicheren E-Mail-Link antworten](complete-a-task.md#guest-review), wenn der Anforderer dies erlaubt. Registrieren Sie sich mit derselben E-Mail-Adresse, um Ihre Gastaufgaben, Dokumente und Belege gemäß den Aufbewahrungsregeln in **Personal** zu behalten. Bestätigen Sie Ihre Adresse, wenn Sie dazu aufgefordert werden. Organisationsmitgliedschaften werden separat verwaltet.
 
 ## registrieren {#register}
 

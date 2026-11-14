@@ -83,6 +83,7 @@ try {
 
   for (const path of [
     "/app/logo-with-text.png",
+    "/app/logo-email.png",
     "/app/logo-wall-to-wall.svg",
     "/app/logo-narrow.svg",
     "/app/styles.css",
@@ -115,7 +116,6 @@ try {
     "/app/help.html",
     "/app/help.css",
     "/app/favicon.ico",
-    "/app/logo-email.png",
   ]) {
     const response = await request(path);
     assert.equal(response.status, 404, path);

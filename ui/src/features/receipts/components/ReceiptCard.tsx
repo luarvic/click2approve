@@ -224,6 +224,14 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
                   ["Completed at", getLocaleDateTimeString(task.completedAt)],
                   ["Completed by", task.completedByDisplayName],
                   [
+                    "Responded using",
+                    task.completedViaEmailLink == null
+                      ? undefined
+                      : task.completedViaEmailLink
+                        ? "Email link"
+                        : "Account sign-in",
+                  ],
+                  [
                     "Status",
                     task.taskStatus === undefined
                       ? getTaskStatus(task.result)

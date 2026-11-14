@@ -23,6 +23,7 @@ Lihat [Membuat permintaan](create-a-request.md) dan [Konfigurasi langkah alur ke
 
 | Fitur | Sumber terbuka | Komersial |
 | --- | --- | --- |
+| [Persetujuan tamu melalui tautan email aman](complete-a-task.md#guest-review) | — | ✓ |
 | Permintaan dan tugas Personal dengan file yang diunggah | Termasuk | Termasuk |
 | Beberapa langkah alur kerja, penerima tugas serial atau paralel, dan semua/setiap aturan penyelesaian | Termasuk | Termasuk |
 | Tindakan persetujuan, tanda tangan, konfirmasi, pengakuan, peninjauan, verifikasi, penerimaan, dan penyelesaian | Termasuk | Termasuk |

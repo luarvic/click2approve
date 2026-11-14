@@ -6,7 +6,7 @@ namespace Click2Approve.WebApi.Mappers.ApprovalRequests;
 /// <summary>
 /// Maps approval-request application results to HTTP responses.
 /// </summary>
-internal static class ApprovalRequestResponseMapper
+public static class ApprovalRequestResponseMapper
 {
     public static List<ApprovalRequestListItemResponse> Map(IEnumerable<ApprovalRequestListItemResult> results) => [.. results.Select(Map)];
 
@@ -110,6 +110,7 @@ internal static class ApprovalRequestResponseMapper
         EmployeeGlobalId = result.EmployeeGlobalId,
         GlobalId = result.GlobalId,
         TeamGlobalId = result.TeamGlobalId,
+        AccountSignInRequired = result.AccountSignInRequired,
         Type = result.Type
     };
 
@@ -126,6 +127,7 @@ internal static class ApprovalRequestResponseMapper
         AssigneeLegalName = result.AssigneeLegalName,
         AssigneeRepresentationDetails = result.AssigneeRepresentationDetails,
         AssigneeSignatureJson = result.AssigneeSignatureJson,
+        CompletedViaEmailLink = result.CompletedViaEmailLink,
         Comment = result.Comment,
         CompletedAt = result.CompletedAt,
         CompletedByDisplayName = result.CompletedByDisplayName,

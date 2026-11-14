@@ -1,3 +1,4 @@
+import type { UserFile } from "@/features/userFiles/models/userFile";
 import { stores } from "@/app/rootStore";
 import { summaryCardContentSx } from "@/features/approvalRequests/components/approvalRequestSummaryStyles";
 import { getTaskCompletedTimestamp } from "@/features/approvalRequests/components/approvalRequestCompletionTimestamps";
@@ -30,6 +31,7 @@ import type { ElementType, ReactNode } from "react";
 
 interface ApprovalRequestTaskSummaryBlockProps {
   additionalMetadata?: ReactNode;
+  onDownloadFile?: (file: UserFile) => void;
   assignedVia?: ApprovalStepAssignee;
   defaultExpanded?: boolean;
   expandable?: boolean;
@@ -49,6 +51,7 @@ interface ApprovalRequestTaskSummaryBlockProps {
   showInstructionsLabel?: boolean;
   showRevision?: boolean;
   showRequester?: boolean;
+  showOrganization?: boolean;
   showTimeline?: boolean;
   showTitle?: boolean;
   task: ApprovalRequestTask;
@@ -73,6 +76,7 @@ const getTaskCompletionLabel = (task: ApprovalRequestTask): string | undefined =
 
 const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockProps> = ({
   additionalMetadata,
+  onDownloadFile,
   assignedVia,
   defaultExpanded,
   expandable,
@@ -92,11 +96,12 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
   showInstructionsLabel = true,
   showRevision = true,
   showRequester = false,
+  showOrganization,
   showTimeline = true,
   showTitle = true,
   task,
 }) => {
-  const organizationIsVisible = stores.tenantStore.currentTenant?.type === TenantType.Personal;
+  const organizationIsVisible = showOrganization ?? stores.tenantStore.currentTenant?.type === TenantType.Personal;
   const requestedByEmail = task.requestedByEmail ?? task.approvalRequest?.requesterEmail;
   const participantDisplayName = participant === "assignee" ? task.assigneeDisplayName : task.requestedByDisplayName;
   const participantEmail = participant === "assignee" ? task.assigneeEmail : requestedByEmail;
@@ -326,6 +331,7 @@ const ApprovalRequestTaskSummaryBlock: React.FC<ApprovalRequestTaskSummaryBlockP
       onClick={onClick}
     >
       <ApprovalRequestSummary
+        onDownloadFile={onDownloadFile}
         activity={activity}
         title={task.title}
         description={task.description}

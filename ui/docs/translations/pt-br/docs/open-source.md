@@ -23,6 +23,7 @@ Consulte [Criar uma solicitação](create-a-request.md) e [Configurar etapas do 
 
 | Recurso | Código aberto | Comercial |
 | --- | --- | --- |
+| [Aprovações de convidados por links seguros de e-mail](complete-a-task.md#guest-review) | — | ✓ |
 | Solicitações e tarefas Personal com arquivos carregados | Incluído | Incluído |
 | Várias etapas de fluxo de trabalho, responsáveis seriais ou paralelos e todas/quaisquer regras de conclusão | Incluído | Incluído |
 | Ações de aprovação, assinatura, confirmação, reconhecimento, revisão, verificação, aceitação e conclusão | Incluído | Incluído |

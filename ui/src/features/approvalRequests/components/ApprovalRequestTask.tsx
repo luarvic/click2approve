@@ -3,7 +3,7 @@ import { completeApprovalRequestTask } from "@/features/approvalRequests/api/app
 import ApprovalRequestActionBar from "@/features/approvalRequests/components/ApprovalRequestActionBar";
 import ApprovalRequestDetails from "@/features/approvalRequests/components/ApprovalRequestDetails";
 import ApprovalRequestDiscussionSection from "@/features/approvalRequests/components/ApprovalRequestDiscussionSection";
-import ApprovalRequestElectronicSignatureForm from "@/features/approvalRequests/components/ApprovalRequestElectronicSignatureForm";
+import ApprovalRequestTaskResponseForm from "@/features/approvalRequests/components/ApprovalRequestTaskResponseForm";
 import ApprovalRequestTaskAttachmentList from "@/features/approvalRequests/components/ApprovalRequestTaskAttachmentList";
 import ApprovalRequestTaskAttachments, {
   ApprovalRequestTaskAttachmentsHandle,
@@ -12,7 +12,6 @@ import ApprovalRequestTaskSummaryBlock from "@/features/approvalRequests/compone
 import { ApprovalRequest } from "@/features/approvalRequests/models/approvalRequest";
 import { ApprovalRequestStatus } from "@/features/approvalRequests/models/approvalRequestStatus";
 import { ApprovalRequestTaskStatus } from "@/features/approvalRequests/models/approvalRequestTaskStatus";
-import { getApprovalRequestTaskActionLabels } from "@/features/approvalRequests/utils/approvalRequestTaskActionLabels";
 import { createApprovalRequestTaskClientAuditContext } from "@/features/approvalRequests/utils/approvalRequestTaskClientAuditContext";
 import { getIncompleteParticipantNameWarning } from "@/features/approvalRequests/utils/incompleteParticipantNameWarning";
 import {
@@ -24,7 +23,6 @@ import { UserFile } from "@/features/userFiles/models/userFile";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import ConfirmationDialog from "@/shared/components/dialogs/ConfirmationDialog";
 import { Forms } from "@/shared/components/dialogs/formStyles";
-import FormCard from "@/shared/components/forms/FormCard";
 import FormSection from "@/shared/components/forms/FormSection";
 import CloseOnEscape from "@/shared/components/navigation/CloseOnEscape";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
@@ -40,17 +38,7 @@ import {
   PersistenceSuccessMessages,
   showPersistenceSuccessNotification,
 } from "@/shared/utils/persistenceNotifications";
-import {
-  FormControl,
-  FormControlLabel,
-  FormHelperText,
-  Radio,
-  RadioGroup,
-  Stack,
-  Tab,
-  Tabs,
-  TextField,
-} from "@mui/material";
+import { Stack, Tab, Tabs } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -105,7 +93,6 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
   const discussionAttachmentsAreEnabled = stores.applicationConfigurationStore.discussionAttachmentsAreEnabled;
   const taskAttachmentsAreEnabled = stores.applicationConfigurationStore.taskAttachmentsAreEnabled;
   const isCompleted = Boolean(currentTask && currentTask.status !== ApprovalRequestTaskStatus.Pending);
-  const actionLabels = getApprovalRequestTaskActionLabels(currentTask?.action);
   const completeTaskLoader = ActionLoaders.approvalRequestTasks.complete(currentTask?.globalId);
   const submitAction = useAsyncAction(completeTaskLoader);
   const requiresElectronicSignature = result === true && currentTask?.isElectronicSignatureRequired === true;
@@ -317,77 +304,55 @@ const ApprovalRequestTask: React.FC<ApprovalRequestTaskProps> = ({ onClose, tab,
               />
             )}
             {!isCompleted && (
-              <FormCard title="Your response">
-                <FormControl key="decision" fullWidth error={decisionError}>
-                  <RadioGroup
-                    aria-label="Your decision"
-                    row
-                    name="decision"
-                    value={typeof result === "boolean" ? String(result) : ""}
-                    onChange={(event) => {
-                      setResult(event.target.value === "true");
-                      setDecisionError(false);
-                      setAttachmentError(false);
-                    }}
-                  >
-                    <FormControlLabel value="true" control={<Radio />} label={actionLabels.positive} />
-                    <FormControlLabel value="false" control={<Radio />} label={actionLabels.negative} />
-                  </RadioGroup>
-                  {decisionError && (
-                    <FormHelperText sx={Forms.fieldHelperTextSx}>{actionLabels.missing}</FormHelperText>
-                  )}
-                </FormControl>
-                {taskAttachmentsAreEnabled && currentTask && tenantGlobalId && (
-                  <FormSection title="Files attached to this decision">
-                    <ApprovalRequestTaskAttachments
-                      showLabel={false}
-                      canManageFiles={!isCompleted}
-                      label="Files attached to this decision"
-                      newFiles={taskAttachmentFiles}
-                      onNewFilesChange={(files) => {
-                        setTaskAttachmentFiles(files);
-                        setAttachmentError(false);
-                      }}
-                      ref={taskAttachments}
-                      taskFiles={currentTask.taskFiles ?? []}
-                      taskGlobalId={currentTask.globalId}
-                      tenantGlobalId={tenantGlobalId}
-                    />
-                  </FormSection>
-                )}
-                {attachmentError && (
-                  <FormHelperText error sx={Forms.fieldHelperTextSx}>
-                    At least one attachment is required.
-                  </FormHelperText>
-                )}
-                <TextField
-                  id="comment"
-                  name="comment"
-                  fullWidth
-                  label="Comment"
-                  multiline
-                  value={comment}
-                  error={validation.field("comment").error}
-                  helperText={validation.message("comment")}
-                  onChange={(event) => setComment(event.target.value)}
-                />
-                {requiresElectronicSignature && (
-                  <ApprovalRequestElectronicSignatureForm
-                    errors={{
-                      legalName: validation.message("legalName") ?? "",
-                      signature: validation.message("signatureJson") ?? "",
-                      representationDetails: validation.message("representationDetails"),
-                    }}
-                    legalName={legalName}
-                    representationDetails={representationDetails}
-                    onLegalNameChange={setLegalName}
-                    onRepresentationDetailsChange={setRepresentationDetails}
-                    onSignatureChange={setSignatureJson}
-                    signatureJson={signatureJson}
-                    showRepresentationDetails={canEnterRepresentationDetails}
-                  />
-                )}
-              </FormCard>
+              <ApprovalRequestTaskResponseForm
+                action={currentTask?.action}
+                result={result}
+                onResultChange={(value) => {
+                  setResult(value);
+                  setDecisionError(false);
+                  setAttachmentError(false);
+                }}
+                decisionError={decisionError}
+                attachmentError={attachmentError}
+                comment={comment}
+                onCommentChange={setComment}
+                commentError={validation.message("comment")}
+                requiresElectronicSignature={requiresElectronicSignature}
+                legalName={legalName}
+                onLegalNameChange={setLegalName}
+                representationDetails={representationDetails}
+                onRepresentationDetailsChange={setRepresentationDetails}
+                signatureJson={signatureJson}
+                onSignatureChange={setSignatureJson}
+                showRepresentationDetails={canEnterRepresentationDetails}
+                signatureErrors={{
+                  legalName: validation.message("legalName") ?? "",
+                  signature: validation.message("signatureJson") ?? "",
+                  representationDetails: validation.message("representationDetails"),
+                }}
+                attachments={
+                  taskAttachmentsAreEnabled &&
+                  currentTask &&
+                  tenantGlobalId && (
+                    <FormSection title="Files attached to this decision">
+                      <ApprovalRequestTaskAttachments
+                        showLabel={false}
+                        canManageFiles={!isCompleted}
+                        label="Files attached to this decision"
+                        newFiles={taskAttachmentFiles}
+                        onNewFilesChange={(files) => {
+                          setTaskAttachmentFiles(files);
+                          setAttachmentError(false);
+                        }}
+                        ref={taskAttachments}
+                        taskFiles={currentTask.taskFiles ?? []}
+                        taskGlobalId={currentTask.globalId}
+                        tenantGlobalId={tenantGlobalId}
+                      />
+                    </FormSection>
+                  )
+                }
+              />
             )}
           </Stack>
           <ApprovalRequestActionBar onClose={handleClose}>

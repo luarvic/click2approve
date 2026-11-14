@@ -31,6 +31,7 @@ public class ApplicationConfigurationController(IConfiguration configuration) : 
             Capabilities = new ProductCapabilitiesResponse
             {
                 Tenants = _configuration.GetValue<bool>("Product:Capabilities:Tenants"),
+                GuestApprovals = _configuration.GetValue<bool>("Product:Capabilities:GuestApprovals"),
                 ApiTokens = _configuration.GetValue<bool>("Product:Capabilities:ApiTokens"),
                 Discussions = _configuration.GetValue<bool>("Product:Capabilities:Discussions"),
                 DiscussionAttachments = _configuration.GetValue<bool>("Product:Capabilities:DiscussionAttachments"),

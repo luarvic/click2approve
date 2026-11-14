@@ -171,6 +171,7 @@ public static class ApprovalRequestMapper
     {
         return new ApprovalRequestAssigneeResult
         {
+            AccountSignInRequired = assignee.AccountSignInRequired,
             GlobalId = assignee.GlobalId,
             Type = assignee.Type,
             Email = assignee.User.NormalizedEmailOrEmpty(),
@@ -217,6 +218,7 @@ public static class ApprovalRequestMapper
             Status = task.Status,
             CreatedAt = task.CreatedAt,
             CompletedAt = task.CompletedAt,
+            CompletedViaEmailLink = task.CompletedViaEmailLink,
             Description = task.Description,
             Instructions = task.Instructions,
             IsAttachmentRequired = task.IsAttachmentRequired,

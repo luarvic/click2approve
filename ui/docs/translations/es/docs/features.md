@@ -24,6 +24,7 @@ Por ejemplo, dos revisores pueden comprobar una propuesta en el primer paso. El 
 
 | Característica | Personal | Organización |
 | --- | --- | --- |
+| [Aprobaciones de invitados mediante enlaces seguros](complete-a-task.md#guest-review) | ✓ | ✓ |
 | Requests, tareas, pasos ordenados y responsables de correo electrónico | Disponible | Disponible |
 | Comentarios requeridos y firmas electrónicas | Disponible | Disponible |
 | Discusiones y archivos adjuntos de discusión | Disponible | Disponible |

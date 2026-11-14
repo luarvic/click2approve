@@ -4,7 +4,7 @@ description: Create a Click2Approve account, confirm your email, sign in to revi
 ---
 # Registration and sign-in
 
-Sign in to Click2Approve to send documents for approval or complete a task. Your account can access **Personal**, your workspace for your own requests and email-addressed tasks, and any organizations where you have employee access. When following a task link, use the email address the task was sent to.
+Sign in to Click2Approve to send documents, manage your work, or complete a task that requires account sign-in. Unregistered recipients can [respond through a secure email link](complete-a-task.md#guest-review) when the requester allows it. Register with the same email address to keep access to your guest tasks, documents, and receipts in **Personal**, subject to retention. Confirm your email when prompted. Organization membership is managed separately.
 
 ## Register
 

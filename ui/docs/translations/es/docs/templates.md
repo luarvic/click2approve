@@ -13,6 +13,8 @@ Cada plantilla pertenece a la persona que la crea. Las plantillas son privadas d
 !!! info "Solo organización"
     Seleccione una organización para crear y reutilizar plantillas de flujo de trabajo. Las plantillas pertenecen a esa organización y no están disponibles en Personal.
 
+Las plantillas guardan la elección **User** o **Guest** de cada destinatario por correo. Revise **Type** al iniciar una solicitud; los empleados y equipos siempre deben iniciar sesión.
+
 ## Crear una plantilla {#create-a-template}
 
 Abra **Templates** en la organización y cree una plantilla con un nombre descriptivo y pasos reutilizables. Configure acciones, instrucciones, asignados, reglas de finalización, visibilidad y requisitos adicionales, luego guárdelos.

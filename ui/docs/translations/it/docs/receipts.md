@@ -13,6 +13,8 @@ Puoi condividere una ricevuta tramite un link di verifica. La persona con il col
 
 Il richiedente e ogni persona che ha ricevuto un’attività ottengono una ricevuta quando la richiesta viene completata, annullata o sostituita da una nuova revisione. Ogni persona riceve una sola ricevuta per spazio di lavoro e revisione della richiesta, anche se ha più attività o è anche il richiedente. Non è necessario completare l’attività: lo stato registrato distingue l’assegnazione dall’azione eseguita. I passaggi che non hanno generato attività non emettono ricevute per gli assegnatari.
 
+Quando registrato, **Responded using** mostra **Email link** o **Account sign-in** per una decisione. Il campo è assente nei dati precedenti e negli esiti automatici.
+
 ## Apri una ricevuta {#open-a-receipt}
 
 Apri **Receipts** nell'area di lavoro in cui hai inviato la richiesta o completato l'attività, quindi seleziona la ricevuta per quella richiesta. L'intestazione della scheda **Receipt** include il numero breve, la richiesta corrispondente e le intestazioni della scheda attività. La carta mostra l'ID completo e la data, seguiti dalle sezioni **Request** e **Task** con i dettagli registrati, i risultati, i partecipanti, le azioni e le firme ove presenti.

@@ -13,6 +13,8 @@ Jede Vorlage gehört der Person, die sie erstellt. Vorlagen sind standardmäßig
 !!! info "Nur Organisation"
     Wählen Sie eine Organisation aus, um Workflow-Vorlagen zu erstellen und wiederzuverwenden. Vorlagen gehören zu dieser Organisation und sind in Personal nicht verfügbar.
 
+Vorlagen speichern für jeden E-Mail-Empfänger die Auswahl **User** oder **Guest**. Prüfen Sie **Type**, wenn Sie eine Anfrage starten; Mitarbeiter und Teams müssen sich immer anmelden.
+
 ## Erstellen Sie eine Vorlage {#create-a-template}
 
 Öffnen Sie **Templates** in der Organisation und erstellen Sie eine Vorlage mit einem beschreibenden Namen und wiederverwendbaren Schritten. Konfigurieren Sie Aktionen, Anweisungen, Beauftragte, Abschlussregeln, Sichtbarkeit und zusätzliche Anforderungen und speichern Sie sie dann.

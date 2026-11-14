@@ -8,6 +8,8 @@ Przepływ pracy zatwierdzania określa, kto i w jakiej kolejności wykonuje czyn
 
 Użyj **Add step**, aby utworzyć kolejny krok, strzałek, aby zmienić jego kolejność, a przycisku usuwania, aby go usunąć.
 
+Wybierz **Guest** w polu **Type**, aby niezarejestrowany odbiorca e-mail mógł przejrzeć dokumenty i odpowiedzieć przez bezpieczny link, bez hasła ani kodu weryfikacyjnego. Nowi odbiorcy e-mail mają domyślnie typ **Guest**. Wybierz **User**, aby wymagać rejestracji i logowania. Pracownicy i zespoły zawsze muszą się zalogować. Odbiorcy mający już konto korzystają ze zwykłego logowania, również przy przypisaniu jako **Guest**.
+
 ## Zatwierdzenia sekwencyjne i równoległe {#sequential-and-parallel-approvals}
 
 Użyj oddzielnych kroków, gdy jedna decyzja musi nastąpić przed drugą. To jest **zatwierdzenie sekwencyjne**. Na przykład recenzent zatwierdza propozycję w kroku 1, a następnie klient podpisuje się w kroku 2.

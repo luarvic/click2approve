@@ -23,6 +23,11 @@ public class UserOnlyAssigneeResolver(
         IReadOnlyCollection<AssigneeResolveItem> assignees,
         CancellationToken cancellationToken)
     {
+        if (assignees.Any(item => !item.Assignee.AccountSignInRequired))
+        {
+            throw new BusinessRuleException("This product edition requires account sign-in.");
+        }
+
         var usersByEmail = new Dictionary<string, AppUser>();
         foreach (var email in assignees.Select(GetEmail).Distinct())
         {

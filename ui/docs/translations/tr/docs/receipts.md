@@ -13,6 +13,8 @@ Bir doğrulama bağlantısını kullanarak bir sonuç kaydı paylaşabilirsiniz.
 
 İstek tamamlandığında, iptal edildiğinde veya yeni bir revizyonla değiştirildiğinde, isteği oluşturan kişi ve gerçekten görev almış her katılımcı bir sonuç kaydı alır. Birden fazla görevi olsa veya isteği oluşturan kişi de olsa, her kişi için çalışma alanı ve istek revizyonu başına yalnızca bir kayıt oluşturulur. Kayıt almak için görevi tamamlamak gerekmez; kaydedilen durum, görevlendirmeyi tamamlanmış eylemden ayırır. Görev oluşturmayan adımlar, o adımın katılımcıları için kayıt üretmez.
 
+Kaydedilmişse **Responded using**, karar için **Email link** veya **Account sign-in** gösterir. Eski kayıtlarda ve otomatik sonuçlarda bu alan bulunmaz.
+
 ## Bir sonuç kaydı açın {#open-a-receipt}
 
 İsteği gönderdiğiniz veya görevinizi tamamladığınız çalışma alanında **Receipts**'yi açın ve ardından bu isteğe ilişkin sonuç kaydını seçin. **Receipt** kart başlığı kısa numarasını, eşleşen isteği ve görev kartı başlıklarını içerir. Kartta tam kimlik ve tarih gösterilir, ardından kaydedilen ayrıntılar, sonuçlar, katılımcılar, eylemler ve imzaların bulunduğu **Request** ve **Task** bölümleri gelir. **Request** ve **Task** bölüm başlıkları, hem çalışma alanı sonuç kayıtlarında hem de paylaşılan doğrulama sayfalarında kısa numaralarını içerir. Tam istek ve görev kimlikleri, mevcut olduğunda kaydedilen ayrıntılarda kalır.

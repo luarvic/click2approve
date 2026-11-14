@@ -13,6 +13,8 @@ Ogni modello appartiene alla persona che lo crea. I modelli sono privati per imp
 !!! info "Solo organizzazione"
     Seleziona un'organizzazione per creare e riutilizzare modelli di flusso di lavoro. I modelli appartengono a quell'organizzazione e non sono disponibili in Personal.
 
+I modelli salvano la scelta **User** o **Guest** per ogni destinatario e-mail. Controllate **Type** quando avviate una richiesta; dipendenti e team devono sempre accedere.
+
 ## Crea un modello {#create-a-template}
 
 Apri **Templates** nell'organizzazione e crea un modello con un nome descrittivo e passaggi riutilizzabili. Configura azioni, istruzioni, assegnatari, regole di completamento, visibilità e requisiti aggiuntivi, quindi salva.

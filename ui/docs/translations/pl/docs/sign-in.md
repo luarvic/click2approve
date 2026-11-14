@@ -4,7 +4,7 @@ description: Utwórz konto Click2Approve, potwierdź swój adres e-mail, zaloguj
 ---
 # Rejestracja i logowanie {#registration-and-sign-in}
 
-Zaloguj się do Click2Approve, aby wysłać dokumenty do zatwierdzenia lub wykonać zadanie. Twoje konto ma dostęp do **Personal**, Twojego obszaru roboczego do własnych żądań i zadań kierowanych na adres e-mail, a także do wszelkich organizacji, do których masz dostęp pracowników. Podążając za linkiem do zadania, użyj adresu e-mail, na który zadanie zostało wysłane.
+Zaloguj się do Click2Approve, aby wysyłać dokumenty, zarządzać pracą lub wykonywać zadania wymagające konta. Niezarejestrowani odbiorcy mogą [odpowiedzieć przez bezpieczny link e-mail](complete-a-task.md#guest-review), jeśli nadawca na to pozwala. Zarejestruj się z tym samym adresem, aby zachować zadania, dokumenty i potwierdzenia w **Personal**, zgodnie z zasadami przechowywania. Potwierdź adres, gdy pojawi się taka prośba. Członkostwo w organizacji jest zarządzane oddzielnie.
 
 ## Zarejestruj {#register}
 

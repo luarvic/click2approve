@@ -13,6 +13,8 @@ Każdy szablon należy do osoby, która go tworzy. Szablony są domyślnie prywa
 !!! info "Tylko organizacja"
     Wybierz organizację, aby utworzyć i ponownie wykorzystać szablony przepływu pracy. Szablony należą do tej organizacji i są niedostępne w Personal.
 
+Szablony zapisują wybór **User** lub **Guest** dla każdego odbiorcy e-mail. Sprawdź **Type** przy rozpoczynaniu prośby; pracownicy i zespoły zawsze muszą się zalogować.
+
 ## Utwórz szablon {#create-a-template}
 
 Otwórz **Templates** w organizacji i utwórz szablon z opisową nazwą i krokami do ponownego wykorzystania. Skonfiguruj akcje, instrukcje, osoby przydzielone, zasady ukończenia, widoczność i dodatkowe wymagania, a następnie zapisz.

@@ -21,7 +21,11 @@ export async function checkAnalyticsConsent(origin, analyticsId) {
         await route.fulfill({
           contentType: "application/json",
           headers: { "access-control-allow-origin": origin, "access-control-allow-credentials": "true" },
-          body: JSON.stringify({ edition: "OpenSource", capabilities: {}, requiresConfirmedEmail: false }),
+          body: JSON.stringify({
+            edition: "Business",
+            capabilities: { guestApprovals: true },
+            requiresConfirmedEmail: false,
+          }),
         });
       } else if (url.origin === origin) await route.continue();
       else await route.fulfill({ contentType: "application/json", body: "{}" });
@@ -40,7 +44,7 @@ export async function checkAnalyticsConsent(origin, analyticsId) {
     if (!analyticsId) {
       await expect(banner).not.toBeVisible();
       await expect(settings).toHaveCount(0);
-      for (const path of ["/docs/", "/app/signIn"]) {
+      for (const path of ["/docs/", "/app/signIn", "/app/guest/tasks/private-task#token=private-token"]) {
         await page.goto(`${origin}${path}`, { waitUntil: "networkidle" });
         await expect(banner).not.toBeVisible();
         await expect(settings).toHaveCount(0);
@@ -162,6 +166,36 @@ export async function checkAnalyticsConsent(origin, analyticsId) {
       await expect(banner).toBeVisible();
       await expect(toggle).not.toBeChecked();
       assert.equal(googleRequests.length, 4, "Unavailable storage never silently remembers acceptance");
+
+      const guest = await context.newPage();
+      await guest.goto(`${origin}/app/guest/tasks/private-task?email=private@example.com#token=private-token`, {
+        waitUntil: "networkidle",
+      });
+      await expect(guest.getByRole("button", { name: "Continue to document", exact: true })).toBeVisible();
+      await expect(guest.getByRole("region", { name: "Optional analytics" })).toBeVisible();
+      assert.equal(googleRequests.length, 4, "Guest entry still requires analytics consent");
+      await guest.getByRole("switch", { name: "Allow analytics", exact: true }).check();
+      await expect.poll(() => googleRequests.length).toBe(5);
+      const guestEvent = {
+        page_location: `${origin}/app/guest/tasks/:task`,
+        page_title: "Guest task",
+        page_referrer: "",
+      };
+      await expect.poll(async () => (await events(guest)).at(-1)?.[2]).toEqual(guestEvent);
+      const configuration = await guest.evaluate(() =>
+        (window.dataLayer || []).filter((item) => item[0] === "config").map((item) => Array.from(item)),
+      );
+      assert.equal(configuration[0][2].page_location, guestEvent.page_location);
+      await guest.evaluate(() => history.pushState(null, "", "/app/signIn?returnUrl=private-return#private-token"));
+      await expect.poll(async () => (await events(guest)).at(-1)?.[2]?.page_location).toBe(`${origin}/app/signIn`);
+      await guest.evaluate(() => history.replaceState(null, "", "/app/guest/tasks/another-task?tab=chat#token=another-token"));
+      await expect.poll(async () => (await events(guest)).at(-1)?.[2]).toEqual(guestEvent);
+      assert.doesNotMatch(
+        JSON.stringify([configuration, await events(guest)]),
+        /private-task|another-task|private@example|private-token|another-token|private-return|tab=chat/,
+      );
+      assert.equal(googleRequests.length, 5, "Guest navigation reuses the shared analytics instance");
+      await guest.close();
     }
     await context.close();
     console.log(
