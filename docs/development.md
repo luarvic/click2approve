@@ -60,7 +60,10 @@ The landing page and guides also need the MkDocs preview; see
 ## Complete test suite
 
 The public test runner covers API and UI tests, Blob/Queue integration, attachment
-browser regression, lint, production build, and strict documentation validation.
+browser regression, portal and analytics browser checks with analytics disabled
+and enabled, fresh Compose startup, lint, production build, and strict documentation
+validation. Browser checks run locally; public main, feature, and release CI runs
+API/provider tests, UI unit tests, lint, build, and strict documentation validation.
 
 Start Azurite with `docker compose up -d azurite`. From `ui/`, run `npm ci`,
 `npx playwright install chromium`, and install the documentation dependencies
@@ -71,4 +74,39 @@ C2A_TEST_AZURITE=UseDevelopmentStorage=true node scripts/test.mjs
 ```
 
 In VS Code, **Terminal → Run Task → test** supplies the Azurite setting.
-SQL Server and the commercial repository are not required for this suite.
+The Compose regression starts its own disposable SQL Server; no separately
+configured SQL Server or commercial repository is required. Docker is required
+for the packaged portal and Compose checks, even with Azurite already running.
+
+The same runner accepts `api`, `ui`, `attachments`, `portal`, `portal-analytics`,
+and `compose` to run one group. For example, `node scripts/test.mjs attachments`
+runs the attachment browser regression; omitting the group runs the full suite.
+Only `api` and the full suite require `C2A_TEST_AZURITE`.
+
+CI runs API and UI/docs in separate jobs without installing or launching browsers.
+Run the complete local suite before merging or releasing. Attachment previews,
+portal/analytics browser checks in both modes, and fresh Compose startup are
+local-only because of CI timeout risk. The commercial repository follows the
+same local-only browser policy.
+
+## Docker startup check
+
+The local Compose stack waits for a successful SQL query, then starts the API.
+Workers and UI wait until the API responds after database initialization. This
+prevents worker connections from blocking initial SQL Server configuration.
+
+If the app cannot connect, inspect `docker compose ps -a` and
+`docker compose logs api` from the repository root. An API startup failure can
+leave the browser reporting a network error even though the UI container is up.
+
+With Docker and the UI's Playwright Chromium installed, run:
+
+```sh
+cd ui
+npm run test:compose
+```
+
+This builds and starts a separate Compose project with fresh disposable SQL
+Server storage and dynamically assigned ports. It verifies snapshot isolation,
+application tables, API readiness, worker startup, and the app's sign-in screen.
+It removes only its own test containers and volumes when finished.

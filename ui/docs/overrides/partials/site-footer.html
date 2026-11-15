@@ -5,9 +5,13 @@
       <a href="{{ site_path() }}">{{ t("Home") }}</a>
       <a href="/app/">{{ t("App") }}</a>
       <a href="{{ 'docs/' | url }}">{{ t("Docs") }}</a>
-      <a href="{{ 'contact/' | url }}">{{ t("Contact") }}</a>
-      <a href="{{ 'terms/' | url }}">{{ t("Terms") }}</a>
-      <a href="{{ 'privacy/' | url }}">{{ t("Privacy") }}</a>
+      <a href="{{ 'contact/' | url }}">{{ t("Contact") if config.extra.portal == 'hosted' else 'Community help' }}</a>
+      {% if config.extra.terms_url %}
+      <a href="{{ config.extra.terms_url if config.extra.terms_url != '/terms/' else 'terms/' | url }}">{{ t("Terms") }}</a>
+      {% endif %}
+      {% if config.extra.privacy_url %}
+      <a href="{{ config.extra.privacy_url if config.extra.privacy_url != '/privacy/' else 'privacy/' | url }}">{{ t("Privacy") }}</a>
+      {% endif %}
       {% if config.extra.google_analytics_id %}
         <button type="button" class="analytics-settings" data-analytics-settings>{{ t("Analytics settings") }}</button>
       {% endif %}

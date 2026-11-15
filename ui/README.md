@@ -15,130 +15,62 @@ do not bypass peer dependency checks with `--force` or `--legacy-peer-deps`.
 
 ## User documentation
 
-The UI Docker image builds one MkDocs Material site at `/`, with a product
-landing page, `/contact/`, `/terms/`, `/privacy/`, and user documentation under
-`/docs/`. The documentation root is a table of contents; Getting started lives at
-`/docs/getting-started/`. The Docs menu opens `/docs/`; `/docs` redirects to `/docs/`.
-Legacy `/ui` and `/ui/…` URLs permanently redirect to `/app/`, discarding old paths and query strings. The React
-application is served separately at `/app/`. Terms and privacy live at `/terms/`
-and `/privacy/`; hosted-service operators must maintain notices matching their practices.
+The public UI image includes an English-only open-source portal: a landing page
+at `/`, user guides at `/docs/`, and community help at `/contact/`. The shared
+React app lives at `/app/`. Commercial guides and legal notices are not bundled.
+The portal has no language picker or saved-language redirects. Missing pages
+return HTTP 404.
 
-From `ui/`, install the app dependencies (`npm ci`) and the documentation tools:
+From `ui/`, install dependencies and preview the portal:
 
 ```sh
+npm ci
 python3 -m venv .venv-docs
 .venv-docs/bin/python -m pip install -r docs/requirements.txt
 .venv-docs/bin/python -m mkdocs serve --dev-addr 127.0.0.1:8000
 ```
 
-Preview the landing page at `http://127.0.0.1:8000/` and guides at
-`http://127.0.0.1:8000/docs/`. With the Vite development server running,
-`http://localhost:3333/` and the public-site paths proxy to MkDocs, while `/app/`
-serves React. Use port 3333 to try the complete navigation. Restart an existing
-MkDocs preview after changing `site_url`, since its mount path is set at startup.
+With Vite running, open `http://localhost:3333/` or `/docs/` to share appearance
+preferences with the app. Vite proxies public pages to MkDocs on port 8000.
+The public workspace's `run-docs` task starts this preview. The business workspace
+selects its own portal configuration.
 
-In VS Code, choose **Tasks: Run Task → run-docs**. This task runs `setup-docs`
-first to create the virtual environment and install dependencies, then starts
-the preview on port 8000. Both the business and public repository workspaces
-provide these tasks. Stop it through **Tasks: Terminate Task**.
+English content lives in `docs/content/`; navigation is in `mkdocs.yml`. Add
+guides to both the Documentation menu and `docs/content/docs/index.md`. Previous,
+Table of contents, and Next links follow the menu order automatically. Keep
+instructions limited to the open-source edition and preserve literal app labels.
+Developer setup and deployment instructions belong in repository documentation.
 
-The homepage metadata in `docs/content/index.md` selects `docs/overrides/landing.html`.
-The landing page walks through creating, signing, and verifying a proposal using
-responsive HTML example cards. The cards use the current theme and readable text
-at every screen size. Keep the examples explicitly labeled as illustrative and
-use fictional people and details; they are explanations rather than app controls.
-The product demo uses a local thumbnail and loads its YouTube player only after
-the visitor selects Play.
-Supporting pages use `template: marketing.html`; their content stays in Markdown.
-User guides live in `docs/content/docs/` and retain the documentation shell. Add
-new guides under the appropriate group within Documentation in `mkdocs.yml`; only
-those guide groups appear in the documentation drawer. The groups cover getting
-started, requests and tasks, business workspaces, account and security, plans and
-data, and help. These user guides describe the business service: explain workspace,
-role, and plan restrictions without deployment or capability-configuration language.
-Use Markdown admonitions for organization-only guidance and important cautions.
-Keep the table of contents in `docs/content/docs/index.md` in sidebar order.
-The shared `partials/docs-pagination.html` adds Previous, Table of contents, and
-Next links to guides automatically using that order. Marketing presentation lives in
-`docs/content/stylesheets/marketing.css`; shared public links are in
-`docs/overrides/partials/site-footer.html`. The documentation theme uses the app's logo and locally
-served Sora font files through `docs/hooks.py`; no external font service is needed.
-`docs/content/stylesheets/app.css` owns the shared shell and public-site color
-tokens. Shared guide, legal, and contact typography and tables live in
-`docs/content/stylesheets/prose.css`. Guide layout and navigation live in
-`docs/content/stylesheets/docs.css`, loaded only for `/docs/` pages. The reading
-styles follow the landing page's green accents, muted text,
-light borders, medium-weight headings, and open spacing in both color modes.
-The header and palette overrides in `docs/overrides/partials/` mirror
-`PublicAppBar` and `ColorModeSwitch`, including their dimensions, icons, and
-colors. `docs/content/javascripts/app-bar.js` connects the accessible switch and
-toolbar buttons to Material's existing theme, search, and navigation controls.
-The navigation override retains the app's 240px left drawer and brand header,
-with quiet section labels and softly highlighted green selected links. It stays open from 1200px and
-becomes an overlay menu on smaller screens. Both app and docs drawers keep the
-branding row fixed while only the navigation items scroll. Guides fill the available content width and align with the app
-using the same responsive gutters, without a centered article column or a
-surrounding article card.
-The drawer's right divider starts below its branding row. The app bar uses the
-compact app logo without brand text when the main menu is closed; opening the
-menu hides the app-bar logo, matching `/app`. Search uses a lightly outlined
-input and a matching results popup, with a visible field at all widths.
-The app and docs share the `colorMode` browser preference, including live updates
-across tabs on the same origin. For local development, open docs through Vite's
-`/docs/` proxy to share storage with `/app/`.
+Both portals reuse the theme overrides in `docs/overrides/`, shared CSS and scripts
+under `docs/content/`, locally served Sora fonts, branding, search, and appearance
+controls. A portal can supply `docs/overrides/` beside its configuration to override
+individual shared templates. Its own content, navigation, and search build remain
+independent. Commercial content and localization are maintained in the business
+repository.
 
-The public site is available in the languages registered in `locales.json`, including
-Russian (`/ru/`) and Polish (`/pl/`). Existing unprefixed URLs remain canonical English;
-`/en/` serves the same English source. Other language prefixes contain independent
-static builds with language-specific search, translated metadata, reciprocal
-`hreflang` annotations in the root sitemap, and localized 404 pages. The header language picker links
-to the equivalent page and remembers explicit selections in the same-origin `language`
-preference. Unprefixed English pages restore it before rendering; explicit prefixes
-always win. Query strings and heading anchors survive the redirect. Missing pages,
-visitors without a saved choice, and navigation without JavaScript keep their URL. App links still target `/app/` and the app remains English.
-
-The picker follows registry order: English first, then the other Latin-script native
-names alphabetically, followed by fixed Cyrillic, Arabic, Japanese, Chinese, and
-Korean groups. Keep this order consistent across pages and current selections.
-
-English Markdown stays in `docs/content/`; translations live in
-`docs/translations/<language>/` with matching paths and stable heading IDs. Shared
-public-site copy is in `docs/i18n/en.json` and matching language catalogs. Preserve
-literal app labels such as **Requests**, **New request**, and **Personal** while
-translating their explanations. Keep legal versions, dates, claims, and prices accurate.
-Source changes must update every published language. After completing a language's
-updates, run `.venv-docs/bin/python docs/localization.py --stamp <language>` to
-acknowledge the revised sources. The build fails on missing pages, catalog entries,
-or stale source hashes; it never copies English prose into a translated page.
-The same checks reject changed link destinations, translated literal app controls,
-and damaged tables. Run `.venv-docs/bin/python docs/test_localization.py` for their
-regression tests; the repository documentation test command includes them.
-
-`docs/localization.py` builds all prefixes after the default English build and
-merges their canonical pages into the root sitemap. The same hooks run during the
-existing MkDocs preview. The static analytics banner uses translated templates
-and shares the application's consent storage and tracking helpers.
-
-Build static documentation into `ui/site/` with:
+Build and validate the shipped public image with:
 
 ```sh
 .venv-docs/bin/python -m mkdocs build --strict
+.venv-docs/bin/python docs/test_hooks.py
+npm run test:nginx
+npm run test:nginx -- --browser
 ```
 
-Both repositories' CI workflows validate this build. When publishing, optionally
-set `DOCS_SITE_URL=https://your-domain.example/` for canonical and sitemap
-URLs (or pass `--build-arg DOCS_SITE_URL=https://your-domain.example/` to
-`docker build`). The default is `https://click2approve.com/`. Despite the retained variable name,
-`DOCS_SITE_URL` now specifies the whole public site origin, not its `/docs/` section.
-The build generates `site/index.html`, `site/docs/index.html`, and the supporting
-pages. Nginx serves this output at the root and the React output from `/app/`.
+The smoke test checks real HTTP routes, missing commercial and translated URLs,
+search, sitemap, and local navigation links. Browser checks also verify that a
+saved language from another portal does not redirect the English portal.
 
-The Swagger link uses `http://localhost:5555/swagger/` during `mkdocs serve`.
-Static builds use `/swagger/` on the public site's origin, matching the current
-production API base URL. If the API runs on a separate host or under a path prefix,
-set `DOCS_API_BASE_URI` to that base URL when serving or building the docs (or pass
-`--build-arg DOCS_API_BASE_URI=https://api.your-domain.example` to `docker build`).
-For a local static build, use `DOCS_API_BASE_URI=http://localhost:5555`.
+Set `DOCS_SITE_URL` to this installation's origin, including the trailing `/`.
+The local default is `http://localhost:3333/`. `DOCS_API_BASE_URI` controls the
+Swagger link; previews default to `http://localhost:5555`, and static builds use
+the site's `/swagger/` unless configured otherwise. Both are Docker build arguments.
+
+The portal omits Terms and Privacy links by default. To provide operator notices,
+pass `SITE_TERMS_URL` and `SITE_PRIVACY_URL` to the documentation build (or as Docker
+build arguments). Set matching `SiteLinks:TermsUrl` and `SiteLinks:PrivacyUrl` in
+the API and event consumer for app and email footers. These links do not enable
+signup agreement requirements. Use absolute HTTP(S) URLs for external notices.
 
 ## Optional analytics
 
@@ -146,8 +78,9 @@ Google Analytics is disabled when `GOOGLE_ANALYTICS_ID` is unset or empty.
 To offer opt-in analytics across the website, docs, and app, pass
 `--build-arg GOOGLE_ANALYTICS_ID=G-YOURID` to the UI Docker build. Outside Docker,
 set `GOOGLE_ANALYTICS_ID` for both Vite and MkDocs. Rebuild to change the ID.
-The app uses a MUI consent banner; static pages use translated HTML with the same
-Allow analytics choice and close action. The choice
+The app uses a MUI consent banner; the English static portal uses the same
+Allow analytics choice and close action. The commercial portal localizes its
+static banner. The choice
 is remembered for 180 days and synchronized across pages and tabs on the same origin.
 Closing without enabling analytics remembers rejection. Footer Analytics settings
 reopen the banner. Without an ID, no banner or settings control is shown.

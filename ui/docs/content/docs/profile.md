@@ -1,29 +1,23 @@
 ---
-title: Save your signature and update your profile
-description: Update your Click2Approve profile, choose a default workspace, and save a drawn signature to reuse when an approval task requires an electronic signature.
+title: Profile and saved signature
+description: Update your name and avatar, save a signature, and manage your account settings.
 ---
-# Profile and saved electronic signature {#profile-and-signature}
+# Profile and saved signature {#profile-and-signature}
 
-Open **User profile** from the profile menu to update your name, choose a default workspace, or save a signature for future approval tasks. These settings belong to your account and are shared across the workspaces you can access.
+Choose **User profile** from the profile menu.
 
 ## Personal details
 
-On **Profile**, update your first name, last name, avatar, and default workspace as needed. Choose **Save** after editing profile fields or selecting an avatar. The default workspace controls where you prefer to start; it does not move requests or tasks between workspaces.
-
-Avatar images can be up to **4 MiB** (4,194,304 bytes).
-
-Organization employee names and positions are managed separately in [Employees](employees.md). If organization attribution is incorrect, ask an Owner or Admin to review the employee record.
+On **Profile**, update your first name, last name, or avatar and choose **Save**. Avatar images can be up to **4 MiB** by default.
 
 ## Saved signature
 
-1. Open the **Signature** tab.
-2. Draw or update your default signature.
+1. Open **Signature**.
+2. Draw or update your signature.
 3. Choose **Save**.
 
-The saved signature is prefilled when you sign an approval request. Review it before each decision and check the legal name and representation details requested by the signing form. Saving a signature in your profile does not sign or complete a task.
+The signature can be prefilled when a task requires one. Review the legal name and signature before each decision. Saving a signature here does not sign or complete a task.
 
-## Other profile tabs
+## Other account settings
 
-Use **Security** for authenticator MFA, **Passkeys** for device credentials, **API tokens** for API credentials, and **Notifications** for delivery preferences.
-
-See [MFA and passkeys](security.md), [API tokens](api-tokens.md), and [Notifications](notifications.md) for the corresponding controls.
+Use **Security** for authenticator MFA, **Passkeys** for device credentials, and **Notifications** for delivery preferences. See [MFA and passkeys](security.md) and [Notifications](notifications.md).

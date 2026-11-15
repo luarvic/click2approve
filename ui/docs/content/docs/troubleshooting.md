@@ -1,57 +1,31 @@
 ---
-title: Fix missing approval tasks and failed submissions
-description: Find missing requests or tasks and resolve document approval problems in Click2Approve, including failed submissions, sign-in issues, and expired receipt links.
+title: Troubleshooting
+description: Resolve common problems with task access, uploads, email delivery, and account sign-in.
 ---
-# Troubleshooting document approval problems {#troubleshooting}
+# Troubleshooting
 
-If you cannot find an approval task, submit a request, or open a receipt link, start by checking your account and selected workspace. Open the request or task to check its current status. Then read the error message for the action that failed.
+## I cannot find a task
 
-## I cannot find a request or task
+Check that you are signed in with the email address the requester assigned. The requester and assignee must use the same installation. A later step becomes actionable only after earlier steps succeed.
 
-Email-addressed tasks appear in **Personal**. Employee and team assignments appear in their organization. Check the account's email, employee status, team membership, and any delegation. A task can also have been canceled, skipped, completed, superseded, or deleted.
+## A link says the record is unavailable
 
-An email link does not grant organization access. See [Workspaces and navigation](workspaces.md).
+Check the account and URL. The record may have been deleted, or you may not be an eligible participant. Ask the requester or installation operator to check access.
 
-If you see **Page not found**, the page may have moved or you may not have access to it. Select **Home** to return, then check your account and workspace.
+## An upload or preview fails
 
-## A menu item or action is missing
+Check the file size, wait for outstanding uploads, and read the error. If preview is unavailable, try downloading the document. See [Files and attachments](files.md).
 
-Check [Features and availability](features.md). Employees, teams, delegations, and templates require an organization workspace. Your role, plan, or billing status can hide or disable controls. Select the correct organization and ask an Owner or Admin to check your access.
+## Email does not arrive
 
-## The app reloads after an update
+The default local Docker setup disables email delivery. On installations with email enabled, check spam and [notification preferences](notifications.md). Ask the installation operator to inspect delivery if the problem continues.
 
-The app reloads automatically when it detects a new release and reopens the current page. Text you have not saved may be lost.
+## I cannot sign in
 
-## Submission or task completion fails
+Check the email address and password. Use a recovery code if your authenticator is unavailable. Password reset requires email delivery. See [Registration and sign-in](sign-in.md) and [MFA and passkeys](security.md).
 
-Correct highlighted fields and provide every required comment, signature, and attachment. Wait for uploads to finish. Check [Usage](usage.md) if the message mentions an allowance.
+## Report a problem
 
-Refresh the resource before retrying after an API error: another participant or delegate may already have completed it. Check Requests or Tasks to determine whether the original action succeeded before repeating it.
+Use **Report a bug** or **Ask question** in the main menu to open GitHub. Include reproduction steps, expected and actual results, and the software version. If an API error offers **Details**, review it before sharing.
 
-## I cannot revise a request
-
-Resubmit is available only for eligible requests without a newer revision and without a successful result. A new revision restarts the workflow; previous decisions remain on the previous revision. See [Track and revise requests](track-requests.md).
-
-## A verification link does not work
-
-The receipt link may have expired, been revoked, or refer to a removed receipt. Ask the receipt manager for a current link. See [Receipts and verification](receipts.md).
-
-## I cannot sign in or receive email
-
-Check whether email confirmation is required and request a new confirmation or password reset message if needed. Inspect spam and your account address. For MFA, try an unused recovery code; for passkeys, try a registered compatible device or password sign-in.
-
-Review [Registration and sign-in](sign-in.md), [MFA and passkeys](security.md), and [Notifications](notifications.md).
-
-## The workspace is blocked for payment
-
-Open **Plans** and follow the payment recovery action before the displayed deadline. An organization Owner or Admin must manage organization payments. See [Plans and billing](plans-and-billing.md).
-
-## Deletion is blocked
-
-Read the dependency message. Another record may still reference the employee, team, or workflow entity. Review [Retention and deletion](retention.md) before removing related records.
-
-## Get help or report a bug
-
-Use the app's **Report a bug** or **Ask question** links. Include the steps to reproduce, expected result, actual result, approximate time, and relevant workspace type. If an API error offers **Details**, review the diagnostic information and include only what is appropriate for the support channel.
-
-Keep passwords, API tokens, recovery codes, verification links, and private documents out of public reports. For account, email, security, or billing problems, contact support.
+Keep private documents, passwords, tokens, recovery codes, and verification links out of public reports. Contact your installation operator for account access and questions about your data. See [Community help](../contact.md).

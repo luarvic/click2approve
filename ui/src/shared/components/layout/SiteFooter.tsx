@@ -32,9 +32,6 @@ const links = [
   { label: "Home", href: "/" },
   { label: "App", href: "/app/" },
   { label: "Docs", href: "/docs/" },
-  { label: "Contact", href: "/contact/" },
-  { label: "Terms", href: "/terms/" },
-  { label: "Privacy", href: "/privacy/" },
 ] as const;
 
 const SiteFooter = () => (
@@ -45,16 +42,23 @@ const SiteFooter = () => (
       </Typography>
       <Box component="nav" aria-label="Footer navigation" sx={navigationSx}>
         {links.map(({ label, href }) => (
-          <Link
-            key={href}
-            href={label === "Docs" ? stores.applicationConfigurationStore.documentationPath : href}
-            color="inherit"
-            underline="hover"
-            sx={linkSx}
-          >
+          <Link key={href} href={href} color="inherit" underline="hover" sx={linkSx}>
             {label}
           </Link>
         ))}
+        <Link href="/contact/" color="inherit" underline="hover" sx={linkSx}>
+          {stores.applicationConfigurationStore.isOpenSourceEdition ? "Community help" : "Contact"}
+        </Link>
+        {[
+          { label: "Terms", href: stores.applicationConfigurationStore.siteLinks?.termsUrl },
+          { label: "Privacy", href: stores.applicationConfigurationStore.siteLinks?.privacyUrl },
+        ]
+          .filter(({ href }) => Boolean(href))
+          .map(({ label, href }) => (
+            <Link key={label} href={href!} color="inherit" underline="hover" sx={linkSx}>
+              {label}
+            </Link>
+          ))}
         <AnalyticsSettingsButton />
       </Box>
     </Box>

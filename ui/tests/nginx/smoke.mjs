@@ -1,16 +1,21 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const uiRoot = fileURLToPath(new URL("../../", import.meta.url));
 const analyticsId = process.env.GOOGLE_ANALYTICS_ID?.trim() || "";
-const image = "click2approve-ui:nginx-smoke";
+const alternateChecks = process.env.SITE_TEST_CHECKS;
+const buildContext = process.env.SITE_TEST_CONTEXT || uiRoot;
+const dockerfile = process.env.SITE_TEST_DOCKERFILE || resolve(uiRoot, "Dockerfile");
+const hosted = Boolean(alternateChecks);
+const image = `click2approve-ui:nginx-smoke-${hosted ? "hosted" : "public"}`;
 const docker = (...args) => execFileSync("docker", args, { cwd: uiRoot, encoding: "utf8" }).trim();
 
 execFileSync(
   "docker",
-  ["build", "--build-arg", "ENV=production", "--build-arg", `GOOGLE_ANALYTICS_ID=${analyticsId}`, "-t", image, "."],
+  ["build", "-f", dockerfile, "--build-arg", "ENV=production", "--build-arg", `GOOGLE_ANALYTICS_ID=${analyticsId}`, "-t", image, buildContext],
   {
     cwd: uiRoot,
     stdio: "inherit",
@@ -55,7 +60,7 @@ try {
     }
   }
 
-  for (const path of ["/", "/docs/", "/docs/getting-started/", "/privacy/", "/terms/", "/contact/", "/app/"]) {
+  for (const path of ["/", "/docs/", "/docs/getting-started/", "/contact/", "/app/", ...(hosted ? ["/privacy/", "/terms/"] : [])]) {
     const response = await request(path);
     assert.equal(response.status, 200, path);
     checkHeaders(response);
@@ -79,7 +84,8 @@ try {
   assert.equal(robots.status, 200);
   assert.match(robots.headers.get("content-type"), /^text\/plain\b/);
   checkHeaders(robots);
-  assert.equal(await robots.text(), readFileSync(`${uiRoot}public/robots.txt`, "utf8"));
+  const canonicalOrigin = hosted ? "https://click2approve.com/" : "http://localhost:3333/";
+  assert.equal(await robots.text(), `${readFileSync(`${uiRoot}public/robots.txt`, "utf8")}\nSitemap: ${canonicalOrigin}sitemap.xml\n`);
 
   for (const path of [
     "/app/logo-with-text.png",
@@ -164,11 +170,11 @@ try {
   assert.equal(unchanged.status, 304);
   checkHeaders(unchanged, "public, max-age=31536000, immutable");
 
-  const { checkLocalization, checkLocalizationBrowser } = await import("./localization.mjs");
-  await checkLocalization(origin, request);
+  const checks = await import(alternateChecks ? pathToFileURL(alternateChecks).href : "./portal.mjs");
+  await (hosted ? checks.checkLocalization : checks.checkPortal)(origin, request);
 
   if (process.argv.includes("--browser")) {
-    await checkLocalizationBrowser(origin);
+    await (hosted ? checks.checkLocalizationBrowser : checks.checkPortalBrowser)(origin);
     const { checkAnalyticsConsent } = await import("./analyticsConsent.mjs");
     await checkAnalyticsConsent(origin, analyticsId);
   }

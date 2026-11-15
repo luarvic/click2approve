@@ -4,7 +4,9 @@
     <button type="button" data-analytics-close aria-label="{{ t('Close analytics settings') }}">×</button>
   </div>
   <p>{{ t('Allow Google Analytics cookies to help us understand visits and app usage. Your choice does not affect access to the service.') }}
-    <a href="{{ site_path('privacy/') }}">{{ t('Privacy Policy') }}</a>
+    {% if config.extra.privacy_url %}
+    <a href="{{ site_path('privacy/') if config.extra.privacy_url == '/privacy/' else config.extra.privacy_url }}">{{ t('Privacy Policy') }}</a>
+    {% endif %}
   </p>
   <label class="site-analytics-choice"><input type="checkbox" role="switch" aria-label="{{ t('Allow analytics') }}" data-analytics-choice /> {{ t('Allow analytics') }}</label>
 </section>

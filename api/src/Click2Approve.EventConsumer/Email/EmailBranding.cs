@@ -15,5 +15,7 @@ public static class EmailBranding
         model,
         GetLogoUrl(configuration),
         configuration.GetValue<Uri>("UI:BaseUrl")?.ToString(),
-        logoIncludesWordmark: !string.IsNullOrWhiteSpace(configuration["Email:LogoUrl"]));
+        logoIncludesWordmark: !string.IsNullOrWhiteSpace(configuration["Email:LogoUrl"]),
+        termsUrl: configuration["SiteLinks:TermsUrl"],
+        privacyUrl: configuration["SiteLinks:PrivacyUrl"]);
 }

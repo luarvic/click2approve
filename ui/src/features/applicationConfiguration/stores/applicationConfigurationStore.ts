@@ -14,8 +14,8 @@ export class ApplicationConfigurationStore {
     return this.applicationConfiguration?.edition === "OpenSource";
   }
 
-  get documentationPath(): string {
-    return this.isOpenSourceEdition ? "/docs/open-source/" : "/docs/";
+  get siteLinks() {
+    return this.applicationConfiguration?.siteLinks;
   }
 
   get tenantsAreEnabled(): boolean {

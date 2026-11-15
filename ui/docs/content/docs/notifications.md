@@ -1,43 +1,24 @@
 ---
-title: Manage approval emails and in-app notifications
-description: Choose email and in-app notifications for approval requests, tasks, Chat, and receipts. Find delivery settings and check what to do when a message is missing.
+title: Notifications and email
+description: Choose delivery preferences and return to assigned tasks and request outcomes.
 ---
-# Approval emails and in-app notifications {#notifications}
+# Notifications and email {#notifications}
 
-Notifications help you return to assigned tasks, request outcomes, discussions, receipts, and billing events. Set delivery preferences separately for each category.
+Notifications help you return to assigned tasks and request outcomes. Open the bell in the app bar to review in-app notifications, then follow a notification to its resource.
 
-## Review notifications
-
-Open the app's notifications view to inspect in-app events. Follow a notification to the associated resource and check the current state before acting. An older notification can refer to a task that has since completed, been canceled, or been superseded.
-
-Notifications and email subjects show **Step succeeded** or **Step failed**, and **Request succeeded** or **Request failed**, when the outcome is known. Email subjects append the request title. Canceled and replaced requests have distinct email subjects. Other events use **New task**, **Task completed** (for automatic completion), **New message**, and **New receipt**.
-
-Email links target the relevant task, request, receipt, or Plans page. Sign in with the intended account when prompted.
-
-Account, workflow, and billing emails share the app's footer with Home, App, Docs, Contact, Terms, and Privacy links. Security notices and delivery explanations appear above the footer.
+An old notification may refer to a task that has completed, been canceled, or been skipped. Check the current resource state before acting.
 
 ## Set delivery preferences
 
 1. Open **User profile → Notifications**.
-2. Review the categories: **Request notifications**, **Task notifications**, **Chat notifications**, **Receipt notifications**, **Retention deletion reminders**, and **Billing recovery reminders**.
-3. Set the **In-app** and **Email** switches for each supported category.
+2. Review **Request notifications** and **Task notifications**.
+3. Set the **In-app** and **Email** switches.
 4. Choose **Save**.
 
-Categories without saved preferences start enabled. Change a switch and choose **Save** to store your preference.
-
-The **Billing recovery reminders** in-app option is disabled; its email preference is managed separately from other categories. Preferences do not expand your access or add you to a discussion's audience.
-
-**Retention deletion reminders** warn request and receipt owners before automatic
-retention cleanup. Their emails link to retention settings and the
-[retention and deletion guide](retention.md). Disabling this category does not
-disable retention deletion.
+Email delivery also depends on the installation's email service. The default local Docker setup disables it; changing a personal preference does not enable the service.
 
 ## Missing messages
 
-Check your email address, spam folder, notification preferences, selected workspace, and whether you are an eligible recipient. Email delivery can take time.
+Check your account email, spam folder, notification preferences, and whether the request or task is available to your account. Email links open the relevant resource and may ask you to sign in.
 
-If you need to act now, open Tasks or Requests directly rather than waiting for an email. For a delivery failure, provide support with the event time and resource context without sharing credentials.
-
-## Email tokens
-
-Workflow emails, including retention reminders, consume tokens per recipient, charged to the originating workspace. Tokens are checked before sending and charged when the email provider accepts the send. Queuing a notification does not consume tokens. Disabled email deliveries are not charged. Security, account recovery, and billing emails are included without a workspace token charge. See [Usage and tokens](usage.md).
+Open **Tasks** or **Requests** directly if you need to act now. Contact the installation operator about delivery failures; use [community help](../contact.md) for software questions.

@@ -50,5 +50,7 @@ emulator. The email integration option is described above.
   keys and share them between API replicas so Identity tokens survive restarts.
 - **Operations:** Monitor API and workers, outbox and queue backlogs, poison queues,
   storage, and delivery failures. Align proxy and API upload limits.
-- **Public pages:** Review branding and bundled Terms and Privacy before publishing.
-  See [license and trademark](license-and-trademark.md).
+- **Public pages:** The bundled portal describes the open-source edition in English.
+  Configure your own legal-notice links when needed; commercial notices are not bundled.
+  See [configuration](configuration.md#frontend-build-settings) and
+  [license and trademark](license-and-trademark.md).

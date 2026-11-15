@@ -21,18 +21,19 @@ RUN if [ "${ENV}" = "production" ]; then \
   fi
 
 FROM python:3.13-alpine AS docs
-ARG DOCS_SITE_URL=https://click2approve.com/
+ARG DOCS_SITE_URL=http://localhost:3333/
 ARG DOCS_API_BASE_URI=
+ARG SITE_TERMS_URL=
+ARG SITE_PRIVACY_URL=
 WORKDIR /app
 COPY docs/requirements.txt ./docs/requirements.txt
 RUN pip install --no-cache-dir -r docs/requirements.txt
 COPY mkdocs.yml ./
-COPY locales.json ./
 COPY docs ./docs
 COPY public ./public
 COPY --from=build /app/node_modules/@fontsource/sora/files ./node_modules/@fontsource/sora/files
 ARG GOOGLE_ANALYTICS_ID=
-RUN DOCS_SITE_URL="${DOCS_SITE_URL}" DOCS_API_BASE_URI="${DOCS_API_BASE_URI}" GOOGLE_ANALYTICS_ID="${GOOGLE_ANALYTICS_ID}" mkdocs build --strict
+RUN DOCS_SITE_URL="${DOCS_SITE_URL}" DOCS_API_BASE_URI="${DOCS_API_BASE_URI}" GOOGLE_ANALYTICS_ID="${GOOGLE_ANALYTICS_ID}" SITE_TERMS_URL="${SITE_TERMS_URL}" SITE_PRIVACY_URL="${SITE_PRIVACY_URL}" mkdocs build --strict
 
 FROM nginx:stable-alpine
 COPY --from=build /app/dist /usr/share/nginx/html/app

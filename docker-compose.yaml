@@ -20,10 +20,18 @@ services:
       MSSQL_SA_PASSWORD: P@ssw0rd
     ports:
       - "1433:1433"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -b -Q 'SELECT 1' -o /dev/null"]
+      interval: 2s
+      timeout: 5s
+      retries: 60
+      start_period: 10s
   api:
     depends_on:
-      - azurite
-      - db
+      azurite:
+        condition: service_started
+      db:
+        condition: service_healthy
     build:
       context: ./api
       dockerfile: Dockerfile.api
@@ -32,37 +40,42 @@ services:
       - ASPNETCORE_ENVIRONMENT=Docker
     ports:
       - "5555:5555"
-    command: /app/wait-for-it.sh -t 60 db:1433 -- dotnet /app/Click2Approve.WebApi.dll
+    healthcheck:
+      test: ["CMD", "bash", "/app/check-api-ready.sh"]
+      interval: 2s
+      timeout: 5s
+      retries: 60
+      start_period: 10s
   event-publisher:
     depends_on:
-      - azurite
-      - db
+      api:
+        condition: service_healthy
     build:
       context: ./api
       dockerfile: Dockerfile.event-publisher
     image: click2approve-event-publisher:local
     environment:
       - DOTNET_ENVIRONMENT=Docker
-    command: /app/wait-for-it.sh -t 60 db:1433 -- dotnet /app/Click2Approve.EventPublisher.dll
   event-consumer:
     depends_on:
-      - azurite
-      - db
+      api:
+        condition: service_healthy
     build:
       context: ./api
       dockerfile: Dockerfile.event-consumer
     image: click2approve-event-consumer:local
     environment:
       - DOTNET_ENVIRONMENT=Docker
-    command: /app/wait-for-it.sh -t 60 db:1433 -- dotnet /app/Click2Approve.EventConsumer.dll
   ui:
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     build:
       context: ./ui
       args:
         - ENV=development
         - DOCS_API_BASE_URI=http://localhost:5555
+        - DOCS_SITE_URL=http://localhost:3333/
     image: click2approve-ui:local
     ports:
       - "3333:3333"

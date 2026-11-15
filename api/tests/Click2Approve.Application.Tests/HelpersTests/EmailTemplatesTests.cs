@@ -219,7 +219,8 @@ public sealed class EmailTemplatesTests
     public void Footer_MatchesAppNavigationAndKeepsSecurityNoteInTheContent()
     {
         var model = AccountEmailTemplates.Create(AccountEmailType.PasswordReset, "https://api.example.com/reset?code=secret");
-        var html = EmailLayout.Render(model, "https://cdn.example.com/logo.png", "https://ui.example.com/?tracking=value");
+        var html = EmailLayout.Render(model, "https://cdn.example.com/logo.png", "https://ui.example.com/?tracking=value",
+            termsUrl: "/terms/", privacyUrl: "/privacy/");
 
         Assert.Contains($"© {DateTime.UtcNow.Year} Click2Approve. All rights reserved.", html);
         (string Label, string Path)[] links =
@@ -236,6 +237,20 @@ public sealed class EmailTemplatesTests
         Assert.DoesNotContain("code=secret", html[footerPosition..]);
         Assert.DoesNotContain("tracking=value", html[footerPosition..]);
         Assert.DoesNotContain("cdn.example.com", html[footerPosition..]);
+    }
+
+    [Theory]
+    [InlineData("http://")]
+    [InlineData("javascript:alert(1)")]
+    [InlineData("mailto:operator@example.com")]
+    public void Footer_InvalidOperatorNotices_DoNotBreakAccountEmails(string noticeUrl)
+    {
+        var model = AccountEmailTemplates.Create(AccountEmailType.PasswordReset, "https://example.com/reset");
+        var html = EmailLayout.Render(model, logoLinkUrl: "https://example.com", termsUrl: noticeUrl, privacyUrl: noticeUrl);
+
+        Assert.Contains("href=\"https://example.com/reset\"", html);
+        Assert.DoesNotContain(">Terms</a>", html);
+        Assert.DoesNotContain(">Privacy</a>", html);
     }
 
     [Theory]

@@ -1,55 +1,27 @@
 ---
-title: Getting started with document approvals
-description: Send your first document approval request in Click2Approve. Learn what requests, tasks, and receipts mean and where to find your work.
+title: Get started with document approvals
+description: Create an account and try your first document approval workflow in Click2Approve.
 ---
-# Getting started with document approvals {#getting-started}
+# Getting started
 
-Use Click2Approve to send documents for review, approval, or an electronic signature. A **request** is the work you send, including its files, instructions, and participants. A **task** is one participant's action in that request. Workflow steps run in the order you choose.
-
-For example, send a proposal to a client's email address and ask for an electronic signature. The client signs in, reviews the proposal, and submits a signature. When that completes the request, Click2Approve creates a **receipt**: a record of the outcome that you can share through a verification link. See [Receipts and verification](receipts.md).
-
-## Take a quick tour
-
-The first time you open the app after signing in, a short user guide highlights your profile settings, notifications, workspace picker, and main menu groups. If a passkey setup prompt appears, finish or dismiss it first.
-
-Choose **Next** and **Back** to move through the guide, **Finish** to complete it, or **Skip** to close it. You can also close it with Escape.
-
-On short screens, Tab to **User guide instructions** and use Page Down or the arrow keys to scroll the explanation. The navigation buttons stay visible.
-
-The guide shows the navigation available in your current workspace. It explains the workspace picker when one is available. In Personal, it also explains that organizations have a **People** group for employees, teams, and delegations.
-
-Finishing or skipping is remembered for your account in this browser. Another browser, or clearing saved site data, makes the guide appear again. To revisit it at any time, open the main menu and choose **Replay user guide** under **Support**.
+[Open the app](/app/) and [create an account](sign-in.md). Use the same email address that other people use when assigning tasks to you.
 
 ## Send your first request
 
-1. Choose **Open app** on the website to continue in the same browser tab, or [open the app directly](/app/), then [sign in or register](sign-in.md).
-2. Use **Personal**, your workspace for your own requests, or select an organization in the workspace picker to send work on its behalf.
-3. Choose **New request** in the main menu.
-4. Enter a title and description, add files, and configure the steps and assignees.
-5. Review the details, then choose **Submit**.
-6. Open **Requests** to follow the outcome.
+1. Choose **New request** in the main menu.
+2. Enter a title and attach a document under **Files to review**.
+3. Add an approval step and enter a reviewer's email address. For a first trial, use your own account's email.
+4. Choose **Submit**.
+5. Open **Tasks** to complete the assigned action, then **Requests** to inspect the result.
 
-[Create a request](create-a-request.md) explains each part of the submission.
+See [Create a request](create-a-request.md) and [Complete a task](complete-a-task.md) for details. To try several participants, each person needs an account on this installation. A separate browser profile lets you try a second account without signing out of the first.
 
-## Complete your first task
+## Take a quick tour {#take-a-quick-tour}
 
-Sign in with the email address the request was sent to. For tasks sent to that address, select **Personal** in the workspace picker; for employee or team assignments, select the organization. Open **Tasks**, select the task, read its instructions, and review the current files. Provide any required comment, signature, or attachment, then submit your decision. See [Complete a task](complete-a-task.md).
+Choose **Replay user guide** under **Support** in the main menu to revisit the app's guided introduction.
 
-## Find the right guide
+## Local demonstration setup
 
-| You want to… | Read |
-| --- | --- |
-| Understand what your workspace supports | [Features and availability](features.md) |
-| Find work in Personal or an organization | [Workspaces and navigation](workspaces.md) |
-| Define participants and decision rules | [Configure workflow steps](workflow-steps.md) |
-| Manage employees, teams, and access | [Manage organizations](organizations.md) |
-| Protect your account | [MFA and passkeys](security.md) |
-| Manage payments or data lifetime | [Plans and billing](plans-and-billing.md), [Retention and deletion](retention.md) |
-| Resolve a missing task or failed action | [Troubleshooting](troubleshooting.md) |
+The repository's default Docker setup disables email delivery and email confirmation. In-app notifications work. Password reset emails require email delivery; ask the installation operator if you need help.
 
-## Personal and business work
-
-Everyone starts with a Personal workspace. Organizations add employees, teams, delegations, and reusable workflow templates.
-
-!!! info "Organization features"
-    Select an organization to use its employees, teams, delegations, and templates. Discussions, receipts, revisions, and account security are also available in Personal. Your role and plan determine which actions you can take; see [Features and availability](features.md).
+The default Docker setup has disposable storage. The [repository setup and deployment documentation](https://github.com/luarvic/click2approve#try-it-locally) explains how the installation is run.

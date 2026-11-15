@@ -1,68 +1,27 @@
 ---
-title: Review, approve, or sign a document
-description: Find your assigned task in Click2Approve, review the documents, and submit a decision. Add a comment, electronic signature, or response file when required.
+title: Review and complete a task
+description: Read the documents and instructions, record a decision, and provide a comment or electronic signature when required.
 ---
-# Review, approve, or sign a document {#complete-a-task}
+# Complete a task
 
-A **task** asks you to act on one step of a document approval request. Open **Tasks** to review, approve, or sign a document assigned to you. Read the current documents and instructions before recording your decision.
+Open **Tasks** and select the assigned task. Sign in with the email address the requester used. A task becomes actionable when the workflow reaches its step.
 
-## Review without an account {#guest-review}
+## Review the documents
 
-Open the link in your task email and choose **Continue to document**. Review the files and instructions, then submit your decision under **Your response**. Comments, signatures, and response attachments remain required when configured; you can also use **Chat** before responding.
+Read the request description, step instructions, and attached documents. Open filenames to preview or download files. Check that you understand the action before responding.
 
-The link grants access only while this task is awaiting a decision. Submitting a decision, cancellation, skipping, or replacement by a new revision closes all guest access, including file downloads and Chat. To return to your documents and receipts afterward, sign up or sign in with the email address that received the request. Existing guest work remains in **Personal**, subject to retention. Registration does not make you an organization member.
+## Record your decision
 
-Keep the email link private: anyone holding it can act on the assigned task. If the requester requires an account, or you already have one, use normal sign-in instead.
+Use the task's available action controls. Supply a comment when **Require a comment** is enabled. Wait for confirmation before navigating away.
 
-If you register while this task is pending, its existing guest link remains usable until you confirm your email. After confirmation, sign in to access the task.
+A successful response advances the workflow according to its completion rule. A negative response stops it with an unsuccessful outcome. Your recorded response remains in the request history.
 
-## Find the task
+## Provide an electronic signature
 
-1. [Open the app](/app/) with the account the task was sent to.
-2. In the workspace picker, select **Personal** for tasks sent to your email address. Personal is the workspace for your own requests and tasks sent directly to you. For employee or team assignments, select the organization instead.
-3. Open **Tasks** and select the task waiting for your action.
-4. Read the title, requester, description, step instructions, and current files.
+When a signature is required, check your legal name and draw a signature in the signing area. A [saved profile signature](profile.md) may be prefilled; review it before submitting.
 
-For a team assignment, **Assigned to** shows the individual employee receiving the task with an employee icon. In the **Workflow** tab, expand a step heading to review its original assignees and settings. Task cards stay visible below the heading. Expand a team-created task to see **Assigned via**, which identifies the team.
+Saving a profile signature does not sign a task. Submit the task action to record your signature and decision.
 
-The Tasks and Requests lists use the same columns and widths: **#**, **Title**, **Revision**, **Status**, **Requested by**, and **Created**. On smaller screens, secondary details appear below the title. Open a task to see **From organization** when an organization is recorded.
+## Tasks that are no longer actionable
 
-Use the **Tasks** breadcrumb above the task title to return to the list.
-
-Email-addressed tasks from an organization arrive in Personal. They do not give you access to that organization's workspace. Organization delegates can also act on authorized tasks; see [Delegations](delegations.md).
-
-## Provide the required information
-
-Below the task summary, use **Your response** to choose your decision and provide attachments, a comment, and a signature when needed.
-
-Use the action offered for your task. The workflow may require a comment, response attachment, electronic signature, or a combination of these. Fill in all required fields before submitting. A negative decision requires a comment explaining the outcome.
-
-For a signature, check your **Legal name**, enter **Representation details** when relevant, and provide your signature. A [saved profile signature](profile.md) can prefill the drawing; review it for this decision.
-
-## Approve, reject, or request changes
-
-The response choices depend on the step's **Action**. These are some common choices:
-
-| Step action | Positive response | Negative response |
-| --- | --- | --- |
-| Approve | **Approve** | **Reject** |
-| Review | **Review** | **Request changes** |
-| Sign | **Sign** | **Decline** |
-
-A negative response requires a comment and stops the request with an unsuccessful outcome. For example, choose **Request changes** on a Review task and explain which part of the document needs an update. The requester can then [revise and resubmit an eligible request](track-requests.md#revise-and-resubmit).
-
-Use [Chat](discussions.md) to clarify the request before recording your action. A Chat message does not complete the task. A file sent in Chat does not satisfy **Require an attachment**; add that file under **Your response**. See [Files and attachments](files.md).
-
-## Submit the decision
-
-Choose the action that matches your decision, including a negative outcome when the task offers one. Check the decision and any confirmation before submitting. Wait for success feedback.
-
-Your recorded action becomes part of the request history. After a successful response, the step may wait for other assignees or move on immediately, depending on its completion rule. A negative response ends the workflow with a failed result.
-
-## Return later
-
-Leaving the task page discards an unsubmitted response without asking for confirmation. Complete the task to record your decision.
-
-Reopen the task to review the recorded action and context. Tasks can become unavailable for completion when canceled, skipped, superseded by a revision, or completed by another eligible participant. Refresh the task before retrying an action after an error.
-
-The status chip in the task card's header shows its current state or recorded action, such as Pending, Signed, or Rejected.
+A task may have been completed, canceled, or skipped after another eligible person completed the step. Refresh before retrying an action after an error. See [Track requests](track-requests.md) for request outcomes.

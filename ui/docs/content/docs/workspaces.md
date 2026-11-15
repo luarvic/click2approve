@@ -1,51 +1,25 @@
 ---
-title: Find requests and tasks in the right workspace
-description: Learn where to find document approval requests, tasks, and receipts in Personal and organization workspaces, and how to switch between them.
+title: Find your requests and tasks
+description: Navigate requests, tasks, notifications, and account settings in the open-source app.
 ---
-# Workspaces and navigation
+# Navigation
 
-A **workspace** groups the requests, tasks, and settings you can access. Everyone starts with **Personal**, the workspace for their own requests and tasks sent to their email address. If you also belong to an organization, use the workspace picker to switch to its shared work. Set a preferred starting workspace in [User profile](profile.md).
-
-## Personal
-
-Use Personal for requests you send personally and tasks addressed to your account's email address. Personal has no employee or team directory.
-
-An organization may send a task to your email address. You receive that task in Personal; this does not make you an employee or give you access to the organization's workspace. Personal task lists show the originating organization so you can distinguish senders.
-
-## Organizations
-
-Organization work stays within the selected organization. Employee and team tasks appear in that organization's Tasks view. Its Requests view includes work available through your requester identity, team relationships, and authorized delegation.
-
-Employees and delegates must belong to the same organization. Membership in one organization does not grant access to another organization's requests or tasks.
-
-When you have delegated access, the workspace picker also offers organization entries with the represented employee's name. Select that entry to work on their behalf; select your own entry to return to your work. See [Delegations](delegations.md).
-
-The small chip beside the upper-right corner of the brand name reads **App** in the commercial app, **Free** in the open-source app, and **Docs** in the documentation portal.
-
-## Main menu
+The app organizes work around your individual account. **Requests** contains workflows you sent, and **Tasks** contains actions assigned to your email address.
 
 | Area | Purpose |
 | --- | --- |
-| Tasks | Review actions assigned to you or available through your organization role in the workflow |
-| Requests | Follow requests you can access; use New request to send work |
-| Receipts | View, share, and delete receipts issued to you in either workspace type |
-| Templates | Reuse organization workflow steps |
-| Employees, Teams, Delegations | Work with organization membership and delegated work |
-| Plans, Usage, Retention | Review subscription, limits, and data settings |
-| Organizations | Create and manage business workspaces |
+| New request | Start a document workflow |
+| Tasks | Review and respond to assigned work |
+| Requests | Check progress and recorded decisions |
+| Notifications | Return to relevant workflow events |
+| Docs | Open these user guides |
+| Replay user guide | Revisit the guided introduction |
+| Report a bug / Ask question | Open the public project's GitHub community resources |
 
-Use the profile menu for your account settings and notification preferences. The bell in the app bar opens notifications for the selected workspace. The navigation drawer can be opened from the menu button on smaller screens. The color-mode switch changes the appearance of both the app and Docs on the same site.
+Use the profile menu to open **User profile**, manage your account, or sign out. The bell opens notifications. On smaller screens, the menu button opens the navigation drawer.
 
-Small uppercase labels identify navigation groups, cards, sections, and workflow steps. Page titles and controls use sentence case. Use the breadcrumb links above a page title to return to its parent pages. Choose **Docs** in the main menu to open the user guides in the current tab. The website's Docs links and contextual **Read documentation** links also use the current tab. In the open-source app, Docs opens the [open-source edition](open-source.md) guide and feature comparison.
-
-In grids, green titles and names are links. They show an underline when hovered or focused with the keyboard; keyboard focus also has a visible outline.
-
-The footer includes Home, App, Docs, Contact, Terms, and Privacy links. Each opens in the current tab.
-
-Use the language picker in the website or documentation header to read the same page in another language. The site remembers your selection in this browser. When you open an English website or Docs link from the app, it redirects to your saved language; an explicit language prefix in the URL takes priority. Documentation search returns pages in the URL language. The app currently uses English, so these guides retain exact app control names and explain their meaning in the selected language.
-
-The main menu groups related pages under **Work**, **Access**, **People**, **Subscription**, and **Support**. Groups appear only when their features are available in the selected workspace. Choose **Replay user guide** under **Support** for a guided introduction to the app bar and navigation; see [Getting started](getting-started.md#take-a-quick-tour).
+The color-mode switch changes the appearance of the app and documentation on the same site. The open-source portal is in English.
 
 ## Open a shared link
 
-Sign in with the intended account when following an email or shared resource link. A link does not grant additional permissions. If the resource is unavailable, check the workspace, account, employee access, and whether the record was deleted. See [Troubleshooting](troubleshooting.md).
+Sign in with the account the task was assigned to. Requests and tasks belong to this installation; an account on another Click2Approve installation does not provide access here. If a link is unavailable, check the account and whether the request was deleted. See [Troubleshooting](troubleshooting.md).

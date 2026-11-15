@@ -26,7 +26,8 @@ public sealed class AccountEmailServiceTests
         Assert.Equal("new@example.com", email.ToAddress);
         Assert.Equal(subject, email.Subject);
         Assert.Contains($"href=\"{expectedUrl}\"", WebUtility.HtmlDecode(email.Body));
-        Assert.Contains("href=\"https://ui.example.com/privacy/\"", email.Body);
+        Assert.DoesNotContain(">Privacy</a>", email.Body);
+        Assert.DoesNotContain(">Terms</a>", email.Body);
         Assert.Contains("Click2Approve. All rights reserved.", email.Body);
     }
 

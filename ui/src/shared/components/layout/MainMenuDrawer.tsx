@@ -463,11 +463,7 @@ const MainMenuDrawer = () => {
             </ListItemButton>
           </ListItem>
           <ListItem key="help" disablePadding>
-            <ListItemButton
-              component="a"
-              href={stores.applicationConfigurationStore.documentationPath}
-              onClick={closeTemporaryDrawer}
-            >
+            <ListItemButton component="a" href="/docs/" onClick={closeTemporaryDrawer}>
               <ListItemIcon sx={Lists.itemIconSx}>
                 <QuestionMark fontSize="small" />
               </ListItemIcon>

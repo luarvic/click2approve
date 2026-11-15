@@ -1,6 +1,6 @@
 site_name: Click2Approve
 site_description: Document workflows, clear decisions, and a shared record of what happens next.
-site_url: !ENV [DOCS_SITE_URL, "https://click2approve.com/"]
+site_url: !ENV [DOCS_SITE_URL, "http://localhost:3333/"]
 docs_dir: docs/content
 site_dir: site
 strict: true
@@ -15,38 +15,22 @@ nav:
       - Getting started:
           - Table of contents: docs/index.md
           - Getting started: docs/getting-started.md
-          - Open-source edition: docs/open-source.md
           - Features and availability: docs/features.md
-          - Workspaces and navigation: docs/workspaces.md
+          - Navigation: docs/workspaces.md
       - Requests and tasks:
           - Create a request: docs/create-a-request.md
           - Configure workflow steps: docs/workflow-steps.md
           - Complete a task: docs/complete-a-task.md
-          - Track and revise requests: docs/track-requests.md
+          - Track requests: docs/track-requests.md
           - Files and attachments: docs/files.md
-          - Discussions: docs/discussions.md
-          - Receipts and verification: docs/receipts.md
-      - Business workspaces:
-          - Manage organizations: docs/organizations.md
-          - Employees and roles: docs/employees.md
-          - Teams: docs/teams.md
-          - Delegations: docs/delegations.md
-          - Workflow templates: docs/templates.md
       - Account and security:
           - Registration and sign-in: docs/sign-in.md
           - Profile and signature: docs/profile.md
           - MFA and passkeys: docs/security.md
-          - API tokens: docs/api-tokens.md
           - Notifications: docs/notifications.md
-      - Plans and data:
-          - Plans and billing: docs/plans-and-billing.md
-          - Usage and limits: docs/usage.md
-          - Retention and deletion: docs/retention.md
       - Help:
           - Troubleshooting: docs/troubleshooting.md
-  - Contact: contact.md
-  - Terms: terms.md
-  - Privacy: privacy.md
+  - Community help: contact.md
 
 theme:
   name: material
@@ -81,15 +65,15 @@ plugins:
 
 hooks:
   - docs/hooks.py
-  - docs/localization.py
 
 extra_css:
   - stylesheets/app.css
 
 extra_javascript:
   - javascripts/app-bar.js
-  - javascripts/language-picker.js
 
 extra:
+  portal: open-source
+  localized: false
   homepage: /
   generator: false

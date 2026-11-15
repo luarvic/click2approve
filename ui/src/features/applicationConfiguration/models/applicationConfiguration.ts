@@ -4,7 +4,13 @@ export interface ApplicationConfiguration {
   logoImageSize: number;
   requiresConfirmedEmail: boolean;
   registrationLegal?: RegistrationLegal | null;
+  siteLinks?: SiteLinks;
   capabilities: ProductCapabilities;
+}
+
+export interface SiteLinks {
+  termsUrl?: string | null;
+  privacyUrl?: string | null;
 }
 
 export interface ProductCapabilities {

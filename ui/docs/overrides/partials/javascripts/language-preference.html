@@ -1,6 +1,6 @@
 {# Only known, unprefixed English pages restore an explicit language preference.
    Prefixed URLs, errors, and the app always retain their requested destination. #}
-{% if page and not config.extra.language_prefix %}
+{% if config.extra.localized and page and not config.extra.language_prefix %}
 <script>
   (() => {
     try {

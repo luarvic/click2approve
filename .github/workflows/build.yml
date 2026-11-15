@@ -22,6 +22,10 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.x
       - name: Start Azurite
         # Match local Compose: the SDK uses a newer API version than this emulator.
         run: |
@@ -30,12 +34,14 @@ jobs:
             mcr.microsoft.com/azure-storage/azurite:3.35.0 \
             azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --skipApiVersionCheck
           timeout 30 bash -c 'until (echo > /dev/tcp/127.0.0.1/10000) && (echo > /dev/tcp/127.0.0.1/10001); do sleep 1; done'
-      - name: Install dependencies
-        run: dotnet restore Click2Approve.Api.sln
-      - name: Build
-        run: dotnet build Click2Approve.Api.sln --configuration Release --no-restore
-      - name: Test (including queue integration)
-        run: dotnet test Click2Approve.Api.sln --configuration Release --no-build
+      - name: Test all public API suites, including Blob and Queue integration
+        run: node ../scripts/test.mjs api
+      - name: Upload API test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: public-api-results
+          path: TestResults/public
       - name: Show Azurite logs on failure
         if: failure()
         run: docker logs azurite
@@ -64,21 +70,9 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3.13"
-      - name: Build user documentation
-        run: |
-          python -m pip install -r docs/requirements.txt
-          python -m mkdocs build --strict
-      - name: Test
-        run: npm test -- --run
-      - name: Lint and build
-        run: |
-          npm run lint
-          npm run build
+      - name: Install documentation dependencies
+        run: python -m pip install -r docs/requirements.txt
+      - name: UI tests, lint, build, and strict documentation
+        run: node ../scripts/test.mjs ui
 
-      - name: Browser analytics consent regression
-        env:
-          CHROME_NO_SANDBOX: "1"
-        run: |
-          npx playwright install --with-deps chromium
-          npm run test:browser:analytics
-          GOOGLE_ANALYTICS_ID=G-ANALYTICSTEST npm run test:browser:analytics
+  # Browser regressions and fresh-Compose checks run locally; see docs/development.md.

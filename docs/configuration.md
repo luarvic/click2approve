@@ -119,8 +119,9 @@ not update the compiled app.
 | `VITE_UI_BASE_URI` | Public UI origin |
 | `VITE_APP_UPDATE_CHECK_MINUTES` | Production release-check interval in minutes (default `5`); also checks at startup and reloads when a new build is detected |
 | `GOOGLE_ANALYTICS_ID` | Optional GA4 measurement ID (`G-...`) for opt-in analytics across the website, docs, and app; unset or empty disables Analytics and its banner |
-| `DOCS_SITE_URL` | Public site's canonical origin, including trailing `/` |
+| `DOCS_SITE_URL` | This installation's canonical origin, including trailing `/`; defaults to `http://localhost:3333/` |
 | `DOCS_API_BASE_URI` | API base URL used for the public site's Swagger link |
+| `SITE_TERMS_URL`, `SITE_PRIVACY_URL` | Optional operator legal-notice links in the static portal; empty by default |
 
 Local values live in `ui/.env.development`; production values in
 `ui/.env.production` currently point to `https://click2approve.com`. For your own
@@ -137,6 +138,15 @@ route templates with resource identifiers removed. The measurement ID is public 
 Disable Enhanced Measurement, Google Signals, and advertising features in the GA4
 property; only explicit public page views are sent by this integration.
 See [frontend development](../ui/README.md#user-documentation).
+
+## Operator legal links
+
+The English open-source portal includes no commercial Terms or Privacy pages.
+Optionally configure `SiteLinks:TermsUrl` and `SiteLinks:PrivacyUrl` in both the API
+and event consumer. App and email footers use these destinations; blank values omit
+the links. Pass matching `SITE_TERMS_URL` and `SITE_PRIVACY_URL` to the UI image build
+for the static portal. Use absolute HTTP(S) URLs for notices hosted elsewhere.
+These settings do not require legal acknowledgement during registration.
 
 ## Upload limits
 

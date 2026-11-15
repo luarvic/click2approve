@@ -41,9 +41,8 @@ Next, try multiple reviewers, a required comment, or a signing step with
 confirmation are disabled; in-app notifications work. To try a second
 participant, create another account in a separate browser profile.
 
-The [local landing page and guides](http://localhost:3333/) are available in 14
-languages, with language-specific search and shareable URLs. The app remains in
-English. The [API reference](http://localhost:5555/swagger/) is also included.
+The [local landing page and user guides](http://localhost:3333/) describe the
+open-source edition in English. The [API reference](http://localhost:5555/swagger/) is also included.
 
 **Local data is disposable:** this demo setup has no persistent data volumes.
 Running `docker compose down` removes the database and emulator data with their
@@ -53,7 +52,9 @@ containers. For production, follow the [deployment guide](docs/deployment.md).
 <summary>Local services, Apple Silicon, and stopping the app</summary>
 
 Compose starts the UI, API, event publisher, event consumer, SQL Server, and
-Azurite (local Blob and Queue Storage). Keep both workers running for in-app
+Azurite (local Blob and Queue Storage). It waits for a successful SQL query, then
+for the API to initialize the database and respond before starting the workers
+and UI. Keep both workers running for in-app
 notifications and queued cleanup. See [configuration](docs/configuration.md) to
 enable email or configure your own domain.
 
@@ -65,6 +66,10 @@ docker compose ps          # Check service status
 docker compose logs -f api # View API logs
 docker compose down       # Stop and remove containers
 ```
+
+If startup fails, check `docker compose ps -a` and `docker compose logs api`.
+The [startup regression check](docs/development.md#docker-startup-check) verifies
+the complete stack against a fresh database without changing your running stack.
 
 This setup uses SQL Server Developer Edition, which is for development and
 testing. Choose a suitably licensed database for production.
@@ -98,7 +103,7 @@ The free edition supports individual accounts and document workflows with email
 assignees. Guest approvals through secure email links, organization workspaces, employee roles, teams, workflow templates,
 discussions, revisions, and verifiable receipts are part of the
 [commercial service](https://click2approve.com/). See the
-[edition comparison](ui/docs/content/docs/open-source.md) for the full breakdown.
+[hosted edition comparison](https://click2approve.com/docs/open-source/) for the full breakdown.
 
 ### Can I connect it to my existing systems?
 
@@ -143,11 +148,11 @@ and email delivery using the [deployment guide](docs/deployment.md).
 > hosting so you can focus on getting documents approved. The commercial version
 > adds guest approvals through secure email links, organization workspaces, employee roles and teams, reusable workflow
 > templates, discussions, document revisions, verifiable receipts, and API tokens
-> for integrations. [Compare editions](ui/docs/content/docs/open-source.md).
+> for integrations. [Compare editions on the hosted website](https://click2approve.com/docs/open-source/).
 
 ## Documentation
 
-- [Open-source user guide](ui/docs/content/docs/open-source.md) — getting started and edition availability.
+- [Open-source user guides](ui/docs/content/docs/index.md) — getting started, document workflows, and account security.
 - [Local development and testing](docs/development.md) — run from source and validate changes.
 - [Configuration](docs/configuration.md) — settings, secrets, environment variables, and email.
 - [Architecture](docs/architecture.md) — repository layout, components, data flow, and extension points.

@@ -13,6 +13,8 @@ public class ApplicationConfigurationResponse
     public int LogoImageSize { get; set; }
     /// <summary>Legal notices required at signup, or null when not required by this host.</summary>
     public RegistrationLegalResponse? RegistrationLegal { get; set; }
+    /// <summary>Optional legal links provided by the installation operator.</summary>
+    public SiteLinksResponse SiteLinks { get; set; } = new();
     /// <summary>Whether users must confirm their email address.</summary>
     public bool RequiresConfirmedEmail { get; set; }
     /// <summary>Features available in the current product edition.</summary>

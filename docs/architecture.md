@@ -8,7 +8,7 @@ and Queue Storage.
 | Component | Technology | Responsibility |
 | --- | --- | --- |
 | UI (`ui/`) | React 19, TypeScript, Material UI, MobX, Vite | Requests, tasks, profiles, and notifications |
-| Public site (`ui/docs/`) | MkDocs Material | Landing page and user documentation |
+| Open-source portal (`ui/docs/`) | MkDocs Material | English landing page, public-feature guides, and community help |
 | Web API (`api/src/Click2Approve.WebApi/`) | ASP.NET Core 10, Identity | HTTP endpoints, authentication, authorization, and workflow operations |
 | Event publisher (`api/src/Click2Approve.EventPublisher/`) | .NET worker | Publishes committed outbox events and schedules deletion work |
 | Event consumer (`api/src/Click2Approve.EventConsumer/`) | .NET worker | Processes queued notifications, account emails, and deletion work |
@@ -42,7 +42,7 @@ ui/
     layouts/           # Page layouts
     shared/            # Shared components, configuration, and theme
   tests/browser/       # Browser regression tests
-  docs/                # Public site, user guides, and MkDocs theme
+  docs/                # English open-source portal and shared MkDocs theme
   public/              # Static assets
 docs/                  # Developer and operator documentation
 scripts/               # Repository test runner
@@ -63,13 +63,19 @@ User-facing guide content lives in `ui/docs/content/docs/`, with navigation in
 
 ## Shared core and commercial extension
 
-This repository contains the open-source foundation and the only frontend.
+This repository contains the open-source foundation and the shared React application.
 The commercial backend extends shared projects with organization management,
 collaboration, receipts, subscriptions, and other commercial behavior. Commercial
 persistence and billing logic live outside this repository.
 
 The UI uses backend-provided capabilities to show supported features. See the
-[edition comparison](../ui/docs/content/docs/open-source.md).
+[hosted edition comparison](https://click2approve.com/docs/open-source/).
+
+The public image includes its own English-only portal. Commercial content and
+translations are maintained in the business repository; both portals reuse the
+theme, styles, and shared presentation assets here. Each portal builds its own
+navigation and search index. Commercial guides and legal notices are not bundled
+in the public image, and missing pages return normal HTTP 404 responses.
 
 Nginx serves the built public site at `/`, guides at `/docs/`, and React at `/app/`.
 See [frontend development](../ui/README.md) for UI and documentation conventions,

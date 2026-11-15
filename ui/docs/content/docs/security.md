@@ -6,7 +6,7 @@ description: Protect your Click2Approve account with an authenticator app or pas
 
 Protect your Click2Approve account with **multi-factor authentication (MFA)** or a **passkey**. With authenticator MFA, you enter a code from an authenticator app after your password. A passkey lets you sign in through a supported device or security key, using the browser's prompt.
 
-These settings apply to your account across Personal and organization workspaces.
+These settings apply to your account on this installation.
 
 ## Enable authenticator MFA
 
@@ -45,4 +45,4 @@ Select the credential in the Passkeys list and use the remove action. Check its 
 
 After removal, the app notifies compatible password managers so they can stop offering the removed passkey. Your browser or password manager may not support this update. If the passkey still appears, remove it manually from your password manager; it can no longer sign you in to your account.
 
-For a lost authenticator or unavailable device, try your configured alternative method or recovery code. If none is available, contact support for help.
+For a lost authenticator or unavailable device, try your configured alternative method or recovery code. If none is available, contact the installation operator for help.

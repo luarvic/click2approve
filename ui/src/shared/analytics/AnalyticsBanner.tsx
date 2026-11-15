@@ -1,3 +1,4 @@
+import { stores } from "@/app/rootStore";
 import { AnalyticsPage } from "@/shared/analytics/analyticsPages";
 import {
   AnalyticsPreference,
@@ -8,6 +9,7 @@ import {
 import { createAnalyticsTracking } from "@/shared/analytics/analyticsTracking";
 import CloseOutlined from "@mui/icons-material/CloseOutlined";
 import { Box, FormControlLabel, IconButton, Link, Paper, Switch, Typography } from "@mui/material";
+import { observer } from "mobx-react-lite";
 import { useEffect, useRef, useState } from "react";
 
 interface AnalyticsBannerProps {
@@ -119,9 +121,11 @@ const AnalyticsBanner = ({ measurementId = "", publicPage }: AnalyticsBannerProp
       <Typography component="p" sx={{ fontSize: "14px", lineHeight: 1.6, mb: 1 }}>
         Allow Google Analytics cookies to help us understand visits and app usage. Your choice does not affect access to
         the service.{" "}
-        <Link href="/privacy/" underline="always">
-          Privacy Policy
-        </Link>
+        {stores.applicationConfigurationStore.siteLinks?.privacyUrl && (
+          <Link href={stores.applicationConfigurationStore.siteLinks.privacyUrl} underline="always">
+            Privacy Policy
+          </Link>
+        )}
       </Typography>
       <FormControlLabel
         sx={{ m: 0, gap: 1, "& .MuiFormControlLabel-label": { fontSize: "14px" } }}
@@ -138,4 +142,4 @@ const AnalyticsBanner = ({ measurementId = "", publicPage }: AnalyticsBannerProp
   );
 };
 
-export default AnalyticsBanner;
+export default observer(AnalyticsBanner);

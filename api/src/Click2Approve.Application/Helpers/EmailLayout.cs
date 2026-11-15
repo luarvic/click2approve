@@ -8,7 +8,7 @@ public static class EmailLayout
 {
     /// <summary>Renders an email without accepting raw HTML from callers.</summary>
     public static string Render(EmailTemplateModel model, string? logoUrl = null, string? logoLinkUrl = null,
-        bool logoIncludesWordmark = true)
+        bool logoIncludesWordmark = true, string? termsUrl = null, string? privacyUrl = null)
     {
         var safeLogoUrl = SafeUrl(logoUrl);
         var logo = safeLogoUrl is { } fullLogoUrl && logoIncludesWordmark
@@ -39,7 +39,7 @@ public static class EmailLayout
             </td></tr>
             <tr><td style="border-top:1px solid #dfe7e1;padding:24px 28px;color:#52645a;font-size:11px;line-height:1.6;">
             <p style="margin:0;font-weight:500;">© {{DateTime.UtcNow.Year}} Click2Approve. All rights reserved.</p>
-            {{RenderFooterNavigation(logoLinkUrl)}}
+            {{RenderFooterNavigation(logoLinkUrl, termsUrl, privacyUrl)}}
             </td></tr></table>
             <!--[if mso]></td></tr></table><![endif]-->
             </td></tr></table></body></html>
@@ -60,23 +60,27 @@ public static class EmailLayout
         return icon + "<span style=\"display:inline-block;padding-left:4px;vertical-align:middle;font-family:Sora,Arial,Helvetica,sans-serif;font-size:18px;line-height:1.5;font-weight:500;\">Click2Approve</span>";
     }
 
-    private static string RenderFooterNavigation(string? siteUrl)
+    private static string RenderFooterNavigation(string? siteUrl, string? termsUrl, string? privacyUrl)
     {
         if (SafeUrl(siteUrl) is not { } safeUrl) return string.Empty;
         var baseUri = new Uri(safeUrl);
         // Match SiteFooter's root-relative public navigation, using absolute URLs for email clients.
-        (string Label, string Path)[] links =
+        List<(string Label, string Path)> links =
         [
             ("Home", "/"),
             ("App", "/app/"),
             ("Docs", "/docs/"),
-            ("Contact", "/contact/"),
-            ("Terms", "/terms/"),
-            ("Privacy", "/privacy/")
+            ("Contact", "/contact/")
         ];
+        if (!string.IsNullOrWhiteSpace(termsUrl)) links.Add(("Terms", termsUrl));
+        if (!string.IsNullOrWhiteSpace(privacyUrl)) links.Add(("Privacy", privacyUrl));
+        var navigation = links
+            .Select(link => (link.Label, Url: Uri.TryCreate(baseUri, link.Path, out var uri) ? SafeUrl(uri.AbsoluteUri) : null))
+            .Where(link => link.Url is not null)
+            .Select(link =>
+                $"<a href=\"{Encode(link.Url)}\" style=\"display:inline-block;margin-right:16px;color:#52645a;font-size:11px;line-height:2;text-decoration:underline;\">{link.Label}</a>");
         return "<p style=\"margin:16px 0 0;\">"
-            + string.Join(" ", links.Select(link =>
-                $"<a href=\"{Encode(new Uri(baseUri, link.Path).AbsoluteUri)}\" style=\"display:inline-block;margin-right:16px;color:#52645a;font-size:11px;line-height:2;text-decoration:underline;\">{link.Label}</a>"))
+            + string.Join(" ", navigation)
             + "</p>";
     }
 

@@ -1,23 +1,22 @@
 ---
+title: Community help
 template: marketing.html
-description: Get help with Click2Approve or share feedback with the project.
+description: Ask the Click2Approve community a question or report a software bug.
 ---
-# Let's talk
-
-Have a question about a workflow, found something unexpected, or have an idea for Click2Approve?
+# Community help
 
 ## Ask a question
 
-Start a conversation in [GitHub Discussions](https://github.com/luarvic/click2approve/discussions). Include what you're trying to do and where you need help. A GitHub account is required to post.
+Use [GitHub Discussions](https://github.com/luarvic/click2approve/discussions) to ask about the software or share a workflow idea. A GitHub account is required to post.
 
 ## Report a bug
 
-[Open an issue](https://github.com/luarvic/click2approve/issues) with the steps to reproduce the problem, what you expected, and what happened. Leave passwords, private documents, and other sensitive information out of public reports.
+[Open an issue](https://github.com/luarvic/click2approve/issues) with steps to reproduce, the expected result, the actual result, and your software version.
 
-## Private account and privacy questions
+Keep passwords, API credentials, recovery codes, verification links, and private documents out of public reports.
 
-Email [contact@click2approve.com](mailto:contact@click2approve.com) for account, security, legal, or privacy requests. Do not send passwords or unnecessary identity documents.
+## Account and installation help
 
-## Need a starting point?
+Contact the person or team operating this installation for account access, email delivery, or questions about your data. The project community cannot access or administer independently hosted installations.
 
-[Read the getting started guide](docs/index.md) for the basics of requests and tasks.
+[Read the user guides](docs/index.md) for help with requests and tasks.
