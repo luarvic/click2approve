@@ -11,5 +11,6 @@ public enum DeletionTargetType
     InAppNotification,
     Tenant,
     UserFile,
-    Receipt
+    Receipt,
+    SupportConversation
 }

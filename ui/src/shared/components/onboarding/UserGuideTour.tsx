@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 
 const viewportMargin = 16;
 const paperSx: SxProps<Theme> = {
@@ -32,9 +32,9 @@ const paperSx: SxProps<Theme> = {
   backgroundImage: "none",
   boxShadow: "none",
 };
-const positionedPaperSx = (top: number): SxProps<Theme> => ({
+const positionedPaperSx = (maxHeight: number): SxProps<Theme> => ({
   ...paperSx,
-  maxHeight: `calc(100dvh - ${top + viewportMargin}px)`,
+  maxHeight,
 });
 const instructionsSx: SxProps<Theme> = {
   "&:focus-visible": {
@@ -92,6 +92,16 @@ const UserGuideTour = ({ email, showWorkspace }: { email: string; showWorkspace:
     stores.applicationConfigurationStore.tenantsAreEnabled &&
     stores.tenantStore.currentTenant?.type === TenantType.Personal;
   const [stepIndex, setStepIndex] = useState(0);
+  const [hasSupportChat, setHasSupportChat] = useState(() =>
+    Boolean(document.querySelector('[data-user-guide="support-chat"]')),
+  );
+  useEffect(() => {
+    const observer = new MutationObserver(() =>
+      setHasSupportChat(Boolean(document.querySelector('[data-user-guide="support-chat"]'))),
+    );
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
   const [highlight, setHighlight] = useState<{ rect: DOMRect; sx: SxProps<Theme> } | null>(null);
   const rect = highlight?.rect ?? null;
   const steps: GuideStep[] = [
@@ -122,6 +132,16 @@ const UserGuideTour = ({ email, showWorkspace }: { email: string; showWorkspace:
       title: "Find your way around",
       description: "Find your work and settings in these menu groups.",
     },
+    ...(hasSupportChat
+      ? [
+          {
+            target: "support-chat",
+            title: "Ask the AI assistant",
+            description:
+              "Use the AI support button to ask questions about Click2Approve. The assistant uses the product documentation and includes links to the relevant guides.",
+          },
+        ]
+      : []),
   ];
   const step = steps[Math.min(stepIndex, steps.length - 1)];
   const isLastStep = step === steps[steps.length - 1];
@@ -135,6 +155,8 @@ const UserGuideTour = ({ email, showWorkspace }: { email: string; showWorkspace:
   ];
 
   useLayoutEffect(() => {
+    let observedTarget: HTMLElement | null = null;
+    const observer = new MutationObserver(() => measure());
     const measure = () => {
       const menuIsVisible = isDesktop && menuIsOpen;
       const target = step.target === "menu" && !menuIsVisible ? "menu-button" : step.target;
@@ -149,6 +171,12 @@ const UserGuideTour = ({ email, showWorkspace }: { email: string; showWorkspace:
         setHighlight(null);
         return;
       }
+      if (element !== observedTarget) {
+        element.dispatchEvent(new Event("user-guide-highlight"));
+        observer.disconnect();
+        observer.observe(element, { attributes: true, attributeFilter: ["style"] });
+        observedTarget = element;
+      }
       const rect = element.getBoundingClientRect();
       setHighlight({ rect, sx: spotlightSx(rect, window.getComputedStyle(element)) });
     };
@@ -157,6 +185,7 @@ const UserGuideTour = ({ email, showWorkspace }: { email: string; showWorkspace:
     window.addEventListener("scroll", measure, true);
     window.addEventListener("transitionend", measure, true);
     return () => {
+      observer.disconnect();
       window.removeEventListener("resize", measure);
       window.removeEventListener("scroll", measure, true);
       window.removeEventListener("transitionend", measure, true);
@@ -168,8 +197,13 @@ const UserGuideTour = ({ email, showWorkspace }: { email: string; showWorkspace:
     stores.commonStore.setUserGuideIsOpen(false);
   };
   const menuIsHighlighted = step.target === "menu" && rect && rect.height > 100;
+  const isHelpStep = step.target === "support-chat";
   const position = {
-    top: menuIsHighlighted ? 96 : (rect?.bottom ?? 72) + 12,
+    top: isHelpStep
+      ? (rect?.top ?? window.innerHeight - viewportMargin) - 12
+      : menuIsHighlighted
+        ? 96
+        : (rect?.bottom ?? 72) + 12,
     left: Math.max(
       16,
       Math.min(menuIsHighlighted ? rect.right + 16 : (rect?.right ?? 376) - 360, window.innerWidth - 376),
@@ -187,11 +221,14 @@ const UserGuideTour = ({ email, showWorkspace }: { email: string; showWorkspace:
         open
         anchorReference="anchorPosition"
         anchorPosition={position}
+        transformOrigin={{ vertical: isHelpStep ? "bottom" : "top", horizontal: "left" }}
         onClose={close}
         sx={popoverSx}
         slotProps={{
           paper: {
-            sx: positionedPaperSx(position.top),
+            sx: positionedPaperSx(
+              isHelpStep ? position.top - viewportMargin : window.innerHeight - position.top - viewportMargin,
+            ),
             role: "dialog",
             "aria-modal": true,
             "aria-labelledby": "user-guide-title",
@@ -212,7 +249,7 @@ const UserGuideTour = ({ email, showWorkspace }: { email: string; showWorkspace:
             Step {stepIndex + 1} of {steps.length}
           </CardHeading>
           <Typography id="user-guide-description">{step.description}</Typography>
-          {isLastStep &&
+          {step.target === "menu" &&
             groups.map((group) => (
               <Box key={group} sx={groupSx}>
                 <Typography variant="overline" color="textSecondary">

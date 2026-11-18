@@ -250,7 +250,7 @@ export const Shell = {
       pt: 0,
       pb: 2.5,
     },
-    "& > .MuiList-root:first-child > .MuiListSubheader-root": {
+    "& > .MuiList-root:first-of-type > .MuiListSubheader-root": {
       mt: 0,
     },
     "& .MuiListItemButton-root": {

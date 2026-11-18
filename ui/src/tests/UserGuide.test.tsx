@@ -124,3 +124,27 @@ test("omits the workspace step when the picker is unavailable and isolates accou
   });
   await screen.findByRole("dialog", { name: "Your profile and settings" });
 });
+
+test("includes a help launcher that arrives after the guide opens", async () => {
+  render(<Guide />);
+  await screen.findByRole("dialog");
+  const launcher = document.createElement("aside");
+  launcher.dataset.userGuide = "support-chat";
+  document.body.append(launcher);
+  try {
+    await screen.findByText("Step 1 of 5");
+    next();
+    next();
+    next();
+    expect(screen.getByRole("dialog", { name: "Find your way around" })).toBeTruthy();
+    expect(screen.getByText("Support")).toBeTruthy();
+    next();
+    expect(screen.getByRole("dialog", { name: "Ask the AI assistant" })).toBeTruthy();
+    expect(screen.getByText(/AI support button/)).toBeTruthy();
+    expect(screen.queryByText("Support")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Finish" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  } finally {
+    launcher.remove();
+  }
+});
