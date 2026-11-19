@@ -1,0 +1,5 @@
+{% if config.extra.portal == 'hosted' %}
+<c2a-support-launcher style="display: contents">
+  <a href="{{ 'docs/' | url }}" aria-label="{{ t('Docs') }}">{% include ".icons/click2approve/ai-support.svg" %}</a>
+</c2a-support-launcher>
+{% endif %}

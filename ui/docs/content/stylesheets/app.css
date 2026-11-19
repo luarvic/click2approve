@@ -200,6 +200,24 @@
   transform: translate(calc(100% - 2px), -100%);
 }
 
+c2a-support-launcher > a {
+  display: none;
+}
+@media (scripting: enabled) {
+  c2a-support-launcher > a {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    color: var(--site-green);
+  }
+  c2a-support-launcher > a svg {
+    width: 22px;
+    height: 22px;
+  }
+}
+
 .docs-header-spacer {
   flex: 1 0 8px;
 }

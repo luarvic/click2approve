@@ -14,7 +14,7 @@
       <span>Click2Approve</span>
     </a>
     <div class="site-header-links">
-      {% if config.extra.portal == 'hosted' %}<c2a-support-launcher style="display: contents"></c2a-support-launcher>{% endif %}
+      {% include "partials/support-launcher.html" %}
       <a class="site-docs-link" href="{{ 'docs/' | url }}" aria-label="{{ t('Docs') }}" title="{{ t('Docs') }}"{% if page.url.startswith('docs/') %} aria-current="page"{% endif %}>
         <span class="site-docs-label">{{ t('Docs') }}</span>
         {# Match the MUI QuestionMark icon used by the app main menu. #}

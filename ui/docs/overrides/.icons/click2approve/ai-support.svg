@@ -1,0 +1,6 @@
+<svg viewBox="0 0 24 24" aria-hidden="true">
+  <path d="M7 3h10a5 5 0 0 1 5 5v6a5 5 0 0 1-5 5h-6.5L5 22v-3.4A5 5 0 0 1 2 14V8a5 5 0 0 1 5-5Z"
+      fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+  <path transform="translate(-0.75 0)" d="m6.3 15.3 3.1-8.6h2l3.1 8.6h-2l-.6-1.9H9l-.7 1.9Zm3.2-3.5h1.9l-.95-3Z
+      M15.7 6.7h2v8.6h-2Z" fill="currentColor" fill-rule="evenodd"/>
+</svg>

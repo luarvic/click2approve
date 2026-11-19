@@ -30,6 +30,11 @@
   flex-shrink: 0;
   gap: 24px;
 }
+@media (scripting: enabled) {
+  .site-header-links c2a-support-launcher + .site-docs-link {
+    display: none;
+  }
+}
 .site-header-links a:hover,
 .site-open-app:hover,
 .site-header-links a[aria-current] {
