@@ -1,5 +1,6 @@
 """Include shared branding assets and resolve environment-specific API links."""
 
+import base64
 import os
 import re
 from pathlib import Path
@@ -66,9 +67,17 @@ def on_files(files, config):
         "assets/logo-narrow.svg": ui_dir / "public/logo-narrow.svg",
         "assets/favicon-192.png": ui_dir / "public/favicon-192.png",
     }
+    # Deliver font bytes with the render-blocking stylesheet for a stable first paint.
+    faces = []
     for weight in (400, 500, 600, 700):
         name = f"sora-latin-{weight}-normal.woff2"
-        assets[f"assets/fonts/{name}"] = ui_dir / "node_modules/@fontsource/sora/files" / name
+        source = ui_dir / "node_modules/@fontsource/sora/files" / name
+        encoded = base64.b64encode(source.read_bytes()).decode("ascii")
+        faces.append(
+            f"@font-face {{ font-family: Sora; font-style: normal; font-weight: {weight}; "
+            f'font-display: block; src: url("data:font/woff2;base64,{encoded}") format("woff2"); }}'
+        )
+    files.append(File.generated(config, "stylesheets/sora.css", content="\n".join(faces)))
 
     for destination, source in assets.items():
         if not source.is_file():

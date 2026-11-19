@@ -2,8 +2,9 @@
 
 {% block analytics %}{% endblock %}
 
-{# app.css loads only the Sora weights needed by each page through @font-face. #}
-{% block fonts %}{% endblock %}
+{% block fonts %}
+  <link rel="stylesheet" href="{{ 'stylesheets/sora.css' | url }}" />
+{% endblock %}
 
 {% block extrahead %}
   {{ super() }}

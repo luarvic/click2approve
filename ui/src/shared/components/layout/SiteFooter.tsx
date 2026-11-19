@@ -18,9 +18,9 @@ const innerSx: SxProps<Theme> = {
   justifyContent: "space-between",
   margin: "auto",
   maxWidth: 1240,
-  px: "32px",
+  px: { xs: "20px", md: "32px" },
   py: "24px",
-  "@media (max-width: 700px)": { px: "20px" },
+  "& p, & a, & button": { lineHeight: "normal" },
 };
 const copyrightSx: SxProps<Theme> = { fontSize: "11px", fontWeight: 500 };
 const navigationSx: SxProps<Theme> = { display: "flex", flexWrap: "wrap", gap: "16px" };
