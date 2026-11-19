@@ -677,6 +677,21 @@ body:has(.site-header) .md-main__inner {
   }
 }
 @media (max-width: 700px) {
+  /* The entire thumbnail is the button; keep its visible badge below the artwork. */
+  .site-demo-play-label {
+    bottom: 6px;
+    left: 6px;
+    gap: 6px;
+    min-height: 0;
+    padding: 3px 8px;
+    line-height: 1.25;
+  }
+  .site-demo-play-icon {
+    font-size: 14px;
+  }
+  .site-demo-play-text {
+    display: none;
+  }
   .example-card {
     padding: 20px;
   }
