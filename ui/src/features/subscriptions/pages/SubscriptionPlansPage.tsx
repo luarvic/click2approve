@@ -14,6 +14,7 @@ import {
   recoverPayment,
   refreshBilling,
 } from "@/features/subscriptions/api/subscriptionsApi";
+import CustomPlanNotice from "@/features/subscriptions/components/CustomPlanNotice";
 import PlanPriceCard from "@/features/subscriptions/components/PlanPriceCard";
 import { PaymentIssue } from "@/features/subscriptions/models/paymentIssue";
 import { SubscriptionPlan, TenantType } from "@/features/tenants/models/tenant";
@@ -492,6 +493,9 @@ const SubscriptionPlansPage = () => {
             />
           </Grid>
         ))}
+        <Grid size={12}>
+          <CustomPlanNotice />
+        </Grid>
       </Grid>
       {currentTenant?.type === TenantType.Personal && (
         <>

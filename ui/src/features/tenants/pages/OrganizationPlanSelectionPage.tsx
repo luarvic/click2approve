@@ -1,5 +1,6 @@
 import { stores } from "@/app/rootStore";
 import { getSubscriptionPlans, SubscriptionPlanConfiguration } from "@/features/subscriptions/api/subscriptionsApi";
+import CustomPlanNotice from "@/features/subscriptions/components/CustomPlanNotice";
 import PlanPriceCard from "@/features/subscriptions/components/PlanPriceCard";
 import { SubscriptionPlan } from "@/features/tenants/models/tenant";
 import MainActionButton from "@/shared/components/buttons/MainActionButton";
@@ -79,37 +80,42 @@ const OrganizationPlanSelectionPage = () => {
       ) : !limits ? (
         <LoadingOverlay />
       ) : (
-        <RadioGroup
-          aria-label="Organization plan"
-          value={selectedPlan ?? ""}
-          onChange={(event) => setSelectedPlan(event.target.value as SubscriptionPlan)}
-        >
-          <Grid container spacing={gridSpacing}>
-            {plans.map(({ plan, name }) => {
-              const configuration = limits.find((item) => item.plan === plan);
-              return (
-                <Grid
-                  key={plan}
-                  sx={Flex.displaySx}
-                  size={{
-                    md: 6,
-                    xs: 12,
-                  }}
-                >
-                  <PlanPriceCard
-                    actions={
-                      <FormControlLabel control={<Radio />} disabled={busy} label={`Choose ${name}`} value={plan} />
-                    }
-                    highlighted={selectedPlan === plan}
-                    limits={configuration}
-                    subtitle={plan === SubscriptionPlan.BusinessTrial ? "Available once per owner" : "Payment required"}
-                    title={name}
-                  />
-                </Grid>
-              );
-            })}
-          </Grid>
-        </RadioGroup>
+        <Stack spacing={gridSpacing}>
+          <RadioGroup
+            aria-label="Organization plan"
+            value={selectedPlan ?? ""}
+            onChange={(event) => setSelectedPlan(event.target.value as SubscriptionPlan)}
+          >
+            <Grid container spacing={gridSpacing}>
+              {plans.map(({ plan, name }) => {
+                const configuration = limits.find((item) => item.plan === plan);
+                return (
+                  <Grid
+                    key={plan}
+                    sx={Flex.displaySx}
+                    size={{
+                      md: 6,
+                      xs: 12,
+                    }}
+                  >
+                    <PlanPriceCard
+                      actions={
+                        <FormControlLabel control={<Radio />} disabled={busy} label={`Choose ${name}`} value={plan} />
+                      }
+                      highlighted={selectedPlan === plan}
+                      limits={configuration}
+                      subtitle={
+                        plan === SubscriptionPlan.BusinessTrial ? "Available once per owner" : "Payment required"
+                      }
+                      title={name}
+                    />
+                  </Grid>
+                );
+              })}
+            </Grid>
+          </RadioGroup>
+          <CustomPlanNotice />
+        </Stack>
       )}
       <Stack direction={{ xs: "column", sm: "row" }} spacing={Forms.actionSpacing} sx={Forms.addActionSx}>
         <Button variant="text" disabled={busy} onClick={onBack}>
