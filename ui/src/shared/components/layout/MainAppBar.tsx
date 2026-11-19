@@ -4,7 +4,7 @@ import TenantPickerOption from "@/features/tenants/components/TenantPickerOption
 import { Tenant } from "@/features/tenants/models/tenant";
 import { getPublicApiUrl } from "@/shared/api/userProfilesApi";
 import ColorModeSwitch from "@/shared/components/layout/ColorModeSwitch";
-import PublicAppBar from "@/shared/components/layout/PublicAppBar";
+import PublicAppBar, { SupportLauncher } from "@/shared/components/layout/PublicAppBar";
 import { Shell } from "@/shared/components/layout/shellStyles";
 import { AppBarOptions } from "@/shared/models/appBarOptions";
 import { Routes } from "@/shared/routing/routes";
@@ -31,7 +31,6 @@ const MainAppBar = ({
   const currentUser = stores.userAccountStore.currentUser;
   const profile = stores.userProfileStore.profile;
   const mainMenuDrawerIsOpen = stores.commonStore.mainMenuDrawerIsOpen;
-  const mainMenuDrawerIsVisible = Boolean(currentUser) && showMainMenuButton && mainMenuDrawerIsOpen;
   const tenantPickerIsVisible =
     showTenantPicker &&
     stores.applicationConfigurationStore.tenantsAreEnabled &&
@@ -68,8 +67,7 @@ const MainAppBar = ({
   return (
     <PublicAppBar
       homePath={currentUser ? tasksPath : Routes.defaultPath}
-      showBrand={!mainMenuDrawerIsVisible}
-      showBrandTitle={!showMainMenuButton}
+      showBrand={!showMainMenuButton}
       startContent={
         currentUser &&
         showMainMenuButton && (
@@ -146,6 +144,7 @@ const MainAppBar = ({
             </Select>
           </FormControl>
         )}
+        <SupportLauncher />
         <ColorModeSwitch
           checked={stores.userPreferencesStore.theme.palette.mode === "dark"}
           slotProps={{

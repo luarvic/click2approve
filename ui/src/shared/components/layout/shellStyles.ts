@@ -2,7 +2,6 @@ import { ControlTokens } from "@/shared/theme/tokens";
 import { alpha } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material";
 const appBarHeight = 72;
-const appBarLogoSize = 42;
 const mainMenuLogoSize = 36;
 const mainMenuDrawerWidth = 240;
 export const Shell = {
@@ -76,7 +75,7 @@ export const Shell = {
     mr: 1,
     display: mainMenuDrawerIsOpen ? "none" : "inline-flex",
   }),
-  appBarBrandContainerSx: {
+  appBarBrandContainerSx: (showBrand: boolean): SxProps<Theme> => ({
     alignItems: "center",
     alignSelf: "stretch",
     display: "flex",
@@ -84,8 +83,8 @@ export const Shell = {
     justifyContent: "flex-start",
     minWidth: 0,
     overflow: "hidden",
-    pr: 1,
-  } as SxProps<Theme>,
+    pr: showBrand ? 1 : 0,
+  }),
   appBarBrandLinkSx: {
     display: "flex",
     gap: 1,
@@ -102,13 +101,6 @@ export const Shell = {
       gap: 0.3,
     };
   },
-  appBarLogoSx: {
-    display: "block",
-    flex: "0 0 auto",
-    minHeight: appBarLogoSize,
-    width: "auto",
-    height: appBarLogoSize,
-  } as SxProps<Theme>,
   mainMenuLogoSx: {
     display: "block",
     flex: "0 0 auto",

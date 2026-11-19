@@ -146,14 +146,6 @@
   flex-shrink: 0;
 }
 
-.docs-app-bar-logo img {
-  height: 42px;
-}
-
-[data-md-toggle="drawer"]:checked ~ .md-header .docs-app-bar-logo {
-  display: none;
-}
-
 .docs-brand span {
   font-size: 19px;
   font-weight: 600;
@@ -335,7 +327,7 @@
 /* Match the app's outlined inputs and popup surfaces in both search states. */
 .md-header .md-search {
   flex: 0 1 380px;
-  margin-right: 8px;
+  margin-inline-end: 8px;
   max-width: 380px;
   min-width: 0;
   padding: 0;
@@ -665,10 +657,6 @@
 @media screen and (min-width: 1200px) {
   .md-header {
     padding-left: 240px;
-  }
-
-  .md-header .docs-app-bar-logo {
-    display: none;
   }
 
   .md-main__inner {

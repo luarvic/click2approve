@@ -175,11 +175,6 @@
     top: 64px;
     inset-inline-end: 16px;
   }
-  .md-header .md-search {
-    flex: 1 1 140px;
-    width: 140px;
-    margin-inline-end: 4px;
-  }
 }
 @media (pointer: coarse) {
   .language-picker-options a {

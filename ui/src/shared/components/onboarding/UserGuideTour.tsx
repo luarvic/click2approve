@@ -197,13 +197,8 @@ const UserGuideTour = ({ email, showWorkspace }: { email: string; showWorkspace:
     stores.commonStore.setUserGuideIsOpen(false);
   };
   const menuIsHighlighted = step.target === "menu" && rect && rect.height > 100;
-  const isHelpStep = step.target === "support-chat";
   const position = {
-    top: isHelpStep
-      ? (rect?.top ?? window.innerHeight - viewportMargin) - 12
-      : menuIsHighlighted
-        ? 96
-        : (rect?.bottom ?? 72) + 12,
+    top: menuIsHighlighted ? 96 : (rect?.bottom ?? 72) + 12,
     left: Math.max(
       16,
       Math.min(menuIsHighlighted ? rect.right + 16 : (rect?.right ?? 376) - 360, window.innerWidth - 376),
@@ -221,14 +216,11 @@ const UserGuideTour = ({ email, showWorkspace }: { email: string; showWorkspace:
         open
         anchorReference="anchorPosition"
         anchorPosition={position}
-        transformOrigin={{ vertical: isHelpStep ? "bottom" : "top", horizontal: "left" }}
         onClose={close}
         sx={popoverSx}
         slotProps={{
           paper: {
-            sx: positionedPaperSx(
-              isHelpStep ? position.top - viewportMargin : window.innerHeight - position.top - viewportMargin,
-            ),
+            sx: positionedPaperSx(window.innerHeight - position.top - viewportMargin),
             role: "dialog",
             "aria-modal": true,
             "aria-labelledby": "user-guide-title",

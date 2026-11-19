@@ -1,6 +1,6 @@
 import { stores } from "@/app/rootStore";
 import ColorModeSwitch from "@/shared/components/layout/ColorModeSwitch";
-import PublicAppBar from "@/shared/components/layout/PublicAppBar";
+import PublicAppBar, { SupportLauncher } from "@/shared/components/layout/PublicAppBar";
 import { Shell } from "@/shared/components/layout/shellStyles";
 import SiteFooter from "@/shared/components/layout/SiteFooter";
 import { GlobalLoadingActionLoaderScopes } from "@/shared/utils/actionLoaders";
@@ -18,6 +18,7 @@ const PublicLayout = ({ children }: PublicLayoutProps) => {
   return (
     <Box sx={Shell.outerBackgroundSx}>
       <PublicAppBar>
+        <SupportLauncher />
         <ColorModeSwitch
           checked={stores.userPreferencesStore.theme.palette.mode === "dark"}
           slotProps={{ input: { "aria-label": "Dark mode" } }}

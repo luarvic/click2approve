@@ -7,13 +7,12 @@
       data-docs-toggle="__drawer" data-docs-menu-label="{{ t('Documentation menu') }}">
       {% include ".icons/material/menu.svg" %}
     </button>
-    {% endif %}
-    <a class="docs-brand docs-app-bar-logo" href="{{ site_path() if is_not_found else site_path('docs/') }}" aria-label="{{ t('Click2Approve home') if is_not_found else t('Click2Approve documentation home') }}">
-      <img src="{{ config.theme.logo | url if is_not_found else 'assets/logo-narrow.svg' | url }}" alt="" aria-hidden="true" />
-      {% if is_not_found %}
+    {% else %}
+    <a class="docs-brand docs-app-bar-logo" href="{{ site_path() }}" aria-label="{{ t('Click2Approve home') }}">
+      <img src="{{ config.theme.logo | url }}" alt="" aria-hidden="true" />
       <span class="not-found-brand-title">{{ config.site_name }}</span>
-      {% endif %}
     </a>
+    {% endif %}
     <div class="docs-header-spacer"></div>
     {% if not is_not_found and "material/search" in config.plugins %}
       {% set search = config.plugins["material/search"] | attr("config") %}
@@ -21,6 +20,7 @@
         {% include "partials/search.html" %}
       {% endif %}
     {% endif %}
+    {% if config.extra.portal == 'hosted' %}<c2a-support-launcher style="display: contents"></c2a-support-launcher>{% endif %}
     {% include "partials/language-picker.html" %}
     {% include "partials/palette.html" %}
     {% include "partials/javascripts/shared-color-mode.html" %}
