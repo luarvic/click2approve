@@ -28,6 +28,7 @@ values through `environment` or `env_file`.
 | `ConnectionStrings__Default` | API, publisher, consumer | SQL Server / Azure SQL connection string; all hosts must use the same database |
 | `FileStorage__ConnectionString` | API, consumer | Blob Storage connection string, including Azurite locally |
 | `FileStorage__ServiceUri` | API, consumer | Blob service URL when using Azure token authentication instead of a connection string |
+| `FileStorage__PublicServiceUri` | API, consumer | Optional browser-facing Blob service URL for public images. Local Compose uses `http://localhost:10000/devstoreaccount1`. |
 | `FileStorage__PrivateContainerName` | API, consumer | Private attachments container; default `private` |
 | `FileStorage__PublicContainerName` | API, consumer | Public profile images container; default `public` |
 | `EventQueue__ConnectionString` | Publisher, consumer | Queue Storage connection string, including Azurite locally |

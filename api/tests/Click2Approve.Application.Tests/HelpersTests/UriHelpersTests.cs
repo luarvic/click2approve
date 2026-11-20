@@ -7,6 +7,16 @@ namespace Click2Approve.Application.Tests.HelpersTests;
 /// </summary>
 public class UriHelpersTests
 {
+    [Theory]
+    [InlineData("http://localhost:10000/devstoreaccount1")]
+    [InlineData("http://localhost:10000/devstoreaccount1/")]
+    public void GetPublicFileUri_PreservesServicePathAndEscapesFileName(string serviceUri)
+    {
+        var uri = UriHelpers.GetPublicFileUri(new Uri(serviceUri), "public", "test #1%20.jpg");
+
+        Assert.Equal("http://localhost:10000/devstoreaccount1/public/test%20%231%2520.jpg", uri.AbsoluteUri);
+    }
+
     [Fact]
     public void GetUiUri_WithAppPath_ShouldAppendAppPathAndRoute()
     {

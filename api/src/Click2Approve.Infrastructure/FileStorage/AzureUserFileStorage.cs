@@ -2,6 +2,7 @@ using Azure.Core;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Click2Approve.Application.Abstractions.FileStorage;
+using Click2Approve.Application.Helpers;
 using Click2Approve.Domain.Exceptions;
 using Click2Approve.Domain.Models;
 
@@ -10,18 +11,21 @@ namespace Click2Approve.Infrastructure.FileStorage;
 /// <summary>
 /// Stores public and private user-file content in Azure Blob Storage.
 /// </summary>
-public class AzureUserFileStorage(IConfiguration configuration, TokenCredential credential) : IUserFileStorage
+public class AzureUserFileStorage : IUserFileStorage
 {
-    private readonly Lazy<Task<BlobContainerClient>> _private = new(() => CreateAsync(
-        configuration,
-        credential,
-        "PrivateContainerName",
-        PublicAccessType.None));
-    private readonly Lazy<Task<BlobContainerClient>> _public = new(() => CreateAsync(
-        configuration,
-        credential,
-        "PublicContainerName",
-        PublicAccessType.Blob));
+    private readonly IConfiguration _configuration;
+    private readonly Lazy<BlobContainerClient> _publicClient;
+    private readonly Lazy<Task<BlobContainerClient>> _private;
+    private readonly Lazy<Task<BlobContainerClient>> _public;
+
+    public AzureUserFileStorage(IConfiguration configuration, TokenCredential credential)
+    {
+        _configuration = configuration;
+        _publicClient = new(() => CreateClient(configuration, credential, "PublicContainerName"));
+        _public = new(() => EnsureContainerAsync(_publicClient.Value, PublicAccessType.Blob));
+        _private = new(() => EnsureContainerAsync(
+            CreateClient(configuration, credential, "PrivateContainerName"), PublicAccessType.None));
+    }
 
     public async Task SaveAsync(UserFile userFile, byte[] bytes, CancellationToken cancellationToken)
     {
@@ -54,7 +58,12 @@ public class AzureUserFileStorage(IConfiguration configuration, TokenCredential 
             throw new InvalidOperationException("Private files do not have public URLs.");
         }
 
-        return _public.Value.GetAwaiter().GetResult().GetBlobClient(GetPath(userFile)).Uri.AbsoluteUri;
+        var container = _publicClient.Value;
+        var fileName = GetPath(userFile);
+        var publicServiceUri = _configuration["FileStorage:PublicServiceUri"];
+        return string.IsNullOrWhiteSpace(publicServiceUri)
+            ? container.GetBlobClient(fileName).Uri.AbsoluteUri
+            : UriHelpers.GetPublicFileUri(new Uri(publicServiceUri), container.Name, fileName).AbsoluteUri;
     }
 
     private static async Task DeleteAsync(
@@ -66,22 +75,25 @@ public class AzureUserFileStorage(IConfiguration configuration, TokenCredential 
         await initializedContainer.DeleteBlobIfExistsAsync(GetPath(userFile), cancellationToken: cancellationToken);
     }
 
-    private static async Task<BlobContainerClient> CreateAsync(
+    private static BlobContainerClient CreateClient(
         IConfiguration configuration,
         TokenCredential credential,
-        string key,
-        PublicAccessType publicAccessType)
+        string key)
     {
         var containerName = configuration[$"FileStorage:{key}"]
             ?? throw new InfrastructureException("FileStorage configuration is invalid.");
         var connectionString = configuration["FileStorage:ConnectionString"];
-        var container = !string.IsNullOrWhiteSpace(connectionString)
+        return !string.IsNullOrWhiteSpace(connectionString)
             ? new BlobContainerClient(connectionString, containerName)
             : new BlobServiceClient(
                 new Uri(configuration["FileStorage:ServiceUri"]
                     ?? throw new InfrastructureException("FileStorage configuration is invalid.")),
                 credential)
                 .GetBlobContainerClient(containerName);
+    }
+
+    private static async Task<BlobContainerClient> EnsureContainerAsync(BlobContainerClient container, PublicAccessType publicAccessType)
+    {
         await container.CreateIfNotExistsAsync(publicAccessType);
         return container;
     }

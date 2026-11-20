@@ -31,6 +31,13 @@ public static class UriHelpers
             .ToUri();
     }
 
+    /// <summary>Builds a public file URI under the configured service path.</summary>
+    public static Uri GetPublicFileUri(Uri serviceUri, string containerName, string fileName) =>
+        serviceUri.GetLeftPart(UriPartial.Path)
+            .AppendPathSegment(containerName, fullyEncode: true)
+            .AppendPathSegment(fileName, fullyEncode: true)
+            .ToUri();
+
     public static Url GetUiUri(Uri? uiBaseUri, string? uiAppPath, string route)
     {
         uiBaseUri ??= new Uri(string.Empty, UriKind.Relative);

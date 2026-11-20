@@ -55,8 +55,15 @@ public sealed class AzuriteBlobIntegrationTests
             var duplicate = await Assert.ThrowsAsync<RequestFailedException>(() => storage.SaveAsync(privateFile, bytes, default));
             Assert.Equal(409, duplicate.Status);
 
+            var publicContainer = service.GetBlobContainerClient(publicName);
+            Assert.Equal(publicContainer.GetBlobClient($"{publicFile.GlobalId}.svg").Uri.AbsoluteUri, storage.GetPublicUrl(publicFile));
+            Assert.False((await publicContainer.ExistsAsync()).Value);
+
             await storage.SaveAsync(publicFile, bytes, default);
             Assert.Equal(bytes, await anonymous.GetByteArrayAsync(storage.GetPublicUrl(publicFile)));
+            configuration["FileStorage:PublicServiceUri"] = "https://images.example.test/storage";
+            Assert.Equal($"https://images.example.test/storage/{publicName}/{publicFile.GlobalId}.svg", storage.GetPublicUrl(publicFile));
+            configuration["FileStorage:PublicServiceUri"] = null;
             await Assert.ThrowsAsync<InvalidOperationException>(() => storage.ReadAsync(publicFile, default));
             foreach (var file in new[] { privateFile, publicFile })
             {
