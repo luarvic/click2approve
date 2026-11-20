@@ -5,7 +5,7 @@
       <a href="{{ site_path() }}">{{ t("Home") }}</a>
       <a href="/app/">{{ t("App") }}</a>
       <a href="{{ 'docs/' | url }}">{{ t("Docs") }}</a>
-      <a href="{{ 'contact/' | url }}">{{ t("Contact") if config.extra.portal == 'hosted' else 'Community help' }}</a>
+      <a href="{{ 'contact/' | url }}">{{ t("Contact") }}</a>
       {% if config.extra.terms_url %}
       <a href="{{ config.extra.terms_url if config.extra.terms_url != '/terms/' else 'terms/' | url }}">{{ t("Terms") }}</a>
       {% endif %}

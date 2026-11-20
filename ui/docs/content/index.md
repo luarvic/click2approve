@@ -1,5 +1,5 @@
 ---
-title: Open-source document approvals
+title: Open-source document approval software
 template: landing.html
-description: Self-host Click2Approve for document approvals, multi-step reviews, and electronic signatures. Free and open source under the MIT License.
+description: Send documents for approval, collect electronic signatures, and see who acts next. Track every decision on your own Click2Approve installation.
 ---

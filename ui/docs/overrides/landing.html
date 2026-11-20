@@ -1,39 +1,45 @@
 {% extends "marketing.html" %}
+{% block page_styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="{{ 'stylesheets/landing-layout.css' | url }}" />
+{% endblock %}
 {% block marketing_content %}
 <section class="site-hero" aria-labelledby="hero-title">
   <div class="site-hero-copy">
-    <p class="site-eyebrow"><span></span> FREE &amp; OPEN SOURCE</p>
-    <h1 id="hero-title">Get documents approved.</h1>
-    <p class="site-lead">Send documents for review, approval, or electronic signature. Choose who acts at each step and follow their decisions in one place.</p>
-    <div class="site-actions">
-      <a class="site-button" href="/app/">Open app <span aria-hidden="true">→</span></a>
-      <a class="site-text-link" href="{{ 'docs/getting-started/' | url }}">Get started <span aria-hidden="true">→</span></a>
+    <h1 id="hero-title">{{ page.meta.title | e }}</h1>
+    <p class="site-lead">{{ page.meta.description | e }}</p>
+    <div class="site-actions hero-actions">
+      <a class="site-text-link" href="{{ 'docs/getting-started/#send-your-first-request' | url }}">Read the getting started guide <span aria-hidden="true">→</span></a>
+      <a class="site-button" href="/app/signUp">Create account <span aria-hidden="true">→</span></a>
     </div>
-    <p class="site-hero-note">Your documents and accounts stay on this installation.</p>
   </div>
-  <figure class="workflow-preview" aria-label="Example of a document approval workflow">
-    <figcaption><span class="preview-dot"></span> YOUR FIRST WORKFLOW</figcaption>
-    <ol class="preview-steps">
-      <li><span class="step-number">1</span><div><strong>Send a document</strong><span>Upload a file and add reviewers by email.</span></div></li>
-      <li><span class="step-number">2</span><div><strong>Review and sign</strong><span>Each participant signs in to complete their task.</span></div></li>
-      <li><span class="step-number">3</span><div><strong>Follow the outcome</strong><span>See progress and recorded decisions in Requests.</span></div></li>
-    </ol>
-  </figure>
 </section>
-<section class="site-process" aria-labelledby="features-title">
-  <div class="site-section-heading"><p class="site-eyebrow">DOCUMENT WORKFLOWS</p><h2 id="features-title">Choose the steps your work needs.</h2></div>
-  <div class="site-process-grid">
-    <article><h3>Review in order or together.</h3><p>Run steps in sequence, add several reviewers to a step, and require everyone or any one person to act.</p></article>
-    <article><h3>Collect comments and signatures.</h3><p>Write clear instructions and require a comment or a drawn electronic signature when needed.</p></article>
-    <article><h3>Keep track of decisions.</h3><p>Find incoming work in Tasks, follow the requests you sent, and receive in-app notifications.</p></article>
+<section class="site-process" id="how-it-works" aria-labelledby="process-title">
+  <div class="site-section-heading">
+    <h2 id="process-title">How document approval works</h2>
+    <p>Assign each step by email address. Reviewers sign in to your installation to open their tasks, review the files, and record a decision.</p>
   </div>
+  {% set steps = [
+    ("Create a request", "Upload your document and add instructions so reviewers know what to check.", "docs/create-a-request/", "Create a request"),
+    ("Set the approval order", "Choose who goes first and whether each step needs one response or a response from everyone assigned.", "docs/workflow-steps/", "Set up approval steps"),
+    ("Review and sign", "Open the document in Tasks, leave a comment, and draw an electronic signature when the step requires one.", "docs/complete-a-task/", "Complete a task"),
+    ("Track every decision", "Open Requests to see who has responded, whose turn it is, and what each reviewer decided.", "docs/track-requests/", "Track a request")
+  ] %}
+  <ol class="site-process-grid approval-steps">
+    {% for title, description, guide, link_text in steps %}
+      <li>
+        <h3><bdi aria-hidden="true">{{ loop.index }}.</bdi> {{ title }}</h3>
+        <p>{{ description }}</p>
+        <a class="site-text-link" href="{{ guide | url }}">{{ link_text }} <span aria-hidden="true">→</span></a>
+      </li>
+    {% endfor %}
+  </ol>
 </section>
 <section class="site-guide" aria-labelledby="source-title">
-  <div><p class="site-eyebrow">HOST IT YOURSELF</p><h2 id="source-title">Free under the MIT License.</h2><p>Use and adapt Click2Approve for personal or business workflows. Find setup, deployment, and integration guidance in the public repository.</p></div>
-  <a class="site-text-link" href="https://github.com/luarvic/click2approve">Source and self-hosting on GitHub <span aria-hidden="true">→</span></a>
-</section>
-<section class="site-guide" aria-labelledby="hosted-title">
-  <div><h2 id="hosted-title">Looking for the hosted service?</h2><p>Explore the commercial edition and its features on the Click2Approve website.</p></div>
-  <a class="site-text-link" href="https://click2approve.com/">Visit the hosted Click2Approve service <span aria-hidden="true">→</span></a>
+  <div>
+    <h2 id="source-title">Click2Approve on GitHub</h2>
+    <p>The Click2Approve repository includes the source code, a Docker Compose setup you can try locally, and a guide to deploying on your own infrastructure. The MIT License lets you use, modify, and deploy it for personal or business use.</p>
+    <a class="site-text-link" href="https://github.com/luarvic/click2approve">Explore the GitHub repository <span aria-hidden="true">→</span></a>
+  </div>
 </section>
 {% endblock %}

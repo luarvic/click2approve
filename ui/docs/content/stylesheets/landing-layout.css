@@ -1,0 +1,122 @@
+.site-hero .hero-actions {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  margin: 12px 0 0;
+}
+
+.site-hero .site-lead {
+  margin-bottom: 0;
+}
+
+/* Balance the visible gap above the filled button with the paragraph's line spacing. */
+.hero-actions .site-button,
+.site-guide .site-text-link + .site-button {
+  margin-block-start: 6px;
+}
+
+.site-content {
+  container: hero / inline-size;
+  --section-spacing: clamp(36px, 5vw, 56px);
+}
+
+.site-hero {
+  grid-template-columns: minmax(0, 1fr);
+  padding-block-end: var(--section-spacing);
+}
+
+.site-process,
+.site-guide {
+  padding-block: var(--section-spacing);
+}
+
+.site-hero .site-hero-copy {
+  min-width: 0;
+}
+
+.site-hero-copy:only-child .site-lead {
+  max-width: none;
+}
+
+@container hero (width < 980px) {
+  .site-hero .site-lead {
+    max-width: none;
+  }
+}
+
+.site-hero h1 {
+  hyphens: auto;
+  overflow-wrap: anywhere;
+}
+
+.site-guide > div:has(> .site-text-link) {
+  display: grid;
+  justify-items: start;
+  row-gap: 12px;
+}
+
+.site-guide > div:has(> .site-text-link) > :is(h2, p) {
+  margin: 0;
+}
+
+[dir="rtl"] .site-guide .site-text-link > span,
+[dir="rtl"] .approval-steps .site-text-link > span,
+[dir="rtl"] .site-button > span {
+  display: inline-block;
+  transform: scaleX(-1);
+}
+
+.site-content .site-text-link > span {
+  margin-left: 0;
+  margin-inline-start: 6px;
+}
+
+.approval-steps {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-block-end: 0;
+  padding-inline-start: 0;
+  list-style: none;
+  column-gap: 24px;
+  row-gap: 14px;
+}
+
+@media (max-width: 950px) {
+  .approval-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .approval-steps {
+    grid-template-columns: 1fr;
+  }
+}
+
+.approval-steps > li {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 3;
+  min-width: 0;
+}
+
+.approval-steps h3 {
+  margin: 0;
+}
+
+.approval-steps .site-text-link {
+  justify-self: start;
+  align-self: start;
+  font-weight: 600;
+}
+
+@media (600px < width <= 950px) {
+  .approval-steps > li:nth-last-child(n + 3) {
+    padding-block-end: 18px;
+  }
+}
+
+@media (max-width: 600px) {
+  .approval-steps > li:not(:last-child) {
+    padding-block-end: 18px;
+  }
+}
