@@ -12,7 +12,7 @@ Click2Approve helps you get documents approved and signed. Upload files, choose
 reviewers, and track decisions in one place.
 
 Open source and free under the MIT License. Host it yourself for personal or
-business use. [Watch a video to see how it works](https://www.youtube.com/watch?v=E3Tf1zwNyxk).
+business use. [Watch a video to see how it works](https://www.youtube.com/playlist?list=PLFT-ysTfxTRc).
 
 **[Try it locally](#try-it-locally)** · **[Common questions](#common-questions)** ·
 **[Documentation](#documentation)** · **[Support the project](#help-shape-click2approve)**
