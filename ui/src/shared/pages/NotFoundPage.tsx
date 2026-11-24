@@ -3,6 +3,7 @@ import MainActionButton from "@/shared/components/buttons/MainActionButton";
 import { Pages } from "@/shared/components/layout/pageStyles";
 import PageBreadcrumbs from "@/shared/components/navigation/PageBreadcrumbs";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
+import { Routes } from "@/shared/routing/routes";
 import { Container } from "@mui/material";
 import { useLayoutEffect } from "react";
 
@@ -23,7 +24,7 @@ const NotFoundPage = () => {
         items={[{ label: "Page not found" }]}
         subtitle="It may have moved, or access may be restricted."
       />
-      <MainActionButton href="/">Home</MainActionButton>
+      <MainActionButton href={Routes.applicationPath(Routes.defaultPath)}>Home</MainActionButton>
     </Container>
   );
 };
