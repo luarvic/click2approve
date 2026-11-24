@@ -33,17 +33,13 @@ import { ActionLoaders } from "@/shared/utils/actionLoaders";
 import { getHumanReadableRelativeDate, parseUtcDateTime } from "@/shared/utils/dateTime";
 import { Delete, Done, FilterList } from "@mui/icons-material";
 import type { SxProps, Theme } from "@mui/material";
-import { Box, Button, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import type { GridSortModel } from "@mui/x-data-grid";
 import { DataGrid, GridColDef, GridRowId, GridToolbarContainer } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-const notificationColumnFlex = 15;
-const notificationColumnMinWidth = 150;
-const detailsColumnFlex = 55;
-const receivedColumnFlex = 20;
 const unreadNotificationRowClassName = "notification-grid-unread";
 const notificationGridSx: SxProps<Theme> = {
   ...DataGrids.sx,
@@ -69,8 +65,6 @@ const getPath = (item: Notification) => {
 const NotificationsGrid = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const theme = useTheme();
-  const allColumnsAreVisible = useMediaQuery(theme.breakpoints.up("md"));
   const tenantId = stores.tenantStore.currentTenantGlobalId;
   const query = useMemo(() => parseNotificationGridQuery(searchParams), [searchParams]);
   const [items, setItems] = useState<Notification[]>([]);
@@ -190,45 +184,27 @@ const NotificationsGrid = () => {
   );
   const columns: GridColDef[] = [
     {
-      field: "type",
+      field: "occurredAt",
       headerName: "Notification",
-      sortable: false,
+      description: "Sort by received time",
+      sortingOrder: ["desc", "asc"],
       disableColumnMenu: true,
-      flex: notificationColumnFlex,
-      minWidth: notificationColumnMinWidth,
+      flex: 1,
+      minWidth: 150,
       renderCell: (params) => (
-        <CompactGridCell>
+        <CompactGridCell alwaysCompact>
           <CompactGridTitle>
             <Typography variant="body2">{getNotificationLabel(params.row)}</Typography>
           </CompactGridTitle>
-          {!allColumnsAreVisible && (
-            <>
-              <CompactGridStatus>
-                <Typography variant="body2">{params.row.readAt ? "Read" : "Unread"}</Typography>
-              </CompactGridStatus>
-              <CompactGridSecondaryInformation>{params.row.summary}</CompactGridSecondaryInformation>
-              <CompactGridSecondaryInformation>
-                {getHumanReadableRelativeDate(parseUtcDateTime(params.row.occurredAt))}
-              </CompactGridSecondaryInformation>
-            </>
-          )}
+          <CompactGridStatus>
+            <Typography variant="body2">{params.row.readAt ? "Read" : "Unread"}</Typography>
+          </CompactGridStatus>
+          <CompactGridSecondaryInformation>{params.row.summary}</CompactGridSecondaryInformation>
+          <CompactGridSecondaryInformation>
+            {getHumanReadableRelativeDate(parseUtcDateTime(params.row.occurredAt))}
+          </CompactGridSecondaryInformation>
         </CompactGridCell>
       ),
-      valueGetter: (_value, row) => getNotificationLabel(row),
-    },
-    {
-      field: "summary",
-      headerName: "Details",
-      sortable: false,
-      disableColumnMenu: true,
-      flex: detailsColumnFlex,
-    },
-    {
-      field: "occurredAt",
-      headerName: "Received",
-      sortable: true,
-      flex: receivedColumnFlex,
-      valueFormatter: (value) => getHumanReadableRelativeDate(parseUtcDateTime(value)),
     },
   ];
 
@@ -267,16 +243,12 @@ const NotificationsGrid = () => {
           checkboxSelection
           disableRowSelectionExcludeModel
           columns={columns}
-          columnVisibilityModel={{
-            occurredAt: allColumnsAreVisible,
-            summary: allColumnsAreVisible,
-          }}
           disableColumnSelector
           disableColumnFilter
           disableRowSelectionOnClick
           getRowId={(row) => row.globalId}
-          getRowHeight={() => (allColumnsAreVisible ? undefined : "auto")}
-          getEstimatedRowHeight={() => (allColumnsAreVisible ? null : DataGrids.compactRowHeightEstimate)}
+          getRowHeight={() => "auto"}
+          getEstimatedRowHeight={() => DataGrids.compactRowHeightEstimate}
           getRowClassName={(params) => (params.row.readAt ? "" : unreadNotificationRowClassName)}
           hideFooterSelectedRowCount
           loading={gridIsLoading || isDeleting || isMarkingRead}

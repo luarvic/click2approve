@@ -4,19 +4,20 @@ import type { ReactNode } from "react";
 
 interface CompactGridCellProps {
   children: ReactNode;
+  alwaysCompact?: boolean;
 }
 
 const compactGridCellSx: SxProps<Theme> = {
-  gap: { xs: 0.5, md: 0 },
+  gap: 0.5,
   height: "100%",
   justifyContent: "center",
   minWidth: 0,
-  py: { xs: 1.5, md: 0 },
+  py: 1.5,
   whiteSpace: "normal",
 };
 
-const CompactGridCell: React.FC<CompactGridCellProps> = ({ children }) => (
-  <Stack sx={compactGridCellSx}>{children}</Stack>
+const CompactGridCell: React.FC<CompactGridCellProps> = ({ children, alwaysCompact = false }) => (
+  <Stack sx={[compactGridCellSx, !alwaysCompact && { gap: { md: 0 }, py: { md: 0 } }]}>{children}</Stack>
 );
 
 export default CompactGridCell;
