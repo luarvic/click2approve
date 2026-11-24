@@ -19,7 +19,6 @@ import {
 import DeleteConfirmationDialog from "@/shared/components/dialogs/DeleteConfirmationDialog";
 import CompactGridCell from "@/shared/components/grids/CompactGridCell";
 import CompactGridSecondaryInformation from "@/shared/components/grids/CompactGridSecondaryInformation";
-import CompactGridStatus from "@/shared/components/grids/CompactGridStatus";
 import CompactGridTitle from "@/shared/components/grids/CompactGridTitle";
 import { DataGrids } from "@/shared/components/grids/dataGridSettings";
 import { FilterStyles } from "@/shared/components/grids/filterStyles";
@@ -196,9 +195,6 @@ const NotificationsGrid = () => {
           <CompactGridTitle>
             <Typography variant="body2">{getNotificationLabel(params.row)}</Typography>
           </CompactGridTitle>
-          <CompactGridStatus>
-            <Typography variant="body2">{params.row.readAt ? "Read" : "Unread"}</Typography>
-          </CompactGridStatus>
           <CompactGridSecondaryInformation>{params.row.summary}</CompactGridSecondaryInformation>
           <CompactGridSecondaryInformation>
             {getHumanReadableRelativeDate(parseUtcDateTime(params.row.occurredAt))}
