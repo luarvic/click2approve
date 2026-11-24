@@ -81,6 +81,7 @@ public class ApprovalRequestService(
 
     public virtual async Task DeleteAsync(AppUser user, Guid globalId, CancellationToken cancellationToken)
     {
+        await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
         var approvalRequest = await _approvalRequestRepository.GetForUpdateAsync(user, globalId, cancellationToken)
             ?? throw new NotFoundException("Approval request was not found.");
         await _approvalRequestDeletionValidator.ValidateAndThrowAsync(approvalRequest, cancellationToken);
@@ -88,6 +89,7 @@ public class ApprovalRequestService(
         var deletedFileGlobalIds = await _approvalRequestRepository.RemoveAsync(approvalRequest, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         await _userFileService.ScheduleUnattachedForDeletionAsync(deletedFileGlobalIds, cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
     }
 
     /// <summary>

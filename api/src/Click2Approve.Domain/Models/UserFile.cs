@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Click2Approve.Domain.Models;
 
 /// <summary>
@@ -13,7 +15,8 @@ public class UserFile : DbEntity
     public required DateTime CreatedAt { get; set; }
     public required string Name { get; set; }
     public required long Size { get; set; }
-    public DateTime? DeletionPublishedAt { get; set; }
+    [ConcurrencyCheck]
+    public DateTime? DeletionRequestedAt { get; set; }
     public DateTime? ScheduledForDeletionAt { get; set; }
     public UserFileStatus Status { get; set; } = UserFileStatus.Uploaded;
     public required UserFileStorageType StorageType { get; set; }

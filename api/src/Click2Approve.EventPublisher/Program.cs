@@ -21,6 +21,7 @@ builder.Services.AddSingleton<IEventPriorityResolver, ConfigurationEventPriority
 
 // Worker services
 builder.Services.AddHostedService<EventQueuePublisherService>();
+builder.Services.AddHostedService<OutboxCleanupService>();
 builder.Services.AddHostedService<DeletionEventPublisherService>();
 
 await builder.Build().RunAsync();

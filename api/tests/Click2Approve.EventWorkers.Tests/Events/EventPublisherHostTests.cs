@@ -13,9 +13,9 @@ namespace Click2Approve.EventWorkers.Tests.Events;
 /// <summary>Tests dependency construction for the public event publisher host.</summary>
 public sealed class EventPublisherHostTests
 {
-    /// <summary>Verifies both workers can be constructed with the standard host registrations.</summary>
+    /// <summary>Verifies the workers can be constructed with the standard host registrations.</summary>
     [Fact]
-    public void Host_WithPublisherRegistrations_ResolvesBothHostedWorkers()
+    public void Host_WithPublisherRegistrations_ResolvesHostedWorkers()
     {
         var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
         {
@@ -27,6 +27,7 @@ public sealed class EventPublisherHostTests
         builder.Services.AddSingleton<IEventQueue, AzureEventQueue>();
         builder.Services.AddSingleton<IEventPriorityResolver, ConfigurationEventPriorityResolver>();
         builder.Services.AddHostedService<EventQueuePublisherService>();
+        builder.Services.AddHostedService<OutboxCleanupService>();
         builder.Services.AddHostedService<DeletionEventPublisherService>();
 
         using var host = builder.Build();
@@ -34,6 +35,7 @@ public sealed class EventPublisherHostTests
 
         Assert.Collection(workers,
             worker => Assert.IsType<EventQueuePublisherService>(worker),
+            worker => Assert.IsType<OutboxCleanupService>(worker),
             worker => Assert.IsType<DeletionEventPublisherService>(worker));
     }
 }

@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Click2Approve.Domain.Models;
 
 /// <summary>
@@ -15,7 +17,8 @@ public class Tenant : DbEntity
     public string? Email { get; set; }
     public int InAppNotificationRetentionMonths { get; set; }
     public string? Phone { get; set; }
-    public DateTime? DeletionPublishedAt { get; set; }
+    [ConcurrencyCheck]
+    public DateTime? DeletionRequestedAt { get; set; }
     public DateTime? ScheduledForDeletionAt { get; set; }
     public required SubscriptionPlan SubscriptionPlan { get; set; }
     public required TenantType Type { get; set; }

@@ -143,6 +143,39 @@ public sealed class UserFileControllerTests(CustomWebApplicationFactory<Program>
         Assert.Equal(before, await owner.Client.GetStringAsync(download));
     }
 
+    [Fact]
+    public async Task RequestDeletion_RollsBackWhenFileSchedulingFails_AndCanBeRetried()
+    {
+        using var owner = await ApiTestSession.CreateAsync(factory.CreateClient());
+        using var assignee = await ApiTestSession.CreateAsync(factory.CreateClient());
+        var file = await owner.UploadAsync();
+        var request = await owner.SubmitAsync(Payload(file, assignee.Email));
+        await using var scope = factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var fileRows = db.UserFiles.Where(item => item.GlobalId == file);
+        var links = db.ApprovalRequestFiles.Where(item => item.ApprovalRequest.GlobalId == request && item.UserFile.GlobalId == file);
+        await db.Database.ExecuteSqlRawAsync("""
+            CREATE TRIGGER fail_file_scheduling BEFORE UPDATE OF ScheduledForDeletionAt ON UserFiles
+            BEGIN SELECT RAISE(ABORT, 'simulated file scheduling failure'); END;
+            """);
+        try
+        {
+            using var failed = await owner.Client.DeleteAsync($"{owner.Root}/requests/{request}");
+            Assert.Equal(HttpStatusCode.InternalServerError, failed.StatusCode);
+            Assert.True(await links.AnyAsync());
+            Assert.Null(await fileRows.Select(item => item.ScheduledForDeletionAt).SingleAsync());
+        }
+        finally
+        {
+            await db.Database.ExecuteSqlRawAsync("DROP TRIGGER fail_file_scheduling");
+        }
+
+        using var retry = await owner.Client.DeleteAsync($"{owner.Root}/requests/{request}");
+        retry.EnsureSuccessStatusCode();
+        Assert.False(await db.ApprovalRequests.AnyAsync(item => item.GlobalId == request));
+        Assert.NotNull(await fileRows.Select(item => item.ScheduledForDeletionAt).SingleAsync());
+    }
+
     private static object Payload(Guid file, string email) => new
     {
         Title = "File access approval",

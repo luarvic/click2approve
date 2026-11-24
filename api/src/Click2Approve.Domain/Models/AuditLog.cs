@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Click2Approve.Domain.Models;
 
 /// <summary>
@@ -10,7 +12,8 @@ public class AuditLog : DbEntity
 
     // Scalar properties
     public required string ChangesJson { get; set; }
-    public DateTime? DeletionPublishedAt { get; set; }
+    [ConcurrencyCheck]
+    public DateTime? DeletionRequestedAt { get; set; }
     public required long EntityId { get; set; }
     public required string EntityState { get; set; }
     public required string EntityType { get; set; }

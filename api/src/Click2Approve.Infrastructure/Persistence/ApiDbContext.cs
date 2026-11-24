@@ -98,7 +98,7 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             .HasIndex(t => t.BusinessName);
 
         modelBuilder.Entity<Tenant>()
-            .HasIndex(t => new { t.DeletionPublishedAt, t.ScheduledForDeletionAt });
+            .HasIndex(t => new { t.DeletionRequestedAt, t.ScheduledForDeletionAt });
 
         modelBuilder.Entity<ApprovalRequest>()
             .Property(r => r.Status)
@@ -108,7 +108,7 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             .HasIndex(r => new { r.TenantId, r.Status, r.Result });
 
         modelBuilder.Entity<ApprovalRequest>()
-            .HasIndex(r => new { r.DeletionPublishedAt, r.ScheduledForDeletionAt });
+            .HasIndex(r => new { r.DeletionRequestedAt, r.ScheduledForDeletionAt });
         modelBuilder.Entity<ApprovalRequest>()
             .HasIndex(r => new { r.DeletionWarningPublishedAt, r.CreatedAt });
 
@@ -284,7 +284,7 @@ public class ApiDbContext(DbContextOptions options, IAuditContext auditContext)
             .HasIndex(f => new { f.TenantId, f.OwnerId });
 
         modelBuilder.Entity<UserFile>()
-            .HasIndex(f => new { f.DeletionPublishedAt, f.ScheduledForDeletionAt });
+            .HasIndex(f => new { f.DeletionRequestedAt, f.ScheduledForDeletionAt });
 
         modelBuilder.Entity<UserFile>()
             .Property(file => file.StorageType)

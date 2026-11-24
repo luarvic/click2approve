@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Click2Approve.Domain.Models;
 
 /// <summary>
@@ -10,7 +12,8 @@ public class InAppNotification : DbEntity
     public required long UserId { get; set; }
 
     // Scalar properties
-    public DateTime? DeletionPublishedAt { get; set; }
+    [ConcurrencyCheck]
+    public DateTime? DeletionRequestedAt { get; set; }
     public required Guid EventId { get; set; }
     public required DateTime OccurredAt { get; set; }
     public DateTime? ReadAt { get; set; }

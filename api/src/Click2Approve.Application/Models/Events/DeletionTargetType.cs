@@ -7,6 +7,7 @@ public enum DeletionTargetType
 {
     ApprovalRequest,
     AuditLog,
+    // Reserved for commands queued by older publishers. New outbox cleanup runs directly in SQL.
     EventOutboxMessage,
     InAppNotification,
     Tenant,

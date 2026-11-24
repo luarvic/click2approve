@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Click2Approve.Domain.Models;
 
 /// <summary>
@@ -19,7 +21,8 @@ public class ApprovalRequest : DbEntity
     public DateTime? CompletedAt { get; set; }
     public string? CompletedByDisplayName { get; set; }
     public required DateTime CreatedAt { get; set; }
-    public DateTime? DeletionPublishedAt { get; set; }
+    [ConcurrencyCheck]
+    public DateTime? DeletionRequestedAt { get; set; }
     public DateTime? DeletionWarningPublishedAt { get; set; }
     public required string? Description { get; set; }
     public required string OrganizationDisplayName { get; set; }

@@ -57,7 +57,7 @@ public class UserFileService(
 
         foreach (var userFile in userFiles)
         {
-            userFile.DeletionPublishedAt = null;
+            userFile.DeletionRequestedAt = null;
             userFile.ScheduledForDeletionAt = null;
             userFile.Status = UserFileStatus.Attached;
         }
@@ -77,7 +77,7 @@ public class UserFileService(
         var scheduledForDeletionAt = GetUnattachedDeletionAt();
         foreach (var userFile in userFiles)
         {
-            userFile.DeletionPublishedAt = null;
+            userFile.DeletionRequestedAt = null;
             userFile.ScheduledForDeletionAt = scheduledForDeletionAt;
         }
 
